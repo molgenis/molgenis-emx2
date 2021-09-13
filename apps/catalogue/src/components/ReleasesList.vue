@@ -6,11 +6,11 @@
           :to="{
             name: 'release',
             params: {
-              acronym: r.resource.acronym,
+              pid: r.resource.pid,
               version: r.version,
             },
           }"
-          >{{ r.resource.acronym }} - version {{ r.version }}
+          >{{ r.resource.pid }} - version {{ r.version }}
         </RouterLink>
       </li>
     </ul>

@@ -4,24 +4,24 @@
       <li
         class="nav-item"
         v-for="mapping in variable.mappings"
-        :key="mapping.fromTable.release.resource.acronym"
+        :key="mapping.fromTable.release.resource.pid"
       >
         <router-link
           class="nav-link"
           :class="{
             active:
               $route.query.sourceCohort ===
-              mapping.fromTable.release.resource.acronym,
+              mapping.fromTable.release.resource.pid,
           }"
           :to="{
             name: 'VariableDetailView',
             query: {
               ...$route.query,
-              sourceCohort: mapping.fromTable.release.resource.acronym,
+              sourceCohort: mapping.fromTable.release.resource.pid,
             },
           }"
         >
-          {{ mapping.fromTable.release.resource.acronym }}
+          {{ mapping.fromTable.release.resource.pid }}
         </router-link>
       </li>
     </ul>
@@ -58,7 +58,7 @@ export default {
         query: {
           ...this.$route.query,
           sourceCohort:
-            this.variable.mappings[0].fromTable.release.resource.acronym,
+            this.variable.mappings[0].fromTable.release.resource.pid,
         },
       });
     }

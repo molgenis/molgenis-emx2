@@ -97,7 +97,7 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      path: "/releases/:acronym",
+      path: "/releases/:pid",
       redirect: "/releases",
     },
     {

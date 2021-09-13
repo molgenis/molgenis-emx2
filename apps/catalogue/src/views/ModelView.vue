@@ -53,7 +53,7 @@ export default {
     ResourceContext,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -66,9 +66,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Models($acronym:String){Models(filter:{acronym:{equals:[$acronym]}}){contact{name,email},institution{name,acronym},name,acronym,type{name},networks{name,acronym},institution{acronym,name}, description,homepage, partners{institution{acronym,name,country{name}}},,releases{resource{acronym,name},version}}}`,
+        `query Models($pid:String){Models(filter:{pid:{equals:[$pid]}}){contact{name,email},institution{name,pid},name,pid,type{name},networks{name,pid},institution{pid,name}, description,homepage, partners{institution{pid,name,country{name}}},,releases{resource{pid,name},version}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -88,7 +88,7 @@ export default {
     this.reload();
   },
   watch: {
-    modelAcronym() {
+    pid() {
       this.reload();
     },
   },

@@ -30,7 +30,7 @@ export default {
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
-   *  y = cohortAcronym
+   *  y = cohortPid
    *  and cell value is match status
    *
    * @example
@@ -49,7 +49,7 @@ export default {
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};
       }
-      const mappedCohort = mapping.fromTable.release.resource.acronym;
+      const mappedCohort = mapping.fromTable.release.resource.pid;
       harmonizationGrid[varName][mappedCohort] = mapping.match.name; // aka the cell value
     });
 

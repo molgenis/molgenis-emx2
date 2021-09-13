@@ -165,14 +165,14 @@ export default {
     reload() {
       let filter = {
         sourceRelease: {
-          resource: { acronym: { equals: this.sourceCollection } },
+          resource: { pid: { equals: this.sourceCollection } },
           version: { equals: this.sourceVersion },
         },
         sourceTable: {
           name: { equals: this.sourceTable },
         },
         targetRelease: {
-          resource: { acronym: { equals: this.targetResource } },
+          resource: { pid: { equals: this.targetResource } },
           version: {
             equals: this.targetVersion,
           },

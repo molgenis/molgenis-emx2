@@ -55,17 +55,17 @@ export default {
     },
     defaultColumns() {
       if (this.tableName == "Institutions") {
-        return ["name", "acronym", "type", "country"];
+        return ["name", "pid", "type", "country"];
       } else if (
         ["Datasources", "Databanks", "Networks", "Models"].includes(
           this.tableName
         )
       ) {
-        return ["name", "acronym", "type", "recordPrompt", "institution"];
+        return ["name", "pid", "type", "recordPrompt", "institution"];
       } else if (this.tableName == "Cohorts") {
-        return ["acronym", "name", "keywords", "noParticipants"];
+        return ["pid", "name", "keywords", "noParticipants"];
       } else if (this.tableName == "Studies") {
-        return ["acronym", "name", "keywords"];
+        return ["pid", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
         return [
           "name",
@@ -76,7 +76,7 @@ export default {
           "homepage",
         ];
       } else if (this.tableName == "Affiliations") {
-        return ["name", "homepage", "acronym"];
+        return ["name", "homepage", "pid"];
       } else if (this.tableName == "Tables") {
         return [
           "release",

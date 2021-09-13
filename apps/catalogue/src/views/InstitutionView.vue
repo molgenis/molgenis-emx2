@@ -54,7 +54,7 @@ export default {
     TableSearch,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -104,9 +104,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass,keywords,type{name}},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
+        `query Institutions($pid:String){Institutions(filter:{pid:{equals:[$pid]}}){name,pid,logo{url},country{name},description,homepage,providerOf{pid,name,mg_tableclass,keywords,type{name}},partnerIn{resource{pid,name,mg_tableclass},role{name}}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -126,7 +126,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

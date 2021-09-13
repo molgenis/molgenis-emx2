@@ -34,6 +34,15 @@
                 {{ renderValue(row, col)[0] }}
               </RouterLink>
             </div>
+            <span v-else-if="'REF_ARRAY' == col.columnType">
+              <span v-for="(val, idx) in row[col.name]" :key="idx">
+                <RouterLink
+                  v-if="val"
+                  :to="{ name: col.refTable + '-details', params: val }"
+                  >{{ renderValue(row, col)[idx] }}</RouterLink
+                >
+              </span>
+            </span>
             <div v-else-if="'TEXT' === col.columnType">
               <ReadMore :text="value" />
             </div>

@@ -1,8 +1,8 @@
 <template>
   <ul v-if="cohorts">
-    <li v-for="c in cohorts" :key="c.acronym">
-      <RouterLink :to="{ name: 'cohort', params: { acronym: c.acronym } }"
-        >{{ c.acronym }} - {{ c.name }}
+    <li v-for="c in cohorts" :key="c.pid">
+      <RouterLink :to="{ name: 'cohort', params: { pid: c.pid } }"
+        >{{ c.pid }} - {{ c.name }}
         <OntologyTerms
           :terms="c.type"
           :inline="true"

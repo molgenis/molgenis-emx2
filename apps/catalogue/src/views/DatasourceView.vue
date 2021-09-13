@@ -66,7 +66,7 @@ export default {
     NetworkList,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -80,9 +80,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditionsDescription,conditions{name,definition}databanks{acronym,name,type{name,definition}},institution{acronym,name} description,homepage}}`,
+        `query Datasources($pid:String){Datasources(filter:{pid:{equals:[$pid]}}){name,pid,logo{url},releases{resource{pid},version},population{name},inclusionCriteria{name}type{name},networks{pid,name}conditionsDescription,conditions{name,definition}databanks{pid,name,type{name,definition}},institution{pid,name} description,homepage}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -107,7 +107,7 @@ export default {
     this.reload();
   },
   watch: {
-    databankAcronym() {
+    pid() {
       this.reload();
     },
   },

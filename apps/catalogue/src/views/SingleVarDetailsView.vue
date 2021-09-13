@@ -34,10 +34,10 @@
                 class="rotated-text text-nowrap"
                 scope="col"
                 v-for="resource in resources"
-                :key="resource.acronym"
+                :key="resource.pid"
               >
                 <div>
-                  <span class="table-label">{{ resource.acronym }}</span>
+                  <span class="table-label">{{ resource.pid }}</span>
                 </div>
               </th>
             </tr>
@@ -49,8 +49,8 @@
               </th>
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.acronym"
-                :status="getMatchStatus(variable, resource.acronym)"
+                :key="resource.pid"
+                :status="getMatchStatus(variable, resource.pid)"
               />
             </tr>
             <tr
@@ -63,8 +63,8 @@
 
               <harmonization-cell
                 v-for="resource in resources"
-                :key="resource.acronym"
-                :status="getMatchStatus(repeatedVariable, resource.acronym)"
+                :key="resource.pid"
+                :status="getMatchStatus(repeatedVariable, resource.pid)"
               />
             </tr>
           </tbody>
@@ -99,7 +99,7 @@ export default {
         return "unmapped"; // not mapped
       }
       const resourceMapping = variable.mappings.find((mapping) => {
-        return mapping.fromRelease.resource.acronym === resourceName;
+        return mapping.fromRelease.resource.pid === resourceName;
       });
       if (!resourceMapping) {
         return "unmapped"; // not mapped
