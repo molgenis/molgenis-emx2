@@ -152,7 +152,12 @@ export default {
     },
   },
   watch: {
-    searchTerms: "reload",
+    searchTerms: {
+      handler(newValue) {
+        this.$emit("searchTerms", newValue);
+        this.reload();
+      },
+    },
     graphqlFilter: {
       deep: true,
       handler() {
