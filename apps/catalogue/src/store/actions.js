@@ -20,7 +20,7 @@ export default {
           name
           release {
             resource {
-              acronym
+              pid
             }
             version
           }
@@ -128,7 +128,7 @@ export default {
           equals: [
             {
               resource: {
-                acronym: variable.release.resource.acronym,
+                pid: variable.release.resource.pid,
               },
               version: variable.release.version,
             },
@@ -149,7 +149,7 @@ export default {
           fromTable {
             release {
               resource {
-                acronym
+                pid
               }
               version
             }
@@ -169,7 +169,7 @@ export default {
             {
               release: {
                 resource: {
-                  acronym: variable.release.resource.acronym,
+                  pid: variable.release.resource.pid,
                 },
                 version: variable.release.version,
               },
@@ -186,19 +186,19 @@ export default {
       mappingQueryVariables
     ).catch((e) => console.error(e));
 
-    // Put list in to map, use acronym as key
+    // Put list in to map, use pid as key
     if (
       mappingQueryResp.VariableMappings &&
       mappingQueryResp.VariableMappings.length
     ) {
-      const mappingsByAcronym = mappingQueryResp.VariableMappings.reduce(
+      const mappingsBypid = mappingQueryResp.VariableMappings.reduce(
         (accum, item) => {
-          accum[item.fromTable.release.resource.acronym] = item;
+          accum[item.fromTable.release.resource.pid] = item;
           return accum;
         },
         {}
       );
-      variableDetails.mappings = mappingsByAcronym;
+      variableDetails.mappings = mappingsBypId();
     }
 
     return variableDetails;
@@ -247,7 +247,7 @@ export default {
         release: {
           resource: {
             equals: {
-              acronym: variable.release.resource.acronym,
+              pid: variable.release.resource.pid,
             },
           },
           version: {

@@ -36,11 +36,11 @@
       v-on="$listeners"
     />
     <InputOntology
-      v-else-if="columnType.startsWith('ONTOLOGY')"
+      v-else-if="columnType === 'ONTOLOGY' || columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
       v-model="input"
       :table="table"
-      :list="columnType.includes('ARRAY')"
+      :list="columnType === 'ONTOLOGY_ARRAY'"
       v-on="$listeners"
     />
     <InputRefSelect
@@ -118,7 +118,6 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputHeading from "../forms/InputHeading";
-import InputOntology from "../forms/InputOntology";
 
 export default {
   name: "RowFormInput",
@@ -156,7 +155,7 @@ export default {
     InputFile,
     InputText,
     InputHeading,
-    InputOntology,
+    InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },

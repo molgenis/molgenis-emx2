@@ -5,35 +5,45 @@
         <div v-if="col.columnType == 'HEADING'" class="mt-0">
           <a href="#_top" class="float-right text-white">back to top</a>
           <h3
-              :class="'pl-2 pr-2 pb-2 mb-0 text-white bg-' + color"
-              :id="col.name"
+            :class="'pl-2 pr-2 pb-2 mb-0 text-white bg-' + color"
+            :id="col.name"
           >
             <a>{{ col.name }}</a>
           </h3>
           <p class="p-2 bg-light mt-0">{{ col.description }}</p>
         </div>
-        <div class="m-2 showcontainer">
-          <h6>{{ toSentence(col.name) }}</h6>
-          <small
-              v-if="col.description"
-              class="form-text text-muted showonhover"
-          >{{ col.description }}</small
-          >
-          <p v-if="row[col.name] == undefined">N/A</p>
-          <p
+        <div v-else class="m-2 showcontainer row">
+          <div class="col-3 text-right">
+            <label class="mb-0 font-weight-bold"
+              >{{ toSentence(col.name) }}:</label
+            >
+          </div>
+          <div class="col">
+            <p v-if="row[col.name] == undefined">N/A</p>
+            <p
               v-else-if="
-              ['STRING', 'TEXT', 'INT', 'BOOL'].includes(col.columnType)
-            "
-          >
-            {{ row[col.name] }}
-          </p>
-          <p v-else-if="col.columnType == 'REF'">
-            <OntologyTerms :terms="row[col.name]" :color="color" />
-          </p>
-          <p v-else-if="col.columnType == 'REF_ARRAY'">
-            <OntologyTerms :terms="row[col.name]" :color="color" />
-          </p>
-          <p v-else>{{ renderValue(row, col) }}</p>
+                ['STRING', 'TEXT', 'INT', 'BOOL'].includes(col.columnType)
+              "
+            >
+              {{ row[col.name] }}
+            </p>
+            <p
+              v-else-if="
+                col.columnType == 'REF' || col.columnType == 'ONTOLOGY'
+              "
+            >
+              <OntologyTerms :terms="row[col.name]" :color="color" />
+            </p>
+            <p
+              v-else-if="
+                col.columnType == 'REF_ARRAY' ||
+                col.columnType == 'ONTOLOGY_ARRAY'
+              "
+            >
+              <OntologyTerms :terms="row[col.name]" :color="color" />
+            </p>
+            <p v-else>{{ renderValue(row, col) }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -74,28 +84,28 @@ export default {
       //return column metadata in order of showColumns
       if (this.tableMetadata && this.row) {
         return this.showColumns
-            .map((name) =>
-                this.tableMetadata.columns.find((column) => column.name == name)
-            )
-            .filter(
-                (column) =>
-                    !this.hideNA ||
-                    column.columnType == "HEADING" ||
-                    this.row[column.name] != undefined
-            );
+          .map((name) =>
+            this.tableMetadata.columns.find((column) => column.name == name)
+          )
+          .filter(
+            (column) =>
+              !this.hideNA ||
+              column.columnType == "HEADING" ||
+              this.row[column.name] != undefined
+          );
       } else return [];
     },
   },
   methods: {
     toSentence(str) {
       return (
-          str
-              // insert a space before all caps
-              .replace(/([A-Z])/g, " $1")
-              // uppercase the first character
-              .replace(/^./, function (str) {
-                return str.toUpperCase();
-              })
+        str
+          // insert a space before all caps
+          .replace(/([A-Z])/g, " $1")
+          // uppercase the first character
+          .replace(/^./, function (str) {
+            return str.toUpperCase();
+          })
       );
     },
     renderValue(row, col) {
@@ -103,10 +113,10 @@ export default {
         return [];
       }
       if (
-          col.columnType == "REF_ARRAY" ||
-          col.columnType == "MREF" ||
-          col.columnType == "REFBACK" ||
-          col.columnType == "ONTOLOGY_ARRAY"
+        col.columnType == "REF_ARRAY" ||
+        col.columnType == "MREF" ||
+        col.columnType == "REFBACK" ||
+        col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
@@ -134,13 +144,13 @@ export default {
         return new Function(...names, "return `" + template + "`;")(...vals);
       } catch (err) {
         return (
-            err.message +
-            " we got keys:" +
-            JSON.stringify(names) +
-            " vals:" +
-            JSON.stringify(vals) +
-            " and template: " +
-            template
+          err.message +
+          " we got keys:" +
+          JSON.stringify(names) +
+          " vals:" +
+          JSON.stringify(vals) +
+          " and template: " +
+          template
         );
       }
     },

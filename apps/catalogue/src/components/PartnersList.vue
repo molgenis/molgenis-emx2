@@ -1,13 +1,13 @@
 <template>
   <ul v-if="partners && partners.length > 0">
-    <li v-for="p in partners" :key="p.acronym">
+    <li v-for="p in partners" :key="p.pid">
       <RouterLink
         :to="{
           name: 'institution',
-          params: { acronym: p.institution.acronym },
+          params: { pid: p.institution.pid },
         }"
       >
-        {{ p.institution.acronym }} {{ p.institution.name }}
+        {{ p.institution.pid }} {{ p.institution.name }}
         {{ p.department }}
         <OntologyTerms :terms="[p.role]" :inline="true" :color="color" />
       </RouterLink>

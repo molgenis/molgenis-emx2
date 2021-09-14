@@ -104,7 +104,7 @@ export default {
     ContributorList,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -118,9 +118,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Databanks($acronym:String){Databanks(filter:{acronym:{equals:[$acronym]}}){name,originator,logo{url},keywords{name,definition},acronym,contributors{contact{name},contributionType{name}},contact{name,email},datasource{acronym,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},institution{acronym,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{acronym},version},cdms{resource{acronym},version},documentation{name,file{url},url},networks{acronym,name},acknowledgements,fundingStatement}}`,
+        `query Databanks($pid:String){Databanks(filter:{pid:{equals:[$pid]}}){name,originator,logo{url},keywords{name,definition},pid,contributors{contact{name},contributionType{name}},contact{name,email},datasource{pid,name}, population{name},noParticipants,conditionsDescription,conditions{name,ontologyTermURI,code,definition},inclusionCriteria{name,definition},updateFrequency{name}, startYear,endYear, type{name,definition,ontologyTermURI},institution{pid,name}, description,homepage,recordPrompt{name,definition},recordPromptDescription, lagTime, releases{resource{pid},version},cdms{resource{pid},version},documentation{name,file{url},url},networks{pid,name},acknowledgements,fundingStatement}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -142,7 +142,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

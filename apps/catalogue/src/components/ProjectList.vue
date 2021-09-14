@@ -34,7 +34,7 @@ export default {
     MessageError,
   },
   props: {
-    institutionAcronym: String,
+    pid: String,
     filter: {
       type: Object,
       default() {
@@ -64,7 +64,7 @@ export default {
       }
       request(
         "graphql",
-        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,acronym,type{name},description,website,institution{name}}
+        `query Projects($filter:ProjectsFilter,$offset:Int,$limit:Int){Projects(offset:$offset,limit:$limit,${searchString}filter:$filter){name,pid,type{name},description,website,institution{name}}
         ,Projects_agg(${searchString}filter:$filter){count}}`,
         {
           filter: this.filter,

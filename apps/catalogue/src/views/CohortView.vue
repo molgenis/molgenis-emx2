@@ -21,7 +21,7 @@
           {{ cohort.endYear ? cohort.endYear : "N/A" }}
         </p>
         <h6>Countries</h6>
-        <OntologyTerms :terms="cohort.countries" color="primary"/>
+        <OntologyTerms :terms="cohort.countries" color="primary" />
         <h6>Regions</h6>
         <OntologyTerms :terms="cohort.countries" color="primary" />
         <h6 v-if="cohort.noParticipants">Number of participants:</h6>
@@ -159,7 +159,7 @@ export default {
               design{name}
               collectionType{name}
               keywords
-              acronym
+              pid
               externalIdentifiers
               contact{name,email}
               contributors {
@@ -172,7 +172,7 @@ export default {
               }
               partners {
                 institution {
-                  name,acronym
+                  name,pid
                 }
                 role {
                   name
@@ -202,7 +202,7 @@ export default {
                 ontologyTermURI
               }
               institution {
-                acronym
+                pid
                 name
               }
               description
@@ -215,7 +215,7 @@ export default {
                 url
               }
               networks {
-                acronym
+                pid
                 name
               }
               acknowledgements

@@ -46,7 +46,7 @@ export default {
     },
     detailRouteName() {
       //detailRoute is name of table minus trailing 's'
-      return this.tableName.toLowerCase().slice(0, -1);
+      return this.tableName + "-details";
     },
     defaultCards() {
       if (this.tableName == "Institutions") {
@@ -56,17 +56,17 @@ export default {
     },
     defaultColumns() {
       if (this.tableName == "Institutions") {
-        return ["name", "acronym", "type", "country"];
+        return ["name", "pid", "type", "country"];
       } else if (
         ["Datasources", "Databanks", "Networks", "Models"].includes(
           this.tableName
         )
       ) {
-        return ["name", "acronym", "type", "recordPrompt", "institution"];
+        return ["name", "pid", "type", "recordPrompt", "institution"];
       } else if (this.tableName == "Cohorts") {
-        return ["acronym", "name", "keywords", "noParticipants"];
+        return ["pid", "name", "keywords", "noParticipants"];
       } else if (this.tableName == "Studies") {
-        return ["acronym", "name", "keywords"];
+        return ["pid", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
         return [
           "name",
@@ -77,7 +77,7 @@ export default {
           "homepage",
         ];
       } else if (this.tableName == "Affiliations") {
-        return ["name", "homepage", "acronym"];
+        return ["name", "homepage", "pid"];
       } else if (this.tableName == "Tables") {
         return [
           "release",
@@ -142,7 +142,7 @@ export default {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            acronym: row.release.resource.acronym,
+            pid: row.release.resource.pid,
             version: row.release.version,
             name: row.name,
           },
@@ -154,10 +154,10 @@ export default {
         this.$router.push({
           name: "tablemapping",
           params: {
-            fromAcronym: row.fromRelease.resource.acronym,
+            fromPid: row.fromRelease.resource.pid,
             fromVersion: row.fromRelease.version,
             fromTable: row.fromTable.name,
-            toAcronym: row.toRelease.resource.acronym,
+            toPid: row.toRelease.resource.pid,
             toVersion: row.toRelease.version,
             toTable: row.toTable.name,
           },
@@ -166,7 +166,7 @@ export default {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            acronym: row.release.resource.acronym,
+            pid: row.release.resource.pid,
             version: row.release.version,
             table: row.table.name,
             name: row.name,
@@ -175,7 +175,7 @@ export default {
       } else if (row.version) {
         this.$router.push({
           name: this.detailRouteName,
-          params: { acronym: row.resource.acronym, version: row.version },
+          params: { pid: row.resource.pid, version: row.version },
         });
       } else if (row.pid) {
         this.$router.push({

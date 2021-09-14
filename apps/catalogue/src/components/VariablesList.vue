@@ -10,9 +10,7 @@
         <VariableCard
           v-for="variable in variables"
           :key="
-            variable.release.resource.acronym +
-            variable.table.name +
-            variable.name
+            variable.release.resource.pid + variable.table.name + variable.name
           "
           :variable="variable"
           :tableName="tableName"
@@ -55,7 +53,7 @@ export default {
     InputSearch,
   },
   props: {
-    resourceAcronym: String,
+    resourcePid: String,
     tableName: String,
     topic: String,
     version: String,
@@ -74,9 +72,9 @@ export default {
     reload() {
       this.graphqlError = null;
       let filter = {};
-      if (this.resourceAcronym) {
+      if (this.resourcePid) {
         filter.release = {
-          resource: { acronym: { equals: this.resourceAcronym } },
+          resource: { pid: { equals: this.resourcePid } },
         };
       }
       if (this.tableName) {
@@ -93,7 +91,7 @@ export default {
       // }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{acronym,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{acronym},version},targetRelease{resource{acronym},version}sourceTable{name,release{resource{acronym},version}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{pid,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{pid},version},targetRelease{resource{pid},version}sourceTable{name,release{resource{pid},version}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -115,7 +113,7 @@ export default {
     },
   },
   watch: {
-    resourceAcronym() {
+    resourcePid() {
       this.reload();
     },
     tableName() {

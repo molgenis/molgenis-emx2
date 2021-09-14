@@ -24,7 +24,7 @@ query Variables($filter: VariablesFilter) {
       }
       fromRelease {
         resource {
-          acronym
+          pid
         }
       }
       fromVariable {
@@ -33,7 +33,7 @@ query Variables($filter: VariablesFilter) {
       fromTable {
         release {
           resource {
-            acronym
+            pid
           }
           version
         }
@@ -50,7 +50,7 @@ query Variables($filter: VariablesFilter) {
         }
         fromRelease {
           resource {
-            acronym
+            pid
           }
         }
         fromVariable {
@@ -59,7 +59,7 @@ query Variables($filter: VariablesFilter) {
         fromTable {
           release {
             resource {
-              acronym
+              pid
             }
             version
           }

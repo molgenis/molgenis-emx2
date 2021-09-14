@@ -10,7 +10,7 @@ const fetchDetails = async (name, network, version) => {
         equals: [
           {
             resource: {
-              acronym: network,
+              pid: network,
             },
             version: version,
           },
@@ -31,7 +31,7 @@ const fetchFromVariableDetails = async (names, network, version) => {
     filter: {
       name: { equals: names },
       release: {
-        equals: [{ resource: { acronym: network }, version: version }],
+        equals: [{ resource: { pid: network }, version: version }],
       },
     },
   };
