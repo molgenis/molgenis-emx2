@@ -15,6 +15,7 @@ import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
 import SearchResourceView from "./views/SearchResourceView";
+import ResourceRedirectView from "./views/ResourceRedirectView";
 
 Vue.config.productionTip = false;
 
@@ -146,7 +147,26 @@ const router = new VueRouter({
         filter: { pid: { equals: route.params.pid } },
       }),
     },
-
+    {
+      name: "Resources-details",
+      path: "/resources/:pid",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        table: "Resources",
+        color: "dark",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Networks-details",
+      path: "/networks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Networks",
+        color: "danger",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
     {
       name: "Releases-details",
       path: "/releases/:pid/:version",

@@ -1,57 +1,63 @@
 <template>
   <Spinner v-if="!tableMetadata" />
-  <table
-    v-else-if="pkey && tableMetadata && data"
-    class="table table-sm bg-white table-bordered table-hover"
-  >
-    <thead>
-      <th v-for="col in visibleColumns" :key="col.name" scope="col">
-        <h6 class="mb-0">{{ col.name }}</h6>
-      </th>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(row, idx) in data"
-        :key="idx + JSON.stringify(Object.keys(row))"
-      >
-        <td
-          v-for="col in visibleColumns"
-          :key="idx + col.name"
-          style="cursor: pointer"
+  <div class="table-responsive" v-else-if="pkey && tableMetadata && data">
+    <table class="table table-sm bg-white table-bordered table-hover">
+      <thead>
+        <th
+          v-for="col in visibleColumns.filter((c) => c.columnType != 'HEADING')"
+          :key="col.name"
+          scope="col"
         >
-          <div
-            v-for="(value, idx2) in renderValue(row, col)"
-            :key="idx + col.name + idx2"
+          <h6 class="mb-0">{{ col.name }}</h6>
+        </th>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(row, idx) in data"
+          :key="idx + JSON.stringify(Object.keys(row))"
+        >
+          <td
+            v-for="col in visibleColumns.filter(
+              (c) => c.columnType != 'HEADING'
+            )"
+            :key="idx + col.name"
+            style="cursor: pointer"
           >
-            <div v-if="'REF' === col.columnType">
-              <RouterLink
-                v-if="row[col.name]"
-                :to="{
-                  name: col.refTable + '-details',
-                  params: row[col.name],
-                }"
-              >
-                {{ renderValue(row, col)[0] }}
-              </RouterLink>
-            </div>
-            <span v-else-if="'REF_ARRAY' == col.columnType">
-              <span v-for="(val, idx) in row[col.name]" :key="idx">
+            <div
+              v-for="(value, idx2) in renderValue(row, col)"
+              :key="idx + col.name + idx2"
+            >
+              <div v-if="'REF' === col.columnType">
                 <RouterLink
-                  v-if="val"
-                  :to="{ name: col.refTable + '-details', params: val }"
-                  >{{ renderValue(row, col)[idx] }}</RouterLink
+                  v-if="row[col.name]"
+                  :to="{
+                    name: col.refTable + '-details',
+                    params: row[col.name],
+                  }"
                 >
+                  {{ renderValue(row, col)[0] }}
+                </RouterLink>
+              </div>
+              <span v-else-if="'REF_ARRAY' == col.columnType">
+                <span v-for="(val, idx) in row[col.name]" :key="idx">
+                  <RouterLink
+                    v-if="val"
+                    :to="{ name: col.refTable + '-details', params: val }"
+                  >
+                    {{ renderValue(row, col)[idx] }} </RouterLink
+                  ><br />
+                </span>
               </span>
-            </span>
-            <div v-else-if="'TEXT' === col.columnType">
-              <ReadMore :text="value" />
+              <div v-else-if="'TEXT' === col.columnType">
+                <ReadMore :text="value" />
+              </div>
+              <span v-else> {{ value }}</span>
             </div>
-            <span v-else> {{ value }}</span>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
