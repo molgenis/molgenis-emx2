@@ -5,11 +5,9 @@ import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
 import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
-import NetworkView from "./views/NetworkView";
 import ReleasesView from "./views/ReleasesView";
 import ResourceListView from "./views/ResourceListView";
 import VariableView from "./views/VariableView";
-import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
@@ -24,7 +22,6 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
-    { name: "Cohorts", path: "/alt", component: NetworkView },
     {
       name: "databanks",
       path: "/databanks",
@@ -250,12 +247,6 @@ const router = new VueRouter({
       path: "/tables/:pid/:version/:name",
       component: TableView,
       props: true,
-    },
-    {
-      name: "variablemapping",
-      path: "/variablemappings/:pid/:version/:name",
-      props: true,
-      component: VariableMappingsView,
     },
     {
       name: "tablemapping",
