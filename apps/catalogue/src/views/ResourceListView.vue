@@ -7,6 +7,7 @@
       :showCards="defaultCards"
       :initialSearchTerms="searchTerm"
       @click="openDetailView"
+      @searchTerms="onSearchTermUpdate"
     />
   </div>
 </template>
@@ -123,6 +124,18 @@ export default {
     },
   },
   methods: {
+    onSearchTermUpdate(searchTerm) {
+      let newQuery = { ...this.$route.query };
+      if (searchTerm) {
+        newQuery.q = searchTerm;
+      } else {
+        delete newQuery.q;
+      }
+      this.$router.replace({
+        ...this.$route,
+        query: newQuery,
+      });
+    },
     openDetailView(row) {
       // in case of table
       if (this.tableName == "Tables") {
