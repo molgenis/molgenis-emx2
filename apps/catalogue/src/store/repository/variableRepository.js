@@ -21,7 +21,7 @@ const fetchDetails = async (name, network, version) => {
 
   return (
     await request("graphql", variableDetails, params).catch((e) =>
-      console.error(e)
+      console.error("fetch variableDetails details failed: " + e)
     )
   ).Variables[0];
 };
@@ -38,7 +38,7 @@ const fetchFromVariableDetails = async (names, network, version) => {
 
   return (
     await request("graphql", fromVariableDetails, params).catch((e) =>
-      console.error(e)
+      console.error("fetch fromVariableDetails details failed: " + e)
     )
   ).Variables[0];
 };

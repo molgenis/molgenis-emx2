@@ -2,8 +2,5 @@ query Resources {
   Resources {
     pid
     name
-    type {
-      name
-    }
   }
 }
