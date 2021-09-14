@@ -1,5 +1,6 @@
 <template>
   <div class="mt-1">
+    {{ variables }}
     <ul v-if="variables.length" class="list-group">
       <variable-list-item
         v-for="(variable, index) in variables"

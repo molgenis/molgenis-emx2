@@ -191,14 +191,14 @@ export default {
       mappingQueryResp.VariableMappings &&
       mappingQueryResp.VariableMappings.length
     ) {
-      const mappingsBypid = mappingQueryResp.VariableMappings.reduce(
+      const mappingsByPid = mappingQueryResp.VariableMappings.reduce(
         (accum, item) => {
           accum[item.fromTable.release.resource.pid] = item;
           return accum;
         },
         {}
       );
-      variableDetails.mappings = mappingsBypId();
+      variableDetails.mappings = mappingsByPid;
     }
 
     return variableDetails;

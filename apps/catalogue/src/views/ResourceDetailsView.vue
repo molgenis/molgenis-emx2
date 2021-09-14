@@ -14,7 +14,9 @@
           v-for="col in tableMetadata.columns.filter(
             (c) =>
               !c.name.startsWith('mg_') &&
-              (row[c.name] || !hideNA || c.columnType == 'HEADING')
+              ((row[c.name] && row[c.name].length > 0) ||
+                !hideNA ||
+                c.columnType == 'HEADING')
           )"
           :key="col.name"
           class="p-0"
@@ -30,12 +32,20 @@
             <p class="p-2 bg-light mt-0">{{ col.description }}</p>
           </div>
           <div v-else class="m-2 showcontainer row">
-            <div class="col-4 text-right">
-              <label class="mb-0 font-weight-bold"
-                >{{ toSentence(col.name) }}:</label
+            <div class="col-4 text-right labelcontainer">
+              <div
+                :class="'tooltip bs-tooltip-top show bg-' + color"
+                role="tooltip"
               >
+                <div :class="'tooltip-inner bg-' + color">
+                  {{ col.description }}
+                </div>
+              </div>
+              <label class="mb-0 font-weight-bold">
+                {{ toSentence(col.name) }}:
+              </label>
             </div>
-            <div class="col">
+            <div class="col-8">
               <p v-if="row[col.name] == undefined">N/A</p>
               <p
                 v-else-if="
@@ -46,6 +56,17 @@
               >
                 {{ row[col.name] }}
               </p>
+              <span v-else-if="'FILE' == col.columnType">
+                <a
+                  v-if="row[col.name].id != undefined"
+                  :href="row[col.name].url"
+                >
+                  {{ col.name }}.{{ row[col.name].extension }} ({{
+                    renderNumber(row[col.name].size)
+                  }}b)
+                </a>
+                <span v-else>N/A</span>
+              </span>
               <span v-else-if="'REFBACK' == col.columnType">
                 <RefbackTable
                   :table="col.refTable"
@@ -70,7 +91,7 @@
                     v-if="val"
                     :to="{ name: col.refTable + '-details', params: val }"
                     >{{ renderValue(row, col)[idx] }}</RouterLink
-                  >
+                  ><br />
                 </span>
               </span>
               <span
@@ -105,6 +126,16 @@
     </div>
   </div>
 </template>
+
+<style>
+.labelcontainer .tooltip {
+  visibility: hidden;
+}
+
+.labelcontainer:hover .tooltip {
+  visibility: visible;
+}
+</style>
 
 <script>
 import { TableMixin, ButtonAlt } from "@mswertz/emx2-styleguide";
@@ -213,6 +244,25 @@ export default {
           .columns.filter((c) => c.name === column.refBack)
           .map((c) => c.columnType)[0];
       }
+    },
+    renderNumber(number) {
+      var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
+
+      // what tier? (determines SI symbol)
+      var tier = (Math.log10(number) / 3) | 0;
+
+      // if zero, we don't need a suffix
+      if (tier == 0) return number;
+
+      // get suffix and determine scale
+      var suffix = SI_SYMBOL[tier];
+      var scale = Math.pow(10, tier * 3);
+
+      // scale the number
+      var scaled = number / scale;
+
+      // format number and add suffix
+      return scaled.toFixed(1) + suffix;
     },
   },
   components: { ResourceHeader, ButtonAlt, RefbackTable },
