@@ -11,11 +11,15 @@ public interface Database {
 
   Schema createSchema(String name);
 
+  Schema createSchema(String name, String description);
+
   Schema dropCreateSchema(String name);
 
   void dropSchema(String name);
 
   Collection<String> getSchemaNames();
+
+  Collection<SchemaInfo> getSchemaInfos();
 
   Schema getSchema(String name);
 

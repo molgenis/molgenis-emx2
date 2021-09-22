@@ -9,6 +9,8 @@ public class SchemaMetadata {
   protected Map<String, Setting> settings = new LinkedHashMap<>();
   protected String name;
   // optional
+  protected String description;
+  // optional
   protected Database database;
 
   public SchemaMetadata() {}
@@ -19,8 +21,14 @@ public class SchemaMetadata {
     this.name = name;
   }
 
+  public SchemaMetadata(String name, String description) {
+    this(name);
+    this.description = description;
+  }
+
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
+    this.description = schema.getDescription();
     this.database = schema.getDatabase();
     this.setSettings(schema.getSettings());
     for (Setting setting : schema.getSettings()) {
@@ -30,6 +38,7 @@ public class SchemaMetadata {
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
+    this.description = schema.getDescription();
     this.database = db;
     for (Setting setting : schema.getSettings()) {
       this.setSetting(setting.getKey(), setting.getValue());
@@ -42,6 +51,14 @@ public class SchemaMetadata {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public Set<String> getTableNames() {

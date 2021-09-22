@@ -31,6 +31,7 @@ public class SqlDatabase implements Database {
   private SqlUserAwareConnectionProvider connectionProvider;
   private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
+  private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String INITIAL_ADMIN_PW =
@@ -59,6 +60,7 @@ public class SqlDatabase implements Database {
 
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
+    this.schemaInfos.addAll(copy.schemaInfos);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -164,10 +166,15 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema createSchema(String name) {
+    return this.createSchema(name, null);
+  }
+
+  @Override
+  public SqlSchema createSchema(String name, String description) {
     long start = System.currentTimeMillis();
     this.tx(
         db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -232,6 +239,14 @@ public class SqlDatabase implements Database {
       this.schemaNames = MetadataUtils.loadSchemaNames(this);
     }
     return this.schemaNames;
+  }
+
+  @Override
+  public Collection<SchemaInfo> getSchemaInfos() {
+    if (this.schemaInfos.isEmpty()) {
+      this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
+    }
+    return this.schemaInfos;
   }
 
   @Override

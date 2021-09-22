@@ -6,7 +6,7 @@
         <Spinner />
       </template>
     </LayoutModal>
-    <!-- when update succesfull show result before close -->
+    <!-- when completed -->
     <LayoutModal
       v-else-if="success"
       :title="title"
@@ -15,37 +15,21 @@
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
-        Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-        Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
       </template>
     </LayoutModal>
-    <!-- create schema -->
+    <!-- edit schema -->
     <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
       <template v-slot:body>
-        <Spinner v-if="loading" />
-        <div v-else>
-          <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-          <LayoutForm :key="key">
-            <InputString
-              v-model="schemaName"
-              label="name"
-              :defaultValue="schemaName"
-            />
-            <InputText
-              v-model="schemaDescription"
-              label="description"
-              :defaultValue="schemaDescription"
-            />
-          </LayoutForm>
-        </div>
+        <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+        <input v-model="newSchemaDescription">
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema"
-          >Create database
+        <ButtonAction @click="executeDeleteSchema"
+          >Edit database
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -59,8 +43,6 @@ import {
   ButtonAction,
   ButtonAlt,
   IconAction,
-  InputString,
-  InputText,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -75,11 +57,13 @@ export default {
     ButtonAction,
     ButtonAlt,
     LayoutModal,
-    InputString,
-    InputText,
     LayoutForm,
     Spinner,
     IconAction,
+  },
+  props: {
+    schemaName: String,
+    schemaDescription: String
   },
   data: function () {
     return {
@@ -87,33 +71,32 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
-      schemaName: null,
-      schemaDescription: null,
+      newSchemaDescription: this.schemaDescription
     };
   },
   computed: {
     title() {
-      return "Create database";
+      return "Edit database";
     },
     endpoint() {
       return "/api/graphql";
     },
   },
   methods: {
-    executeCreateSchema() {
+    executeDeleteSchema() {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String){createSchema(name:$name, description:$description){message}}`,
+        `mutation editSchema($name:String, $description:String){editSchema(name:$name, description: $description){message}}`,
         {
           name: this.schemaName,
-          description: this.schemaDescription
+          description: this.newSchemaDescription,
         }
       )
         .then((data) => {
-          this.success = data.createSchema.message;
+          this.success = data.editSchema.message;
           this.loading = false;
         })
         .catch((error) => {

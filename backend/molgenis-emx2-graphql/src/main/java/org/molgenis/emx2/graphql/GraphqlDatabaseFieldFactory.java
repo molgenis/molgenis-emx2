@@ -9,7 +9,9 @@ import graphql.schema.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.SchemaInfo;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -37,10 +39,13 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(
             GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
-              database.createSchema(name);
+              String description = dataFetchingEnvironment.getArgument("description");
+              database.createSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
   }
@@ -60,8 +65,11 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               List<Map<String, String>> result = new ArrayList<>();
-              for (String name : database.getSchemaNames()) {
-                result.add(Map.of("name", name));
+              for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
+                result.add(
+                    Map.of(
+                        "name", schemaInfo.tableSchema(),
+                        "description", schemaInfo.description()));
               }
               return result;
             })
@@ -72,6 +80,11 @@ public class GraphqlDatabaseFieldFactory {
                     .field(
                         GraphQLFieldDefinition.newFieldDefinition()
                             .name(GraphqlConstants.NAME)
+                            .type(Scalars.GraphQLString)
+                            .build())
+                    .field(
+                        GraphQLFieldDefinition.newFieldDefinition()
+                            .name(Constants.DESCRIPTION)
                             .type(Scalars.GraphQLString)
                             .build())
                     .build()));
