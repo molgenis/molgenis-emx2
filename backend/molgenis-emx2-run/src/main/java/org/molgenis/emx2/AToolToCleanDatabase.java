@@ -23,7 +23,7 @@ public class AToolToCleanDatabase {
     deleteAllForeignKeyConstraints();
     deleteAllSchemas();
     deleteAllRoles();
-    db = null;
+    db = new SqlDatabase(true);
   }
 
   private static void deleteAllRoles() {
