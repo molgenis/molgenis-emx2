@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaInfo;
@@ -31,7 +32,7 @@ public class TestSchemaUpdate {
       assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, descUpdate)));
       assertFalse(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
     } catch (Exception e) {
-      fail("Failed to create schema with description");
+      fail("Failed to create schema with description:\n" + e);
     } finally {
       db.dropSchema(name);
     }
