@@ -71,7 +71,7 @@ public class TestSchemaCreateDestroy {
       assertEquals(name, db.getSchema("test_with_desc").getName());
       assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
     } catch (Exception e) {
-      fail("Failed to create schema with description");
+      fail("Failed to create schema with description:\n" + e.getMessage());
     } finally {
       db.dropSchema(name);
     }
