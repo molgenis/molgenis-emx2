@@ -31,6 +31,11 @@
           <tr v-for="schema in schemasFiltered" :key="schema.name">
             <td>
               <div style="display: flex">
+                <IconAction
+                    v-if="session && session.email == 'admin'"
+                    icon="edit"
+                    @click="openEditSchema(schema.name, schema.description)"
+                />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
@@ -45,11 +50,6 @@
             </td>
             <td>
               {{ schema.description }}
-              <IconAction
-                  v-if="session && session.email == 'admin' && schema.description"
-                  icon="edit"
-                  @click="openEditSchema(schema.name, schema.description)"
-              />
             </td>
           </tr>
         </tbody>

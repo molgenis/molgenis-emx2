@@ -264,6 +264,17 @@ public class MetadataUtils {
     }
   }
 
+  protected static void updateSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
+    try {
+      sql.update(SCHEMA_METADATA)
+          .set(SCHEMA_DESCRIPTION, schema.getDescription())
+          .where(TABLE_SCHEMA.eq(schema.getName()))
+          .execute();
+    } catch (Exception e) {
+      throw new MolgenisException("update of schema metadata failed", e);
+    }
+  }
+
   protected static Collection<String> loadSchemaNames(SqlDatabase db) {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }

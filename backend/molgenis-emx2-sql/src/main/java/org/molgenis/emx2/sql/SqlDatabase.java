@@ -191,6 +191,22 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public Schema updateSchema(String name, String description) {
+    long start = System.currentTimeMillis();
+    this.tx(
+        db -> {
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+          MetadataUtils.updateSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+
+          // refresh
+          db.clearCache();
+        });
+    getListener().schemaChanged(name);
+    this.log(start, "updated schema " + name);
+    return getSchema(name);
+  }
+
+  @Override
   public SqlSchema getSchema(String name) {
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
@@ -212,6 +228,10 @@ public class SqlDatabase implements Database {
         database -> {
           SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) database, name);
           ((SqlDatabase) database).schemaNames.remove(name);
+          Optional<SchemaInfo> schemaInfo =
+              ((SqlDatabase) database)
+                  .schemaInfos.stream().filter(s -> s.tableSchema().equals(name)).findFirst();
+          if (schemaInfo.isPresent()) ((SqlDatabase) database).schemaInfos.remove(schemaInfo);
           ((SqlDatabase) database).schemaCache.remove(name);
         });
 
@@ -400,6 +420,7 @@ public class SqlDatabase implements Database {
       this.databaseVersion = from.databaseVersion;
 
       this.schemaNames = from.schemaNames;
+      this.schemaInfos = from.schemaInfos;
 
       // remove schemas that were dropped
       this.schemaCache.keySet().stream()
@@ -430,6 +451,7 @@ public class SqlDatabase implements Database {
   public void clearCache() {
     this.schemaCache.clear();
     this.schemaNames.clear();
+    this.schemaInfos.clear();
   }
 
   public DSLContext getJooq() {

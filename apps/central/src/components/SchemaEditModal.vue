@@ -24,7 +24,11 @@
     <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-        <input v-model="newSchemaDescription">
+        <InputText
+            v-model="newSchemaDescription"
+            label="description"
+            :defaultValue="schemaDescription"
+        />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
@@ -48,6 +52,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
+  InputText,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -60,6 +65,7 @@ export default {
     LayoutForm,
     Spinner,
     IconAction,
+    InputText,
   },
   props: {
     schemaName: String,
@@ -89,14 +95,14 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation editSchema($name:String, $description:String){editSchema(name:$name, description: $description){message}}`,
+        `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
         {
           name: this.schemaName,
           description: this.newSchemaDescription,
         }
       )
         .then((data) => {
-          this.success = data.editSchema.message;
+          this.success = data.updateSchema.message;
           this.loading = false;
         })
         .catch((error) => {

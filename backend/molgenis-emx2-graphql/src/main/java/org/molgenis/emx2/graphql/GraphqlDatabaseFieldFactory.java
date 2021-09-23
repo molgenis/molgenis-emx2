@@ -52,6 +52,23 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
+  public GraphQLFieldDefinition.Builder updateMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updateSchema")
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String name = dataFetchingEnvironment.getArgument("name");
+              String description = dataFetchingEnvironment.getArgument("description");
+              database.updateSchema(name, description);
+              return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
+            });
+  }
+
   public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
