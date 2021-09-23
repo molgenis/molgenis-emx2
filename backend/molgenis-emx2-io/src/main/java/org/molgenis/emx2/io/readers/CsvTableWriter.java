@@ -18,10 +18,9 @@ public class CsvTableWriter {
 
     // get most extensive headers
     Set<String> columnNames = new LinkedHashSet<>();
-    for (Row r : rows) {
-      columnNames.addAll(r.getColumnNames());
-      break;
-    }
+    Row firstRow = rows.iterator().next();
+    columnNames.addAll(firstRow.getColumnNames());
+
     // we filter mg_ columns. TODO make option to choose
     columnNames =
         columnNames.stream()
