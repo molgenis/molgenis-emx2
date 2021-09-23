@@ -188,24 +188,6 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private static Field<Object[]> rowMrefSubselect(Column column, String tableAlias) {
-    Column reverseToColumn = column.getTable().getPrimaryKeyColumns().get(0);
-    // reverse column = primaryKey of 'getTable()' or in case of REFBACK it needs to found by
-    // refBack
-    for (Column c : column.getRefTable().getColumns()) {
-      if (column.getName().equals(c.getRefBack())) {
-        reverseToColumn = c;
-        break;
-      }
-    }
-    return PostgresDSL.array(
-        DSL.select(field(name(getJoinTableName(column), column.getName())))
-            .from(name(column.getTable().getSchema().getName(), getJoinTableName(column)))
-            .where(
-                field(name(getJoinTableName(column), reverseToColumn.getName()))
-                    .eq(field(name(tableAlias, reverseToColumn.getName())))));
-  }
-
   private static SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
       Column column, String tableAlias) {
     Column refBack = column.getRefBackColumn();
