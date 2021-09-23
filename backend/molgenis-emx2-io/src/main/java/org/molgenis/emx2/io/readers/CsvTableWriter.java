@@ -20,10 +20,13 @@ public class CsvTableWriter {
     Set<String> columnNames = new LinkedHashSet<>();
     for (Row r : rows) {
       columnNames.addAll(r.getColumnNames());
+      break;
     }
     // we filter mg_ columns. TODO make option to choose
     columnNames =
-        columnNames.stream().filter(name -> !name.startsWith("mg_")).collect(Collectors.toSet());
+        columnNames.stream()
+            .filter(name -> !name.startsWith("mg_"))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
     CsvWriter.CsvWriterDSL<Map> writerDsl =
         CsvWriter.from(Map.class).columns(columnNames.toArray(new String[columnNames.size()]));
