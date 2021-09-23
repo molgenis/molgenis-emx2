@@ -6,7 +6,6 @@ import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Order.ASC;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getJoinTableName;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
@@ -21,7 +20,6 @@ import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
-import org.jooq.util.postgres.PostgresDSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
