@@ -7,8 +7,10 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaInfo;
@@ -66,10 +68,12 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               List<Map<String, String>> result = new ArrayList<>();
               for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
-                result.add(
-                    Map.of(
-                        "name", schemaInfo.tableSchema(),
-                        "description", schemaInfo.description()));
+                HashMap<String, String> fields = new HashMap<>();
+                fields.put("name", schemaInfo.tableSchema());
+                if (!Objects.isNull(schemaInfo.description())) {
+                  fields.put("description", schemaInfo.description());
+                }
+                result.add(fields);
               }
               return result;
             })
