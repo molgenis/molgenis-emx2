@@ -72,6 +72,9 @@ public class TestSchemaCreateDestroy {
   @Test
   public void testCreateWithDescription() {
     String desc = "describe me";
+    if (db.getSchema(name) != null) {
+      db.dropSchema(name);
+    }
     db.createSchema(name, desc);
     assertEquals(name, db.getSchema(name).getName());
     assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));

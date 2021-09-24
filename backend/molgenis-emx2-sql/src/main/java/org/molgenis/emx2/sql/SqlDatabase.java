@@ -423,9 +423,15 @@ public class SqlDatabase implements Database {
       this.schemaInfos = from.schemaInfos;
 
       // remove schemas that were dropped
-      this.schemaCache.keySet().stream()
-          .filter(s -> !from.schemaCache.keySet().contains(s))
-          .forEach(s -> this.schemaCache.remove(s));
+      Set<String> removeSet = new HashSet<>();
+      for (String key : this.schemaCache.keySet()) {
+        if (!from.schemaCache.keySet().contains(key)) {
+          removeSet.add(key);
+        }
+      }
+      for (String key : removeSet) {
+        this.schemaCache.remove(key);
+      }
 
       // sync the existing schema cache, add missing
       from.schemaCache

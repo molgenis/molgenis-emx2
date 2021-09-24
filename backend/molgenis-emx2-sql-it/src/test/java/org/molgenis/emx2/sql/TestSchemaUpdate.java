@@ -28,7 +28,9 @@ public class TestSchemaUpdate {
   public void testUpdateDescription() {
     String descUpdate = "update me";
     db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate);
-    assertTrue(db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate)));
-    assertFalse(db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), desc)));
+    assertTrue(
+        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate)));
+    assertFalse(
+        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), desc)));
   }
 }
