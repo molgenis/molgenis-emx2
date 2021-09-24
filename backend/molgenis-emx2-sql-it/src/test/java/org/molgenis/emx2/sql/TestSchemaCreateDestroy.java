@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -15,10 +16,16 @@ import org.molgenis.emx2.SchemaInfo;
 
 public class TestSchemaCreateDestroy {
   private static Database db;
+  private static final String name = TestSchemaCreateDestroy.class.getName() + "Desc";
 
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    db.dropSchema(name);
   }
 
   @Test
@@ -64,16 +71,9 @@ public class TestSchemaCreateDestroy {
 
   @Test
   public void testCreateWithDescription() {
-    String name = "test_with_desc";
     String desc = "describe me";
-    try {
-      db.createSchema(name, "describe me");
-      assertEquals(name, db.getSchema("test_with_desc").getName());
-      assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
-    } catch (Exception e) {
-      fail("Failed to create schema with description:\n" + e);
-    } finally {
-      db.dropSchema(name);
-    }
+    db.createSchema(name, desc);
+    assertEquals(name, db.getSchema(name).getName());
+    assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
   }
 }
