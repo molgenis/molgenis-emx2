@@ -402,6 +402,7 @@ public class MetadataUtils {
     org.jooq.Record tableRecord =
         jooq.selectFrom(TABLE_METADATA)
             .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
+            .orderBy(TABLE_NAME)
             .fetchOne();
 
     List<org.jooq.Record> columnRecords =
