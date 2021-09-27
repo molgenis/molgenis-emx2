@@ -1,21 +1,31 @@
 package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaInfo;
 
 public class TestSchemaCreateDestroy {
   private static Database db;
+  private static final String name = TestSchemaCreateDestroy.class.getName() + "Desc";
 
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    db.dropSchema(name);
   }
 
   @Test
@@ -57,5 +67,16 @@ public class TestSchemaCreateDestroy {
 
     db.dropSchema(getClass().getSimpleName());
     assertNull(db.getSchema(getClass().getSimpleName()));
+  }
+
+  @Test
+  public void testCreateWithDescription() {
+    String desc = "describe me";
+    if (db.getSchema(name) != null) {
+      db.dropSchema(name);
+    }
+    db.createSchema(name, desc);
+    assertEquals(name, db.getSchema(name).getName());
+    assertTrue(db.getSchemaInfos().contains(new SchemaInfo(name, desc)));
   }
 }
