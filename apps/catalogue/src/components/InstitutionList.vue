@@ -1,7 +1,9 @@
 <template>
   <ul v-if="institutions">
     <li v-for="i in institutions" :key="i.pid">
-      <RouterLink :to="{ name: 'institution', params: { pid: i.pid } }">
+      <RouterLink
+        :to="{ name: 'Institutions-details', params: { pid: i.pid } }"
+      >
         {{ i.pid }} - {{ i.name }}
       </RouterLink>
     </li>
