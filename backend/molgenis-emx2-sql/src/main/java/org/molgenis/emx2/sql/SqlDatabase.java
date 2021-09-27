@@ -28,13 +28,13 @@ public class SqlDatabase implements Database {
 
   private Integer databaseVersion;
   private DSLContext jooq;
-  private SqlUserAwareConnectionProvider connectionProvider;
-  private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final SqlUserAwareConnectionProvider connectionProvider;
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
-  private String INITIAL_ADMIN_PW =
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private final String INITIAL_ADMIN_PW =
       (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN, STRING);
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -226,13 +226,11 @@ public class SqlDatabase implements Database {
     long start = System.currentTimeMillis();
     tx(
         database -> {
-          SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) database, name);
-          ((SqlDatabase) database).schemaNames.remove(name);
-          Optional<SchemaInfo> schemaInfo =
-              ((SqlDatabase) database)
-                  .schemaInfos.stream().filter(s -> s.tableSchema().equals(name)).findFirst();
-          if (schemaInfo.isPresent()) ((SqlDatabase) database).schemaInfos.remove(schemaInfo);
-          ((SqlDatabase) database).schemaCache.remove(name);
+          SqlDatabase sqlDatabase = (SqlDatabase) database;
+          SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
+          sqlDatabase.schemaNames.remove(name);
+          sqlDatabase.schemaInfos.clear();
+          sqlDatabase.schemaCache.remove(name);
         });
 
     listener.schemaRemoved(name);
