@@ -32,6 +32,8 @@ public class MetadataUtils {
   // table
   private static final org.jooq.Field TABLE_SCHEMA =
       field(name("table_schema"), VARCHAR.nullable(false));
+  private static final org.jooq.Field SCHEMA_DESCRIPTION =
+      field(name("description"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
   private static final org.jooq.Field TABLE_INHERITS =
@@ -146,7 +148,9 @@ public class MetadataUtils {
             }
 
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-              t.columns(TABLE_SCHEMA).constraint(primaryKey(TABLE_SCHEMA)).execute();
+              t.columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
+                  .constraint(primaryKey(TABLE_SCHEMA))
+                  .execute();
 
               jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
 
@@ -158,7 +162,8 @@ public class MetadataUtils {
                   name(SCHEMA_METADATA.getName() + "_POLICY"),
                   SCHEMA_METADATA,
                   MG_ROLE_PREFIX,
-                  TABLE_SCHEMA);
+                  TABLE_SCHEMA,
+                  SCHEMA_DESCRIPTION);
             }
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
               int result =
@@ -249,14 +254,41 @@ public class MetadataUtils {
 
   protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
     try {
-      sql.insertInto(SCHEMA_METADATA).columns(TABLE_SCHEMA).values(schema.getName()).execute();
+      String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
+      sql.insertInto(SCHEMA_METADATA)
+          .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
+          .values(schema.getName(), description)
+          .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of schema metadata failed", e);
     }
   }
 
+  protected static void updateSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
+    try {
+      sql.update(SCHEMA_METADATA)
+          .set(SCHEMA_DESCRIPTION, schema.getDescription())
+          .where(TABLE_SCHEMA.eq(schema.getName()))
+          .execute();
+    } catch (Exception e) {
+      throw new MolgenisException("update of schema metadata failed", e);
+    }
+  }
+
   protected static Collection<String> loadSchemaNames(SqlDatabase db) {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
+  }
+
+  protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
+    List<org.jooq.Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
+    List<SchemaInfo> schemaInfos = new ArrayList<>();
+    for (org.jooq.Record record : schemaInfoRecords) {
+      schemaInfos.add(
+          new SchemaInfo(
+              record.get(TABLE_SCHEMA, String.class),
+              record.get(SCHEMA_DESCRIPTION, String.class)));
+    }
+    return schemaInfos;
   }
 
   protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
@@ -370,6 +402,7 @@ public class MetadataUtils {
     org.jooq.Record tableRecord =
         jooq.selectFrom(TABLE_METADATA)
             .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
+            .orderBy(TABLE_NAME)
             .fetchOne();
 
     List<org.jooq.Record> columnRecords =

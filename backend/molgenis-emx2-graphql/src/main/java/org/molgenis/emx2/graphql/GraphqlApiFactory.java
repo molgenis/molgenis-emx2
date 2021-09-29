@@ -139,6 +139,7 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
+    mutationBuilder.field(db.updateMutation(database));
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
@@ -179,7 +180,6 @@ public class GraphqlApiFactory {
 
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
-    Set<String> importedTables = new HashSet<>();
     for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
       if (table.getColumns().size() > 0) {
         queryBuilder.field(tableField.tableQueryField(table.getTable()));

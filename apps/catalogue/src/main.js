@@ -227,7 +227,7 @@ const router = new VueRouter({
       }),
     },
     {
-      name: "studie",
+      name: "Studies-details",
       path: "/studies/:pid",
       component: ResourceDetailsView,
       props: (route) => ({

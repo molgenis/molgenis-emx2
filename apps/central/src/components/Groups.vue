@@ -31,6 +31,11 @@
           <tr v-for="schema in schemasFiltered" :key="schema.name">
             <td>
               <div style="display: flex">
+                <IconAction
+                    v-if="session && session.email == 'admin'"
+                    icon="edit"
+                    @click="openEditSchema(schema.name, schema.description)"
+                />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
@@ -43,7 +48,9 @@
                 schema.name
               }}</a>
             </td>
-            <td>{{ schema.description }}</td>
+            <td>
+              {{ schema.description }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -52,6 +59,12 @@
         v-if="showDeleteSchema"
         @close="closeDeleteSchema"
         :schemaName="showDeleteSchema"
+      />
+      <SchemaEditModal
+          v-if="showEditSchema"
+          @close="closeEditSchema"
+          :schemaName="showEditSchema"
+          :schemaDescription="editDescription"
       />
     </div>
   </div>
@@ -62,6 +75,7 @@ import { request } from "graphql-request";
 
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaEditModal from "./SchemaEditModal";
 import {
   IconAction,
   IconBar,
@@ -76,6 +90,7 @@ export default {
     Spinner,
     SchemaCreateModal,
     SchemaDeleteModal,
+    SchemaEditModal,
     IconBar,
     IconAction,
     IconDanger,
@@ -91,6 +106,8 @@ export default {
       loading: false,
       showCreateSchema: false,
       showDeleteSchema: false,
+      showEditSchema: false,
+      editDescription: null,
       graphqlError: null,
       search: null,
     };
@@ -134,9 +151,18 @@ export default {
       this.showDeleteSchema = null;
       this.getSchemaList();
     },
+    openEditSchema(schemaName, schemaDescription) {
+      this.showEditSchema = schemaName;
+      this.editDescription = schemaDescription
+    },
+    closeEditSchema() {
+      this.showEditSchema = null;
+      this.editDescription = null;
+      this.getSchemaList();
+    },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name}}")
+      request("graphql", "{Schemas{name description}}")
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
