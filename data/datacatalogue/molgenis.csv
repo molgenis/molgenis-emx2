@@ -23,7 +23,7 @@ Databanks,RWEresources,,,,,,,,,,Data collections such as registries or biobanks
 Datasources,RWEresources,,,,,,,,,,Collections of data banks covering the same population
 Resources,,overview,heading,,,,,,,,General information about this resource
 Resources,,pid,,1,TRUE,,,,,,Persistent identifier for this resource
-Resources,,name,,2,TRUE,,,,,,Name of used in European projects
+Resources,,name,,2,TRUE,,,,,,Name of resource used in European projects
 Resources,,localName,,,,,,,,,"If different from above, name in the national language"
 Resources,,acronym,,,,,,,,,Resource acronym
 Resources,,website,,,,,,,,,Link to the wesbite of this resource
@@ -119,7 +119,8 @@ Resources,,fundingStatement,text,,,,,,,,Statement listing funding that was obtai
 Resources,,acknowledgements,text,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Resources,,documentation,refback,,,Documentation,,resource,,,List of documentation available for this resource
 Resources,,collaborations,heading,,,,,,,,List of relevant collaborations
-Resources,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this resource
+Cohorts,,studies,refback,,,Studies,,cohorts,,,Listing of studies that used this cohort
+Databanks,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this databank
 Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,partners,refback,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,refback,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
