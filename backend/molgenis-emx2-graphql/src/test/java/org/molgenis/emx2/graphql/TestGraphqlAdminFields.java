@@ -41,14 +41,16 @@ public class TestGraphqlAdminFields {
 
             int count = database.countUsers();
             try {
-
               TestCase.assertEquals(
                   count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+            // test that only admin can do this
+            database.setActiveUser(null);
+            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-              // test that only admin can do this
-              database.setActiveUser(null);
-              grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-
+            try {
               TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
               fail("should fail");
             } catch (Exception e) {
