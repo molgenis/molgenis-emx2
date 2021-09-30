@@ -32,22 +32,29 @@ public class TestGraphqlAdminFields {
   public void testUsers() throws IOException {
     try {
       database.becomeAdmin();
-      Schema schema = database.dropCreateSchema(schemaName);
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-      int count = database.countUsers();
 
-      TestCase.assertEquals(
-          count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+      // put in transaction so user count is not affected by other operations
+      database.tx(
+          tdb -> {
+            Schema schema = database.dropCreateSchema(schemaName);
+            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-      // test that only admin can do this
-      database.setActiveUser(null);
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-      try {
-        TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
-        fail("should fail");
-      } catch (Exception e) {
-        TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
-      }
+            int count = database.countUsers();
+            try {
+
+              TestCase.assertEquals(
+                  count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+
+              // test that only admin can do this
+              database.setActiveUser(null);
+              grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+
+              TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
+              fail("should fail");
+            } catch (Exception e) {
+              TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
+            }
+          });
 
     } finally {
       database.setActiveUser(null);
