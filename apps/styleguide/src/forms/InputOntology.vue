@@ -157,15 +157,17 @@ export default {
       }
     },
     data() {
-      this.terms = this.data
-        .filter((o) => !o.parent)
-        .map((o) => {
-          let children = this.getChildren(o.name);
-          if (children.length > 0) {
-            o.children = children;
-          }
-          return o;
-        });
+      if (this.data) {
+        this.terms = this.data
+          .filter((o) => !o.parent)
+          .map((o) => {
+            let children = this.getChildren(o.name);
+            if (children.length > 0) {
+              o.children = children;
+            }
+            return o;
+          });
+      }
     },
   },
   created() {

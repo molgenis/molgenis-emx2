@@ -1,26 +1,44 @@
 <template>
   <div>
     <h5 class="card-title">Manage menu</h5>
-    <p>Customize menu structure and labels below:</p>
+    <p>Customize menu structure and labels below.</p>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <Spinner v-if="loading" />
-    <div v-else>
-      <div class="row float-right">
-        <IconAction
-          icon="plus"
-          @click="
-            draft.unshift({ label: 'new', href: '' });
-            updateKey();
-          "
-        />
-      </div>
-      <MenuDesign :items="draft" :key="key" @change="sanitizeDraft" />
-      <br />
-      <div class="row float-right">
+    <div v-else class="container">
+      <div>
+        <IconAction @click="addItem" icon="plus" />
         <ButtonAlt @click="reset">Reset</ButtonAlt>
         <ButtonAction @click="saveSettings">Save</ButtonAction>
       </div>
+      <br />
+      <MenuDesign
+        :items="draft"
+        :key="key"
+        @change="sanitizeDraft"
+        @add="addItem"
+      />
+    </div>
+    <div>
+      Help:
+      <ul>
+        <li>
+          use 'label' to set the name how your menu item should be displayed
+        </li>
+        <li>
+          use 'href' to define where your menu item links to. Simply use name of
+          an apps to link to it within this schema (e.g. 'tables' links to
+          tables app). You can also make cross-links to other schema using a
+          fully qualified path like '/otherschema/tables'. And you can link to
+          other servers using http://otherserver.com/.
+        </li>
+        <li>
+          use 'role' to indicate if menu item should be shown only in case user
+          has particular role (optional).
+        </li>
+      </ul>
+      You can drag to change order using the three dots (and also create submenu
+      items by dragging slightly to the right).
     </div>
   </div>
 </template>
@@ -60,6 +78,10 @@ export default {
     };
   },
   methods: {
+    addItem() {
+      this.draft.unshift({ label: "new", href: "" });
+      this.updateKey();
+    },
     updateKey() {
       this.key = Math.random().toString(36).substring(7);
     },

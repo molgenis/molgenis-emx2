@@ -165,7 +165,9 @@ export default {
         return [];
       }
       if (
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].indexOf(col.columnType) > 0
+        col.columnType == "REF_ARRAY" ||
+        col.columnType == "REFBACK" ||
+        col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.name].map((v) => {
           if (col.refLabel) {
@@ -259,9 +261,9 @@ export default {
       return object != null && typeof object === "object";
     },
     onRowClick(row) {
-      //deep copy
-      let update = JSON.parse(JSON.stringify(this.selection));
       if (this.showSelect) {
+        //deep copy
+        let update = JSON.parse(JSON.stringify(this.selection));
         let key = this.getKey(row);
         if (this.isSelected(row)) {
           /** when a row is deselected */
@@ -276,10 +278,10 @@ export default {
           update.push(this.getKey(row));
           this.$emit("select", this.getKey(row));
         }
+        this.$emit("update:selection", update);
       } else {
         this.$emit("click", this.getKey(row));
       }
-      this.$emit("update:selection", update);
     },
     renderNumber(number) {
       var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];

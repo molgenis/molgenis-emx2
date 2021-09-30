@@ -4,10 +4,10 @@
       <RouterLink
         :to="{
           name: route(p.resource.mg_tableclass),
-          params: { acronym: p.resource.acronym },
+          params: { pid: p.resource.pid },
         }"
       >
-        {{ p.resource.acronym }} - {{ p.resource.name }} ({{ p.role.name }})
+        {{ p.resource.pid }} - {{ p.resource.name }} ({{ p.role.name }})
       </RouterLink>
     </li>
   </ul>

@@ -1,0 +1,4 @@
+pid,name,networks,institution,contact,databanks
+EUChildNetworkCDM,EU Child network common data model,"LifeCycle,LongITools,ATHLETE,EUCAN-connect",UCPH,Anne-Mary Nybo Andersen,
+LongIToolsCDM,LongITools common data model,LongITools,,,
+AthleteCDM,Athlete common data model,ATHLETE,,,

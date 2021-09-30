@@ -3,16 +3,11 @@ import VueRouter from "vue-router";
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
-import InstitutionView from "./views/InstitutionView";
-import DatabankView from "./views/DatabankView";
+import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
 import NetworkView from "./views/NetworkView";
 import ReleasesView from "./views/ReleasesView";
-import DatasourceView from "./views/DatasourceView";
-import ModelView from "./views/ModelView";
 import ResourceListView from "./views/ResourceListView";
-import ContactView from "./views/ContactView";
-import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
@@ -20,6 +15,7 @@ import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
 import SearchResourceView from "./views/SearchResourceView";
+import ResourceRedirectView from "./views/ResourceRedirectView";
 
 Vue.config.productionTip = false;
 
@@ -97,13 +93,9 @@ const router = new VueRouter({
       path: "/releases",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Release",
+        tableName: "Releases",
       }),
       component: ResourceListView,
-    },
-    {
-      path: "/releases/:acronym",
-      redirect: "/releases",
     },
     {
       name: "variables",
@@ -128,7 +120,7 @@ const router = new VueRouter({
       path: "/tablemappings",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Tablemappings",
+        tableName: "TableMappings",
       }),
       component: ResourceListView,
     },
@@ -142,81 +134,155 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "institution",
-      path: "/institutions/:acronym",
-      component: InstitutionView,
-      props: true,
+      name: "Institutions-details",
+      path: "/institutions/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Institutions",
+        color: "dark",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
-
     {
-      name: "release",
-      path: "/releases/:acronym/:version",
+      name: "Resources-details",
+      path: "/resources/:pid",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        table: "Resources",
+        color: "dark",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Networks-details",
+      path: "/networks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Networks",
+        color: "danger",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      path: "/releases/:pid",
+      redirect: "/resources/:pid",
+    },
+    {
+      name: "Releases-details",
+      path: "/releases/:pid/:version",
       component: ReleasesView,
       props: true,
     },
     {
-      name: "databank",
-      path: "/databanks/:acronym",
-      component: DatabankView,
-      props: true,
+      name: "Databanks-details",
+      path: "/databanks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Databanks",
+        color: "info",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
     {
-      name: "cohort",
-      path: "/cohorts/:acronym",
+      name: "Cohorts-details",
+      path: "/cohorts/:pid",
       component: CohortView,
       props: true,
     },
     {
-      name: "datasource",
-      path: "/datasources/:acronym",
-      component: DatasourceView,
-      props: true,
+      name: "Datasources-details",
+      path: "/datasources/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Datasources",
+        color: "secondary",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
     {
-      name: "model",
-      path: "/models/:acronym",
-      component: ModelView,
-      props: true,
+      name: "Models-details",
+      path: "/models/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Models",
+        color: "warning",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
     {
       name: "network",
-      path: "/networks/:acronym",
-      props: true,
-      component: NetworkView,
+      path: "/networks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Networks",
+        color: "danger",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
     {
-      name: "contact",
+      name: "Contacts-details",
       path: "/contacts/:name",
-      props: true,
-      component: ContactView,
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Contacts",
+        color: "dark",
+        filter: { name: { equals: route.params.name } },
+      }),
     },
     {
-      name: "studie",
-      path: "/studies/:acronym",
-      props: true,
-      component: StudiesView,
+      name: "Studies-details",
+      path: "/studies/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Studies",
+        color: "success",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    //make bread crumb work for variable details
+    {
+      path: "/variables/:pid",
+      redirect: "/resources/:pid",
     },
     {
-      name: "variable",
-      path: "/variables/:acronym/:version/:table/:name",
+      path: "/variables/:pid/:version",
+      redirect: "/releases/:pid/:version",
+    },
+    {
+      path: "/variables/:pid/:version/:table",
+      redirect: "/tables/:pid/:version/:table",
+    },
+    //variable details
+    {
+      name: "Variables-details",
+      path: "/variables/:pid/:version/:table/:name",
       props: true,
       component: VariableView,
     },
+    //make bread crumb work for table-details
     {
-      name: "table",
-      path: "/tables/:acronym/:version/:name",
+      path: "/tables/:pid",
+      redirect: "/resources/:pid",
+    },
+    {
+      path: "/tables/:pid/:version",
+      redirect: "/releases/:pid/:version",
+    },
+    {
+      name: "Tables-details",
+      path: "/tables/:pid/:version/:name",
       component: TableView,
       props: true,
     },
     {
       name: "variablemapping",
-      path: "/variablemappings/:acronym/:version/:name",
+      path: "/variablemappings/:pid/:version/:name",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
+      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },

@@ -15,7 +15,7 @@
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.label }}
       <span class="mg-network-label">
-        {{ variable.release.resource.acronym }}
+        {{ variable.release.resource.pid }}
       </span>
     </div>
     <p class="mt-3" v-if="showDetail">
@@ -27,7 +27,7 @@
             name: variable.name,
           },
           query: {
-            network: variable.release.resource.acronym,
+            network: variable.release.resource.pid,
             version: variable.release.version,
           },
         }"
@@ -92,9 +92,9 @@
             <span v-if="variable.variableDetails.mappings">
               <span
                 v-for="mapping in variable.variableDetails.mappings"
-                :key="mapping.fromTable.release.resource.acronym"
+                :key="mapping.fromTable.release.resource.pid"
               >
-                {{ mapping.fromTable.release.resource.acronym }}
+                {{ mapping.fromTable.release.resource.pid }}
               </span>
             </span>
             <span v-else>none</span>

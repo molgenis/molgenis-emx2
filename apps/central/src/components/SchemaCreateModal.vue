@@ -106,9 +106,10 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String){createSchema(name:$name){message}}`,
+        `mutation createSchema($name:String, $description:String){createSchema(name:$name, description:$description){message}}`,
         {
           name: this.schemaName,
+          description: this.schemaDescription
         }
       )
         .then((data) => {

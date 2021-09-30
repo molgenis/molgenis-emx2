@@ -14,17 +14,17 @@
     <h6 class="d-inline">{{ resourceType }}:&nbsp;</h6>
     <RouterLink
       :to="{
-        name: resourceType.toLowerCase(),
-        params: { acronym: acronym },
+        name: resourceType + '-details',
+        params: { pid: pid },
       }"
-      >{{ table.release.resource.acronym }}
+      >{{ table.release.resource.pid }}
     </RouterLink>
     /
     <h6 class="d-inline">Release</h6>
     <RouterLink
       :to="{
-        name: 'release',
-        params: { acronym: acronym, version: version },
+        name: 'Releases-details',
+        params: { pid: pid, version: version },
       }"
     >
       {{ table.release.version }}
@@ -49,17 +49,17 @@
           :to="{
             name: 'tablemapping',
             params: {
-              fromAcronym: m.fromRelease.resource.acronym,
+              frompid: m.fromRelease.resource.pid,
               fromVersion: m.fromRelease.version,
               fromTable: m.fromTable.name,
-              toAcronym: table.release.resource.acronym,
+              topid: table.release.resource.pid,
               toVersion: table.release.version,
               toTable: table.name,
             },
           }"
         >
           {{ getType(m.fromRelease.resource.mg_tableclass) }}:
-          {{ m.fromRelease.resource.acronym }} - Version:
+          {{ m.fromRelease.resource.pid }} - Version:
           {{ m.fromRelease.version }} - Table:
           {{ m.fromTable.name }}
         </RouterLink>
@@ -70,18 +70,18 @@
           :to="{
             name: 'tablemapping',
             params: {
-              toAcronym: m.toRelease.resource.acronym,
+              topid: m.toRelease.resource.pid,
               toVersion: m.toRelease.version,
               toTable: m.toTable.name,
-              fromAcronym: table.release.resource.acronym,
+              frompid: table.release.resource.pid,
               fromVersion: table.release.version,
               fromTable: table.name,
             },
           }"
         >
           {{ getType(m.toRelease.resource.mg_tableclass) }}:
-          {{ m.toRelease.resource.acronym }} - Version:
-          {{ m.toRelease.version }} - Table:
+          {{ m.toRelease.resource.pid }} - Version: {{ m.toRelease.version }} -
+          Table:
           {{ m.toTable.name }}
         </RouterLink>
       </li>
@@ -93,13 +93,20 @@
       table="Variables"
       :showHeader="false"
       :showFilters="['keywords']"
-      :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'keywords']"
+      :showColumns="[
+        'name',
+        'label',
+        'format',
+        'unit',
+        'mandatory',
+        'keywords',
+      ]"
       :showCards="true"
       :filter="{
         table: { name: { equals: name } },
         release: {
           version: { equals: version },
-          resource: { acronym: { equals: acronym } },
+          resource: { pid: { equals: pid } },
         },
       }"
       @click="openVariable"
@@ -122,7 +129,7 @@ export default {
     TableExplorer,
   },
   props: {
-    acronym: String,
+    pid: String,
     version: String,
     name: String,
   },
@@ -136,21 +143,19 @@ export default {
   computed: {
     resourceType() {
       if (this.table.release) {
-        return this.table.release.resource.mg_tableclass
-          .split(".")[1]
-          .slice(0, -1);
+        return this.table.release.resource.mg_tableclass.split(".")[1];
       }
     },
   },
   methods: {
     getType(mg_tableclass) {
-      return mg_tableclass.split(".")[1].slice(0, -1);
+      return mg_tableclass.split(".")[1];
     },
     openVariable(row) {
       this.$router.push({
-        name: "variable",
+        name: "Variables-details",
         params: {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
           table: this.name,
           name: row.name,
@@ -160,13 +165,13 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Tables($acronym:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},name:{equals:[$name]}})
-        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{acronym,name,mg_tableclass}},keywords{name,ontologyTermURI,definition}, description,label,keywords{name}
-        mappings{fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}
-         mappingsTo{toRelease{resource{acronym,mg_tableclass}version}toTable{name}}
+        `query Tables($pid:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
+        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{pid,name,mg_tableclass}},keywords{name,ontologyTermURI,definition}, description,label,keywords{name}
+        mappings{fromRelease{resource{pid,mg_tableclass}version}fromTable{name}}
+         mappingsTo{toRelease{resource{pid,mg_tableclass}version}toTable{name}}
          }}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
           name: this.name,
         }

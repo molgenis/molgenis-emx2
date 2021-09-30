@@ -16,11 +16,11 @@
             :to="{
               name: 'databank',
               params: {
-                databankAcronym: variable.release.resource.acronym,
+                databankPid: variable.release.resource.pid,
               },
             }"
           >
-            {{ variable.release.resource.acronym }}
+            {{ variable.release.resource.pid }}
           </RouterLink>
         </Property>
         <Property v-if="!tableName" label="table">
@@ -28,7 +28,7 @@
             :to="{
               name: 'table',
               params: {
-                databankAcronym: variable.release.resource.acronym,
+                databankPid: variable.release.resource.pid,
                 tableName: variable.table.name,
               },
             }"
@@ -68,10 +68,10 @@
           <HarmonisationDetails
             v-for="h in variable.harmonisations"
             :key="JSON.stringify(h)"
-            :sourceCollection="h.sourceRelease.resource.acronym"
+            :sourceCollection="h.sourceRelease.resource.pid"
             :source-table="h.sourceTable.name"
             :source-version="h.sourceRelease.version"
-            :target-resource="variable.release.resource.acronym"
+            :target-resource="variable.release.resource.pid"
             :target-version="variable.release.version"
             :target-table="variable.table.name"
             :target-variable="variable.name"

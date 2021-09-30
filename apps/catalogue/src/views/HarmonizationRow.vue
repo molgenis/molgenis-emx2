@@ -6,7 +6,7 @@
 
     <harmonization-cell
       v-for="resource in resources"
-      :key="resource.acronym"
+      :key="resource.pid"
       class="colored-grid-cell"
       :status="getCellClass(resource)"
     />
@@ -38,7 +38,7 @@ export default {
     async fetchData() {
       this.resourceMappings = await this.fetchMappings(this.variable);
       this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
-        Vue.set(statusMap, resource.acronym, this.getMatchStatus(resource));
+        Vue.set(statusMap, resource.pid, this.getMatchStatus(resource));
         return statusMap;
       }, {});
     },
@@ -48,7 +48,7 @@ export default {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
               mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.release.resource.acronym === resource.acronym
+              mapping.fromTable.release.resource.pid === resource.pid
             );
           });
 
@@ -64,9 +64,7 @@ export default {
         }
       } else {
         const resourceMapping = this.resourceMappings.find((mapping) => {
-          return (
-            mapping.fromTable.release.resource.acronym === resource.acronym
-          );
+          return mapping.fromTable.release.resource.pid === resource.pid;
         });
 
         if (!resourceMapping) {

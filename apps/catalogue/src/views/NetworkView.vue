@@ -67,7 +67,7 @@ export default {
     ResourceHeader,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -81,9 +81,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, contact{name,email},description,homepage,fundingStatement, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, cohorts{acronym,name}, databanks{acronym,name},models{acronym,name}, releases{resource{acronym,name},version}}}`,
+        `query Networks($pid:String){Networks(filter:{pid:{equals:[$pid]}}){name,pid,type{name},institution{pid,name}, contact{name,email},description,homepage,fundingStatement, partners{institution{pid,name,country{name}}}, datasources{pid,name}, cohorts{pid,name}, databanks{pid,name},models{pid,name}, releases{resource{pid,name},version}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -101,7 +101,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

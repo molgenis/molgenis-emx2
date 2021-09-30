@@ -11,7 +11,7 @@ export default {
     filter: {},
     /** pass orderBy as Object {field1: 'ASC', field2 {field3:'ASC'}}*/
     orderBy: {},
-    searchTerms: {
+    initialSearchTerms: {
       type: String,
       default: () => null,
     },
@@ -22,6 +22,7 @@ export default {
       count: 0,
       offset: 0,
       limit: 20,
+      searchTerms: this.initialSearchTerms,
     };
   },
   computed: {
@@ -151,7 +152,12 @@ export default {
     },
   },
   watch: {
-    searchTerms: "reload",
+    searchTerms: {
+      handler(newValue) {
+        this.$emit("searchTerms", newValue);
+        this.reload();
+      },
+    },
     graphqlFilter: {
       deep: true,
       handler() {

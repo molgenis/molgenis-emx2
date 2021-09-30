@@ -35,7 +35,7 @@ export default {
         ? undefined
         : this.variable.mappings.find(
             (mapping) =>
-              mapping.fromTable.release.resource.acronym === this.sourceCohort
+              mapping.fromTable.release.resource.pid === this.sourceCohort
           );
       let repeats = [
         {
@@ -49,8 +49,7 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.release.resource.acronym ===
-                  this.sourceCohort
+                  mapping.fromTable.release.resource.pid === this.sourceCohort
               );
             }
             return repeat;

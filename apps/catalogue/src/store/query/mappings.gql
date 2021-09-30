@@ -3,7 +3,7 @@ query VariableMappings($filter: VariableMappingsFilter) {
     fromTable {
       release {
         resource {
-          acronym
+          pid
         }
         version
       }
@@ -13,7 +13,7 @@ query VariableMappings($filter: VariableMappingsFilter) {
       table {
         release {
           resource {
-            acronym
+            pid
           }
           version
         }

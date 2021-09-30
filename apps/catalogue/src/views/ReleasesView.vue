@@ -1,7 +1,6 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-
     <div v-if="release" class="container bg-white">
       <div class="p-2 bg-dark text-white">
         <h6>
@@ -14,7 +13,7 @@
         </h6>
       </div>
       <h1>
-        <small>Release:</small><br />{{ release.resource.acronym }} ({{
+        <small>Release:</small><br />{{ release.resource.pid }} ({{
           release.version
         }})
       </h1>
@@ -23,9 +22,9 @@
         <RouterLink
           :to="{
             name: resourceType.toLowerCase(),
-            params: { acronym: release.resource.acronym },
+            params: { pid: release.resource.pid },
           }"
-          >{{ release.resource.acronym }} -
+          >{{ release.resource.pid }} -
           {{ release.resource.name }}
         </RouterLink>
       </p>
@@ -54,25 +53,17 @@
 
 <script>
 import { request } from "graphql-request";
-import VariablesList from "../components/VariablesList";
-import TopicSelector from "../components/TopicSelector";
-import VariableTree from "../components/VariableTree";
 import { TableExplorer, MessageError } from "@mswertz/emx2-styleguide";
-import ModelsList from "../components/ModelsList";
 import ReleasesList from "../components/ReleasesList";
 
 export default {
   components: {
     ReleasesList,
-    ModelsList,
-    VariableTree,
-    TopicSelector,
-    VariablesList,
     TableExplorer,
     MessageError,
   },
   props: {
-    acronym: String,
+    pid: String,
     version: String,
   },
   data() {
@@ -84,20 +75,21 @@ export default {
   computed: {
     resourceType() {
       if (this.release) {
-        return this.release.resource.mg_tableclass.split(".")[1].slice(0, -1);
+        return this.release.resource.mg_tableclass.split(".")[1];
       }
+      return null;
     },
     tableFilters() {
       let result = [];
       result.push({
         version: { equals: this.version },
-        resource: { acronym: { equals: this.acronym } },
+        resource: { pid: { equals: this.pid } },
       });
       if (this.release.models) {
         this.release.models.forEach((r) => {
           result.push({
             version: { equals: r.version },
-            resource: { acronym: { equals: r.resource.acronym } },
+            resource: { pid: { equals: r.resource.pid } },
           });
         });
       }
@@ -107,9 +99,9 @@ export default {
   methods: {
     openTable(row) {
       this.$router.push({
-        name: "table",
+        name: "Tables-details",
         params: {
-          acronym: row.release.resource.acronym,
+          pid: row.release.resource.pid,
           version: row.release.version,
           name: row.name,
         },
@@ -118,11 +110,11 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Releases($acronym:String,$version:String){
-        Releases(filter:{resource:{acronym:{equals:[$acronym]}},version:{equals:[$version]}}){models{version,resource{name,acronym}},resource{acronym,name,mg_tableclass},version}
+        `query Releases($pid:String,$version:String){
+        Releases(filter:{resource:{pid:{equals:[$pid]}},version:{equals:[$version]}}){models{version,resource{name,pid}},resource{pid,name,mg_tableclass},version}
         }`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
         }
       )
@@ -130,7 +122,7 @@ export default {
           this.release = data.Releases[0];
         })
         .catch((error) => {
-          this.graphqlError = error.response.errors[0].message;
+          this.graphqlError = error;
         })
         .finally(() => {
           this.loading = false;

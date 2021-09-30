@@ -22,7 +22,7 @@
                 :compact="true"
                 :target-variable="v"
                 :target-table="tableName"
-                :target-resource="resourceAcronym"
+                :target-resource="resourcePid"
                 :source-resource="t.split(':')[0]"
                 :source-table="t.split(':')[1]"
                 :match="matrix[v][t]"
@@ -61,7 +61,7 @@ export default {
     MessageError,
   },
   props: {
-    resourceAcronym: String,
+    resourcePid: String,
     tableName: String,
   },
   data() {
@@ -78,7 +78,7 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) => h.sourceRelease.resource.acronym + ":" + h.sourceTable.name
+            (h) => h.sourceRelease.resource.pid + ":" + h.sourceTable.name
           )
         ),
       ].sort();
@@ -98,7 +98,7 @@ export default {
       this.harmonisations.forEach((h) => {
         if (h.match) {
           result[h.targetVariable.name][
-            h.sourceTable.resource.acronym + ":" + h.sourceTable.name
+            h.sourceTable.resource.pid + ":" + h.sourceTable.name
           ] = h.match.name;
         }
       });
@@ -108,10 +108,10 @@ export default {
   methods: {
     reload() {
       let filter = {};
-      //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{acronym:{equals:"LifeCycle"}}}}}
-      if (this.resourceAcronym) {
+      //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{pid:{equals:"LifeCycle"}}}}}
+      if (this.resourcePid) {
         filter.targetRelease = {
-          resource: { acronym: { equals: this.resourceAcronym } },
+          resource: { pid: { equals: this.resourcePid } },
         };
       }
       if (this.tableName !== undefined) {
@@ -120,7 +120,7 @@ export default {
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{release{resource{acronym}}name}match{name}}
+          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{release{resource{pid}}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -141,7 +141,7 @@ export default {
     },
   },
   watch: {
-    resourceAcronym() {
+    resourcePid() {
       this.reload();
     },
     tableName() {

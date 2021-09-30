@@ -2,7 +2,6 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
-      <MessageError v-if="error">{{ error }}</MessageError>
       <span v-if="session.email && session.email != 'anonymous'">
         <a
           href="#"
@@ -45,7 +44,6 @@
 import Spinner from "./Spinner";
 import ButtonOutline from "../forms/ButtonOutline";
 import ButtonAlt from "../forms/ButtonAlt";
-import MessageError from "../forms/MessageError";
 
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
@@ -62,7 +60,6 @@ export default {
     ChangePasswordForm,
     Spinner,
     ButtonAlt,
-    MessageError,
   },
   props: {
     graphql: {

@@ -1,9 +1,6 @@
 query Resources {
   Resources {
-    acronym
+    pid
     name
-    type {
-      name
-    }
   }
 }

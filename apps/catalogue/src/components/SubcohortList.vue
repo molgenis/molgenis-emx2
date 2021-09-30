@@ -5,8 +5,9 @@
         <th>Name</th>
         <th>Description</th>
         <th>noParticipants</th>
-        <th>geographicRegion</th>
-        <th>ageCategories</th>
+        <th>countries</th>
+        <th>regions</th>
+        <th>ageGroups</th>
         <th>Disease</th>
         <th>Other inclusion criteria</th>
       </thead>
@@ -16,10 +17,13 @@
           <td>{{ c.description ? c.description : "N/A" }}</td>
           <td>{{ c.noParticipants }}</td>
           <td>
-            <OntologyTerms :terms="c.geographicRegion" :color="color" />
+            <OntologyTerms :terms="c.countries" :color="color" />
           </td>
           <td>
-            <OntologyTerms :terms="c.ageCategories" :color="color" />
+            <OntologyTerms :terms="c.regions" :color="color" />
+          </td>
+          <td>
+            <OntologyTerms :terms="c.ageGroups" :color="color" />
           </td>
           <td>
             <OntologyTerms :terms="c.disease" :color="color" />

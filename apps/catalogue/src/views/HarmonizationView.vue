@@ -19,10 +19,10 @@
               class="rotated-text text-nowrap"
               scope="col"
               v-for="resource in resources"
-              :key="resource.acronym"
+              :key="resource.pid"
             >
               <div>
-                <span class="table-label">{{ resource.acronym }}</span>
+                <span class="table-label">{{ resource.pid }}</span>
               </div>
             </th>
           </tr>

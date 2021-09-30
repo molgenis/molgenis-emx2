@@ -28,6 +28,7 @@
               :columns.sync="columns"
               @update:columns="emitFilters"
               checkAttribute="showFilter"
+              :exclude="['HEADING', 'FILE']"
               label="filters"
               icon="filter"
             />
@@ -256,7 +257,7 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   },
   data() {

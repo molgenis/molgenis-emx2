@@ -8,7 +8,6 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchem
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.*;
-import java.util.regex.Pattern;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -31,9 +30,10 @@ public class SqlDatabase implements Database {
 
   private Integer databaseVersion;
   private DSLContext jooq;
-  private SqlUserAwareConnectionProvider connectionProvider;
-  private Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final SqlUserAwareConnectionProvider connectionProvider;
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
+  private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String INITIAL_ADMIN_PW =
@@ -64,6 +64,7 @@ public class SqlDatabase implements Database {
 
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
+    this.schemaInfos.addAll(copy.schemaInfos);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -104,15 +105,6 @@ public class SqlDatabase implements Database {
       logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
       logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
       logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
-
-      if (!Pattern.matches("[0-9A-Za-z/:]+", url)) {
-        logger.error(
-            "Error: invalid "
-                + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI
-                + " string. Found :"
-                + url);
-        return;
-      }
 
       // create data source
       HikariDataSource dataSource = new HikariDataSource();
@@ -178,10 +170,15 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema createSchema(String name) {
+    return this.createSchema(name, null);
+  }
+
+  @Override
+  public SqlSchema createSchema(String name, String description) {
     long start = System.currentTimeMillis();
     this.tx(
         db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -194,6 +191,22 @@ public class SqlDatabase implements Database {
         });
     getListener().schemaChanged(name);
     this.log(start, "created schema " + name);
+    return getSchema(name);
+  }
+
+  @Override
+  public Schema updateSchema(String name, String description) {
+    long start = System.currentTimeMillis();
+    this.tx(
+        db -> {
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+          MetadataUtils.updateSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+
+          // refresh
+          db.clearCache();
+        });
+    getListener().schemaChanged(name);
+    this.log(start, "updated schema " + name);
     return getSchema(name);
   }
 
@@ -217,9 +230,11 @@ public class SqlDatabase implements Database {
     long start = System.currentTimeMillis();
     tx(
         database -> {
-          SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) database, name);
-          ((SqlDatabase) database).schemaNames.remove(name);
-          ((SqlDatabase) database).schemaCache.remove(name);
+          SqlDatabase sqlDatabase = (SqlDatabase) database;
+          SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
+          sqlDatabase.schemaNames.remove(name);
+          sqlDatabase.schemaInfos.clear();
+          sqlDatabase.schemaCache.remove(name);
         });
 
     listener.schemaRemoved(name);
@@ -246,6 +261,14 @@ public class SqlDatabase implements Database {
       this.schemaNames = MetadataUtils.loadSchemaNames(this);
     }
     return this.schemaNames;
+  }
+
+  @Override
+  public Collection<SchemaInfo> getSchemaInfos() {
+    if (this.schemaInfos.isEmpty()) {
+      this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
+    }
+    return this.schemaInfos;
   }
 
   @Override
@@ -399,11 +422,18 @@ public class SqlDatabase implements Database {
       this.databaseVersion = from.databaseVersion;
 
       this.schemaNames = from.schemaNames;
+      this.schemaInfos = from.schemaInfos;
 
       // remove schemas that were dropped
-      this.schemaCache.keySet().stream()
-          .filter(s -> !from.schemaCache.keySet().contains(s))
-          .forEach(s -> this.schemaCache.remove(s));
+      Set<String> removeSet = new HashSet<>();
+      for (String key : this.schemaCache.keySet()) {
+        if (!from.schemaCache.keySet().contains(key)) {
+          removeSet.add(key);
+        }
+      }
+      for (String key : removeSet) {
+        this.schemaCache.remove(key);
+      }
 
       // sync the existing schema cache, add missing
       from.schemaCache
@@ -429,6 +459,7 @@ public class SqlDatabase implements Database {
   public void clearCache() {
     this.schemaCache.clear();
     this.schemaNames.clear();
+    this.schemaInfos.clear();
   }
 
   public DSLContext getJooq() {

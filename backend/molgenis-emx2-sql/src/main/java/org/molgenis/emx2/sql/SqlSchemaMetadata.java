@@ -64,6 +64,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
+  public SqlSchemaMetadata(Database db, String name, String description) {
+    super(
+        db,
+        MetadataUtils.loadSchemaMetadata(
+            ((SqlDatabase) db).getJooq(), new SchemaMetadata(name, description)));
+    this.reload();
+  }
+
   public SqlSchemaMetadata(Database db, String name) {
     super(
         db,
