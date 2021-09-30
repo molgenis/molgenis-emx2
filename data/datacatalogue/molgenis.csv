@@ -72,7 +72,7 @@ Databanks,,identifierDescription,text,,,,,,,,"Describe the variable that is used
 RWEresources,,standardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,,,,,,,,,,,
 Databanks,,ETLstandardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,,,,,,,,,,,
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other,, what other vocabularies are used?",,,,,,,,,,,,
-RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries describing data bank population,,,,,,,,,,,,
+Databanks,,releases,refback,,,Releases,,resource,,,Data releases for this databank,,,,,,,,,,,,
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population,,,,,,,,,,,,
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population,,,,,,,,,,,,
 Cohorts,,dataAccessConditions,ontology_array,,,Conditions,,,,,Codes defining data access terms and use conditions,,,,,,,,,,,,
