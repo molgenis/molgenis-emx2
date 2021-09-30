@@ -37,7 +37,7 @@
       @input="$emit('update:conditions', $event)"
     />
     <InputOntology
-      :list="columnType.endsWith('ARRAY')"
+      :list="true"
       v-else-if="columnType.startsWith('ONTOLOGY')"
       :table="refTable"
       :value="conditions"
