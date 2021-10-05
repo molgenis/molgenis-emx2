@@ -3,6 +3,8 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -53,10 +56,18 @@ public class WebApiSmokeTests {
     RestAssured.baseURI = "http://localhost";
 
     // create an admin session to work with
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
     SESSION_ID =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + db.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + adminPass
+                    + "\\\"){message}}\"}")
             .when()
             .post("api/graphql")
             .sessionId();
@@ -247,7 +258,6 @@ public class WebApiSmokeTests {
 
   @Test
   public void testGraphqlApi() {
-    db.setUserPassword("admin", "admin");
     String path = "/api/graphql";
 
     // create a new session, separate from the session shared in these tests
@@ -273,11 +283,21 @@ public class WebApiSmokeTests {
             .asString();
     assertTrue(result.contains("Error"));
 
+    // read admin password from environment if necessary
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+
     result =
         given()
             .sessionId(sessionId)
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + db.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + adminPass
+                    + "\\\"){message}}\"}")
             .when()
             .post(path)
             .asString();
@@ -290,7 +310,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("admin"));
+    assertTrue(result.contains(db.getAdminUserName()));
 
     // if admin then should  be able to see users
     result =

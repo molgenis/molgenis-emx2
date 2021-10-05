@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
@@ -53,9 +52,7 @@ public class SqlSchema implements Schema {
   @Override
   public List<Member> getMembers() {
     // only admin or other members can see
-    if (db.getActiveUser() == null
-        || ADMIN.equals(db.getActiveUser())
-        || getRoleForActiveUser() != null) {
+    if (db.getActiveUser() == null || db.isAdmin() || getRoleForActiveUser() != null) {
       return executeGetMembers(getMetadata().getJooq(), getMetadata());
     } else {
       return new ArrayList<>();

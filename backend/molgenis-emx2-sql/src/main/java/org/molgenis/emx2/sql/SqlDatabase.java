@@ -19,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlDatabase implements Database {
-  public static final String ADMIN = "admin";
+  static final String ADMIN_USER = "admin";
+  public static final String ADMIN_PW_DEFAULT = "admin";
+
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
 
@@ -33,9 +35,11 @@ public class SqlDatabase implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
-  private final String INITIAL_ADMIN_PW =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN, STRING);
+  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private String INITIAL_ADMIN_PW =
+      (String)
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
@@ -133,10 +137,10 @@ public class SqlDatabase implements Database {
       if (!hasUser(USER)) {
         addUser(USER); // used as role to identify all users except anonymous
       }
-      if (!hasUser(ADMIN)) {
-        addUser(ADMIN);
-        setUserPassword(ADMIN, INITIAL_ADMIN_PW);
-        jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN));
+      if (!hasUser(ADMIN_USER)) {
+        addUser(ADMIN_USER);
+        setUserPassword(ADMIN_USER, INITIAL_ADMIN_PW);
+        jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN_USER));
       }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
@@ -292,7 +296,7 @@ public class SqlDatabase implements Database {
   public void setUserPassword(String user, String password) {
     // can only as admin or as own user
     if (getActiveUser() != null
-        && !getActiveUser().equals(ADMIN)
+        && !getActiveUser().equals(ADMIN_USER)
         && !user.equals(getActiveUser())) {
       throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
     }
@@ -310,7 +314,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public List<User> getUsers(int limit, int offset) {
-    if (!ADMIN.equals(getActiveUser()) && getActiveUser() != null) {
+    if (!ADMIN_USER.equals(getActiveUser()) && getActiveUser() != null) {
       throw new MolgenisException("getUsers denied");
     }
     return MetadataUtils.loadUsers(getJooq(), limit, offset);
@@ -469,9 +473,24 @@ public class SqlDatabase implements Database {
 
   @Override
   public int countUsers() {
-    if (!ADMIN.equals(getActiveUser()) && getActiveUser() != null) {
+    if (!ADMIN_USER.equals(getActiveUser()) && getActiveUser() != null) {
       throw new MolgenisException("countUsers denied");
     }
     return MetadataUtils.countUsers(getJooq());
+  }
+
+  @Override
+  public String getAdminUserName() {
+    return ADMIN_USER;
+  }
+
+  @Override
+  public boolean isAdmin() {
+    return ADMIN_USER.equals(getActiveUser());
+  }
+
+  @Override
+  public void becomeAdmin() {
+    this.setActiveUser(getAdminUserName());
   }
 }
