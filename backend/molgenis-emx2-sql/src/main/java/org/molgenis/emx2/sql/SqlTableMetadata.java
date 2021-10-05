@@ -179,6 +179,12 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
     Column newColumn = new Column(tm, column);
     Column oldColumn = tm.getColumn(columnName);
+
+    // primary keys by definition are required
+    if (newColumn.getKey() == 1) {
+      newColumn.setRequired(true);
+    }
+
     validateColumn(newColumn);
 
     // check if reference and of different size
@@ -191,10 +197,6 @@ class SqlTableMetadata extends TableMetadata {
               + oldColumn.getName()
               + " failed: REF_ARRAY is not supported for composite keys of table "
               + newColumn.getRefTableName());
-    }
-
-    if (newColumn.getKey() == 1) {
-      newColumn.setRequired(true);
     }
 
     // if changing 'ref' then check if not refBack exists

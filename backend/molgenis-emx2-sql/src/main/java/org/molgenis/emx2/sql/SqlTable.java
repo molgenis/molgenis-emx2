@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
@@ -379,7 +379,7 @@ class SqlTable implements Table {
     // add all the rows as steps
     String user = table.getSchema().getDatabase().getActiveUser();
     if (user == null) {
-      user = ADMIN;
+      user = ADMIN_USER;
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
@@ -446,7 +446,7 @@ class SqlTable implements Table {
     List<UpdateConditionStep> list = new ArrayList();
     String user = table.getSchema().getDatabase().getActiveUser();
     if (user == null) {
-      user = ADMIN;
+      user = ADMIN_USER;
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {

@@ -1,7 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
@@ -120,7 +118,7 @@ public class GraphqlApiFactory {
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
 
     // admin operations
-    if (ADMIN.equals(database.getActiveUser())) {
+    if (database.isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
     }
 
@@ -156,7 +154,7 @@ public class GraphqlApiFactory {
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // admin operations
-    if (ADMIN.equals(schema.getDatabase().getActiveUser())) {
+    if (schema.getDatabase().isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(schema.getDatabase()));
     }
 

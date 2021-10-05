@@ -95,10 +95,6 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      path: "/releases/:pid",
-      redirect: "/releases",
-    },
-    {
       name: "variables",
       path: "/variables",
       props: (route) => ({
@@ -163,6 +159,10 @@ const router = new VueRouter({
         color: "danger",
         filter: { pid: { equals: route.params.pid } },
       }),
+    },
+    {
+      path: "/releases/:pid",
+      redirect: "/resources/:pid",
     },
     {
       name: "Releases-details",
@@ -236,11 +236,34 @@ const router = new VueRouter({
         filter: { pid: { equals: route.params.pid } },
       }),
     },
+    //make bread crumb work for variable details
+    {
+      path: "/variables/:pid",
+      redirect: "/resources/:pid",
+    },
+    {
+      path: "/variables/:pid/:version",
+      redirect: "/releases/:pid/:version",
+    },
+    {
+      path: "/variables/:pid/:version/:table",
+      redirect: "/tables/:pid/:version/:table",
+    },
+    //variable details
     {
       name: "Variables-details",
       path: "/variables/:pid/:version/:table/:name",
       props: true,
       component: VariableView,
+    },
+    //make bread crumb work for table-details
+    {
+      path: "/tables/:pid",
+      redirect: "/resources/:pid",
+    },
+    {
+      path: "/tables/:pid/:version",
+      redirect: "/releases/:pid/:version",
     },
     {
       name: "Tables-details",

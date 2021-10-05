@@ -15,11 +15,11 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class TestGraphqAdminFields {
+public class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = "TestGraphqlAdminFields";
+  private static final String schemaName = TestGraphqlAdminFields.class.getName();
 
   @BeforeClass
   public static void setup() {
@@ -31,23 +31,32 @@ public class TestGraphqAdminFields {
   @Test
   public void testUsers() throws IOException {
     try {
-      database.setActiveUser("admin");
-      Schema schema = database.dropCreateSchema(schemaName);
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-      int count = database.countUsers();
+      database.becomeAdmin();
 
-      TestCase.assertEquals(
-          count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+      // put in transaction so user count is not affected by other operations
+      database.tx(
+          tdb -> {
+            Schema schema = database.dropCreateSchema(schemaName);
+            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-      // test that only admin can do this
-      database.setActiveUser(null);
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-      try {
-        TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
-        fail("should fail");
-      } catch (Exception e) {
-        TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
-      }
+            int count = database.countUsers();
+            try {
+              TestCase.assertEquals(
+                  count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+            // test that only admin can do this
+            database.setActiveUser(null);
+            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+
+            try {
+              TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
+              fail("should fail");
+            } catch (Exception e) {
+              TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
+            }
+          });
 
     } finally {
       database.setActiveUser(null);
