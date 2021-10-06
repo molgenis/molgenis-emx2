@@ -43,7 +43,7 @@
     </div>
     <h6>Mappings/ETLs</h6>
     <ul v-if="table.mappings || table.mappingsTo">
-      <li v-for="m in table.mappings">
+      <li v-for="(m, index) in table.mappings" :key="index">
         From:
         <RouterLink
           :to="{
@@ -64,7 +64,7 @@
           {{ m.fromTable.name }}
         </RouterLink>
       </li>
-      <li v-for="m in table.mappingsTo">
+      <li v-for="(m, index) in table.mappingsTo" :key="index">
         To:
         <RouterLink
           :to="{
@@ -93,14 +93,7 @@
       table="Variables"
       :showHeader="false"
       :showFilters="['keywords']"
-      :showColumns="[
-        'name',
-        'label',
-        'format',
-        'unit',
-        'mandatory',
-        'keywords',
-      ]"
+      :showColumns="['name', 'label', 'format', 'description', 'notes']"
       :showCards="true"
       :filter="{
         table: { name: { equals: name } },
