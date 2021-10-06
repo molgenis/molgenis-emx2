@@ -4,7 +4,7 @@ We facilitate federated analysis. Federated analysis allows researchers to carry
 
 ![Figure 1: Federated analysis](img/cat_federated-analysis.png)
 
-To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the metadata of the cohorts and the common data model. To **access** the data you need the MOLGENIS Armadillo. This is a platform which uses [DataSHIELD](https://datashield.org/) to perform the analysis.
+To **find** the data we developed a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the metadata of the cohorts and the common data model.
 
 We distinguish three roles within each federated network.
 
@@ -16,12 +16,3 @@ We distinguish three roles within each federated network.
 | Catalogue | Find (harmonised) variables | [X](cat_researcher.md#find-variables) | | |
 | Catalogue | Find harmonisation specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
 | Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
-| Armadillo | Initial data upload | | [X](cat_cohort-data-manager.md#initial-upload) | |
-| Armadillo | Request access | [X](cat_researcher.md#request-access) | [X](cat_cohort-data-manager.md#request-access-armadillo) | |
-| Armadillo | Request permissions | [X](cat_researcher.md#request-permissions) | [X](cat_cohort-data-manager.md#assign-permissions) | |
-| Armadillo | Create subsets of the data | | [X](cat_cohort-data-manager.md#create-subsets) | |
-| Armadillo | Give permissions on the data | | [X](cat_cohort-data-manager.md#assign-permissions) | |
-| Armadillo | Quality control | | [X](cat_cohort-data-manager.md#quality-control) | |
-| Armadillo | Use DataSHIELD | [X](cat_researcher.md#use-datashield) | | |
-| Armadillo | Deploy an instance | | | [X](cat_cohort-data-manager.md#deploy-an-instance) |
-| Analysis environment | Request access | [X](cat_researcher.md#request-access-1) | | |
