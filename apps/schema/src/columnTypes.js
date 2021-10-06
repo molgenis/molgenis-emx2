@@ -12,6 +12,7 @@ export default [
   "REFBACK",
   "UUID",
   "TEXT",
+  "FILE",
   "STRING_ARRAY",
   "INT_ARRAY",
   "BOOL_ARRAY",
