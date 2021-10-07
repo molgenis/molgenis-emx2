@@ -4,22 +4,26 @@
       <thead class="text-nowrap">
         <th>Name</th>
         <th>Description</th>
-        <th>noParticipants</th>
+        <th>Number of participants</th>
         <th>Start</th>
         <th>End</th>
         <th>Subcohorts</th>
         <th>Data sources</th>
         <th>Sample sources</th>
         <th>Areas of information</th>
-        <th>Age Categories</th>
+        <th>Age Groups</th>
       </thead>
       <tbody>
         <tr v-for="e in collectionEvents" :key="e.name">
           <td>{{ e.name }}</td>
           <td>{{ e.description ? e.description : "N/A" }}</td>
-          <td>{{ e.noParticipants }}</td>
-          <td>{{ e.startYear }}</td>
-          <td>{{ e.endYear }}</td>
+          <td>{{ e.numberOfParticipants }}</td>
+          <td>
+            <OntologyTerms :terms="[e.startYear]" />
+          </td>
+          <td>
+            <OntologyTerms :terms="[e.endYear]" />
+          </td>
           <td>
             <OntologyTerms :terms="e.subcohorts" />
           </td>
@@ -33,7 +37,7 @@
             <OntologyTerms :terms="e.areasOfInformation" />
           </td>
           <td>
-            <OntologyTerms :terms="e.ageCategories" />
+            <OntologyTerms :terms="e.ageGroups" />
           </td>
         </tr>
       </tbody>
