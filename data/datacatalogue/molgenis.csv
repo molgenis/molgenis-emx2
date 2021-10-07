@@ -1,4 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
+Version,,,,,,,,,,,1
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -274,6 +275,7 @@ Variables,,permittedValues,refback,,,VariableValues,,variable,,,
 Variables,,keywords,ontology_array,,,Keywords,,,,,
 Variables,,repeats,refback,,,RepeatedVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
 Variables,,vocabularies,ontology_array,,,Vocabularies,,,,,
+Variables,,notes,text,,,,,,,,Any other information on this variable
 RepeatedVariables,AllVariables,,,,,,,,,,Definition of a repeated variable. Refers to another variable for its definition.
 RepeatedVariables,,isRepeatOf,ref,,TRUE,Variables,release,,,,reference to the definition of the variable that is being repeated
 Tables,,,,,,,,,,,Definition of a table within a data release
