@@ -29,5 +29,8 @@
     - [Cohort/DAP data manager](cat_cohort-data-manager.md)
     - [CDM/Network data manager](cat_network-data-manager.md)
     - [System administration](cat_admin.md)
-
+- **Data access guide**
+    - [General information](data_general-information.md)
+    - [Researcher](data_researcher.md)
+    - [Cohort/DAP data manager](cat_cohort-data-manager.md)
 
