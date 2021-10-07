@@ -33,14 +33,6 @@
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
-    <div class="row">
-      <div class="col">
-        <h6>Keywords</h6>
-        <OntologyTerms :terms="table.keywords" color="dark" />
-        <h6>Unit of observation</h6>
-        <OntologyTerms :terms="[table.unitOfObservation]" color="dark" />
-      </div>
-    </div>
     <h6>Mappings/ETLs</h6>
     <ul v-if="table.mappings || table.mappingsTo">
       <li v-for="(m, index) in table.mappings" :key="index">
@@ -92,7 +84,7 @@
       v-if="tab == 'Variables'"
       table="Variables"
       :showHeader="false"
-      :showFilters="['keywords']"
+      :showFilters="[]"
       :showColumns="['name', 'label', 'format', 'description', 'notes']"
       :showCards="true"
       :filter="{
@@ -159,7 +151,7 @@ export default {
       request(
         "graphql",
         `query Tables($pid:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
-        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{pid,name,mg_tableclass}},keywords{name,ontologyTermURI,definition}, description,label,keywords{name}
+        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{pid,name,mg_tableclass}}, description,label,
         mappings{fromRelease{resource{pid,mg_tableclass}version}fromTable{name}}
          mappingsTo{toRelease{resource{pid,mg_tableclass}version}toTable{name}}
          }}`,
