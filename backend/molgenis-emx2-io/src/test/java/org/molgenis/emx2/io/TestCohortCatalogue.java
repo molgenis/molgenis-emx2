@@ -54,7 +54,7 @@ public class TestCohortCatalogue {
             false);
     task3.run();
 
-    assertEquals(68, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(69, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
@@ -68,12 +68,18 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     rweSchema.migrate(schema);
 
+    // should be possible to update same schema
+    database.clearCache();
+    schema =
+        Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
+    rweSchema.migrate(schema);
+
     ImportDirectoryTask task2 =
         new ImportDirectoryTask(
             new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
     task2.run();
 
-    assertEquals(68, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(69, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }

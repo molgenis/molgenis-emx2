@@ -17,7 +17,7 @@ class SqlDatabaseExecutor {
     try {
       String userName = MG_USER_PREFIX + user;
       jooq.execute("CREATE ROLE {0} WITH NOLOGIN", name(userName));
-      if (!ADMIN.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
+      if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
         // all users can see what anynymous can see

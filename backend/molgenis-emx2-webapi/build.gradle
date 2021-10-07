@@ -7,9 +7,9 @@ dependencies {
     implementation project(':backend:molgenis-emx2-semantics')
     implementation project(':backend:molgenis-emx2-jobs')
     implementation 'com.sparkjava:spark-core:2.9.3'
-    implementation 'io.swagger.parser.v3:swagger-parser:2.0.27'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'com.squareup.okhttp3:okhttp-brotli:4.9.1'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.0.28'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
+    implementation 'com.squareup.okhttp3:okhttp-brotli:4.9.2'
     testImplementation 'io.rest-assured:rest-assured:4.4.0'
     implementation 'io.bit3:jsass:5.10.4'
 

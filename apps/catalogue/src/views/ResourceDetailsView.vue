@@ -149,7 +149,7 @@ export default {
   },
   data() {
     return {
-      hideNA: false,
+      hideNA: true,
     };
   },
   computed: {

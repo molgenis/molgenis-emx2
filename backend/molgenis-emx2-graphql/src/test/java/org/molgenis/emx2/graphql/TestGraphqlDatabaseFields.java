@@ -1,7 +1,9 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +17,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
@@ -55,11 +58,19 @@ public class TestGraphqlDatabaseFields {
 
     // todo: default user should be anonymous?
     assertNull(database.getActiveUser());
-    database.setUserPassword("admin", "admin");
 
-    // login is admin
-    execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
-    Assert.assertEquals("admin", database.getActiveUser());
+    // read admin password from environment if necessary
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+    execute(
+        "mutation { signin(email: \""
+            + database.getAdminUserName()
+            + "\",password:\""
+            + adminPass
+            + "\") {message}}");
+    Assert.assertTrue(database.isAdmin());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -71,7 +82,8 @@ public class TestGraphqlDatabaseFields {
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
-    Assert.assertEquals("admin", database.getActiveUser());
+    // still admin
+    Assert.assertTrue(database.isAdmin());
 
     TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")

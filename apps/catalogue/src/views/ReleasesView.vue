@@ -1,8 +1,6 @@
 <template>
   <div>
-    {{ pid }} {{ version }}
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-
     <div v-if="release" class="container bg-white">
       <div class="p-2 bg-dark text-white">
         <h6>
