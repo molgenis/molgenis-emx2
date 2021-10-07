@@ -79,7 +79,7 @@ public class TestCohortCatalogue {
             new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
     task2.run();
 
-    assertEquals(69, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(71, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
