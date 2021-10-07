@@ -47,7 +47,7 @@ Resources,,numberOfParticipantsWithSamples,int,,,,,,,,Number of individuals for 
 Databanks,,underlyingPopulation,text,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description
 Resources,,countries,ontology_array,,,Countries,,,,,Countries where data from this resource originate from
 Resources,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this resource originate from
-Resources,,populationAgeGroups,"ontology_array",,,AgeGroups,,,,,Age groups of the participants of this resource
+Resources,,populationAgeGroups,ontology_array,,,AgeGroups,,,,,Age groups of the participants of this resource
 Cohorts,,inclusionCriteria,text,,,InclusionCriteria,,,,,Other inclusion criteria applied to the participants of this resource
 Resources,,startYear,int,,,,,,,,Year when first data was collected
 Resources,,endYear,int,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
@@ -141,7 +141,7 @@ Publications,,pagination,,,,,,,,,"Page numbers, separated either by commas or do
 Publications,,publisher,,,,,,,,,Publisher's name
 Publications,,school,,,,,,,,,School where the thesis was written (in case of thesis)
 Publications,,abstract,text,,,,,,,,Publication abstract
-Publications,,resources,refback,,,Resources,,otherPublications,,,List of resources that refer to this publication
+Publications,,resources,refback,,,Resources,,publications,,,List of resources that refer to this publication
 Partners,,,,,,,,,,,Institutions that partnered in the creation of a resource
 Partners,,resource,ref,1,TRUE,Resources,,,,,Resource that is contributed to
 Partners,,institution,ref,1,TRUE,Institutions,,,,,institution that contributed
@@ -368,3 +368,5 @@ InformedConsents,OntologyTerms,,,,,,,,,,
 Months,OntologyTerms,,,,,,,,,,
 Languages,OntologyTerms,,,,,,,,,,
 InstitutionRoles,OntologyTerms,,,,,,,,,,
+Years,OntologyTerms,,,,,,,,,,
+Titles,OntologyTerms,,,,,,,,,,
