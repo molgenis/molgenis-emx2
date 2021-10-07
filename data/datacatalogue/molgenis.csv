@@ -223,8 +223,8 @@ Subcohorts,,resource,ref,1,TRUE,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,Subcohort description
 Subcohorts,,numberOfParticipants,int,,,,,,,,Number of participants in this subcohort
-Subcohorts,,inclusionStart,int,,,,,,,,Date of first included participant
-Subcohorts,,inclusionEnd,int,,,,,,,,Date of last included participant. Leave empty if collection is ongoing
+Subcohorts,,inclusionStart,int,,,,,,,,Year of first included participant
+Subcohorts,,inclusionEnd,int,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups within this subcohort
 Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,,,,,Main medical condition of this subcohort
 Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort originate from
