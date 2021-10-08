@@ -1,6 +1,6 @@
 <template>
   <div class="container bg-white p-3">
-    <h1>Data catalogue <span v-if="databanks > 0">(Proof of Concept)</span></h1>
+    <h1>Data catalogue (Proof of Concept)</h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <p>
       Browse and manage metadata for data resources, such as cohorts,
