@@ -1,7 +1,7 @@
 <template>
   <ul v-if="contributors">
-    <li v-for="c in contributors">
-      {{ c.contact.name }}
+    <li v-for="(c, index) in contributors" :key="index">
+      {{ c.contact.firstName }} {{ c.contact.surname }}
       <OntologyTerms
         :terms="c.contributionType"
         :inline="true"
