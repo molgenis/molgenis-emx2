@@ -3,7 +3,7 @@
     <li v-for="p in partners" :key="p.pid">
       <RouterLink
         :to="{
-          name: 'institution',
+          name: 'Institutions-details',
           params: { pid: p.institution.pid },
         }"
       >
