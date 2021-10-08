@@ -4,10 +4,10 @@
       <thead>
         <th>Name</th>
         <th>Description</th>
-        <th>noParticipants</th>
-        <th>countries</th>
-        <th>regions</th>
-        <th>ageGroups</th>
+        <th>Number of participants</th>
+        <th>Countries</th>
+        <th>Regions</th>
+        <th>Age groups</th>
         <th>Disease</th>
         <th>Other inclusion criteria</th>
       </thead>
@@ -15,7 +15,7 @@
         <tr v-for="c in subcohorts" :key="c.name">
           <td>{{ c.name }}</td>
           <td>{{ c.description ? c.description : "N/A" }}</td>
-          <td>{{ c.noParticipants }}</td>
+          <td>{{ c.numberOfParticipants }}</td>
           <td>
             <OntologyTerms :terms="c.countries" :color="color" />
           </td>
@@ -26,7 +26,7 @@
             <OntologyTerms :terms="c.ageGroups" :color="color" />
           </td>
           <td>
-            <OntologyTerms :terms="c.disease" :color="color" />
+            <OntologyTerms :terms="c.mainMedicalCondition" :color="color" />
           </td>
           <td>{{ c.inclusionCriteria ? c.inclusionCriteria : "N/A" }}</td>
         </tr>
