@@ -353,19 +353,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testAppsProxyService() {
-    String result =
-        given()
-            .sessionId(SESSION_ID)
-            .when()
-            .get("/plugin/molgenis-app-reports/dist/index.html")
-            .asString();
-
-    // some unique text content
-    assertTrue(result.contains("molgenis-catalogue-templates"));
-  }
-
-  @Test
   public void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primary=123123").asString();
