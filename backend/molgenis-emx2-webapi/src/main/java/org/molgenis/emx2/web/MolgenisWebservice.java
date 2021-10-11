@@ -16,7 +16,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -63,9 +62,6 @@ public class MolgenisWebservice {
     // docs per schema
     get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
-
-    // services (matched in order of creation)
-    AppsProxyService.create(new SqlDatabase(false));
 
     before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
