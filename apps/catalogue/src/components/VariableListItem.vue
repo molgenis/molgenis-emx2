@@ -14,7 +14,7 @@
       ></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.label }}
-      <span class="mg-network-label">
+      <span class="mg-model-label">
         {{ variable.release.resource.pid }}
       </span>
     </div>
@@ -27,7 +27,7 @@
             name: variable.name,
           },
           query: {
-            network: variable.release.resource.pid,
+            model: variable.release.resource.pid,
             version: variable.release.version,
           },
         }"
@@ -140,7 +140,7 @@ export default {
 </script>
 
 <style scoped>
-.mg-network-label {
+.mg-model-label {
   float: right;
 }
 

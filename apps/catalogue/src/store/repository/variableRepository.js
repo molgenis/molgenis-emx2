@@ -2,7 +2,7 @@ import { request } from "graphql-request";
 import variableDetails from "../query/variableDetails.gql";
 import fromVariableDetails from "../query/fromVariableDetails.gql";
 
-const fetchDetails = async (name, network, version) => {
+const fetchDetails = async (name, model, version) => {
   const params = {
     filter: {
       name: { equals: name },
@@ -10,7 +10,7 @@ const fetchDetails = async (name, network, version) => {
         equals: [
           {
             resource: {
-              pid: network,
+              pid: model,
             },
             version: version,
           },
