@@ -40,7 +40,7 @@ export default {
     queryVariables.filter = {
       release: {
         resource: {
-          mg_tableclass: { equals: [`${state.schema}.Networks`] },
+          mg_tableclass: { equals: [`${state.schema}.Models`] },
         },
       },
     };
