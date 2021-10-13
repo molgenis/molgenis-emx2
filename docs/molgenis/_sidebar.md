@@ -1,7 +1,7 @@
-MOLGENIS platform guide
+[MOLGENIS platform guide](use.md)
 
 - **User guide**
-    - [Intro](use.md)
+    - [Introduction](use.md)
     - [Quick start](use_quickstart.md)
     - [Databases](use_database.md)
     - [Schema](use_schema.md)
