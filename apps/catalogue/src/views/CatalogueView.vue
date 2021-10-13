@@ -1,13 +1,15 @@
 <template>
   <div class="container bg-white p-3">
-    <h1>Data catalogue <span v-if="databanks > 0">(Proof of Concept)</span></h1>
+    <h1>
+      Metadata catalogue <span v-if="databanks > 0">(Proof of Concept)</span>
+    </h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <p>
       Browse and manage metadata for data resources, such as cohorts,
       registries, biobanks, and multi-center collaborations thereof such as
       networks, common data models and studies.
     </p>
-    <h2>Collected data</h2>
+    <h2>Metadata on data collections</h2>
     <div class="row justify-content-between">
       <RouterLink to="institutions" class="btn btn-dark col m-2">
         <span class="badge badge-light">{{ institutions }}</span>
@@ -41,7 +43,7 @@
         </p>
       </RouterLink>
     </div>
-    <h2>Data use</h2>
+    <h2>Metadata in integration and reuse</h2>
     <div class="row justify-content-around mt-4">
       <RouterLink to="networks" class="btn btn-danger col-3 m-2">
         <span class="badge badge-light">{{ networks }}</span>
