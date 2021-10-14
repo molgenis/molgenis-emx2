@@ -54,7 +54,7 @@ export default {
       queryVariables.filter.release = {
         equals: networkModels.map((model) => {
           return {
-            version: "1.0.0",
+            // version: "1.0.0",
             resource: model,
           };
         }),

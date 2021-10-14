@@ -15,7 +15,7 @@
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.label }}
       <span class="mg-model-label">
-        {{ variable.release.resource.pid }}
+        {{ variable.release.resource.pid }} ({{ variable.release.version }})
       </span>
     </div>
     <p class="mt-3" v-if="showDetail">
@@ -142,6 +142,7 @@ export default {
 <style scoped>
 .mg-model-label {
   float: right;
+  font-variant: all-petite-caps;
 }
 
 .mg-variable-header:hover {
