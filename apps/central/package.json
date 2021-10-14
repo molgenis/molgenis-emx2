@@ -15,7 +15,7 @@
     "vue": "2.6.14"
   },
   "devDependencies": {
-    "@vue/cli-plugin-router": "4.5.13"
+    "@vue/cli-plugin-router": "4.5.14"
   },
   "eslintConfig": {
     "root": true,
