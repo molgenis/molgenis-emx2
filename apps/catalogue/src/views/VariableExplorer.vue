@@ -5,7 +5,7 @@
         <h5>Filters</h5>
         <h6 class="mt-3">Networks</h6>
         <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
-        <template v-if="keywords.length">
+        <template v-if="hasKeywords">
           <h6 class="mt-3">Topics</h6>
           <InputOntology table="Keywords" v-model="keywords" :list="true" />
         </template>
@@ -117,6 +117,11 @@ export default {
       set(value) {
         this.setSelectedKeywords(value);
       },
+    },
+    hasKeywords() {
+      return !!(
+        this.$store.state.keywords && this.$store.state.keywords.length
+      );
     },
   },
   methods: {
