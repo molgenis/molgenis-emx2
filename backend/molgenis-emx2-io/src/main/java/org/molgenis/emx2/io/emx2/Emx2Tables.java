@@ -22,9 +22,9 @@ public class Emx2Tables {
   public static void outputTable(TableStore store, Table table) {
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
-            .map(c -> c.getName())
+            .map(Column::getName)
             .filter(n -> !n.startsWith("mg_"))
-            .collect(Collectors.toList());
+            .toList();
     SelectColumn[] select =
         downloadColumnNames.stream().map(c -> s(c)).toArray(SelectColumn[]::new);
 
