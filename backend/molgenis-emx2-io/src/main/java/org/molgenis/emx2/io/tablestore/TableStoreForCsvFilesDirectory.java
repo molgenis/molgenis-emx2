@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -31,14 +32,19 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
-      CsvTableWriter.write(rows, writer, separator);
+      if (rows.iterator().hasNext()) {
+        CsvTableWriter.write(rows, writer, separator);
+      } else {
+        // only header in case no rows provided
+        writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
+      }
       writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Impoart failed", ioe);
+      throw new MolgenisException("Export failed", ioe);
     }
   }
 

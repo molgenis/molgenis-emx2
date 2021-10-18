@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Row.row;
 
 import java.util.ArrayList;
@@ -14,12 +15,7 @@ public class Emx2Settings {
 
     // schema settings
     for (Setting setting : schema.getMetadata().getSettings()) {
-      settings.add(
-          row(
-              Constants.SETTINGS_NAME,
-              setting.getKey(),
-              Constants.SETTINGS_VALUE,
-              setting.getValue()));
+      settings.add(row(SETTINGS_NAME, setting.getKey(), SETTINGS_VALUE, setting.getValue()));
     }
 
     // table settings
@@ -27,17 +23,18 @@ public class Emx2Settings {
       for (Setting setting : table.getSettings()) {
         settings.add(
             row(
-                Constants.TABLE,
+                TABLE,
                 table.getTableName(),
-                Constants.SETTINGS_NAME,
+                SETTINGS_NAME,
                 setting.getKey(),
-                Constants.SETTINGS_VALUE,
+                SETTINGS_VALUE,
                 setting.getValue()));
       }
     }
 
     if (settings.size() > 0) {
-      store.writeTable(Constants.SETTINGS_TABLE, settings);
+      store.writeTable(
+          Constants.SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
     }
   }
 
@@ -45,7 +42,7 @@ public class Emx2Settings {
     int row = 1;
     if (store.containsTable(Constants.SETTINGS_TABLE)) {
       for (Row setting : store.readTable(Constants.SETTINGS_TABLE)) {
-        String tableName = setting.getString(Constants.TABLE);
+        String tableName = setting.getString(TABLE);
         if (tableName != null) {
           Table table = schema.getTable(tableName);
           if (table == null) {
@@ -54,15 +51,11 @@ public class Emx2Settings {
           }
           table
               .getMetadata()
-              .setSetting(
-                  setting.getString(Constants.SETTINGS_NAME),
-                  setting.getString(Constants.SETTINGS_VALUE));
+              .setSetting(setting.getString(SETTINGS_NAME), setting.getString(SETTINGS_VALUE));
         } else {
           schema
               .getMetadata()
-              .setSetting(
-                  setting.getString(Constants.SETTINGS_NAME),
-                  setting.getString(Constants.SETTINGS_VALUE));
+              .setSetting(setting.getString(SETTINGS_NAME), setting.getString(SETTINGS_VALUE));
         }
       }
     }

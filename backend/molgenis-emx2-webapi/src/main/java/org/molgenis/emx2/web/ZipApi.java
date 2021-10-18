@@ -58,6 +58,9 @@ public class ZipApi {
               + System.currentTimeMillis()
               + ".zip");
       return "Export success";
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new MolgenisException(e.getMessage());
     } finally {
       try (Stream<Path> files = Files.walk(tempDir)) {
         files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
