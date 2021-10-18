@@ -36,5 +36,10 @@ public class TestExcelStore {
     List<Row> rows2 = store.readTable("test");
 
     assertEquals(10, rows2.size());
+
+    // empty rows
+    excelFile = tmp.resolve("test.xlsx");
+    store = new TableStoreForXlsxFile(excelFile);
+    store.writeTable("test", List.of("blaat"), new ArrayList<>());
   }
 }
