@@ -3,10 +3,7 @@ package org.molgenis.emx2.io;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.Field;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.StepStatus;
@@ -68,9 +65,7 @@ public class ImportTableTask extends Task {
         // column warning
         if (task.getIndex() == 0) {
           List<String> columnNames =
-              metadata.getDownloadColumnNames().stream()
-                  .map(c -> c.getName())
-                  .collect(Collectors.toList());
+              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
           warningColumns =
               row.getColumnNames().stream()
                   .filter(name -> !columnNames.contains(name))
