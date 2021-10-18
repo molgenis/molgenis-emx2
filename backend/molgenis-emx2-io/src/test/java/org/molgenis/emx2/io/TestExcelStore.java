@@ -40,6 +40,6 @@ public class TestExcelStore {
     // empty rows
     excelFile = tmp.resolve("test.xlsx");
     store = new TableStoreForXlsxFile(excelFile);
-    store.writeTable("test", List.of("blaat"), new ArrayList<>());
+    store.writeTable("test2", List.of("blaat"), new ArrayList<>());
   }
 }
