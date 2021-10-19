@@ -139,6 +139,9 @@ public class TestReadWriteStores {
     CompareTools.assertEquals(rows, rows2);
     StopWatch.print("compared succesfully");
 
+    // write empty
+    store.writeTable("test3", List.of("empty"), new ArrayList<>());
+
     // test that reading store that doesn't exist errors properly
     try {
       store.readTable("fake");
