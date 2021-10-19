@@ -140,7 +140,7 @@ public class TestReadWriteStores {
     StopWatch.print("compared succesfully");
 
     // write empty
-    store.writeTable("test3", List.of("empty"), new ArrayList<>());
+    store.writeTable("test4", List.of("empty"), new ArrayList<>());
 
     // test that reading store that doesn't exist errors properly
     try {
