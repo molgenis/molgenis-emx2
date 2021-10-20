@@ -27,6 +27,7 @@ procedure is to update.
 | | In table 'CollectionEvents' columns 'startMonth' and 'endMonth' were added. The columnType of columns 'startYear' and 'startMonth' were changed from int to ref. Add a table that extend OntologyTerms named 'Years' including relevant years. |
 | 1.1 => 1.2 | This change adds a column 'type' of columnType ref to table 'Datasources'. Just upload molgenis.csv to update.| 
 | 1.2 => 1.3 | This change fixes a few variable descriptions. Just upload molgenis.csv to update.| 
+| 1.3 => 1.4 | This change adds Models.releases refback. Just upload molgenis.csv to update.| 
 
 
 
