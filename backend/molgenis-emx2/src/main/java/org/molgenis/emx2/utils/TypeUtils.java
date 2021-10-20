@@ -48,7 +48,11 @@ public class TypeUtils {
   }
 
   public static String[] toStringArray(Object v) {
-    return (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
+    String[] result = (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
+    if (result != null) {
+      result = Arrays.stream(result).map(s -> s != null ? s.trim() : s).toArray(String[]::new);
+    }
+    return result;
   }
 
   public static String toString(Object v) {
