@@ -34,7 +34,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       if (name.length() > 30)
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
@@ -42,14 +42,22 @@ public class TableStoreForXlsxFile implements TableStore {
       if (!Files.exists(excelFilePath)) {
         try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
             Workbook wb = new SXSSFWorkbook(100)) {
-          writeRowsToSheet(name, rows, wb);
+          if (rows.iterator().hasNext()) {
+            writeRowsToSheet(name, rows, wb);
+          } else {
+            writeHeaderOnlyToSheet(name, columnNames, wb);
+          }
           wb.write(out);
         }
       } else {
         Workbook wb;
         try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
           wb = WorkbookFactory.create(inputStream);
-          writeRowsToSheet(name, rows, wb);
+          if (rows.iterator().hasNext()) {
+            writeRowsToSheet(name, rows, wb);
+          } else {
+            writeHeaderOnlyToSheet(name, columnNames, wb);
+          }
         }
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
           wb.write(outputStream);
@@ -60,6 +68,14 @@ public class TableStoreForXlsxFile implements TableStore {
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
+    }
+  }
+
+  private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
+    Sheet sheet = wb.createSheet(name);
+    org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
+    for (int i = 0; i < columnNames.size(); i++) {
+      excelRow.createCell(i).setCellValue(columnNames.get(i));
     }
   }
 

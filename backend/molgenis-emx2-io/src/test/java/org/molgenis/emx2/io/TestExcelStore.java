@@ -29,12 +29,17 @@ public class TestExcelStore {
 
     Path excelFile = tmp.resolve("test.xlsx");
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
-    store.writeTable("test", rows);
+    store.writeTable("test", List.of(), rows);
 
     // and read
     store = new TableStoreForXlsxFile(excelFile);
     List<Row> rows2 = store.readTable("test");
 
     assertEquals(10, rows2.size());
+
+    // empty rows
+    excelFile = tmp.resolve("test.xlsx");
+    store = new TableStoreForXlsxFile(excelFile);
+    store.writeTable("test2", List.of("blaat"), new ArrayList<>());
   }
 }

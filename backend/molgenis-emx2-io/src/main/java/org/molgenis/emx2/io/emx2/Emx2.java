@@ -104,7 +104,23 @@ public class Emx2 {
   }
 
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
-    store.writeTable("molgenis", toRowList(schema));
+    store.writeTable(
+        "molgenis",
+        List.of(
+            TABLE_NAME,
+            TABLE_EXTENDS,
+            COLUMN_NAME,
+            COLUMN_TYPE,
+            KEY,
+            REQUIRED,
+            REF_SCHEMA,
+            REF_TABLE,
+            REF_LINK,
+            REF_BACK,
+            VALIDATION,
+            SEMANTICS,
+            DESCRIPTION),
+        toRowList(schema));
   }
 
   /** Outputs tables + columns. */

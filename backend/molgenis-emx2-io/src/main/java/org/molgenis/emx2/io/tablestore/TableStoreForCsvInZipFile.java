@@ -66,14 +66,19 @@ public class TableStoreForCsvInZipFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     if (!Files.exists(zipFilePath)) {
       create();
     }
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       Writer writer = Files.newBufferedWriter(pathInZipfile);
-      CsvTableWriter.write(rows, writer, comma);
+      if (rows.iterator().hasNext()) {
+        CsvTableWriter.write(rows, writer, comma);
+      } else {
+        // only header in case no rows provided
+        writer.write(columnNames.stream().collect(Collectors.joining("" + comma)));
+      }
       writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
