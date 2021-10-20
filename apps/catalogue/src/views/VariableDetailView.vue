@@ -64,7 +64,7 @@ export default {
   },
   props: {
     name: String,
-    network: String,
+    model: String,
     version: String,
   },
   data() {
@@ -73,7 +73,7 @@ export default {
     };
   },
   async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
+    this.variable = await fetchDetails(this.name, this.model, this.version);
   },
 };
 </script>

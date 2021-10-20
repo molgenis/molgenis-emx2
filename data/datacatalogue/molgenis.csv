@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.2
+Version,,,,,,,,,,,1.3
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -55,7 +55,7 @@ Resources,,endYear,int,,,,,,,,Year when last data was collected. Leave empty if 
 Cohorts,,subcohorts,refback,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
 Databanks,,populationEntry,ontology_array,,,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
 Databanks,,populationEntryOther,text,,,,,,,,"If other, specify the causes of entry to the underlying population"
-Databanks,,populationExit,ontology_array,,,PopulationExitCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
+Databanks,,populationExit,ontology_array,,,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
 Databanks,,populationExitOther,text,,,,,,,,"If other, specify the causes of exit from the underlying population"
 Databanks,,populationPregnancy,bool,,,,,,,,Does the data bank collect information on pregnant women and/or neonatal subpopulation?
 Databanks,,populationDisease,text,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
@@ -102,7 +102,7 @@ Databanks,,originator,ref,,,Institutions,,,,,Name of the organisation that maint
 Databanks,,reasonSustained,text,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
 Databanks,,prompt,heading,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
 Databanks,,recordPrompt,text,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
-Databanks,,unitOfObservation,text,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
+Databanks,,unitOfObservation,text,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?"
 Databanks,,multipleEntries,bool,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?"
 Databanks,,updates,heading,,,,,,,,Information on the regularity of updates and time lags
 Databanks,,lagTime,int,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
