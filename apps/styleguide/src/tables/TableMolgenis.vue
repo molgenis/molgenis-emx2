@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 100%; overflow-x: auto" class="flex-grow-1">
+  <div style="max-width: 100%" class="flex-grow-1">
     <table
       class="table table-sm bg-white table-bordered table-hover"
       :class="{ 'table-hover': showSelect }"
