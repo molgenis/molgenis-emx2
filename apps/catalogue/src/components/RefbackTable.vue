@@ -27,22 +27,36 @@
               v-for="(value, idx2) in renderValue(row, col)"
               :key="idx + col.name + idx2"
             >
-              <div v-if="'REF' === col.columnType">
+              <div
+                v-if="
+                  'REF' === col.columnType ||
+                  ('REFBACK' === col.columnType &&
+                    !Array.isArray(row[col.name]))
+                "
+              >
                 <RouterLink
                   v-if="row[col.name]"
                   :to="{
                     name: col.refTable + '-details',
-                    params: row[col.name],
+                    params: routeParams(col, row[col.name]),
                   }"
                 >
                   {{ renderValue(row, col)[0] }}
                 </RouterLink>
               </div>
-              <span v-else-if="'REF_ARRAY' == col.columnType">
+              <span
+                v-else-if="
+                  'REF_ARRAY' == col.columnType ||
+                  ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
+                "
+              >
                 <span v-for="(val, idx) in row[col.name]" :key="idx">
                   <RouterLink
                     v-if="val"
-                    :to="{ name: col.refTable + '-details', params: val }"
+                    :to="{
+                      name: col.refTable + '-details',
+                      params: routeParams(col, val),
+                    }"
                   >
                     {{ renderValue(row, col)[idx] }} </RouterLink
                   ><br />
@@ -51,7 +65,7 @@
               <div v-else-if="'TEXT' === col.columnType">
                 <ReadMore :text="value" />
               </div>
-              <span v-else> {{ value }}</span>
+              <span v-else>{{ value }}</span>
             </div>
           </td>
         </tr>
@@ -76,6 +90,22 @@ export default {
     pkey: Object,
   },
   methods: {
+    routeParams(column, value) {
+      if (column.name === "tables") {
+        //hack, I don't know yet how to do this generic
+        ///tables/:pid/:version/:name
+        //console.log(JSON.stringify(value));
+        let result = {
+          pid: value.release.resource.pid,
+          version: value.release.version,
+          name: value.name,
+        };
+        //console.log(JSON.stringify(result));
+        return result;
+      } else {
+        return value;
+      }
+    },
     click(value) {
       this.$emit("click", value);
     },
@@ -89,7 +119,10 @@ export default {
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
         return row[col.name].map((v) => {
-          if (col.refLabel) {
+          if (col.name === "tables") {
+            //hack, ideally we start setting refLabel in configuration!
+            return v.name;
+          } else if (col.refLabel) {
             return this.applyJsTemplate(col.refLabel, v);
           } else {
             return this.flattenObject(v);
