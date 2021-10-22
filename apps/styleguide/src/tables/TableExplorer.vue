@@ -1,6 +1,6 @@
 <template>
   <div class="h-100">
-    <div v-if="columns" class="overflow-auto">
+    <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
