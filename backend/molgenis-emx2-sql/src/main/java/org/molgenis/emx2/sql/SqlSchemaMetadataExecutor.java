@@ -103,9 +103,9 @@ class SqlSchemaMetadataExecutor {
       }
 
       // give god powers if 'owner'
-      if (Privileges.OWNER.toString().equals(m.getRole())) {
-        jooq.execute("ALTER ROLE {0} CREATEROLE", name(username));
-      }
+      //      if (Privileges.OWNER.toString().equals(m.getRole())) {
+      //        jooq.execute("ALTER ROLE {0} CREATEROLE", name(username));
+      //      }
 
       // revoke other roles if user has them
       for (Member old : currentMembers) {

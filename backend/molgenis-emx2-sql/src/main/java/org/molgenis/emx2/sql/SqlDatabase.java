@@ -120,6 +120,14 @@ public class SqlDatabase implements Database {
   public void init() { // setup default stuff
 
     try {
+      // short transaction
+      jooq.transaction(
+          config -> {
+            DSLContext j = config.dsl();
+            j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
+            j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
+          });
+
       Migrations.initOrMigrate(this);
 
       if (!hasUser(ANONYMOUS)) {
