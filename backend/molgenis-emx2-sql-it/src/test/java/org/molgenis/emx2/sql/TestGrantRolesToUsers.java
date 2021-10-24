@@ -60,7 +60,7 @@ public class TestGrantRolesToUsers {
 
     // grant proper roles
     schema.addMember("user_testRolePermissions_viewer", VIEWER.toString());
-    schema.addMember("user_testRolePermissions_editor", Privileges.EDITOR.toString());
+    schema.addMember("user_testRolePermissions_editor", EDITOR.toString());
     schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");

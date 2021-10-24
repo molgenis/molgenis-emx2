@@ -115,14 +115,7 @@ class SqlSchemaMetadataExecutor {
               name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
         }
       }
-
-      // grant the new role
-      // if manager/owner you can also grant to your peers
-      if (rolename.equals(MANAGER.toString()) || rolename.equals(OWNER.toString())) {
-        jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(rolename), name(username));
-      } else {
-        jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
-      }
+      jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add member failed", dae);
     }
