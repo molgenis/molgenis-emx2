@@ -2,8 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -143,7 +142,7 @@ public class TestGrantRolesToUsers {
       // should not be able to see as user, until permission (later)
       database.setActiveUser("testuser");
       assertNull(schema.getRoleForActiveUser()); // should have no role in this schema
-      assertEquals(0, database.getSchemaNames().size()); // should see no schema
+      assertFalse(database.getSchemaNames().contains("testRole"));
       assertNull(database.getSchema("testRole"));
 
       database.clearActiveUser();
