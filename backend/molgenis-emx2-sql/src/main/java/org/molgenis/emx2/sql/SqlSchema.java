@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
@@ -93,7 +94,11 @@ public class SqlSchema implements Schema {
   public List<String> getInheritedRolesForUser(String user) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    return getMetadata().getIneritedRolesForUser(user);
+    if (user.equals(ADMIN_USER)) {
+      return getRoles();
+    } else {
+      return getMetadata().getIneritedRolesForUser(user);
+    }
   }
 
   @Override

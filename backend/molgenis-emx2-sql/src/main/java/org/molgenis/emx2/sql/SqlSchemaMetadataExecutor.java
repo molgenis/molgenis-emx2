@@ -117,7 +117,12 @@ class SqlSchemaMetadataExecutor {
       }
 
       // grant the new role
-      jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
+      // if manager/owner you can also grant to your peers
+      if (rolename.equals(MANAGER) || rolename.equals(OWNER)) {
+        jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(rolename), name(username));
+      } else {
+        jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
+      }
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add member failed", dae);
     }
@@ -131,7 +136,7 @@ class SqlSchemaMetadataExecutor {
     String roleFilter = getRolePrefix(schemaName);
     List<Record> roles =
         jooq.fetch(
-            "SELECT a.oid, a.rolname FROM pg_authid a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
+            "SELECT a.oid, a.rolname FROM pg_roles a WHERE pg_has_role({0}, a.oid, 'member') AND a.rolname LIKE {1}",
             Constants.MG_USER_PREFIX + user, roleFilter + "%");
     return roles.stream()
         .map(r -> r.get("rolname", String.class).substring(roleFilter.length()))
