@@ -24,7 +24,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       connection = super.acquire();
       if (activeUser != null) {
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + activeUser));
+            .execute("SET SESSION ROLE {0}", name(MG_USER_PREFIX + activeUser));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -36,7 +36,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   @Override
   public void release(Connection connection) {
     try {
-      DSL.using(connection, SQLDialect.POSTGRES).execute("RESET SESSION AUTHORIZATION");
+      DSL.using(connection, SQLDialect.POSTGRES).execute("SET SESSION ROLE NONE");
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("release of connection failed ", dae);
     }
