@@ -118,7 +118,7 @@ class SqlSchemaMetadataExecutor {
 
       // grant the new role
       // if manager/owner you can also grant to your peers
-      if (rolename.equals(MANAGER) || rolename.equals(OWNER)) {
+      if (rolename.equals(MANAGER.toString()) || rolename.equals(OWNER.toString())) {
         jooq.execute("GRANT {0} TO {1} WITH ADMIN OPTION", name(rolename), name(username));
       } else {
         jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
