@@ -40,7 +40,7 @@ public class GraphqlTableFieldFactory {
   public GraphQLFieldDefinition tableQueryField(Table table) {
     GraphQLObjectType tableType = createTableObjectType(table);
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name(table.getEscapedName())
+        .name(escape(table.getName()))
         .type(GraphQLList.list(tableType))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
@@ -73,7 +73,7 @@ public class GraphqlTableFieldFactory {
 
   public GraphQLFieldDefinition tableAggField(Table table) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name(table.getEscapedName() + "_agg")
+        .name(escape(table.getName()) + "_agg")
         .type(createTableAggregationType(table))
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
@@ -91,28 +91,25 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLObjectType createTableObjectType(Table table) {
     GraphQLObjectType.Builder tableBuilder =
-        GraphQLObjectType.newObject().name(table.getEscapedName());
+        GraphQLObjectType.newObject().name(escape(table.getName()));
     for (Column col : table.getMetadata().getColumnsWithoutHeadings()) {
+      String name = escape(col.getName());
       switch (col.getColumnType().getBaseType()) {
         case HEADING:
           // nothing to do
           break;
         case FILE:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(fileDownload));
+              GraphQLFieldDefinition.newFieldDefinition().name(name).type(fileDownload));
           break;
         case BOOL:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(Scalars.GraphQLBoolean));
+              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLBoolean));
           break;
         case BOOL_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
+                  .name(name)
                   .type(GraphQLList.list(Scalars.GraphQLBoolean)));
           break;
         case STRING:
@@ -121,9 +118,7 @@ public class GraphqlTableFieldFactory {
         case DATE:
         case DATETIME:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(Scalars.GraphQLString));
+              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLString));
           break;
         case STRING_ARRAY:
         case TEXT_ARRAY:
@@ -133,47 +128,43 @@ public class GraphqlTableFieldFactory {
         case JSONB_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
+                  .name(name)
                   .type(GraphQLList.list(Scalars.GraphQLString)));
           break;
         case DECIMAL:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(Scalars.GraphQLFloat));
+              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLFloat));
           break;
         case DECIMAL_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
+                  .name(name)
                   .type(GraphQLList.list(Scalars.GraphQLBigDecimal)));
           break;
         case INT:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(Scalars.GraphQLInt));
+              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLInt));
           break;
         case INT_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
+                  .name(name)
                   .type(GraphQLList.list(Scalars.GraphQLInt)));
           break;
         case REF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
-                  .type(GraphQLTypeReference.typeRef(col.getEscapedRefTableName())));
+                  .name(name)
+                  .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()))));
           break;
         case REF_ARRAY:
         case REFBACK:
           // case MREF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName())
+                  .name(name)
                   .type(
-                      GraphQLList.list(GraphQLTypeReference.typeRef(col.getEscapedRefTableName())))
+                      GraphQLList.list(GraphQLTypeReference.typeRef(escape(col.getRefTableName()))))
                   .argument(
                       GraphQLArgument.newArgument()
                           .name(GraphqlConstants.LIMIT)
@@ -189,12 +180,12 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.ORDERBY)
                           .type(
                               GraphQLTypeReference.typeRef(
-                                  col.getEscapedRefTableName() + GraphqlConstants.ORDERBY))
+                                  escape(col.getRefTableName()) + GraphqlConstants.ORDERBY))
                           .build()));
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(col.getEscapedName() + "_agg")
-                  .type(GraphQLTypeReference.typeRef(col.getEscapedRefTableName() + "Aggregate")));
+                  .name(name + "_agg")
+                  .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()) + "Aggregate")));
           break;
         default:
           throw new UnsupportedOperationException(
@@ -205,20 +196,21 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLObjectType createTableAggregationType(Table table) {
-    GraphQLObjectType.Builder builder =
-        GraphQLObjectType.newObject().name(table.getEscapedName() + "Aggregate");
+    String tableName = escape(table.getName());
+    GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableName + "Aggregate");
     builder.field(
         GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     for (Column col : table.getMetadata().getColumns()) {
       // aggregate options
       ColumnType type = col.getColumnType();
+      String columnName = escape(col.getName());
       if (ColumnType.INT.equals(type) || ColumnType.DECIMAL.equals(type)) {
         builder.field(
             GraphQLFieldDefinition.newFieldDefinition()
-                .name(col.getEscapedName())
+                .name(columnName)
                 .type(
                     GraphQLObjectType.newObject()
-                        .name(table.getEscapedName() + "AggregatorFor" + col.getEscapedName())
+                        .name(tableName + "AggregatorFor" + columnName)
                         .field(
                             GraphQLFieldDefinition.newFieldDefinition()
                                 .name(MAX_FIELD)
@@ -238,7 +230,7 @@ public class GraphqlTableFieldFactory {
       } else {
         // group by options
         // TODO LATER
-        // builder.field(newFieldDefinition().name(col.getEscapedName()).type(graphQLTypeOf(col)));
+        // builder.field(newFieldDefinition().name(col.getName()).type(graphQLTypeOf(col)));
       }
     }
     return builder.build();
@@ -248,8 +240,9 @@ public class GraphqlTableFieldFactory {
   private Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
 
   private GraphQLInputObjectType getTableFilterInputObjectType(TableMetadata table) {
-    if (!tableFilterInputTypes.containsKey(table.getEscapedName())) {
-      String typeName = table.getEscapedName() + FILTER;
+    String tableName = escape(table.getTableName());
+    if (!tableFilterInputTypes.containsKey(tableName)) {
+      String typeName = tableName + FILTER;
       GraphQLInputObjectType.Builder filterBuilder =
           GraphQLInputObjectType.newInputObject().name(typeName);
       if (table.getPrimaryKeyColumns().size() > 0) {
@@ -278,31 +271,31 @@ public class GraphqlTableFieldFactory {
         if (col.isReference()) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(col.getEscapedName())
-                  .type(GraphQLTypeReference.typeRef(col.getEscapedRefTableName() + FILTER))
+                  .name(escape(col.getName()))
+                  .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()) + FILTER))
                   .build());
         } else if (col.getColumnType().getOperators().length > 0) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(col.getEscapedName())
+                  .name(escape(col.getName()))
                   .type(getColumnFilterInputObjectType(col))
                   .build());
         }
       }
-      tableFilterInputTypes.put(table.getEscapedName(), filterBuilder.build());
+      tableFilterInputTypes.put(tableName, filterBuilder.build());
     }
-    return tableFilterInputTypes.get(table.getEscapedName());
+    return tableFilterInputTypes.get(tableName);
   }
 
   private GraphQLInputObjectType createTableOrderByInputObjectType(Table table) {
     GraphQLInputObjectType.Builder orderByBuilder =
         GraphQLInputObjectType.newInputObject()
-            .name(table.getEscapedName() + GraphqlConstants.ORDERBY);
+            .name(escape(table.getName()) + GraphqlConstants.ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
       if (!(col.isRefArray() || col.isRefback())) {
         orderByBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(col.getEscapedName())
+                .name(escape(col.getName()))
                 .type(orderByEnum));
       }
     }
@@ -386,17 +379,22 @@ public class GraphqlTableFieldFactory {
                       .stream().map(v -> createKeyFilter(v)).collect(Collectors.toList())));
         }
       } else {
-        Column c = table.getMetadata().getColumn(entry.getKey());
-        if (c == null)
+        // find column by escaped name
+        Optional<Column> optional =
+            table.getMetadata().getColumns().stream()
+                .filter(c -> escape(c.getName()).equals(entry.getKey()))
+                .findFirst();
+        if (!optional.isPresent())
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
-                  + table.getEscapedName());
+                  + table.getName());
+        Column c = optional.get();
         if (c.isReference()) {
           subFilters.add(
               f(
-                  c.getEscapedName(),
+                  c.getName(),
                   convertMapToFilterArray(
                       table
                           .getSchema()
@@ -405,8 +403,7 @@ public class GraphqlTableFieldFactory {
                           .getTable(c.getRefTableName()),
                       (Map) entry.getValue())));
         } else {
-          subFilters.add(
-              convertMapToFilter(entry.getKey(), (Map<String, Object>) entry.getValue()));
+          subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
         }
       }
     }
@@ -514,7 +511,7 @@ public class GraphqlTableFieldFactory {
       if (table.getColumnsWithoutHeadings().size() > 0) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
-                .name(table.getEscapedName())
+                .name(escape(table.getTableName()))
                 .type(GraphQLList.list(rowInputType(table.getTable()))));
       }
     }
@@ -545,11 +542,11 @@ public class GraphqlTableFieldFactory {
       if (!schema.getMetadata().getTableMetadata(table.getName()).getPrimaryKeys().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
-                .name(table.getEscapedName())
+                .name(escape(table.getName()))
                 // reuse same input as insert
                 .type(
                     GraphQLList.list(
-                        GraphQLTypeReference.typeRef(table.getEscapedName() + INPUT))));
+                        GraphQLTypeReference.typeRef(escape(table.getName()) + INPUT))));
       }
     }
     return fieldBuilder.build();
@@ -603,9 +600,10 @@ public class GraphqlTableFieldFactory {
   private Map<String, GraphQLInputObjectType> rowInputTypes = new LinkedHashMap<>();
 
   private GraphQLInputObjectType rowInputType(Table table) {
-    if (rowInputTypes.get(table.getEscapedName()) == null) {
+    String tableName = escape(table.getName());
+    if (rowInputTypes.get(tableName) == null) {
       GraphQLInputObjectType.Builder inputBuilder =
-          GraphQLInputObjectType.newInputObject().name(table.getEscapedName() + INPUT);
+          GraphQLInputObjectType.newInputObject().name(tableName + INPUT);
       for (Column col : table.getMetadata().getColumnsWithoutHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
@@ -619,18 +617,18 @@ public class GraphqlTableFieldFactory {
           type = getGraphQLInputType(columnType);
         }
         inputBuilder.field(
-            GraphQLInputObjectField.newInputObjectField().name(col.getEscapedName()).type(type));
+            GraphQLInputObjectField.newInputObjectField().name(escape(col.getName())).type(type));
       }
-      rowInputTypes.put(table.getEscapedName(), inputBuilder.build());
+      rowInputTypes.put(tableName, inputBuilder.build());
     }
-    return rowInputTypes.get(table.getEscapedName());
+    return rowInputTypes.get(tableName);
   }
 
   private Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
 
   public GraphQLInputObjectType getPrimaryKeyInput(TableMetadata table) {
     GraphQLInputType type;
-    String name = table.getEscapedName() + "PkeyInput";
+    String name = escape(table.getTableName()) + "PkeyInput";
     if (refTypes.get(name) == null) {
       GraphQLInputObjectType.Builder refTypeBuilder =
           GraphQLInputObjectType.newInputObject().name(name);
@@ -642,7 +640,7 @@ public class GraphqlTableFieldFactory {
           type = getGraphQLInputType(columnType);
         }
         refTypeBuilder.field(
-            GraphQLInputObjectField.newInputObjectField().name(ref.getEscapedName()).type(type));
+            GraphQLInputObjectField.newInputObjectField().name(escape(ref.getName())).type(type));
       }
       refTypes.put(name, refTypeBuilder.build());
     }
@@ -681,5 +679,9 @@ public class GraphqlTableFieldFactory {
         throw new MolgenisException(
             "Internal error: Type " + columnType + " not expected at this place");
     }
+  }
+
+  private static String escape(String unescaped) {
+    return unescaped.replace(" ", "");
   }
 }

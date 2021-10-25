@@ -49,7 +49,7 @@ public class TableMetadata implements Comparable {
               + tableName
               + "': Table name must start with a letter , followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
     }
-    this.tableName = tableName;
+    this.tableName = tableName.trim();
   }
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
@@ -549,9 +549,5 @@ public class TableMetadata implements Comparable {
     return getColumns().stream()
         .filter(c -> !c.getName().startsWith("mg_"))
         .collect(Collectors.toList());
-  }
-
-  public String getEscapedName() {
-    return getTableName().replaceAll(" ", "");
   }
 }

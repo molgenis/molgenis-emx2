@@ -73,7 +73,7 @@ public class Column implements Comparable<Column> {
               + columnName
               + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
     }
-    this.columnName = columnName;
+    this.columnName = columnName.trim();
   }
 
   public Column(TableMetadata table, String columnName) {
@@ -628,13 +628,5 @@ public class Column implements Comparable<Column> {
     } else {
       return this.getName().compareTo(o.getName());
     }
-  }
-
-  public String getEscapedName() {
-    return getName().replaceAll(" ", "");
-  }
-
-  public String getEscapedRefTableName() {
-    return getRefTableName().replaceAll(" ", "");
   }
 }

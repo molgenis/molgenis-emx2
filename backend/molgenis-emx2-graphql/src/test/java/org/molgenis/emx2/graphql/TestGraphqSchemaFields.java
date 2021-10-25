@@ -413,7 +413,7 @@ public class TestGraphqSchemaFields {
             column("person").setType(REF).setRefTable("Person details"),
             column("persons").setType(REF_ARRAY).setRefTable("Person details")));
 
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL myGraphql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test
