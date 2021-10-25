@@ -43,4 +43,6 @@ public interface Table {
   List<Row> retrieveRows();
 
   Table getInheritedTable();
+
+  String getEscapedName();
 }
