@@ -2,6 +2,10 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,10 +15,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -359,6 +360,21 @@ public class TestGraphqSchemaFields {
             .getColumn("test2")
             .getVisible());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+  }
+
+  @Test
+  public void testNamesWithSpaces() {
+    Schema schema = database.dropCreateSchema("testNamesWithSpaces");
+
+    schema.create(
+        table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
+        table(
+            "Some",
+            column("id").setPkey(),
+            column("person").setType(REF).setRefTable("Person details"),
+            column("persons").setType(REF_ARRAY).setRefTable("Person details")));
+
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test

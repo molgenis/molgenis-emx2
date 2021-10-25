@@ -43,11 +43,11 @@ public class TableMetadata implements Comparable {
   private String[] semantics = null;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_]*") || tableName.length() > 341) {
+    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*") || tableName.length() > 341) {
       throw new MolgenisException(
           "Invalid table name '"
               + tableName
-              + "': Table name must start with a letter , followed by letters, underscores or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
+              + "': Table name must start with a letter , followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
     }
     this.tableName = tableName;
   }
@@ -549,5 +549,9 @@ public class TableMetadata implements Comparable {
     return getColumns().stream()
         .filter(c -> !c.getName().startsWith("mg_"))
         .collect(Collectors.toList());
+  }
+
+  public String getEscapedName() {
+    return getTableName().replaceAll(" ", "");
   }
 }
