@@ -646,11 +646,6 @@ class SqlTable implements Table {
     }
   }
 
-  @Override
-  public String getEscapedName() {
-    return getMetadata().getEscapedName();
-  }
-
   private static void log(
       String user, String table, long start, AtomicInteger count, String message) {
     if (user == null) user = "molgenis";
