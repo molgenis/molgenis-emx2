@@ -363,7 +363,7 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testNamesWithSpaces() {
+  public void testNamesWithSpaces() throws IOException {
     Schema schema = database.dropCreateSchema("testNamesWithSpaces");
 
     schema.create(
@@ -374,7 +374,20 @@ public class TestGraphqSchemaFields {
             column("person").setType(REF).setRefTable("Person details"),
             column("persons").setType(REF_ARRAY).setRefTable("Person details")));
 
-    GraphQL myGraphql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+
+    int count = execute("{Persondetails{count}}").at("/Persondetails_agg/count").intValue();
+
+    //    // insert should increase count
+    //    execute("mutation{insert(Tag:{name:\"blaat\"}){message}}");
+    //    TestCase.assertEquals(count + 1,
+    // execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
+    //    // delete
+    //    execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
+    //    TestCase.assertEquals(count, execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
+
+    // reset
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test
