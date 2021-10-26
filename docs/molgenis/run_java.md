@@ -7,7 +7,7 @@ Steps:
     ```console
     sudo -u postgres psql
     postgres=# create database molgenis;
-    create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
+    postgres=# create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     postgres=# grant all privileges on database molgenis to molgenis;
     ```
 * Install java (we use adopt [OpenJDK 16](https://adoptopenjdk.net/))
