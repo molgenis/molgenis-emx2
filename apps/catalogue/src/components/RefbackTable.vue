@@ -24,52 +24,46 @@
             style="cursor: pointer"
           >
             <div
-              v-if="
-                'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
-              "
-            >
-              <RouterLink
-                v-if="row[col.name]"
-                :to="{
-                  name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
-                }"
-              >
-              </RouterLink>
-            </div>
-            <span
-              v-else-if="
-                'REF_ARRAY' == col.columnType ||
-                ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
-              "
-            >
-              <span v-for="(val, idx) in row[col.name]" :key="idx">
-                <RouterLink
-                  v-if="val"
-                  :to="{
-                    name: col.refTable + '-details',
-                    params: routeParams(col, val),
-                  }"
-                >
-                  {{ renderValue(row, col)[idx] }} </RouterLink
-                ><br />
-              </span>
-            </span>
-            <div
-              v-else
               v-for="(value, idx2) in renderValue(row, col)"
               :key="idx + col.name + idx2"
             >
-              <div v-if="'TEXT' === col.columnType">
-                <ReadMore :text="value" />
+              <div
+                v-if="
+                  'REF' === col.columnType ||
+                  ('REFBACK' === col.columnType &&
+                    !Array.isArray(row[col.name]))
+                "
+              >
+                <RouterLink
+                  v-if="row[col.name]"
+                  :to="{
+                    name: col.refTable + '-details',
+                    params: routeParams(col, row[col.name]),
+                  }"
+                >
+                  {{ renderValue(row, col)[0] }}
+                </RouterLink>
               </div>
-              <div v-else-if="'FILE' === col.columnType">
-                <a v-if="row[col.name].id" :href="row[col.name].url">
-                  {{ col.name }}.{{ row[col.name].extension }} ({{
-                    renderNumber(row[col.name].size)
-                  }}b)
-                </a>
+              <span
+                v-else-if="
+                  'REF_ARRAY' == col.columnType ||
+                  ('REFBACK' === col.columnType && Array.isArray(row[col.name]))
+                "
+              >
+                <span v-for="(val, idx) in row[col.name]" :key="idx">
+                  <RouterLink
+                    v-if="val"
+                    :to="{
+                      name: col.refTable + '-details',
+                      params: routeParams(col, val),
+                    }"
+                  >
+                    {{ renderValue(row, col)[idx] }} </RouterLink
+                  ><br />
+                </span>
+              </span>
+              <div v-else-if="'TEXT' === col.columnType">
+                <ReadMore :text="value" />
               </div>
               <span v-else>{{ value }}</span>
             </div>
