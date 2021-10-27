@@ -14,7 +14,9 @@
           v-for="col in tableMetadata.columns.filter(
             (c) =>
               !c.name.startsWith('mg_') &&
-              ((row[c.name] && row[c.name].length > 0) ||
+              ((row[c.name] &&
+                (!(Array.isArray() && typeof row[c.name] === 'object') ||
+                  row[c.name].length > 0)) ||
                 !hideNA ||
                 c.columnType == 'HEADING')
           )"

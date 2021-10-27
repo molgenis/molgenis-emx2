@@ -124,7 +124,6 @@ public class SqlDatabase implements Database {
       jooq.transaction(
           config -> {
             DSLContext j = config.dsl();
-            j.execute("LOCK TABLE pg_catalog.pg_namespace");
             j.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm"); // for fast fuzzy search
             j.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto"); // for password hashing
           });
@@ -140,7 +139,6 @@ public class SqlDatabase implements Database {
       if (!hasUser(ADMIN_USER)) {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, INITIAL_ADMIN_PW);
-        jooq.execute("ALTER USER {0} WITH SUPERUSER", name(MG_USER_PREFIX + ADMIN_USER));
       }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
@@ -183,7 +181,7 @@ public class SqlDatabase implements Database {
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
-          if (db.getActiveUser() != null) {
+          if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
           // refresh
@@ -346,15 +344,16 @@ public class SqlDatabase implements Database {
   @Override
   public void setActiveUser(String username) {
     if (inTx) {
-      if (username == null) {
+      if (username == null || username.equals(ADMIN_USER)) {
         this.clearActiveUser();
       } else {
         try {
-          jooq.execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + username));
+          jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
         } catch (DataAccessException dae) {
           throw new SqlMolgenisException("Set active user failed", dae);
         }
       }
+      this.clearCache();
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
         listener.userChanged();
@@ -365,9 +364,9 @@ public class SqlDatabase implements Database {
 
   @Override
   public String getActiveUser() {
-    String user = jooq.fetchOne("SELECT SESSION_USER").get(0, String.class);
+    String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
     if (user.contains(MG_USER_PREFIX)) return user.substring(MG_USER_PREFIX.length());
-    return null;
+    return ADMIN_USER;
   }
 
   @Override
@@ -375,7 +374,7 @@ public class SqlDatabase implements Database {
     if (inTx) {
       // then we don't use the connection provider
       try {
-        jooq.execute("RESET SESSION AUTHORIZATION");
+        jooq.execute("RESET ROLE");
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Clear active user failed", dae);
       }
