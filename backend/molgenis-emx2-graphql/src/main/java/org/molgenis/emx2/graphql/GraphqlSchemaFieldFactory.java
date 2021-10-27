@@ -432,13 +432,26 @@ public class GraphqlSchemaFieldFactory {
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
-            dataFetchingEnvironment ->
-                // add settings
-                schema.getMetadata().getSettings().stream()
-                    .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
-                    .collect(Collectors.toList()));
+            dataFetchingEnvironment -> {
+              List<String> selectedKeys =
+                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
+              final boolean includePages =
+                  selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
+              return schema.getMetadata().getSettings().stream()
+                  .filter(
+                      setting ->
+                          selectedKeys.isEmpty()
+                              || selectedKeys.contains(setting.getKey())
+                              || (includePages && setting.getKey().startsWith("page.")))
+                  .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
+                  .collect(Collectors.toList());
+            });
   }
 
   public GraphQLFieldDefinition changeMutation(Schema schema) {

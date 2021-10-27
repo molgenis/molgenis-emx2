@@ -111,8 +111,8 @@ public class TestReadWriteStores {
     StopWatch.start("created some rows");
 
     // write them
-    store.writeTable("test", rows);
-    store.writeTable("test2", rows);
+    store.writeTable("test", List.of(), rows);
+    store.writeTable("test2", List.of(), rows);
 
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
@@ -126,7 +126,7 @@ public class TestReadWriteStores {
     CompareTools.assertEquals(rows, rows2);
 
     // write another one
-    store.writeTable("test3", rows);
+    store.writeTable("test3", List.of(), rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
     rows2 =
@@ -138,6 +138,9 @@ public class TestReadWriteStores {
     // compare
     CompareTools.assertEquals(rows, rows2);
     StopWatch.print("compared succesfully");
+
+    // write empty
+    store.writeTable("test4", List.of("empty"), new ArrayList<>());
 
     // test that reading store that doesn't exist errors properly
     try {

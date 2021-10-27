@@ -2,11 +2,11 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +50,7 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    database.clearActiveUser();
+    database.clearActiveUser(); // admin
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // createColumn test users
@@ -60,7 +60,7 @@ public class TestGrantRolesToUsers {
 
     // grant proper roles
     schema.addMember("user_testRolePermissions_viewer", VIEWER.toString());
-    schema.addMember("user_testRolePermissions_editor", Privileges.EDITOR.toString());
+    schema.addMember("user_testRolePermissions_editor", EDITOR.toString());
     schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
     StopWatch.print("testRolePermissions schema created");
@@ -131,6 +131,37 @@ public class TestGrantRolesToUsers {
       database.clearActiveUser();
     }
     StopWatch.print("test viewer query, success");
+
+    // test that owner manager can assign roles and normal users cant
+    try {
+      database.setActiveUser("user_testRolePermissions_viewer");
+      database.tx(
+          db -> {
+            StopWatch.print("settings permissions Table");
+            db.getSchema("testRolePermissions").addMember("fail", VIEWER.toString());
+          });
+      fail("role(viewers) should not be able to add members");
+    } catch (Exception e) {
+      // correct
+    } finally {
+      database.clearActiveUser();
+    }
+
+    try {
+      database.setActiveUser("user_testRolePermissions_manager");
+      database.tx(
+          db -> {
+            StopWatch.print("settings permissions Table");
+            db.getSchema("testRolePermissions")
+                .addMember("user_testRolePermissions_success", VIEWER.toString());
+            db.setActiveUser(ADMIN_USER);
+            db.removeUser("user_testRolePermissions_success");
+          });
+    } catch (Exception e) {
+      fail("roles(manager) should be able to assign roles, found exception " + e);
+    } finally {
+      database.clearActiveUser();
+    }
   }
 
   @Test
@@ -143,7 +174,7 @@ public class TestGrantRolesToUsers {
       // should not be able to see as user, until permission (later)
       database.setActiveUser("testuser");
       assertNull(schema.getRoleForActiveUser()); // should have no role in this schema
-      assertEquals(0, database.getSchemaNames().size()); // should see no schema
+      assertFalse(database.getSchemaNames().contains("testRole"));
       assertNull(database.getSchema("testRole"));
 
       database.clearActiveUser();

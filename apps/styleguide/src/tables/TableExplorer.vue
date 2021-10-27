@@ -1,6 +1,6 @@
 <template>
   <div class="h-100">
-    <div v-if="columns" class="overflow-auto">
+    <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
@@ -356,11 +356,17 @@ export default {
             ? col.conditions.filter((f) => f !== "" && f != undefined)
             : [];
           if (conditions.length > 0) {
-            if (col.columnType.startsWith("STRING")) {
+            if (
+              col.columnType.startsWith("STRING") ||
+              col.columnType.startsWith("TEXT")
+            ) {
               filter[col.name] = { like: col.conditions };
             } else if (col.columnType.startsWith("BOOL")) {
               filter[col.name] = { equals: col.conditions };
-            } else if (col.columnType.startsWith("REF")) {
+            } else if (
+              col.columnType.startsWith("REF") ||
+              col.columnType.startsWith("ONTOLOGY")
+            ) {
               filter[col.name] = { equals: col.conditions };
             } else if (
               [
@@ -375,6 +381,12 @@ export default {
               filter[col.name] = {
                 between: conditions.flat(),
               };
+            } else {
+              alert(
+                "filter unsupported for column type '" +
+                  col.columnType +
+                  "' (please report a bug)"
+              );
             }
           }
         });

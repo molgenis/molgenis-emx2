@@ -1,9 +1,15 @@
 <template>
   <div class="container bg-white p-3">
     <h1>
-      Metadata catalogue <span v-if="databanks > 0">(Proof of Concept)</span>
+      <span v-if="databanks > 0"
+        >Proof-of-concept catalogue tool for MINERVA metadata pilot</span
+      >
+      <span v-else>Data catalogue</span>
     </h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <p v-if="databanks > 0" class="text-danger">
+      Disclaimer: contents not for public disclosure.
+    </p>
     <p>
       Browse and manage metadata for data resources, such as cohorts,
       registries, biobanks, and multi-center collaborations thereof such as

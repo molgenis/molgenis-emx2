@@ -21,7 +21,7 @@ public class Emx2Members {
       members.add(row(USER, m.getUser(), ROLE, m.getRole()));
     }
     if (members.size() > 0) {
-      store.writeTable(ROLES_TABLE, members);
+      store.writeTable(ROLES_TABLE, List.of(USER, ROLE), members);
     }
   }
 

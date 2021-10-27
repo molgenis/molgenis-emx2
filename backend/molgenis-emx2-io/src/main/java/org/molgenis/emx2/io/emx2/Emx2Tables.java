@@ -19,16 +19,18 @@ public class Emx2Tables {
   }
 
   public static void outputTable(TableStore store, Table table) {
-    SelectColumn[] select =
+    List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
-            .map(c -> c.getName())
+            .map(Column::getName)
             .filter(n -> !n.startsWith("mg_"))
-            .map(c -> s(c))
-            .toArray(SelectColumn[]::new);
+            .toList();
+    SelectColumn[] select =
+        downloadColumnNames.stream().map(c -> s(c)).toArray(SelectColumn[]::new);
 
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
       store.writeTable(
           table.getName(),
+          downloadColumnNames,
           table
               .query()
               .select(select)
@@ -39,7 +41,7 @@ public class Emx2Tables {
                       table.getSchema().getName() + "." + table.getName()))
               .retrieveRows());
     } else {
-      store.writeTable(table.getName(), table.select(select).retrieveRows());
+      store.writeTable(table.getName(), downloadColumnNames, table.select(select).retrieveRows());
     }
 
     // in case of zip file we include the attached files

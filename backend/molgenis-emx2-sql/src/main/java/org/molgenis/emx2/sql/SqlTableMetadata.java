@@ -443,7 +443,7 @@ class SqlTableMetadata extends TableMetadata {
     getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
     getJooq()
         .execute(
-            "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2}, 'member')) WITH CHECK (pg_has_role(session_user, {2}, 'member'))",
+            "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2}, 'member')) WITH CHECK (pg_has_role(current_user, {2}, 'member'))",
             name("RLS/" + getSchema().getName() + "/" + getTableName()),
             getJooqTable(),
             name(MG_EDIT_ROLE));

@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,11 +38,10 @@ public class TestGraphqSchemaFields {
   @Test
   public void testSession() throws IOException {
     try {
+      database.setActiveUser(ANONYMOUS);
       TestCase.assertEquals(0, execute("{_session{email,roles}}").at("/_session/roles").size());
-
-      // first become other user
-      database.setActiveUser("shopmanager");
-
+      execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName));
       TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.clearActiveUser();
@@ -57,6 +57,41 @@ public class TestGraphqSchemaFields {
 
     // remove value
     execute("mutation{drop(settings:{key:\"test\"}){message}}");
+
+    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
+  }
+
+  @Test
+  public void testFetchSchemaSettingsByKey() throws IOException {
+    // add value
+    execute("mutation{change(settings:{key:\"setA\",value:\"valA\"}){message}}");
+    execute("mutation{change(settings:{key:\"setB\",value:\"valB\"}){message}}");
+
+    // fetch by key
+    assertEquals(1, execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings").size());
+    assertEquals("valB", execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
+
+    // return all without key
+    assertEquals(2, execute("{_settings{key,value}}").at("/_settings").size());
+
+    // remove value
+    execute("mutation{drop(settings:{key:\"setA\"}){message}}");
+    execute("mutation{drop(settings:{key:\"setB\"}){message}}");
+
+    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
+  }
+
+  @Test
+  public void testFetchSchemaSettingsForPages() throws IOException {
+    // add value
+    execute("mutation{change(settings:{key:\"page.mypage\",value:\"page value\"}){message}}");
+
+    // include all pages
+    assertEquals(1, execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings").size());
+    assertEquals("page value", execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings/0/value").textValue());
+
+    // remove value
+    execute("mutation{drop(settings:{key:\"page.mypage\"}){message}}");
 
     assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
   }

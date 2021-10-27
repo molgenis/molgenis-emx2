@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -20,10 +21,15 @@ public class TableStoreForCsvFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
-      CsvTableWriter.write(rows, writer, ',');
+      if (rows.iterator().hasNext()) {
+        CsvTableWriter.write(rows, writer, ',');
+      } else {
+        // only header in case no rows provided
+        writer.write(columnNames.stream().collect(Collectors.joining(",")));
+      }
       writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe);

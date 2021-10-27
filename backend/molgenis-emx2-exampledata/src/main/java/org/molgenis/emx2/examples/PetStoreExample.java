@@ -92,6 +92,7 @@ public class PetStoreExample {
   public static void populate(Schema schema) {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
+    final String shopowner = "shopowner";
 
     // initual user
     schema.addMember(shopmanager, "Manager");
@@ -99,6 +100,9 @@ public class PetStoreExample {
 
     schema.addMember(shopviewer, "Viewer");
     schema.getDatabase().setUserPassword(shopviewer, shopviewer);
+
+    schema.addMember(shopowner, "Owner");
+    schema.getDatabase().setUserPassword(shopowner, shopowner);
 
     schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
     schema
