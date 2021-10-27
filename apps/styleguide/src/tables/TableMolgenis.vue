@@ -43,7 +43,6 @@
           "
         >
           <td v-if="hasColheader">
-
             <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
                 <input
@@ -76,7 +75,6 @@
               :metaData="col"
             ></data-display-cell>
           </td>
-
         </tr>
       </tbody>
     </table>
