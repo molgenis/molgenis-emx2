@@ -234,7 +234,7 @@ public class MetadataUtils {
     // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
-        "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2} || {3} || '/"
+        "CREATE POLICY {0} ON {1} USING (pg_has_role(session_user, {2} || {3} || '/"
             + Privileges.MANAGER.toString()
             + "', 'member'))",
         name("TABLE_RLS_" + Privileges.MANAGER),
@@ -243,7 +243,7 @@ public class MetadataUtils {
         TABLE_SCHEMA);
 
     jooq.execute(
-        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(current_user, {2} || {3} || '/"
+        "CREATE POLICY {0} ON {1} FOR SELECT USING (pg_has_role(session_user, {2} || {3} || '/"
             + Privileges.VIEWER
             + "', 'member'))",
         name("TABLE_RLS_" + Privileges.VIEWER),
