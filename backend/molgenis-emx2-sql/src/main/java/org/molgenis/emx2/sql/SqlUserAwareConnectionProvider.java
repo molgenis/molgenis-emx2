@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.sql.Connection;
 import javax.sql.DataSource;
@@ -23,9 +22,9 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (activeUser != null && !activeUser.equals(ADMIN_USER)) {
+      if (activeUser != null) {
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + activeUser));
+            .execute("SET SESSION AUTHORIZATION {0}", name(MG_USER_PREFIX + activeUser));
       }
       return connection;
     } catch (DataAccessException dae) {
@@ -37,7 +36,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   @Override
   public void release(Connection connection) {
     try {
-      DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE");
+      DSL.using(connection, SQLDialect.POSTGRES).execute("RESET SESSION AUTHORIZATION");
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("release of connection failed ", dae);
     }

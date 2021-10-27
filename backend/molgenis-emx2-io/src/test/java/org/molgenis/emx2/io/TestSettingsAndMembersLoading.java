@@ -27,9 +27,11 @@ public class TestSettingsAndMembersLoading {
     assertEquals("key2", schema.getMetadata().getSettings().get(0).getKey());
     assertEquals("value2", schema.getMetadata().getSettings().get(0).getValue());
 
-    assertEquals(1, schema.getMembers().size());
-    assertEquals("anonymous", schema.getMembers().get(0).getUser());
-    assertEquals("Viewer", schema.getMembers().get(0).getRole());
+    assertEquals(2, schema.getMembers().size());
+    assertEquals("anonymous", schema.getMembers().get(1).getUser());
+    assertEquals("Viewer", schema.getMembers().get(1).getRole());
+    assertEquals("admin", schema.getMembers().get(0).getUser());
+    assertEquals("Manager", schema.getMembers().get(0).getRole());
 
     database.dropSchema(schema.getName());
   }
