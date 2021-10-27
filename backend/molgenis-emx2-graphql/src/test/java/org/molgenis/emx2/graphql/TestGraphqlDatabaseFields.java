@@ -57,7 +57,7 @@ public class TestGraphqlDatabaseFields {
   public void testRegisterAndLoginUsers() throws IOException {
 
     // todo: default user should be anonymous?
-    assertNull(database.getActiveUser());
+    assertTrue(database.isAdmin());
 
     // read admin password from environment if necessary
     String adminPass =
