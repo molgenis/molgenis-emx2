@@ -78,6 +78,7 @@ Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other,, what other vocab
 RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries describing data bank population
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
+RWEresources,,counts,refback,,,Counts,,resource,,,"Counts per year,ageband and gender"
 Cohorts,,access,heading,,,,,,,,
 Cohorts,,dataAccessConditions,ontology_array,,,Conditions,,,,,Codes defining data access terms and use conditions
 Cohorts,,dataAccessConditionsDescription,text,,,,,,,,Description of data access terms and use conditions
@@ -219,7 +220,7 @@ CollectionEvents,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Are
 CollectionEvents,,dataCategories,ontology_array,,,DataCategories,,,,,Methods of data collection used in this collection event
 CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection even
 CollectionEvents,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this collection event
-Subcohorts,,,,,,,,,,,"		Subcohorts defined for this resource"
+Subcohorts,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,Subcohort description
@@ -373,3 +374,8 @@ InstitutionRoles,OntologyTerms,,,,,,,,,,
 Years,OntologyTerms,,,,,,,,,,
 Titles,OntologyTerms,,,,,,,,,,
 DatasourceTypes,OntologyTerms,,,,,,,,,,
+Counts,,resource,ref,1,true,RWEresources,,,,,
+Counts,,year,int,1,true,,,,,,
+Counts,,ageband,,1,true,,,,,,
+Counts,,gender,,1,true,,,,,,
+Counts,,N,int,,true,,,,,,
