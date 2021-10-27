@@ -34,7 +34,7 @@ public class TestUsersAndPermissions {
   public void testActiveUser() {
     try {
 
-      assertNull(database.getActiveUser());
+      assertTrue(database.isAdmin());
 
       // add and set user
       String user1 = "Test Active User1";
@@ -45,7 +45,7 @@ public class TestUsersAndPermissions {
 
       // remove active user
       database.clearActiveUser();
-      assertNull(database.getActiveUser());
+      assertTrue(database.isAdmin());
 
       // create schema
       Schema schema1 = database.dropCreateSchema("TestActiveUser1");

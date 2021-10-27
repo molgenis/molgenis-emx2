@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,11 +38,10 @@ public class TestGraphqSchemaFields {
   @Test
   public void testSession() throws IOException {
     try {
+      database.setActiveUser(ANONYMOUS);
       TestCase.assertEquals(0, execute("{_session{email,roles}}").at("/_session/roles").size());
-
-      // first become other user
-      database.setActiveUser("shopmanager");
-
+      execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName));
       TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.clearActiveUser();
