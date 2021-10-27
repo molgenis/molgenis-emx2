@@ -6,9 +6,9 @@ Steps:
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     sudo -u postgres psql
-    create database molgenis;
-    create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
-    grant all privileges on database molgenis to molgenis;
+    postgres=# create database molgenis;
+    postgres=# create user molgenis with superuser encrypted password 'molgenis';
+    postgres=# grant all privileges on database molgenis to molgenis;
     ```
 * Install java (we use adopt [OpenJDK 16](https://adoptopenjdk.net/))
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
@@ -30,26 +30,4 @@ For example:
 
 ```console
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
-```
-
-# Tips
-
-## On mac you can install postgres using [homebrew](https://formulae.brew.sh/formula/postgresql)
-
-* to start/stop the service
-
-```shell
-brew services start postgresql
-brew services stop postgresql
-brew services restart postgresql
-
-
-```
-
-* to completely wipe postgresql:
-
-```
-rm -R /opt/homebrew/var/postgres
-initdb -d  /opt/homebrew/var/postgres
-brew services restart postgresql 
 ```
