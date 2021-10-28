@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.4
+Version,,,,,,,,,,,1.5
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
