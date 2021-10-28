@@ -17,7 +17,11 @@ spec:
   - name: postgres
     image: postgres:13-alpine
     imagePullPolicy: IfNotPresent
-    args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
+    args: ["-c", "CREATE DATABASE molgenis_cloud;
+                  CREATE USER molgenis_cloud WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_cloud';
+                  GRANT ALL PRIVILEGES ON DATABASE azure TO molgenis_cloud;",
+           "-c", "shared_buffers=256MB",
+           "-c", "max_locks_per_transaction=1024"]
     tty: true
     resources:
       requests:
@@ -30,21 +34,3 @@ spec:
         value: molgenis  
       - name: POSTGRES_DB
         value: molgenis
-    volumeMounts:
-      - name: postgres-initdb
-        mountPath: /docker-entrypoint-initdb.d
-  volumes:
-    - name: postgres-initdb
-      configMap:
-        name: postgres-initdb-config
-  restartPolicy: Never
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-initdb-config
-data:
-  initdb.sql: |
-    CREATE DATABASE molgenis_cloud;
-    CREATE USER molgenis_cloud WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_cloud';
-    GRANT ALL PRIVILEGES ON DATABASE azure TO molgenis_cloud;
