@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb-config
+data:
+  initdb.sql: |
+    CREATE DATABASE azure;
+    CREATE USER azure WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'azure';
+    GRANT ALL PRIVILEGES ON DATABASE azure TO azure;

@@ -34,6 +34,12 @@ spec:
                 secretKeyRef:
                   name: {{ template "emx2.fullname" $ }}
                   key: adminpassword
+            - name: MOLGENIS_POSTGRES_USER
+              value: azure
+            - name: MOLGENIS_POSTGRES_PASS
+              value: azure
+            - name: MOLGENIS_POSTGRES_URI
+              value: jdbc:postgresql://localhost/azure
         - image: postgres:11-alpine
           name: postgres
           args:
@@ -51,9 +57,14 @@ spec:
           ports:
             - containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-pv
+            - name: postgres-pv
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-initdb
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
+        - name: postgres-initdb
+          configMap:
+            name: postgres-initdb-config
         - name: postgres-pv
           persistentVolumeClaim:
             claimName: {{ include "emx2.fullname" . }}-postgres-pv
