@@ -29,5 +29,22 @@ spec:
       - name: POSTGRES_PASSWORD
         value: molgenis  
       - name: POSTGRES_DB
-        value: molgenis  
+        value: molgenis
+    volumeMounts:
+      - name: postgres-initdb
+        mountPath: /docker-entrypoint-initdb.d
+  volumes:
+    - name: postgres-initdb
+      configMap:
+        name: postgres-initdb-config
   restartPolicy: Never
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb-config
+data:
+  initdb.sql: |
+    CREATE DATABASE azure;
+    CREATE USER azure WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'azure';
+    GRANT ALL PRIVILEGES ON DATABASE azure TO azure;
