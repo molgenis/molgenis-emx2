@@ -13,7 +13,7 @@ public class TestDatabaseFactory {
     System.setProperty(Constants.MOLGENIS_POSTGRES_USER, "molgenis_cloud");
 
     if (db == null) {
-      db = new SqlDatabase(false);
+      db = new SqlDatabase(true);
     }
     return db;
   }

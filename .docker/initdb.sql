@@ -2,7 +2,4 @@
 CREATE DATABASE molgenis_cloud;
 CREATE USER molgenis_cloud WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_cloud';
 GRANT ALL PRIVILEGES ON DATABASE molgenis_cloud TO molgenis_cloud;
-\connect molgenis_cloud;
-CREATE SCHEMA MOLGENIS AUTHORIZATION molgenis_cloud;
-GRANT ALL PRIVILEGES ON SCHEMA MOLGENIS TO molgenis_cloud;
 
