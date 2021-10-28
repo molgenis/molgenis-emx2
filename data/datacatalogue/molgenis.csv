@@ -70,6 +70,7 @@ RWEresources,,careSettingOther,text,,,,,,,,"If 'other,' description of the setti
 Resources,,contents,heading,,,,,,,,Data model and contents
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 Models,,releases,refback,,,Releases,,resource,,,
+Studies,,CDM,ref_array,,,Releases,,,,,Common data model(s) used in this study 
 RWEresources,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were collected
 Datasources,,databanks,refback,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,CollectionEvents,,resource,,,List of collection events defined for this resource
@@ -247,7 +248,6 @@ Networks,,databanks,ref_array,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,Cohorts,,,,,
 Networks,,models,ref_array,,,Models,,,,,Select the common data model(s) that the datasources in this study ETL'd to
 Networks,,studies,refback,,,Studies,,networks,,,
-Studies,,CDM,ref_array,,,Releases,,,,,Common data model(s) used in this study 
 Studies,,networks,ref_array,,,Networks,,,,,
 Studies,,datasources,ref_array,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
