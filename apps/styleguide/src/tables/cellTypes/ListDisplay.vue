@@ -94,7 +94,6 @@ export default {
   },
   methods: {
     onFoldClicked(event) {
-      console.log(event);
       this.isFolded = !this.isFolded;
       // remove click focus (without destoying tab focus)
       event.target.blur();
