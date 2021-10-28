@@ -7,9 +7,10 @@ public class TestDatabaseFactory {
   private static Database db;
 
   public static Database getTestDatabase() {
-    System.setProperty(Constants.MOLGENIS_POSTGRES_URI, "jdbc:postgresql://localhost/azure");
-    System.setProperty(Constants.MOLGENIS_POSTGRES_PASS, "azure");
-    System.setProperty(Constants.MOLGENIS_POSTGRES_USER, "azure");
+    System.setProperty(
+        Constants.MOLGENIS_POSTGRES_URI, "jdbc:postgresql://localhost/molgenis_cloud");
+    System.setProperty(Constants.MOLGENIS_POSTGRES_PASS, "molgenis_cloud");
+    System.setProperty(Constants.MOLGENIS_POSTGRES_USER, "molgenis_cloud");
 
     if (db == null) {
       db = new SqlDatabase(false);

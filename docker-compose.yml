@@ -10,14 +10,14 @@ services:
       - "5432:5432"
     volumes:
       - ./psql_data:/var/lib/postgresql/data
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./.docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
   emx2:
     image: molgenis/molgenis-emx2
     environment:
-      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/azure
-      - MOLGENIS_POSTGRES_USER=azure
-      - MOLGENIS_POSTGRES_PASS=azure
+      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis_cloud
+      - MOLGENIS_POSTGRES_USER=molgenis_cloud
+      - MOLGENIS_POSTGRES_PASS=molgenis_cloud
     ports:
       - "8080:8080"
     depends_on:

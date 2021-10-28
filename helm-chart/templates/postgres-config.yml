@@ -4,6 +4,6 @@ metadata:
   name: postgres-initdb-config
 data:
   initdb.sql: |
-    CREATE DATABASE azure;
-    CREATE USER azure WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'azure';
-    GRANT ALL PRIVILEGES ON DATABASE azure TO azure;
+    CREATE DATABASE molgenis_cloud;
+    CREATE USER molgenis_cloud WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_cloud';
+    GRANT ALL PRIVILEGES ON DATABASE molgenis_cloud TO molgenis_cloud;

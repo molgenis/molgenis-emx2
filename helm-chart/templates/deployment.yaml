@@ -23,9 +23,6 @@ spec:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
           imagePullPolicy: Always
-          env:
-            - name: jdbc
-              value: jdbc:postgresql:molgenis
           ports:
             - containerPort: 8080
           env:
@@ -35,11 +32,11 @@ spec:
                   name: {{ template "emx2.fullname" $ }}
                   key: adminpassword
             - name: MOLGENIS_POSTGRES_USER
-              value: azure
+              value: molgenis_cloud
             - name: MOLGENIS_POSTGRES_PASS
-              value: azure
+              value: molgenis_cloud
             - name: MOLGENIS_POSTGRES_URI
-              value: jdbc:postgresql://localhost/azure
+              value: jdbc:postgresql://localhost/molgenis_cloud
         - image: postgres:11-alpine
           name: postgres
           args:
