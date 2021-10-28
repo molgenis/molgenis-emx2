@@ -1,3 +1,4 @@
+/* eslint-disable vue/no-unused-components */
 <template>
   <div style="max-width: 100%" class="flex-grow-1">
     <table
@@ -61,6 +62,7 @@
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
           </td>
+
           <td
             v-for="col in columnsWithoutMeta"
             :key="idx + col.name + isSelected(row)"
@@ -68,24 +70,10 @@
             :style="col.showColumn ? '' : 'display: none'"
             @click="onRowClick(row)"
           >
-            <div v-if="'FILE' === col.columnType">
-              <a v-if="row[col.name].id" :href="row[col.name].url">
-                {{ col.name }}.{{ row[col.name].extension }} ({{
-                  renderNumber(row[col.name].size)
-                }}b)
-              </a>
-            </div>
-            <div v-else>
-              <div
-                v-for="(value, idx2) in renderValue(row, col)"
-                :key="idx + col + idx2"
-              >
-                <div v-if="'TEXT' === col.columnType">
-                  <ReadMore :text="value" />
-                </div>
-                <span v-else> {{ value }}</span>
-              </div>
-            </div>
+            <data-display-cell
+              :data="row[col.name]"
+              :metaData="col"
+            ></data-display-cell>
           </td>
         </tr>
       </tbody>
@@ -113,10 +101,10 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import Draggable from "vuedraggable";
-import ReadMore from "../layout/ReadMore";
+import DataDisplayCell from "./DataDisplayCell.vue";
 
 export default {
-  components: { Draggable, ReadMore },
+  components: { Draggable, DataDisplayCell },
   props: {
     /** selection, two-way binded*/
     selection: Array,
@@ -159,64 +147,6 @@ export default {
           }
         }
       }
-    },
-    renderValue(row, col) {
-      if (row[col.name] === undefined) {
-        return [];
-      }
-      if (
-        col.columnType == "REF_ARRAY" ||
-        col.columnType == "REFBACK" ||
-        col.columnType == "ONTOLOGY_ARRAY"
-      ) {
-        return row[col.name].map((v) => {
-          if (col.refLabel) {
-            return this.applyJsTemplate(col.refLabel, v);
-          } else {
-            return this.flattenObject(v);
-          }
-        });
-      } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
-        if (col.refLabel) {
-          return [this.applyJsTemplate(col.refLabel, row[col.name])];
-        } else {
-          return [this.flattenObject(row[col.name])];
-        }
-      } else if (col.columnType.includes("ARRAY") > 0) {
-        return row[col.name];
-      } else {
-        return [row[col.name]];
-      }
-    },
-    applyJsTemplate(template, object) {
-      const names = Object.keys(object);
-      const vals = Object.values(object);
-      try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
-      } catch (err) {
-        return (
-          err.message +
-          " we got keys:" +
-          JSON.stringify(names) +
-          " vals:" +
-          JSON.stringify(vals) +
-          " and template: " +
-          template
-        );
-      }
-    },
-    flattenObject(object) {
-      let result = "";
-      Object.keys(object).forEach((key) => {
-        if (object[key] === null) {
-          //nothing
-        } else if (typeof object[key] === "object") {
-          result += this.flattenObject(object[key]);
-        } else {
-          result += "." + object[key];
-        }
-      });
-      return result.replace(/^\./, "");
     },
     getKey(row) {
       let result = {};
@@ -282,25 +212,6 @@ export default {
       } else {
         this.$emit("click", this.getKey(row));
       }
-    },
-    renderNumber(number) {
-      var SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
-
-      // what tier? (determines SI symbol)
-      var tier = (Math.log10(number) / 3) | 0;
-
-      // if zero, we don't need a suffix
-      if (tier == 0) return number;
-
-      // get suffix and determine scale
-      var suffix = SI_SYMBOL[tier];
-      var scale = Math.pow(10, tier * 3);
-
-      // scale the number
-      var scaled = number / scale;
-
-      // format number and add suffix
-      return scaled.toFixed(1) + suffix;
     },
   },
 };
