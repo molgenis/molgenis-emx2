@@ -29,6 +29,6 @@ procedure is to update.
 | 1.2 => 1.3 | This change fixes a few variable descriptions. Just upload molgenis.csv to update.| 
 | 1.3 => 1.4 | This change adds Models.releases refback. Just upload molgenis.csv to update.| 
 | 1.4 => 1.5 | Added Counts table, and linked via RWEresources.counts. Just upload molgenis.csv to update.| 
-
-
+| 1.5 => 1.6 | The following data items were added: Databanks.dateEstablished, Databanks.refresh, Datasources.studies, Studies.type, Studies.dataExtractionDate, Studies.CDM, Studies.contactName
+Deleted Models.datasources, Models.databanks. Moved models.releases to heading 'contents' Just upload molgenis.csv to update.|
 
