@@ -69,7 +69,9 @@ public class TestGraphqSchemaFields {
 
     // fetch by key
     assertEquals(1, execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings").size());
-    assertEquals("valB", execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
+    assertEquals(
+        "valB",
+        execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // return all without key
     assertEquals(2, execute("{_settings{key,value}}").at("/_settings").size());
@@ -88,7 +90,9 @@ public class TestGraphqSchemaFields {
 
     // include all pages
     assertEquals(1, execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings").size());
-    assertEquals("page value", execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings/0/value").textValue());
+    assertEquals(
+        "page value",
+        execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // remove value
     execute("mutation{drop(settings:{key:\"page.mypage\"}){message}}");
