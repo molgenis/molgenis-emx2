@@ -3,34 +3,48 @@ kind: Pod
 metadata:
   name: jenkins-agent
 spec:
+  initContainers:
+    - name: initdb
+      image: busybox
+      command:
+        - wget
+        - "-O"
+        - "/docker-entrypoint-initdb.d/initdb.sql"
+        - https://raw.githubusercontent.com/molgenis/molgenis-emx2/chore/add-non-molgenis-in-preview-chart/.docker/initdb.sql
+      volumeMounts:
+        - name: postgres-initdb
+          mountPath: /docker-entrypoint-initdb.d
   containers:
-  - name: java
-    image: gradle:jdk16-hotspot
-    imagePullPolicy: IfNotPresent
-    command:
-    - cat
-    tty: true
-    resources:
-      requests:
-        cpu: 1
-        memory: 4Gi
-  - name: postgres
-    image: postgres:13-alpine
-    imagePullPolicy: IfNotPresent
-    args: ["-c", "CREATE DATABASE molgenis_cloud;
-                  CREATE USER molgenis_cloud WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_cloud';
-                  GRANT ALL PRIVILEGES ON DATABASE azure TO molgenis_cloud;",
-           "-c", "shared_buffers=256MB",
-           "-c", "max_locks_per_transaction=1024"]
-    tty: true
-    resources:
-      requests:
-        cpu: 1
-        memory: 2Gi
-    env:
-      - name: POSTGRES_USER
-        value: molgenis  
-      - name: POSTGRES_PASSWORD
-        value: molgenis  
-      - name: POSTGRES_DB
-        value: molgenis
+    - name: java
+      image: gradle:jdk16-hotspot
+      imagePullPolicy: IfNotPresent
+      command:
+      - cat
+      tty: true
+      resources:
+        requests:
+          cpu: 1
+          memory: 4Gi
+    - name: postgres
+      image: postgres:13-alpine
+      imagePullPolicy: IfNotPresent
+      args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
+      tty: true
+      resources:
+        requests:
+          cpu: 1
+          memory: 2Gi
+      env:
+        - name: POSTGRES_USER
+          value: molgenis
+        - name: POSTGRES_PASSWORD
+          value: molgenis
+        - name: POSTGRES_DB
+          value: molgenis
+      volumeMounts:
+        - name: postgres-initdb
+          mountPath: /docker-entrypoint-initdb.d
+  volumes:
+    - name: postgres-initdb
+      emptyDir: {}
+  restartPolicy: Never
