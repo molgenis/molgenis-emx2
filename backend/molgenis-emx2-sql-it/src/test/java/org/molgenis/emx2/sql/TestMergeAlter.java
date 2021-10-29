@@ -99,11 +99,10 @@ public class TestMergeAlter {
     schema.getTable(targetTableName).getMetadata().dropColumn("refBack");
     schema.getTable(refTableName).getMetadata().alterColumn(new Column(REF_COLUMN).setType(STRING));
 
-    //    // this should work
-    //    schema
-    //        .getTable(refTableName)
-    //        .update(
-    //            new Row().set(ID_COLUMN, "ref1").set(REF_COLUMN, "target_fail")); // it is a
+    // this should work
+    schema
+        .getTable(refTableName)
+        .update(new Row().set(ID_COLUMN, "ref1").set(REF_COLUMN, "target_fail")); // it is a
     // string now
 
     // this should fail

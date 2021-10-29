@@ -131,6 +131,8 @@ public class SqlColumnExecutor {
     if (newColumn.isRefArray()) {
       executeCreateRefArrayIndex(jooq, table, newColumn.getJooqField());
     }
+
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, newColumn.getTable(), newColumn.getTableName());
   }
 
   static void alterField(
