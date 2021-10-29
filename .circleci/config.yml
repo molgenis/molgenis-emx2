@@ -30,6 +30,10 @@ jobs:
     steps:
       - checkout
 
+      # Initialize the database
+      - run: apt-get update && apt-get install postgresql-client -y
+      - run: psql -h 127.0.0.1 -p 5432 < .docker/initdb.sql
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -45,4 +49,4 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+      - run: MOLGENIS_POSTGRES_USER=molgenis_cloud MOLGENIS_POSTGRES_PASS=molgenis_cloud MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost/molgenis_cloud ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
