@@ -103,7 +103,7 @@ public class TestMergeAlter {
     schema
         .getTable(refTableName)
         .update(
-                new Row().set(ID_COLUMN, "ref1").set(REF_COLUMN, "target_fail")); // it is a string now
+            new Row().set(ID_COLUMN, "ref1").set(REF_COLUMN, "target_fail")); // it is a string now
 
     // this should fail
     try {
