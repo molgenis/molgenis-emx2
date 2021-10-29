@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.6
+Version,,,,,,,,,,,1.7
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -31,9 +31,10 @@ Resources,,website,,,,,,,,,Link to the website or homepage of this resource
 Resources,,description,text,,,,,,,,Short description of this resource
 Datasources,,type,ref_array,,,DatasourceTypes,,,,,Select one or multiple datasource types
 Resources,,keywords,text,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
+Cohorts,Resources,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
+Cohorts,,contactEmail,,,,,,,,,Contact e-mail address for this cohort
 Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,externalIdentifiers,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
-Cohorts,Resources,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
 Cohorts,,type,ref_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,"If other, describe the type of resource"
 Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, e.g. cross-sectional or longitudinal"
@@ -49,8 +50,8 @@ Resources,,population,heading,,,,,,,,Description of the population that can pote
 Resources,,numberOfParticipants,int,,,,,,,,Total number of individuals for which data is collected
 Resources,,numberOfParticipantsWithSamples,int,,,,,,,,Number of individuals for which samples are collected
 Databanks,,underlyingPopulation,text,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description
-Resources,,countries,ontology_array,,,Countries,,,,,Countries where data from this resource originate from
-Resources,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this resource originate from
+Resources,,countries,ontology_array,,,Countries,,,,,Countries where data from this resource largely originate from
+Resources,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this resource largely originate from
 Resources,,populationAgeGroups,ontology_array,,,AgeGroups,,,,,Age groups of the participants of this resource
 Cohorts,,inclusionCriteria,text,,,InclusionCriteria,,,,,Other inclusion criteria applied to the participants of this resource
 Resources,,startYear,int,,,,,,,,Year when first data was collected
@@ -70,15 +71,15 @@ RWEresources,,careSettingOther,text,,,,,,,,"If 'other,' description of the setti
 Resources,,contents,heading,,,,,,,,Data model and contents
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 Models,,releases,refback,,,Releases,,resource,,,
-Studies,,CDM,ref_array,,,Releases,,,,,Common data model(s) used in this study 
+Studies,,cdm,ref_array,,,Releases,,,,,Common data model(s) used in this study 
 RWEresources,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were collected
+Datasources,,qualityOfLifeOther,text,,,,,,,,"If other, specify additional quality of life measures."
 Datasources,,databanks,refback,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,CollectionEvents,,resource,,,List of collection events defined for this resource
 Databanks,,dataDictionaryAvailable,bool,,,,,,,,Are a data dictionary and a data model available?
 Databanks,,languages,ontology_array,,,Languages,,,,,"Languages in which that the records in the data bank are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
 Databanks,,hasIdentifier,bool,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
-RWEresources,,standardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other, what other vocabularies are used?"
 RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries describing data bank population
@@ -132,7 +133,7 @@ Resources,,documentation,refback,,,Documentation,,resource,,,"Descriptive docume
 Resources,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this resource
 Resources,,collaborations,heading,,,,,,,,List of relevant collaborations
 Cohorts,,studies,refback,,,Studies,,cohorts,,,Listing of studies that used this cohort
-Databanks,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this databank
+RWEresources,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this databank
 Resources,,partners,refback,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,refback,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Databanks,,datasource,refback,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
@@ -227,7 +228,9 @@ CollectionEvents,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups included i
 CollectionEvents,,numberOfParticipants,int,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ontology_array,,,DataCategories,,,,,Methods of data collection used in this collection event
-CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection even
+CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection event
+CollectionEvents,,standardizedTools,ontology_array,,,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+CollectionEvents,,standardizedToolsOther,,,,,,,,,"If 'other', please specify"
 CollectionEvents,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,Resources,,,,,Resource this subcohort is part of
@@ -238,8 +241,8 @@ Subcohorts,,inclusionStart,int,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups within this subcohort
 Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,,,,,Main medical condition of this subcohort
-Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort originate from
-Subcohorts,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this subcohort originate from
+Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort largely originate from
+Subcohorts,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,Other inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,Collaborations of multiple institutions
@@ -385,3 +388,4 @@ Counts,,ageband,,1,TRUE,,,,,,
 Counts,,gender,,1,TRUE,,,,,,
 Counts,,N,int,,TRUE,,,,,,
 StudyTypes,OntologyTerms,,,,,,,,,,
+StandardizedTools,OntologyTerms,,,,,,,,,,
