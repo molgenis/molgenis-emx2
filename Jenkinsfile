@@ -54,7 +54,10 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test jacocoMergedReport shadowJar jib release ci sonarqube \
+                    sh "MOLGENIS_POSTGRES_USER=molgenis_cloud \
+                        MOLGENIS_POSTGRES_PASS=molgenis_cloud \
+                        MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost/molgenis_cloud \
+                        ./gradlew test jacocoMergedReport shadowJar jib release ci sonarqube \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -92,9 +95,12 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
-                        -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
-                        -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
+                        sh "MOLGENIS_POSTGRES_USER=molgenis_cloud \
+                            MOLGENIS_POSTGRES_PASS=molgenis_cloud \
+                            MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost/molgenis_cloud \
+                            ./gradlew test jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
+                            -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+                            -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
                         env.TAG_NAME = props.tagName
                     }
