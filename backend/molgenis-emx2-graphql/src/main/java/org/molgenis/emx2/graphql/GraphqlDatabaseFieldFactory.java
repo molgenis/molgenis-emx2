@@ -72,6 +72,10 @@ public class GraphqlDatabaseFieldFactory {
   public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
             dataFetchingEnvironment -> new ArrayList() // big todo

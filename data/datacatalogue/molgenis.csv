@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.4
+Version,,,,,,,,,,,1.7
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -31,23 +31,27 @@ Resources,,website,,,,,,,,,Link to the website or homepage of this resource
 Resources,,description,text,,,,,,,,Short description of this resource
 Datasources,,type,ref_array,,,DatasourceTypes,,,,,Select one or multiple datasource types
 Resources,,keywords,text,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
-Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
-Resources,,externalIdentifiers,,,,,,,,,External identifier for this resource
 Cohorts,Resources,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
+Cohorts,,contactEmail,,,,,,,,,Contact e-mail address for this cohort
+Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
+Resources,,externalIdentifiers,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ref_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,"If other, describe the type of resource"
 Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, e.g. cross-sectional or longitudinal"
 Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"The data collection type of this cohort, e.g. retrospective or prospective; if both, select both"
+Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
+Studies,,type,ref,,,StudyTypes,,,,,Select 1 of the following types of study
 Databanks,,databankFamily,ontology,,,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,"If 'other' selected above, describe the type of data bank"
 Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
+Studies,,contactName,,,,,,,,,Name of institution contact for study
 Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
 Resources,,population,heading,,,,,,,,Description of the population that can potentially be captured in the resource
 Resources,,numberOfParticipants,int,,,,,,,,Total number of individuals for which data is collected
 Resources,,numberOfParticipantsWithSamples,int,,,,,,,,Number of individuals for which samples are collected
 Databanks,,underlyingPopulation,text,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description
-Resources,,countries,ontology_array,,,Countries,,,,,Countries where data from this resource originate from
-Resources,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this resource originate from
+Resources,,countries,ontology_array,,,Countries,,,,,Countries where data from this resource largely originate from
+Resources,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this resource largely originate from
 Resources,,populationAgeGroups,ontology_array,,,AgeGroups,,,,,Age groups of the participants of this resource
 Cohorts,,inclusionCriteria,text,,,InclusionCriteria,,,,,Other inclusion criteria applied to the participants of this resource
 Resources,,startYear,int,,,,,,,,Year when first data was collected
@@ -65,19 +69,23 @@ RWEresources,,timeSpanDescription,text,,,,,,,,Description of time span
 RWEresources,,careSetting,ontology_array,,,CareSettings,,,,,Type of care setting(s) covered
 RWEresources,,careSettingOther,text,,,,,,,,"If 'other,' description of the setting of care"
 Resources,,contents,heading,,,,,,,,Data model and contents
+Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
+Models,,releases,refback,,,Releases,,resource,,,
+Studies,,cdm,ref_array,,,Releases,,,,,Common data model(s) used in this study 
 RWEresources,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were collected
+Datasources,,qualityOfLifeOther,text,,,,,,,,"If other, specify additional quality of life measures."
 Datasources,,databanks,refback,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,CollectionEvents,,resource,,,List of collection events defined for this resource
 Databanks,,dataDictionaryAvailable,bool,,,,,,,,Are a data dictionary and a data model available?
 Databanks,,languages,ontology_array,,,Languages,,,,,"Languages in which that the records in the data bank are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
 Databanks,,hasIdentifier,bool,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
-RWEresources,,standardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
-Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other,, what other vocabularies are used?"
+Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other, what other vocabularies are used?"
 RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries describing data bank population
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
+RWEresources,,counts,refback,,,Counts,,resource,,,"Counts per year,ageband and gender"
 Cohorts,,access,heading,,,,,,,,
 Cohorts,,dataAccessConditions,ontology_array,,,Conditions,,,,,Codes defining data access terms and use conditions
 Cohorts,,dataAccessConditionsDescription,text,,,,,,,,Description of data access terms and use conditions
@@ -100,11 +108,13 @@ RWEresources,,qualificationsDescription,text,,,,,,,,"Has the resource successful
 Databanks,,origin,heading,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
 Databanks,,originator,ref,,,Institutions,,,,,Name of the organisation that maintains the collection of records
 Databanks,,reasonSustained,text,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
+Databanks,,dateEstablished,date,,,,,,,,Date that the data bank was first established.
 Databanks,,prompt,heading,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
 Databanks,,recordPrompt,text,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
 Databanks,,unitOfObservation,text,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?"
 Databanks,,multipleEntries,bool,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?"
 Databanks,,updates,heading,,,,,,,,Information on the regularity of updates and time lags
+Databanks,,refresh,int,,,,,,,,Average number of days between refresh of data bank with new records
 Databanks,,lagTime,int,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
 Databanks,,refreshPeriod,ontology_array,,,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
 Databanks,,dateLastRefresh,date,,,,,,,,Date of last update/refresh
@@ -123,13 +133,14 @@ Resources,,documentation,refback,,,Documentation,,resource,,,"Descriptive docume
 Resources,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this resource
 Resources,,collaborations,heading,,,,,,,,List of relevant collaborations
 Cohorts,,studies,refback,,,Studies,,cohorts,,,Listing of studies that used this cohort
-Databanks,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this databank
+RWEresources,,studies,refback,,,Studies,,databanks,,,Listing of studies that used this databank
 Resources,,partners,refback,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,refback,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Databanks,,datasource,refback,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
 Databanks,,cdms,refback,,,Releases,,databanks,,,Common data models used by this databank
 Datasources,,networks,refback,,,Networks,,datasources,,,List of networks that this datasource is associated with
+Datasources,,studies,refback,,,Studies,,datasources,,,
 Publications,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,,1,TRUE,,,,,,Digital object identifier
 Publications,,title,,,TRUE,,,,,,Publication title
@@ -217,9 +228,11 @@ CollectionEvents,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups included i
 CollectionEvents,,numberOfParticipants,int,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ontology_array,,,DataCategories,,,,,Methods of data collection used in this collection event
-CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection even
+CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection event
+CollectionEvents,,standardizedTools,ontology_array,,,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+CollectionEvents,,standardizedToolsOther,,,,,,,,,"If 'other', please specify"
 CollectionEvents,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this collection event
-Subcohorts,,,,,,,,,,,"		Subcohorts defined for this resource"
+Subcohorts,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,Subcohort description
@@ -228,25 +241,21 @@ Subcohorts,,inclusionStart,int,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups within this subcohort
 Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,,,,,Main medical condition of this subcohort
-Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort originate from
-Subcohorts,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this subcohort originate from
+Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort largely originate from
+Subcohorts,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,Other inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,Collaborations of multiple institutions
 Networks,,datasources,ref_array,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,Cohorts,,,,,
-Networks,,models,ref_array,,,Models,,,,,
+Networks,,models,ref_array,,,Models,,,,,Select the common data model(s) that the datasources in this study ETL'd to
 Networks,,studies,refback,,,Studies,,networks,,,
-Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
-Models,,releases,refback,,,Releases,,resource,,,
-Models,,datasources,ref_array,,,Datasources,,,,,
-Models,,databanks,ref_array,,,Databanks,,,,,
-Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
 Studies,,networks,ref_array,,,Networks,,,,,
 Studies,,datasources,ref_array,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,Cohorts,,,,,Cohorts that provided data into this study
+Studies,,dataExtractionDate,date,,,,,,,,Date on which the study data was extracted
 Studies,,leadInstitution,ref,,,Institutions,,,,,Name of lead institution that conducted the study
 Releases,,,,,,,,,,,"Definition of a data release, in case of Model this will not include data"
 Releases,,resource,ref,1,TRUE,Resources,,,,,Link to the resource of which contents has been released
@@ -373,3 +382,10 @@ InstitutionRoles,OntologyTerms,,,,,,,,,,
 Years,OntologyTerms,,,,,,,,,,
 Titles,OntologyTerms,,,,,,,,,,
 DatasourceTypes,OntologyTerms,,,,,,,,,,
+Counts,,resource,ref,1,TRUE,RWEresources,,,,,
+Counts,,year,int,1,TRUE,,,,,,
+Counts,,ageband,,1,TRUE,,,,,,
+Counts,,gender,,1,TRUE,,,,,,
+Counts,,N,int,,TRUE,,,,,,
+StudyTypes,OntologyTerms,,,,,,,,,,
+StandardizedTools,OntologyTerms,,,,,,,,,,

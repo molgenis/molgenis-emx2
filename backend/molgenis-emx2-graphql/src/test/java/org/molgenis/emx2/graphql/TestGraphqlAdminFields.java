@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.fail;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +48,7 @@ public class TestGraphqlAdminFields {
               throw new RuntimeException(e);
             }
             // test that only admin can do this
-            database.setActiveUser(null);
+            database.setActiveUser(ANONYMOUS);
             grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
             try {
@@ -59,7 +60,7 @@ public class TestGraphqlAdminFields {
           });
 
     } finally {
-      database.setActiveUser(null);
+      database.clearActiveUser();
     }
   }
 

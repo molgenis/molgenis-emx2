@@ -34,6 +34,7 @@ public class GraphqlConstants {
   public static final String OFFSET = "offset";
   public static final String SEARCH = "search";
   public static final String ORDERBY = "orderby";
+  public static final String KEYS = "keys";
   static final String COUNT = "count";
 
   private GraphqlConstants() {

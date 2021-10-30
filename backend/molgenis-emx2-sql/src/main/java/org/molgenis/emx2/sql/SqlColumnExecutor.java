@@ -131,6 +131,9 @@ public class SqlColumnExecutor {
     if (newColumn.isRefArray()) {
       executeCreateRefArrayIndex(jooq, table, newColumn.getJooqField());
     }
+
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
+        jooq, newColumn.getTable(), newColumn.getTableName());
   }
 
   static void alterField(
@@ -215,10 +218,17 @@ public class SqlColumnExecutor {
           executeSetRequired(jooq, column);
         }
       }
+
+      saveColumnMetadata(jooq, column);
+
+      // update the metaData with added column and put back schema info
+      var tableMetadata =
+          MetadataUtils.loadTable(jooq, column.getSchemaName(), column.getTableName());
+      tableMetadata.setSchema(column.getSchema());
+
       // central constraints
       SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(
-          jooq, column.getTable(), column.getTableName());
-      saveColumnMetadata(jooq, column);
+          jooq, tableMetadata, column.getTableName());
     } catch (Exception e) {
       if (e.getMessage() != null && e.getMessage().contains("null values")) {
         throw new MolgenisException(
