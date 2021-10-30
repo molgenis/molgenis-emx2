@@ -31,7 +31,7 @@ jobs:
       - checkout
 
       # Initialize the database
-      - run: apt-get update && apt-get install postgresql-client -y
+      - run: apt-get update && apt-get install postgresql-client -y  || true
       - run: psql -h 127.0.0.1 -p 5432 -U molgenis < .docker/initdb.sql
 
       # Download and cache dependencies
