@@ -24,18 +24,13 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     try {
       connection = super.acquire();
       if (activeUser != null && !activeUser.equals(ADMIN_USER)) {
-        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE");
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("SET ROLE {0}", name(MG_USER_PREFIX + activeUser));
+            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + activeUser));
       }
       return connection;
     } catch (DataAccessException dae) {
-      String user =
-          DSL.using(connection, SQLDialect.POSTGRES)
-              .fetchOne("SELECT CURRENT_USER")
-              .get(0, String.class);
       super.release(connection);
-      throw new SqlMolgenisException("Set active user failed' for user " + user, dae);
+      throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }
 
