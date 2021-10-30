@@ -28,7 +28,7 @@ public class TestInherits {
   @Test
   public void testExtends() {
 
-    Schema s = db.dropCreateSchema("TestExtends");
+    Schema s = db.dropCreateSchema(TestInherits.class.getSimpleName());
 
     Table person = s.create(table("Person"));
 
