@@ -29,8 +29,12 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       }
       return connection;
     } catch (DataAccessException dae) {
+      String user =
+          DSL.using(connection, SQLDialect.POSTGRES)
+              .fetchOne("SELECT CURRENT_USER")
+              .get(0, String.class);
       super.release(connection);
-      throw new SqlMolgenisException("Set active user failed'", dae);
+      throw new SqlMolgenisException("Set active user failed' for user " + user, dae);
     }
   }
 
