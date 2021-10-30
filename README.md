@@ -23,24 +23,21 @@ own 'apps'.
 
 ## Guides
 
-* [User guide](https://molgenis.github.io/molgenis-emx2/#/use)
-* [Installation guide](https://molgenis.github.io/molgenis-emx2/#/run)
-* [Developer guide](https://molgenis.github.io/molgenis-emx2/#/dev)
+* [User guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/use)
+* [Installation guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/run)
+* [Developer guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev)
 
 ## Quick start
 
 * [Demo server](https://emx2.test.molgenis.org)
-* [java commandline + postgresql](https://molgenis.github.io/molgenis-emx2/#/run_java)
-* [docker compose](https://molgenis.github.io/molgenis-emx2/#/run_docker)
-* [using kubernetes](https://molgenis.github.io/molgenis-emx2/#/run_helm)
-
-Note: when updating to newer version MOLGENIS will attempt to migrate your postgresql backend to match.
-However, this might not 'fix' your data so please read release notes on breaking changes.
+* [java commandline + postgresql](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_java)
+* [docker compose](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_docker)
+* [using kubernetes](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_helm)
 
 ## How to contribute
 
-* [Build the source code](https://molgenis.github.io/molgenis-emx2/#/dev_quickstart)
-* [Technologies we use](https://molgenis.github.io/molgenis-emx2/#/dev_technologies)
+* [Build the source code](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_quickstart)
+* [Technologies we use](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_technologies)
 
 ## Changelog
 
