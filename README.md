@@ -25,7 +25,7 @@ own 'apps'.
 
 * [User guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/use)
 * [Installation guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/run)
-* [Developer guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev)
+* [Developer guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev/quick_start)
 
 ## Quick start
 
