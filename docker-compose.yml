@@ -3,9 +3,9 @@ services:
   postgres:
     image: postgres:13-alpine
     environment:
-      - POSTGRES_USER=molgenis
-      - POSTGRES_PASSWORD=molgenis
-      - POSTGRES_DB=molgenis
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     ports:
       - "5432:5432"
     volumes:
@@ -15,9 +15,9 @@ services:
   emx2:
     image: molgenis/molgenis-emx2
     environment:
-      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis_cloud
-      - MOLGENIS_POSTGRES_USER=molgenis_cloud
-      - MOLGENIS_POSTGRES_PASS=molgenis_cloud
+      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenisdb
+      - MOLGENIS_POSTGRES_USER=molgenis_admin
+      - MOLGENIS_POSTGRES_PASS=molgenis_admin
     ports:
       - "8080:8080"
     depends_on:

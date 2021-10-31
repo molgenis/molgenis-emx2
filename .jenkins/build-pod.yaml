@@ -19,7 +19,7 @@ spec:
       image: gradle:jdk16-hotspot
       imagePullPolicy: IfNotPresent
       command:
-      - cat
+        - cat
       tty: true
       resources:
         requests:
@@ -28,7 +28,7 @@ spec:
     - name: postgres
       image: postgres:13-alpine
       imagePullPolicy: IfNotPresent
-      args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
+      args: [ "-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024" ]
       tty: true
       resources:
         requests:
@@ -36,15 +36,15 @@ spec:
           memory: 2Gi
       env:
         - name: POSTGRES_USER
-          value: molgenis
+          value: postgres
         - name: POSTGRES_PASSWORD
-          value: molgenis
+          value: postgres
         - name: POSTGRES_DB
-          value: molgenis
+          value: postgres
       volumeMounts:
         - name: postgres-initdb
           mountPath: /docker-entrypoint-initdb.d
   volumes:
     - name: postgres-initdb
-      emptyDir: {}
+      emptyDir: { }
   restartPolicy: Never
