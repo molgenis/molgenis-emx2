@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { include "emx2.fullname" . } }
+  name: {{ include "emx2.fullname" . }}
   labels:
-    app: { { template "emx2.name" . } }
-    chart: { { template "emx2.chart" . } }
-    release: { { .Release.Name | quote } }
-    heritage: { { .Release.Service | quote } }
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      { { - include "emx2.selectorLabels" . | nindent 6 } }
+      {{- include "emx2.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        { { - include "emx2.selectorLabels" . | nindent 8 } }
+        {{- include "emx2.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          name: { { .Chart.Name } }
+          name: {{ .Chart.Name }}
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -29,7 +29,7 @@ spec:
             - name: MOLGENIS_ADMIN_PW
               valueFrom:
                 secretKeyRef:
-                  name: { { template "emx2.fullname" $ } }
+                  name: {{ template "emx2.fullname" $ }}
                   key: adminpassword
             - name: MOLGENIS_POSTGRES_USER
               value: molgenis_admin
@@ -64,6 +64,6 @@ spec:
             name: postgres-initdb-config
         - name: postgres-pv
           persistentVolumeClaim:
-            claimName: { { include "emx2.fullname" . } }-postgres-pv
+            claimName: {{ include "emx2.fullname" . }}-postgres-pv
       restartPolicy: Always
-status: { }
+status: {}

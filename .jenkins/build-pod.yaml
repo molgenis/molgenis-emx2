@@ -19,7 +19,7 @@ spec:
       image: gradle:jdk16-hotspot
       imagePullPolicy: IfNotPresent
       command:
-        - cat
+      - cat
       tty: true
       resources:
         requests:
