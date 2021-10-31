@@ -28,7 +28,7 @@ spec:
     - name: postgres
       image: postgres:13-alpine
       imagePullPolicy: IfNotPresent
-      args: [ "-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024" ]
+      args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
       tty: true
       resources:
         requests:
@@ -46,5 +46,5 @@ spec:
           mountPath: /docker-entrypoint-initdb.d
   volumes:
     - name: postgres-initdb
-      emptyDir: { }
+      emptyDir: {}
   restartPolicy: Never
