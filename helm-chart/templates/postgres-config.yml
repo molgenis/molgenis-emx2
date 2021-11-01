@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb-config
+data:
+  initdb.sql: |
+    CREATE DATABASE molgenisdb;
+    CREATE USER molgenis_admin WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_admin';
+    GRANT ALL PRIVILEGES ON DATABASE molgenisdb TO molgenis_admin;

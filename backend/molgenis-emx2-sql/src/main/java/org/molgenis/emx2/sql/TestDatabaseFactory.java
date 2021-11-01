@@ -6,6 +6,7 @@ public class TestDatabaseFactory {
   private static Database db;
 
   public static Database getTestDatabase() {
+
     if (db == null) {
       db = new SqlDatabase(false);
     }
