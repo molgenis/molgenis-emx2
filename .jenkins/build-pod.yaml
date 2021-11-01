@@ -10,7 +10,7 @@ spec:
         - wget
         - "-O"
         - "/docker-entrypoint-initdb.d/initdb.sql"
-        - https://raw.githubusercontent.com/molgenis/molgenis-emx2/chore/add-non-molgenis-in-preview-chart/.docker/initdb.sql
+        - https://raw.githubusercontent.com/molgenis/molgenis-emx2/master/.docker/initdb.sql
       volumeMounts:
         - name: postgres-initdb
           mountPath: /docker-entrypoint-initdb.d
