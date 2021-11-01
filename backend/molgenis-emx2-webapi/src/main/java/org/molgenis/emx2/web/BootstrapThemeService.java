@@ -27,7 +27,7 @@ import spark.Request;
 import spark.Response;
 
 public class BootstrapThemeService {
-  private static Map<String, String> cache = new LinkedHashMap<>();
+  private static final Map<String, String> cache = new LinkedHashMap<>();
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
   private static final Pattern pattern = Pattern.compile(HEX_WEBCOLOR_PATTERN);
 
@@ -65,11 +65,8 @@ public class BootstrapThemeService {
         params.entrySet().stream()
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("&"));
-    if (cache.containsKey(key)) {
-      return cache.get(key);
-    } else {
-      return generateCss(params);
-    }
+
+    return cache.computeIfAbsent(key, k -> generateCss(params));
   }
 
   public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
