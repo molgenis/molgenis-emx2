@@ -8,6 +8,9 @@ pipeline {
     environment {
         DOCKER_CONFIG = "/root/.docker"
         CHART_VERSION = "8.6.3"
+        MOLGENIS_POSTGRES_USER = 'molgenis_admin'
+        MOLGENIS_POSTGRES_PASS = 'molgenis_admin'
+        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenisdb'
     }
     stages {
         stage('Prepare') {
@@ -54,10 +57,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "MOLGENIS_POSTGRES_USER=molgenis_admin \
-                        MOLGENIS_POSTGRES_PASS=molgenis_admin \
-                        MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost/molgenisdb \
-                        ./gradlew test jacocoMergedReport shadowJar jib release ci sonarqube \
+                    sh "./gradlew test jacocoMergedReport shadowJar jib release ci sonarqube \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -95,10 +95,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "MOLGENIS_POSTGRES_USER=molgenis_admin \
-                            MOLGENIS_POSTGRES_PASS=molgenis_admin \
-                            MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost/molgenisdb \
-                            ./gradlew test jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
+                        sh "./gradlew test jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
