@@ -37,7 +37,7 @@ spec:
               value: molgenis_admin
             - name: MOLGENIS_POSTGRES_URI
               value: jdbc:postgresql://localhost/molgenisdb
-        - image: postgres:11-alpine
+        - image: postgres:13-alpine
           name: postgres
           args:
             - -c
