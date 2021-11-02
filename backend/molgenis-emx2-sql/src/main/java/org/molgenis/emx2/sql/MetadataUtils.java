@@ -545,11 +545,11 @@ public class MetadataUtils {
           .values(
               schema.getName(),
               table != null ? table.getTableName() : NOT_PROVIDED,
-              setting.getKey(),
-              setting.getValue())
+              setting.key(),
+              setting.value())
           .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
           .doUpdate()
-          .set(SETTINGS_VALUE, setting.getValue())
+          .set(SETTINGS_VALUE, setting.value())
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of settings failed", e);
@@ -562,7 +562,7 @@ public class MetadataUtils {
         .where(
             TABLE_SCHEMA.eq(schema.getName()),
             table != null ? TABLE_NAME.eq(table.getTableName()) : TABLE_NAME.eq(NOT_PROVIDED),
-            SETTINGS_NAME.eq(setting.getKey()))
+            SETTINGS_NAME.eq(setting.key()))
         .execute();
   }
 

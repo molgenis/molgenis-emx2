@@ -32,7 +32,7 @@ public class SchemaMetadata {
     this.database = schema.getDatabase();
     this.setSettings(schema.getSettings());
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
   }
 
@@ -41,7 +41,7 @@ public class SchemaMetadata {
     this.description = schema.getDescription();
     this.database = db;
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
   }
 
@@ -120,7 +120,7 @@ public class SchemaMetadata {
   public SchemaMetadata setSettings(Collection<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), new Setting(setting));
+      this.settings.put(setting.key(), new Setting(setting.key(), setting.value()));
     }
     return this;
   }
@@ -145,8 +145,8 @@ public class SchemaMetadata {
 
   public String getSetting(String key) {
     for (Setting s : getSettings()) {
-      if (s.getKey().equals(key)) {
-        return s.getValue();
+      if (s.key().equals(key)) {
+        return s.value();
       }
     }
     return null;

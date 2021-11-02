@@ -4,6 +4,8 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.logger;
 import static spark.Spark.get;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.Options;
 import io.bit3.jsass.Output;
@@ -28,8 +30,11 @@ import spark.Response;
 
 public class BootstrapThemeService {
   private static final Map<String, String> cache = new LinkedHashMap<>();
+  private static final Map<String, String> printCache = new LinkedHashMap<>();
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
   private static final Pattern pattern = Pattern.compile(HEX_WEBCOLOR_PATTERN);
+  public static final String THEME = "theme.";
+  public static final String CSS = ".css";
 
   private BootstrapThemeService() {
     // hide constructor
@@ -66,7 +71,31 @@ public class BootstrapThemeService {
             .map(e -> e.getKey() + "=" + e.getValue())
             .collect(Collectors.joining("&"));
 
-    return cache.computeIfAbsent(key, k -> generateCss(params));
+    String theme = cache.computeIfAbsent(key, k -> generateCss(params));
+
+    // if not fingerPrinted redirect client to use fingerPrinted
+    if (request.pathInfo().endsWith("theme.css")) {
+      var fingerPrint = fingerPrint(theme);
+      printCache.put(fingerPrint, theme);
+      response.redirect(THEME + fingerPrint + CSS);
+      return null;
+    } else {
+      var fingerPrint = getFingerPrintFromThemePath(request);
+      return printCache.get(fingerPrint);
+    }
+  }
+
+  private static String getFingerPrintFromThemePath(Request request) {
+    return request
+        .pathInfo()
+        .substring(
+            request.pathInfo().lastIndexOf(THEME) + THEME.length(),
+            request.pathInfo().length() - CSS.length());
+  }
+
+  public static String fingerPrint(String themeCSS) {
+    HashCode crc32 = Hashing.crc32().newHasher().putString(themeCSS, StandardCharsets.UTF_8).hash();
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(crc32.asBytes());
   }
 
   public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
@@ -211,7 +240,7 @@ public class BootstrapThemeService {
     final String basename = path.getFileName().toString();
 
     for (String prefix : new String[] {"_", ""}) {
-      for (String suffix : new String[] {".scss", ".css", ""}) {
+      for (String suffix : new String[] {".scss", CSS, ""}) {
         final Path target = dir.resolve(prefix + basename + suffix);
         URL resource = BootstrapThemeService.class.getClassLoader().getResource(target.toString());
 

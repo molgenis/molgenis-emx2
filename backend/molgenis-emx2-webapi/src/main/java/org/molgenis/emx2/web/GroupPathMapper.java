@@ -4,6 +4,7 @@ import static spark.Spark.*;
 
 import com.google.common.io.ByteStreams;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import spark.Request;
 import spark.Response;
 import spark.resource.ClassPathResource;
@@ -59,6 +60,13 @@ public class GroupPathMapper {
           "/public_html/apps"
               + request.pathInfo().substring(request.params("schema").length() + 1));
       return "";
+    } else if (request.pathInfo().matches("(.*)theme(.*).css")) {
+      try {
+        return BootstrapThemeService.getCss(request, response);
+      } catch (UnsupportedEncodingException e) {
+        response.status(404);
+        return "Failed to generate theme css";
+      }
     } else {
       try {
         InputStream in = GroupPathMapper.class.getResourceAsStream(request.pathInfo());

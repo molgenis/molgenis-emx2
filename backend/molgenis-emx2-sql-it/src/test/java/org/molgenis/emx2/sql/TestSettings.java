@@ -25,20 +25,20 @@ public class TestSettings {
     Schema s = db.dropCreateSchema("testSchemaSettings");
     s.getMetadata().setSetting("key", "value");
 
-    assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
-    assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
+    assertEquals("key", s.getMetadata().getSettings().get(0).key());
+    assertEquals("value", s.getMetadata().getSettings().get(0).value());
 
     assertEquals(
-        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
     assertEquals(
-        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
+        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
     db.clearCache();
 
     assertEquals(
-        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+        "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
     assertEquals(
-        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
+        "value", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
   }
 
   @Test
@@ -53,8 +53,8 @@ public class TestSettings {
     List<Setting> test =
         db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
     assertEquals(1, test.size());
-    assertEquals("key", test.get(0).getKey());
-    assertEquals("value", test.get(0).getValue());
+    assertEquals("key", test.get(0).key());
+    assertEquals("value", test.get(0).value());
 
     assertEquals(
         "key",
@@ -63,7 +63,7 @@ public class TestSettings {
             .getMetadata()
             .getSettings()
             .get(0)
-            .getKey());
+            .key());
     assertEquals(
         "value",
         db.getSchema("testTableSettings")
@@ -71,6 +71,6 @@ public class TestSettings {
             .getMetadata()
             .getSettings()
             .get(0)
-            .getValue());
+            .value());
   }
 }

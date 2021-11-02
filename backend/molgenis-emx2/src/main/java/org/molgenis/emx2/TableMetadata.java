@@ -83,7 +83,7 @@ public class TableMetadata implements Comparable {
       this.description = metadata.getDescription();
       this.oldName = metadata.getOldName();
       for (Setting setting : metadata.getSettings()) {
-        this.settings.put(setting.getKey(), setting);
+        this.settings.put(setting.key(), setting);
       }
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
@@ -488,7 +488,7 @@ public class TableMetadata implements Comparable {
   public TableMetadata setSettings(List<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), setting);
+      this.settings.put(setting.key(), setting);
     }
     return this;
   }
