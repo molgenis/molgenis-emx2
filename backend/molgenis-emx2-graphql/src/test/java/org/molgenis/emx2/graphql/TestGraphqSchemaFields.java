@@ -403,9 +403,9 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testNamesWithSpaces() throws IOException {
-    Schema schema = database.dropCreateSchema("testNamesWithSpaces");
+    Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
 
-    schema.create(
+    myschema.create(
         table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
         table(
             "Some",
@@ -413,9 +413,9 @@ public class TestGraphqSchemaFields {
             column("person").setType(REF).setRefTable("Person details"),
             column("persons").setType(REF_ARRAY).setRefTable("Person details")));
 
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
 
-    int count = execute("{Persondetails{count}}").at("/Persondetails_agg/count").intValue();
+    int count = execute("{Persondetails_agg{count}}").at("/Persondetails_agg/count").intValue();
 
     //    // insert should increase count
     //    execute("mutation{insert(Tag:{name:\"blaat\"}){message}}");

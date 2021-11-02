@@ -439,14 +439,24 @@ public class GraphqlTableFieldFactory {
   }
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
-  private SelectColumn[] convertMapSelection(DataFetchingFieldSelectionSet selection) {
+  private SelectColumn[] convertMapSelection(
+      TableMetadata aTable, DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
     for (SelectedField s : selection.getFields()) {
-      if (!s.getQualifiedName().contains("/"))
+      if (!s.getQualifiedName().contains("/")) {
         if (s.getSelectionSet().getFields().isEmpty()) {
-          result.add(new SelectColumn(s.getName()));
+          Optional<Column> column = findColumn(aTable, s.getName());
+          if (column.isPresent()) {
+            result.add(new SelectColumn(column.get().getName()));
+          } else {
+            result.add(new SelectColumn(s.getName()));
+          }
         } else {
-          SelectColumn sc = new SelectColumn(s.getName(), convertMapSelection(s.getSelectionSet()));
+          Optional<Column> column = findColumn(aTable, s.getName());
+          SelectColumn sc =
+              new SelectColumn(
+                  column.get().getName() + (s.getName().endsWith("_agg") ? "_agg" : ""),
+                  convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
           // get limit and offset for the selection
           Map<String, Object> args = s.getArguments();
           if (args.containsKey(GraphqlConstants.LIMIT)) {
@@ -460,8 +470,19 @@ public class GraphqlTableFieldFactory {
           }
           result.add(sc);
         }
+      }
     }
     return result.toArray(new SelectColumn[result.size()]);
+  }
+
+  private Optional<Column> findColumn(TableMetadata aTable, String name) {
+    if (aTable != null) {
+      return aTable.getColumns().stream()
+          .filter(c -> c.getName().equals(name) || (c.getName() + "_agg").equals(name))
+          .findFirst();
+    } else {
+      return Optional.empty();
+    }
   }
 
   private DataFetcher fetcherForTableQueryField(Table aTable) {
@@ -472,7 +493,8 @@ public class GraphqlTableFieldFactory {
       if (fieldName.endsWith("_agg")) {
         q = table.agg();
       }
-      q.select(convertMapSelection(dataFetchingEnvironment.getSelectionSet()));
+      q.select(
+          convertMapSelection(aTable.getMetadata(), dataFetchingEnvironment.getSelectionSet()));
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
