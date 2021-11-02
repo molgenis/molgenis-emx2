@@ -16,6 +16,7 @@ import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
 import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
+import HomeView from "./views/HomeView";
 
 Vue.config.productionTip = false;
 
@@ -23,7 +24,8 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    { name: "Catalogue", path: "/", component: CatalogueView },
+    { name: "Home", path: "/", component: HomeView },
+    { name: "Catalogue", path: "/catalogue", component: CatalogueView },
     { name: "Cohorts", path: "/alt", component: NetworkView },
     {
       name: "databanks",
