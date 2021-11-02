@@ -22,7 +22,7 @@ spec:
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
           env:
@@ -37,8 +37,9 @@ spec:
               value: molgenis_admin
             - name: MOLGENIS_POSTGRES_URI
               value: jdbc:postgresql://localhost/molgenisdb
-        - image: postgres:13-alpine
+        - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           name: postgres
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - -c
             - shared_buffers=256MB
