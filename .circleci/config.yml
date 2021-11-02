@@ -10,9 +10,9 @@ jobs:
       - image: gradle:jdk16-hotspot
       - image: postgres:13-alpine
         environment:
-          POSTGRES_USER: molgenis
-          POSTGRES_PASSWORD: molgenis
-          POSTGRES_DB: molgenis
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -30,6 +30,10 @@ jobs:
     steps:
       - checkout
 
+      # Initialize the database
+      - run: apt-get update && apt-get install postgresql-client -y
+      - run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
       # Download and cache dependencies
       - restore_cache:
           keys:
@@ -45,4 +49,9 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+      - run:
+          command: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          environment:
+            MOLGENIS_POSTGRES_USER: molgenis_admin
+            MOLGENIS_POSTGRES_PASS: molgenis_admin
+            MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb

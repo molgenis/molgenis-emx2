@@ -42,8 +42,6 @@ java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=909
 brew services start postgresql
 brew services stop postgresql
 brew services restart postgresql
-
-
 ```
 
 * to completely wipe postgresql:

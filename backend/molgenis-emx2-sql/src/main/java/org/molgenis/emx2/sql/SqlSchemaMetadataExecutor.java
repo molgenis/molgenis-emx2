@@ -46,9 +46,16 @@ class SqlSchemaMetadataExecutor {
               "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
               name(member), name(editor), name(manager), name(owner));
 
-      // make current user the owner
       String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
-      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
+      String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
+
+      // make current user the owner
+      if (!sessionUser.equals(currentUser)) {
+        db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
+      }
+
+      // make admin owner
+      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
       // grant the permissions
       db.getJooq()
