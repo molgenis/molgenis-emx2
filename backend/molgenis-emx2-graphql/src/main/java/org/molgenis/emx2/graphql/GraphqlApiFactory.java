@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
@@ -22,15 +24,16 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getName())) {
+        if (object.containsKey(escape(column.getName()))) {
           if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
+            convertRefToRow(
+                (Map<String, Object>) object.get(escape(column.getName())), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getName()), row, column);
+                (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
           } else {
-            row.set(column.getName(), object.get(column.getName()));
+            row.set(column.getName(), object.get(escape(column.getName())));
           }
         }
       }

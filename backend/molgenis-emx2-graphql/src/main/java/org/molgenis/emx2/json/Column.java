@@ -1,11 +1,14 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
   private String name;
+  private String label;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -37,7 +40,8 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.name = column.getName();
+    this.name = escape(column.getName());
+    this.label = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
@@ -234,5 +238,13 @@ public class Column {
 
   public void setPosition(Integer position) {
     this.position = position;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
   }
 }

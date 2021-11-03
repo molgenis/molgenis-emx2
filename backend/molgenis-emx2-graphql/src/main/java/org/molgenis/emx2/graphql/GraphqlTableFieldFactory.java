@@ -580,7 +580,7 @@ public class GraphqlTableFieldFactory {
       boolean any = false;
       for (TableMetadata tableMetadata : schema.getMetadata().getTablesIncludingExternal()) {
         List<Map<String, Object>> rowsAslistOfMaps =
-            dataFetchingEnvironment.getArgument(tableMetadata.getTableName());
+            dataFetchingEnvironment.getArgument(escape(tableMetadata.getTableName()));
         if (rowsAslistOfMaps != null) {
           String tableName = tableMetadata.getTableName();
           Table table = tableMetadata.getTable();
@@ -703,7 +703,7 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private static String escape(String unescaped) {
-    return unescaped.replace(" ", "");
+  public static String escape(String value) {
+    return value.replace(" ", "_");
   }
 }
