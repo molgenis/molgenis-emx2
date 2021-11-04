@@ -10,19 +10,7 @@
     />
     <div class="row p-2">
       <div :class="'border border-' + color" class="col-10 p-0">
-        <div
-          v-for="col in tableMetadata.columns.filter(
-            (c) =>
-              !c.name.startsWith('mg_') &&
-              ((row[c.name] &&
-                (!(Array.isArray() && typeof row[c.name] === 'object') ||
-                  row[c.name].length > 0)) ||
-                !hideNA ||
-                c.columnType == 'HEADING')
-          )"
-          :key="col.name"
-          class="p-0"
-        >
+        <div v-for="col in fields" :key="col.name" class="p-0">
           <div v-if="col.columnType == 'HEADING'" class="mt-0">
             <a href="#_top" class="float-right text-white">back to top</a>
             <h3
@@ -56,6 +44,7 @@
                   )
                 "
               >
+                {{ col.columnType }}
                 {{ row[col.name] }}
               </p>
               <span v-else-if="'FILE' == col.columnType">
@@ -115,16 +104,13 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-2">
-        <div v-for="col in tableMetadata.columns" :key="col.name" class="p-0">
-          <div v-if="col.columnType == 'HEADING'" class="mt-0">
-            <a :href="'#' + col.name" :class="'text-' + color">{{
-              col.name
-            }}</a>
-          </div>
+
+        <div v-for="section in sections" :key="section.meta.name">
+          <section-card :section="section" :color="color" />
         </div>
+
       </div>
+      <section-index class="col-2" :names="sectionsNames" :color="color" />
     </div>
   </div>
 </template>
@@ -143,9 +129,18 @@
 import { TableMixin, ButtonAlt } from "@mswertz/emx2-styleguide";
 import ResourceHeader from "../components/ResourceHeader";
 import RefbackTable from "../components/RefbackTable";
+import SectionIndex from "../components/detailView/SectionIndex";
+import SectionCard from "../components/detailView/SectionCard";
 
 export default {
   extends: TableMixin,
+  components: {
+    ResourceHeader,
+    ButtonAlt,
+    RefbackTable,
+    SectionIndex,
+    SectionCard,
+  },
   props: {
     color: { type: String, default: "primary" },
   },
@@ -155,8 +150,47 @@ export default {
     };
   },
   computed: {
+    sectionsNames() {
+      return this.sections.map((card) => card.meta.name);
+    },
     row() {
       return this.data[0];
+    },
+    fields() {
+      return this.tableMetadata.columns
+        .filter((field) => !field.name.startsWith("mg_"))
+        .filter(
+          (c) =>
+            (this.row[c.name] &&
+              (!(Array.isArray() && typeof this.row[c.name] === "object") ||
+                this.row[c.name].length > 0)) ||
+            !this.hideNA ||
+            c.columnType == "HEADING"
+        );
+    },
+    fieldsList() {
+      return this.fields.map((f) => f.name);
+    },
+    sections() {
+      const metaItems = this.tableMetadata.columns;
+      const comparePosition = (a, b) => a.position < b.position;
+      const isHeading = (meta) => meta.columnType === "HEADING";
+      const isNonSystemField = (meta) => !meta.name.startsWith("mg_");
+
+      return metaItems
+        .filter(isNonSystemField)
+        .sort(comparePosition)
+        .reduce((accum, item) => {
+          if (isHeading(item)) {
+            accum.push({
+              meta: item,
+              fields: [],
+            });
+          } else {
+            accum.at(-1).fields.push(item);
+          }
+          return accum;
+        }, []);
     },
   },
   methods: {
@@ -267,6 +301,5 @@ export default {
       return scaled.toFixed(1) + suffix;
     },
   },
-  components: { ResourceHeader, ButtonAlt, RefbackTable },
 };
 </script>
