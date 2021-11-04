@@ -68,6 +68,7 @@ public class MolgenisSessionManager {
    * add custom session listener for session create/destroy logic
    */
   private void createCustomJettyServerFactoryWithCustomSessionListener() {
+
     EmbeddedServers.add(
         EmbeddedServers.Identifiers.JETTY,
         (Routes routeMatcher,

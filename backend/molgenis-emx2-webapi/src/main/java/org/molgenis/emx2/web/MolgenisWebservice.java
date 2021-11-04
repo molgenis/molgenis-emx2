@@ -107,7 +107,9 @@ public class MolgenisWebservice {
     get("/callback", callback);
     post("/callback", callback);
 
-    before("/", new SecurityFilter(new SecurityConfigFactory().build(), "oidcClient"));
+    before(
+        "/",
+        new SecurityFilter(new SecurityConfigFactory().build(), SecurityConfigFactory.clientName));
 
     // schema members operations
 
