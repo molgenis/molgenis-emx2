@@ -68,6 +68,7 @@ public class MolgenisSessionManager {
    * add custom session listener for session create/destroy logic
    */
   private void createCustomJettyServerFactoryWithCustomSessionListener() {
+
     EmbeddedServers.add(
         EmbeddedServers.Identifiers.JETTY,
         (Routes routeMatcher,
@@ -118,7 +119,7 @@ public class MolgenisSessionManager {
         logger.info("Initializing session");
         // create private database wrapper to session
         Database database = new SqlDatabase(false);
-        database.setActiveUser("anonymous"); // set default use to "anonymous"
+        //        database.setActiveUser("anonymous"); // set default use to "anonymous"
 
         // create session and add to sessions lists so we can also access all active
         // sessions
