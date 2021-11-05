@@ -12,13 +12,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Version;
+
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
+import org.pac4j.core.profile.AnonymousProfile;
+import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.sparkjava.CallbackRoute;
 import org.pac4j.sparkjava.LogoutRoute;
 import org.pac4j.sparkjava.SecurityFilter;
+import org.pac4j.sparkjava.SparkWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -108,8 +111,23 @@ public class MolgenisWebservice {
     post("/callback", callback);
 
     before(
-        "/",
-        new SecurityFilter(new SecurityConfigFactory().build(), SecurityConfigFactory.clientName));
+        "/*",
+        new SecurityFilter(
+            new SecurityConfigFactory().build(),
+            "AnonymousClient," + SecurityConfigFactory.clientName,
+            DefaultAuthorizers.NONE));
+
+    before(
+            "/*",
+            (req, res) -> {
+              var context = new SparkWebContext(req, res);
+              var profile = new ProfileManager<AnonymousProfile>(context).get(true);
+              if(profile.isPresent()) {
+                Database database = new SqlDatabase(false);
+                database.setActiveUser("anonymous");
+              }
+            }
+    );
 
     // schema members operations
 
