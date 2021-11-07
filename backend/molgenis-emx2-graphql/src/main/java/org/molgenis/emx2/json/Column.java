@@ -40,7 +40,7 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.name = escape(column.getName());
+    this.name = escape(column.getName()); // in frontend we use identifier version of name
     this.label = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();

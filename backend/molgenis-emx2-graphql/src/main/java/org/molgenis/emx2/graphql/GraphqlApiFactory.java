@@ -104,11 +104,26 @@ public class GraphqlApiFactory {
   /** bit unfortunate that we have to convert from json to map and back */
   static Object transform(String json) throws IOException {
     // benchmark shows this only takes a few ms so not a large performance issue
+    // alternatively, we should change the SQL to result escaped results but that is a nightmare to
+    // build
     if (json != null) {
-      return new ObjectMapper().readValue(json, Map.class);
+      return escapeMap(new ObjectMapper().readValue(json, Map.class));
     } else {
       return null;
     }
+  }
+
+  static Map<String, Object> escapeMap(Map<String, Object> source) {
+    Map<String, Object> result = new HashMap<>();
+    source.forEach(
+        (k, v) -> {
+          if (v instanceof Map) {
+            result.put(escape(k), escapeMap((Map<String, Object>) v));
+          } else {
+            result.put(escape(k), v);
+          }
+        });
+    return result;
   }
 
   public GraphQL createGraphqlForDatabase(Database database) {

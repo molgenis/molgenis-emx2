@@ -478,7 +478,8 @@ public class GraphqlTableFieldFactory {
   private Optional<Column> findColumn(TableMetadata aTable, String name) {
     if (aTable != null) {
       return aTable.getColumns().stream()
-          .filter(c -> c.getName().equals(name) || (c.getName() + "_agg").equals(name))
+          .filter(
+              c -> escape(c.getName()).equals(name) || (escape(c.getName()) + "_agg").equals(name))
           .findFirst();
     } else {
       return Optional.empty();
