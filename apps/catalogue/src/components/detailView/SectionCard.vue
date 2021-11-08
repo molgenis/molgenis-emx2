@@ -5,22 +5,35 @@
       <a>{{ meta.name }}</a>
     </h3>
     <p class="p-2 bg-light mt-0">{{ meta.description }}</p>
+    <div class="p-0" v-for="(field, index) in fields" :key="index">
+      <section-item :field="field" :color="color"></section-item>
+    </div>
   </div>
 </template>
 
 <script>
+import SectionItem from "./SectionItem.vue";
+
 export default {
   name: "SectionCard",
+  components: { SectionItem },
   props: {
     section: {
       type: Object,
       required: true,
     },
-    color: { type: String, default: "primary" },
+    hideNA: {
+      type: Boolean,
+      default: () => false,
+    },
+    color: { type: String, default: () => "primary" },
   },
   computed: {
     meta() {
       return this.section.meta;
+    },
+    fields() {
+      return this.section.fields;
     },
   },
 };

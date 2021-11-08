@@ -44,7 +44,7 @@
                   )
                 "
               >
-                {{ col.columnType }}
+                <!-- {{ col.columnType }} -->
                 {{ row[col.name] }}
               </p>
               <span v-else-if="'FILE' == col.columnType">
@@ -108,7 +108,6 @@
         <div v-for="section in sections" :key="section.meta.name">
           <section-card :section="section" :color="color" />
         </div>
-
       </div>
       <section-index class="col-2" :names="sectionsNames" :color="color" />
     </div>
@@ -172,12 +171,11 @@ export default {
       return this.fields.map((f) => f.name);
     },
     sections() {
-      const metaItems = this.tableMetadata.columns;
       const comparePosition = (a, b) => a.position < b.position;
       const isHeading = (meta) => meta.columnType === "HEADING";
       const isNonSystemField = (meta) => !meta.name.startsWith("mg_");
 
-      return metaItems
+      return this.tableMetadata.columns
         .filter(isNonSystemField)
         .sort(comparePosition)
         .reduce((accum, item) => {
@@ -187,7 +185,10 @@ export default {
               fields: [],
             });
           } else {
-            accum.at(-1).fields.push(item);
+            accum.at(-1).fields.push({
+              meta: item,
+              value: this.data[0][item.name],
+            });
           }
           return accum;
         }, []);

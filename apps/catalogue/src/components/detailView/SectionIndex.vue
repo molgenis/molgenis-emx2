@@ -15,7 +15,10 @@ export default {
     names: {
       type: Array,
     },
-    color: { type: String, default: "primary" },
+    color: {
+      type: String,
+      default: () => "primary",
+    },
   },
 };
 </script>
