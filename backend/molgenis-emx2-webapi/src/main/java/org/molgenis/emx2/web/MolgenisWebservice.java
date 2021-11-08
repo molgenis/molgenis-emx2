@@ -162,12 +162,16 @@ public class MolgenisWebservice {
 
     if (oidcProfile.isPresent()) {
       String user = oidcProfile.get().getEmail();
-      logger.info("Oidc sign in for user: {}", user);
       Database database = sessionManager.getSession(request).getDatabase();
+      if (!database.hasUser(user)) {
+        logger.info("Add new oidc user({}) to database", user);
+        database.addUser(user);
+      }
       database.setActiveUser(user);
+      logger.info("Oidc sign in for user: {}", user);
       response.status(302);
     } else {
-      logger.info("Oidc sign in failed, no profile found");
+      logger.error("Oidc sign in failed, no profile found");
       response.status(404);
     }
 
