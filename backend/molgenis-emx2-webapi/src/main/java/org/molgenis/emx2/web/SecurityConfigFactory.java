@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import java.util.Optional;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.credentials.TokenCredentials;

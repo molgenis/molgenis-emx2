@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.pac4j.core.client.Client;
@@ -36,7 +37,10 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
+  static Config securityConfig;
   static String version = "undefined";
+  private static final String LOGIN_PATH = "/_login";
+  private static final String AUTH_CALLBACK_PATH = "/callback";
 
   private MolgenisWebservice() {
     // hide constructor
@@ -44,55 +48,14 @@ public class MolgenisWebservice {
 
   public static void start(int port) {
 
-    final Config config = new SecurityConfigFactory().build();
-
+    securityConfig = new SecurityConfigFactory().build();
     sessionManager = new MolgenisSessionManager();
     port(port);
 
     staticFiles.location("/public_html");
 
-    get(
-        "/callback",
-        (request, response) -> {
-          final SessionStore<SparkWebContext> bestSessionStore =
-              FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
-          final HttpActionAdapter<Object, SparkWebContext> bestAdapter =
-              FindBest.httpActionAdapter(null, config, SparkHttpActionAdapter.INSTANCE);
-          final CallbackLogic<Object, SparkWebContext> bestLogic =
-              FindBest.callbackLogic(null, config, DefaultCallbackLogic.INSTANCE);
-
-          final SparkWebContext context = new SparkWebContext(request, response, bestSessionStore);
-          bestLogic.perform(context, config, bestAdapter, null, false, true, true, "MolgenisAuth");
-
-          final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
-
-          if (manager.get(true).isPresent()) {
-            OidcProfile oidcProfile = manager.get(true).get();
-            String user = oidcProfile.getEmail();
-            logger.info("Signin for user: " + user);
-            sessionManager.getSession(request).getDatabase().setActiveUser(user);
-          }
-
-          response.status(302);
-          response.redirect("/");
-          return null;
-        });
-
-    get(
-        "/force-login",
-        (request, response) -> {
-          final SparkWebContext context = new SparkWebContext(request, response);
-          final Client client =
-              config.getClients().findClient(SecurityConfigFactory.OIDC_CLIENT_NAME).get();
-          HttpAction action;
-          try {
-            action = (HttpAction) client.getRedirectionAction(context).get();
-          } catch (final HttpAction e) {
-            action = e;
-          }
-          SparkHttpActionAdapter.INSTANCE.adapt(action, context);
-          return null;
-        });
+    get(AUTH_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
+    get(LOGIN_PATH, MolgenisWebservice::handleLoginRequest);
 
     // root
     get(
@@ -138,19 +101,20 @@ public class MolgenisWebservice {
     BootstrapThemeService.create();
 
     // add trailing /
-    //    before(
-    //        "/:schema",
-    //        (req, res) -> {
-    //          res.redirect("/" + req.params("schema") + "/");
-    //        });
-    //    before(
-    //        "/:schema/:app",
-    //        (req, res) -> {
-    //          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css"))
-    // {
-    //            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
-    //          }
-    //        });
+    before(
+        "/:schema",
+        (req, res) -> {
+          if (!LOGIN_PATH.equals(req.pathInfo()) && !AUTH_CALLBACK_PATH.equals(req.pathInfo())) {
+            res.redirect("/" + req.params("schema") + "/");
+          }
+        });
+    before(
+        "/:schema/:app",
+        (req, res) -> {
+          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
+            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
+          }
+        });
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
@@ -166,6 +130,49 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
         });
+  }
+
+  private static Object handleLoginRequest(Request request, Response response) {
+    final SparkWebContext context = new SparkWebContext(request, response);
+    final Client client =
+        securityConfig.getClients().findClient(SecurityConfigFactory.OIDC_CLIENT_NAME).get();
+    HttpAction action;
+    try {
+      action = (HttpAction) client.getRedirectionAction(context).get();
+    } catch (final HttpAction e) {
+      action = e;
+    }
+    return SparkHttpActionAdapter.INSTANCE.adapt(action, context);
+  }
+
+  private static Object handleLoginCallback(Request request, Response response) {
+    final SessionStore<SparkWebContext> bestSessionStore =
+        FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
+    final HttpActionAdapter<Object, SparkWebContext> bestAdapter =
+        FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
+    final CallbackLogic<Object, SparkWebContext> bestLogic =
+        FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
+
+    final SparkWebContext context = new SparkWebContext(request, response, bestSessionStore);
+    bestLogic.perform(
+        context, securityConfig, bestAdapter, null, false, true, true, "MolgenisAuth");
+
+    final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
+    Optional<OidcProfile> oidcProfile = manager.get(true);
+
+    if (oidcProfile.isPresent()) {
+      String user = oidcProfile.get().getEmail();
+      logger.info("Oidc sign in for user: {}", user);
+      Database database = sessionManager.getSession(request).getDatabase();
+      database.setActiveUser(user);
+      response.status(302);
+    } else {
+      logger.info("Oidc sign in failed, no profile found");
+      response.status(404);
+    }
+
+    response.redirect("/");
+    return response;
   }
 
   private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
