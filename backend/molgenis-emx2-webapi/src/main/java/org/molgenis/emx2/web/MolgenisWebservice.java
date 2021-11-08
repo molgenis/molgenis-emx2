@@ -12,16 +12,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlDatabase;
-import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
-import org.pac4j.core.profile.AnonymousProfile;
+import org.pac4j.core.client.Client;
+import org.pac4j.core.config.Config;
+import org.pac4j.core.context.session.JEESessionStore;
+import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.engine.CallbackLogic;
+import org.pac4j.core.engine.DefaultCallbackLogic;
+import org.pac4j.core.exception.http.HttpAction;
+import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.sparkjava.CallbackRoute;
-import org.pac4j.sparkjava.LogoutRoute;
-import org.pac4j.sparkjava.SecurityFilter;
-import org.pac4j.sparkjava.SparkWebContext;
+import org.pac4j.core.util.FindBest;
+import org.pac4j.sparkjava.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -41,10 +43,46 @@ public class MolgenisWebservice {
 
   public static void start(int port) {
 
+    final Config config = new SecurityConfigFactory().build();
+
     sessionManager = new MolgenisSessionManager();
     port(port);
 
     staticFiles.location("/public_html");
+
+    get(
+        "/callback",
+        (request, response) -> {
+          final SessionStore<SparkWebContext> bestSessionStore =
+              FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
+          final HttpActionAdapter<Object, SparkWebContext> bestAdapter =
+              FindBest.httpActionAdapter(null, config, SparkHttpActionAdapter.INSTANCE);
+          final CallbackLogic<Object, SparkWebContext> bestLogic =
+              FindBest.callbackLogic(null, config, DefaultCallbackLogic.INSTANCE);
+
+          final SparkWebContext context = new SparkWebContext(request, response, bestSessionStore);
+          bestLogic.perform(context, config, bestAdapter, null, false, true, true, "MolgenisAuth");
+
+          final ProfileManager manager = new ProfileManager(context);
+          return manager.getAll(true);
+        });
+    //        post("/callback", handleCallback);
+
+    get(
+        "/force-login",
+        (request, response) -> {
+          final SparkWebContext context = new SparkWebContext(request, response);
+          final Client client =
+              config.getClients().findClient(SecurityConfigFactory.OIDC_CLIENT_NAME).get();
+          HttpAction action;
+          try {
+            action = (HttpAction) client.getRedirectionAction(context).get();
+          } catch (final HttpAction e) {
+            action = e;
+          }
+          SparkHttpActionAdapter.INSTANCE.adapt(action, context);
+          return null;
+        });
 
     // root
     get(
@@ -90,44 +128,22 @@ public class MolgenisWebservice {
     BootstrapThemeService.create();
 
     // add trailing /
-    before(
-        "/:schema",
-        (req, res) -> {
-          res.redirect("/" + req.params("schema") + "/");
-        });
-    before(
-        "/:schema/:app",
-        (req, res) -> {
-          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
-            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
-          }
-        });
+    //    before(
+    //        "/:schema",
+    //        (req, res) -> {
+    //          res.redirect("/" + req.params("schema") + "/");
+    //        });
+    //    before(
+    //        "/:schema/:app",
+    //        (req, res) -> {
+    //          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css"))
+    // {
+    //            res.redirect("/" + req.params("schema") + "/" + req.params("app") + "/");
+    //          }
+    //        });
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
-
-    CallbackRoute callback = new CallbackRoute(new SecurityConfigFactory().build(), null, true);
-    get("/callback", callback);
-    post("/callback", callback);
-
-    before(
-        "/*",
-        new SecurityFilter(
-            new SecurityConfigFactory().build(),
-            "AnonymousClient," + SecurityConfigFactory.clientName,
-            DefaultAuthorizers.NONE));
-
-    before(
-            "/*",
-            (req, res) -> {
-              var context = new SparkWebContext(req, res);
-              var profile = new ProfileManager<AnonymousProfile>(context).get(true);
-              if(profile.isPresent()) {
-                Database database = new SqlDatabase(false);
-                database.setActiveUser("anonymous");
-              }
-            }
-    );
 
     // schema members operations
 
