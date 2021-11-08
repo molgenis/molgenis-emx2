@@ -25,11 +25,6 @@ public class SecurityConfigFactory {
 
     final OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
-    oidcClient.setAuthorizationGenerator(
-        (ctx, profile) -> {
-          profile.addRole("ROLE_ADMIN");
-          return Optional.of(profile);
-        });
 
     final HeaderClient headerClient =
         new HeaderClient(

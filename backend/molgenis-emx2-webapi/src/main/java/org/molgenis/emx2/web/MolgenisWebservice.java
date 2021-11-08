@@ -23,6 +23,7 @@ import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.util.FindBest;
+import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.sparkjava.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,10 +64,19 @@ public class MolgenisWebservice {
           final SparkWebContext context = new SparkWebContext(request, response, bestSessionStore);
           bestLogic.perform(context, config, bestAdapter, null, false, true, true, "MolgenisAuth");
 
-          final ProfileManager manager = new ProfileManager(context);
-          return manager.getAll(true);
+          final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
+
+          if (manager.get(true).isPresent()) {
+            OidcProfile oidcProfile = manager.get(true).get();
+            String user = oidcProfile.getEmail();
+            logger.info("Signin for user: " + user);
+            sessionManager.getSession(request).getDatabase().setActiveUser(user);
+          }
+
+          response.status(302);
+          response.redirect("/");
+          return null;
         });
-    //        post("/callback", handleCallback);
 
     get(
         "/force-login",
