@@ -117,12 +117,28 @@ public class GraphqlApiFactory {
     Map<String, Object> result = new HashMap<>();
     source.forEach(
         (k, v) -> {
-          if (v instanceof Map) {
+          if (v instanceof List) {
+            result.put(escape(k), escapeList((List) v));
+          } else if (v instanceof Map) {
             result.put(escape(k), escapeMap((Map<String, Object>) v));
           } else {
             result.put(escape(k), v);
           }
         });
+    return result;
+  }
+
+  public static List escapeList(List source) {
+    List result = new ArrayList();
+    for (int i = 0; i < source.size(); i++) {
+      if (source.get(i) instanceof Map) {
+        result.add(escapeMap((Map<String, Object>) source.get(i)));
+      } else if (source.get(i) instanceof List) {
+        result.add(escapeList((List) source.get(i)));
+      } else {
+        result.add(source.get(i));
+      }
+    }
     return result;
   }
 

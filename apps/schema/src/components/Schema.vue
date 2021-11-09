@@ -118,8 +118,7 @@
                         v-if="table.semantics"
                         style="font-size: small; text-transform: none"
                       >
-                        <<i>semantics:{{ table.semantics }}</i
-                        >> <br />
+                        <i>semantics:{{ table.semantics }}</i> <br />
                       </span>
                     </h3>
                     <small v-if="table.description">
@@ -364,10 +363,8 @@ export default {
     this.loadSchema();
   },
   watch: {
-    tableAdd() {
-    },
-    tableAlter() {
-    },
+    tableAdd() {},
+    tableAlter() {},
     session: {
       deep: true,
       handler() {

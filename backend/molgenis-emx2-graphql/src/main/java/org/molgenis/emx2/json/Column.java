@@ -7,8 +7,8 @@ import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
+  private String id;
   private String name;
-  private String label;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -40,8 +40,8 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.name = escape(column.getName()); // in frontend we use identifier version of name
-    this.label = column.getName();
+    this.id = escape(column.getName());
+    this.name = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
@@ -240,11 +240,11 @@ public class Column {
     this.position = position;
   }
 
-  public String getLabel() {
-    return label;
+  public String getId() {
+    return id;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  public void setId(String id) {
+    this.id = id;
   }
 }

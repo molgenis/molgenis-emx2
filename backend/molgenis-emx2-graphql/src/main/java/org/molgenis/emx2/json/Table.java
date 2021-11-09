@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +21,7 @@ public class Table {
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
+  private String id;
 
   public Table() {
     // for json serialisation
@@ -30,6 +33,7 @@ public class Table {
 
   public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
+    this.id = escape(tableMetadata.getTableName());
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
@@ -130,5 +134,13 @@ public class Table {
 
   public void setDrop(boolean drop) {
     this.drop = drop;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

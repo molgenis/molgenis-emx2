@@ -705,6 +705,10 @@ public class GraphqlTableFieldFactory {
   }
 
   public static String escape(String value) {
-    return value.replace(" ", "_");
+    if (value != null) {
+      return value.replace(" ", "_");
+    } else {
+      return null;
+    }
   }
 }
