@@ -1,5 +1,5 @@
-const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "testNamesWithSpaces";
+const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Catalogue_test";
 
 module.exports = {
   "^/graphql": {
