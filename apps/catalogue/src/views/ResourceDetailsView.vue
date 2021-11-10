@@ -109,7 +109,12 @@
           <section-card :section="section" :color="color" />
         </div>
       </div>
-      <section-index class="col-2" :names="sectionsNames" :color="color" />
+      <section-index
+        v-if="sectionsNames.lenght > 1"
+        class="col-2"
+        :names="sectionsNames"
+        :color="color"
+      />
     </div>
   </div>
 </template>
@@ -179,7 +184,7 @@ export default {
         .filter(isNonSystemField)
         .sort(comparePosition)
         .reduce((accum, item) => {
-          if (isHeading(item)) {
+          if (isHeading(item) || !accum.length) {
             accum.push({
               meta: item,
               fields: [],
