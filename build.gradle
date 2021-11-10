@@ -83,7 +83,7 @@ task ci(type: WriteProperties) {
 
 jib {
     from {
-        image = 'adoptopenjdk:17-jdk-hotspot-focal'
+        image = 'eclipse-temurin:17-jdk-focal'
     }
     to {
         image = imageName
