@@ -49,6 +49,10 @@ public class TableMetadata implements Comparable {
               + tableName
               + "': Table name must start with a letter , followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
     }
+    if (tableName.contains("_ ") || tableName.contains("_")) {
+      throw new MolgenisException(
+          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
+    }
     this.tableName = tableName.trim();
   }
 

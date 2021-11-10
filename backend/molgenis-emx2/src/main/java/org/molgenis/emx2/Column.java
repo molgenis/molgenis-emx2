@@ -73,6 +73,10 @@ public class Column implements Comparable<Column> {
               + columnName
               + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
     }
+    if (!skipValidation && (columnName.contains("_ ") || columnName.contains("_"))) {
+      throw new MolgenisException(
+          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+    }
     this.columnName = columnName.trim();
   }
 

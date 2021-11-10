@@ -706,7 +706,15 @@ public class GraphqlTableFieldFactory {
 
   public static String escape(String value) {
     if (value != null) {
-      return value.replace(" ", "_");
+      return value
+          // make sure there are now leading/trailing spaces
+          .trim()
+          // replace all _ with __
+          .replace("_", "__")
+          // replace multiple spaces with 1 space
+          .replaceAll(" +", " ")
+          // replace all spaces with _
+          .replace(" ", "_");
     } else {
       return null;
     }

@@ -7,6 +7,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -404,6 +405,13 @@ public class TestGraphqSchemaFields {
   @Test
   public void testNamesWithSpaces() throws IOException {
     Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
+
+    // test escaping
+    assertEquals("first_name", escape("first name"));
+    assertEquals("first_name", escape("first  name"));
+    assertEquals("first__name", escape("first_name"));
+    assertEquals("first___name", escape("first_ name"));
+    assertEquals("first___name", escape("first _name"));
 
     myschema.create(
         table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
