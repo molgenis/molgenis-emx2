@@ -16,8 +16,8 @@ plugins {
 }
 
 
-targetCompatibility = '16'
-sourceCompatibility = '16'
+targetCompatibility = '17'
+sourceCompatibility = '17'
 
 sonarqube {
     properties {
@@ -83,7 +83,7 @@ task ci(type: WriteProperties) {
 
 jib {
     from {
-        image = 'adoptopenjdk:16-jdk-hotspot-focal'
+        image = 'adoptopenjdk:17-jdk-hotspot-focal'
     }
     to {
         image = imageName
@@ -101,7 +101,7 @@ helm {
     downloadClient {
         enabled = true
     }
-    
+
     publishing {
         repositories {
             nexus {
@@ -120,7 +120,7 @@ helm {
         main {
             sourceDir = file('helm-chart')
             lint {
-               strict = true
+                strict = true
             }
         }
     }
@@ -160,7 +160,7 @@ jar {
     }
 }
 
-task cleandb(type:JavaExec) {
+task cleandb(type: JavaExec) {
     group = "Execution"
     description = "Clean database. Carefull, will delete all MOLGENIS stuff"
     classpath = sourceSets.main.runtimeClasspath
