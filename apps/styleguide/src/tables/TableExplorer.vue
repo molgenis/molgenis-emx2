@@ -1,6 +1,5 @@
 <template>
   <div class="h-100">
-    {{ graphqlFilter }}
     <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
