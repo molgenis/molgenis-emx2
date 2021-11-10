@@ -706,17 +706,22 @@ public class GraphqlTableFieldFactory {
 
   public static String escape(String value) {
     if (value != null) {
-      return value
-          // make sure there are now leading/trailing spaces
-          .trim()
-          // replace all _ with __
-          .replaceAll("_", "__")
-          // replace multiple spaces with 1 space
-          .replaceAll(" +", " ")
-          // replace all spaces with _
-          .replaceAll(" ", "_")
-          // fix pitfall of unneeded escape
-          .replaceAll("__agg", "_agg");
+      String result =
+          value
+              // make sure there are now leading/trailing spaces
+              .trim()
+              // replace all _ with __
+              .replaceAll("_", "__")
+              // replace multiple spaces with 1 space
+              .replaceAll(" +", " ")
+              // replace all spaces with _
+              .replaceAll(" ", "_");
+      if (result.endsWith("__agg")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("__agg", "_agg");
+      }
+      return result;
     } else {
       return null;
     }
