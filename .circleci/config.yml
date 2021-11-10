@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: gradle:jdk16-hotspot
+      - image: gradle:jdk17-hotspot
       - image: postgres:13-alpine
         environment:
           POSTGRES_USER: postgres
