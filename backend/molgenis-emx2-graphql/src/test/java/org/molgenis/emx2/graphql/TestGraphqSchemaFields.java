@@ -410,8 +410,8 @@ public class TestGraphqSchemaFields {
     assertEquals("first_name", escape("first name"));
     assertEquals("first_name", escape("first  name"));
     assertEquals("first__name", escape("first_name"));
-    assertEquals("first___name", escape("first_ name"));
-    assertEquals("first___name", escape("first _name"));
+
+    System.out.println(escape("Person details"));
 
     myschema.create(
         table("Person details", column("First name").setPkey(), column("Last name").setPkey()),

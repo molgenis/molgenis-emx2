@@ -710,11 +710,13 @@ public class GraphqlTableFieldFactory {
           // make sure there are now leading/trailing spaces
           .trim()
           // replace all _ with __
-          .replace("_", "__")
+          .replaceAll("_", "__")
           // replace multiple spaces with 1 space
           .replaceAll(" +", " ")
           // replace all spaces with _
-          .replace(" ", "_");
+          .replaceAll(" ", "_")
+          // fix pitfall of unneeded escape
+          .replaceAll("__agg", "_agg");
     } else {
       return null;
     }
