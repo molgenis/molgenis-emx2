@@ -23,9 +23,6 @@ import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
-import org.pac4j.core.profile.AnonymousProfile;
-import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.sparkjava.SparkWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -68,9 +65,6 @@ public class GraphqlApi {
   public static String handleSchemaRequests(Request request, Response response) throws IOException {
     MolgenisSession session = sessionManager.getSession(request);
     String schemaName = sanitize(request.params(SCHEMA));
-
-    var context = new SparkWebContext(request, response);
-    var profile = new ProfileManager<AnonymousProfile>(context).get(true);
 
     // apps is not a schema but a resource
     if ("apps".equals(schemaName)) {
