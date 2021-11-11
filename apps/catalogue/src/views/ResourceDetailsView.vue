@@ -15,7 +15,7 @@
         </div>
       </div>
       <section-index
-        v-if="sectionsNames.length > 0"
+        v-if="sectionsNames.length > 1"
         class="col-2"
         :names="sectionsNames"
         :color="color"
