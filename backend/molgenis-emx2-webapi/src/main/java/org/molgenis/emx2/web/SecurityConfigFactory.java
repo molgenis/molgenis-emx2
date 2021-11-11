@@ -1,20 +1,34 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.STRING;
+
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.credentials.TokenCredentials;
-import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.util.CommonHelper;
-import org.pac4j.http.client.direct.HeaderClient;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
 public class SecurityConfigFactory {
 
-  private String oidcClientId = "f09db035-c961-485a-b186-aa496a2fff65";
-  private String oidcClientSecret = "g37c-acHNUdsLaMgIhzeNsJphWXczJy7VbLlthQBKJ4";
-  public static String OIDC_CLIENT_NAME = "MolgenisAuth";
-  private String oidcDiscoveryURI = "https://auth.molgenis.org/.well-known/openid-configuration/";
+  private String oidcClientId =
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, "", STRING);
+  private String oidcClientSecret =
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "", STRING);
+  public static String OIDC_CLIENT_NAME =
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_NAME, "", STRING);
+  private String oidcDiscoveryURI =
+      (String)
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_OIDC_DISCOVERY_URI,
+              "https://auth.molgenis.org/.well-known/openid-configuration/",
+              STRING);
+  private String callbackUrl =
+      (String)
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_OIDC_CALLBACK_URL, "http://localhost:8080", STRING);
+
+  public static final String OIDC_CALLBACK_PATH = "/callback";
 
   public Config build() {
     final OidcConfiguration oidcConfiguration = new OidcConfiguration();
@@ -25,19 +39,7 @@ public class SecurityConfigFactory {
     final OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
-    final HeaderClient headerClient =
-        new HeaderClient(
-            "Authorization",
-            (credentials, ctx) -> {
-              final String token = ((TokenCredentials) credentials).getToken();
-              if (CommonHelper.isNotBlank(token)) {
-                final CommonProfile profile = new CommonProfile();
-                profile.setId(token);
-                credentials.setUserProfile(profile);
-              }
-            });
-
-    final Clients clients = new Clients("http://localhost:8080/callback", oidcClient, headerClient);
+    final Clients clients = new Clients(callbackUrl + OIDC_CALLBACK_PATH, oidcClient);
 
     return new Config(clients);
   }
