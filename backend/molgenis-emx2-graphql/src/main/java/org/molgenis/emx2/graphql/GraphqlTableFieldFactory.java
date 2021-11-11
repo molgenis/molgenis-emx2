@@ -445,14 +445,14 @@ public class GraphqlTableFieldFactory {
     for (SelectedField s : selection.getFields()) {
       if (!s.getQualifiedName().contains("/")) {
         if (s.getSelectionSet().getFields().isEmpty()) {
-          Optional<Column> column = findColumn(aTable, s.getName());
+          Optional<Column> column = findColumnById(aTable, s.getName());
           if (column.isPresent()) {
             result.add(new SelectColumn(column.get().getName()));
           } else {
             result.add(new SelectColumn(s.getName()));
           }
         } else {
-          Optional<Column> column = findColumn(aTable, s.getName());
+          Optional<Column> column = findColumnById(aTable, s.getName());
           SelectColumn sc =
               new SelectColumn(
                   column.get().getName() + (s.getName().endsWith("_agg") ? "_agg" : ""),
@@ -475,11 +475,10 @@ public class GraphqlTableFieldFactory {
     return result.toArray(new SelectColumn[result.size()]);
   }
 
-  private Optional<Column> findColumn(TableMetadata aTable, String name) {
+  private Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumns().stream()
-          .filter(
-              c -> escape(c.getName()).equals(name) || (escape(c.getName()) + "_agg").equals(name))
+          .filter(c -> escape(c.getName()).equals(id) || (escape(c.getName()) + "_agg").equals(id))
           .findFirst();
     } else {
       return Optional.empty();
