@@ -11,7 +11,12 @@
     <div class="row p-2">
       <div :class="'border border-' + color" class="col-10 p-0">
         <div v-for="section in sections" :key="section.meta.name">
-          <section-card :section="section" :hideNA="hideNA" :color="color" />
+          <section-card
+            :section="section"
+            :hideNA="hideNA"
+            :color="color"
+            :showCardHeader="sections.length > 1"
+          />
         </div>
       </div>
       <section-index
@@ -41,6 +46,7 @@ import SectionIndex from "../components/detailView/SectionIndex";
 import SectionCard from "../components/detailView/SectionCard";
 
 export default {
+  name: "ResourceDetailsView",
   extends: TableMixin,
   components: {
     ResourceHeader,
@@ -69,9 +75,13 @@ export default {
         .filter(isNonSystemField)
         .sort(comparePosition)
         .reduce((accum, item) => {
-          if (isHeading(item) || !accum.length) {
+          // nest fields (data columns) withing sections (headings)
+          if (isHeading(item)) {
             accum.push({ meta: item, fields: [] });
           } else {
+            if (!accum.length) {
+              accum.push({ meta: item, fields: [] });
+            }
             accum.at(-1).fields.push({
               meta: { ...item, primaryTableKey: this.primaryTableKey },
               value: this.resourceData[item.name],

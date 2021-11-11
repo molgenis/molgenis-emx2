@@ -13,6 +13,7 @@
         :is="cellTypeComponentName"
         :data="field.value"
         :metaData="field.meta"
+        :color="color"
       />
       <div v-else>N/A</div>
     </div>
@@ -23,6 +24,7 @@
 import SectionFieldLabel from "./SectionFieldLabel.vue";
 import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
+import OntologyFieldValue from "./OntologyFieldValue.vue";
 import {
   StringDisplay,
   TextDisplay,
@@ -40,6 +42,7 @@ export default {
     ObjectDisplay,
     RefBackFieldValue,
     RefArrayFieldValue,
+    OntologyFieldValue,
   },
   props: {
     field: {
@@ -78,7 +81,7 @@ export default {
         REF: "ObjectDisplay",
         REFBACK: "RefBackFieldValue",
         HEADING: "StringDisplay",
-        ONTOLOGY: "ObjectDisplay",
+        ONTOLOGY: "OntologyFieldValue",
       }[this.field.meta.columnType];
     },
     isEmptyValue() {
