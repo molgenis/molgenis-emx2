@@ -7,6 +7,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -405,6 +406,13 @@ public class TestGraphqSchemaFields {
   public void testNamesWithSpaces() throws IOException {
     Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
 
+    // test escaping
+    assertEquals("first_name", escape("first name"));
+    assertEquals("first_name", escape("first  name"));
+    assertEquals("first__name", escape("first_name"));
+
+    System.out.println(escape("Person details"));
+
     myschema.create(
         table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
         table(
@@ -415,15 +423,19 @@ public class TestGraphqSchemaFields {
 
     grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
 
-    int count = execute("{Persondetails_agg{count}}").at("/Persondetails_agg/count").intValue();
+    int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
 
-    //    // insert should increase count
-    //    execute("mutation{insert(Tag:{name:\"blaat\"}){message}}");
-    //    TestCase.assertEquals(count + 1,
-    // execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
-    //    // delete
-    //    execute("mutation{delete(Tag:{name:\"blaat\"}){message}}");
-    //    TestCase.assertEquals(count, execute("{Tag_agg{count}}").at("/Tag_agg/count").intValue());
+    // insert should increase count
+    execute(
+        "mutation{insert(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+    TestCase.assertEquals(
+        count + 1,
+        execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+    // delete
+    execute(
+        "mutation{delete(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+    TestCase.assertEquals(
+        count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
 
     // reset
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);

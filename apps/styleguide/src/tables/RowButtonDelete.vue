@@ -57,10 +57,13 @@ export default {
     pkeyAsString() {
       return this.flattenObject(this.pkey);
     },
+    tableId() {
+      return this.table.replaceAll(" ", "_");
+    },
   },
   methods: {
     executeDelete() {
-      let query = `mutation delete($pkey:[${this.table}Input]){delete(${this.table}:$pkey){message}}`;
+      let query = `mutation delete($pkey:[${this.tableId}Input]){delete(${this.tableId}:$pkey){message}}`;
       let variables = { pkey: [this.pkey] };
       request(this.graphqlURL, query, variables)
         .then((data) => {

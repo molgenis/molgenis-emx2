@@ -304,7 +304,7 @@ export default {
       let result = {};
       this.columns.forEach((c) => {
         if (c.conditions && c.conditions.length > 0)
-          result[c.name] = c.conditions;
+          result[c.id] = c.conditions;
       });
       this.$emit("update:conditions", result);
     },
@@ -360,14 +360,14 @@ export default {
               col.columnType.startsWith("STRING") ||
               col.columnType.startsWith("TEXT")
             ) {
-              filter[col.name] = { like: col.conditions };
+              filter[col.id] = { like: col.conditions };
             } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.name] = { equals: col.conditions };
+              filter[col.id] = { equals: col.conditions };
             } else if (
               col.columnType.startsWith("REF") ||
               col.columnType.startsWith("ONTOLOGY")
             ) {
-              filter[col.name] = { equals: col.conditions };
+              filter[col.id] = { equals: col.conditions };
             } else if (
               [
                 "DECIMAL",
@@ -378,7 +378,7 @@ export default {
                 "DATE_ARRAY",
               ].includes(col.columnType)
             ) {
-              filter[col.name] = {
+              filter[col.id] = {
                 between: conditions.flat(),
               };
             } else {
@@ -489,6 +489,40 @@ example (graphqlURL is usually not needed because app is served on right path)
     data() {
       return {
         showColumns: ['name'], showFilters: ['name'], conditions: {"name": ["pooky", "spike"]}, page: 1, limit: 10
+      }
+    },
+    methods: {
+      click(event) {
+        alert(JSON.stringify(event));
+      }
+    }
+  }
+</script>
+```
+
+example with spaces in name
+```
+<template>
+  <div>
+    <TableExplorer
+        table="Person details"
+        graphqlURL="/testNamesWithSpaces/graphql"
+        :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
+        :showPage.sync="page" :showLimit.sync="limit"
+        :conditions.sync="conditions"/>
+    showColumns: {{ showColumns }}<br/>
+    showFilters: {{ showFilters }}<br/>
+    conditions: {{ conditions }} <br/>
+    page: {{ page }}<br/>
+    limit: {{ limit }}
+
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        showColumns: ['name'], showFilters: ['name'], page: 1, limit: 10
       }
     },
     methods: {

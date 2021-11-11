@@ -478,7 +478,8 @@ public class GraphqlTableFieldFactory {
   private Optional<Column> findColumn(TableMetadata aTable, String name) {
     if (aTable != null) {
       return aTable.getColumns().stream()
-          .filter(c -> c.getName().equals(name) || (c.getName() + "_agg").equals(name))
+          .filter(
+              c -> escape(c.getName()).equals(name) || (escape(c.getName()) + "_agg").equals(name))
           .findFirst();
     } else {
       return Optional.empty();
@@ -580,7 +581,7 @@ public class GraphqlTableFieldFactory {
       boolean any = false;
       for (TableMetadata tableMetadata : schema.getMetadata().getTablesIncludingExternal()) {
         List<Map<String, Object>> rowsAslistOfMaps =
-            dataFetchingEnvironment.getArgument(tableMetadata.getTableName());
+            dataFetchingEnvironment.getArgument(escape(tableMetadata.getTableName()));
         if (rowsAslistOfMaps != null) {
           String tableName = tableMetadata.getTableName();
           Table table = tableMetadata.getTable();
@@ -703,7 +704,26 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private static String escape(String unescaped) {
-    return unescaped.replace(" ", "");
+  public static String escape(String value) {
+    if (value != null) {
+      String result =
+          value
+              // make sure there are now leading/trailing spaces
+              .trim()
+              // replace all _ with __
+              .replaceAll("_", "__")
+              // replace multiple spaces with 1 space
+              .replaceAll(" +", " ")
+              // replace all spaces with _
+              .replaceAll(" ", "_");
+      if (result.endsWith("__agg")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("__agg", "_agg");
+      }
+      return result;
+    } else {
+      return null;
+    }
   }
 }

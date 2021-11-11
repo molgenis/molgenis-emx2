@@ -16,7 +16,7 @@
               //if dependent, show only if dependent value is set
               (!column.refLink || value[column.refLink])
             "
-            v-model="value[column.name]"
+            v-model="value[column.id]"
             :label="column.name"
             :description="column.description"
             :columnType="column.columnType"
@@ -117,7 +117,7 @@ export default {
       this.graphqlError = null;
       this.success = null;
       // todo spinner
-      let name = this.table;
+      let name = this.tableId;
 
       // indicate if draft
       if (isDraft) {
@@ -170,38 +170,38 @@ export default {
       if (this.tableMetadata) {
         this.tableMetadata.columns.forEach((column) => {
           // make really empty if empty
-          if (/^\s*$/.test(this.value[column.name])) {
+          if (/^\s*$/.test(this.value[column.id])) {
             //this.value[column.name] = null;
           }
-          delete this.errorPerColumn[column.name];
+          delete this.errorPerColumn[column.id];
           // when required
           if (
             column.required &&
-            (this.value[column.name] == null ||
-              (typeof this.value[column.name] === "number" &&
-                isNaN(this.value[column.name])))
+            (this.value[column.id] == null ||
+              (typeof this.value[column.id] === "number" &&
+                isNaN(this.value[column.id])))
           ) {
-            this.errorPerColumn[column.name] = column.name + " is required ";
+            this.errorPerColumn[column.id] = column.name + " is required ";
           } else {
             // when not empty
             // when validation
             if (
-              typeof this.value[column.name] !== "undefined" &&
+              typeof this.value[column.id] !== "undefined" &&
               typeof column.validation !== "undefined"
             ) {
-              let value = this.value[column.name]; //used for eval, two lines below
-              this.errorPerColumn[column.name] = value; //dummy assign
-              this.errorPerColumn[column.name] = this.eval(column.validation);
+              let value = this.value[column.id]; //used for eval, two lines below
+              this.errorPerColumn[column.id] = value; //dummy assign
+              this.errorPerColumn[column.id] = this.eval(column.validation);
             } else if (
               column.refLink &&
-              this.value[column.name] &&
-              this.value[column.refLink] &&
-              !JSON.stringify(this.value[column.name]).includes(
-                JSON.stringify(this.value[column.refLink])
+              this.value[column.id] &&
+              this.value[column.refLink.replace(" ", "_")] &&
+              !JSON.stringify(this.value[column.id]).includes(
+                JSON.stringify(this.value[column.refLink.replace(" ", "_")])
               )
             ) {
               //reflinks should overlap
-              this.errorPerColumn[column.name] =
+              this.errorPerColumn[column.id] =
                 "value should match your selection in column '" +
                 column.refLink +
                 "' ";
@@ -250,7 +250,7 @@ export default {
       if (this.tableMetadata && this.pkey) {
         this.tableMetadata.columns
           .filter((c) => c.key == 1)
-          .map((c) => (result[c.name] = { equals: this.pkey[c.name] }));
+          .map((c) => (result[c.id] = { equals: this.pkey[c.id] }));
       }
       return result;
     },
@@ -270,8 +270,8 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          if (data[column.name]) {
-            defaultValue[column.name] = data[column.name];
+          if (data[column.id]) {
+            defaultValue[column.id] = data[column.id];
           }
         });
         this.value = defaultValue;

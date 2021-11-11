@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 public class GraphqlConstants {
+  public static final String ID = "id";
   public static final String INPUT = "Input";
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
@@ -35,6 +36,7 @@ public class GraphqlConstants {
   public static final String SEARCH = "search";
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
+  public static final String LABEL = "label";
   static final String COUNT = "count";
 
   private GraphqlConstants() {
