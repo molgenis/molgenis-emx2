@@ -93,23 +93,23 @@ public class GraphqlTableFieldFactory {
     GraphQLObjectType.Builder tableBuilder =
         GraphQLObjectType.newObject().name(escape(table.getName()));
     for (Column col : table.getMetadata().getColumnsWithoutHeadings()) {
-      String name = escape(col.getName());
+      String id = escape(col.getName());
       switch (col.getColumnType().getBaseType()) {
         case HEADING:
           // nothing to do
           break;
         case FILE:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(name).type(fileDownload));
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(fileDownload));
           break;
         case BOOL:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLBoolean));
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBoolean));
           break;
         case BOOL_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLBoolean)));
           break;
         case STRING:
@@ -118,7 +118,7 @@ public class GraphqlTableFieldFactory {
         case DATE:
         case DATETIME:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLString));
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
           break;
         case STRING_ARRAY:
         case TEXT_ARRAY:
@@ -128,33 +128,33 @@ public class GraphqlTableFieldFactory {
         case JSONB_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLString)));
           break;
         case DECIMAL:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLFloat));
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLFloat));
           break;
         case DECIMAL_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLBigDecimal)));
           break;
         case INT:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(name).type(Scalars.GraphQLInt));
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLInt));
           break;
         case INT_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLInt)));
           break;
         case REF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()))));
           break;
         case REF_ARRAY:
@@ -162,7 +162,7 @@ public class GraphqlTableFieldFactory {
           // case MREF:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name)
+                  .name(id)
                   .type(
                       GraphQLList.list(GraphQLTypeReference.typeRef(escape(col.getRefTableName()))))
                   .argument(
@@ -184,7 +184,7 @@ public class GraphqlTableFieldFactory {
                           .build()));
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(name + "_agg")
+                  .name(id + "_agg")
                   .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()) + "Aggregate")));
           break;
         default:
@@ -719,6 +719,11 @@ public class GraphqlTableFieldFactory {
         result =
             // fix pitfall of unneeded escape
             result.replaceAll("__agg", "_agg");
+      }
+      if (result.contains("mg__")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("mg__", "mg_");
       }
       return result;
     } else {
