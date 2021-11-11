@@ -16,8 +16,8 @@ plugins {
 }
 
 
-targetCompatibility = '17'
-sourceCompatibility = '17'
+targetCompatibility = '16'
+sourceCompatibility = '16'
 
 sonarqube {
     properties {
@@ -83,7 +83,7 @@ task ci(type: WriteProperties) {
 
 jib {
     from {
-        image = 'eclipse-temurin:17-jdk-focal'
+        image = 'adoptopenjdk:16-jdk-hotspot-focal'
     }
     to {
         image = imageName
