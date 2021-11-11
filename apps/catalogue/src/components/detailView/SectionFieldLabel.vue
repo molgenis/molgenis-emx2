@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: "SectionItemLabel",
+  name: "SectionFieldLabel",
   props: {
     label: {
       type: String,

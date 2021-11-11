@@ -69,6 +69,11 @@ import TableMetadataMixin from "./mixins/TableMetadataMixin";
 import TableSimple from "./tables/TableSimple";
 import TableSearch from "./tables/TableSearch";
 
+import StringDisplay from "./tables/cellTypes/StringDisplay";
+import ObjectDisplay from "./tables/cellTypes/ObjectDisplay";
+import TextDisplay from "./tables/cellTypes/TextDisplay";
+import FileDisplay from "./tables/cellTypes/FileDisplay";
+
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
 export {
@@ -134,4 +139,8 @@ export {
   TableExplorer,
   TableSimple,
   TableSearch,
+  StringDisplay,
+  ObjectDisplay,
+  TextDisplay,
+  FileDisplay,
 };

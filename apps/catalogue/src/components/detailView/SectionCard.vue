@@ -6,17 +6,17 @@
     </h3>
     <p class="p-2 bg-light mt-0">{{ meta.description }}</p>
     <div class="p-0" v-for="(field, index) in fields" :key="index">
-      <section-item :field="field" :color="color"></section-item>
+      <section-field :field="field" :color="color"></section-field>
     </div>
   </div>
 </template>
 
 <script>
-import SectionItem from "./SectionItem.vue";
+import SectionField from "./SectionField.vue";
 
 export default {
   name: "SectionCard",
-  components: { SectionItem },
+  components: { SectionField },
   props: {
     section: {
       type: Object,
@@ -33,7 +33,23 @@ export default {
       return this.section.meta;
     },
     fields() {
-      return this.section.fields;
+      return this.hideNA
+        ? this.section.fields.filter(this.isVisibleField)
+        : this.section.fields;
+    },
+  },
+  methods: {
+    isVisibleField(field) {
+      return !(
+        (
+          field.value === undefined || // emtpy value
+          field.value === null ||
+          (Array.isArray(field.value) && field.value.length === 0) || // empty array
+          (field.value &&
+            Object.keys(field.value).length === 0 &&
+            Object.getPrototypeOf(field.value) === Object.prototype)
+        ) // empty object
+      );
     },
   },
 };
