@@ -36,6 +36,7 @@
                   params: routeParams(col, row[col.name]),
                 }"
               >
+                {{ renderValue(row, col)[0] }}
               </RouterLink>
             </div>
             <span

@@ -6,7 +6,7 @@ questions:
     description: "Specify a hostname for this EMX2 instance"
     type: string
     required: true
-    default: "emx2.test.molgenis.org"
+    default: "emx2.dev.molgenis.org"
     group: "Loadbalancing"
   - variable: image.repository
     label: Repository
