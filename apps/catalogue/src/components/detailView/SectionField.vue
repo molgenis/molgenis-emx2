@@ -10,7 +10,7 @@
     <div class="col-8">
       <component
         v-if="!isEmptyValue"
-        :is="cellTypeComponentName"
+        :is="fieldTypeComponentName"
         :data="field.value"
         :metaData="field.meta"
         :color="color"
@@ -22,6 +22,7 @@
 
 <script>
 import SectionFieldLabel from "./SectionFieldLabel.vue";
+import SectionArrayValue from "./SectionArrayValue.vue";
 import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
@@ -36,6 +37,7 @@ export default {
   name: "SectionField",
   components: {
     SectionFieldLabel,
+    SectionArrayValue,
     StringDisplay,
     TextDisplay,
     FileDisplay,
@@ -55,32 +57,32 @@ export default {
     },
   },
   computed: {
-    cellTypeComponentName() {
+    fieldTypeComponentName() {
       return {
         STRING: "StringDisplay",
         BOOL: "StringDisplay",
         INT: "StringDisplay",
         DECIMAL: "StringDisplay",
-        TEXT: "TextDisplay",
-        JSONB: "TextDisplay",
         FILE: "FileDisplay",
         DATE: "StringDisplay",
         UUID: "StringDisplay",
-        BOOL_ARRAY: "StringDisplay",
-        UUID_ARRAY: "StringDisplay",
-        STRING_ARRAY: "StringDisplay",
-        TEXT_ARRAY: "StringDisplay",
-        INT_ARRAY: "StringDisplay",
-        DECIMAL_ARRAY: "StringDisplay",
-        DATE_ARRAY: "StringDisplay",
         DATETIME: "StringDisplay",
-        DATETIME_ARRAY: "StringDisplay",
-        JSONB_ARRAY: "StringDisplay",
+        HEADING: "StringDisplay",
+        JSONB: "TextDisplay",
+        TEXT: "TextDisplay",
+        BOOL_ARRAY: "SectionArrayValue",
+        UUID_ARRAY: "SectionArrayValue",
+        STRING_ARRAY: "SectionArrayValue",
+        TEXT_ARRAY: "SectionArrayValue",
+        INT_ARRAY: "SectionArrayValue",
+        DECIMAL_ARRAY: "SectionArrayValue",
+        DATE_ARRAY: "SectionArrayValue",
+        DATETIME_ARRAY: "SectionArrayValue",
+        JSONB_ARRAY: "SectionArrayValue",
+        ONTOLOGY_ARRAY: "SectionArrayValue",
         REF_ARRAY: "RefArrayFieldValue",
-        ONTOLOGY_ARRAY: "StringDisplay",
         REF: "ObjectDisplay",
         REFBACK: "RefBackFieldValue",
-        HEADING: "StringDisplay",
         ONTOLOGY: "OntologyFieldValue",
       }[this.field.meta.columnType];
     },
