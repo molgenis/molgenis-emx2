@@ -453,22 +453,24 @@ public class GraphqlTableFieldFactory {
           }
         } else {
           Optional<Column> column = findColumnById(aTable, s.getName());
-          SelectColumn sc =
-              new SelectColumn(
-                  column.get().getName() + (s.getName().endsWith("_agg") ? "_agg" : ""),
-                  convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
-          // get limit and offset for the selection
-          Map<String, Object> args = s.getArguments();
-          if (args.containsKey(GraphqlConstants.LIMIT)) {
-            sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
+          if (column.isPresent()) {
+            SelectColumn sc =
+                new SelectColumn(
+                    column.get().getName() + (s.getName().endsWith("_agg") ? "_agg" : ""),
+                    convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
+            // get limit and offset for the selection
+            Map<String, Object> args = s.getArguments();
+            if (args.containsKey(GraphqlConstants.LIMIT)) {
+              sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
+            }
+            if (args.containsKey(GraphqlConstants.OFFSET)) {
+              sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
+            }
+            if (args.containsKey(GraphqlConstants.ORDERBY)) {
+              sc.setOrderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
+            }
+            result.add(sc);
           }
-          if (args.containsKey(GraphqlConstants.OFFSET)) {
-            sc.setOffset((int) args.get(GraphqlConstants.OFFSET));
-          }
-          if (args.containsKey(GraphqlConstants.ORDERBY)) {
-            sc.setOrderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
-          }
-          result.add(sc);
         }
       }
     }
