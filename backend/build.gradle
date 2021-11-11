@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "5.17.1" apply false
+    id "com.diffplug.spotless" version "6.0.0" apply false
 }
 
 repositories {
@@ -55,8 +55,8 @@ subprojects {
         }
     }
 
-    targetCompatibility = '16'
-    sourceCompatibility = '16'
+    targetCompatibility = '17'
+    sourceCompatibility = '17'
 
     jar {
         reproducibleFileOrder = true

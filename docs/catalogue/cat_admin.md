@@ -8,7 +8,7 @@
    upload in batch.
    (todo: define what data folder to use in what case)
 
-## Updating exing schema
+## Updating existing schema
 
 Since 27 sep 2021 we have started to give catalogue schema a seperate version number. This can be found on first line of
 molgenis.csv file (using description of special table 'Version'). Below summary of the changes and what the general
