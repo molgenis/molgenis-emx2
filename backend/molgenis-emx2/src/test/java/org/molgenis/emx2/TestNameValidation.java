@@ -11,8 +11,40 @@ public class TestNameValidation {
     Column c = new Column("first name");
     // '_ ' in name should fail
     try {
-      c = new Column("first_ name");
+      c = new Column("first_  name");
       fail("should fail because '_ ' is not allowed");
+    } catch (Exception e) {
+      // error correct
+    }
+
+    // '_ ' in name should fail
+    try {
+      c = new Column("first  _  name");
+      fail("should fail because ' _ ' is not allowed");
+    } catch (Exception e) {
+      // error correct
+    }
+
+    // '_ ' in name should fail
+    try {
+      c = new Column("first  __   name");
+      fail("should fail because ' _ ' is not allowed");
+    } catch (Exception e) {
+      // error correct
+    }
+
+    // '_ ' in name should fail
+    try {
+      c = new Column("first   _name");
+      fail("should fail because ' _ ' is not allowed");
+    } catch (Exception e) {
+      // error correct
+    }
+
+    // '_ ' in name should fail
+    try {
+      c = new Column("aa    ____      ");
+      fail("should fail because ' _ ' is not allowed");
     } catch (Exception e) {
       // error correct
     }
@@ -21,7 +53,7 @@ public class TestNameValidation {
     TableMetadata t = new TableMetadata("first name");
     // '_ ' in name should fail
     try {
-      t = new TableMetadata("first_ name");
+      t = new TableMetadata("first_  name");
       fail("should fail because '_ ' is not allowed");
     } catch (Exception e) {
       // error correct
