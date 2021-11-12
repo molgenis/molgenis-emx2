@@ -1,5 +1,7 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
@@ -22,15 +24,16 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getName())) {
+        if (object.containsKey(escape(column.getName()))) {
           if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
+            convertRefToRow(
+                (Map<String, Object>) object.get(escape(column.getName())), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getName()), row, column);
+                (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
           } else {
-            row.set(column.getName(), object.get(column.getName()));
+            row.set(column.getName(), object.get(escape(column.getName())));
           }
         }
       }
@@ -101,11 +104,42 @@ public class GraphqlApiFactory {
   /** bit unfortunate that we have to convert from json to map and back */
   static Object transform(String json) throws IOException {
     // benchmark shows this only takes a few ms so not a large performance issue
+    // alternatively, we should change the SQL to result escaped results but that is a nightmare to
+    // build
     if (json != null) {
-      return new ObjectMapper().readValue(json, Map.class);
+      return escapeMap(new ObjectMapper().readValue(json, Map.class));
     } else {
       return null;
     }
+  }
+
+  static Map<String, Object> escapeMap(Map<String, Object> source) {
+    Map<String, Object> result = new HashMap<>();
+    source.forEach(
+        (k, v) -> {
+          if (v instanceof List) {
+            result.put(escape(k), escapeList((List) v));
+          } else if (v instanceof Map) {
+            result.put(escape(k), escapeMap((Map<String, Object>) v));
+          } else {
+            result.put(escape(k), v);
+          }
+        });
+    return result;
+  }
+
+  public static List escapeList(List source) {
+    List result = new ArrayList();
+    for (int i = 0; i < source.size(); i++) {
+      if (source.get(i) instanceof Map) {
+        result.add(escapeMap((Map<String, Object>) source.get(i)));
+      } else if (source.get(i) instanceof List) {
+        result.add(escapeList((List) source.get(i)));
+      } else {
+        result.add(source.get(i));
+      }
+    }
+    return result;
   }
 
   public GraphQL createGraphqlForDatabase(Database database) {

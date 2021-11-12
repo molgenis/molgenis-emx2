@@ -85,6 +85,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
@@ -154,6 +158,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.EXTERNAL_SCHEMA)
                   .type(Scalars.GraphQLString))
           .field(
@@ -213,6 +221,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
@@ -284,6 +296,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
