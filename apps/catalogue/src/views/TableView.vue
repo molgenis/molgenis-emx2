@@ -41,10 +41,10 @@
           :to="{
             name: 'tablemapping',
             params: {
-              fromPid: m.fromRelease.resource.pid,
+              frompid: m.fromRelease.resource.pid,
               fromVersion: m.fromRelease.version,
               fromTable: m.fromTable.name,
-              toPid: table.release.resource.pid,
+              topid: table.release.resource.pid,
               toVersion: table.release.version,
               toTable: table.name,
             },
@@ -62,10 +62,10 @@
           :to="{
             name: 'tablemapping',
             params: {
-              toPid: m.toRelease.resource.pid,
+              topid: m.toRelease.resource.pid,
               toVersion: m.toRelease.version,
               toTable: m.toTable.name,
-              fromPid: table.release.resource.pid,
+              frompid: table.release.resource.pid,
               fromVersion: table.release.version,
               fromTable: table.name,
             },
