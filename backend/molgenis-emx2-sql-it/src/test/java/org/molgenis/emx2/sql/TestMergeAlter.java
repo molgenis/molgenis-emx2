@@ -325,4 +325,41 @@ public class TestMergeAlter {
       }
     }
   }
+
+  @Test
+  public void testAlterTypeFromOntologyArrayToRefArray() {
+    // regression test: this went wrong because columnType was checked instead of
+    // columnType.baseType
+
+    schema.create(table("SomeTarget", column("key").setPkey()));
+    schema.create(
+        table(
+            "SomeRefs",
+            column("key").setPkey(),
+            column("ref").setType(ONTOLOGY_ARRAY).setRefTable("SomeTarget")));
+
+    // using alter column
+    schema
+        .getTable("SomeRefs")
+        .getMetadata()
+        .alterColumn("ref", column("ref").setType(REF_ARRAY).setRefTable("SomeTarget"));
+
+    // undo alter
+    schema
+        .getTable("SomeRefs")
+        .getMetadata()
+        .alterColumn("ref", column("ref").setType(ONTOLOGY_ARRAY).setRefTable("SomeTarget"));
+
+    // using migration
+    SchemaMetadata s =
+        new SchemaMetadata()
+            .create(
+                table("SomeTarget", column("key").setPkey()),
+                table(
+                    "SomeRefs",
+                    column("key").setPkey(),
+                    column("ref").setType(REF_ARRAY).setRefTable("SomeTarget")));
+
+    schema.migrate(s);
+  }
 }
