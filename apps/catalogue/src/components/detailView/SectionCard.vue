@@ -1,7 +1,8 @@
 <template>
   <div class="mt-0">
-    <a v-if="showCardHeader" href="#_top" class="float-right text-white"
-      >back to top</a
+    <a v-if="showCardHeader" href="#_top" class="float-right text-white">
+      back to top
+    </a
     >
     <h3
       v-if="showCardHeader"
