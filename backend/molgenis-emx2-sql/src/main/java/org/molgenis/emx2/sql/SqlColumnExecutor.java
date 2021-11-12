@@ -91,7 +91,7 @@ public class SqlColumnExecutor {
   static void executeAlterType(DSLContext jooq, Column oldColumn, Column newColumn) {
     Table table = newColumn.getTable().getJooqTable();
 
-    if (oldColumn.getColumnType().equals(newColumn.getColumnType())) {
+    if (oldColumn.getColumnType().getBaseType().equals(newColumn.getColumnType().getBaseType())) {
       return; // nothing to do
     }
 

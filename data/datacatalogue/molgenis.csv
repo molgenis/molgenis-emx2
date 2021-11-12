@@ -1,12 +1,12 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.8
+Version,,,,,,,,,,,1.9
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,Official name of the institution or organisation as used in EU projects
 Institutions,,acronym,,,,,,,,,"Official acronym of the institution, if applicable"
 Institutions,,type,ontology,,,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
-Institutions,,typeOther,,,,,,,,,"If type is 'other', a description of type of organisation"
+Institutions,,typeOther,text,,,,,,,,"If type is 'other', a description of type of organisation"
 Institutions,,country,ontology,,,Countries,,,,,Country in which the institution head office or coordinating centre is located
 Institutions,,address,text,,,,,,,,Full address of the institution head office or coordinating centre
 Institutions,,website,,,,,,,,,Link to the homepage of this institution
@@ -71,7 +71,7 @@ RWEresources,,careSettingOther,text,,,,,,,,"If 'other,' description of the setti
 Resources,,contents,heading,,,,,,,,Data model and contents
 Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 Models,,releases,refback,,,Releases,,resource,,,
-Studies,,cdm,ref_array,,,Releases,,,,,Common data model(s) used in this study 
+Studies,,cdm,ref_array,,,Releases,,,,,Common data model(s) used in this study
 RWEresources,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were collected
 Datasources,,qualityOfLifeOther,text,,,,,,,,"If other, specify additional quality of life measures."
 Datasources,,databanks,refback,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource

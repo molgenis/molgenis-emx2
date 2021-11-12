@@ -101,7 +101,7 @@ helm {
     downloadClient {
         enabled = true
     }
-    
+
     publishing {
         repositories {
             nexus {
@@ -120,7 +120,7 @@ helm {
         main {
             sourceDir = file('helm-chart')
             lint {
-               strict = true
+                strict = true
             }
         }
     }
@@ -160,7 +160,7 @@ jar {
     }
 }
 
-task cleandb(type:JavaExec) {
+task cleandb(type: JavaExec) {
     group = "Execution"
     description = "Clean database. Carefull, will delete all MOLGENIS stuff"
     classpath = sourceSets.main.runtimeClasspath

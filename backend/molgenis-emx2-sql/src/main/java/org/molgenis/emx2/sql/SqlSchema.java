@@ -311,7 +311,11 @@ public class SqlSchema implements Schema {
             created.add(newColumn.getTableName() + "." + newColumn.getName());
           } else
           // if column exist but type has changed remove triggers
-          if (oldColumn != null && !newColumn.getColumnType().equals(oldColumn.getColumnType())) {
+          if (oldColumn != null
+              && !newColumn
+                  .getColumnType()
+                  .getBaseType()
+                  .equals(oldColumn.getColumnType().getBaseType())) {
             executeRemoveRefConstraints(targetSchema.getMetadata().getJooq(), oldColumn);
           }
         }
