@@ -2,7 +2,12 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,10 +17,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -398,6 +400,45 @@ public class TestGraphqSchemaFields {
             .getColumn("test2")
             .getVisible());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+  }
+
+  @Test
+  public void testNamesWithSpaces() throws IOException {
+    Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
+
+    // test escaping
+    assertEquals("first_name", escape("first name"));
+    assertEquals("first_name", escape("first  name"));
+    assertEquals("first__name", escape("first_name"));
+
+    System.out.println(escape("Person details"));
+
+    myschema.create(
+        table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
+        table(
+            "Some",
+            column("id").setPkey(),
+            column("person").setType(REF).setRefTable("Person details"),
+            column("persons").setType(REF_ARRAY).setRefTable("Person details")));
+
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+
+    int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
+
+    // insert should increase count
+    execute(
+        "mutation{insert(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+    TestCase.assertEquals(
+        count + 1,
+        execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+    // delete
+    execute(
+        "mutation{delete(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+    TestCase.assertEquals(
+        count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+
+    // reset
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 
   @Test

@@ -71,7 +71,7 @@
             @click="onRowClick(row)"
           >
             <data-display-cell
-              :data="row[col.name]"
+              :data="row[col.id]"
               :metaData="col"
             ></data-display-cell>
           </td>

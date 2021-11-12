@@ -169,7 +169,7 @@ export default {
       if (name == undefined) {
         return "Name is required";
       }
-      if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]+$/)) {
+      if (!name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
         return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
       }
     },
