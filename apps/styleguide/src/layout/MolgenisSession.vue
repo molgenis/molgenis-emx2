@@ -18,27 +18,28 @@
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
-        <ButtonOutline @click="showSigninForm = true" :light="true">
+        <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
           Sign in</ButtonOutline
         >
-        <template v-if="isOidcEnabled">
-          <ButtonAction href="/_login">Signin</ButtonAction>
-        </template>
-        <template v-else>
-          <SigninForm
-            v-if="showSigninForm"
-            @signin="changed"
-            @cancel="closeSigninForm"
-          />
-          <ButtonAlt @click="showSignupForm = true" :light="true"
-            >Sign up</ButtonAlt
-          >
-          <SignupForm
-            v-if="showSignupForm"
-            :error="error"
-            @close="closeSignupForm"
-          />
-        </template>
+        <ButtonOutline v-else @click="showSigninForm = true" :light="true">
+          Sign in</ButtonOutline
+        >
+        <SigninForm
+          v-if="showSigninForm"
+          @signin="changed"
+          @cancel="closeSigninForm"
+        />
+        <ButtonAlt
+          v-hide="isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
+          >Sign up</ButtonAlt
+        >
+        <SignupForm
+          v-if="showSignupForm"
+          :error="error"
+          @close="closeSignupForm"
+        />
       </span>
     </div>
   </div>
@@ -94,8 +95,7 @@ export default {
   },
   computed: {
     isOidcEnabled() {
-      console.log(this.session.manifest)
-      return this.session.settings["isOidcEnabled"];
+      return this.session.settings["isOidcEnabled"] === "true";
     },
   },
   methods: {

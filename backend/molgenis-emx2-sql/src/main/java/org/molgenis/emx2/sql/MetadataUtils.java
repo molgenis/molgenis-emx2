@@ -528,10 +528,6 @@ public class MetadataUtils {
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
-    settingRecords.addAll(
-        jooq.selectFrom(SETTINGS_METADATA)
-            .where(TABLE_SCHEMA.eq(NOT_PROVIDED), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
-            .fetch());
     List<Setting> settings = new ArrayList<>();
     for (org.jooq.Record record : settingRecords) {
       settings.add(
@@ -621,20 +617,6 @@ public class MetadataUtils {
         .doUpdate()
         .set(VERSION, newVersion)
         .execute();
-  }
-
-  public static void saveSystemSettings(DSLContext jooq, List<Setting> settings) {
-    settings.forEach(
-        (setting) -> {
-          jooq.insertInto(SETTINGS_METADATA)
-              .columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-              .values(NOT_PROVIDED, NOT_PROVIDED, setting.getKey(), setting.getValue())
-              .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
-              .doUpdate()
-              .set(SETTINGS_NAME, setting.getKey())
-              .set(SETTINGS_VALUE, setting.getValue())
-              .execute();
-        });
   }
 
   public static int getMaxPosition(DSLContext jooq, String schemaName) {
