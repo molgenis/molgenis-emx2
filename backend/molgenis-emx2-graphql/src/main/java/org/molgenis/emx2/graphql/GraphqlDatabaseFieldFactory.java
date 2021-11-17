@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.VALUE;
@@ -17,8 +18,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaInfo;
 
 public class GraphqlDatabaseFieldFactory {
-
-  public static final String IS_OIDC_ENABLED = "isOidcEnabled";
 
   public GraphqlDatabaseFieldFactory() {
     // no instances

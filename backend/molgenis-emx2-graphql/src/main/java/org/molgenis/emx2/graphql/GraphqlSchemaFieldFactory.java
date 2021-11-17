@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
@@ -455,18 +456,26 @@ public class GraphqlSchemaFieldFactory {
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              List<String> selectedKeys =
+              final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
               final boolean includePages =
                   selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
-              return schema.getMetadata().getSettings().stream()
-                  .filter(
-                      setting ->
-                          selectedKeys.isEmpty()
-                              || selectedKeys.contains(setting.getKey())
-                              || (includePages && setting.getKey().startsWith("page.")))
-                  .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
-                  .collect(Collectors.toList());
+
+              return Stream.concat(
+                      schema.getMetadata().getSettings().stream()
+                          .filter(
+                              setting ->
+                                  selectedKeys.isEmpty()
+                                      || selectedKeys.contains(setting.getKey())
+                                      || (includePages && setting.getKey().startsWith("page.")))
+                          .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue())),
+                      Stream.of(
+                          Map.of(
+                              "key",
+                              IS_OIDC_ENABLED,
+                              VALUE,
+                              String.valueOf(schema.getDatabase().isOidcEnabled()))))
+                  .toList();
             });
   }
 

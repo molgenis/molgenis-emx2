@@ -43,6 +43,7 @@ public class Constants {
   public static final String MOLGENIS_HTTP_PORT = "MOLGENIS_HTTP_PORT";
   public static final String MOLGENIS_ADMIN_PW = "MOLGENIS_ADMIN_PW";
 
+  public static final String IS_OIDC_ENABLED = "isOidcEnabled";
   public static final String MOLGENIS_OIDC_CLIENT_ID = "MOLGENIS_OIDC_CLIENT_ID";
   public static final String MOLGENIS_OIDC_CLIENT_SECRET = "MOLGENIS_OIDC_CLIENT_SECRET";
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
