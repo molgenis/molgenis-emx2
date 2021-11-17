@@ -30,7 +30,7 @@
           @cancel="closeSigninForm"
         />
         <ButtonAlt
-          v-hide="isOidcEnabled"
+          v-show="!isOidcEnabled"
           @click="showSignupForm = true"
           :light="true"
           >Sign up</ButtonAlt

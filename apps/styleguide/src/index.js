@@ -79,6 +79,8 @@ import FileDisplay from "./tables/cellTypes/FileDisplay";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
+import MolgenisSignin from "./layout/MolgenisSignin.vue";
+
 export {
   ButtonAction,
   ButtonAlt,
@@ -149,4 +151,5 @@ export {
   ObjectDisplay,
   TextDisplay,
   FileDisplay,
+  MolgenisSignin,
 };

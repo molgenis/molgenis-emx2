@@ -1,6 +1,10 @@
 <template>
   <div>
     <h1>Admin tools</h1>
+    <MolgenisSignin
+      v-show="showSigninForm && session.email === 'anonymous'"
+      @cancel="showSigninForm = false"
+    />
     <Spinner v-if="loading"></Spinner>
     <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else>
@@ -44,6 +48,7 @@ import {
   InputString,
   InputPassword,
   ButtonAction,
+  MolgenisSignin,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -56,6 +61,13 @@ export default {
     InputString,
     InputPassword,
     ButtonAction,
+    MolgenisSignin,
+  },
+  props: {
+    session: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
@@ -70,6 +82,7 @@ export default {
       alterError: null,
       alterSuccess: null,
       alterLoading: false,
+      showSigninForm: true,
     };
   },
   computed: {
