@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 import static spark.Spark.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -134,8 +135,7 @@ public class MolgenisWebservice {
 
   private static Object handleLoginRequest(Request request, Response response) {
     final SparkWebContext context = new SparkWebContext(request, response);
-    final Client client =
-        securityConfig.getClients().findClient(SecurityConfigFactory.OIDC_CLIENT_NAME).get();
+    final Client client = securityConfig.getClients().findClient(OIDC_CLIENT_NAME).get();
     HttpAction action;
     try {
       action = (HttpAction) client.getRedirectionAction(context).get();
@@ -164,14 +164,14 @@ public class MolgenisWebservice {
       String user = oidcProfile.get().getEmail();
       Database database = sessionManager.getSession(request).getDatabase();
       if (!database.hasUser(user)) {
-        logger.info("Add new oidc user({}) to database", user);
+        logger.info("Add new OIDC user({}) to database", user);
         database.addUser(user);
       }
       database.setActiveUser(user);
-      logger.info("Oidc sign in for user: {}", user);
+      logger.info("OIDC sign in for user: {}", user);
       response.status(302);
     } else {
-      logger.error("Oidc sign in failed, no profile found");
+      logger.error("OIDC sign in failed, no profile found");
       response.status(404);
     }
 

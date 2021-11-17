@@ -140,6 +140,12 @@ public class SqlDatabase implements Database {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, INITIAL_ADMIN_PW);
       }
+      String oidcClientId =
+          (String)
+              EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+      boolean isOidcEnabled = oidcClientId != null;
+      MetadataUtils.saveSystemSettings(
+          jooq, List.of(new Setting("isOidcEnabled", "{ value: " + isOidcEnabled + " }")));
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()

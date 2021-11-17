@@ -12,11 +12,12 @@ import org.pac4j.oidc.config.OidcConfiguration;
 public class SecurityConfigFactory {
 
   private String oidcClientId =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, "", STRING);
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
   private String oidcClientSecret =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "", STRING);
+      (String)
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
   public static String OIDC_CLIENT_NAME =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_NAME, "", STRING);
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_NAME, null, STRING);
   private String oidcDiscoveryURI =
       (String)
           EnvironmentProperty.getParameter(
