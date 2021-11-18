@@ -12,9 +12,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.Version;
 import org.molgenis.emx2.web.controllers.OIDCController;
-import org.pac4j.core.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -26,10 +28,8 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
-  static Config securityConfig;
-  static String version = "undefined";
   private static final String LOGIN_PATH = "/_login";
-  private static final String AUTH_CALLBACK_PATH = "/callback";
+  public static final String OIDC_CALLBACK_PATH = "/_callback";
 
   private MolgenisWebservice() {
     // hide constructor
@@ -43,7 +43,7 @@ public class MolgenisWebservice {
     staticFiles.location("/public_html");
 
     get(
-        AUTH_CALLBACK_PATH,
+        OIDC_CALLBACK_PATH,
         (request, response) ->
             OIDCController.handleLoginCallback(request, response, sessionManager));
     get(LOGIN_PATH, OIDCController::handleLoginRequest);
@@ -92,7 +92,7 @@ public class MolgenisWebservice {
     before(
         "/:schema",
         (req, res) -> {
-          if (!LOGIN_PATH.equals(req.pathInfo()) && !AUTH_CALLBACK_PATH.equals(req.pathInfo())) {
+          if (!LOGIN_PATH.equals(req.pathInfo()) && !OIDC_CALLBACK_PATH.equals(req.pathInfo())) {
             res.redirect("/" + req.params("schema") + "/");
           }
         });

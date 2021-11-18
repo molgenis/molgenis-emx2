@@ -7,19 +7,15 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.web.MolgenisSessionManager;
 import org.molgenis.emx2.web.SecurityConfigFactory;
-import org.pac4j.core.client.Client;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
 import org.pac4j.core.exception.http.HttpAction;
-import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.util.FindBest;
-import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.sparkjava.SparkHttpActionAdapter;
 import org.pac4j.sparkjava.SparkWebContext;
@@ -33,17 +29,22 @@ public class OIDCController {
   private static final Logger logger = LoggerFactory.getLogger(OIDCController.class);
   private static final Config securityConfig = new SecurityConfigFactory().build();
 
-    private OIDCController() {
-    }
+  private OIDCController() {}
 
-    public static Object handleLoginRequest(Request request, Response response) {
+  public static Object handleLoginRequest(Request request, Response response) {
     final SparkWebContext context = new SparkWebContext(request, response);
-    final var client = securityConfig.getClients().findClient(OIDC_CLIENT_NAME)
-            .orElseThrow(() -> new MolgenisException("Expected OIDC client not found in security configuration"));
+    final var client =
+        securityConfig
+            .getClients()
+            .findClient(OIDC_CLIENT_NAME)
+            .orElseThrow(
+                () ->
+                    new MolgenisException(
+                        "Expected OIDC client not found in security configuration"));
     HttpAction action;
     try {
       Optional optional = client.getRedirectionAction(context);
-      if(optional.isEmpty()) {
+      if (optional.isEmpty()) {
         throw new MolgenisException("Expected OIDC redirection action not found");
       }
       action = (HttpAction) optional.get();

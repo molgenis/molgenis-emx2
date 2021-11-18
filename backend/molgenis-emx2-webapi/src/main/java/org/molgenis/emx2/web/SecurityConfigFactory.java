@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.web.MolgenisWebservice.OIDC_CALLBACK_PATH;
 
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -17,7 +18,9 @@ public class SecurityConfigFactory {
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
   public static String OIDC_CLIENT_NAME =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_NAME, null, STRING);
+      (String)
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
   private String oidcDiscoveryURI =
       (String)
           EnvironmentProperty.getParameter(
@@ -28,8 +31,6 @@ public class SecurityConfigFactory {
       (String)
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_OIDC_CALLBACK_URL, "http://localhost:8080", STRING);
-
-  public static final String OIDC_CALLBACK_PATH = "/callback";
 
   public Config build() {
     final OidcConfiguration oidcConfiguration = new OidcConfiguration();
