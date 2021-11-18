@@ -45,6 +45,7 @@ questions:
         description: "Specify a client name for the authentication service"
         type: string
         required: true
+        default: "MolgenisAuth"
         group: "Authentication"
       - variable: oidc.client_id
         label: Client ID
