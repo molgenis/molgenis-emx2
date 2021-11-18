@@ -2,7 +2,6 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 import static spark.Spark.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,21 +11,10 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
-import org.pac4j.core.client.Client;
+import org.molgenis.emx2.web.controllers.OIDCController;
 import org.pac4j.core.config.Config;
-import org.pac4j.core.context.session.JEESessionStore;
-import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.engine.CallbackLogic;
-import org.pac4j.core.engine.DefaultCallbackLogic;
-import org.pac4j.core.exception.http.HttpAction;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
-import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.core.util.FindBest;
-import org.pac4j.oidc.profile.OidcProfile;
-import org.pac4j.sparkjava.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -49,14 +37,16 @@ public class MolgenisWebservice {
 
   public static void start(int port) {
 
-    securityConfig = new SecurityConfigFactory().build();
     sessionManager = new MolgenisSessionManager();
     port(port);
 
     staticFiles.location("/public_html");
 
-    get(AUTH_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
-    get(LOGIN_PATH, MolgenisWebservice::handleLoginRequest);
+    get(
+        AUTH_CALLBACK_PATH,
+        (request, response) ->
+            OIDCController.handleLoginCallback(request, response, sessionManager));
+    get(LOGIN_PATH, OIDCController::handleLoginRequest);
 
     // root
     get(
@@ -77,9 +67,6 @@ public class MolgenisWebservice {
 
     // documentation operations
     get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-
-    // logout path, before schema because of dynamic nature of schema
-    get("/logout", new LogoutRoute(new SecurityConfigFactory().build(), "/"));
 
     // docs per schema
     get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
@@ -131,52 +118,6 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
         });
-  }
-
-  private static Object handleLoginRequest(Request request, Response response) {
-    final SparkWebContext context = new SparkWebContext(request, response);
-    final Client client = securityConfig.getClients().findClient(OIDC_CLIENT_NAME).get();
-    HttpAction action;
-    try {
-      action = (HttpAction) client.getRedirectionAction(context).get();
-    } catch (final HttpAction e) {
-      action = e;
-    }
-    return SparkHttpActionAdapter.INSTANCE.adapt(action, context);
-  }
-
-  private static Object handleLoginCallback(Request request, Response response) {
-    final SessionStore<SparkWebContext> bestSessionStore =
-        FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
-    final HttpActionAdapter<Object, SparkWebContext> bestAdapter =
-        FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
-    final CallbackLogic<Object, SparkWebContext> bestLogic =
-        FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
-
-    final SparkWebContext context = new SparkWebContext(request, response, bestSessionStore);
-    bestLogic.perform(
-        context, securityConfig, bestAdapter, null, false, true, true, "MolgenisAuth");
-
-    final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
-    Optional<OidcProfile> oidcProfile = manager.get(true);
-
-    if (oidcProfile.isPresent()) {
-      String user = oidcProfile.get().getEmail();
-      Database database = sessionManager.getSession(request).getDatabase();
-      if (!database.hasUser(user)) {
-        logger.info("Add new OIDC user({}) to database", user);
-        database.addUser(user);
-      }
-      database.setActiveUser(user);
-      logger.info("OIDC sign in for user: {}", user);
-      response.status(302);
-    } else {
-      logger.error("OIDC sign in failed, no profile found");
-      response.status(404);
-    }
-
-    response.redirect("/");
-    return response;
   }
 
   private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
