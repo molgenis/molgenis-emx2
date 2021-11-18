@@ -80,9 +80,7 @@ public class GraphqlDatabaseFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
-            dataFetchingEnvironment -> {
-              return List.of(Map.of("key", IS_OIDC_ENABLED, VALUE, database.isOidcEnabled()));
-            });
+            dataFetchingEnvironment -> List.of(Map.of("key", IS_OIDC_ENABLED, VALUE, database.isOidcEnabled())));
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
