@@ -54,7 +54,7 @@ export default {
         DATETIME_ARRAY: "StringDisplay",
         JSONB_ARRAY: "ObjectDisplay",
         ONTOLOGY_ARRAY: "OntologyFieldValue",
-      }[this.field.meta.columnType];
+      }[this.metaData.columnType];
     },
   },
 };
