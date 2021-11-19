@@ -1,6 +1,5 @@
 <template>
   <div class="container bg-white p-3">
-    {{ schemaName }}
     <h1>
       <span v-if="schemaName && schemaName == 'Minerva'">
         Proof-of-concept catalogue tool for MINERVA metadata pilot</span
