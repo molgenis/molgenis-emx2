@@ -160,6 +160,13 @@
                 :pkey="getPkey(slotProps.row)"
                 @close="reload"
               />
+              <RowButtonClone
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
+              />
               <RowButtonDelete
                 v-if="canEdit"
                 :table="table"
