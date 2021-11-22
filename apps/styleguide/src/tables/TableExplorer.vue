@@ -190,6 +190,7 @@ import MessageError from "../forms/MessageError";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonDelete from "./RowButtonDelete";
 import RowButtonEdit from "./RowButtonEdit";
+import RowButtonClone from "./RowButtonClone";
 import Spinner from "../layout/Spinner";
 import TableMixin from "../mixins/TableMixin";
 import ShowHide from "./ShowHide";
@@ -216,6 +217,7 @@ export default {
     FilterWells,
     RowButtonEdit,
     RowButtonAdd,
+    RowButtonClone,
     RowButtonDelete,
     ShowHide,
     InputSearch,

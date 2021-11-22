@@ -55,6 +55,8 @@ import Pagination from "./tables/Pagination";
 
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonClone from "./tables/RowButtonClone";
+
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
@@ -128,6 +130,7 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowButtonClone,
   RowFormInput,
   SelectionBox,
   Spinner,
