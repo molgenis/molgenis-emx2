@@ -2780,19 +2780,17 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-ckeditor4-integrations-common@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-0.2.0.tgz#994a83f94e14161fa8ee15e7f0edc8735b12d8f8"
-  integrity sha512-KkHztF0bkGOnTcifWFd55j5Y9SCR3uk12SGgS6L1mZNnBeIJFCcgTwZWEHtG2aDJF7aZob7cex1CShL+SrNuow==
-  dependencies:
-    load-script "^1.0.0"
+ckeditor4-integrations-common@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-1.0.0.tgz#a8afc33b94877b4d01362c7c73aa9eec162b2d20"
+  integrity sha512-OAoQT/gYrHkg0qgzf6MS/rndYhq3SScLVQ3rtXQeuCE8ju7nFHg3qZ7WGA2XpFxcZzsMP6hhugXqdel5vbcC3g==
 
-ckeditor4-vue@1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.3.2.tgz#b2d596066710cb4d3fcbe279b90a93df99a5e97a"
-  integrity sha512-fke3mzWz/9GrBS/sfeJIRzkqDkfocY2hI268zgb5nwzfWMV87k5zXtbZgCn8vhNg48f69AFDdJ5Oh4/Wa5GTag==
+ckeditor4-vue@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.4.0.tgz#57f39be0d590ebbe49cfddd44918a6eb7f84d90d"
+  integrity sha512-2iL2QOWXIr0XUN9JBibkJMRIszSwH4BJoG4AuMx6bx3hSasDFrW9lirXUdRwWicQNnw5x3mO66UoFyRQxT1bfA==
   dependencies:
-    ckeditor4-integrations-common "^0.2.0"
+    ckeditor4-integrations-common "^1.0.0"
 
 class-utils@^0.3.5:
   version "0.3.6"
@@ -6403,11 +6401,6 @@ listify@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/listify/-/listify-1.0.3.tgz#a9335ac351c3d1aea515494ed746976eeb92248b"
   integrity sha512-083swF7iH7bx8666zdzBColpgEuy46HjN3r1isD4zV6Ix7FuHfb/2/WVnl4CH8hjuoWeFF7P5KkKNXUnJCFEJg==
-
-load-script@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/load-script/-/load-script-1.0.0.tgz#0491939e0bee5643ee494a7e3da3d2bac70c6ca4"
-  integrity sha1-BJGTngvuVkPuSUp+PaPSuscMbKQ=
 
 loader-fs-cache@^1.0.0:
   version "1.0.3"
