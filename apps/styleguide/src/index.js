@@ -53,11 +53,14 @@ import TableExplorer from "./tables/TableExplorer";
 import NavBar from "./layout/MolgenisMenu";
 import Pagination from "./tables/Pagination";
 
+import RecordCard from "./tables/RecordCard";
+import RowCard from "./tables/RowCard";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
+import RenderValue from "./tables/RenderValue";
 
 import SelectionBox from "./tables/SelectionBox";
 import Spinner from "./layout/Spinner";
@@ -124,11 +127,14 @@ export {
   NavBar,
   NavTabs,
   Pagination,
+  RecordCard,
+  RowCard,
   ReadMore,
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
   RowFormInput,
+  RenderValue,
   SelectionBox,
   Spinner,
   ShowMore,

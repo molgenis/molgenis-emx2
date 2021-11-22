@@ -20,20 +20,16 @@
         </span>
         <VueTemplate v-if="template" :template="template" :a="row" />
         <dl v-else>
-          <div v-for="col in columns" :key="col.name">
+          <div v-for="col in columns" :key="col.id">
             <dt
-              v-if="
-                col.showColumn && row[col.name] && col.name != 'mg_tableclass'
-              "
+              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
               class="pr-3"
             >
-              {{ col.name }}
+              {{ col.id }}
             </dt>
             <dd
               class="pl-3"
-              v-if="
-                col.showColumn && row[col.name] && col.name != 'mg_tableclass'
-              "
+              v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
             >
               <RenderValue :col="col" :row="row" />
             </dd>
