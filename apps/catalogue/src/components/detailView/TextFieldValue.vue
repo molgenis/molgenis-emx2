@@ -10,7 +10,7 @@ export default {
   components: { ReadMore },
   props: {
     data: {
-      type: [String, Object, Array, Number, Boolean],
+      type: [String, Object],
       required: true,
     },
     metaData: {
