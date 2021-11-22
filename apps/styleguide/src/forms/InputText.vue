@@ -56,67 +56,69 @@ export default {
     autogrow: {
       //thank you! https://github.com/wrabit/vue-textarea-autogrow-directive/blob/master/src/VueTextareaAutogrowDirective.js
       inserted(el) {
-        let observe, minHeight;
+        if (document & window) {
+          let observe, minHeight;
 
-        // If used in a component library such as buefy, a wrapper will be used on the component so check if a child is the textarea
-        el =
-          el.tagName.toLowerCase() === "textarea"
-            ? el
-            : el.querySelector("textarea");
+          // If used in a component library such as buefy, a wrapper will be used on the component so check if a child is the textarea
+          el =
+            el.tagName.toLowerCase() === "textarea"
+              ? el
+              : el.querySelector("textarea");
 
-        minHeight = parseFloat(
-          getComputedStyle(el).getPropertyValue("min-height")
-        );
-
-        if (window.attachEvent) {
-          observe = function (element, event, handler) {
-            element.attachEvent("on" + event, handler);
-          };
-        } else {
-          observe = function (element, event, handler) {
-            element.addEventListener(event, handler, false);
-          };
-        }
-
-        let resize = () => {
-          el.style.height = "auto";
-          let border = el.style.borderTopWidth * 2;
-          el.style.height =
-            (el.scrollHeight < minHeight ? minHeight : el.scrollHeight) +
-            border +
-            "px";
-        };
-
-        // 0-timeout to get the already changed el
-        let delayedResize = () => {
-          window.setTimeout(resize, 0);
-        };
-
-        // When the textarea is being shown / hidden
-        var respondToVisibility = (element, callback) => {
-          let intersectionObserver = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                if (entry.intersectionRatio > 0) callback();
-              });
-            },
-            {
-              root: document.documentElement,
-            }
+          minHeight = parseFloat(
+            getComputedStyle(el).getPropertyValue("min-height")
           );
 
-          intersectionObserver.observe(element);
-        };
+          if (window.attachEvent) {
+            observe = function (element, event, handler) {
+              element.attachEvent("on" + event, handler);
+            };
+          } else {
+            observe = function (element, event, handler) {
+              element.addEventListener(event, handler, false);
+            };
+          }
 
-        respondToVisibility(el, resize);
-        observe(el, "beforeInput", resize);
-        observe(el, "change", resize);
-        observe(el, "cut", delayedResize);
-        observe(el, "paste", delayedResize);
-        observe(el, "drop", delayedResize);
-        observe(el, "input", resize);
+          let resize = () => {
+            el.style.height = "auto";
+            let border = el.style.borderTopWidth * 2;
+            el.style.height =
+              (el.scrollHeight < minHeight ? minHeight : el.scrollHeight) +
+              border +
+              "px";
+          };
 
-        resize();
+          // 0-timeout to get the already changed el
+          let delayedResize = () => {
+            window.setTimeout(resize, 0);
+          };
+
+          // When the textarea is being shown / hidden
+          var respondToVisibility = (element, callback) => {
+            let intersectionObserver = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry) => {
+                  if (entry.intersectionRatio > 0) callback();
+                });
+              },
+              {
+                root: document.documentElement,
+              }
+            );
+
+            intersectionObserver.observe(element);
+          };
+
+          respondToVisibility(el, resize);
+          observe(el, "beforeInput", resize);
+          observe(el, "change", resize);
+          observe(el, "cut", delayedResize);
+          observe(el, "paste", delayedResize);
+          observe(el, "drop", delayedResize);
+          observe(el, "input", resize);
+
+          resize();
+        }
       },
       componentUpdated(el) {
         //in case values are changed from outside in

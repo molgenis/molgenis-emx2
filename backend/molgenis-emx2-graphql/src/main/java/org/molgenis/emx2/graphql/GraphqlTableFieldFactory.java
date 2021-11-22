@@ -410,7 +410,7 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private Filter createKeyFilter(Map<String, Object> map) {
+  public static Filter createKeyFilter(Map<String, Object> map) {
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       if (entry.getValue() instanceof Map) {

@@ -78,6 +78,7 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
+    SsrService.create();
 
     // add trailing /
     before(

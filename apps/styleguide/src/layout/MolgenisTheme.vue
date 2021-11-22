@@ -9,10 +9,12 @@ export default {
   },
   methods: {
     appendFile() {
-      let file = document.createElement("link");
-      file.rel = "stylesheet";
-      file.href = this.href;
-      document.head.appendChild(file);
+      if (document) {
+        let file = document.createElement("link");
+        file.rel = "stylesheet";
+        file.href = this.href;
+        document.head.appendChild(file);
+      }
     },
   },
   mounted() {
