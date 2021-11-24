@@ -8,7 +8,7 @@
     @close="closeForm"
     :visible-columns="visibleColumns"
   />
-  <IconAction v-else icon="clone" @click="openForm" />
+  <IconAction v-else icon="copy" @click="openForm" />
 </template>
 
 <script>

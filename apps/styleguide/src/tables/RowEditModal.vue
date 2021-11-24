@@ -258,8 +258,10 @@ export default {
     },
     // override from tableMixin
     title() {
-      if (this.pkey) {
+      if (this.pkey && this.clone) {
         return `update ${this.table}`;
+      } else if (this.pkey) {
+        return `create copy in ${this.table}`;
       } else {
         return `insert ${this.table}`;
       }
@@ -272,7 +274,8 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          if (data[column.id]) {
+          //skip key in case of clone
+          if (data[column.id] && (!this.clone || column.key != 1)) {
             defaultValue[column.id] = data[column.id];
           }
         });
@@ -283,12 +286,6 @@ export default {
     value: {
       handler() {
         this.validate();
-        //remove key values in case of clone
-        this.tableMetadata.columns.forEach((c) => {
-          if (c.key == 1) {
-            this.value[c.id] = null;
-          }
-        });
       },
       deep: true,
     },
