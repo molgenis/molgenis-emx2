@@ -29,7 +29,6 @@ import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue";
 import {
   StringDisplay,
-  TextDisplay,
   FileDisplay,
   ObjectDisplay,
 } from "@mswertz/emx2-styleguide";
@@ -40,7 +39,7 @@ export default {
     SectionFieldLabel,
     SectionArrayValue,
     StringDisplay,
-    TextDisplay,
+    TextFieldValue,
     FileDisplay,
     ObjectDisplay,
     RefBackFieldValue,
@@ -70,8 +69,8 @@ export default {
         UUID: "StringDisplay",
         DATETIME: "StringDisplay",
         HEADING: "StringDisplay",
-        JSONB: "TextDisplay",
-        TEXT: "TextDisplay",
+        JSONB: "TextFieldValue",
+        TEXT: "TextFieldValue",
         BOOL_ARRAY: "SectionArrayValue",
         UUID_ARRAY: "SectionArrayValue",
         STRING_ARRAY: "SectionArrayValue",
