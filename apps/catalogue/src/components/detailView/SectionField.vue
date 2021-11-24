@@ -26,8 +26,7 @@ import SectionArrayValue from "./SectionArrayValue.vue";
 import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
-import TextFieldValue from "./TextFieldValue.vue";
-
+import RefFieldValue from "./RefFieldValue";
 import {
   StringDisplay,
   FileDisplay,
@@ -46,6 +45,7 @@ export default {
     RefBackFieldValue,
     RefArrayFieldValue,
     OntologyFieldValue,
+    RefFieldValue,
   },
   props: {
     field: {
@@ -82,7 +82,7 @@ export default {
         JSONB_ARRAY: "SectionArrayValue",
         ONTOLOGY_ARRAY: "SectionArrayValue",
         REF_ARRAY: "RefArrayFieldValue",
-        REF: "ObjectDisplay",
+        REF: "RefFieldValue",
         REFBACK: "RefBackFieldValue",
         ONTOLOGY: "OntologyFieldValue",
       }[this.field.meta.columnType];
