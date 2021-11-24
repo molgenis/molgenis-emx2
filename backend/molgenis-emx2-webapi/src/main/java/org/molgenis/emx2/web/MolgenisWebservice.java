@@ -16,7 +16,10 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
+import org.molgenis.emx2.web.controllers.FindBestFactory;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.controllers.ProfileManagerFactory;
+import org.molgenis.emx2.web.controllers.SparkWebContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -28,6 +31,7 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
+  static OIDCController oidcController;
   private static final String LOGIN_PATH = "/_login";
   public static final String OIDC_CALLBACK_PATH = "/_callback";
 
@@ -38,15 +42,21 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
+    oidcController =
+        new OIDCController(
+            sessionManager,
+            new SecurityConfigFactory().build(),
+            new SparkWebContextFactory(),
+            new FindBestFactory(),
+            new ProfileManagerFactory());
     port(port);
 
     staticFiles.location("/public_html");
 
     get(
         OIDC_CALLBACK_PATH,
-        (request, response) ->
-            OIDCController.handleLoginCallback(request, response, sessionManager));
-    get(LOGIN_PATH, OIDCController::handleLoginRequest);
+        (request, response) -> oidcController.handleLoginCallback(request, response));
+    get(LOGIN_PATH, oidcController::handleLoginRequest);
 
     // root
     get(
