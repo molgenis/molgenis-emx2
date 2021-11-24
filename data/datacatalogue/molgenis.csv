@@ -86,7 +86,7 @@ RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries descri
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
 RWEresources,,counts,refback,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
-Databases,,populationSize,refback,,,PopulationSize,,resource,,,"Total number of unique individuals, captured, and active or currently registered individuals,  with records captured in the databank (most recent count), stratified by age"
+Databases,,populationSize,refback,,,PopulationSizes,,resource,,,"Total number of unique individuals, captured, and active or currently registered individuals,  with records captured in the databank (most recent count), stratified by age"
 Cohorts,,access,heading,,,,,,,,
 Cohorts,,dataAccessConditions,ontology_array,,,Conditions,,,,,Codes defining data access terms and use conditions
 Cohorts,,dataAccessConditionsDescription,text,,,,,,,,Description of data access terms and use conditions
