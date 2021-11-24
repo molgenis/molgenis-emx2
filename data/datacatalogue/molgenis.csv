@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.9
+Version,,,,,,,,,,,1.10
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -85,7 +85,8 @@ Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other, what other vocabu
 RWEresources,,releases,refback,,,Releases,,resource,,,Numerical summaries describing data bank population
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
-RWEresources,,counts,refback,,,Counts,,resource,,,"Counts per year,ageband and gender"
+RWEresources,,counts,refback,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
+Databases,,populationSize,refback,,,PopulationSize,,resource,,,"Total number of unique individuals, captured, and active or currently registered individuals,  with records captured in the databank (most recent count), stratified by age"
 Cohorts,,access,heading,,,,,,,,
 Cohorts,,dataAccessConditions,ontology_array,,,Conditions,,,,,Codes defining data access terms and use conditions
 Cohorts,,dataAccessConditionsDescription,text,,,,,,,,Description of data access terms and use conditions
@@ -103,6 +104,7 @@ Databanks,,accessThirdParty,bool,,,,,,,,Can (an extract of) the data bank be acc
 Databanks,,accessThirdPartyConditions,text,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted"
 Databanks,,accessNonEU,bool,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
 Databanks,,accessNonEUConditions,text,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
+RWEresources,,approvalForPublication,bool,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data source
 RWEresources,,qualifications,heading,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
 RWEresources,,qualificationsDescription,text,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
 Databanks,,origin,heading,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
@@ -387,5 +389,10 @@ Counts,,year,int,1,TRUE,,,,,,
 Counts,,ageband,,1,TRUE,,,,,,
 Counts,,gender,,1,TRUE,,,,,,
 Counts,,N,int,,TRUE,,,,,,
+PopulationSizes,,,,,,,,,,,"Population size captured and population active, stratified by age (most recent counts)"
+PopulationSizes,,databank,ref,1,TRUE,Databanks,,,,,"Databank to which population size applies"
+PopulationSizes,,ageband,,1,TRUE,,,,,,"Age band to which the counts apply"
+PopulationSizes,,numberCaptured,int,,TRUE,,,,,,Number of individuals with records captured
+PopulationSizes,,numberActive,int,,TRUE,,,,,,Number of individuals with records captured
 StudyTypes,OntologyTerms,,,,,,,,,,
 StandardizedTools,OntologyTerms,,,,,,,,,,
