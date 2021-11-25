@@ -138,17 +138,23 @@
             :table-metadata="tableMetadata"
             :data="data"
             :showSelect="showSelect"
+            @column-click="onColumnClick"
             @click="$emit('click', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
             </template>
-            <template v-slot:colheader>
+            <template v-slot:colheader="slotProps">
               <RowButtonAdd
-                v-if="canEdit"
+                v-if="canEdit && !slotProps.col"
                 :table="table"
                 :graphqlURL="graphqlURL"
                 @close="reload"
+                class="d-inline p-0"
+              />
+              <IconAction
+                v-if="slotProps.col && orderBy == slotProps.col.id"
+                :icon="orderAsc ? 'sort-alpha-down' : 'sort-alpha-up'"
                 class="d-inline p-0"
               />
             </template>
@@ -271,9 +277,21 @@ export default {
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
       view: View.TABLE,
+      orderBy: null,
+      orderAsc: false,
     };
   },
   methods: {
+    onColumnClick(column) {
+      if (this.orderBy != column.id) {
+        this.orderBy = column.id;
+        this.orderAsc = true;
+      } else if (this.orderAsc) {
+        this.orderAsc = false;
+      } else {
+        this.orderAsc = true;
+      }
+    },
     toggleView() {
       if (this.view == View.TABLE) {
         this.view = View.CARDS;
@@ -346,6 +364,20 @@ export default {
         return true;
       }
       return false;
+    },
+    //overrides from TableMixin
+    orderByObject() {
+      if (this.orderBy) {
+        let result = {};
+        if (this.orderAsc) {
+          result[this.orderBy] = "ASC";
+        } else {
+          result[this.orderBy] = "DESC";
+        }
+        return result;
+      } else {
+        return {};
+      }
     },
     //overrides from TableMixin
     graphqlFilter() {
