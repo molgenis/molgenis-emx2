@@ -104,7 +104,7 @@ Databanks,,accessThirdParty,bool,,,,,,,,Can (an extract of) the data bank be acc
 Databanks,,accessThirdPartyConditions,text,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted"
 Databanks,,accessNonEU,bool,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
 Databanks,,accessNonEUConditions,text,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
-RWEresources,,approvalForPublication,bool,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data source
+RWEresources,,approvalForPublication,bool,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data
 RWEresources,,qualifications,heading,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
 RWEresources,,qualificationsDescription,text,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
 Databanks,,origin,heading,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
