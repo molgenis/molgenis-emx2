@@ -57,11 +57,12 @@ public class OIDCController {
                         "Expected OIDC client not found in security configuration"));
     HttpAction action;
     try {
-      Optional optional = client.getRedirectionAction(context);
-      if (optional.isEmpty()) {
+      @SuppressWarnings("unchecked")
+      Optional<HttpAction> httpAction = client.getRedirectionAction(context);
+      if (httpAction.isEmpty()) {
         throw new MolgenisException("Expected OIDC redirection action not found");
       }
-      action = (HttpAction) optional.get();
+      action = httpAction.get();
 
     } catch (final HttpAction e) {
       action = e;
