@@ -17,7 +17,7 @@
       </ButtonAction>
     </template>
   </LayoutModal>
-  <IconDanger v-else icon="trash" @click="openForm" />
+  <IconDanger icon="trash" @click="openForm" />
 </template>
 
 <script>

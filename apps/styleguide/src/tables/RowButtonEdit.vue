@@ -7,7 +7,7 @@
     @close="closeForm"
     :visible-columns="visibleColumns"
   />
-  <IconAction v-else icon="pencil-alt" @click="openForm" />
+  <IconAction icon="pencil-alt" @click="openForm" />
 </template>
 
 <script>
