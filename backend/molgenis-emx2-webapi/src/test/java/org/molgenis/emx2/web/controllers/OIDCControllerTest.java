@@ -18,8 +18,6 @@ import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
-import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.sparkjava.SparkWebContext;
 import spark.Request;
@@ -134,6 +132,4 @@ public class OIDCControllerTest {
     when(sessionManager.getSession(any())).thenReturn(molgenisSession);
     when(molgenisSession.getDatabase()).thenReturn(database);
   }
-
-
 }

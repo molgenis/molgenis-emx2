@@ -16,6 +16,7 @@ public class FindBestFactory {
   private HttpActionAdapter<Object, SparkWebContext> adapter;
   private CallbackLogic<Object, SparkWebContext> callbackLogic;
 
+  @SuppressWarnings("unchecked")
   public SessionStore<SparkWebContext> createBestSessionStore(Config config) {
     if (sessionStore == null) {
       sessionStore = FindBest.sessionStore(null, config, JEESessionStore.INSTANCE);
@@ -23,6 +24,7 @@ public class FindBestFactory {
     return sessionStore;
   }
 
+  @SuppressWarnings("unchecked")
   public HttpActionAdapter<Object, SparkWebContext> createBestAdapter(Config config) {
     if (adapter == null) {
       adapter = FindBest.httpActionAdapter(null, config, SparkHttpActionAdapter.INSTANCE);
@@ -30,6 +32,7 @@ public class FindBestFactory {
     return adapter;
   }
 
+  @SuppressWarnings("unchecked")
   public CallbackLogic<Object, SparkWebContext> createBestCallbackLogic(Config config) {
     if (callbackLogic == null) {
       callbackLogic = FindBest.callbackLogic(null, config, DefaultCallbackLogic.INSTANCE);
