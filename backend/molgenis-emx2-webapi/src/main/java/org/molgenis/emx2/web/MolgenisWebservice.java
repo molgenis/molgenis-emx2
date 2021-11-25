@@ -16,6 +16,9 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
+import org.pac4j.sparkjava.CallbackRoute;
+import org.pac4j.sparkjava.LogoutRoute;
+import org.pac4j.sparkjava.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -59,6 +62,10 @@ public class MolgenisWebservice {
 
     // documentation operations
     get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
+
+    // logout path, before schema because of dynamic nature of schema
+    get("/logout", new LogoutRoute(new SecurityConfigFactory().build(), "/"));
+
     // docs per schema
     get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
@@ -95,6 +102,12 @@ public class MolgenisWebservice {
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
+
+    CallbackRoute callback = new CallbackRoute(new SecurityConfigFactory().build(), null, true);
+    get("/callback", callback);
+    post("/callback", callback);
+
+    before("/", new SecurityFilter(new SecurityConfigFactory().build(), "oidcClient"));
 
     // schema members operations
 
