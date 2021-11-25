@@ -259,9 +259,9 @@ export default {
     // override from tableMixin
     title() {
       if (this.pkey && this.clone) {
-        return `update ${this.table}`;
+        return `copy ${this.table}`;
       } else if (this.pkey) {
-        return `create copy in ${this.table}`;
+        return `update ${this.table}`;
       } else {
         return `insert ${this.table}`;
       }

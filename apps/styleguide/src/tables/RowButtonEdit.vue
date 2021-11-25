@@ -1,13 +1,15 @@
 <template>
-  <RowEditModal
-    v-if="open"
-    :table="table"
-    :graphqlURL="graphqlURL"
-    :pkey="pkey"
-    @close="closeForm"
-    :visible-columns="visibleColumns"
-  />
-  <IconAction icon="pencil-alt" @click="openForm" />
+  <span>
+    <RowEditModal
+      v-if="open"
+      :table="table"
+      :graphqlURL="graphqlURL"
+      :pkey="pkey"
+      @close="closeForm"
+      :visible-columns="visibleColumns"
+    />
+    <IconAction icon="pencil-alt" @click="openForm" />
+  </span>
 </template>
 
 <script>

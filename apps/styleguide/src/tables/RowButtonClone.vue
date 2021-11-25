@@ -1,14 +1,15 @@
 <template>
-  <RowEditModal
-    v-if="open"
-    :table="table"
-    :graphqlURL="graphqlURL"
-    :pkey="pkey"
-    :clone="true"
-    @close="closeForm"
-    :visible-columns="visibleColumns"
-  />
-  <IconAction icon="copy" @click="openForm" />
+  <span>
+    <RowEditModal
+      v-if="open"
+      :table="table"
+      :graphqlURL="graphqlURL"
+      :pkey="pkey"
+      :clone="true"
+      @close="closeForm"
+      :visible-columns="visibleColumns" />
+    <IconAction icon="copy" @click="openForm"
+  /></span>
 </template>
 
 <script>
