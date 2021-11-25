@@ -31,6 +31,7 @@ import {
   StringDisplay,
   FileDisplay,
   ObjectDisplay,
+  TextFieldValue,
 } from "@mswertz/emx2-styleguide";
 
 export default {
