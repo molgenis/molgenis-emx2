@@ -54,6 +54,12 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
+  public void testCreateReservedSchema() throws IOException {
+        assertThrows(execute("mutation{createSchema(name:"+ MolgenisWebservice.LOGIN_PATH +"){message}}"));
+
+  }
+
+  @Test
   public void testRegisterAndLoginUsers() throws IOException {
 
     // todo: default user should be anonymous?

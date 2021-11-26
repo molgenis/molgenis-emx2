@@ -32,7 +32,7 @@ public class MolgenisWebservice {
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
   static OIDCController oidcController;
-  private static final String LOGIN_PATH = "/_login";
+  public static final String LOGIN_PATH = "/_login";
   public static final String OIDC_CALLBACK_PATH = "/_callback";
 
   private MolgenisWebservice() {

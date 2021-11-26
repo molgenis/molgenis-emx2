@@ -6,6 +6,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.VALUE;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
+
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaInfo;
+import org.molgenis.emx2.web.MolgenisWebservice;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -48,10 +51,18 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
+              validateSchemaName(name);
               String description = dataFetchingEnvironment.getArgument("description");
               database.createSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
+  }
+
+  private void validateSchemaName(String name) {
+        if (name.equalsIgnoreCase(MolgenisWebservice.LOGIN_PATH)
+            || name.equalsIgnoreCase(MolgenisWebservice.OIDC_CALLBACK_PATH)) {
+          throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
+        }
   }
 
   public GraphQLFieldDefinition.Builder updateMutation(Database database) {
