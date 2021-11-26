@@ -1,13 +1,13 @@
 <template>
   <div class="container bg-white p-3">
     <h1>
-      <span v-if="databanks > 0"
-        >Proof-of-concept catalogue tool for MINERVA metadata pilot</span
+      <span v-if="schemaName && schemaName == 'Minerva'">
+        Proof-of-concept catalogue tool for MINERVA metadata pilot</span
       >
       <span v-else>Data catalogue</span>
     </h1>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <p v-if="databanks > 0" class="text-danger">
+    <p v-if="schemaName && schemaName == 'Minerva'" class="text-danger">
       Disclaimer: contents not for public disclosure.
     </p>
     <p>
@@ -140,6 +140,7 @@ export default {
   },
   data() {
     return {
+      schemaName: null,
       institutions: null,
       databanks: null,
       cohorts: null,
@@ -160,9 +161,10 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {Institutions_agg{count},Cohorts_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
+        `query {_schema{name},Institutions_agg{count},Cohorts_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
       )
         .then((data) => {
+          this.schemaName = data._schema.name;
           this.institutions = data.Institutions_agg.count;
           this.databanks = data.Databanks_agg.count;
           this.cohorts = data.Cohorts_agg.count;

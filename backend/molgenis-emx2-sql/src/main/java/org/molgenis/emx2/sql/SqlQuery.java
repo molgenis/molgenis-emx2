@@ -240,7 +240,9 @@ public class SqlQuery extends QueryBean {
       // select all on root level as default
       if (select.getSubselect().size() == 0) {
         for (Column c : table.getColumns()) {
-          select.select(c.getName());
+          if (!c.isHeading()) {
+            select.select(c.getName());
+          }
         }
       }
       fields.add(
