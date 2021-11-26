@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.web.MolgenisWebservice.OIDC_CALLBACK_PATH;
+import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -41,7 +41,7 @@ public class SecurityConfigFactory {
     final OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
-    final Clients clients = new Clients(callbackUrl + OIDC_CALLBACK_PATH, oidcClient);
+    final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
 
     return new Config(clients);
   }

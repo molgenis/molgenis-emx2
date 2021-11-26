@@ -2,6 +2,8 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
+import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
@@ -13,7 +15,9 @@ import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -55,8 +59,11 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateReservedSchema() throws IOException {
-        assertThrows(execute("mutation{createSchema(name:"+ MolgenisWebservice.LOGIN_PATH +"){message}}"));
+    JsonNode execute = execute("mutation{createSchema(name:\"" + OIDC_LOGIN_PATH + "\"){message}}");
+    assertEquals("Schema name: '_login' is a reserved word",execute.get("errors").get(0).get("message").textValue());
 
+    execute = execute("mutation{createSchema(name:\"" + OIDC_CALLBACK_PATH + "\"){message}}");
+    assertEquals("Schema name: '_callback' is a reserved word",execute.get("errors").get(0).get("message").textValue());
   }
 
   @Test

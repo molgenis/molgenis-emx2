@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
+import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
 import static spark.Spark.*;
@@ -32,8 +34,6 @@ public class MolgenisWebservice {
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
   static OIDCController oidcController;
-  public static final String LOGIN_PATH = "/_login";
-  public static final String OIDC_CALLBACK_PATH = "/_callback";
 
   private MolgenisWebservice() {
     // hide constructor
@@ -54,9 +54,9 @@ public class MolgenisWebservice {
     staticFiles.location("/public_html");
 
     get(
-        OIDC_CALLBACK_PATH,
+            ("/" + OIDC_CALLBACK_PATH),
         (request, response) -> oidcController.handleLoginCallback(request, response));
-    get(LOGIN_PATH, oidcController::handleLoginRequest);
+    get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
 
     // root
     get(
@@ -102,7 +102,8 @@ public class MolgenisWebservice {
     before(
         "/:schema",
         (req, res) -> {
-          if (!LOGIN_PATH.equals(req.pathInfo()) && !OIDC_CALLBACK_PATH.equals(req.pathInfo())) {
+          if (!("/" +OIDC_LOGIN_PATH).equals(req.pathInfo())
+              && !("/" +OIDC_CALLBACK_PATH).equals(req.pathInfo())) {
             res.redirect("/" + req.params("schema") + "/");
           }
         });
