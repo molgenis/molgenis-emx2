@@ -24,25 +24,23 @@ public class CsvTableReader {
       BufferedReader bufferedReader = new BufferedReader(in);
       bufferedReader.mark(2000000);
       String firstLine = bufferedReader.readLine();
-      char separator = ',';
+      String secondLine = bufferedReader.readLine();
 
+      // if file is empty we return empty iterator
+      if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
+        return Collections.EMPTY_LIST;
+      }
+      char separator = ',';
       // if file is empty we return empty iterator
       if (firstLine == null || firstLine.trim().equals("")) {
         return Collections.EMPTY_LIST;
       }
-
       // guess the separator
       if (firstLine.contains("\t")) {
         separator = '\t';
       }
       if (firstLine.contains(";")) {
         separator = ';';
-      }
-
-      // check if has data, otherwise also return empty iterator (workaround for flatmapper failing
-      // on this)
-      if (bufferedReader.readLine() == null) {
-        return Collections.EMPTY_LIST;
       }
 
       // push back in
