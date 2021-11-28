@@ -34,4 +34,6 @@ Deleted Models.datasources, Models.databanks. Moved models.releases to heading '
 | 1.6 => 1.7 | Added CollectionEvents.standardizedTools, CollectionEvents.standardizedToolsOther, Cohorts.contactEmail, StandardizedTools (OntologyTerm table), Datasources.qualityOfLifeOther. Moved Datasources.studies to RWEresources.studies. Deleted RWEresources.standardVocabularies. Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
 | 1.7 => 1.8 | ColumnType of CollectionEvents.standardizedTools changed to ref_array. Unless bugfix #711 Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
 | 1.8 => 1.9 | fix: Institution.typeOther should be text. Just upload molgenis.csv to update. |
+| 1.9=> 1.10 | feat: add Database.populationSize(captured,active), RWEresources.approvalForPublication, Dispensing subterms. Just upload molgenis.csv to update. |
+
 

@@ -36,6 +36,13 @@ Cause of death,Is cause of death available?,Clinical data
 Rare diseases,Are rare diseases (<1 in 2000 people) captured?,Clinical data
 Prescriptions included,Is information on prescription of medications included?,Clinical data
 Dispensings included,Is information on dispensing of medications included?,Clinical data
+ATC,,Dispensings included
+RxNorm,,Dispensings included
+EphMRA,,Dispensings included
+ALT,,Dispensings included
+DrugBank,,Dispensings included
+Not coded (Free text),,Dispensings included
+Dispensings other,,Dispensings included
 Product information,Is product information available? Select all items that apply,Clinical data
 Brand name,,Product information
 Batch number,,Product information
