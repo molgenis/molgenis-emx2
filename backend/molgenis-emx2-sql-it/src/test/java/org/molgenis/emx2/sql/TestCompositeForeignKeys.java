@@ -189,6 +189,16 @@ public class TestCompositeForeignKeys {
                     .get(0)
                     .getStringArray("uncle-firstName"))
             .contains("Katrien"));
+
+    // test order by for refback
+    p.query()
+        .select(
+            s("firstName"),
+            s("lastName"),
+            s("nephew", s("firstName"), s("lastName")),
+            s("uncle", s("firstName"), s("lastName")))
+        .orderBy("nephew")
+        .retrieveJSON();
   }
 
   @Test
@@ -277,6 +287,26 @@ public class TestCompositeForeignKeys {
                     .get(1) //
                     .getStringArray("cousins-firstName")) // TODO should be array?
             .contains("Kwok"));
+
+    // check we can sort on ref_array
+    p.query()
+        .select(
+            s("firstName"),
+            s("lastName"),
+            s("cousins", s("firstName"), s("lastName")),
+            s("uncles", s("firstName"), s("lastName")))
+        .orderBy("cousins")
+        .retrieveJSON();
+
+    // check we can sort on refback to a ref_array
+    p.query()
+        .select(
+            s("firstName"),
+            s("lastName"),
+            s("cousins", s("firstName"), s("lastName")),
+            s("uncles", s("firstName"), s("lastName")))
+        .orderBy("uncles")
+        .retrieveJSON();
   }
 
   //  @Test
