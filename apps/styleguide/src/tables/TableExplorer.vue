@@ -153,8 +153,8 @@
                 class="d-inline p-0"
               />
               <IconAction
-                v-if="slotProps.col && orderBy == slotProps.col.id"
-                :icon="orderAsc ? 'sort-alpha-down' : 'sort-alpha-up'"
+                v-if="slotProps.col && orderByColumn == slotProps.col.id"
+                :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
                 class="d-inline p-0"
               />
             </template>
@@ -265,6 +265,13 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    showOrderBy: {
+      type: String,
+    },
+    showOrder: {
+      type: String,
+      default: () => "ASC",
+    },
   },
   data() {
     return {
@@ -277,20 +284,24 @@ export default {
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
       view: View.TABLE,
-      orderBy: null,
-      orderAsc: false,
+      orderByColumn: null,
+      order: "ASC",
     };
   },
   methods: {
     onColumnClick(column) {
-      if (this.orderBy != column.id) {
-        this.orderBy = column.id;
-        this.orderAsc = true;
-      } else if (this.orderAsc) {
-        this.orderAsc = false;
+      let orderByColumn = this.orderByColumn;
+      let order = this.order;
+      if (orderByColumn != column.id) {
+        orderByColumn = column.id;
+        order = "ASC";
+      } else if (order == "ASC") {
+        order = "DESC";
       } else {
-        this.orderAsc = true;
+        order = "ASC";
       }
+      this.$emit("update:showOrderBy", orderByColumn);
+      this.$emit("update:showOrder", order);
     },
     toggleView() {
       if (this.view == View.TABLE) {
@@ -367,13 +378,9 @@ export default {
     },
     //overrides from TableMixin
     orderByObject() {
-      if (this.orderBy) {
+      if (this.orderByColumn) {
         let result = {};
-        if (this.orderAsc) {
-          result[this.orderBy] = "ASC";
-        } else {
-          result[this.orderBy] = "DESC";
-        }
+        result[this.orderByColumn] = this.order;
         return result;
       } else {
         return {};
@@ -432,6 +439,14 @@ export default {
       this.offset = this.limit * (this.page - 1);
       this.$emit("update:showPage", this.page);
       this.reload();
+    },
+    showOrderBy() {
+      this.orderByColumn = this.showOrderBy;
+      this.$emit("update:showOrderBy", this.showOrderBy);
+    },
+    showOrder() {
+      this.order = this.showOrder;
+      this.$emit("update:showOrder", this.showOrder);
     },
     showPage() {
       this.page = this.showPage;
@@ -507,10 +522,13 @@ example (graphqlURL is usually not needed because app is served on right path)
         graphqlURL="/pet store/graphql"
         :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
         :showPage.sync="page" :showLimit.sync="limit"
+        :showOrderBy.sync="showOrderBy" :showOrder.sync="showOrder"
         :conditions.sync="conditions"/>
     showColumns: {{ showColumns }}<br/>
     showFilters: {{ showFilters }}<br/>
     conditions: {{ conditions }} <br/>
+    showOrderBy: {{ showOrderBy }} <br/>
+    showOrder: {{ showOrder }} <br/>
     page: {{ page }}<br/>
     limit: {{ limit }}
 
@@ -520,7 +538,12 @@ example (graphqlURL is usually not needed because app is served on right path)
   export default {
     data() {
       return {
-        showColumns: ['name'], showFilters: ['name'], conditions: {"name": ["pooky", "spike"]}, page: 1, limit: 10
+        showColumns: ['name'],
+        showFilters: ['name'],
+        conditions: {"name": ["pooky", "spike"]},
+        page: 1,
+        limit: 10,
+        showOrder: 'DESC', showOrderBy: 'name'
       }
     },
     methods: {
@@ -554,7 +577,13 @@ example with spaces in name
   export default {
     data() {
       return {
-        showColumns: ['name'], showFilters: ['name'], page: 1, limit: 10
+        showColumns: ['name'],
+        showFilters: ['name'],
+        page: 1,
+        limit: 10,
+        conditions: {},
+        showOrder: null,
+        showOrderBy: null
       }
     },
     methods: {

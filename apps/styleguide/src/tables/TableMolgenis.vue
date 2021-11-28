@@ -29,7 +29,10 @@
             class="column-drag-header"
             :style="col.showColumn ? '' : 'display: none'"
           >
-            <h6 class="mb-0 align-text-bottom" @click="onColumnClick(col)">
+            <h6
+              class="mb-0 align-text-bottom text-nowrap"
+              @click="onColumnClick(col)"
+            >
               {{ col.name }}
               <slot name="colheader" :col="col" />
             </h6>
