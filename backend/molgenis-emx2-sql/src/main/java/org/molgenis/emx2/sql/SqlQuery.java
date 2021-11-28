@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.jooq.*;
-import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
@@ -38,8 +37,8 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
   private static final String ANY_SQL = "{0} = ANY ({1})";
-  private static final String JSON_AGG_SQL = "json_agg(item)";
-  private static final String ROW_TO_JSON_SQL = "row_to_json(item)";
+  private static final String JSON_AGG_SQL = "jsonb_agg(item)";
+  private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
   private static final String ITEM = "item";
   private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
       "Operator %s is not support for column '%s'";
@@ -109,7 +108,7 @@ public class SqlQuery extends QueryBean {
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<org.jooq.Record> query = limitOffsetOrderBy(select, where, table);
+    SelectConnectByStep<org.jooq.Record> query = limitOffsetOrderBy(select, where);
 
     // execute
     try {
@@ -241,7 +240,9 @@ public class SqlQuery extends QueryBean {
       // select all on root level as default
       if (select.getSubselect().size() == 0) {
         for (Column c : table.getColumns()) {
-          select.select(c.getName());
+          if (!c.isHeading()) {
+            select.select(c.getName());
+          }
         }
       }
       fields.add(
@@ -279,10 +280,7 @@ public class SqlQuery extends QueryBean {
 
     List<Condition> conditions = new ArrayList<>();
     Select<org.jooq.Record> filterQuery =
-        limitOffsetOrderBy(
-            select,
-            jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms),
-            table);
+        jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
     if (filters != null
         || searchTerms.length > 0
         || select.getLimit() > 0
@@ -300,7 +298,7 @@ public class SqlQuery extends QueryBean {
 
     String agg = column != null && column.isRef() ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
 
-    return field(jooq.select(field(agg)).from(orderBy(select, from, table).asTable(ITEM)))
+    return field(jooq.select(field(agg)).from(limitOffsetOrderBy(select, from).asTable(ITEM)))
         .as(select.getColumn());
   }
 
@@ -1226,39 +1224,20 @@ public class SqlQuery extends QueryBean {
   }
 
   private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
-      SelectColumn select, SelectConnectByStep<Record> query, SqlTableMetadata table) {
-    query = orderBy(select, (SelectJoinStep) query, table);
+      SelectColumn select, SelectConnectByStep<org.jooq.Record> query) {
+    query = orderBy(select, (SelectJoinStep) query);
     if (select.getLimit() > 0) query = (SelectConditionStep) query.limit(select.getLimit());
     if (select.getOffset() > 0) query = (SelectConditionStep) query.offset(select.getOffset());
     return (SelectJoinStep<org.jooq.Record>) query;
   }
 
   private static SelectJoinStep<org.jooq.Record> orderBy(
-      SelectColumn select, SelectJoinStep<Record> query, SqlTableMetadata table) {
+      SelectColumn select, SelectJoinStep<org.jooq.Record> query) {
     for (Map.Entry<String, Order> col : select.getOrderBy().entrySet()) {
-      Column column = table.getColumn(col.getKey());
-      // ref, need to convert to string before sort
-      if (column.isReference()) {
-        // todo: this could be done more subtle for ref_array,
-        //  like sorting those internally first
-        if (ASC.equals(col.getValue())) {
-          query =
-              (SelectJoinStep<org.jooq.Record>)
-                  query.orderBy(field(name(col.getKey())).cast(String.class).asc());
-        } else {
-          query =
-              (SelectJoinStep<org.jooq.Record>)
-                  query.orderBy(field(name(col.getKey())).cast(String.class).desc());
-        }
-      }
-      // else sort on field itself
-      else {
-        if (ASC.equals(col.getValue())) {
-          query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
-        } else {
-
-          query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
-        }
+      if (ASC.equals(col.getValue())) {
+        query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
+      } else {
+        query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
       }
     }
     return query;
