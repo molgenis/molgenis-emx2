@@ -9,6 +9,7 @@
     "tables",
     "updownload",
     "pages",
-    "ssr"
+    "ssr",
+    "graphql-playground"
   ]
 }

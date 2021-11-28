@@ -26,11 +26,12 @@ import SectionArrayValue from "./SectionArrayValue.vue";
 import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
+import RefFieldValue from "./RefFieldValue";
 import {
   StringDisplay,
-  TextDisplay,
   FileDisplay,
   ObjectDisplay,
+  TextFieldValue,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -39,12 +40,13 @@ export default {
     SectionFieldLabel,
     SectionArrayValue,
     StringDisplay,
-    TextDisplay,
+    TextFieldValue,
     FileDisplay,
     ObjectDisplay,
     RefBackFieldValue,
     RefArrayFieldValue,
     OntologyFieldValue,
+    RefFieldValue,
   },
   props: {
     field: {
@@ -68,8 +70,8 @@ export default {
         UUID: "StringDisplay",
         DATETIME: "StringDisplay",
         HEADING: "StringDisplay",
-        JSONB: "TextDisplay",
-        TEXT: "TextDisplay",
+        JSONB: "TextFieldValue",
+        TEXT: "TextFieldValue",
         BOOL_ARRAY: "SectionArrayValue",
         UUID_ARRAY: "SectionArrayValue",
         STRING_ARRAY: "SectionArrayValue",
@@ -81,7 +83,7 @@ export default {
         JSONB_ARRAY: "SectionArrayValue",
         ONTOLOGY_ARRAY: "SectionArrayValue",
         REF_ARRAY: "RefArrayFieldValue",
-        REF: "ObjectDisplay",
+        REF: "RefFieldValue",
         REFBACK: "RefBackFieldValue",
         ONTOLOGY: "OntologyFieldValue",
       }[this.field.meta.columnType];
