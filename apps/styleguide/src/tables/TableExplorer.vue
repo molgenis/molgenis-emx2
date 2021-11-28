@@ -457,6 +457,8 @@ export default {
     tableMetadata() {
       this.page = this.showPage;
       this.limit = this.showLimit;
+      this.orderByColumn = this.showOrderBy;
+      this.order = this.showOrder;
       if (this.columns.length == 0) {
         this.columns.push(...this.tableMetadata.columns);
         // //init settings
