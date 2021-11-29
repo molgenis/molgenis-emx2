@@ -1,23 +1,25 @@
 <template>
-  <LayoutModal v-if="open" :title="title" @close="closeForm">
-    <template v-slot:body>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <MessageError v-else-if="error">{{ error }}</MessageError>
-      <div v-else>
-        Delete
-        <strong>{{ table }}({{ pkeyAsString }})</strong>
-        <br />Are you sure?
-        <br />
-      </div>
-    </template>
-    <template v-slot:footer>
-      <ButtonAlt @click="closeForm">Close</ButtonAlt>
-      <ButtonAction v-if="!success && !success" @click="executeDelete">
-        Delete
-      </ButtonAction>
-    </template>
-  </LayoutModal>
-  <IconDanger v-else icon="trash" @click="openForm" />
+  <span>
+    <LayoutModal v-if="open" :title="title" @close="closeForm">
+      <template v-slot:body>
+        <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+        <MessageError v-else-if="error">{{ error }}</MessageError>
+        <div v-else>
+          Delete
+          <strong>{{ table }}({{ pkeyAsString }})</strong>
+          <br />Are you sure?
+          <br />
+        </div>
+      </template>
+      <template v-slot:footer>
+        <ButtonAlt @click="closeForm">Close</ButtonAlt>
+        <ButtonAction v-if="!success && !success" @click="executeDelete">
+          Delete
+        </ButtonAction>
+      </template>
+    </LayoutModal>
+    <IconDanger icon="trash" @click="openForm" />
+  </span>
 </template>
 
 <script>

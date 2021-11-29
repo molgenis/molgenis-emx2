@@ -57,6 +57,8 @@ import RecordCard from "./tables/RecordCard";
 import RowCard from "./tables/RowCard";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonClone from "./tables/RowButtonClone";
+
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
@@ -133,6 +135,7 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowButtonClone,
   RowFormInput,
   RenderValue,
   SelectionBox,
