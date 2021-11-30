@@ -18,10 +18,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
-import org.molgenis.emx2.web.controllers.FindBestFactory;
 import org.molgenis.emx2.web.controllers.OIDCController;
-import org.molgenis.emx2.web.controllers.ProfileManagerFactory;
-import org.molgenis.emx2.web.controllers.SparkWebContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -42,19 +39,13 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
-    oidcController =
-        new OIDCController(
-            sessionManager,
-            new SecurityConfigFactory().build(),
-            new SparkWebContextFactory(),
-            new FindBestFactory(),
-            new ProfileManagerFactory());
+    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
     port(port);
 
     staticFiles.location("/public_html");
 
     get(
-            ("/" + OIDC_CALLBACK_PATH),
+        ("/" + OIDC_CALLBACK_PATH),
         (request, response) -> oidcController.handleLoginCallback(request, response));
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
 
@@ -102,8 +93,8 @@ public class MolgenisWebservice {
     before(
         "/:schema",
         (req, res) -> {
-          if (!("/" +OIDC_LOGIN_PATH).equals(req.pathInfo())
-              && !("/" +OIDC_CALLBACK_PATH).equals(req.pathInfo())) {
+          if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
+              && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())) {
             res.redirect("/" + req.params("schema") + "/");
           }
         });
