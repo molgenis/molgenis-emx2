@@ -1,8 +1,6 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
-import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
-import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.VALUE;
@@ -17,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaInfo;
 
 public class GraphqlDatabaseFieldFactory {
@@ -51,17 +48,10 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
-              validateSchemaName(name);
               String description = dataFetchingEnvironment.getArgument("description");
               database.createSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
-  }
-
-  private void validateSchemaName(String name) {
-    if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH)) {
-      throw new GraphqlException(String.format("Schema name: '%s' is a reserved word", name));
-    }
   }
 
   public GraphQLFieldDefinition.Builder updateMutation(Database database) {
