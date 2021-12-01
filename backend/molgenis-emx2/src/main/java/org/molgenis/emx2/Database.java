@@ -73,4 +73,6 @@ public interface Database {
    * <p>Shorthand for setActiveUser(getAdminUserName()) to help understand code
    */
   void becomeAdmin();
+
+  boolean isOidcEnabled();
 }

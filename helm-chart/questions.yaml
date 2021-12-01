@@ -30,5 +30,45 @@ questions:
     description: "Specify an administrator password"
     type: password
     required: true
-    default: ""
-    
+    group: "Provisioning"
+  - variable: oidc.enabled
+    label: OIDC enabled
+    description: "Enabled OIDC"
+    type: boolean
+    required: true
+    default: false
+    group: "Authentication"
+    show_subquestion_if: true
+    subquestions:
+      - variable: oidc.client_name
+        label: Client name
+        description: "Specify a client name for the authentication service"
+        type: string
+        required: true
+        default: "MolgenisAuth"
+        group: "Authentication"
+      - variable: oidc.client_id
+        label: Client ID
+        description: "Specify a client ID for the authentication service"
+        type: string
+        required: true
+        group: "Authentication"
+      - variable: oidc.client_secret
+        label: Client secret
+        description: "Specify a client secret for the authentication service"
+        type: password
+        required: true
+        group: "Authentication"
+      - variable: oidc.discovery_url
+        label: Discovery url
+        description: "Specify a discovery url of the authentication service"
+        type: string
+        required: true
+        default: "https://auth.molgenis.org/.well-known/openid-configuration/"
+        group: "Authentication"
+      - variable: oidc.callback_url
+        label: Domain of the callback url
+        description: "Specify a the domain of the callback url e.g. https://example.org "
+        type: string
+        required: true
+        group: "Authentication"

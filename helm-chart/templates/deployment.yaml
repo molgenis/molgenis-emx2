@@ -32,11 +32,29 @@ spec:
                   name: {{ template "emx2.fullname" $ }}
                   key: adminpassword
             - name: MOLGENIS_POSTGRES_USER
-              value: molgenis_admin
+              value: {{ .Values.database.username }}
             - name: MOLGENIS_POSTGRES_PASS
-              value: molgenis_admin
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: databasepassword
             - name: MOLGENIS_POSTGRES_URI
-              value: jdbc:postgresql://localhost/molgenisdb
+              value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+{{- if .Values.oidc.enabled  }}
+            - name: MOLGENIS_OIDC_CLIENT_ID
+              value: {{ .Values.oidc.client_id }}
+            - name: MOLGENIS_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-oidc
+                  key: client_secret
+            - name: MOLGENIS_OIDC_CLIENT_NAME
+              value: {{ .Values.oidc.client_name }}
+            - name: MOLGENIS_OIDC_DISCOVERY_URI
+              value: {{ .Values.oidc.discovery_url }}
+            - name: MOLGENIS_OIDC_CALLBACK_URL
+              value: {{ .Values.oidc.callback_url }}
+{{- end }}
         - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           name: postgres
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -47,11 +65,14 @@ spec:
             - max_locks_per_transaction=1024
           env:
             - name: POSTGRES_DB
-              value: postgres
+              value: {{ .Values.postgres.name }}
             - name: POSTGRES_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-postgres
+                  key: postgrespassword
             - name: POSTGRES_USER
-              value: postgres
+              value: {{ .Values.postgres.username }}
           ports:
             - containerPort: 5432
           volumeMounts:

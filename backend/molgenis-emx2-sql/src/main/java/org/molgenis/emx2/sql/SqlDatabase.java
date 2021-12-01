@@ -39,6 +39,8 @@ public class SqlDatabase implements Database {
   private String INITIAL_ADMIN_PW =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+  private final Boolean isOidcEnabled =
+      EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING) != null;
 
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -491,5 +493,10 @@ public class SqlDatabase implements Database {
   @Override
   public void becomeAdmin() {
     this.setActiveUser(getAdminUserName());
+  }
+
+  @Override
+  public boolean isOidcEnabled() {
+    return this.isOidcEnabled;
   }
 }

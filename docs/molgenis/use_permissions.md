@@ -24,3 +24,24 @@ In addition there are two special users:
 
 Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing user name and password. Special user is
 the 'admin'. Only this user can see and create other users.
+
+## Sign-in using Open ID Connect (OIDC)
+
+Users can be authenticated using an existing account via Open ID Connect (OIDC).
+To enable users to sign-in using OIDC, the Molgenis instance must be configured to use OIDC.
+When OIDC is enabled, users are no longer presented with the option to sign-up
+
+When OIDC is enabled, the admin user can bypass the oidc login by using the admin route (```[service-location]/apps/central/#/admin```)
+
+### Enabling OIDC
+To enable OIDC the following environment variables need to be set:
+```
+MOLGENIS_OIDC_CLIENT_ID // the id for the molgenis instance as set in the authentication provider
+MOLGENIS_OIDC_CLIENT_SECRET // the client secret as set in the authentication provider
+MOLGENIS_OIDC_CLIENT_NAME // the client name as set in the  authentication provider, defaults to MolgenisAuth
+MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to relevant service)
+MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_calback )
+```
+
+### Disabling OIDC
+Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
