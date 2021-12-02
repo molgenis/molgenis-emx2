@@ -18,7 +18,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
-import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -30,7 +29,7 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
   static MolgenisSessionManager sessionManager;
-  static OIDCController oidcController;
+  static OidcApi oidcController;
 
   private MolgenisWebservice() {
     // hide constructor
@@ -39,7 +38,7 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
-    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
+    oidcController = new OidcApi(sessionManager, new SecurityConfigFactory().build());
     port(port);
 
     staticFiles.location("/public_html");
@@ -90,6 +89,7 @@ public class MolgenisWebservice {
     BootstrapThemeService.create();
 
     // add trailing /
+    // TODO: we could have put OIDC under /api instead of /:schema then this all goes fine
     before(
         "/:schema",
         (req, res) -> {

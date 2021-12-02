@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -7,16 +9,16 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
+import static spark.route.HttpMethod.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import java.io.*;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -445,6 +447,33 @@ public class WebApiSmokeTests {
 
     schema.getMetadata().removeSetting("menu");
     db.clearActiveUser();
+  }
+
+  @Rule
+  public WireMockRule mockOAuth2Provider =
+      new WireMockRule(
+          wireMockConfig().port(8077).extensions(new ResponseTemplateTransformer(true)));
+
+  @Test
+  public void testOidcEndpoint() {
+    // setup
+    mockOAuth2Provider.stubFor(
+        post(urlPathEqualTo("/oauth/token"))
+            .willReturn(
+                okJson(
+                    "{\"token_type\": \"Bearer\",\"access_token\":\"{{randomValue length=20 type='ALPHANUMERIC'}}\"}")));
+    mockOAuth2Provider.stubFor(
+        get(urlPathEqualTo("/userinfo"))
+            .willReturn(okJson("{\"sub\":\"my-id\",\"email\":\"test@test.com\"}")));
+
+    // will go to default url, will do redirect
+    given().when().get("/_login").then().statusCode(200);
+
+    // should give error when not configured
+    given().when().post("/_callback?client_name=MolgenisAuth").then().statusCode(400);
+
+    // todo, do a callback that actually works
+
   }
 
   @AfterClass

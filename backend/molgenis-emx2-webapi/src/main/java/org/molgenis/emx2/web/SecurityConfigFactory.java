@@ -13,10 +13,10 @@ import org.pac4j.oidc.config.OidcConfiguration;
 public class SecurityConfigFactory {
 
   private String oidcClientId =
-      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+      (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, "test", STRING);
   private String oidcClientSecret =
       (String)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, "test", STRING);
   public static String OIDC_CLIENT_NAME =
       (String)
           EnvironmentProperty.getParameter(

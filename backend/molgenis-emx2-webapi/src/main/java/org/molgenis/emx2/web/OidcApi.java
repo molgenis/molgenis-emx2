@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.controllers;
+package org.molgenis.emx2.web;
 
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
@@ -6,7 +6,6 @@ import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.web.MolgenisSessionManager;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
@@ -24,14 +23,14 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-public class OIDCController {
+public class OidcApi {
 
-  private static final Logger logger = LoggerFactory.getLogger(OIDCController.class);
+  private static final Logger logger = LoggerFactory.getLogger(OidcApi.class);
 
   private final MolgenisSessionManager sessionManager;
   private final Config securityConfig;
 
-  public OIDCController(MolgenisSessionManager sessionManager, Config securityConfig) {
+  public OidcApi(MolgenisSessionManager sessionManager, Config securityConfig) {
     this.sessionManager = requireNonNull(sessionManager);
     this.securityConfig = requireNonNull(securityConfig);
   }
