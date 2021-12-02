@@ -10,9 +10,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.0'
     id 'application'
     id 'com.google.cloud.tools.jib' version '3.1.4'
-    id 'org.unbroken-dome.helm' version '1.6.1'
-    id 'org.unbroken-dome.helm-publish' version '1.6.1'
-    id 'org.unbroken-dome.helm-commands' version '1.6.1'
+    id 'org.unbroken-dome.helm' version '1.7.0'
+    id 'org.unbroken-dome.helm-publish' version '1.7.0'
+    id 'org.unbroken-dome.helm-commands' version '1.7.0'
 }
 
 
