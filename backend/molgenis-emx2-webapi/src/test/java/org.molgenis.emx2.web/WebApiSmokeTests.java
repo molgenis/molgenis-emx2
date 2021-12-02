@@ -470,7 +470,7 @@ public class WebApiSmokeTests {
     given().when().get("/_login").then().statusCode(200);
 
     // should give error when not configured
-    given().when().post("/_callback?client_name=MolgenisAuth").then().statusCode(400);
+    given().when().post("/_callback?client_name=MolgenisAuth").then().statusCode(404);
 
     // todo, do a callback that actually works
 
