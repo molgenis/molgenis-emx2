@@ -12,11 +12,11 @@ import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
-import org.pac4j.core.exception.http.HttpAction;
+import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
+import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.FindBest;
-import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.sparkjava.SparkHttpActionAdapter;
 import org.pac4j.sparkjava.SparkWebContext;
 import org.slf4j.Logger;
@@ -30,14 +30,16 @@ public class OIDCController {
 
   private final MolgenisSessionManager sessionManager;
   private final Config securityConfig;
+  private final SessionStore sessionStore;
 
   public OIDCController(MolgenisSessionManager sessionManager, Config securityConfig) {
     this.sessionManager = requireNonNull(sessionManager);
     this.securityConfig = requireNonNull(securityConfig);
+    this.sessionStore = FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
   }
 
   public Object handleLoginRequest(Request request, Response response) {
-    final SparkWebContext context = new SparkWebContext(request, response);
+    final SparkWebContext context = new SparkWebContext(request, response, sessionStore);
     final var client =
         securityConfig
             .getClients()
@@ -46,40 +48,36 @@ public class OIDCController {
                 () ->
                     new MolgenisException(
                         "Expected OIDC client not found in security configuration"));
-    HttpAction action;
+    RedirectionAction action;
     try {
-      @SuppressWarnings("unchecked")
-      Optional<HttpAction> httpAction = client.getRedirectionAction(context);
-      if (httpAction.isEmpty()) {
+      Optional<RedirectionAction> redirectionAction =
+          client.getRedirectionAction(context, sessionStore);
+      if (redirectionAction.isEmpty()) {
         throw new MolgenisException("Expected OIDC redirection action not found");
       }
-      action = httpAction.get();
+      action = redirectionAction.get();
 
-    } catch (final HttpAction e) {
+    } catch (final RedirectionAction e) {
       action = e;
     }
     return SparkHttpActionAdapter.INSTANCE.adapt(action, context);
   }
 
-  @SuppressWarnings("unchecked")
   public Object handleLoginCallback(Request request, Response response) {
-    final SessionStore<SparkWebContext> sessionStore =
-        FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
     final SparkWebContext context = new SparkWebContext(request, response, sessionStore);
-
-    final HttpActionAdapter<Object, SparkWebContext> adapter =
+    final HttpActionAdapter adapter =
         FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
-    final CallbackLogic<Object, SparkWebContext> callbackLogic =
+    final CallbackLogic callbackLogic =
         FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 
     callbackLogic.perform(
-        context, securityConfig, adapter, null, false, true, true, OIDC_CLIENT_NAME);
+        context, sessionStore, securityConfig, adapter, null, false, OIDC_CLIENT_NAME);
 
-    final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
-    Optional<OidcProfile> oidcProfile = manager.get(true);
+    final ProfileManager manager = new ProfileManager(context, sessionStore);
+    Optional<UserProfile> userProfile = manager.getProfile();
 
-    if (oidcProfile.isPresent()) {
-      String user = oidcProfile.get().getEmail();
+    if (userProfile.isPresent()) {
+      String user = userProfile.get().getUsername();
       Database database = sessionManager.getSession(request).getDatabase();
       if (!database.hasUser(user)) {
         logger.info("Add new OIDC user({}) to database", user);

@@ -38,7 +38,7 @@ public class SecurityConfigFactory {
     oidcConfiguration.setSecret(oidcClientSecret);
     oidcConfiguration.setDiscoveryURI(oidcDiscoveryURI);
 
-    final OidcClient<OidcConfiguration> oidcClient = new OidcClient<>(oidcConfiguration);
+    final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
     final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
