@@ -40,6 +40,15 @@
           :pkey="getPkey(slotProps.row)"
           @close="reload"
         />
+        <RowButtonClone
+          v-if="canEdit"
+          :table="table"
+          :graphqlURL="graphqlURL"
+          :pkey="getPkey(slotProps.row)"
+          @close="reload"
+          :visible-columns="visibleColumnNames"
+          :default-value="defaultValue"
+        />
         <RowButtonDelete
           v-if="canEdit"
           :table="table"
@@ -63,6 +72,7 @@ import TableMixin from "../mixins/TableMixin";
 import RowButtonAdd from "../tables/RowButtonAdd";
 import RowButtonDelete from "../tables/RowButtonDelete";
 import RowButtonEdit from "../tables/RowButtonEdit";
+import RowButtonClone from "../tables/RowButtonClone";
 import MessageWarning from "./MessageWarning";
 import Spinner from "../layout/Spinner";
 
@@ -75,6 +85,7 @@ export default {
     RowButtonDelete,
     RowButtonEdit,
     RowButtonAdd,
+    RowButtonClone,
     Spinner,
     MessageWarning,
   },

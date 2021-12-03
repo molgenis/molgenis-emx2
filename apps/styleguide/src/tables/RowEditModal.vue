@@ -9,8 +9,7 @@
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="
-              (visibleColumns == null ||
-                visibleColumns.includes(column.name)) &&
+              (visibleColumns == null || visibleColumns.includes(column.id)) &&
               visible(column.visible) &&
               column.name != 'mg_tableclass' &&
               //if dependent, show only if dependent value is set
@@ -75,7 +74,7 @@ export default {
     clone: Boolean,
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
-    /** whebn creating new record, this is initialization value */
+    /** when creating new record, this is initialization value */
     defaultValue: Object,
   },
   components: {
@@ -274,8 +273,13 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          //skip key in case of clone
-          if (data[column.id] && (!this.clone || column.key != 1)) {
+          //skip key in case of clone and visible
+          if (
+            data[column.id] &&
+            (!this.clone ||
+              column.key != 1 ||
+              !this.visibleColumns.includes(column.name))
+          ) {
             defaultValue[column.id] = data[column.id];
           }
         });
