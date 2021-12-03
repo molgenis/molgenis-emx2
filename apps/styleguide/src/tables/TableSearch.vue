@@ -30,7 +30,7 @@
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
-          <template v-slot:colheader>
+          <template v-slot:colheader="slotProps">
             <slot
               name="colheader"
               v-bind="$props"
@@ -39,7 +39,7 @@
               :grapqlURL="graphqlURL"
             />
             <RowButtonAdd
-              v-if="canEdit"
+              v-if="canEdit && !slotProps.col"
               :table="table"
               :graphqlURL="graphqlURL"
               @close="reload"

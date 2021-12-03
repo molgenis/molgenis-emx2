@@ -167,6 +167,12 @@ export default {
         this.reload();
       },
     },
+    orderByObject: {
+      deep: true,
+      handler() {
+        this.reload();
+      },
+    },
     table: "reload",
     schema: "reload",
     limit: "reload",
