@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ showOrderBy }}{{ showOrder }}
     <router-link v-if="schema" to="/">< Back to {{ schema.name }}</router-link>
     <TableExplorer
       :table="table"
