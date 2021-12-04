@@ -95,7 +95,11 @@ export default {
   },
   computed: {
     isOidcEnabled() {
-      return this.session.settings["isOidcEnabled"] === "true";
+      return (
+        this.session &&
+        this.session.settings &&
+        this.session.settings["isOidcEnabled"] === "true"
+      );
     },
   },
   methods: {
