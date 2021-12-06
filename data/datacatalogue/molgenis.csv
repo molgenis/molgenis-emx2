@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,1.10
+Version,,,,,,,,,,,1.11
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -273,7 +273,7 @@ AllVariables,,release,ref,1,TRUE,Releases,,,,,release this table definition is p
 AllVariables,,table,ref,1,TRUE,Tables,release,,,,table this variable is part of
 AllVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
 AllVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllVariables,,mappings,refback,,,VariableMappings,,toVariable,,,listing of the VariableMappings defined between this variable and standard/harmonized variables
+AllVariables,,mappings,refback,,,VariableMappings,,toVariable,,,list of mappings between this variable and standard/harmonized variable
 Variables,AllVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 Variables,,label,,,,,,,,,
 Variables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
@@ -298,11 +298,9 @@ Tables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record 
 Tables,,keywords,ontology_array,,,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 Tables,,description,text,,,,,,,,description of the role/function of this table
 Tables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
-Tables,,mappings,refback,,,TableMappings,,toTable,,,list of mappings between this table and standard/harmonized tables
-Tables,,mappingsTo,refback,,,TableMappings,,fromTable,,,
 TableMappings,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 TableMappings,,fromRelease,ref,1,TRUE,Releases,,,,,"release being mapped from, i.e. fromRelease.resource + fromRelease.version"
-TableMappings,,fromTable,ref,1,TRUE,Tables,fromRelease,,,,name of the table being mapped from
+TableMappings,,fromTable,ref_array,1,TRUE,Tables,fromRelease,,,,name of the table being mapped from
 TableMappings,,toRelease,ref,1,TRUE,Releases,,,,,"release being mapped to, i.e. toRelease.resource + toRelease.version"
 TableMappings,,toTable,ref,1,TRUE,Tables,toRelease,,,,name of the table being mapped to
 TableMappings,,order,int,,,,,,,,Order in which table ETLs should be executed for this source-target combination
@@ -318,8 +316,7 @@ VariableValues,,isMissing,bool,,,,,,,,
 VariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
 VariableMappings,,fromRelease,ref,1,TRUE,Releases,,,,,
-VariableMappings,,fromTable,ref,1,TRUE,Tables,fromRelease,,,,
-VariableMappings,,fromVariable,ref_array,,,AllVariables,fromTable,,,,"optional, variable. Initially one may only define mapping between releases"
+VariableMappings,,fromVariable,ref_array,,,AllVariables,fromRelease,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
 VariableMappings,,toRelease,ref,1,TRUE,Releases,,,,,
 VariableMappings,,toTable,ref,1,TRUE,Tables,toRelease,,,,
 VariableMappings,,toVariable,ref,1,TRUE,AllVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
