@@ -38,3 +38,4 @@ procedure is to update.
 | 1.10=> 1.11 | Deleted VariableMappings.fromTable, Tables.mappingsTo, Tables.mappings | 
 | | AllVariables.fromVariable reflink changed to fromRelease |
 | | AllVariables.mappings changed to refback on VariableMappings.toVariable, TableMappings.fromTable changed to ref_array |
+| | To update data download data and: 1. update molgenis sheet or molgenis.csv 2. change column names in VariableMappings: 'fromTable' to 'fromVariable.table', 'fromVariable' to 'fromVariable.name'; 3. clear data from column 'fromVariable.table' if 'fromVariable.name' is empty; 4. change data in column 'fromVariable.table' to a comma-separated array containing the corresponing tables for the variables listed in 'fromVariable.name'; 5. reupload data in new schema |
