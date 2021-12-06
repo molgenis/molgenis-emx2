@@ -32,14 +32,7 @@
           >{{ session.manifest.SpecificationVersion }}</a
         >.
         <span v-if="session.manifest.DatabaseVersion"
-          >Database version:
-          <a
-            :href="
-              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
-              session.manifest.DatabaseVersion
-            "
-            >{{ session.manifest.DatabaseVersion }}</a
-          >.</span
+          >Database version: {{ session.manifest.DatabaseVersion }}.</span
         >
       </span>
     </Footer>

@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "ckeditor4-vue": "1.4.0",
-    "core-js": "3.19.1",
-    "graphql-request": "3.6.1",
+    "core-js": "3.19.3",
+    "graphql-request": "3.7.0",
     "vue": "2.6.14",
     "vue-router": "3.5.3"
   },

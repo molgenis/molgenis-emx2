@@ -13,6 +13,10 @@
       @update:showPage="updatePage"
       :showLimit="showLimit"
       @update:showLimit="updateLimit"
+      :showOrderBy="showOrderBy"
+      @update:showOrderBy="updateOrderBy"
+      :showOrder="showOrder"
+      @update:showOrder="updateOrder"
       :key="timestamp"
     />
   </div>
@@ -33,6 +37,22 @@ export default {
     TableExplorer,
   },
   methods: {
+    updateOrderBy(showOrderBy) {
+      this.query = Object.assign({}, this.$route.query);
+      this.query._orderBy = showOrderBy;
+      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: this.query });
+      }
+    },
+    updateOrder(showOrder) {
+      this.query = Object.assign({}, this.$route.query);
+      if (showOrder) {
+        this.query._order = showOrder;
+      }
+      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: this.query });
+      }
+    },
     updatePage(showPage) {
       this.query = Object.assign({}, this.$route.query);
       this.query._page = showPage;
@@ -94,6 +114,20 @@ export default {
         return this.schema.tables.filter((t) => t.name == this.table)[0];
       }
       return null;
+    },
+    showOrderBy() {
+      if (this.$route.query._orderBy) {
+        return this.$route.query._orderBy;
+      } else {
+        return null;
+      }
+    },
+    showOrder() {
+      if (this.$route.query._order) {
+        return this.$route.query._order;
+      } else {
+        return null;
+      }
     },
     showColumns() {
       if (this.$route.query._col) {

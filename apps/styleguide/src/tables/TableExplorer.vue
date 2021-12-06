@@ -138,22 +138,35 @@
             :table-metadata="tableMetadata"
             :data="data"
             :showSelect="showSelect"
+            @column-click="onColumnClick"
             @click="$emit('click', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
             </template>
-            <template v-slot:colheader>
+            <template v-slot:colheader="slotProps">
               <RowButtonAdd
-                v-if="canEdit"
+                v-if="canEdit && !slotProps.col"
                 :table="table"
                 :graphqlURL="graphqlURL"
                 @close="reload"
                 class="d-inline p-0"
               />
+              <IconAction
+                v-if="slotProps.col && orderByColumn == slotProps.col.id"
+                :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButtonEdit
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
+              />
+              <RowButtonClone
                 v-if="canEdit"
                 :table="table"
                 :graphqlURL="graphqlURL"
@@ -183,6 +196,7 @@ import MessageError from "../forms/MessageError";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonDelete from "./RowButtonDelete";
 import RowButtonEdit from "./RowButtonEdit";
+import RowButtonClone from "./RowButtonClone";
 import Spinner from "../layout/Spinner";
 import TableMixin from "../mixins/TableMixin";
 import ShowHide from "./ShowHide";
@@ -209,6 +223,7 @@ export default {
     FilterWells,
     RowButtonEdit,
     RowButtonAdd,
+    RowButtonClone,
     RowButtonDelete,
     ShowHide,
     InputSearch,
@@ -259,6 +274,13 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    showOrderBy: {
+      type: String,
+    },
+    showOrder: {
+      type: String,
+      default: () => "ASC",
+    },
   },
   data() {
     return {
@@ -271,9 +293,25 @@ export default {
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
       view: View.TABLE,
+      orderByColumn: null,
+      order: "ASC",
     };
   },
   methods: {
+    onColumnClick(column) {
+      let orderByColumn = this.orderByColumn;
+      let order = this.order;
+      if (orderByColumn != column.id) {
+        orderByColumn = column.id;
+        order = "ASC";
+      } else if (order == "ASC") {
+        order = "DESC";
+      } else {
+        order = "ASC";
+      }
+      this.$emit("update:showOrderBy", orderByColumn);
+      this.$emit("update:showOrder", order);
+    },
     toggleView() {
       if (this.view == View.TABLE) {
         this.view = View.CARDS;
@@ -348,6 +386,16 @@ export default {
       return false;
     },
     //overrides from TableMixin
+    orderByObject() {
+      if (this.orderByColumn) {
+        let result = {};
+        result[this.orderByColumn] = this.order;
+        return result;
+      } else {
+        return {};
+      }
+    },
+    //overrides from TableMixin
     graphqlFilter() {
       let filter = this.filter ? this.filter : {};
       if (this.columns) {
@@ -401,6 +449,14 @@ export default {
       this.$emit("update:showPage", this.page);
       this.reload();
     },
+    showOrderBy() {
+      this.orderByColumn = this.showOrderBy;
+      this.$emit("update:showOrderBy", this.showOrderBy);
+    },
+    showOrder() {
+      this.order = this.showOrder;
+      this.$emit("update:showOrder", this.showOrder);
+    },
     showPage() {
       this.page = this.showPage;
     },
@@ -410,6 +466,8 @@ export default {
     tableMetadata() {
       this.page = this.showPage;
       this.limit = this.showLimit;
+      this.orderByColumn = this.showOrderBy;
+      this.order = this.showOrder;
       if (this.columns.length == 0) {
         this.columns.push(...this.tableMetadata.columns);
         // //init settings
@@ -475,10 +533,13 @@ example (graphqlURL is usually not needed because app is served on right path)
         graphqlURL="/pet store/graphql"
         :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
         :showPage.sync="page" :showLimit.sync="limit"
+        :showOrderBy.sync="showOrderBy" :showOrder.sync="showOrder"
         :conditions.sync="conditions"/>
     showColumns: {{ showColumns }}<br/>
     showFilters: {{ showFilters }}<br/>
     conditions: {{ conditions }} <br/>
+    showOrderBy: {{ showOrderBy }} <br/>
+    showOrder: {{ showOrder }} <br/>
     page: {{ page }}<br/>
     limit: {{ limit }}
 
@@ -488,7 +549,12 @@ example (graphqlURL is usually not needed because app is served on right path)
   export default {
     data() {
       return {
-        showColumns: ['name'], showFilters: ['name'], conditions: {"name": ["pooky", "spike"]}, page: 1, limit: 10
+        showColumns: ['name'],
+        showFilters: ['name'],
+        conditions: {"name": ["pooky", "spike"]},
+        page: 1,
+        limit: 10,
+        showOrder: 'DESC', showOrderBy: 'name'
       }
     },
     methods: {
@@ -522,7 +588,13 @@ example with spaces in name
   export default {
     data() {
       return {
-        showColumns: ['name'], showFilters: ['name'], page: 1, limit: 10
+        showColumns: ['name'],
+        showFilters: ['name'],
+        page: 1,
+        limit: 10,
+        conditions: {},
+        showOrder: null,
+        showOrderBy: null
       }
     },
     methods: {

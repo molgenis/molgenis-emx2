@@ -8,6 +8,7 @@
     "schema",
     "tables",
     "updownload",
-    "pages"
+    "pages",
+    "graphql-playground"
   ]
 }

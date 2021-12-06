@@ -18,9 +18,13 @@ services:
       - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenisdb
       - MOLGENIS_POSTGRES_USER=molgenis_admin
       - MOLGENIS_POSTGRES_PASS=molgenis_admin
+#      - MOLGENIS_OIDC_CLIENT_ID=[]
+#      - MOLGENIS_OIDC_CLIENT_SECRET=[]
+#      - MOLGENIS_OIDC_CLIENT_NAME=MolgenisAuth
+#      - MOLGENIS_OIDC_DISCOVERY_URI=https://auth.molgenis.org/.well-known/openid-configuration/
+#      - MOLGENIS_OIDC_CALLBACK_URL=http://localhost:8080
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     restart: on-failure
-

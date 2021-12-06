@@ -59,8 +59,6 @@ public class TestGraphqSchemaFields {
 
     // remove value
     execute("mutation{drop(settings:{key:\"test\"}){message}}");
-
-    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
   }
 
   @Test
@@ -70,19 +68,17 @@ public class TestGraphqSchemaFields {
     execute("mutation{change(settings:{key:\"setB\",value:\"valB\"}){message}}");
 
     // fetch by key
-    assertEquals(1, execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings").size());
+    assertEquals(2, execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings").size());
     assertEquals(
         "valB",
         execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // return all without key
-    assertEquals(2, execute("{_settings{key,value}}").at("/_settings").size());
+    assertEquals(3, execute("{_settings{key,value}}").at("/_settings").size());
 
     // remove value
     execute("mutation{drop(settings:{key:\"setA\"}){message}}");
     execute("mutation{drop(settings:{key:\"setB\"}){message}}");
-
-    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
   }
 
   @Test
@@ -91,15 +87,12 @@ public class TestGraphqSchemaFields {
     execute("mutation{change(settings:{key:\"page.mypage\",value:\"page value\"}){message}}");
 
     // include all pages
-    assertEquals(1, execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings").size());
     assertEquals(
         "page value",
         execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // remove value
     execute("mutation{drop(settings:{key:\"page.mypage\"}){message}}");
-
-    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
   }
 
   @Test

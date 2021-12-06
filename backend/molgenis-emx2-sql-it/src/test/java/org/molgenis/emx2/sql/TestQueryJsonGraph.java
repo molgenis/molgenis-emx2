@@ -105,7 +105,7 @@ public class TestQueryJsonGraph {
 
     result = s.retrieveJSON();
     System.out.println(result);
-    assertTrue(result.contains("\"children\":[{\"name\":\"kind\"}]}"));
+    assertTrue(result.contains("\"children\": [{\"name\": \"kind\"}]}"));
 
     // smoke test limit offset
     s = schema.getTable("Person").query();

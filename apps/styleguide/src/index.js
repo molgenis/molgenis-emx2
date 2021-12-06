@@ -57,6 +57,8 @@ import RecordCard from "./tables/RecordCard";
 import RowCard from "./tables/RowCard";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonClone from "./tables/RowButtonClone";
+
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
@@ -78,6 +80,8 @@ import TextDisplay from "./tables/cellTypes/TextDisplay";
 import FileDisplay from "./tables/cellTypes/FileDisplay";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
+
+import MolgenisSignin from "./layout/MolgenisSignin.vue";
 
 export {
   ButtonAction,
@@ -133,6 +137,7 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowButtonClone,
   RowFormInput,
   RenderValue,
   SelectionBox,
@@ -149,4 +154,5 @@ export {
   ObjectDisplay,
   TextDisplay,
   FileDisplay,
+  MolgenisSignin,
 };
