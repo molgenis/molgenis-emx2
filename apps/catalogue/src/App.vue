@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <Molgenis v-model="session" :key="JSON.stringify(session)">
+    <Molgenis
+      v-model="session"
+      :key="JSON.stringify(session)"
+      style="background-color: white"
+    >
       <Spinner v-if="!session || !session.roles" />
       <div v-else-if="!session.roles || !session.roles.includes('Viewer')">
         <h1 class="text-centered">You have to login to view the data.</h1>

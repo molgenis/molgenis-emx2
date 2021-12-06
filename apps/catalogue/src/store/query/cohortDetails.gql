@@ -1,0 +1,119 @@
+query Cohorts($pid: String) {
+  Cohorts(filter: { pid: { equals: [$pid] } }) {
+    name
+    logo {
+      url
+    }
+    design {
+      name
+    }
+    collectionType {
+      name
+    }
+    keywords
+    pid
+    externalIdentifiers
+    contributors {
+      contact {
+        firstName
+        surname
+      }
+      contributionType {
+        name
+      }
+    }
+    partners {
+      institution {
+        name
+        pid
+      }
+      role {
+        name
+      }
+    }
+    countries {
+      name
+    }
+    linkageOptions
+    numberOfParticipants
+    dataAccessConditionsDescription
+    dataAccessConditions {
+      name
+      ontologyTermURI
+      code
+      definition
+    }
+    startYear
+    endYear
+    type {
+      name
+      definition
+      ontologyTermURI
+    }
+    institution {
+      pid
+      name
+    }
+    description
+    website
+    documentation {
+      name
+      file {
+        url
+      }
+      url
+    }
+    networks {
+      pid
+      name
+    }
+    acknowledgements
+    fundingStatement
+    designPaper
+    collectionEvents {
+      name
+      description
+      startYear {
+        name
+      }
+      endYear {
+        name
+      }
+      numberOfParticipants
+      ageGroups {
+        name
+      }
+      dataCategories {
+        name
+      }
+      sampleCategories {
+        name
+      }
+      areasOfInformation {
+        name
+      }
+      subcohorts {
+        name
+      }
+    }
+    subcohorts {
+      name
+      description
+      numberOfParticipants
+      ageGroups {
+        name
+      }
+      mainMedicalCondition {
+        name
+      }
+      countries {
+        name
+      }
+      regions {
+        name
+      }
+      inclusionCriteria
+      supplementaryInformation
+    }
+  }
+}

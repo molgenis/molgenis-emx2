@@ -14,6 +14,7 @@ import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
+import NewCohortView from "./views/NewCohortView";
 import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
 
@@ -187,6 +188,11 @@ const router = new VueRouter({
       name: "Cohorts-details",
       path: "/cohorts/:pid",
       component: CohortView,
+      props: true,
+    },
+    {
+      path: "/new-cohorts/:pid",
+      component: NewCohortView,
       props: true,
     },
     {
