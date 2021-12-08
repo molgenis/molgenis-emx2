@@ -1,11 +1,18 @@
 <template>
-  <div class="row">
-    <div class="col-9">
-      <h1>{{ title }}</h1>
-    </div>
+  <div>
+    <div class="row">
+      <div class="col-9">
+        <h1>{{ title }}</h1>
+      </div>
 
-    <div class="col-3">
-      <img v-if="logoUrl" :src="logoUrl" class="" alt="cohort logo" />
+      <div class="col-3 d-flex flex-row-reverse">
+        <img
+          v-if="logoUrl"
+          class="justify-content-center align-self-center"
+          :src="logoUrl"
+          alt="cohort logo"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -27,9 +34,6 @@ export default {
 </script>
 
 <style scoped>
-.row .col-9 {
-  padding-left: 0;
-}
 img {
   /* same as heading */
   height: 2.5rem;

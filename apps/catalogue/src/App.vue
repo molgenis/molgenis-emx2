@@ -3,7 +3,6 @@
     <Molgenis
       v-model="session"
       :key="JSON.stringify(session)"
-      style="background-color: white"
     >
       <Spinner v-if="!session || !session.roles" />
       <div v-else-if="!session.roles || !session.roles.includes('Viewer')">

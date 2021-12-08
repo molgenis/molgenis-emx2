@@ -6,7 +6,7 @@ const fetchById = async (pid) => {
   if (!cache[pid]) {
     cache[pid] = (
      await request("graphql", cohortQuery, { pid }).catch((e) => {
-        console.error(`cohort(pid: ${pid}) not found`);
+        console.error(`Error fetching data for cohort (pid: ${pid})`);
         console.error(e);
       })
     ).Cohorts[0];

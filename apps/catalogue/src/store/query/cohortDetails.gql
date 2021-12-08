@@ -1,6 +1,7 @@
 query Cohorts($pid: String) {
   Cohorts(filter: { pid: { equals: [$pid] } }) {
     name
+    contactEmail
     logo {
       url
     }
@@ -17,9 +18,29 @@ query Cohorts($pid: String) {
       contact {
         firstName
         surname
+        prefix
+        initials
+        department
+        email
+        orcid
+        homepage
+        title {
+          name
+        }
+        institution {
+          name
+        }
+        photo {
+          id
+          url
+          size
+          extension
+        }
+        expertise
       }
       contributionType {
         name
+        order
       }
     }
     partners {
