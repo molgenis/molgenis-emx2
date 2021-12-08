@@ -181,6 +181,9 @@ export default {
               countries {
                 name
               }
+              regions {
+                name
+              }
               linkageOptions
               numberOfParticipants
               dataAccessConditionsDescription
