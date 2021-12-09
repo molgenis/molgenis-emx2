@@ -28,6 +28,8 @@
 import { Spinner } from "@mswertz/emx2-styleguide";
 import VariableListItem from "../components/VariableListItem.vue";
 import { mapGetters, mapActions, mapState } from "vuex";
+import { fetchDetails } from "../store/repository/variableRepository";
+
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
@@ -39,9 +41,13 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
+    ...mapActions(["fetchAdditionalVariables"]),
     async handleVariableDetailsRequest(variable) {
-      const result = await this.fetchVariableDetails(variable);
+      const result = await fetchDetails(
+        variable.name,
+        variable.release.resource.pid,
+        variable.release.version
+      );
       this.$set(variable, "variableDetails", result);
     },
   },

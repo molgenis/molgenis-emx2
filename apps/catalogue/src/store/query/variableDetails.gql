@@ -29,15 +29,11 @@ query Variables($filter: VariablesFilter) {
       }
       fromVariable {
         name
-      }
-      fromTable {
         release {
           resource {
-            pid
+            acronym
           }
-          version
         }
-        name
       }
     }
     repeats {
@@ -55,15 +51,11 @@ query Variables($filter: VariablesFilter) {
         }
         fromVariable {
           name
-        }
-        fromTable {
           release {
             resource {
-              pid
+              acronym
             }
-            version
           }
-          name
         }
       }
     }
