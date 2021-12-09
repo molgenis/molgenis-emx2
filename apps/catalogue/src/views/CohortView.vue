@@ -23,7 +23,7 @@
         <h6>Countries</h6>
         <OntologyTerms :terms="cohort.countries" color="primary" />
         <h6>Regions</h6>
-        <OntologyTerms :terms="cohort.countries" color="primary" />
+        <OntologyTerms :terms="cohort.regions" color="primary" />
         <h6 v-if="cohort.numberOfParticipants">Number of participants:</h6>
         <p v-if="cohort.numberOfParticipants">
           {{ cohort.numberOfParticipants }}
@@ -179,6 +179,9 @@ export default {
                 }
               }
               countries {
+                name
+              }
+              regions {
                 name
               }
               linkageOptions

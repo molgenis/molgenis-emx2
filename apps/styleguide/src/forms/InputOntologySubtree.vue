@@ -1,9 +1,10 @@
 <template>
   <ul style="list-style-type: none">
     <li v-for="term in terms" :key="term.name">
-      <div class="d-flex">
+      <!--show if selected or search-->
+      <div class="d-flex overflow-auto" v-if="visible(term)">
         <i
-          class="fa-fw pl-2 pt-1"
+          class="fa-fw pl-2 pt-1 ml-3"
           role="button"
           :class="expandState(term)"
           @click="toggleExpand(term)"
@@ -20,15 +21,19 @@
           role="button"
         >
           {{ term.name }}
-          <span v-if="term.children">({{ term.children.length }})</span></span
+          <small v-if="term.definition" class="text-muted">
+            <i> - {{ term.definition }}</i></small
+          >
+          <span v-if="term.children">({{ countChildren(term) }})</span></span
         >
       </div>
       <InputOntologySubtree
-        v-if="expanded.indexOf(term.name) >= 0"
+        v-if="expanded.indexOf(term.name) >= 0 || hasSearch"
         :expanded="expanded"
         :selection="selection"
         :terms="term.children"
         :list="list"
+        :search="search"
         @select="select(term, $event)"
         @deselect="$emit('deselect', $event)"
         @toggleExpand="$emit('toggleExpand', $event)"
@@ -45,13 +50,43 @@ export default {
     selection: Array,
     expanded: Array,
     list: { type: Boolean, default: false },
+    search: String,
   },
   computed: {
     hasChildren() {
       return this.terms.filter((t) => t.children).length > 0;
     },
+    hasSearch() {
+      return this.search && this.search.length > 0;
+    },
   },
   methods: {
+    countChildren(term) {
+      {
+        {
+          if (term.children) {
+            return term.children.filter((t) => this.visible(t)).length;
+          } else {
+            return 0;
+          }
+        }
+      }
+    },
+    visible(term) {
+      if (!this.search) {
+        return true;
+      }
+      //visible when matches search, or if children have search (recursive)
+      else if (
+        this.search
+          .split(" ")
+          .every((t) => term.name.toLowerCase().includes(t.toLowerCase())) ||
+        (term.children && term.children.some((t) => this.visible(t)))
+      ) {
+        return true;
+      }
+      return false;
+    },
     select(self, items) {
       //if all children selected then also select 'self'
       if (self.children) {
@@ -66,7 +101,10 @@ export default {
     expandState(item) {
       if (!item.children) {
         return "fas fa-angle-right invisible";
-      } else if (this.expanded.includes(item.name)) {
+      } else if (
+        this.expanded.includes(item.name) &&
+        item.children.some((t) => this.visible(t))
+      ) {
         return "fas fa-angle-down";
       } else {
         return "fas fa-angle-right";
