@@ -8,7 +8,19 @@
     <div v-else-if="items.length > 1">
       <div v-for="(item, index) in items" :key="index">
         <strong>{{ item.label }}</strong>
-        <p>{{ item.value }}</p>
+        <template v-if="Array.isArray(item.value)">
+          <ul class="list-unstyled">
+            <li
+              v-for="(valueItem, valueItemIndex) in item.value"
+              :key="valueItemIndex"
+            >
+              {{ valueItem }}
+            </li>
+          </ul>
+        </template>
+        <template v-else>
+          <p>{{ item.value }}</p>
+        </template>
       </div>
     </div>
   </grid-block>

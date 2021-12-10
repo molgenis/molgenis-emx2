@@ -167,7 +167,12 @@ export default {
         },
         {
           label: "Population",
-          value: "geen idee",
+          value: this.cohort.countries
+            ? [...this.cohort.countries]
+                .sort((a, b) => a.order - b.order)
+                .map((c) => c.name)
+                .join(",")
+            : "",
         },
         {
           label: "Number of participants",
@@ -175,7 +180,7 @@ export default {
         },
         {
           label: "Age group at inclusion",
-          value: "geen idee",
+          value: this.cohort.populationAgeGroups.map((pag) => pag.name),
         },
       ];
     },
