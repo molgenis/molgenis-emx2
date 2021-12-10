@@ -1,19 +1,46 @@
 query Cohorts($pid: String) {
   Cohorts(filter: { pid: { equals: [$pid] } }) {
+    pid
     name
     contactEmail
+    keywords
+    acknowledgements
+    fundingStatement
+    designPaper
+    externalIdentifiers
+    description
+    website
+    startYear
+    endYear
+    linkageOptions
+    numberOfParticipants
+    dataAccessConditionsDescription
+    releaseDescription
+    countries {
+      name
+      order
+    }
+    regions {
+      name
+      order
+    }
+    populationAgeGroups {
+      name
+    }
     logo {
       url
     }
     design {
       name
     }
+    type {
+      name
+      definition
+      ontologyTermURI
+    }
     collectionType {
       name
     }
-    keywords
-    pid
-    externalIdentifiers
     contributors {
       contact {
         firstName
@@ -42,41 +69,33 @@ query Cohorts($pid: String) {
         name
         order
       }
+      contributionDescription
     }
     partners {
       institution {
         name
         pid
+        logo {
+          id
+          url
+          size
+          extension
+        }
       }
       role {
         name
       }
     }
-    countries {
-      name
-    }
-    linkageOptions
-    numberOfParticipants
-    dataAccessConditionsDescription
     dataAccessConditions {
       name
       ontologyTermURI
       code
       definition
     }
-    startYear
-    endYear
-    type {
-      name
-      definition
-      ontologyTermURI
-    }
     institution {
       pid
       name
     }
-    description
-    website
     documentation {
       name
       file {
@@ -88,9 +107,6 @@ query Cohorts($pid: String) {
       pid
       name
     }
-    acknowledgements
-    fundingStatement
-    designPaper
     collectionEvents {
       name
       description

@@ -1,25 +1,26 @@
 <template>
-  <div class="">
-    <h5 class="w-100" v-if="heading">{{ heading }}</h5>
-    <template v-if="items.length === 1">
-      <h5 v-if="!heading">{{ items[0].label }}</h5>
-      <read-more :text="items[0].value" :length="750" />
-    </template>
-    <div v-else>
-      <div class="w-100" v-for="(item, index) in items" :key="index">
+  <grid-block :heading="computedHeading">
+    <read-more
+      v-if="items.length === 1 && items[0].value"
+      :text="items[0].value"
+      :length="750"
+    />
+    <div v-else-if="items.length > 1">
+      <div v-for="(item, index) in items" :key="index">
         <strong>{{ item.label }}</strong>
         <p>{{ item.value }}</p>
       </div>
     </div>
-  </div>
+  </grid-block>
 </template>
 
 <script>
 import { ReadMore } from "@mswertz/emx2-styleguide";
+import GridBlock from "./GridBlock.vue";
 
 export default {
   name: "KeyValueBlock",
-  components: { ReadMore },
+  components: { GridBlock, ReadMore },
   props: {
     heading: {
       type: String,
@@ -34,7 +35,17 @@ export default {
      */
     items: {
       type: Array,
-      required: true,
+      required: false,
+      default: () => [],
+    },
+  },
+  computed: {
+    computedHeading() {
+      return this.heading
+        ? this.heading
+        : this.items.length === 1
+        ? this.items[0].label
+        : null;
     },
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <span class="mr-3" v-for="(item, index) in items" :key="index">
       <span class="font-weight-bold pr-1">{{ item.label }}</span>
       <span v-show="item.text" class="">{{ item.text }}</span>
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "LinksBlock",
+  name: "LinksList",
   props: {
     /**
      * List of link items

@@ -1,93 +1,138 @@
 <template>
   <div v-if="cohort" class="container">
-    <page-header-vue
-      class="card block"
-      :title="cohort.name"
-      :logoUrl="cohort.logo.url"
-    ></page-header-vue>
+    <grid-block>
+      <page-header-vue
+        :title="cohort.name"
+        :logoUrl="cohort.logo.url"
+      ></page-header-vue>
+    </grid-block>
 
-    <links-block
-      class="card block"
-      :items="[
-        {
-          label: 'Website',
-          href: cohort.website,
-        },
-        {
-          label: 'Contact',
-          href: cohort.contactEmail,
-        },
-      ]"
-    ></links-block>
-
-    <div class="card-columns">
-      <key-value-block
-        class="card block"
+    <grid-block>
+      <links-list
         :items="[
           {
-            label: 'Description',
-            value: cohort.description,
+            label: 'Website',
+            href: cohort.website,
           },
-        ]"
-      ></key-value-block>
-      <key-value-block
-        class="card block"
-        :items="[
           {
-            label: 'Marker paper',
-            value: cohort.description,
+            label: 'Contact',
+            href: cohort.contactEmail,
           },
         ]"
+      ></links-list>
+    </grid-block>
+
+    <div class="card-columns card-columns-2">
+      <key-value-block
+        :items="[{ label: 'Description', value: cohort.description }]"
       ></key-value-block>
 
-      <div class="">
-        <key-value-block
-          class="card block"
-          heading="General design"
-          :items="generalDesignItems"
-        ></key-value-block>
-      </div>
+      <key-value-block
+        :items="[{ label: 'Marker paper', value: cohort.designPaper }]"
+      ></key-value-block>
+
+      <key-value-block
+        heading="General design"
+        :items="generalDesignItems"
+      ></key-value-block>
     </div>
 
-    <contacts-block
-      class="card block"
-      heading="Contributors"
-      :items="cohort.contributors"
-    ></contacts-block>
-
-    <div class="row">
-      <div class="col">
-        <div class="block row">
-          <p class="">Hier een lijst met logo's</p>
-        </div>
+    <grid-block heading="Contributors">
+      <div class="card-columns">
+        <contact-details
+          v-for="(contributor, index) in cohort.contributors"
+          :key="index"
+          :contact="contributor.contact"
+          :contributionType="contributor.contributionType"
+          :contributionDescription="contributor.contributionDescription"
+        ></contact-details>
       </div>
+    </grid-block>
+
+    <grid-block heading="Partners">
+      <div v-for="(partner, index) in cohort.partners" :key="index">
+        <image-render
+          v-if="
+            partner &&
+            partner.institution &&
+            partner.institution.logo &&
+            partner.institution.logo.url
+          "
+          style="width: 100px; height: 100px"
+          :url="partner.institution.logo.url"
+        ></image-render>
+      </div>
+    </grid-block>
+
+    <grid-block heading="Networks">
+      <p class="">Hier een lijst met netwerk logo's</p>
+    </grid-block>
+
+    <grid-block heading="Available data & samples">
+      <strong>Data categories</strong>
+      <strong>Areas of information</strong>
+      <strong>Sample categories</strong>
+    </grid-block>
+
+    <grid-block heading="Subpopulations">
+      <table></table>
+    </grid-block>
+
+    <grid-block heading="Collection events">
+      <table></table>
+    </grid-block>
+
+    <div class="card-columns card-columns-2">
+      <grid-block heading="Access conditions">
+        <ul>
+          <li
+            v-for="(condition, index) in cohort.dataAccessConditions"
+            :key="index"
+          >
+            {{ condition.name }}
+          </li>
+        </ul>
+        <p>{{ cohort.dataAccessConditionsDescription }}</p>
+        <p>{{ cohort.releaseDescription }}</p>
+      </grid-block>
+
+      <grid-block heading="Linkage options">
+        <p>
+          {{ cohort.linkageOptions }}
+        </p>
+      </grid-block>
     </div>
   </div>
 </template>
 
 <style scoped>
-.block {
-  margin-bottom: 1rem;
-  padding: 1rem;
-}
-
 @media (min-width: 576px) {
-  .card-columns {
+  .card-columns-2 {
     column-count: 2;
   }
 }
 </style>
 
 <script>
-import PageHeaderVue from "../components/blocks/PageHeader.vue";
-import LinksBlock from "../components/blocks/LinksBlock.vue";
-import KeyValueBlock from "../components/blocks/KeyValueBlock.vue";
-import ContactsBlock from "../components/blocks/ContactsBlock.vue";
 import { fetchById } from "../store/repository/cohortRepository";
-import { fetchSchemaMetaData } from "../store/repository/metaDataRepository";
+// import { fetchSchemaMetaData } from "../store/repository/metaDataRepository";
+import PageHeaderVue from "../components/blocks/PageHeader.vue";
+import LinksList from "../components/blocks/LinksList.vue";
+import KeyValueBlock from "../components/blocks/KeyValueBlock.vue";
+import ContactDetails from "../components/ContactDetails.vue";
+import GridBlock from "../components/blocks/GridBlock.vue";
+import ImageRender from "../components/blocks/ImageRender.vue";
+
 export default {
   name: "CohortView",
-  components: { PageHeaderVue, LinksBlock, KeyValueBlock, ContactsBlock },
+  components: {
+    GridBlock,
+    PageHeaderVue,
+    LinksList,
+    KeyValueBlock,
+    ContactDetails,
+    ImageRender,
+  },
   data() {
     return {
       cohort: null,
@@ -99,15 +144,19 @@ export default {
       return [
         {
           label: "Type",
-          value: this.cohort.collectionType[0].name,
+          value: this.cohort.collectionType
+            ? this.cohort.collectionType[0].name
+            : "na",
         },
         {
           label: "Design",
-          value: this.cohort.design.name,
+          value: this.cohort.design ? this.cohort.design.name : "na",
         },
         {
           label: "Collection type",
-          value: this.cohort.collectionType[0].name,
+          value: this.cohort.collectionType
+            ? this.cohort.collectionType[0].name
+            : "",
         },
         {
           label: "Start/End year",
@@ -140,9 +189,9 @@ export default {
     async fetchData() {
       this.cohort = await fetchById(this.$route.params.pid);
     },
-    async fetchMetaData() {
-      this.metaData = await fetchSchemaMetaData();
-    },
+    // async fetchMetaData() {
+    //   this.metaData = await fetchSchemaMetaData();
+    // },
   },
   mounted: async function () {
     this.fetchData();
