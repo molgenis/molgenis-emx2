@@ -65,7 +65,20 @@
     </grid-block>
 
     <grid-block heading="Networks">
-      <p class="">Hier een lijst met netwerk logo's</p>
+      <div class="card-deck">
+        <div
+          class="card"
+          v-for="(network, index) in cohort.networks"
+          :key="index"
+        >
+          <image-render
+            v-if="network && network.logo && network.logo.url"
+            :url="network.logo.url"
+            :alt="network.name"
+          ></image-render>
+          <div v-else>{{ network.pid }}</div>
+        </div>
+      </div>
     </grid-block>
 
     <grid-block heading="Available data & samples">
@@ -110,6 +123,10 @@
   .card-columns-2 {
     column-count: 2;
   }
+}
+
+.card {
+  border: 0;
 }
 </style>
 
