@@ -9,5 +9,6 @@ public class BeaconInformationalResponseMeta {
   String apiVersion;
 
   // Set of schemas to be used in the response to a request
+  // entities in this case are 'dataset' (not the tables, but the exposed endpoints)
   SchemasPerEntity[] returnedSchemas;
 }

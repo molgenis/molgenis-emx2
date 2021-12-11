@@ -14,6 +14,8 @@ import spark.Response;
 public class BeaconApi {
 
   public static void create() {
+
+    // framework
     get("/:schema/beacon/", BeaconApi::getInfo);
     get("/:schema/beacon/info", BeaconApi::getInfo);
     get("/:schema/beacon/service-info", BeaconApi::getServiceInfo);
@@ -21,10 +23,11 @@ public class BeaconApi {
     get("/:schema/beacon/map", BeaconApi::getMap);
     get("/:schema/beacon/entry_types", BeaconApi::getEntryTypes);
     get("/:schema/beacon/filtering_terms", BeaconApi::getFilteringTerms);
+
+    // datasets model
     get("/:schema/beacon/datasets", BeaconApi::getDatasets);
     get("/:schema/beacon/datasets/:table", BeaconApi::getDatasetsForTable);
-
-    // these are the actual queries
+    // these are the interesting queries
     post("/:schema/beacon/datasets", BeaconApi::postDatasets);
     post("/:schema/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }

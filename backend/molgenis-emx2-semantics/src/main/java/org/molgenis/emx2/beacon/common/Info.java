@@ -13,17 +13,6 @@ public class Info {
     BeaconEnvironment environment;
     BeaconOrganization organization;
 
-    public enum BeaconEnvironment {
-      PROD,
-      TEST,
-      DEV,
-      STAGING;
-
-      public String toString() {
-        return name().toLowerCase();
-      }
-    }
-
     public static class BeaconOrganization {
       String id;
       String name;

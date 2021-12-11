@@ -1,5 +1,7 @@
 package org.molgenis.emx2.beacon.responses;
 
+import org.molgenis.emx2.beacon.common.BeaconEnvironment;
+
 // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/responses/ga4gh-service-info-1-0-0-schema.json
 public class BeaconServiceInfoResponse {
   // "Unique ID of this service. Reverse domain name notation is recommended, though not required.
@@ -12,13 +14,16 @@ public class BeaconServiceInfoResponse {
   ServiceType type;
 
   // Description of the service. Should be human readable and provide information about the service.
+  // todo, use schema description?
   String description;
 
   // Organization providing the service
+  // todo, probably requires us to create org metadata in a schema
   Organization organization;
 
   // URL of the contact for the provider of this service, e.g. a link to a contact form (RFC 3986
   // format), or an email (RFC 2368 format).
+  // todo, probably requires us to create org metadata in a schema
   String contactUrl;
 
   // URL of the documentation of this service (RFC 3986 format). This should help someone learn how
@@ -34,11 +39,12 @@ public class BeaconServiceInfoResponse {
   // Environment the service is running in. Use this to distinguish between production, development
   // and testing/staging deployments. Suggested values are prod, test, dev, staging. However this is
   // advised and not enforced.
-  String environment;
+  BeaconEnvironment environment;
 
   // Version of the service being described. Semantic versioning is recommended, but other
   // identifiers, such as dates or commit hashes, are also allowed. The version should be changed
   // whenever the service is updated.
+  // todo: molgenis version?
   String version;
 
   // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/responses/ga4gh-service-info-1-0-0-schema.json
