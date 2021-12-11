@@ -66,8 +66,8 @@ public class BeaconApi {
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
-    // should be subtyp of BeaconQueryResponse
-    return new ObjectMapper().writeValueAsString(new BeaconQueryResponse());
+    // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
+    return new ObjectMapper().writeValueAsString(null);
   }
 
   private static String postDatasets(Request request, Response response)
@@ -75,13 +75,15 @@ public class BeaconApi {
     // should parse body into
     BeaconRequestBody requestBody = null; // todo
 
-    return new ObjectMapper().writeValueAsString(new BeaconQueryResponse());
+    // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
+    return new ObjectMapper().writeValueAsString(null);
   }
 
   private static Object getDatasetsForTable(Request request, Response response)
       throws JsonProcessingException {
 
-    return new ObjectMapper().writeValueAsString(new BeaconQueryResponse());
+    // result should be BeaconBooleanResponse, BeaconCountResponse or beaconResultsetsResponse
+    return new ObjectMapper().writeValueAsString(null);
   }
 
   private static Object postDatasetsForTable(Request request, Response response)
@@ -90,6 +92,7 @@ public class BeaconApi {
     // should parse body into
     BeaconRequestBody requestBody = null; // todo
 
-    return new ObjectMapper().writeValueAsString(new BeaconQueryResponse());
+    // result should be BeaconBooleanResponse, BeaconCountResponse or beaconResultsetsResponse
+    return new ObjectMapper().writeValueAsString(null);
   }
 }

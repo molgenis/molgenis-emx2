@@ -1,8 +1,7 @@
 package org.molgenis.emx2.beacon.responses;
 
-import org.molgenis.emx2.beacon.common.Handover;
-
 import java.util.Map;
+import org.molgenis.emx2.beacon.common.Handover;
 
 public class BeaconCountResponse {
   BeaconResponseMeta meta;
