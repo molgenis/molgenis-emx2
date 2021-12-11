@@ -1,5 +1,7 @@
 package org.molgenis.emx2.beacon;
 
+import static spark.Spark.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.molgenis.emx2.beacon.common.BeaconInformationalResponseMeta;
@@ -7,8 +9,6 @@ import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.*;
 import spark.Request;
 import spark.Response;
-
-import static spark.Spark.*;
 
 // is a beacon on level of database, schema or table?
 public class BeaconApi {

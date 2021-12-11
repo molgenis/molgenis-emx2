@@ -1,12 +1,11 @@
 package org.molgenis.emx2.beacon.responses;
 
+import java.util.Map;
 import org.molgenis.emx2.beacon.common.Granularity;
 import org.molgenis.emx2.beacon.common.IncludedResultsetResponses;
 import org.molgenis.emx2.beacon.common.Pagination;
 import org.molgenis.emx2.beacon.common.SchemasPerEntity;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
-
-import java.util.Map;
 
 public class BeaconResponseMeta {
   String beaconId;

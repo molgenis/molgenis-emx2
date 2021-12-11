@@ -1,9 +1,8 @@
 package org.molgenis.emx2.beacon.responses;
 
+import java.util.Map;
 import org.molgenis.emx2.beacon.common.BeaconInformationalResponseMeta;
 import org.molgenis.emx2.beacon.common.EntryType;
-
-import java.util.Map;
 
 // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/responses/beaconEntryTypesResponse.json
 public class BeaconEntryTypesResponse {

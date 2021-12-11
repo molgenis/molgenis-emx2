@@ -1,10 +1,10 @@
 package org.molgenis.emx2.beacon.requests;
 
+import static org.molgenis.emx2.beacon.common.IncludedResultsetResponses.HIT;
+
 import org.molgenis.emx2.beacon.common.Granularity;
 import org.molgenis.emx2.beacon.common.IncludedResultsetResponses;
 import org.molgenis.emx2.beacon.common.Pagination;
-
-import static org.molgenis.emx2.beacon.common.IncludedResultsetResponses.HIT;
 
 public class BeaconRequestBody {
   String $schema;

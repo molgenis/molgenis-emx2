@@ -1,12 +1,15 @@
 package org.molgenis.emx2.beacon.responses;
 
-import org.molgenis.emx2.beacon.common.Handover;
-
 import java.util.Map;
+import org.molgenis.emx2.beacon.common.Handover;
+import org.molgenis.emx2.beacon.common.Info;
 
-public class BeaconResultsetResponse extends BeaconQueryResponse {
+public class BeaconResultsetResponse {
+  BeaconResponseMeta meta;
   BeaconSummaryResponseSection responseSummary;
   BeaconResultsets response;
+  Info info;
+  Handover[] beaconHandovers;
 
   // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/responses/sections/beaconResultsets.json
   public static class BeaconResultsets {
@@ -24,7 +27,7 @@ public class BeaconResultsetResponse extends BeaconQueryResponse {
       boolean exists;
 
       // Number of results in this Resultset.
-      int resultsCountd;
+      int resultsCount;
 
       // List of handovers that apply to this resultset, not to the whole Beacon or to a result in
       // particular.

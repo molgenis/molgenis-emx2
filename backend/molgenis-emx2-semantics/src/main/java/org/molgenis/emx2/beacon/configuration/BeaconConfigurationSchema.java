@@ -1,9 +1,8 @@
 package org.molgenis.emx2.beacon.configuration;
 
-import org.molgenis.emx2.beacon.common.Granularity;
-import org.molgenis.emx2.beacon.common.EntryType;
-
 import java.util.Map;
+import org.molgenis.emx2.beacon.common.EntryType;
+import org.molgenis.emx2.beacon.common.Granularity;
 
 public class BeaconConfigurationSchema {
   String $schema;
