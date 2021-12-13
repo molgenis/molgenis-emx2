@@ -28,3 +28,11 @@ services:
     depends_on:
       - postgres
     restart: on-failure
+
+  ssr:
+    build: apps/ssr-catalogue
+    ports:
+      - 3000:3000
+    environment:
+      PORT: 3000
+      PROXY_API: http://emx2:8080/
