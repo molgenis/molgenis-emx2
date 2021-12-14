@@ -10,6 +10,7 @@ import graphql.GraphQL;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -30,6 +31,7 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
+  @Ignore
   public void testUsers() throws IOException {
     try {
       database.becomeAdmin();

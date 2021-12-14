@@ -2,13 +2,20 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <div v-else class="p-0 m-0">
+    <div v-else class="p-0 m-0 border rounded">
+      <InputSearch
+        v-model="search"
+        class="small m-0 p-0"
+        placeholder="search list"
+      />
       <InputOntologySubtree
-        class="pl-0"
+        style="max-height: 50vh"
+        class="p-0 m-0 overflow-auto pt-2"
         :terms="terms"
         :selection="selection"
         :expanded="expanded"
         :list="list"
+        :search="search"
         @toggleExpand="toggleExpand"
         @select="select"
         @deselect="deselect"
@@ -25,6 +32,7 @@ import FormGroup from "./_formGroup";
 import InputOntologySubtree from "./InputOntologySubtree";
 import MessageError from "./MessageError";
 import Spinner from "../layout/Spinner";
+import InputSearch from "./InputSearch";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -43,6 +51,7 @@ export default {
     InputOntologySubtree,
     MessageError,
     Spinner,
+    InputSearch,
   },
   props: {
     /** if you don't want to use autoload using table you can provide options via 'items'. Should be format [{name:a, parent:b},{name:b}]
@@ -57,6 +66,7 @@ export default {
       terms: [],
       selection: [],
       expanded: [],
+      search: null,
     };
   },
   computed: {
@@ -230,7 +240,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Tag" :list="true"  graphqlURL="/pet store/graphql"/>
+                   table="Tag" :list="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -250,7 +260,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Tag"  graphqlURL="/pet store/graphql"/>
+                   table="AreasOfInformation" graphqlURL="/Minerva/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

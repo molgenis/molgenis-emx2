@@ -4,24 +4,23 @@
       <li
         class="nav-item"
         v-for="mapping in variable.mappings"
-        :key="mapping.fromTable.release.resource.pid"
+        :key="mapping.fromRelease.resource.pid"
       >
         <router-link
           class="nav-link"
           :class="{
             active:
-              $route.query.sourceCohort ===
-              mapping.fromTable.release.resource.pid,
+              $route.query.sourceCohort === mapping.fromRelease.resource.pid,
           }"
           :to="{
             name: 'VariableDetailView',
             query: {
               ...$route.query,
-              sourceCohort: mapping.fromTable.release.resource.pid,
+              sourceCohort: mapping.fromRelease.resource.pid,
             },
           }"
         >
-          {{ mapping.fromTable.release.resource.pid }}
+          {{ mapping.fromRelease.resource.pid }}
         </router-link>
       </li>
     </ul>
@@ -47,7 +46,7 @@ export default {
     variable: Object,
   },
   async created() {
-    // initialy select the first mapping
+    // Initially select the first mapping
     if (
       this.variable.mappings &&
       this.variable.mappings[0] &&
@@ -57,8 +56,7 @@ export default {
         name: "VariableDetailView",
         query: {
           ...this.$route.query,
-          sourceCohort:
-            this.variable.mappings[0].fromTable.release.resource.pid,
+          sourceCohort: this.variable.mappings[0].fromRelease.resource.pid,
         },
       });
     }

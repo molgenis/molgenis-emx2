@@ -1,13 +1,10 @@
 query VariableMappings($filter: VariableMappingsFilter) {
   VariableMappings(limit: 200, filter: $filter) {
-    fromTable {
-      release {
-        resource {
-          pid
-        }
-        version
+    fromRelease {
+      resource {
+        pid
       }
-      name
+      version
     }
     toVariable {
       table {
