@@ -145,6 +145,20 @@ query Cohorts($pid: String) {
       numberOfParticipants
       ageGroups {
         name
+        code
+        order
+        parent {
+          name
+          code
+          parent {
+            name
+            code
+          }
+          parent {
+            name
+            code
+          }
+        }
       }
       mainMedicalCondition {
         name

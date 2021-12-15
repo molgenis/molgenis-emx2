@@ -88,11 +88,43 @@
     </grid-block>
 
     <grid-block heading="Subpopulations">
-      <table></table>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Number of participants</th>
+            <th scope="col">Age categories</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in subpopulations" :key="index">
+            <td>{{ row.name }}</td>
+            <td>{{ row.description }}</td>
+            <td>{{ row.numberOfParticipants }}</td>
+            <td>{{ row.ageGroups }}</td>
+          </tr>
+        </tbody>
+      </table>
     </grid-block>
 
     <grid-block heading="Collection events">
-      <table></table>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Start and end year</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in collectionEvents" :key="index">
+            <td>{{ row.name }}</td>
+            <td>{{ row.description }}</td>
+            <td>{{ row.startAndEndYear }}</td>
+          </tr>
+        </tbody>
+      </table>
     </grid-block>
 
     <div class="card-columns card-columns-2">
@@ -131,14 +163,14 @@
 </style>
 
 <script>
-import { fetchById } from "../store/repository/cohortRepository";
-// import { fetchSchemaMetaData } from "../store/repository/metaDataRepository";
-import PageHeaderVue from "../components/blocks/PageHeader.vue";
-import LinksList from "../components/blocks/LinksList.vue";
-import KeyValueBlock from "../components/blocks/KeyValueBlock.vue";
-import ContactDetails from "../components/ContactDetails.vue";
-import GridBlock from "../components/blocks/GridBlock.vue";
-import ImageRender from "../components/blocks/ImageRender.vue";
+import { fetchById } from "../../store/repository/cohortRepository";
+// import { fetchSchemaMetaData } from "store/repository/metaDataRepository";
+import PageHeaderVue from "../../components/blocks/PageHeader.vue";
+import LinksList from "../../components/blocks/LinksList.vue";
+import KeyValueBlock from "../../components/blocks/KeyValueBlock.vue";
+import ContactDetails from "../../components/ContactDetails.vue";
+import GridBlock from "../../components/blocks/GridBlock.vue";
+import ImageRender from "../../components/blocks/ImageRender.vue";
 
 export default {
   name: "CohortView",
@@ -200,6 +232,47 @@ export default {
           value: this.cohort.populationAgeGroups.map((pag) => pag.name),
         },
       ];
+    },
+    subpopulations() {
+      const topLevelAgeGroup = (ageGroup) => {
+        if (!ageGroup.parent) {
+          return ageGroup;
+        }
+        return topLevelAgeGroup(ageGroup.parent);
+      };
+      return !this.cohort.subcohorts
+        ? []
+        : this.cohort.subcohorts.map((subcohort) => {
+            return {
+              name: subcohort.name,
+              desciption: subcohort.desciption,
+              numberOfParticipants: subcohort.numberOfParticipants,
+              ageGroups: subcohort.ageGroups
+                .map(topLevelAgeGroup)
+                .reduce((ageGroups, ageGroup) => {
+                  if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
+                    ageGroups.push(ageGroup);
+                  }
+                  return ageGroups;
+                }, [])
+                .map((ag) => ag.name)
+                .join(","),
+            };
+          });
+    },
+    collectionEvents() {
+      return !this.cohort.collectionEvents
+        ? []
+        : this.cohort.collectionEvents.map((item) => {
+            return {
+              name: item.name,
+              description: item.description,
+              startAndEndYear:
+                ((item.startYear && item.startYear.name )|| "n/a") +
+                " - " +
+                ((item.endYear && item.endYear.name )|| "n/a"),
+            };
+          });
     },
     cohortMetaData() {
       return this.metaData._schema.tables.find(

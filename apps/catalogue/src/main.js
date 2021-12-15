@@ -14,7 +14,7 @@ import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
 import CohortView from "./views/CohortView";
-import NewCohortView from "./views/NewCohortView";
+import NewCohortView from "./views/cohorts/NewCohortView";
 import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
 
