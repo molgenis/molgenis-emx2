@@ -83,6 +83,13 @@ import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
 import MolgenisSignin from "./layout/MolgenisSignin.vue";
 
+import PageHeader from "./display/PageHeader.vue";
+import GridBlock from "./display/GridBlock.vue";
+import KeyValueBlock from "./display/KeyValueBlock.vue";
+import ImageDisplay from "./display/ImageDisplay.vue";
+import PersonDetails from "./display/PersonDetails.vue";
+import ContactDisplay from "./display/ContactDisplay.vue";
+
 export {
   ButtonAction,
   ButtonAlt,
@@ -155,4 +162,10 @@ export {
   TextDisplay,
   FileDisplay,
   MolgenisSignin,
+  PageHeader,
+  GridBlock,
+  KeyValueBlock,
+  ImageDisplay,
+  PersonDetails,
+  ContactDisplay,
 };

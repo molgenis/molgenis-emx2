@@ -23,3 +23,23 @@ export default {
   },
 };
 </script>
+
+<docs>
+Example 
+
+```
+<template>
+  <grid-block ><p></p>Sample content</p></grid-block>
+</template>
+
+```
+
+With heading 
+
+```
+<template>
+  <grid-block heading="my heading" ><p></p>Sample content</p></grid-block>
+</template>
+
+```
+</docs>

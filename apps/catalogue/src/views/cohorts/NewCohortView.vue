@@ -1,10 +1,10 @@
 <template>
   <div v-if="cohort" class="container">
     <grid-block>
-      <page-header-vue
+      <page-header
         :title="cohort.name"
         :logoUrl="cohort.logo.url"
-      ></page-header-vue>
+      ></page-header>
     </grid-block>
 
     <grid-block>
@@ -39,19 +39,19 @@
 
     <grid-block heading="Contributors">
       <div class="card-columns">
-        <contact-details
+        <contact-display
           v-for="(contributor, index) in cohort.contributors"
           :key="index"
           :contact="contributor.contact"
           :contributionType="contributor.contributionType"
           :contributionDescription="contributor.contributionDescription"
-        ></contact-details>
+        ></contact-display>
       </div>
     </grid-block>
 
     <grid-block heading="Partners">
       <div v-for="(partner, index) in cohort.partners" :key="index">
-        <image-render
+        <image-display
           v-if="
             partner &&
             partner.institution &&
@@ -60,7 +60,7 @@
           "
           style="width: 100px; height: 100px"
           :url="partner.institution.logo.url"
-        ></image-render>
+        ></image-display>
       </div>
     </grid-block>
 
@@ -71,11 +71,11 @@
           v-for="(network, index) in cohort.networks"
           :key="index"
         >
-          <image-render
+          <image-display
             v-if="network && network.logo && network.logo.url"
             :url="network.logo.url"
             :alt="network.name"
-          ></image-render>
+          ></image-display>
           <div v-else>{{ network.pid }}</div>
         </div>
       </div>
@@ -165,22 +165,24 @@
 <script>
 import { fetchById } from "../../store/repository/cohortRepository";
 // import { fetchSchemaMetaData } from "store/repository/metaDataRepository";
-import PageHeaderVue from "../../components/blocks/PageHeader.vue";
+import {
+  PageHeader,
+  GridBlock,
+  KeyValueBlock,
+  ImageDisplay,
+  ContactDisplay,
+} from "@mswertz/emx2-styleguide";
 import LinksList from "../../components/blocks/LinksList.vue";
-import KeyValueBlock from "../../components/blocks/KeyValueBlock.vue";
-import ContactDetails from "../../components/ContactDetails.vue";
-import GridBlock from "../../components/blocks/GridBlock.vue";
-import ImageRender from "../../components/blocks/ImageRender.vue";
 
 export default {
   name: "CohortView",
   components: {
     GridBlock,
-    PageHeaderVue,
+    PageHeader,
     LinksList,
     KeyValueBlock,
-    ContactDetails,
-    ImageRender,
+    ImageDisplay,
+    ContactDisplay,
   },
   data() {
     return {
@@ -268,9 +270,9 @@ export default {
               name: item.name,
               description: item.description,
               startAndEndYear:
-                ((item.startYear && item.startYear.name )|| "n/a") +
+                ((item.startYear && item.startYear.name) || "n/a") +
                 " - " +
-                ((item.endYear && item.endYear.name )|| "n/a"),
+                ((item.endYear && item.endYear.name) || "n/a"),
             };
           });
     },

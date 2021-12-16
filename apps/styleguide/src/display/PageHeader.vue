@@ -10,12 +10,19 @@
           v-if="logoUrl"
           class="justify-content-center align-self-center"
           :src="logoUrl"
-          alt="cohort logo"
+          alt="page logo"
         />
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+img {
+  /* same as bootstrap heading */
+  height: 2.5rem;
+}
+</style>
 
 <script>
 export default {
@@ -33,9 +40,24 @@ export default {
 };
 </script>
 
-<style scoped>
-img {
-  /* same as heading */
-  height: 2.5rem;
-}
-</style>
+<docs>
+Example (label only)
+
+```
+<template>
+  <page-header title="My Title"></page-header>
+</template>
+
+
+```
+
+Example (label and logo)
+
+```
+<template>
+  <page-header style="width: 300px; border: 1xp solid blue;" title="Molgenis" logoUrl="https://www.molgenis.org/assets/img/logo_blue.png"></page-header>
+</template>
+
+````
+
+</docs>
