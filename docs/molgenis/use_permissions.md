@@ -27,14 +27,17 @@ the 'admin'. Only this user can see and create other users.
 
 ## Sign-in using Open ID Connect (OIDC)
 
-Users can be authenticated using an existing account via Open ID Connect (OIDC).
-To enable users to sign-in using OIDC, the Molgenis instance must be configured to use OIDC.
-When OIDC is enabled, users are no longer presented with the option to sign-up
+Users can be authenticated using an existing account via Open ID Connect (OIDC). To enable users to sign-in using OIDC,
+the Molgenis instance must be configured to use OIDC. When OIDC is enabled, users are no longer presented with the
+option to sign-up
 
-When OIDC is enabled, the admin user can bypass the oidc login by using the admin route (```[service-location]/apps/central/#/admin```)
+When OIDC is enabled, the admin user can bypass the oidc login by using the admin
+route (```[service-location]/apps/central/#/admin```)
 
 ### Enabling OIDC
+
 To enable OIDC the following environment variables need to be set:
+
 ```
 MOLGENIS_OIDC_CLIENT_ID // the id for the molgenis instance as set in the authentication provider
 MOLGENIS_OIDC_CLIENT_SECRET // the client secret as set in the authentication provider
@@ -44,4 +47,14 @@ MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to 
 ```
 
 ### Disabling OIDC
+
 Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
+
+## Settings
+
+At various places in MOLGENIS users can edit/update settings.
+
+* Schema level settings can only be set by users with role MANAGER or higher
+* Table level settings can only be set by users with role EDITOR or higher
+
+Currently, all settings can be read by all users

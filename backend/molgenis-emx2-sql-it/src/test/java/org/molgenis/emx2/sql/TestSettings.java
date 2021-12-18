@@ -1,7 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
@@ -23,7 +25,30 @@ public class TestSettings {
   @Test
   public void testSchemaSettings() {
     Schema s = db.dropCreateSchema("testSchemaSettings");
-    s.getMetadata().setSetting("key", "value");
+
+    // set roles
+    // viewer should only be able to see, not change
+    // manager should be able to set values
+    s.addMember("testsettingseditor", EDITOR.toString());
+    s.addMember("testsettingsmanager", MANAGER.toString());
+
+    db.setActiveUser("testsettingseditor");
+    try {
+      s = db.getSchema("testSchemaSettings"); // reload schema
+      s.getMetadata().setSetting("key", "value");
+      fail("editors should not be able to change schema settings");
+    } catch (Exception e) {
+      // failed correctly
+    }
+
+    db.setActiveUser("testsettingsmanager");
+    try {
+      s = db.getSchema("testSchemaSettings"); // reload schema
+      s.getMetadata().setSetting("key", "value");
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("managers should  be able to change schema settings");
+    }
 
     assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
     assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
@@ -45,11 +70,33 @@ public class TestSettings {
   public void testTableSettings() {
     Schema s = db.dropCreateSchema("testTableSettings");
 
-    Table t = s.create(table("test").add(column("test")));
-    t.getMetadata().setSetting("key", "value");
+    // set roles
+    // viewer should only be able to see, not change
+    // editor should be able to set values
+    s.addMember("testtablesettingsviewer", VIEWER.toString());
+    s.addMember("testtablesettingseditor", EDITOR.toString());
+
+    s.create(table("test").add(column("test")));
+
+    db.setActiveUser("testtablesettingsviewer");
+    try {
+      Table t = db.getSchema("testTableSettings").getTable("test");
+      t.getMetadata().setSetting("key", "value");
+      fail("viewers should not be able to change schema settings");
+    } catch (Exception e) {
+      // failed correctly
+    }
+
+    db.setActiveUser("testtablesettingseditor");
+    try {
+      Table t = db.getSchema("testTableSettings").getTable("test");
+      t.getMetadata().setSetting("key", "value");
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("managers should  be able to change schema settings");
+    }
 
     db.clearCache();
-
     List<Setting> test =
         db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
     assertEquals(1, test.size());
