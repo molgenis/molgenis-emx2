@@ -20,7 +20,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
   private List<String> rolesCache = null;
-  private List<Member> memberCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -91,7 +90,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     this.tables.clear();
     this.settings.clear();
     this.rolesCache = null;
-    this.memberCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -287,12 +285,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public String getRoleForUser(String user) {
-    if (memberCache == null) {
-      memberCache = executeGetMembers(getJooq(), this);
-    }
     if (user == null) user = ANONYMOUS;
     user = user.trim();
-    for (Member m : memberCache) {
+    for (Member m : executeGetMembers(getJooq(), this)) {
       if (m.getUser().equals(user)) return m.getRole();
     }
     return null;
