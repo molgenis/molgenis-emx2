@@ -162,7 +162,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
-    if (hasActiveUserRole(MANAGER.toString())) {
+    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
       getDatabase()
           .tx(
               db -> {

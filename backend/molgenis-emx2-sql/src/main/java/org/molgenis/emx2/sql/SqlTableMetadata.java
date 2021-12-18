@@ -395,7 +395,8 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public SqlTableMetadata setSettings(List<Setting> settings) {
-    if (((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
+    if (getDatabase().isAdmin()
+        || ((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
       getDatabase()
           .tx(
               db -> {
