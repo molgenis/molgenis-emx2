@@ -26,6 +26,7 @@ public class TestSettings {
   public void testSchemaSettings() {
 
     database.tx(
+        // prevent side effect of user changes on other tests using tx
         db -> {
           Schema s = db.dropCreateSchema("testSchemaSettings");
 
@@ -79,6 +80,7 @@ public class TestSettings {
   @Test
   public void testTableSettings() {
     database.tx(
+        // prevent side effect of user changes on other tests using tx
         db -> {
           Schema s = db.dropCreateSchema("testTableSettings");
 
