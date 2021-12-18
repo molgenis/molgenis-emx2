@@ -49,12 +49,3 @@ MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to 
 ### Disabling OIDC
 
 Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
-
-## Settings
-
-At various places in MOLGENIS users can edit/update settings.
-
-* Schema level settings can only be set by users with role MANAGER or higher
-* Table level settings can only be set by users with role EDITOR or higher
-
-Currently, all settings can be read by all users
