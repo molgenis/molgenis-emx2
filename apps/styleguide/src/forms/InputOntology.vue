@@ -2,27 +2,79 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <div v-else class="p-0 m-0 border rounded">
-      <InputSearch
-        v-model="search"
-        class="small m-0 p-0"
-        placeholder="search list"
-      />
-      <InputOntologySubtree
-        style="max-height: 50vh"
-        class="p-0 m-0 overflow-auto pt-2"
-        :terms="terms"
-        :selection="selection"
-        :expanded="expanded"
-        :list="list"
-        :search="search"
-        @toggleExpand="toggleExpand"
-        @select="select"
-        @deselect="deselect"
-      />
+    <div
+      class="p-0 m-0 border rounded"
+      :class="{ dropdown: !showExpanded }"
+      v-else
+    >
+      <button
+        class="border-0 text-left form-control"
+        style="height: auto"
+        @click="toggleFocus"
+      >
+        <span>
+          <span
+            class="badge bg-primary text-white mr-1"
+            v-for="v in selectionWithoutParents"
+            :key="v"
+            @click.stop="deselect([v])"
+          >
+            {{ v }}
+            <span class="fa fa-times"></span>
+          </span>
+          <input
+            type="text"
+            ref="search"
+            :placeholder="focus || showExpanded ? 'Type to search' : ''"
+            class="border-0"
+            v-model="search"
+            @click.stop
+            @focus="focus = true"
+          />
+        </span>
+        <span class="d-inline-block float-right">
+          <i
+            class="p-2 fa fa-times"
+            @click.stop="deselect(selection)"
+            v-if="selectionWithoutParents.length > 0"
+          />
+          <i
+            class="p-2 fa fa-caret-down"
+            style="vertical-align: middle"
+            v-if="!showExpanded"
+          />
+        </span>
+      </button>
+      <div
+        class="w-100 show p-0"
+        :class="{ 'dropdown-menu': !showExpanded }"
+        v-if="focus || showExpanded"
+        v-click-outside="toggleFocus"
+      >
+        <InputOntologySubtree
+          v-if="hasSearchResults"
+          style="max-height: 50vh"
+          class="overflow-auto pt-2 pl-0 dropdown-item"
+          :terms="terms"
+          :selection="selection"
+          :expanded="expanded"
+          :list="list"
+          :search="search"
+          @toggleExpand="toggleExpand"
+          @select="select"
+          @deselect="deselect"
+        />
+        <div v-else>No results found</div>
+      </div>
     </div>
   </FormGroup>
 </template>
+
+<style>
+input:focus {
+  outline: none;
+}
+</style>
 
 <script>
 import _baseInput from "./_baseInput";
@@ -32,7 +84,7 @@ import FormGroup from "./_formGroup";
 import InputOntologySubtree from "./InputOntologySubtree";
 import MessageError from "./MessageError";
 import Spinner from "../layout/Spinner";
-import InputSearch from "./InputSearch";
+import vClickOutside from "v-click-outside";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -46,12 +98,14 @@ import InputSearch from "./InputSearch";
 export default {
   extends: _baseInput,
   mixins: [TableMixin],
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   components: {
     FormGroup,
     InputOntologySubtree,
     MessageError,
     Spinner,
-    InputSearch,
   },
   props: {
     /** if you don't want to use autoload using table you can provide options via 'items'. Should be format [{name:a, parent:b},{name:b}]
@@ -59,6 +113,11 @@ export default {
     options: {
       type: Array,
       default: null,
+    },
+    /** show as pulldown. When false, shows always expanded*/
+    showExpanded: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -81,8 +140,42 @@ export default {
         return {};
       }
     },
+    selectionWithoutParents() {
+      if (this.list) {
+        return this.selection.filter((t) => this.getParents(t).length > 0);
+      } else if (this.selection[0] != null) {
+        return this.selection;
+      } else {
+        return [];
+      }
+    },
+    hasSearchResults() {
+      if (this.search) {
+        return this.hasSearchResultsRecursive(this.terms);
+      }
+      return true;
+    },
   },
   methods: {
+    hasSearchResultsRecursive(terms) {
+      return this.search
+        .split(" ")
+        .every((t) =>
+          terms.some(
+            (term) =>
+              term.name.toLowerCase().includes(t.toLowerCase()) ||
+              (term.children && this.hasSearchResultsRecursive(term.children))
+          )
+        );
+    },
+    toggleFocus() {
+      if (!this.showExpanded) {
+        this.focus = !this.focus;
+        if (this.focus) {
+          this.$refs.search.focus();
+        }
+      }
+    },
     getChildren(name) {
       return this.data.filter((o) => o.parent && o.parent.name === name);
     },
@@ -92,6 +185,7 @@ export default {
       } else {
         this.expanded = this.expanded.filter((s) => s !== name);
       }
+      this.$refs.search.focus();
     },
     select(items) {
       //if not a list you can only select one
@@ -108,6 +202,7 @@ export default {
 
       //alert("selectArray: " + JSON.stringify(this.selection));
       this.emitValue();
+      this.$refs.search.focus();
     },
     getParents(items) {
       let result = this.data
@@ -129,6 +224,7 @@ export default {
         this.selection = [];
       }
       this.emitValue();
+      this.$refs.search.focus();
     },
     emitValue() {
       if (this.list) {
@@ -213,6 +309,27 @@ Example with hardcoded options, can select multiple
   }
 </script>
 ```
+Example 'expanded' with hardcoded options, can select multiple
+```
+<template>
+  <div>
+    <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   :showExpanded="true"
+                   :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
+                   :list="true"/>
+    myvalue = {{ myvalue }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myvalue: []
+      };
+    }
+  }
+</script>
+```
 
 Example with hardcoded options, can select only single item
 ```
@@ -260,7 +377,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="AreasOfInformation" graphqlURL="/Minerva/graphql"/>
+                   table="Category" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

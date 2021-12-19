@@ -12,7 +12,7 @@
         <i
           class="fa-fw text-primary pl-2 pt-1"
           :class="selectState(term)"
-          @click="toggleSelect(term)"
+          @click.stop="toggleSelect(term)"
           role="button"
         />
         <span
