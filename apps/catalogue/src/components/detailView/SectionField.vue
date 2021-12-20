@@ -6,7 +6,6 @@
       :tooltip="field.description"
       :color="color"
     ></sectionFieldLabel>
-
     <div class="col-8">
       <component
         v-if="!isEmptyValue"
@@ -27,11 +26,11 @@ import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue";
+import TextFieldValue from "./TextFieldValue";
 import {
   StringDisplay,
   FileDisplay,
   ObjectDisplay,
-  TextFieldValue,
 } from "@mswertz/emx2-styleguide";
 
 export default {
