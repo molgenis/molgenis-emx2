@@ -1,5 +1,8 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -8,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.javers.common.collections.Lists;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -154,15 +156,28 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return sm;
   }
 
+  public boolean hasActiveUserRole(String role) {
+    return this.getInheritedRolesForActiveUser().contains(role);
+  }
+
   @Override
   public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
-            });
-    getDatabase().getListener().schemaChanged(getName());
-    return this;
+    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
+      getDatabase()
+          .tx(
+              db -> {
+                sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
+              });
+      getDatabase().getListener().schemaChanged(getName());
+      return this;
+    } else {
+      throw new MolgenisException(
+          "Permission denied for user "
+              + getDatabase().getActiveUser()
+              + " to change setting on schema "
+              + getName()
+              + ". You need at least MANAGER permission for schema settings");
+    }
   }
 
   @Override
@@ -244,24 +259,37 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
+    final String username = user.trim();
+    List<String> result = new ArrayList<>();
+    // need elevated privileges, so clear user and run as root
+    // this is not thread safe therefore must be in a transaction
+    getDatabase()
+        .tx(
+            tdb -> {
+              String current = tdb.getActiveUser();
+              tdb.clearActiveUser(); // elevate privileges
+              result.addAll(
+                  SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                      ((SqlDatabase) tdb).getJooq(), getName(), username));
+              tdb.setActiveUser(current);
+            });
+    return result;
+  }
+
+  public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      final String username = user.trim();
-      List<String> result = new ArrayList<>();
-      // need elevated privileges, so clear user and run as root
-      // this is not thread safe therefore must be in a transaction
-      getDatabase()
-          .tx(
-              tdb -> {
-                String current = tdb.getActiveUser();
-                tdb.clearActiveUser();
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        ((SqlDatabase) tdb).getJooq(), getName(), username));
-                tdb.setActiveUser(current);
-              });
-      rolesCache = result;
+      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
     }
-    return Lists.immutableCopyOf(rolesCache);
+    return rolesCache;
+  }
+
+  public String getRoleForUser(String user) {
+    if (user == null) user = ANONYMOUS;
+    user = user.trim();
+    for (Member m : executeGetMembers(getJooq(), this)) {
+      if (m.getUser().equals(user)) return m.getRole();
+    }
+    return null;
   }
 }
