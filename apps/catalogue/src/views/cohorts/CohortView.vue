@@ -88,43 +88,26 @@
     </grid-block>
 
     <grid-block heading="Subpopulations">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Number of participants</th>
-            <th scope="col">Age categories</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in subpopulations" :key="index">
-            <td>{{ row.name }}</td>
-            <td>{{ row.description }}</td>
-            <td>{{ row.numberOfParticipants }}</td>
-            <td>{{ row.ageGroups }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <table-display
+        :columns="[
+          { name: 'name', label: 'Name' },
+          { name: 'description', label: 'Description' },
+          { name: 'numberOfParticipants', label: 'Number of participants' },
+          { name: 'ageGroups', label: 'Age categories' },
+        ]"
+        :rows="subpopulations"
+      ></table-display>
     </grid-block>
 
     <grid-block heading="Collection events">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Start and end year</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in collectionEvents" :key="index">
-            <td>{{ row.name }}</td>
-            <td>{{ row.description }}</td>
-            <td>{{ row.startAndEndYear }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <table-display
+        :columns="[
+          { name: 'name', label: 'Name' },
+          { name: 'description', label: 'Description' },
+          { name: 'startAndEndYear', label: 'Start and end year' },
+        ]"
+        :rows="collectionEvents"
+      ></table-display>
     </grid-block>
 
     <div class="card-columns card-columns-2">
@@ -172,6 +155,7 @@ import {
   ImageDisplay,
   ContactDisplay,
   LinksList,
+  TableDisplay,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -183,6 +167,7 @@ export default {
     KeyValueBlock,
     ImageDisplay,
     ContactDisplay,
+    TableDisplay,
   },
   data() {
     return {
@@ -269,10 +254,13 @@ export default {
             return {
               name: item.name,
               description: item.description,
-              startAndEndYear:
-                ((item.startYear && item.startYear.name) || "n/a") +
-                " - " +
-                ((item.endYear && item.endYear.name) || "n/a"),
+              startAndEndYear: (() => {
+                let value =
+                  ((item.startYear && item.startYear.name) || "n/a") +
+                  " - " +
+                  ((item.endYear && item.endYear.name) || "n/a");
+                return value === "n/a - n/a" ? null : value;
+              })(),
             };
           });
     },

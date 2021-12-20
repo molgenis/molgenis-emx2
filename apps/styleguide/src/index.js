@@ -90,6 +90,7 @@ import ImageDisplay from "./display/ImageDisplay.vue";
 import PersonDetails from "./display/PersonDetails.vue";
 import ContactDisplay from "./display/ContactDisplay.vue";
 import LinksList from "./display/LinksList.vue";
+import TableDisplay from "./display/TableDisplay";
 
 export {
   ButtonAction,
@@ -170,4 +171,5 @@ export {
   PersonDetails,
   ContactDisplay,
   LinksList,
+  TableDisplay,
 };
