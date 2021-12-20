@@ -285,7 +285,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(database.getActiveUser());
+      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
   }
