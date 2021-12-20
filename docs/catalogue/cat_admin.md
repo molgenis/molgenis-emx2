@@ -35,7 +35,4 @@ procedure is to update.
 | 1.7 => 1.8 | ColumnType of CollectionEvents.standardizedTools changed to ref_array. Unless bugfix #711 Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
 | 1.8 => 1.9 | fix: Institution.typeOther should be text. Just upload molgenis.csv to update. |
 | 1.9=> 1.10 | feat: add Database.populationSize(captured,active), RWEresources.approvalForPublication, Dispensing subterms. Just upload molgenis.csv to update. |
-| 1.10=> 1.11 | Deleted VariableMappings.fromTable, Tables.mappingsTo, Tables.mappings | 
-| | AllVariables.fromVariable reflink changed to fromRelease |
-| | AllVariables.mappings changed to refback on VariableMappings.toVariable, TableMappings.fromTable changed to ref_array |
-| | To update data download data and: 1. update molgenis sheet or molgenis.csv 2. change column names in VariableMappings: 'fromTable' to 'fromVariable.table', 'fromVariable' to 'fromVariable.name'; 3. clear data from column 'fromVariable.table' if 'fromVariable.name' is empty; 4. change data in column 'fromVariable.table' to a comma-separated array containing the corresponing tables for the variables listed in 'fromVariable.name'; 5. reupload data in new schema |
+| 1.10=> 1.11 | Add VariableMappings.fromVariablesInOtherTables. Just upload molgenis.csv to update. |
