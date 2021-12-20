@@ -63,6 +63,24 @@ public class TestGrantRolesToUsers {
     schema.addMember("user_testRolePermissions_editor", EDITOR.toString());
     schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
+    // test that manager also had editor and viewer roles
+    List<String> roles = schema.getInheritedRolesForUser("user_testRolePermissions_manager");
+    assertTrue(roles.contains(VIEWER.toString()));
+    assertTrue(roles.contains(EDITOR.toString()));
+    assertTrue(roles.contains(MANAGER.toString()));
+
+    // test that editor also had editor and viewer roles
+    roles = schema.getInheritedRolesForUser("user_testRolePermissions_editor");
+    assertTrue(roles.contains(VIEWER.toString()));
+    assertTrue(roles.contains(EDITOR.toString()));
+    assertFalse(roles.contains(MANAGER.toString()));
+
+    // test that editor also had editor and viewer roles
+    roles = schema.getInheritedRolesForUser("user_testRolePermissions_viewer");
+    assertTrue(roles.contains(VIEWER.toString()));
+    assertFalse(roles.contains(EDITOR.toString()));
+    assertFalse(roles.contains(MANAGER.toString()));
+
     StopWatch.print("testRolePermissions schema created");
 
     // test that viewer and editor cannot createColumn, and manager can
