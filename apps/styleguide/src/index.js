@@ -89,6 +89,7 @@ import KeyValueBlock from "./display/KeyValueBlock.vue";
 import ImageDisplay from "./display/ImageDisplay.vue";
 import PersonDetails from "./display/PersonDetails.vue";
 import ContactDisplay from "./display/ContactDisplay.vue";
+import LinksList from "./display/LinksList.vue";
 
 export {
   ButtonAction,
@@ -168,4 +169,5 @@ export {
   ImageDisplay,
   PersonDetails,
   ContactDisplay,
+  LinksList,
 };

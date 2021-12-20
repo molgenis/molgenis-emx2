@@ -8,6 +8,8 @@
   </div>
 </template>
 
+<style></style>
+
 <script>
 export default {
   name: "LinksList",
@@ -27,4 +29,16 @@ export default {
 };
 </script>
 
-<style></style>
+<docs>
+Display a list of links
+```
+const links = [
+    { label: 'Molgenis', href: 'https://molgenis.org', },
+    { label: 'Vue',  href: 'https://vuejs.org/' } 
+]
+<template>
+  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+</template>
+
+```
+</docs>

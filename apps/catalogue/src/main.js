@@ -13,8 +13,8 @@ import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
-import CohortView from "./views/CohortView";
-import NewCohortView from "./views/cohorts/NewCohortView";
+import OldCohortView from "./views/cohorts/OldCohortView";
+import CohortView from "./views/cohorts/CohortView";
 import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
 
@@ -191,8 +191,8 @@ const router = new VueRouter({
       props: true,
     },
     {
-      path: "/new-cohorts/:pid",
-      component: NewCohortView,
+      path: "/old-cohorts/:pid",
+      component: OldCohortView,
       props: true,
     },
     {

@@ -171,8 +171,8 @@ import {
   KeyValueBlock,
   ImageDisplay,
   ContactDisplay,
+  LinksList,
 } from "@mswertz/emx2-styleguide";
-import LinksList from "../../components/blocks/LinksList.vue";
 
 export default {
   name: "CohortView",
