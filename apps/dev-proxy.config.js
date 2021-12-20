@@ -1,5 +1,5 @@
-const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Catalogue_test";
+const HOST = process.env.MOLGENIS_APPS_HOST || "https://brenda2.molgeniscloud.org/";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "catalogue-pelagie-issue-3";
 
 module.exports = {
   "^/graphql": {
