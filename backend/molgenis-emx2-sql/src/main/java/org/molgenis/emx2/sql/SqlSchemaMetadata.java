@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -259,6 +261,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public List<String> getIneritedRolesForUser(String user) {
     if (user == null) return new ArrayList<>();
+    if (ADMIN_USER.equals(user)) {
+      // admin has all roles
+      return executeGetRoles(getJooq(), getName());
+    }
     final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
@@ -279,7 +285,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getIneritedRolesForUser(database.getActiveUser());
     }
     return rolesCache;
   }
