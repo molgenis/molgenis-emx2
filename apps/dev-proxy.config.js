@@ -1,11 +1,15 @@
 const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "Catalogue_test";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet%20store";
+
+const opts = { changeOrigin: true, secure: false }
 
 module.exports = {
   "^/graphql": {
     target: `${HOST}/${SCHEMA}`,
+    ...opts,
   },
-  "/api": { target: `${HOST}` },
-  "/apps": { target: `${HOST}` },
-  "^/theme.css": { target: `${HOST}/${SCHEMA}` },
+  "**/graphql": { target: `${HOST}`, ...opts },
+  "/api": { target: `${HOST}`, ...opts },
+  "/apps": { target: `${HOST}`, ...opts },
+  "^/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
 };

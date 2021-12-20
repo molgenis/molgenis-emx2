@@ -355,12 +355,12 @@ public class SqlDatabase implements Database {
           throw new SqlMolgenisException("Set active user failed", dae);
         }
       }
-      this.clearCache();
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
         listener.userChanged();
       }
     }
+    this.clearCache();
     this.connectionProvider.setActiveUser(username);
   }
 
