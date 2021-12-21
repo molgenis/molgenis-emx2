@@ -37,7 +37,7 @@
       ></key-value-block>
     </div>
 
-    <grid-block heading="Contributors">
+    <grid-block heading="Contributors" v-if="cohort.contributors.length">
       <div class="card-columns">
         <contact-display
           v-for="(contributor, index) in cohort.contributors"
@@ -49,15 +49,9 @@
       </div>
     </grid-block>
 
-    <grid-block heading="Partners">
-      <div v-for="(partner, index) in cohort.partners" :key="index">
+    <grid-block heading="Partners" v-if="partners.length">
+      <div v-for="(partner, index) in partners" :key="index">
         <image-display
-          v-if="
-            partner &&
-            partner.institution &&
-            partner.institution.logo &&
-            partner.institution.logo.url
-          "
           style="width: 100px; height: 100px"
           :url="partner.institution.logo.url"
         ></image-display>
@@ -223,6 +217,19 @@ export default {
           value: this.cohort.populationAgeGroups.map((pag) => pag.name),
         },
       ];
+    },
+    partners() {
+      if (!this.cohort.partners) {
+        return [];
+      }
+      return this.cohort.partners.filter((partner) => {
+        return (
+          partner &&
+          partner.institution &&
+          partner.institution.logo &&
+          partner.institution.logo.url
+        );
+      });
     },
     subpopulations() {
       const topLevelAgeGroup = (ageGroup) => {
