@@ -73,8 +73,11 @@
 
     <grid-block heading="Available data & samples">
       <strong>Data categories</strong>
+      <p>{{ dataCategories.join(", ") }}</p>
       <strong>Areas of information</strong>
+      <p>{{ sampleCategories.join(", ") }}</p>
       <strong>Sample categories</strong>
+      <p>{{ areasOfInformation.join(", ") }}</p>
     </grid-block>
 
     <grid-block heading="Subpopulations" v-if="subpopulations.length">
@@ -287,6 +290,27 @@ export default {
             };
           });
     },
+    dataCategories() {
+      if (!this.cohort.collectionEvents) {
+        return [];
+      } else {
+        return this.eventDetailSummary("dataCategories");
+      }
+    },
+    sampleCategories() {
+      if (!this.cohort.collectionEvents) {
+        return [];
+      } else {
+        return this.eventDetailSummary("sampleCategories");
+      }
+    },
+    areasOfInformation() {
+      if (!this.cohort.collectionEvents) {
+        return [];
+      } else {
+        return this.eventDetailSummary("areasOfInformation");
+      }
+    },
     cohortMetaData() {
       return this.metaData._schema.tables.find(
         (table) => table.name == "Cohorts"
@@ -296,6 +320,18 @@ export default {
   methods: {
     async fetchData() {
       this.cohort = await fetchById(this.$route.params.pid);
+    },
+    eventDetailSummary(detail) {
+      return Array.from(
+        new Set(
+          this.cohort.collectionEvents
+            .filter((collectionEvent) => collectionEvent[detail])
+            .flatMap((collectionEvent) => {
+              return collectionEvent[detail];
+            })
+            .map((detail) => detail.name)
+        )
+      );
     },
     // async fetchMetaData() {
     //   this.metaData = await fetchSchemaMetaData();
