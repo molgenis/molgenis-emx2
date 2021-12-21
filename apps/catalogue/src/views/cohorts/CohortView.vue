@@ -28,6 +28,7 @@
       ></key-value-block>
 
       <key-value-block
+        v-if="cohort.designPaper"
         :items="[{ label: 'Marker paper', value: cohort.designPaper }]"
       ></key-value-block>
 
@@ -58,19 +59,14 @@
       </div>
     </grid-block>
 
-    <grid-block heading="Networks">
+    <grid-block heading="Networks" v-if="networks.length">
       <div class="card-deck">
-        <div
-          class="card"
-          v-for="(network, index) in cohort.networks"
-          :key="index"
-        >
+        <div class="card" v-for="(network, index) in networks" :key="index">
           <image-display
-            v-if="network && network.logo && network.logo.url"
+            style="width: 170px; height: 100px"
             :url="network.logo.url"
             :alt="network.name"
           ></image-display>
-          <div v-else>{{ network.pid }}</div>
         </div>
       </div>
     </grid-block>
@@ -81,7 +77,7 @@
       <strong>Sample categories</strong>
     </grid-block>
 
-    <grid-block heading="Subpopulations">
+    <grid-block heading="Subpopulations" v-if="subpopulations.length">
       <table-display
         :isClickable="true"
         @row-click="$router.push({ path: $event._path })"
@@ -95,7 +91,7 @@
       ></table-display>
     </grid-block>
 
-    <grid-block heading="Collection events">
+    <grid-block heading="Collection events" v-if="collectionEvents.length">
       <table-display
         :isClickable="true"
         @row-click="$router.push({ path: $event._path })"
@@ -214,22 +210,36 @@ export default {
         },
         {
           label: "Age group at inclusion",
-          value: this.cohort.populationAgeGroups.map((pag) => pag.name),
+          value: this.cohort.populationAgeGroups
+            ? this.cohort.populationAgeGroups.map((pag) => pag.name)
+            : [],
         },
       ];
     },
     partners() {
       if (!this.cohort.partners) {
         return [];
+      } else {
+        // only show partners that have a log set
+        return this.cohort.partners.filter((partner) => {
+          return (
+            partner &&
+            partner.institution &&
+            partner.institution.logo &&
+            partner.institution.logo.url
+          );
+        });
       }
-      return this.cohort.partners.filter((partner) => {
-        return (
-          partner &&
-          partner.institution &&
-          partner.institution.logo &&
-          partner.institution.logo.url
-        );
-      });
+    },
+    networks() {
+      if (!this.cohort.networks) {
+        return [];
+      } else {
+        // only show networks that have a log set
+        return this.cohort.networks.filter((network) => {
+          return network.logo && network.logo.url;
+        });
+      }
     },
     subpopulations() {
       const topLevelAgeGroup = (ageGroup) => {
