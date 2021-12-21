@@ -1,5 +1,5 @@
 <template>
-  <table class="table">
+  <table class="table" :class="{ 'table-hover': isClickable }">
     <thead>
       <tr>
         <th
@@ -12,7 +12,11 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, index) in rows" :key="index">
+      <tr
+        v-for="(row, index) in rows"
+        :key="index"
+        @click="$emit('row-click', row)"
+      >
         <td v-for="(column, columnIndex) in columns" :key="columnIndex">
           {{ row[column.name] }}
         </td>
@@ -21,7 +25,11 @@
   </table>
 </template>
 
-<style></style>
+<style>
+.table-hover tbody tr:hover {
+  cursor: pointer;
+}
+</style>
 
 <script>
 export default {
@@ -40,6 +48,10 @@ export default {
     rows: {
       type: Array,
       default: () => [],
+    },
+    isClickable: {
+      type: Boolean,
+      default: () => false,
     },
   },
 };
@@ -69,6 +81,27 @@ const rows = [
   <table-display :columns=columns :rows=rows></table-display>
 </template>
 
+```
+
+#### Set isClickable to make the rows actionable
+
+```
+const isClickable = true
+const columns = [
+  {name: 'a', label: 'A'},
+  {name: 'b', label: 'B'},
+  {name: 'c', label: 'C'}
+]
+
+const rows = [
+  {a: 'Click'},
+  {b: 'On'},
+  {c: 'Me'}
+]
+
+<template>
+  <table-display :columns=columns :rows=rows :isClickable="isClickable" @row-click="this.alert(JSON.stringify($event))"></table-display>
+</template>
 
 ```
 </docs>

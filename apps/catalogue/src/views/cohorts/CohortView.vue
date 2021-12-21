@@ -89,6 +89,8 @@
 
     <grid-block heading="Subpopulations">
       <table-display
+        :isClickable="true"
+        @row-click="$router.push({ path: $event._path })"
         :columns="[
           { name: 'name', label: 'Name' },
           { name: 'description', label: 'Description' },
@@ -101,6 +103,8 @@
 
     <grid-block heading="Collection events">
       <table-display
+        :isClickable="true"
+        @row-click="$router.push({ path: $event._path })"
         :columns="[
           { name: 'name', label: 'Name' },
           { name: 'description', label: 'Description' },
@@ -244,6 +248,7 @@ export default {
                 }, [])
                 .map((ag) => ag.name)
                 .join(","),
+              _path: `/cohorts/${this.$route.params.pid}/subcohorts/${subcohort.name}`,
             };
           });
     },
@@ -261,6 +266,7 @@ export default {
                   ((item.endYear && item.endYear.name) || "n/a");
                 return value === "n/a - n/a" ? null : value;
               })(),
+              _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
             };
           });
     },
