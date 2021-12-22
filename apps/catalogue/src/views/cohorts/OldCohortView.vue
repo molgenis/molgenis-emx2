@@ -89,23 +89,23 @@ import {
   NavTabs,
   Spinner,
 } from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import OntologyTerms from "../components/OntologyTerms";
-import PublicationList from "../components/PublicationList";
-import ResourceHeader from "../components/ResourceHeader";
-import InstitutionList from "../components/InstitutionList";
-import ReleasesList from "../components/ReleasesList";
-import ContactList from "../components/ContactList";
-import DocumentationList from "../components/DocumentationList";
-import DatasourceList from "../components/DatasourceList";
-import NetworkList from "../components/NetworkList";
-import Conditions from "../components/Conditions";
-import ContributorList from "../components/ContributorList";
-import ResourceContext from "../components/ResourceContext";
-import PartnerInList from "../components/PartnerInList";
-import PartnersList from "../components/PartnersList";
-import CollectionEventsList from "../components/CollectionEventsList";
-import SubcohortList from "../components/SubcohortList";
+import VariablesList from "../../components/VariablesList";
+import OntologyTerms from "../../components/OntologyTerms";
+import PublicationList from "../../components/PublicationList";
+import ResourceHeader from "../../components/ResourceHeader";
+import InstitutionList from "../../components/InstitutionList";
+import ReleasesList from "../../components/ReleasesList";
+import ContactList from "../../components/ContactList";
+import DocumentationList from "../../components/DocumentationList";
+import DatasourceList from "../../components/DatasourceList";
+import NetworkList from "../../components/NetworkList";
+import Conditions from "../../components/Conditions";
+import ContributorList from "../../components/ContributorList";
+import ResourceContext from "../../components/ResourceContext";
+import PartnerInList from "../../components/PartnerInList";
+import PartnersList from "../../components/PartnersList";
+import CollectionEventsList from "../../components/CollectionEventsList";
+import SubcohortList from "../../components/SubcohortList";
 
 export default {
   components: {
