@@ -38,7 +38,10 @@
       ></key-value-block>
     </div>
 
-    <grid-block heading="Contributors" v-if="cohort.contributors.length">
+    <grid-block
+      heading="Contributors"
+      v-if="cohort.contributors && cohort.contributors.length"
+    >
       <div class="card-columns">
         <contact-display
           v-for="(contributor, index) in cohort.contributors"
