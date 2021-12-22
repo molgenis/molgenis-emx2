@@ -149,6 +149,7 @@
             <tr>
               <th>fromTable</th>
               <th>fromVariables</th>
+              <th>fromVariablesInOtherTables</th>
               <th>match</th>
               <th>description</th>
               <th>syntax</th>
@@ -180,15 +181,31 @@
                 <div v-for="v in m.fromVariable" :key="v.name">
                   <RouterLink
                     :to="{
-                      name: 'tablemapping',
+                      name: 'Variables-details',
                       params: {
-                        fromPid: m.fromRelease.resource.pid,
+                        pid: m.fromRelease.resource.pid,
                         version: m.fromRelease.version,
                         table: m.fromTable.name,
                         name: v.name,
                       },
                     }"
                     >{{ v.name }}
+                  </RouterLink>
+                </div>
+              </td>
+              <td>
+                <div v-for="v in m.fromVariablesInOtherTables" :key="v.name">
+                  <RouterLink
+                    :to="{
+                      name: 'Variables-details',
+                      params: {
+                        pid: m.fromRelease.resource.pid,
+                        version: m.fromRelease.version,
+                        table: v.table.name,
+                        name: v.name,
+                      },
+                    }"
+                    >{{ v.table.name }}.{{ v.name }}
                   </RouterLink>
                 </div>
               </td>
@@ -249,7 +266,7 @@ export default {
         "graphql",
         `query Variables($pid:String,$version:String,$table:String,$name:String){Variables(filter:{release:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
         {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},release{version,resource{pid,name,mg_tableclass}},description,notes,label,keywords{name,ontologyTermURI,definition}
-                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromRelease{resource{pid,mg_tableclass}version}}}}`,
+                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromVariablesInOtherTables{name,table{name}}fromRelease{resource{pid,mg_tableclass}version}}}}`,
         {
           pid: this.pid,
           version: this.version,
