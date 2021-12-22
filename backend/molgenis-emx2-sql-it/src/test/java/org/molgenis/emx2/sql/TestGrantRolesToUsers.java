@@ -53,6 +53,13 @@ public class TestGrantRolesToUsers {
     database.clearActiveUser(); // admin
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
+    // test that admin has all roles
+    List<String> roles = schema.getInheritedRolesForActiveUser();
+    assertTrue(roles.contains(VIEWER.toString()));
+    assertTrue(roles.contains(EDITOR.toString()));
+    assertTrue(roles.contains(MANAGER.toString()));
+    assertTrue(roles.contains(OWNER.toString()));
+
     // createColumn test users
     database.addUser("user_testRolePermissions_viewer");
     database.addUser("user_testRolePermissions_editor");
@@ -64,7 +71,7 @@ public class TestGrantRolesToUsers {
     schema.addMember("user_testRolePermissions_manager", MANAGER.toString());
 
     // test that manager also had editor and viewer roles
-    List<String> roles = schema.getInheritedRolesForUser("user_testRolePermissions_manager");
+    roles = schema.getInheritedRolesForUser("user_testRolePermissions_manager");
     assertTrue(roles.contains(VIEWER.toString()));
     assertTrue(roles.contains(EDITOR.toString()));
     assertTrue(roles.contains(MANAGER.toString()));
