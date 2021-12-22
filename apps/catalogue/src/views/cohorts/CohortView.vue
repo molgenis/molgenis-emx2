@@ -69,6 +69,8 @@
             style="width: 170px; height: 100px"
             :url="network.logo.url"
             :alt="network.name"
+            :is-clickable="true"
+            @clicked="$router.push({ path: `/networks/${network.pid}` })"
           ></image-display>
         </div>
       </div>
