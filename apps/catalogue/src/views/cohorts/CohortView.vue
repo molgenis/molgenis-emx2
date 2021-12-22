@@ -149,7 +149,7 @@
 
 <script>
 import { fetchById } from "../../store/repository/cohortRepository";
-// import { fetchSchemaMetaData } from "store/repository/metaDataRepository";
+import { startEndYear } from "../../filters";
 import {
   PageHeader,
   GridBlock,
@@ -198,10 +198,7 @@ export default {
         },
         {
           label: "Start/End year",
-          value:
-            (this.cohort.startYear || "N/A") +
-            " - " +
-            (this.cohort.endYear || "N/A"),
+          value: startEndYear(this.cohort.startYear, this.cohort.endYear),
         },
         {
           label: "Population",
@@ -338,13 +335,9 @@ export default {
         )
       );
     },
-    // async fetchMetaData() {
-    //   this.metaData = await fetchSchemaMetaData();
-    // },
   },
   mounted: async function () {
     this.fetchData();
-    // this.fetchMetaData();
   },
 };
 </script>
