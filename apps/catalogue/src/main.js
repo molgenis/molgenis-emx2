@@ -187,13 +187,13 @@ const router = new VueRouter({
       }),
     },
     {
-      path: "/alt-cohorts/:pid",
+      name: "Cohorts-details",
+      path: "/cohorts/:pid",
       component: CohortView,
       props: true,
     },
     {
-      name: "Cohorts-details",
-      path: "/cohorts/:pid",
+      path: "/old-cohorts/:pid",
       component: OldCohortView,
       props: true,
     },
