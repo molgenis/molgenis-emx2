@@ -84,7 +84,7 @@ export default {
         window.location.pathname.replace(location.search, "")
       ).split("/");
       let url = "/";
-      let result = { databases: url };
+      let result = {};
       if (window.location.pathname != "/apps/central/") {
         path.forEach((el) => {
           if (el != "") {
