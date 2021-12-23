@@ -149,7 +149,6 @@
             <tr>
               <th>fromTable</th>
               <th>fromVariables</th>
-              <th>fromVariablesInOtherTables</th>
               <th>match</th>
               <th>description</th>
               <th>syntax</th>
@@ -192,8 +191,6 @@
                     >{{ v.name }}
                   </RouterLink>
                 </div>
-              </td>
-              <td>
                 <div v-for="v in m.fromVariablesInOtherTables" :key="v.name">
                   <RouterLink
                     :to="{
