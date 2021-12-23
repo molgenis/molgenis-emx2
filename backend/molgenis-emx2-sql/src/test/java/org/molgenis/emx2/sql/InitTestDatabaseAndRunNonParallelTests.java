@@ -6,16 +6,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
 
+import java.util.Collections;
+import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-
-import java.util.Collections;
-import java.util.List;
 
 public class InitTestDatabaseAndRunNonParallelTests {
-  SqlDatabase database;
+  private static SqlDatabase database;
 
   @BeforeClass
   public static void createDatabase() {
