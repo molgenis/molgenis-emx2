@@ -318,6 +318,16 @@ const router = new VueRouter({
       props: true,
       component: CollectionEvent,
     },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/collection-events",
+      redirect: "/cohorts/:cohort",
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/subcohorts",
+      redirect: "/cohorts/:cohort",
+    },
   ],
 });
 

@@ -258,7 +258,7 @@ export default {
         : this.cohort.subcohorts.map((subcohort) => {
             return {
               name: subcohort.name,
-              desciption: subcohort.desciption,
+              description: subcohort.description,
               numberOfParticipants: subcohort.numberOfParticipants,
               ageGroups: subcohort.ageGroups
                 .map(topLevelAgeGroup)
