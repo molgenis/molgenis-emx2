@@ -19,6 +19,7 @@ Institutions,,providerOf,refback,,,DAPs,,institution,,,"Query that lists all res
 Institutions,,partnerIn,refback,,,Partners,,institution,,,List of partner roles this institution has in various resources
 Institutions,,expertise,text,,,,,,,,A short description of the expertise of this institution
 Resources,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Models,Resources,,,,,,,,,,Common Data Element models and Harmonization models
 RWEresources,Resources,,,,,,,,,,Resources for real world evidence such as data source and databanks
 Databanks,RWEresources,,,,,,,,,,Data collections such as registries or biobanks
 Datasources,RWEresources,,,,,,,,,,Collections of data banks covering the same population
@@ -69,10 +70,6 @@ RWEresources,,timeSpanDescription,text,,,,,,,,Description of time span
 RWEresources,,careSetting,ontology_array,,,CareSettings,,,,,Type of care setting(s) covered
 RWEresources,,careSettingOther,text,,,,,,,,"If 'other,' description of the setting of care"
 Resources,,contents,heading,,,,,,,,Data model and contents
-Models,,,,,,,,,,,Common Data Element models and Harmonization models
-Models,,network,ref,1,TRUE,Networks,,,,,network this common data model is part of
-Models,,version,,1,TRUE,,,,,,"version of the model, use semantic versioning (https://semver.org/)"
-Models,,databanks,ref,,,Databanks,,,,,Databanks that use this common data model
 Studies,,cdm,ref_array,,,Models,,,,,Common data model(s) used in this study
 RWEresources,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were collected
 Datasources,,qualityOfLifeOther,text,,,,,,,,"If other, specify additional quality of life measures."
@@ -84,7 +81,7 @@ Databanks,,hasIdentifier,bool,,,,,,,,Is there a unique identifier for a person i
 Databanks,,identifierDescription,text,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
 Databanks,,ETLstandardVocabularies,ontology_array,,,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,"If other, what other vocabularies are used?"
-RWEresources,,dataDictionaries,refback,,,DataDictionaries,,resource,,,Numerical summaries describing data bank population
+RWEresources,,dataDictionaries,refback,,,SourceDataDictionaries,,resource,,,Numerical summaries describing data bank population
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
 RWEresources,,counts,refback,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
@@ -142,7 +139,7 @@ Resources,,partners,refback,,,Partners,,resource,,,Institutions that partnered i
 Cohorts,,networks,refback,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Databanks,,datasource,refback,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
-Databanks,,cdms,refback,,,Models,,databanks,,,Common data models used by this databank
+Databanks,,cdms,ref,,,Models,,,,,Common data models used by this databank
 Datasources,,networks,refback,,,Networks,,datasources,,,List of networks that this datasource is associated with
 Datasources,,studies,refback,,,Studies,,datasources,,,
 Publications,,,,,,,,,,,Publications following bibtex format
@@ -253,21 +250,28 @@ Networks,Resources,,,,,,,,,,Collaborations of multiple institutions
 Networks,,datasources,ref_array,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,Cohorts,,,,,
-Networks,,models,refback,,,Models,,network,,,The common data model(s) used by this network
+Networks,,models,ref_array,,,Models,,,,,The common data model(s) used by this network
 Studies,,datasources,ref_array,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,Cohorts,,,,,Cohorts that provided data into this study
 Studies,,dataExtractionDate,date,,,,,,,,Date on which the study data was extracted
 Studies,,leadInstitution,ref,,,Institutions,,,,,Name of lead institution that conducted the study
-DataDictionaries,,,,,,,,,,,Definition of a data dictionary
-DataDictionaries,,resource,ref,1,TRUE,Resources,,,,,Link to the resource of which contents has been released
-DataDictionaries,,version,,1,TRUE,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-DataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
-DataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
-DataDictionaries,,date,date,,,,,,,,date of creation
-DataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
+TargetDataDictionaries,,,,,,,,,,,Definition of a data dictionary for common data model
+TargetDataDictionaries,,resource,ref,1,TRUE,Models,,,,,Link to the resource of which contents has been released
+TargetDataDictionaries,,version,,1,TRUE,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
+TargetDataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
+TargetDataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
+TargetDataDictionaries,,date,date,,,,,,,,date of creation
+TargetDataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
+SourceDataDictionaries,,,,,,,,,,,Definition of a data dictionary for a cohort,databank or datasource
+SourceDataDictionaries,,resource,ref,1,TRUE,Resources,,,,,Link to the resource of which contents has been released
+SourceDataDictionaries,,version,,1,TRUE,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
+SourceDataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
+SourceDataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
+SourceDataDictionaries,,date,date,,,,,,,,date of creation
+SourceDataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
 SourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-SourceVariables,,dataDictionary,ref,1,TRUE,DataDictionaries,,,,,data dictionary this table definition is part of
+SourceVariables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,data dictionary of the resource
 SourceVariables,,table,ref,1,TRUE,SourceTables,dataDictionary,,,,table this variable is part of
 SourceVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
 SourceVariables,,label,,,,,,,,,
@@ -286,13 +290,13 @@ SourceVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocoli
 SourceVariables,,mappings,refback,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable
 SourceVariables,,notes,text,,,,,,,,Any other information on this variable
 TargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-TargetVariables,,model,ref,1,TRUE,Models,,,,,model this table definition is part of
-TargetVariables,,table,ref,1,TRUE,TargetTables,model,,,,table this variable is part of
+TargetVariables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,data dictionary of the target model
+TargetVariables,,table,ref,1,TRUE,TargetTables,dataDictionary,,,,table this variable is part of
 TargetVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
 TargetVariables,,label,,,,,,,,,
 TargetVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
 TargetVariables,,unit,ontology,,,Units,,,,,unit ontology
-TargetVariables,,references,ref,,,TargetVariables,model,,,,to define foreign key relationships between variables within or across tables
+TargetVariables,,references,ref,,,TargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
 TargetVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection
 TargetVariables,,description,text,,,,,,,,
 TargetVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value
@@ -307,9 +311,9 @@ TargetVariables,,notes,text,,,,,,,,Any other information on this variable
 RepeatedSourceVariables,SourceVariables,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
 RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated
 RepeatedTargetVariables,TargetVariables,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
-RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,model,,,,reference to the definition of the targetVariable that is being repeated
+RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
 TargetTables,,,,,,,,,,,Definition of a table within a (common) data model
-TargetTables,,model,ref,1,TRUE,Models,,,,,resource + version this table is defined for
+TargetTables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,resource + version this table is defined for
 TargetTables,,name,,1,TRUE,,,,,,unique table name in the model
 TargetTables,,label,,,,,,,,,short human readible description
 TargetTables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
@@ -318,7 +322,7 @@ TargetTables,,description,text,,,,,,,,description of the role/function of this t
 TargetTables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
 TargetTables,,mappings,refback,,,TableMappings,,toTable,,,
 SourceTables,,,,,,,,,,,Definition of a table within a data dictionary
-SourceTables,,dataDictionary,ref,1,TRUE,DataDictionaries,,,,,resource + data dictionary this table is defined for
+SourceTables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,resource + data dictionary this table is defined for
 SourceTables,,name,,1,TRUE,,,,,,unique table name in the data dictionary
 SourceTables,,label,,,,,,,,,short human readible description
 SourceTables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
@@ -327,15 +331,15 @@ SourceTables,,description,text,,,,,,,,description of the role/function of this t
 SourceTables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
 SourceTables,,mappings,refback,,,TableMappings,,fromTable,,,list of mappings between this table and standard/harmonized tables
 TableMappings,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-TableMappings,,fromDataDictionary,ref,1,TRUE,DataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
+TableMappings,,fromDataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 TableMappings,,fromTable,ref,1,TRUE,SourceTables,fromDataDictionary,,,,name of the table being mapped from
-TableMappings,,toModel,ref,1,TRUE,Models,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-TableMappings,,toTable,ref,1,TRUE,TargetTables,toModel,,,,name of the table being mapped to
+TableMappings,,toDataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+TableMappings,,toTable,ref,1,TRUE,TargetTables,toDataDictionary,,,,name of the table being mapped to
 TableMappings,,order,int,,,,,,,,Order in which table ETLs should be executed for this source-target combination
 TableMappings,,description,text,,,,,,,,human readible description of the mapping
 TableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
 SourceVariableValues,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-SourceVariableValues,,dataDictionary,ref,1,TRUE,DataDictionaries,,,,,
+SourceVariableValues,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,
 SourceVariableValues,,variable,ref,1,TRUE,SourceVariables,dataDictionary,,,,e.g. PATO
 SourceVariableValues,,value,,1,TRUE,,,,,,e.g. '1'
 SourceVariableValues,,label,,,TRUE,,,,,,
@@ -343,20 +347,20 @@ SourceVariableValues,,order,int,,,,,,,,
 SourceVariableValues,,isMissing,bool,,,,,,,,
 SourceVariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
 TargetVariableValues,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-TargetVariableValues,,model,ref,1,TRUE,Models,,,,,
-TargetVariableValues,,variable,ref,1,TRUE,TargetVariables,model,,,,e.g. PATO
+TargetVariableValues,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,
+TargetVariableValues,,variable,ref,1,TRUE,TargetVariables,dataDictionary,,,,e.g. PATO
 TargetVariableValues,,value,,1,TRUE,,,,,,e.g. '1'
 TargetVariableValues,,label,,,TRUE,,,,,,
 TargetVariableValues,,order,int,,,,,,,,
 TargetVariableValues,,isMissing,bool,,,,,,,,
 TargetVariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-VariableMappings,,fromDataDictionary,ref,1,TRUE,DataDictionaries,,,,,
+VariableMappings,,fromDataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,
 VariableMappings,,fromTable,ref,1,TRUE,SourceTables,fromDataDictionary,,,,
 VariableMappings,,fromVariable,ref_array,,,SourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
 VariableMappings,,fromVariablesInOtherTables,ref_array,,,SourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
-VariableMappings,,toModel,ref,1,TRUE,Models,,,,,
-VariableMappings,,toTable,ref,1,TRUE,TargetTables,toModel,,,,
+VariableMappings,,toDataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,
+VariableMappings,,toTable,ref,1,TRUE,TargetTables,toDataDictionary,,,,
 VariableMappings,,toVariable,ref,1,TRUE,TargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
 VariableMappings,,match,ontology,,TRUE,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
 VariableMappings,,status,ontology,,,Status,,,,,whether harmonisation is still draft or final
