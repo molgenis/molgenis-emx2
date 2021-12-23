@@ -260,16 +260,18 @@ export default {
               name: subcohort.name,
               description: subcohort.description,
               numberOfParticipants: subcohort.numberOfParticipants,
-              ageGroups: subcohort.ageGroups
-                .map(topLevelAgeGroup)
-                .reduce((ageGroups, ageGroup) => {
-                  if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
-                    ageGroups.push(ageGroup);
-                  }
-                  return ageGroups;
-                }, [])
-                .map((ag) => ag.name)
-                .join(","),
+              ageGroups: !subcohort.ageGroups
+                ? ""
+                : subcohort.ageGroups
+                    .map(topLevelAgeGroup)
+                    .reduce((ageGroups, ageGroup) => {
+                      if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
+                        ageGroups.push(ageGroup);
+                      }
+                      return ageGroups;
+                    }, [])
+                    .map((ag) => ag.name)
+                    .join(","),
               _path: `/cohorts/${this.$route.params.pid}/subcohorts/${subcohort.name}`,
             };
           });
