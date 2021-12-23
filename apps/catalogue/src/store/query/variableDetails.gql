@@ -1,71 +1,75 @@
 query Variables($filter: VariablesFilter) {
-  Variables(limit: 1, filter: $filter) {
-    name
-    label
-    description
-    format {
-      name
-    }
-    unit {
-      name
-    }
-    permittedValues {
-      value
-      label
-      order
-      isMissing
-      ontologyTermIRI
-    }
-    mappings {
-      syntax
-      description
-      match {
+    Variables(limit: 1, filter: $filter) {
         name
-      }
-      fromRelease {
-        resource {
-          pid
-        }
-      }
-      fromVariable {
-        name
-      }
-      fromTable {
-        release {
-          resource {
-            pid
-          }
-          version
-        }
-        name
-      }
-    }
-    repeats {
-      name
-      mappings {
-        syntax
+        label
         description
-        match {
-          name
+        format {
+            name
         }
-        fromRelease {
-          resource {
-            pid
-          }
+        unit {
+            name
         }
-        fromVariable {
-          name
+        permittedValues {
+            value
+            label
+            order
+            isMissing
+            ontologyTermIRI
         }
-        fromTable {
-          release {
-            resource {
-              pid
+        mappings {
+            syntax
+            description
+            match {
+                name
             }
-            version
-          }
-          name
+            fromRelease {
+                resource {
+                    pid
+                }
+            }
+            fromVariable {
+                name
+            }
+            fromVariablesInOtherTables {
+                table{name}
+                name
+            }
+            fromTable {
+                release {
+                    resource {
+                        pid
+                    }
+                    version
+                }
+                name
+            }
         }
-      }
+        repeats {
+            name
+            mappings {
+                syntax
+                description
+                match {
+                    name
+                }
+                fromRelease {
+                    resource {
+                        pid
+                    }
+                }
+                fromVariable {
+                    name
+                }
+                fromTable {
+                    release {
+                        resource {
+                            pid
+                        }
+                        version
+                    }
+                    name
+                }
+            }
+        }
     }
-  }
 }

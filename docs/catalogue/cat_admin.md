@@ -30,10 +30,9 @@ procedure is to update.
 | 1.3 => 1.4 | This change adds Models.releases refback. Just upload molgenis.csv to update.| 
 | 1.4 => 1.5 | Added Counts table, and linked via RWEresources.counts. Just upload molgenis.csv to update.| 
 | 1.5 => 1.6 | The following data items were added: Databanks.dateEstablished, Databanks.refresh, Datasources.studies, Studies.type, Studies.dataExtractionDate, Studies.CDM, Studies.contactName
-Deleted Models.datasources, Models.databanks. Moved models.releases to heading 'contents'. Just upload molgenis.csv to update.|
+| | Deleted Models.datasources, Models.databanks. Moved models.releases to heading 'contents'. Just upload molgenis.csv to update.|
 | 1.6 => 1.7 | Added CollectionEvents.standardizedTools, CollectionEvents.standardizedToolsOther, Cohorts.contactEmail, StandardizedTools (OntologyTerm table), Datasources.qualityOfLifeOther. Moved Datasources.studies to RWEresources.studies. Deleted RWEresources.standardVocabularies. Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
 | 1.7 => 1.8 | ColumnType of CollectionEvents.standardizedTools changed to ref_array. Unless bugfix #711 Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
 | 1.8 => 1.9 | fix: Institution.typeOther should be text. Just upload molgenis.csv to update. |
 | 1.9=> 1.10 | feat: add Database.populationSize(captured,active), RWEresources.approvalForPublication, Dispensing subterms. Just upload molgenis.csv to update. |
-
-
+| 1.10=> 1.11 | Add VariableMappings.fromVariablesInOtherTables. Just upload molgenis.csv to update. |
