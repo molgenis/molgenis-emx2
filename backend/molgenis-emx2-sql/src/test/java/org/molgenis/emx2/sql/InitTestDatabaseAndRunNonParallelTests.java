@@ -11,9 +11,9 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.Database;
 
 public class InitTestDatabaseAndRunNonParallelTests {
-  private static SqlDatabase database;
 
   @BeforeClass
   public static void createDatabase() {
@@ -21,13 +21,15 @@ public class InitTestDatabaseAndRunNonParallelTests {
     // AND we want run all other tests in parallel
     // so tests are in molgenis-emx2-sql-it ('integration test')
     // and 'init' only happence once, here
-    database = new SqlDatabase(true);
-
-    assertTrue(database.getDatabaseVersion() > 0);
+    Database db = new SqlDatabase(true);
+    assertTrue(db.getDatabaseVersion() > 0);
   }
 
   @Test
   public void testMigration2() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    database.dropCreateSchema("TestMigrations");
+
     DSLContext jooq = database.getJooq();
 
     // ensure no legacy roles exist from a previous test
