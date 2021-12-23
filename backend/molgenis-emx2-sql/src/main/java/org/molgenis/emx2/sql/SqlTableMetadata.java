@@ -390,7 +390,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("removeInherit not yet implemented");
+    throw new MolgenisException("remove tableExtends not yet implemented");
   }
 
   @Override
