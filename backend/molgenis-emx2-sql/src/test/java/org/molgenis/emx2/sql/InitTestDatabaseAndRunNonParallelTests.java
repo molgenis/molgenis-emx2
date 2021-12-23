@@ -1,25 +1,31 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
 
-import java.util.Collections;
-import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Database;
 
-public class TestMigrations {
+import java.util.Collections;
+import java.util.List;
 
-  private static SqlDatabase database;
-  private static Schema schema;
+public class InitTestDatabaseAndRunNonParallelTests {
+  SqlDatabase database;
 
   @BeforeClass
-  public static void setUp() {
-    database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestMigrations.class.getSimpleName());
+  public static void createDatabase() {
+    // we want this run only once and NOT parallel for total test suite
+    // AND we want run all other tests in parallel
+    // so tests are in molgenis-emx2-sql-it ('integration test')
+    // and 'init' only happence once, here
+    SqlDatabase database = new SqlDatabase(true);
+
+    assertTrue(database.getDatabaseVersion() > 0);
   }
 
   @Test
