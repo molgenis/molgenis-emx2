@@ -21,7 +21,7 @@ public class InitTestDatabaseAndRunNonParallelTests {
     // AND we want run all other tests in parallel
     // so tests are in molgenis-emx2-sql-it ('integration test')
     // and 'init' only happence once, here
-    SqlDatabase database = new SqlDatabase(true);
+    database = new SqlDatabase(true);
 
     assertTrue(database.getDatabaseVersion() > 0);
   }
