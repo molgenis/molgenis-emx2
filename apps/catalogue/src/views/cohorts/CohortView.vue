@@ -3,6 +3,7 @@
     <grid-block>
       <page-header
         :title="cohort.name"
+        :subTitle="cohort.institution ? cohort.institution[0].name : null"
         :logoUrl="cohort.logo.url"
       ></page-header>
     </grid-block>
