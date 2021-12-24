@@ -8,18 +8,7 @@
     </grid-block>
 
     <grid-block>
-      <links-list
-        :items="[
-          {
-            label: 'Website',
-            href: cohort.website,
-          },
-          {
-            label: 'Contact',
-            href: cohort.contactEmail,
-          },
-        ]"
-      ></links-list>
+      <links-list :isHorizontal="true" :items="mainLinks"></links-list>
     </grid-block>
 
     <div class="card-columns card-columns-2">
@@ -83,6 +72,10 @@
       <p>{{ sampleCategories.join(", ") }}</p>
       <strong>Sample categories</strong>
       <p>{{ areasOfInformation.join(", ") }}</p>
+    </grid-block>
+
+    <grid-block heading="Documentation" v-if="documentation.length">
+      <links-list :items="documentation"></links-list>
     </grid-block>
 
     <grid-block heading="Subpopulations" v-if="subpopulations.length">
@@ -178,6 +171,22 @@ export default {
     };
   },
   computed: {
+    mainLinks() {
+      const items = [];
+      if (this.cohort.website) {
+        items.push({
+          label: "Website",
+          href: this.cohort.website,
+        });
+      }
+      if (this.cohort.contactEmail) {
+        items.push({
+          label: "Contact",
+          href: this.cohort.contactEmail,
+        });
+      }
+      return items;
+    },
     generalDesignItems() {
       return [
         {
@@ -314,6 +323,17 @@ export default {
       } else {
         return this.eventDetailSummary("areasOfInformation");
       }
+    },
+    documentation() {
+      if (!this.cohort.documentation) {
+        return [];
+      }
+      return this.cohort.documentation.map((d) => {
+        return {
+          text: d.name,
+          href: d.url,
+        };
+      });
     },
     cohortMetaData() {
       return this.metaData._schema.tables.find(
