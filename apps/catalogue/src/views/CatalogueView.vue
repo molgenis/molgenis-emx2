@@ -16,55 +16,60 @@
       networks, common data models and studies.
     </p>
     <h2>Metadata on data collections</h2>
-    <div class="row justify-content-between">
-      <RouterLink to="institutions" class="btn btn-dark col m-2">
-        <span class="badge badge-light">{{ institutions }}</span>
+    <div class="card-columns">
+      <RouterLink
+        to="Institutions"
+        class="card card-body bg-dark text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ institutions }}</span>
         <h3>Institutions</h3>
         <p class="text-left">
           Contributors to the catalogue such as universities, companies, medical
           centres and research institutes
         </p>
       </RouterLink>
-      <RouterLink to="datasources" class="btn btn-secondary col m-2">
-        <span class="badge badge-light">{{ datasources }}</span>
+      <RouterLink
+        to="Datasources"
+        class="card card-body bg-primary text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ datasources }}</span>
         <h3>Data sources</h3>
         <p class="text-left">
           Collections of data banks covering the same population
         </p>
       </RouterLink>
-      <RouterLink to="databanks" class="btn btn-info col m-2">
-        <span class="badge badge-light">{{ databanks }}</span>
+      <RouterLink
+        to="Databanks"
+        class="card card-body bg-info text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ databanks }}</span>
         <h3>Data banks</h3>
         <p class="text-left">Data collections such as registries or biobanks</p>
       </RouterLink>
       <RouterLink
-        to="cohorts"
-        class="btn btn-primary col m-2"
+        to="Cohorts"
+        class="card card-body bg-primary text-white card-height"
         v-if="cohorts > 0"
       >
-        <span class="badge badge-light">{{ cohorts }}</span>
+        <span class="badge badge-light float-right">{{ cohorts }}</span>
         <h3>Cohorts</h3>
         <p class="text-left">
           Systematic observations of large groups of individuals over time.
         </p>
       </RouterLink>
-    </div>
-    <h2>Metadata in integration and reuse</h2>
-    <div class="row justify-content-around mt-4">
-      <RouterLink to="networks" class="btn btn-danger col-3 m-2">
-        <span class="badge badge-light">{{ networks }}</span>
+      <RouterLink
+        to="Networks"
+        class="card card-body bg-danger text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ networks }}</span>
         <h3>Networks</h3>
         <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
-      <RouterLink to="models" class="btn btn-warning col-3 m-2">
-        <span class="badge badge-light">{{ models }}</span>
-        <h3>Common data models</h3>
-        <p class="text-left">
-          Common Data Element models and Harmonization models
-        </p>
-      </RouterLink>
-      <RouterLink to="studies" class="btn btn-success col-3 m-2">
-        <span class="badge badge-light">{{ studies }}</span>
+      <RouterLink
+        to="Studies"
+        class="card card-body bg-success text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ studies }}</span>
         <h3>Studies</h3>
         <p class="text-left">
           Collaborations of multiple institutions, addressing research questions
@@ -72,47 +77,73 @@
         </p>
       </RouterLink>
     </div>
+
     <h2>Browse data definitions</h2>
     <div class="row justify-content-between container-fluid mt-4 mb-4">
-      <RouterLink to="releases" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ releases }}</span>
-        <h3>Releases</h3>
-        <p class="text-left">
-          Data releases from databanks, models or networks.
-        </p>
-      </RouterLink>
-      <RouterLink to="tables" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ tables }}</span>
-        <h3>Tables</h3>
-        <p class="text-left">
-          Raw listing of all tables described across all releases of all
-          databanks and common models.
-        </p>
-      </RouterLink>
-      <RouterLink to="variables" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ variables }}</span>
-        <h3>Variables</h3>
-        <p class="text-left">
-          Raw listing of all variables described across all releases of all
-          databanks and common models.
-        </p>
-      </RouterLink>
-      <RouterLink to="tablemappings" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ tableMappings }}</span>
-        <h3>Table Mappings</h3>
-        <p class="text-left">
-          Raw listing of all mappings described between tables in databanks and
-          those in common data models.
-        </p>
-      </RouterLink>
-      <RouterLink to="/variable-explorer" class="btn btn-outline-dark col-2">
-        <span class="badge badge-light">{{ variableMappings }}</span>
-        <h3>Variable Mappings</h3>
-        <p class="text-left">
-          List of all mappings described variables in databanks and those in
-          common data models.
-        </p>
-      </RouterLink>
+      <div class="border border-dark rounded col-3">
+        <h3>Collected data dictionaries</h3>
+        <div class="text-left">
+          Data dictionaries of collected data in databanks and/or cohorts.
+          <ul>
+            <li>
+              <RouterLink to="source-data-dictionaries">
+                Data dictionaries ({{ sourceDataDictionaries }})
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink to="source-tables">
+                Tables ({{ sourceTables }})
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink to="source-variables">
+                Variables ({{ sourceVariables }})
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border border-dark rounded col-3">
+        <h3>Common data models</h3>
+        <div class="text-left">
+          Data dictionaries of standards for integrated analysis
+          <ul>
+            <li>
+              <RouterLink to="target-data-dictionaries">
+                Data dictionaries ({{ targetDataDictionaries }})
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink to="target-tables">
+                Tables ({{ targetTables }})
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink to="target-variables">
+                Variables ({{ targetVariables }})
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border border-dark rounded col-3">
+        <h3>Data model mappings</h3>
+        <div class="text-left">
+          Mappings between collected data dictionaries and standard models
+          <ul>
+            <li>
+              <RouterLink to="variable-mappings">
+                Variable mappings ({{ variableMappings }})
+              </RouterLink>
+            </li>
+            <li>
+              <RouterLink to="table-mappings">
+                Table mappings ({{ tableMappings }})
+              </RouterLink>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
     <p>
       This catalogue software has been made possible by contributions from H2020
@@ -127,6 +158,10 @@
   position: absolute;
   top: 5px;
   right: 5px;
+}
+
+.card-height {
+  min-height: 200px;
 }
 </style>
 
@@ -148,10 +183,13 @@ export default {
       projects: null,
       models: null,
       datasources: null,
-      variables: null,
-      tables: null,
+      sourceVariables: null,
+      targetVariables: null,
+      sourceTables: null,
+      targetTables: null,
       graphqlError: null,
-      releases: null,
+      sourceDataDictionaries: null,
+      targetDataDictionaries: null,
       variableMappings: null,
       tableMappings: null,
       studies: null,
@@ -161,7 +199,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {_schema{name},Institutions_agg{count},Cohorts_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},Tables_agg{count},Models_agg{count},Studies_agg{count} Releases_agg{count}, Variables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
+        `query {_schema{name}, Institutions_agg{count}, Studies_agg{count}, Cohorts_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},SourceTables_agg{count},TargetTables_agg{count},Models_agg{count},Studies_agg{count} SourceDataDictionaries_agg{count},TargetDataDictionaries_agg{count}, SourceVariables_agg{count},TargetVariables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
       )
         .then((data) => {
           this.schemaName = data._schema.name;
@@ -169,11 +207,14 @@ export default {
           this.databanks = data.Databanks_agg.count;
           this.cohorts = data.Cohorts_agg.count;
           this.networks = data.Networks_agg.count;
-          this.models = data.Models_agg.count;
           this.datasources = data.Datasources_agg.count;
-          this.releases = data.Releases_agg.count;
-          this.tables = data.Tables_agg.count;
-          this.variables = data.Variables_agg.count;
+          this.sourceDataDictionaries = data.SourceDataDictionaries_agg.count;
+          this.sourceTables = data.SourceTables_agg.count;
+          this.sourceVariables = data.SourceVariables_agg.count;
+          this.models = data.Models_agg.count;
+          this.targetDataDictionaries = data.TargetDataDictionaries_agg.count;
+          this.targetTables = data.TargetTables_agg.count;
+          this.targetVariables = data.TargetVariables_agg.count;
           this.variableMappings = data.VariableMappings_agg.count;
           this.tableMappings = data.TableMappings_agg.count;
           this.studies = data.Studies_agg.count;

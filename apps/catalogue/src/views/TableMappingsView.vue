@@ -81,7 +81,7 @@
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
-              name: 'Variables-details',
+              name: 'TargetVariables-details',
               params: {
                 pid: toPid,
                 version: toVersion,
@@ -97,7 +97,7 @@
           <RouterLink
             v-if="m.fromVariable"
             :to="{
-              name: 'Variables-details',
+              name: 'SourceVariables-details',
               params: {
                 pid: fromPid,
                 version: fromVersion,
@@ -183,15 +183,15 @@ export default {
 query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid:String,$toVersion:String,$toTable:String)
 {
   TableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
     description
   },
   VariableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
     description,fromVariable{name},toVariable{name},syntax
