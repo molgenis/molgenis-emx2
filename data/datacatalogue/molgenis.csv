@@ -358,7 +358,7 @@ VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmon
 VariableMappings,,fromDataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,
 VariableMappings,,fromTable,ref,1,TRUE,SourceTables,fromDataDictionary,,,,
 VariableMappings,,fromVariable,ref_array,,,SourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
-VariableMappings,,fromVariablesInOtherTables,ref_array,,,SourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
+VariableMappings,,fromVariablesOtherTables,ref_array,,,SourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
 VariableMappings,,toDataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,
 VariableMappings,,toTable,ref,1,TRUE,TargetTables,toDataDictionary,,,,
 VariableMappings,,toVariable,ref,1,TRUE,TargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
