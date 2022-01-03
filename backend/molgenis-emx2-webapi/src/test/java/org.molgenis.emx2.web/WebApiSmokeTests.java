@@ -1,6 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -445,6 +448,15 @@ public class WebApiSmokeTests {
 
     schema.getMetadata().removeSetting("menu");
     db.clearActiveUser();
+  }
+
+  @Test
+  public void testMolgenisWebservice_robotsDotTxt() {
+    when()
+            .get("/robots.txt")
+            .then()
+            .statusCode(200)
+            .body(equalTo("User-agent: *\nAllow: /"));
   }
 
   @AfterClass

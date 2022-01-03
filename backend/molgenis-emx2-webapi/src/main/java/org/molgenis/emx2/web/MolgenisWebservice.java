@@ -29,6 +29,8 @@ public class MolgenisWebservice {
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
+  private static final String ROBOTS_TXT = "robots.txt";
+  private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
   static MolgenisSessionManager sessionManager;
   static OIDCController oidcController;
 
@@ -48,6 +50,7 @@ public class MolgenisWebservice {
         ("/" + OIDC_CALLBACK_PATH),
         (request, response) -> oidcController.handleLoginCallback(request, response));
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
+    get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
     // root
     get(
@@ -94,7 +97,8 @@ public class MolgenisWebservice {
         "/:schema",
         (req, res) -> {
           if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
-              && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())) {
+              && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())
+              && !("/" + ROBOTS_TXT).equals(req.pathInfo())) {
             res.redirect("/" + req.params("schema") + "/");
           }
         });
@@ -120,6 +124,11 @@ public class MolgenisWebservice {
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
         });
+  }
+
+  private static String robotsDotTxt(Request request, Response response) {
+    response.type("text/plain;charset=UTF-8");
+    return USER_AGENT_ALLOW;
   }
 
   private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
