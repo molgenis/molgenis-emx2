@@ -34,6 +34,7 @@ public class SqlDatabase implements Database {
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
+  private Collection<Setting> settings = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String INITIAL_ADMIN_PW =
@@ -67,6 +68,7 @@ public class SqlDatabase implements Database {
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
+    this.settings.addAll(copy.settings);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -234,6 +236,7 @@ public class SqlDatabase implements Database {
           SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
           sqlDatabase.schemaNames.remove(name);
           sqlDatabase.schemaInfos.clear();
+          sqlDatabase.settings.clear();
           sqlDatabase.schemaCache.remove(name);
         });
 
@@ -269,6 +272,22 @@ public class SqlDatabase implements Database {
       this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
     }
     return this.schemaInfos;
+  }
+
+  @Override
+  public Collection<Setting> getSettings() {
+    if (this.settings.isEmpty()) {
+      this.settings = MetadataUtils.loadSettings(jooq);
+    }
+    return this.settings;
+  }
+
+  @Override
+  public Setting createSetting(String key, String value) {
+    Setting newSetting = new Setting(key, value);
+    MetadataUtils.saveSetting(jooq, newSetting);
+    this.settings.add(newSetting);
+    return newSetting;
   }
 
   @Override
@@ -424,6 +443,7 @@ public class SqlDatabase implements Database {
 
       this.schemaNames = from.schemaNames;
       this.schemaInfos = from.schemaInfos;
+      this.settings = from.settings;
 
       // remove schemas that were dropped
       Set<String> removeSet = new HashSet<>();
@@ -461,6 +481,7 @@ public class SqlDatabase implements Database {
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
+    this.settings.clear();
   }
 
   public DSLContext getJooq() {

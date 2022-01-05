@@ -23,6 +23,10 @@ public interface Database {
 
   Collection<SchemaInfo> getSchemaInfos();
 
+  Collection<Setting> getSettings();
+
+  Setting createSetting(String key, String value);
+
   Schema getSchema(String name);
 
   void addUser(String name);

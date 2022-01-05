@@ -13,9 +13,11 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
 import org.molgenis.emx2.web.controllers.OIDCController;
@@ -96,9 +98,12 @@ public class MolgenisWebservice {
     before(
         "/:schema",
         (req, res) -> {
-          if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
-              && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())
-              && !("/" + ROBOTS_TXT).equals(req.pathInfo())) {
+          String path = req.pathInfo();
+          if (path.startsWith("/google") && path.endsWith(".html")) {
+            MolgenisWebservice.handleGoogleVerification(req, res);
+          } else if (!("/" + OIDC_LOGIN_PATH).equals(path)
+              && !("/" + OIDC_CALLBACK_PATH).equals(path)
+              && !("/" + ROBOTS_TXT).equals(path)) {
             res.redirect("/" + req.params("schema") + "/");
           }
         });
@@ -129,6 +134,20 @@ public class MolgenisWebservice {
   private static String robotsDotTxt(Request request, Response response) {
     response.type("text/plain;charset=UTF-8");
     return USER_AGENT_ALLOW;
+  }
+
+  private static void handleGoogleVerification(Request request, Response response) {
+    Optional<Setting> verificationKey =
+        sessionManager.getSession(request).getDatabase().getSettings().stream()
+            .filter(s -> "google-site-verification".equals(s.getKey()))
+            .findFirst();
+    if (verificationKey.isPresent()) {
+      response.body(
+          String.format(
+              "google-site-verification: google%s.html", verificationKey.get().getValue()));
+    } else {
+      halt(401, "Google site verification is not set ");
+    }
   }
 
   private static void redirectSchemaToFirstMenuItem(Request request, Response response) {

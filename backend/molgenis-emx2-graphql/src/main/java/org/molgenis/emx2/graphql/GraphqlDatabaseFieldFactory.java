@@ -84,6 +84,25 @@ public class GraphqlDatabaseFieldFactory {
                 List.of(Map.of("key", IS_OIDC_ENABLED, VALUE, database.isOidcEnabled())));
   }
 
+  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("createSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.SETTINGS_VALUE)
+                .type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
+              database.createSetting(key, value);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
+            });
+  }
+
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("Schemas")

@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
@@ -528,28 +529,55 @@ public class MetadataUtils {
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
+    return asSettingsList(settingRecords);
+  }
+
+  /**
+   * Loads a list of all database settings ( i.e., settings not related to a specific Schema or
+   * Table)
+   */
+  protected static List<Setting> loadSettings(DSLContext jooq) {
+    List<org.jooq.Record> settingRecords =
+        jooq.selectFrom(SETTINGS_METADATA)
+            .where(TABLE_SCHEMA.eq(NOT_PROVIDED), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
+            .fetch();
+    return asSettingsList(settingRecords);
+  }
+
+  private static List<Setting> asSettingsList(List<Record> settingRecords) {
     List<Setting> settings = new ArrayList<>();
-    for (org.jooq.Record record : settingRecords) {
+    for (Record settingRecord : settingRecords) {
       settings.add(
           new Setting(
-              record.get(SETTINGS_NAME, String.class), record.get(SETTINGS_VALUE, String.class)));
+              settingRecord.get(SETTINGS_NAME, String.class),
+              settingRecord.get(SETTINGS_VALUE, String.class)));
     }
     return settings;
   }
 
   protected static void saveSetting(
       DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
+    String tableName = table != null ? table.getTableName() : NOT_PROVIDED;
+    insertSetting(jooq, schema.getName(), tableName, setting.getKey(), setting.getValue());
+  }
+
+  protected static void saveSetting(DSLContext jooq, Setting setting) {
+    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.getKey(), setting.getValue());
+  }
+
+  private static void insertSetting(
+      DSLContext jooq,
+      String schemaName,
+      String tableName,
+      String settingKey,
+      String settingValue) {
     try {
       jooq.insertInto(SETTINGS_METADATA)
           .columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-          .values(
-              schema.getName(),
-              table != null ? table.getTableName() : NOT_PROVIDED,
-              setting.getKey(),
-              setting.getValue())
+          .values(schemaName, tableName, settingKey, settingValue)
           .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
           .doUpdate()
-          .set(SETTINGS_VALUE, setting.getValue())
+          .set(SETTINGS_VALUE, settingValue)
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of settings failed", e);
