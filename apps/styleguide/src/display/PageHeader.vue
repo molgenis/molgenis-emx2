@@ -13,8 +13,18 @@
         />
       </div>
     </div>
-    <h3>
-      <small class="text-muted">{{ subTitle }}</small>
+    <h3 v-if="subTitle">
+      <small class="text-muted">
+        <template v-if="subTitleLink && isVueRouterLink"
+          ><router-link v-bind="subTitleLink">{{
+            subTitle
+          }}</router-link></template
+        >
+        <template v-else-if="subTitleLink && !isVueRouterLink"
+          ><a :href="subTitleLink">{{ subTitle }}</a></template
+        >
+        <template v-else>{{ subTitle }}</template>
+      </small>
     </h3>
   </div>
 </template>
@@ -38,6 +48,10 @@ export default {
       type: String,
       required: false,
     },
+    subTitleLink: {
+      type: [String, Object],
+      required: false,
+    },
     logoUrl: {
       type: String,
       required: false,
@@ -46,6 +60,16 @@ export default {
   computed: {
     nTitleColumns() {
       return this.logoUrl ? 9 : 12;
+    },
+    isVueRouterLink() {
+      return (
+        (this.subTitleLink && typeof this.subTitleLink === "object") ||
+        (typeof this.subTitleLink === "string" &&
+          !(
+            this.subTitleLink.startsWith("http://") ||
+            this.subTitleLink.startsWith("https://")
+          ))
+      );
     },
   },
 };
@@ -79,4 +103,20 @@ Example (title and subTitle)
 </template>
 ````
 
+Example (title and subTitle with link)
+
+```
+<template>
+  <page-header title="Molgenis" subTitle="molgenis.org" subTitleLink="https://www.molgenis.org/" ></page-header>
+</template>
+````
+
+Example (title and subTitle with vue router link)
+
+```
+const routerLink = {to: "https://router.vuejs.org/api/#to"}
+<template>
+  <page-header title="Molgenis" subTitle="molgenis.org" :subTitleLink="routerLink" ></page-header>
+</template>
+````
 </docs>

@@ -5,6 +5,11 @@
         :title="cohort.name"
         :subTitle="cohort.institution ? cohort.institution[0].name : null"
         :logoUrl="cohort.logo.url"
+        :subTitleLink="
+          cohort.institution
+            ? { to: '/institutions/' + cohort.institution[0].pid }
+            : null
+        "
       ></page-header>
     </grid-block>
 
