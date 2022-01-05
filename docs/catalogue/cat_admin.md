@@ -36,3 +36,7 @@ procedure is to update.
 | 1.8 => 1.9 | fix: Institution.typeOther should be text. Just upload molgenis.csv to update. |
 | 1.9=> 1.10 | feat: add Database.populationSize(captured,active), RWEresources.approvalForPublication, Dispensing subterms. Just upload molgenis.csv to update. |
 | 1.10=> 1.11 | Add VariableMappings.fromVariablesInOtherTables. Just upload molgenis.csv to update. |
+| 1.11 => 2.0 | Delete AllVariables and split tables Variables, RepeatedVariables and VariableValues in SourceVariables and TargetVariables, RepeatedSourceVariables and RepeatedTargetVariables, SourceVariableValues and TargetVariableValues. |
+| | Split table Tables in SourceTables and TargetTables. |
+| | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. | 
+| 2.0 => 2.1 | Add Cohorts.designDescription and Cohorts.designSchematic. Change ColumnType of Resources.designPaper to ref, referring to table Publications. |
