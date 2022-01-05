@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,2
+Version,,,,,,,,,,,2.1
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -38,15 +38,17 @@ Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has b
 Resources,,externalIdentifiers,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ref_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,"If other, describe the type of resource"
-Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, e.g. cross-sectional or longitudinal"
-Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"The data collection type of this cohort, e.g. retrospective or prospective; if both, select both"
+Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
+Cohorts,,designDescription,,,,,,,,,"Short description of the study design of this cohort"
+Cohorts,,designSchematic,,,,,,,,,"A schematic depiction of the study design of this cohort"
+Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
 Studies,,type,ref,,,StudyTypes,,,,,Select 1 of the following types of study
 Databanks,,databankFamily,ontology,,,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,"If 'other' selected above, describe the type of data bank"
 Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
 Studies,,contactName,,,,,,,,,Name of institution contact for study
-Resources,,logo,file,,,,,,,,Logo for use on homepages etc.
+Resources,,logo,file,,,,,,,,"Logo of the resource, for use on homepages etc."
 Resources,,population,heading,,,,,,,,Description of the population that can potentially be captured in the resource
 Resources,,numberOfParticipants,int,,,,,,,,Total number of individuals for which data is collected
 Resources,,numberOfParticipantsWithSamples,int,,,,,,,,Number of individuals for which samples are collected
@@ -126,7 +128,7 @@ Databanks,,completenessOverTime,text,,,,,,,,"Describe any changes in completenes
 Databanks,,qualityDescription,text,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
 Databanks,,qualityOverTime,text,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
 Resources,,otherInformation,heading,,,,,,,,Other information
-Resources,,designPaper,text,,,,,,,,Publication(s) that describe(s) the design of this resource
+Resources,,designPaper,ref,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,publications,ref_array,,,Publications,,,,,Other publication(s) about this resource
 Resources,,fundingStatement,text,,,,,,,,Statement listing funding that was obtained for this resource
 Resources,,acknowledgements,text,,,,,,,,Acknowledgement statement and citation regulation for this resource
@@ -241,7 +243,7 @@ Subcohorts,,numberOfParticipants,int,,,,,,,,Number of participants in this subco
 Subcohorts,,inclusionStart,int,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups within this subcohort
-Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,,,,,Main medical condition of this subcohort
+Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
 Subcohorts,,countries,ontology_array,,,Countries,,,,,Countries where data from this subcohort largely originate from
 Subcohorts,,regions,ontology_array,,,Regions,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,Other inclusion criteria applied to this subcohort
