@@ -40,3 +40,4 @@ procedure is to update.
 | | Split table Tables in SourceTables and TargetTables. |
 | | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. | 
 | 2.0 => 2.1 | Add Cohorts.designDescription and Cohorts.designSchematic. Change ColumnType of Resources.designPaper to ref, referring to table Publications. |
+| | Split Cohorts.dataAccessConditions into dataAccessConditions and dataUseConditions, add Cohorts.dataAccessFee. |
