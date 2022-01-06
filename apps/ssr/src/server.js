@@ -1,24 +1,20 @@
-import { createApp } from "./app";
+/* Create app when rendering server side; route and state will be injected */
+import { createApp } from "./createApp";
 import renderVueComponentToString from "vue-server-renderer/basic.js";
 
-//create the app
 const { app, router } = createApp();
 
-console.log("received route: " + route);
-
 //route is passed from environment
-router.push(route);
+console.log("received route: " + route);
+router.push({ path: route });
+
+console.log("Current route: " + JSON.stringify(router.currentRoute));
 
 router.onReady(() => {
   console.log("router ready");
-  renderVueComponentToString(app, (err, res) => {
-    if (res) {
-      rendered = String(res);
-    } else {
-      console.log("rendering failed: " + err);
-      rendered = String(err);
-    }
+  renderVueComponentToString(app, (err, html) => {
+    if (err) throw err;
+    rendered = String(html);
+    console.log("server side rendering complete");
   });
 });
-
-console.log("done");

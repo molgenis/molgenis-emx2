@@ -1,4 +1,5 @@
 // Acknowledgement to SakaiBorder for providing the template for this code
+// see https://github.com/SakaiBorder/java-vue-ssr/tree/master/src/main/js/src
 
 package org.molgenis.emx2.web;
 
@@ -7,10 +8,13 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.Map;
 import javax.script.*;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -30,13 +34,14 @@ public class SsrService {
   public static String SSR_BASE_PATH = "/public_html/ssr/";
 
   public static void create() {
-    get("/:schema/view/:table/:jsonKey", SsrService::getRecordForDefaultRoute);
-    get("/:schema/view/:table/:jsonKey/:route", SsrService::getRecordForRoute);
+    get("/:schema/view/:table/:filter", SsrService::getRecordForDefaultRoute);
+    get("/:schema/view/:table/:filter/:route", SsrService::getRecordForRoute);
   }
 
   static String getRecordForDefaultRoute(Request request, Response response) {
     try {
-      return renderRoute("/", retrieveRecord(request));
+      return renderRoute(
+          "/" + request.params("table") + "/" + request.params("filter"), retrieveRecord(request));
     } catch (Exception e) {
       throw new MolgenisException("Rendering failed: ", e);
     }
@@ -44,7 +49,14 @@ public class SsrService {
 
   static String getRecordForRoute(Request request, Response response) {
     try {
-      return renderRoute(request.params("route"), retrieveRecord(request));
+      return renderRoute(
+          "/"
+              + request.params("table")
+              + "/"
+              + request.params("filter")
+              + "/"
+              + request.params("route"),
+          retrieveRecord(request));
     } catch (Exception e) {
       throw new MolgenisException("Rendering failed: ", e);
     }
@@ -56,7 +68,7 @@ public class SsrService {
 
     // create primary key filter
     Filter filter =
-        createKeyFilter(new ObjectMapper().readValue(request.params("jsonKey"), Map.class));
+        createKeyFilter(new ObjectMapper().readValue(request.params("filter"), Map.class));
 
     return "{\"row\":"
         + table.query().where(filter).retrieveJSON()
@@ -71,7 +83,15 @@ public class SsrService {
     StringWriter stringWriter = new StringWriter();
     try {
       // we use graalvm to render the js
-      ScriptEngine engine = new ScriptEngineManager().getEngineByName("graal.js");
+      ScriptEngine engine =
+          GraalJSScriptEngine.create(
+              null,
+              Context.newBuilder("js")
+                  .allowHostAccess(HostAccess.ALL)
+                  .allowHostClassLookup(s -> true)
+                  .option("js.ecmascript-version", "2021"));
+
+      // ScriptEngine engine = new ScriptEngineManager().getEngineByName("graal.js");
       ScriptContext context = new SimpleScriptContext();
 
       // catch the output
@@ -94,7 +114,7 @@ public class SsrService {
           "'var process = { env: { VUE_ENV: \"server\", NODE_ENV: \"production\" }}; this.global = { process: process };'",
           context);
 
-      // load the app (can this be cached?)
+      // load the app
       engine.eval(read("server.umd.js"), context);
 
       // execute

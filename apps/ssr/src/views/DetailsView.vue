@@ -1,29 +1,16 @@
 <template>
   <div>
-    <RowCard :columns="columns" :row="state.row" :tableName="state.table" />
+    <h1>TODO: make nice details view here!</h1>
+    <div>Provided state:</div>
+    <div>{{ state }}</div>
   </div>
 </template>
 
 <script>
-import { RowCard } from "@mswertz/emx2-styleguide";
-
+/* Dummy detail view to show routing works properly */
 export default {
   props: {
     state: Object,
-  },
-  components: {
-    RowCard,
-  },
-  computed: {
-    columns() {
-      return this.state.schema.tables
-        .filter((t) => t.name == this.state.table)[0]
-        .columns.map((c) => {
-          //TODO: huge pitfall that we have to set showColumn
-          c.showColumn = true;
-          return c;
-        });
-    },
   },
 };
 </script>

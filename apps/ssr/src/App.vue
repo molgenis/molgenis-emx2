@@ -1,23 +1,37 @@
 <template>
-  <div>
+  <div id="app">
     <router-view v-if="state" :state="state" />
     <div v-else>
-      <!--
-      Todo: get document is not defined error
-      PreviewWrapper :table="table" :filter="filter">
+      <!-- below only for development purposes-->
+      <div v-if="filterError">
+        <h1>Error: filter malformed</h1>
+        <div>Value provided: {{ $route.params.filter }}</div>
+        <div>Error: {{ filterError }}</div>
+      </div>
+      <ClientSideStateLoader
+        :table="table"
+        :filter="filter"
+        :key="$route.fullPath"
+      >
         <template v-slot:default="slotProps">
           <router-view :state="slotProps.state" />
         </template>
-      </PreviewWrapper-->
+      </ClientSideStateLoader>
     </div>
   </div>
 </template>
 
 <script>
-//import PreviewWrapper from "./components/PreviewWrapper";
+import ClientSideStateLoader from "./components/ClientSideStateLoader";
 
 export default {
-  //  components: { PreviewWrapper },
+  name: "App",
+  components: { ClientSideStateLoader },
+  data() {
+    return {
+      filterError: null,
+    };
+  },
   props: {
     state: {
       type: Object,
@@ -34,11 +48,22 @@ export default {
   },
   computed: {
     table() {
-      return this.$route.params.table;
+      //either from props or params
+      if (this.$route.params.table) {
+        return this.$route.params.table;
+      } else if (this.$route.matched[0].props.default.table) {
+        return this.$route.matched[0].props.default.table;
+      }
     },
     filter() {
       if (this.$route.params.filter) {
-        return { equals: JSON.parse(this.$route.params.filter) };
+        try {
+          return JSON.parse(this.$route.params.filter);
+        } catch (e) {
+          this.filterError = e;
+        }
+      } else {
+        return this.$route.matched[0].props.default.filter;
       }
     },
   },
