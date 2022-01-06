@@ -17,7 +17,7 @@
             class="badge bg-primary text-white mr-1"
             v-for="v in selectionWithoutChildren"
             :key="v"
-            @click.stop="deselect([v])"
+            @click.stop="deselectWithChildren(v)"
           >
             {{ v }}
             <span class="fa fa-times"></span>
@@ -239,6 +239,18 @@ export default {
         result.push(...this.getParents(result));
       }
       return result;
+    },
+    deselectWithChildren(item) {
+      if (this.list) {
+        this.deselect([item]);
+        this.getChildren(item).forEach((t) =>
+          this.deselectWithChildren(t.name)
+        );
+      } else {
+        this.selection = [];
+      }
+      this.emitValue();
+      this.$refs.search.focus();
     },
     deselect(items) {
       if (this.list) {
