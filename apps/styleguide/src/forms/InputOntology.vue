@@ -46,7 +46,7 @@
         </span>
       </button>
       <div
-        class="w-100 show p-0"
+        class="w-100 show p-0 overflow-auto"
         :class="{ 'dropdown-menu': !showExpanded }"
         v-if="focus || showExpanded"
         v-click-outside="toggleFocus"
@@ -54,7 +54,7 @@
         <InputOntologySubtree
           v-if="hasSearchResults"
           style="max-height: 50vh"
-          class="overflow-auto pt-2 pl-0 dropdown-item"
+          class="pt-2 pl-0 dropdown-item"
           :terms="terms"
           :selection="selection"
           :expanded="expanded"
