@@ -52,5 +52,9 @@ module.exports = {
       name: "Mixins",
       components: "src/mixins/[A-Z]*.vue",
     },
+    {
+      name: "Display",
+      components: "src/display/[A-Z]*.vue",
+    },
   ],
 };

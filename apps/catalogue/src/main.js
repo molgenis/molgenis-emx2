@@ -13,9 +13,12 @@ import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
 import VariableDetailView from "./views/VariableDetailView";
-import CohortView from "./views/CohortView";
+import OldCohortView from "./views/cohorts/OldCohortView";
+import CohortView from "./views/cohorts/CohortView";
 import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
+import Subcohort from "./views/cohorts/Subcohort";
+import CollectionEvent from "./views/cohorts/CollectionEvent";
 
 Vue.config.productionTip = false;
 
@@ -184,9 +187,14 @@ const router = new VueRouter({
       }),
     },
     {
+      path: "/alt-cohorts/:pid",
+      component: CohortView,
+      props: true,
+    },
+    {
       name: "Cohorts-details",
       path: "/cohorts/:pid",
-      component: CohortView,
+      component: OldCohortView,
       props: true,
     },
     {
@@ -297,6 +305,28 @@ const router = new VueRouter({
       path: "/variable-explorer/:name",
       props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
+    },
+    {
+      name: "Subcohort",
+      path: "/cohorts/:cohort/subcohorts/:name",
+      props: true,
+      component: Subcohort,
+    },
+    {
+      name: "CollectionEvent",
+      path: "/cohorts/:cohort/collection-events/:name",
+      props: true,
+      component: CollectionEvent,
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/collection-events",
+      redirect: "/cohorts/:cohort",
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/subcohorts",
+      redirect: "/cohorts/:cohort",
     },
   ],
 });
