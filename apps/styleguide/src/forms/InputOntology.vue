@@ -179,6 +179,17 @@ export default {
     getChildren(name) {
       return this.data.filter((o) => o.parent && o.parent.name === name);
     },
+    getChildrenRecursive(name) {
+      return this.data
+        .filter((o) => o.parent && o.parent.name === name)
+        .map((t) => {
+          let children = this.getChildrenRecursive(t.name);
+          if (children.length > 0) {
+            t.children = children;
+          }
+          return t;
+        });
+    },
     toggleExpand(name) {
       if (this.expanded.indexOf(name) === -1) {
         this.expanded.push(name);
@@ -267,7 +278,7 @@ export default {
         this.terms = this.data
           .filter((o) => !o.parent)
           .map((o) => {
-            let children = this.getChildren(o.name);
+            let children = this.getChildrenRecursive(o.name);
             if (children.length > 0) {
               o.children = children;
             }
@@ -377,7 +388,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Category" graphqlURL="/pet store/graphql"/>
+                   table="Keywords" graphqlURL="/catalogue/graphql" :showExpanded="true" :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
