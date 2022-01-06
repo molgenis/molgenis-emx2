@@ -15,7 +15,7 @@
         <span>
           <span
             class="badge bg-primary text-white mr-1"
-            v-for="v in selectionWithoutParents"
+            v-for="v in selectionWithoutChildren"
             :key="v"
             @click.stop="deselect([v])"
           >
@@ -140,9 +140,24 @@ export default {
         return {};
       }
     },
+    //below will be used in case ontology is not a hierarchy
     selectionWithoutParents() {
       if (this.list) {
         return this.selection.filter((t) => this.getParents(t).length > 0);
+      } else if (this.selection[0] != null) {
+        return this.selection;
+      } else {
+        return [];
+      }
+    },
+    //below will be used in case ontology is a hierarchy
+    selectionWithoutChildren() {
+      if (this.list) {
+        //skip children if parent selected
+        return this.selection.filter((t) => {
+          let parents = this.getParents([t]);
+          return parents.length == 0 || !this.selection.includes(parents[0]);
+        });
       } else if (this.selection[0] != null) {
         return this.selection;
       } else {
