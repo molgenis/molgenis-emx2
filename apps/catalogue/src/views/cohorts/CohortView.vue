@@ -49,25 +49,46 @@
     </grid-block>
 
     <grid-block heading="Partners" v-if="partners.length">
-      <div v-for="(partner, index) in partners" :key="index">
-        <image-display
-          style="width: 100px; height: 100px"
-          :url="partner.institution.logo.url"
-        ></image-display>
+      <div class="card-columns">
+        <image-card
+          v-for="(partner, index) in partners"
+          :key="index"
+          :title="partner.institution.name"
+          :linkUrl="`/institutions/${partner.institution.pid}`"
+        >
+          <template #image>
+            <image-display
+              :url="partner.institution.logo.url"
+              :alt="partner.institution.pid"
+            ></image-display>
+          </template>
+        </image-card>
       </div>
     </grid-block>
 
     <grid-block heading="Networks" v-if="networks.length">
-      <div class="card-deck">
-        <div class="card" v-for="(network, index) in networks" :key="index">
-          <image-display
-            style="width: 170px; height: 100px"
-            :url="network.logo.url"
-            :alt="network.name"
-            :is-clickable="true"
-            @clicked="$router.push({ path: `/networks/${network.pid}` })"
-          ></image-display>
-        </div>
+      <div class="card-columns">
+        <image-card v-for="(network, index) in networks" :key="index">
+          <template #image>
+            <image-display
+              :url="network.logo.url"
+              :alt="network.name"
+            ></image-display>
+          </template>
+          <template #body>
+            <h5 class="card-title">{{ network.name }}</h5>
+            <p class="card-text">{{ network.description }}</p>
+            <p class="card-text">
+              <small class="text-muted">
+                <router-link
+                  :to="`/networks/${network.pid}`"
+                  class="stretched-link"
+                  >LEARN MORE</router-link
+                >
+              </small>
+            </p>
+          </template>
+        </image-card>
       </div>
     </grid-block>
 
@@ -140,10 +161,6 @@
     column-count: 2;
   }
 }
-
-.card {
-  border: 0;
-}
 </style>
 
 <script>
@@ -157,7 +174,11 @@ import {
   ContactDisplay,
   LinksList,
   TableDisplay,
+  ImageCard,
 } from "@mswertz/emx2-styleguide";
+
+const networkNoLogoUrl =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAABkCAYAAAAWlKtGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJbSURBVHgB7dzNbdRgEAbgl58DR0r4SuDIkRLoINsBdJDtADoIVAIdhA5SAmdOwVaUS5SNvGt712M/jzRXKxq/mtjJ50kAAAAAAAAAAAAAAAAAAACYyfuurru66+r+xLrt6qarlvXQlwW56upvTr8RT6u/1tfUpy8L8iXT3YindZW69GVBWqadGM9NkPepp2WjfXmTZfrW1cfM511X/7r6nVr0ZWH6h/z7mesu9ejLwhxqYsvx2gvXq2azfXmVZTrUrFN/3qmvdymb7cvrQAGCSglvs20Vn1M3yUSlBEGlBEGlBEGlBEGlhK2/9a/lD/6rZ6JSgqBSQrWgthyvZf1ajtfCaP1Rs7mPs92mns32ZakT9Wfm9yEPB5ErnfQ/R1/+hMH68Mz5ycXTg8KfU8Pcfemv3cJRdjlPUB/rJjVu0i7z9cCXqCfqG3euyfo4XXdZvqn70l9rF0ZpXf3IuO+F+gB+z/CXkZssf7q2TNOXfWp+kbtqLQ83d03TlRXbZV3TlRXrf931jwNDp6sXDS7qU4ZP118xXbmwfYa/hFwHLqhl+HS9i+nKhe1julJEi+lKIfuYrhTR8vDGP3S6Dp3Ez5V15Yx2zrMH1pUzSsvwf8NOUVeBEXY5z4n7qmvcWZCW84R1HxjJunJKOBSuluO1F663adU2hSzRoRBtfY37pCygoARBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBnU/L8VpgJv0RvLmP+VVc4z4pE3U868opwbpyythlvqD6EpVJWVdOGS3WlQMAAAAAAAAAAADA4vwH56V4ljC8O5IAAAAASUVORK5CYII=";
 
 export default {
   name: "CohortView",
@@ -169,6 +190,7 @@ export default {
     ImageDisplay,
     ContactDisplay,
     TableDisplay,
+    ImageCard,
   },
   data() {
     return {
@@ -255,10 +277,22 @@ export default {
       if (!this.cohort.networks) {
         return [];
       } else {
-        // only show networks that have a log set
-        return this.cohort.networks.filter((network) => {
-          return network.logo && network.logo.url;
-        });
+        return this.cohort.networks
+          .map((network) => {
+            if (network.description && network.description.length > 200) {
+              network.description =
+                network.description.substring(0, 200) + " ...";
+            }
+            return network;
+          })
+          .map((network) => {
+            if (!network.logo || !network.logo.url) {
+              network.logo = {
+                url: networkNoLogoUrl,
+              };
+            }
+            return network;
+          });
       }
     },
     subpopulations() {
