@@ -7,6 +7,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.GraphQL;
 import java.io.IOException;
 import junit.framework.TestCase;
@@ -51,6 +52,23 @@ public class TestGraphqlDatabaseFields {
 
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
+  }
+
+  @Test
+  public void testCreateDatabaseSetting() throws IOException {
+    String createSettingQuery = """
+            mutation {
+              createSetting(key: "db-key-1", value: "db-value-1" ){
+                    message
+              }
+            }
+            """;
+
+    var result  = execute(createSettingQuery);
+
+    // verify
+    ObjectNode expected = new ObjectMapper().readValue("{\"data\":{\"createSetting\":{\"message\":\"Database setting db-key-1 created\"}}}", ObjectNode.class);
+    assertEquals(expected, result);
   }
 
   @Test
