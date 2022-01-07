@@ -6,7 +6,6 @@ import CatalogueView from "./views/CatalogueView";
 import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
 import NetworkView from "./views/NetworkView";
-import ReleasesView from "./views/ReleasesView";
 import ResourceListView from "./views/ResourceListView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";

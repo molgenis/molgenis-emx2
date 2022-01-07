@@ -79,54 +79,54 @@
     </div>
 
     <h2>Browse data definitions</h2>
-    <div class="row justify-content-between container-fluid mt-4 mb-4">
-      <div class="border border-dark rounded col-3">
+    <div class="card-columns">
+      <div class="card card-body border border-dark rounded card-height">
         <h3>Collected data dictionaries</h3>
         <div class="text-left">
           Data dictionaries of collected data in databanks and/or cohorts.
           <ul>
             <li>
               <RouterLink to="source-data-dictionaries">
-                Data dictionaries ({{ sourceDataDictionaries }})
+                Source Data dictionaries ({{ sourceDataDictionaries }})
               </RouterLink>
             </li>
             <li>
               <RouterLink to="source-tables">
-                Tables ({{ sourceTables }})
+                Source Tables ({{ sourceTables }})
               </RouterLink>
             </li>
             <li>
               <RouterLink to="source-variables">
-                Variables ({{ sourceVariables }})
+                Source Variables ({{ sourceVariables }})
               </RouterLink>
             </li>
           </ul>
         </div>
       </div>
-      <div class="border border-dark rounded col-3">
+      <div class="card card-body border border-dark rounded card-height">
         <h3>Common data models</h3>
         <div class="text-left">
           Data dictionaries of standards for integrated analysis
           <ul>
             <li>
               <RouterLink to="target-data-dictionaries">
-                Data dictionaries ({{ targetDataDictionaries }})
+                Target Data dictionaries ({{ targetDataDictionaries }})
               </RouterLink>
             </li>
             <li>
               <RouterLink to="target-tables">
-                Tables ({{ targetTables }})
+                Target Tables ({{ targetTables }})
               </RouterLink>
             </li>
             <li>
               <RouterLink to="target-variables">
-                Variables ({{ targetVariables }})
+                Target Variables ({{ targetVariables }})
               </RouterLink>
             </li>
           </ul>
         </div>
       </div>
-      <div class="border border-dark rounded col-3">
+      <div class="card card-body border border-dark card-height">
         <h3>Data model mappings</h3>
         <div class="text-left">
           Mappings between collected data dictionaries and standard models

@@ -34,7 +34,7 @@
               ? 'SourceDataDictionaries-details'
               : 'TargetDataDictionaries-details',
           params: {
-            pid: variable.dataDictionary.resource.pid,
+            resource: variable.dataDictionary.resource.pid,
             version: variable.dataDictionary.version,
           },
         }"
