@@ -130,7 +130,7 @@ Databanks,,completenessOverTime,text,,,,,,,,"Describe any changes in completenes
 Databanks,,qualityDescription,text,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
 Databanks,,qualityOverTime,text,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
 Resources,,otherInformation,heading,,,,,,,,Other information
-Resources,,designPaper,ref,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
+Resources,,designPaper,ref_array,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,publications,ref_array,,,Publications,,,,,Other publication(s) about this resource
 Resources,,fundingStatement,text,,,,,,,,Statement listing funding that was obtained for this resource
 Resources,,acknowledgements,text,,,,,,,,Acknowledgement statement and citation regulation for this resource
