@@ -295,6 +295,16 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public Boolean deleteSetting(String key) {
+    if (isAdmin()) {
+      MetadataUtils.deleteSetting(jooq, key);
+      return this.settings.removeIf((Setting s) -> s.key().equals(key));
+    } else {
+      throw new MolgenisException("Insufficient rights to delete database level setting");
+    }
+  }
+
+  @Override
   public void addUser(String user) {
     if (hasUser(user)) return; // idempotent
     long start = System.currentTimeMillis();

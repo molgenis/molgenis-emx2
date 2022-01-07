@@ -584,6 +584,15 @@ public class MetadataUtils {
     }
   }
 
+  protected static void deleteSetting(DSLContext jooq, String settingKey) {
+    jooq.deleteFrom(SETTINGS_METADATA)
+        .where(
+            TABLE_SCHEMA.eq(NOT_PROVIDED),
+            TABLE_NAME.eq(NOT_PROVIDED),
+            SETTINGS_NAME.eq(settingKey))
+        .execute();
+  }
+
   protected static void deleteSetting(
       DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
     jooq.deleteFrom(SETTINGS_METADATA)

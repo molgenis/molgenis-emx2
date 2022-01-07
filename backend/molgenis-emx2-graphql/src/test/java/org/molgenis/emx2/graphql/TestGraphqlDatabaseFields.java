@@ -77,6 +77,28 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
+  public void testDeleteDatabaseSetting() throws IOException {
+    String createSettingQuery =
+        """
+                mutation {
+                  deleteSetting(key: "db-key-1"){
+                        message
+                  }
+                }
+                """;
+
+    var result = execute(createSettingQuery);
+
+    // verify
+    ObjectNode expected =
+        new ObjectMapper()
+            .readValue(
+                "{\"data\":{\"deleteSetting\":{\"message\":\"Database setting db-key-1 deleted\"}}}",
+                ObjectNode.class);
+    assertEquals(expected, result);
+  }
+
+  @Test
   public void testRegisterAndLoginUsers() throws IOException {
 
     // todo: default user should be anonymous?

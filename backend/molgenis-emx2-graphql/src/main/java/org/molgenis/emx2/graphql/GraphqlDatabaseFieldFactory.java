@@ -103,6 +103,20 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
+  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("deleteSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              database.deleteSetting(key);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
+            });
+  }
+
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("Schemas")

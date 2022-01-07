@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
@@ -156,6 +157,35 @@ public class TestSettings {
         db -> {
           db.setActiveUser("testsettingsmanager");
           db.createSetting("it-db-setting-key", "it-db-setting-value");
+        });
+  }
+
+  @Test
+  public void testDeleteDatabaseSetting() {
+    // setup
+    database.tx(
+        db -> {
+          db.setActiveUser("admin");
+          db.createSetting("delete-me", "life is short");
+        });
+    // execute
+    database.tx(
+        db -> {
+          db.setActiveUser("admin");
+          db.deleteSetting("delete-me");
+          // verify
+          var settings = db.getSettings();
+          var setting = new Setting("delete-me", "life is short");
+          assertFalse(settings.contains(setting));
+        });
+  }
+
+  @Test(expected = MolgenisException.class)
+  public void testDeleteDatabaseSettingCanNotBeSetByNonAdmin() {
+    database.tx(
+        db -> {
+          db.setActiveUser("testsettingsmanager");
+          db.deleteSetting("delete-me");
         });
   }
 }
