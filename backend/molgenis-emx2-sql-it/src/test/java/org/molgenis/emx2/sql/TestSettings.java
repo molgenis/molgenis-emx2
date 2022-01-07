@@ -150,12 +150,12 @@ public class TestSettings {
         });
   }
 
-    @Test(expected = MolgenisException.class)
-    public void testDatabaseSettingCanNotBeSetByNonAdmin() {
-        database.tx(
-                db -> {
-                    db.setActiveUser("testsettingsmanager");
-                    db.createSetting("it-db-setting-key", "it-db-setting-value");
-                });
-    }
+  @Test(expected = MolgenisException.class)
+  public void testDatabaseSettingCanNotBeSetByNonAdmin() {
+    database.tx(
+        db -> {
+          db.setActiveUser("testsettingsmanager");
+          db.createSetting("it-db-setting-key", "it-db-setting-value");
+        });
+  }
 }
