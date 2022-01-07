@@ -468,7 +468,7 @@ public class GraphqlSchemaFieldFactory {
                                   selectedKeys.isEmpty()
                                       || selectedKeys.contains(setting.getKey())
                                       || (includePages && setting.getKey().startsWith("page.")))
-                          .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue())),
+                          .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.value())),
                       Stream.of(
                           Map.of(
                               "key",

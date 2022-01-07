@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
@@ -54,24 +55,24 @@ public class TestSettings {
             fail("managers should  be able to change schema settings");
           }
 
-          assertEquals("key", s.getMetadata().getSettings().get(0).getKey());
-          assertEquals("value", s.getMetadata().getSettings().get(0).getValue());
+          assertEquals("key", s.getMetadata().getSettings().get(0).key());
+          assertEquals("value", s.getMetadata().getSettings().get(0).value());
 
           assertEquals(
               "key",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
           assertEquals(
               "value",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
+              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
           db.clearCache();
 
           assertEquals(
               "key",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getKey());
+              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
           assertEquals(
               "value",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).getValue());
+              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
           db.clearActiveUser();
         });
@@ -114,8 +115,8 @@ public class TestSettings {
           List<Setting> test =
               db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
           assertEquals(1, test.size());
-          assertEquals("key", test.get(0).getKey());
-          assertEquals("value", test.get(0).getValue());
+          assertEquals("key", test.get(0).key());
+          assertEquals("value", test.get(0).value());
 
           assertEquals(
               "key",
@@ -124,7 +125,7 @@ public class TestSettings {
                   .getMetadata()
                   .getSettings()
                   .get(0)
-                  .getKey());
+                  .key());
           assertEquals(
               "value",
               db.getSchema("testTableSettings")
@@ -132,9 +133,23 @@ public class TestSettings {
                   .getMetadata()
                   .getSettings()
                   .get(0)
-                  .getValue());
+                  .value());
 
           db.clearActiveUser();
         });
   }
+
+    @Test
+    public void testDatabaseSetting() {
+      database.tx(
+          db -> {
+              db.setActiveUser("admin");
+              db.createSetting("it-db-setting-key", "it-db-setting-value");
+              var settings = db.getSettings();
+              var setting = new Setting("it-db-setting-key", "it-db-setting-value");
+              assertTrue(settings.contains(setting));
+          }
+
+      );
+    }
 }

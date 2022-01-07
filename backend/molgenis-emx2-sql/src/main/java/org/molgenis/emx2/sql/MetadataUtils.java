@@ -558,11 +558,11 @@ public class MetadataUtils {
   protected static void saveSetting(
       DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
     String tableName = table != null ? table.getTableName() : NOT_PROVIDED;
-    insertSetting(jooq, schema.getName(), tableName, setting.getKey(), setting.getValue());
+    insertSetting(jooq, schema.getName(), tableName, setting.key(), setting.value());
   }
 
   protected static void saveSetting(DSLContext jooq, Setting setting) {
-    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.getKey(), setting.getValue());
+    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.key(), setting.value());
   }
 
   private static void insertSetting(
@@ -590,7 +590,7 @@ public class MetadataUtils {
         .where(
             TABLE_SCHEMA.eq(schema.getName()),
             table != null ? TABLE_NAME.eq(table.getTableName()) : TABLE_NAME.eq(NOT_PROVIDED),
-            SETTINGS_NAME.eq(setting.getKey()))
+            SETTINGS_NAME.eq(setting.key()))
         .execute();
   }
 

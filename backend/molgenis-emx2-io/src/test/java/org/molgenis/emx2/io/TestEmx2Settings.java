@@ -39,6 +39,6 @@ public class TestEmx2Settings {
     Emx2Settings.inputSettings(store, schema);
     List<Setting> settings = schema.getMetadata().getSettings();
     assertEquals("foo", settings.get(0).getKey());
-    assertEquals("bar", settings.get(0).getValue());
+    assertEquals("bar", settings.get(0).value());
   }
 }

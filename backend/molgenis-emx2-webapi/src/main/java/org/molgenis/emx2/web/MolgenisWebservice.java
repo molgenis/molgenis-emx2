@@ -144,7 +144,7 @@ public class MolgenisWebservice {
     if (verificationKey.isPresent()) {
       response.body(
           String.format(
-              "google-site-verification: google%s.html", verificationKey.get().getValue()));
+              "google-site-verification: google%s.html", verificationKey.get().value()));
     } else {
       halt(401, "Google site verification is not set ");
     }

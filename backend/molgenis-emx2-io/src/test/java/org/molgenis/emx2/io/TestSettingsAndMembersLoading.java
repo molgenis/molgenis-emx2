@@ -22,10 +22,10 @@ public class TestSettingsAndMembersLoading {
     new ImportExcelTask(path, schema, true).run();
 
     assertEquals("key1", schema.getTable("table1").getMetadata().getSettings().get(0).getKey());
-    assertEquals("value1", schema.getTable("table1").getMetadata().getSettings().get(0).getValue());
+    assertEquals("value1", schema.getTable("table1").getMetadata().getSettings().get(0).value());
 
     assertEquals("key2", schema.getMetadata().getSettings().get(0).getKey());
-    assertEquals("value2", schema.getMetadata().getSettings().get(0).getValue());
+    assertEquals("value2", schema.getMetadata().getSettings().get(0).value());
 
     assertEquals(1, schema.getMembers().size());
     assertEquals("anonymous", schema.getMembers().get(0).getUser());
