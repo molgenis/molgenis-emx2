@@ -59,8 +59,7 @@ public class TestSettings {
           assertEquals("value", s.getMetadata().getSettings().get(0).value());
 
           assertEquals(
-              "key",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
+              "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
           assertEquals(
               "value",
               db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
@@ -68,8 +67,7 @@ public class TestSettings {
           db.clearCache();
 
           assertEquals(
-              "key",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
+              "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
           assertEquals(
               "value",
               db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
@@ -139,17 +137,15 @@ public class TestSettings {
         });
   }
 
-    @Test
-    public void testDatabaseSetting() {
-      database.tx(
-          db -> {
-              db.setActiveUser("admin");
-              db.createSetting("it-db-setting-key", "it-db-setting-value");
-              var settings = db.getSettings();
-              var setting = new Setting("it-db-setting-key", "it-db-setting-value");
-              assertTrue(settings.contains(setting));
-          }
-
-      );
-    }
+  @Test
+  public void testDatabaseSetting() {
+    database.tx(
+        db -> {
+          db.setActiveUser("admin");
+          db.createSetting("it-db-setting-key", "it-db-setting-value");
+          var settings = db.getSettings();
+          var setting = new Setting("it-db-setting-key", "it-db-setting-value");
+          assertTrue(settings.contains(setting));
+        });
+  }
 }

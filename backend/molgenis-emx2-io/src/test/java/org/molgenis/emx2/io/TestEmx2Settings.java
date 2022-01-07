@@ -38,7 +38,7 @@ public class TestEmx2Settings {
     // import and see if consistent
     Emx2Settings.inputSettings(store, schema);
     List<Setting> settings = schema.getMetadata().getSettings();
-    assertEquals("foo", settings.get(0).getKey());
+    assertEquals("foo", settings.get(0).key());
     assertEquals("bar", settings.get(0).value());
   }
 }

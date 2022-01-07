@@ -56,7 +56,8 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateDatabaseSetting() throws IOException {
-    String createSettingQuery = """
+    String createSettingQuery =
+        """
             mutation {
               createSetting(key: "db-key-1", value: "db-value-1" ){
                     message
@@ -64,10 +65,14 @@ public class TestGraphqlDatabaseFields {
             }
             """;
 
-    var result  = execute(createSettingQuery);
+    var result = execute(createSettingQuery);
 
     // verify
-    ObjectNode expected = new ObjectMapper().readValue("{\"data\":{\"createSetting\":{\"message\":\"Database setting db-key-1 created\"}}}", ObjectNode.class);
+    ObjectNode expected =
+        new ObjectMapper()
+            .readValue(
+                "{\"data\":{\"createSetting\":{\"message\":\"Database setting db-key-1 created\"}}}",
+                ObjectNode.class);
     assertEquals(expected, result);
   }
 

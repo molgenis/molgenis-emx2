@@ -139,12 +139,11 @@ public class MolgenisWebservice {
   private static void handleGoogleVerification(Request request, Response response) {
     Optional<Setting> verificationKey =
         sessionManager.getSession(request).getDatabase().getSettings().stream()
-            .filter(s -> "google-site-verification".equals(s.getKey()))
+            .filter(s -> "google-site-verification".equals(s.key()))
             .findFirst();
     if (verificationKey.isPresent()) {
       response.body(
-          String.format(
-              "google-site-verification: google%s.html", verificationKey.get().value()));
+          String.format("google-site-verification: google%s.html", verificationKey.get().value()));
     } else {
       halt(401, "Google site verification is not set ");
     }
