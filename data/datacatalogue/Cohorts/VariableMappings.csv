@@ -1,4 +1,4 @@
-fromRelease.resource,fromRelease.version,fromTable,fromVariables,toRelease.resource,toRelease.version,toTable,toVariable,match,description,syntax
+fromDataDictionary.resource,fromDataDictionary.version,fromTable,fromVariables,toDataDictionary.resource,toDataDictionary.version,toTable,toVariable,match,description,syntax
 ALSPAC,1.0.0,followup1,smoking,LifeCycle,1.0.0,core,smoking,complete,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
 BIB,1.0.0,baseline,smokingAtBaseline,LifeCycle,1.0.0,core,smoking,partial,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
 ALSPAC,1.0.0,followup1,hasDiabetes,LifeCycle,1.0.0,core,diabetes,partial,"Gestational diabetes coded as 1, preexisting diabetes, Glycosuria and no diabetes coded as 0","preg_dia = case_when(
