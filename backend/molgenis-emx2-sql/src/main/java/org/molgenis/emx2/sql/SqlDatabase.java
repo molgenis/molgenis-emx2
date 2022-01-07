@@ -284,10 +284,14 @@ public class SqlDatabase implements Database {
 
   @Override
   public Setting createSetting(String key, String value) {
-    Setting newSetting = new Setting(key, value);
-    MetadataUtils.saveSetting(jooq, newSetting);
-    this.settings.add(newSetting);
-    return newSetting;
+    if (isAdmin()) {
+      Setting newSetting = new Setting(key, value);
+      MetadataUtils.saveSetting(jooq, newSetting);
+      this.settings.add(newSetting);
+      return newSetting;
+    } else {
+      throw new MolgenisException("Insufficient rights to create database level setting");
+    }
   }
 
   @Override

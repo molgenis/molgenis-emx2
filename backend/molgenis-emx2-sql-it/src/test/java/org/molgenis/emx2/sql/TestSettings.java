@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.Table;
@@ -148,4 +149,13 @@ public class TestSettings {
           assertTrue(settings.contains(setting));
         });
   }
+
+    @Test(expected = MolgenisException.class)
+    public void testDatabaseSettingCanNotBeSetByNonAdmin() {
+        database.tx(
+                db -> {
+                    db.setActiveUser("testsettingsmanager");
+                    db.createSetting("it-db-setting-key", "it-db-setting-value");
+                });
+    }
 }
