@@ -57,6 +57,8 @@ import RecordCard from "./tables/RecordCard";
 import RowCard from "./tables/RowCard";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonClone from "./tables/RowButtonClone";
+
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
@@ -78,6 +80,17 @@ import TextDisplay from "./tables/cellTypes/TextDisplay";
 import FileDisplay from "./tables/cellTypes/FileDisplay";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
+
+import MolgenisSignin from "./layout/MolgenisSignin.vue";
+
+import PageHeader from "./display/PageHeader.vue";
+import GridBlock from "./display/GridBlock.vue";
+import KeyValueBlock from "./display/KeyValueBlock.vue";
+import ImageDisplay from "./display/ImageDisplay.vue";
+import PersonDetails from "./display/PersonDetails.vue";
+import ContactDisplay from "./display/ContactDisplay.vue";
+import LinksList from "./display/LinksList.vue";
+import TableDisplay from "./display/TableDisplay";
 
 export {
   ButtonAction,
@@ -133,6 +146,7 @@ export {
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowButtonClone,
   RowFormInput,
   RenderValue,
   SelectionBox,
@@ -149,4 +163,13 @@ export {
   ObjectDisplay,
   TextDisplay,
   FileDisplay,
+  MolgenisSignin,
+  PageHeader,
+  GridBlock,
+  KeyValueBlock,
+  ImageDisplay,
+  PersonDetails,
+  ContactDisplay,
+  LinksList,
+  TableDisplay,
 };

@@ -17,6 +17,7 @@
     - [Run with docker compose](run_docker.md)
     - [Run in kubernetes cloud](run_helm.md)
     - [Updating your MOLGENIS](run_updates.md)
+    - [OIDC integration](user_permissions.md)
 - **Developer guide**
     - [How to build](dev_quickstart.md)
     - [Architecture](dev_architecture.md)

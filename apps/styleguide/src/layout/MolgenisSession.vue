@@ -18,16 +18,21 @@
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
-        <ButtonOutline @click="showSigninForm = true" :light="true">
+        <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
+          Sign in</ButtonOutline
+        >
+        <ButtonOutline v-else @click="showSigninForm = true" :light="true">
           Sign in</ButtonOutline
         >
         <SigninForm
           v-if="showSigninForm"
-          :error="error"
           @signin="changed"
           @cancel="closeSigninForm"
         />
-        <ButtonAlt @click="showSignupForm = true" :light="true"
+        <ButtonAlt
+          v-show="!isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
           >Sign up</ButtonAlt
         >
         <SignupForm
@@ -88,12 +93,21 @@ export default {
   created() {
     this.reload();
   },
+  computed: {
+    isOidcEnabled() {
+      return (
+        this.session &&
+        this.session.settings &&
+        this.session.settings["isOidcEnabled"] === "true"
+      );
+    },
+  },
   methods: {
     reload() {
       this.loading = true;
       request(
         this.graphql,
-        `{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
+        `{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
       )
         .then((data) => {
           if (data._session != undefined) {

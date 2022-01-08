@@ -23,7 +23,7 @@
         <h6>Countries</h6>
         <OntologyTerms :terms="cohort.countries" color="primary" />
         <h6>Regions</h6>
-        <OntologyTerms :terms="cohort.countries" color="primary" />
+        <OntologyTerms :terms="cohort.regions" color="primary" />
         <h6 v-if="cohort.numberOfParticipants">Number of participants:</h6>
         <p v-if="cohort.numberOfParticipants">
           {{ cohort.numberOfParticipants }}
@@ -89,23 +89,23 @@ import {
   NavTabs,
   Spinner,
 } from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import OntologyTerms from "../components/OntologyTerms";
-import PublicationList from "../components/PublicationList";
-import ResourceHeader from "../components/ResourceHeader";
-import InstitutionList from "../components/InstitutionList";
-import ReleasesList from "../components/ReleasesList";
-import ContactList from "../components/ContactList";
-import DocumentationList from "../components/DocumentationList";
-import DatasourceList from "../components/DatasourceList";
-import NetworkList from "../components/NetworkList";
-import Conditions from "../components/Conditions";
-import ContributorList from "../components/ContributorList";
-import ResourceContext from "../components/ResourceContext";
-import PartnerInList from "../components/PartnerInList";
-import PartnersList from "../components/PartnersList";
-import CollectionEventsList from "../components/CollectionEventsList";
-import SubcohortList from "../components/SubcohortList";
+import VariablesList from "../../components/VariablesList";
+import OntologyTerms from "../../components/OntologyTerms";
+import PublicationList from "../../components/PublicationList";
+import ResourceHeader from "../../components/ResourceHeader";
+import InstitutionList from "../../components/InstitutionList";
+import ReleasesList from "../../components/ReleasesList";
+import ContactList from "../../components/ContactList";
+import DocumentationList from "../../components/DocumentationList";
+import DatasourceList from "../../components/DatasourceList";
+import NetworkList from "../../components/NetworkList";
+import Conditions from "../../components/Conditions";
+import ContributorList from "../../components/ContributorList";
+import ResourceContext from "../../components/ResourceContext";
+import PartnerInList from "../../components/PartnerInList";
+import PartnersList from "../../components/PartnersList";
+import CollectionEventsList from "../../components/CollectionEventsList";
+import SubcohortList from "../../components/SubcohortList";
 
 export default {
   components: {
@@ -179,6 +179,9 @@ export default {
                 }
               }
               countries {
+                name
+              }
+              regions {
                 name
               }
               linkageOptions

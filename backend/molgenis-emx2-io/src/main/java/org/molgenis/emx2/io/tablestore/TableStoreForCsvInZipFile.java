@@ -67,6 +67,11 @@ public class TableStoreForCsvInZipFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    // skip if columnNames is empty (edge case of a table without columns yet defined, like
+    // 'Version' table)
+    if (columnNames.size() == 0) {
+      return;
+    }
     if (!Files.exists(zipFilePath)) {
       create();
     }

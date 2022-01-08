@@ -1,5 +1,8 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
+import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
 
@@ -16,8 +19,7 @@ public class SchemaMetadata {
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
-    if (name == null || name.isEmpty())
-      throw new MolgenisException("Create schema failed: Schema name was null or empty");
+    validateSchemaName(name);
     this.name = name;
   }
 
@@ -43,6 +45,13 @@ public class SchemaMetadata {
     for (Setting setting : schema.getSettings()) {
       this.setSetting(setting.getKey(), setting.getValue());
     }
+  }
+
+  private void validateSchemaName(String name) {
+    if (name == null || name.isEmpty())
+      throw new MolgenisException("Create schema failed: Schema name was null or empty");
+    if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
+      throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
   }
 
   public String getName() {

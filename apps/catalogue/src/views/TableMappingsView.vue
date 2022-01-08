@@ -94,20 +94,38 @@
           </RouterLink>
         </td>
         <td>
-          <RouterLink
-            v-if="m.fromVariable"
-            :to="{
-              name: 'Variables-details',
-              params: {
-                pid: fromPid,
-                version: fromVersion,
-                table: fromTable,
-                name: m.fromVariable.name,
-              },
-            }"
-          >
-            {{ m.fromVariable.name }}
-          </RouterLink>
+          <div v-if="m.fromVariable">
+            <RouterLink
+              v-for="v in m.fromVariable"
+              :to="{
+                name: 'Variables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: fromTable,
+                  name: v.name,
+                },
+              }"
+            >
+              {{ fromTable }}.{{ v.name }}
+            </RouterLink>
+          </div>
+          <div v-if="m.fromVariablesInOtherTables">
+            <RouterLink
+              v-for="v in m.fromVariablesInOtherTables"
+              :to="{
+                name: 'Variables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: v.table.name,
+                  name: v.name,
+                },
+              }"
+            >
+              {{ v.table.name }}.{{ v.name }}
+            </RouterLink>
+          </div>
         </td>
         <td>{{ m.description }}</td>
         <td>{{ m.syntax }}</td>
@@ -194,7 +212,7 @@ query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid
   toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
-    description,fromVariable{name},toVariable{name},syntax
+    description,fromVariable{name},toVariable{name},syntax,fromVariablesInOtherTables{table{name},name}
   }
 }`,
         {

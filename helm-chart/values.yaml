@@ -1,20 +1,34 @@
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
 adminPassword: admin
 image:
   repository: "molgenis/molgenis-emx2"
   tag: "latest"
   pullPolicy: IfNotPresent
 
+database:
+  name: molgenisdb
+  username: molgenis_admin
+  password: molgenis_admin
+
+oidc:
+  enabled: false
+#  client_id:
+#  client_secret:
+#  client_name: "MolgenisAuth"
+#  discovery_url: "https://auth.molgenis.org/.well-known/openid-configuration/"
+#  callback_url:
+
 service:
   type: ClusterIP
   port: 80
 
 ingress:
+  enabled: true
   hosts:
      - host: emx2.dev.molgenis.org
-  enabled: true
   path: /
 
 postgres:
@@ -22,4 +36,8 @@ postgres:
     repository: postgres
     tag: 13-alpine
     pullPolicy: IfNotPresent
+  username: postgres
+  password: postgres
+  database: postgres
+
 

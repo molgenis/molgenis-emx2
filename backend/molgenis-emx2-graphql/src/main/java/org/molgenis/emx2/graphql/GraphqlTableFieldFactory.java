@@ -292,12 +292,10 @@ public class GraphqlTableFieldFactory {
         GraphQLInputObjectType.newInputObject()
             .name(escape(table.getName()) + GraphqlConstants.ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
-      if (!(col.isRefArray() || col.isRefback())) {
-        orderByBuilder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(escape(col.getName()))
-                .type(orderByEnum));
-      }
+      orderByBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(escape(col.getName()))
+              .type(orderByEnum));
     }
     return orderByBuilder.build();
   }

@@ -4,6 +4,6 @@ metadata:
   name: postgres-initdb-config
 data:
   initdb.sql: |
-    CREATE DATABASE molgenisdb;
-    CREATE USER molgenis_admin WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis_admin';
-    GRANT ALL PRIVILEGES ON DATABASE molgenisdb TO molgenis_admin;
+    CREATE DATABASE {{ .Values.database.name }};
+    CREATE USER {{ .Values.database.username }}  WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD '{{ .Values.database.password }}';
+    GRANT ALL PRIVILEGES ON DATABASE {{ .Values.database.name }} TO {{ .Values.database.username }};

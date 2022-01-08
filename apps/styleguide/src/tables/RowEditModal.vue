@@ -9,8 +9,7 @@
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="
-              (visibleColumns == null ||
-                visibleColumns.includes(column.name)) &&
+              (visibleColumns == null || visibleColumns.includes(column.id)) &&
               visible(column.visible) &&
               column.name != 'mg_tableclass' &&
               //if dependent, show only if dependent value is set
@@ -26,7 +25,7 @@
             :refBack="column.refBack"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
-            :readonly="column.readonly || (pkey && column.key == 1)"
+            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
             :graphqlURL="graphqlURL"
             :refBackType="getRefBackType(column)"
             :pkey="getPkey(value)"
@@ -71,9 +70,11 @@ export default {
   props: {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
+    /** when you want to clone instead of update */
+    clone: Boolean,
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
-    /** whebn creating new record, this is initialization value */
+    /** when creating new record, this is initialization value */
     defaultValue: Object,
   },
   components: {
@@ -128,7 +129,7 @@ export default {
 
       let variables = { value: [this.value] };
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
-      if (this.pkey) {
+      if (this.pkey && !this.clone) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
       this.requestMultipart(this.graphqlURL, query, variables)
@@ -147,7 +148,7 @@ export default {
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
           } else {
-            this.graphqlError = error.errors;
+            this.graphqlError = error.errors[0].message;
           }
         });
     },
@@ -256,7 +257,9 @@ export default {
     },
     // override from tableMixin
     title() {
-      if (this.pkey) {
+      if (this.pkey && this.clone) {
+        return `copy ${this.table}`;
+      } else if (this.pkey) {
         return `update ${this.table}`;
       } else {
         return `insert ${this.table}`;
@@ -270,7 +273,13 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          if (data[column.id]) {
+          //skip key in case of clone and visible
+          if (
+            data[column.id] &&
+            (!this.clone ||
+              column.key != 1 ||
+              !this.visibleColumns.includes(column.name))
+          ) {
             defaultValue[column.id] = data[column.id];
           }
         });

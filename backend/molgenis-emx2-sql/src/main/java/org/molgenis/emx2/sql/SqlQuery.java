@@ -37,8 +37,8 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
   private static final String ANY_SQL = "{0} = ANY ({1})";
-  private static final String JSON_AGG_SQL = "json_agg(item)";
-  private static final String ROW_TO_JSON_SQL = "row_to_json(item)";
+  private static final String JSON_AGG_SQL = "jsonb_agg(item)";
+  private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
   private static final String ITEM = "item";
   private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
       "Operator %s is not support for column '%s'";
@@ -280,8 +280,7 @@ public class SqlQuery extends QueryBean {
 
     List<Condition> conditions = new ArrayList<>();
     Select<org.jooq.Record> filterQuery =
-        limitOffsetOrderBy(
-            select, jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms));
+        jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
     if (filters != null
         || searchTerms.length > 0
         || select.getLimit() > 0
@@ -299,7 +298,7 @@ public class SqlQuery extends QueryBean {
 
     String agg = column != null && column.isRef() ? ROW_TO_JSON_SQL : JSON_AGG_SQL;
 
-    return field(jooq.select(field(agg)).from(orderBy(select, from).asTable(ITEM)))
+    return field(jooq.select(field(agg)).from(limitOffsetOrderBy(select, from).asTable(ITEM)))
         .as(select.getColumn());
   }
 
