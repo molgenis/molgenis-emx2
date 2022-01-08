@@ -82,6 +82,7 @@ export default {
     schemaUrlsForCrumbs() {
       var result = {};
       if (this.session && this.session.schemas) {
+        result["databases:"] = "/";
         this.session.schemas.forEach((s) => {
           result[s] = "../../" + s; // all paths are of form /:schema/:app
         });
