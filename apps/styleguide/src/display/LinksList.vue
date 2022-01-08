@@ -32,12 +32,19 @@ export default {
 <docs>
 Display a list of links
 ```
-const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org', },
-    { label: 'Vue',  href: 'https://vuejs.org/' } 
-]
+<script>
+  export default {
+    data() {
+      return {
+        links: [{label: 'Molgenis', href: 'https://molgenis.org'}]
+      }
+    }
+  }
+</script>
 <template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+  <LinksList :items="links">
+    <p>Sample content</p>
+  </LinksList>
 </template>
 
 ```

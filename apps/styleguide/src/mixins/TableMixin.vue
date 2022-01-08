@@ -1,3 +1,6 @@
+<template>
+  <div>Not meant for direct use</div>
+</template>
 <script>
 import { request } from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";
