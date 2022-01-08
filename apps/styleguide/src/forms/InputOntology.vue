@@ -3,30 +3,47 @@
     <Spinner v-if="loading" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div
-      class="p-0 m-0 border rounded"
-      :class="{ dropdown: !showExpanded }"
+      class="p-0 m-0"
+      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
       v-else
     >
-      <button
+      <div
         class="border-0 text-left form-control"
         style="height: auto"
         @click="toggleFocus"
       >
-        <span>
-          <span
-            class="badge bg-primary text-white mr-1"
-            v-for="v in selectionWithoutChildren"
-            :key="v"
-            @click.stop="deselectWithChildren(v)"
-          >
-            {{ v }}
-            <span class="fa fa-times"></span>
-          </span>
+        <span
+          class="btn btn-sm btn-primary mb-2 text-white mr-1"
+          v-for="v in selectionWithoutChildren"
+          :key="v"
+          @click.stop="deselectWithChildren(v)"
+        >
+          {{ v }}
+          <span class="fa fa-times"></span>
+        </span>
+        <i
+          class="p-2 fa fa-times"
+          style="vertical-align: middle"
+          @click.stop="deselect(selection)"
+          v-if="showExpanded && selectionWithoutParents.length > 0"
+        />
+        <span :class="{ 'input-group': showExpanded }">
+          <div v-if="showExpanded" class="input-group-prepend">
+            <button
+              class="btn border-right-0 border btn-outline-primary"
+              type="button"
+            >
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
           <input
             type="text"
             ref="search"
             :placeholder="focus || showExpanded ? 'Type to search' : ''"
-            class="border-0"
+            :class="{
+              'form-control': showExpanded,
+              'border-0': !showExpanded,
+            }"
             v-model="search"
             @click.stop
             @focus="focus = true"
@@ -35,8 +52,9 @@
         <span class="d-inline-block float-right">
           <i
             class="p-2 fa fa-times"
+            style="vertical-align: middle"
             @click.stop="deselect(selection)"
-            v-if="selectionWithoutParents.length > 0"
+            v-if="!showExpanded && selectionWithoutParents.length > 0"
           />
           <i
             class="p-2 fa fa-caret-down"
@@ -44,12 +62,12 @@
             v-if="!showExpanded"
           />
         </span>
-      </button>
+      </div>
       <div
         class="w-100 show p-0 overflow-auto"
         :class="{ 'dropdown-menu': !showExpanded }"
         v-if="focus || showExpanded"
-        v-click-outside="toggleFocus"
+        v-click-outside="loseFocusWhenClickedOutside"
       >
         <InputOntologySubtree
           v-if="hasSearchResults"
@@ -182,6 +200,11 @@ export default {
               (term.children && this.hasSearchResultsRecursive(term.children))
           )
         );
+    },
+    loseFocusWhenClickedOutside() {
+      if (this.focus && !this.showExpanded) {
+        this.focus = false;
+      }
     },
     toggleFocus() {
       if (!this.showExpanded) {
