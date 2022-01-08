@@ -320,6 +320,7 @@ VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmon
 VariableMappings,,fromRelease,ref,1,TRUE,Releases,,,,,
 VariableMappings,,fromTable,ref,1,TRUE,Tables,fromRelease,,,,
 VariableMappings,,fromVariable,ref_array,,,AllVariables,fromTable,,,,"optional, variable. Initially one may only define mapping between releases"
+VariableMappings,,fromVariablesInOtherTables,ref_array,,,AllVariables,fromRelease,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
 VariableMappings,,toRelease,ref,1,TRUE,Releases,,,,,
 VariableMappings,,toTable,ref,1,TRUE,Tables,toRelease,,,,
 VariableMappings,,toVariable,ref,1,TRUE,AllVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
