@@ -15,6 +15,7 @@
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
         :crumbs="crumbs"
+        :dropdown="schemaUrlsForCrumbs"
       />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
@@ -78,6 +79,18 @@ export default {
     };
   },
   computed: {
+    schemaUrlsForCrumbs() {
+      var result = {};
+      if (this.session && this.session.schemas) {
+        this.session.schemas.forEach((s) => {
+          result[s] = "../../" + s; // all paths are of form /:schema/:app
+        });
+      }
+      if (result.length > 0) {
+        return result;
+      }
+      return result;
+    },
     crumbs() {
       this.$route;
       let path = decodeURI(

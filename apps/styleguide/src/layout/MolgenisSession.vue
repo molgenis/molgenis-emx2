@@ -107,7 +107,7 @@ export default {
       this.loading = true;
       request(
         this.graphql,
-        `{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
+        `{_session{email,roles,schemas},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
       )
         .then((data) => {
           if (data._session != undefined) {
