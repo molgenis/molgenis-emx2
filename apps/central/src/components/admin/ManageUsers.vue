@@ -1,39 +1,30 @@
 <template>
   <div>
-    <h1>Admin tools</h1>
-    <MolgenisSignin
-      v-show="showSigninForm && session.email === 'anonymous'"
-      @cancel="showSigninForm = false"
-    />
-    <Spinner v-if="loading"></Spinner>
-    <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div v-else>
-      <h2>Create/alter user</h2>
-      <MessageSuccess v-if="alterSuccess">{{ alterSuccess }}</MessageSuccess>
-      <MessageError v-if="alterError">{{ alterError }}</MessageError>
-      <Spinner v-if="alterLoading"></Spinner>
-      <form v-else class="form-inline bg-white">
-        <InputString
-          label="username"
-          v-model="username"
-          placeholder="Enter username"
-        />
-        <InputPassword
-          label="password"
-          v-model="password"
-          placeholder="Enter password"
-        />
-        <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
-      </form>
-      <h2>User list</h2>
-      <TableSimple class="bg-white" :rows="users" :columns="['username']" />
-      <Pagination
-        v-model="page"
-        :count="userCount"
-        :limit="limit"
-        :defaultValue="page"
+    <h2>Create/alter user</h2>
+    <MessageSuccess v-if="alterSuccess">{{ alterSuccess }}</MessageSuccess>
+    <MessageError v-if="alterError">{{ alterError }}</MessageError>
+    <Spinner v-if="alterLoading"></Spinner>
+    <form v-else class="form-inline bg-white">
+      <InputString
+        label="username"
+        v-model="username"
+        placeholder="Enter username"
       />
-    </div>
+      <InputPassword
+        label="password"
+        v-model="password"
+        placeholder="Enter password"
+      />
+      <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
+    </form>
+    <h2>User list</h2>
+    <TableSimple class="bg-white" :rows="users" :columns="['username']" />
+    <Pagination
+      v-model="page"
+      :count="userCount"
+      :limit="limit"
+      :defaultValue="page"
+    />
   </div>
 </template>
 
@@ -48,7 +39,6 @@ import {
   InputString,
   InputPassword,
   ButtonAction,
-  MolgenisSignin,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -61,7 +51,6 @@ export default {
     InputString,
     InputPassword,
     ButtonAction,
-    MolgenisSignin,
   },
   props: {
     session: {
