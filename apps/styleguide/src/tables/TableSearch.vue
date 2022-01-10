@@ -157,7 +157,7 @@ Example:
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
+    <TableSearch table="Pet" graphqlURL="/pet store/graphql" :limit="10">
       <template :selection.sync="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
     </TableSearch>
     Selected: {{ selectedItems }}
@@ -208,8 +208,8 @@ Example with filter:
   <div>
     Example with filter:
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Variables" :filter="{collection:{name:{equals:['LifeCycle','ARS']}}}"
-                 graphqlURL="/CohortsCentral/graphql" :showSelect="true">
+    <TableSearch table="Pet" :filter="{equals:{name:'pooky'}}"
+                 graphqlURL="/pet store/graphql" :showSelect="true">
       <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
     </TableSearch>
     Selected: {{ selectedItems }}
