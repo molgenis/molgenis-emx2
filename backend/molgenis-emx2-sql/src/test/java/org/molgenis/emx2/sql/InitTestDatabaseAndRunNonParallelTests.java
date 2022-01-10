@@ -1,7 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.name;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
 
 import java.util.Collections;
@@ -9,21 +11,25 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Database;
 
-public class TestMigrations {
-
-  private static SqlDatabase database;
-  private static Schema schema;
+public class InitTestDatabaseAndRunNonParallelTests {
 
   @BeforeClass
-  public static void setUp() {
-    database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestMigrations.class.getSimpleName());
+  public static void createDatabase() {
+    // we want this run only once and NOT parallel for total test suite
+    // AND we want run all other tests in parallel
+    // so tests are in molgenis-emx2-sql-it ('integration test')
+    // and 'init' only happence once, here
+    Database db = new SqlDatabase(true);
+    assertTrue(db.getDatabaseVersion() > 0);
   }
 
   @Test
   public void testMigration2() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    database.dropCreateSchema("TestMigrations");
+
     DSLContext jooq = database.getJooq();
 
     // ensure no legacy roles exist from a previous test

@@ -187,7 +187,7 @@
                 <div v-for="v in m.fromVariable" :key="v.name">
                   <RouterLink
                     :to="{
-                      name: 'tablemapping',
+                      name: 'Variables-details',
                       params: {
                         fromPid: m.fromDataDictionary.resource.pid,
                         version: m.fromDataDictionary.version,
@@ -196,6 +196,20 @@
                       },
                     }"
                     >{{ v.name }}
+                  </RouterLink>
+                </div>
+                <div v-for="v in m.fromVariablesInOtherTables" :key="v.name">
+                  <RouterLink
+                    :to="{
+                      name: 'Variables-details',
+                      params: {
+                        pid: m.fromRelease.resource.pid,
+                        version: m.fromRelease.version,
+                        table: v.table.name,
+                        name: v.name,
+                      },
+                    }"
+                    >{{ v.table.name }}.{{ v.name }}
                   </RouterLink>
                 </div>
               </td>
@@ -214,8 +228,8 @@
 </template>
 
 <script>
-import { MessageError, ButtonAlt } from "@mswertz/emx2-styleguide";
-import { request } from "graphql-request";
+import {MessageError, ButtonAlt} from "@mswertz/emx2-styleguide";
+import {request} from "graphql-request";
 import OntologyTerms from "../components/OntologyTerms";
 
 export default {
@@ -242,7 +256,7 @@ export default {
     resourceType() {
       if (this.variable.dataDictionary) {
         return this.getType(
-          this.variable.dataDictionary.resource.mg_tableclass
+            this.variable.dataDictionary.resource.mg_tableclass
         );
       }
     },
@@ -256,34 +270,224 @@ export default {
     },
     reload() {
       request(
-        "graphql",
-        `query ${this.tableName}($pid:String,$version:String,$table:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
-        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},dataDictionary{version,resource{pid,name,mg_tableclass}},description,notes,label,keywords{name,ontologyTermURI,definition}
-                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromDataDictionary{resource{pid,mg_tableclass}version}}}}`,
-        {
-          pid: this.pid,
-          version: this.version,
-          table: this.table,
-          name: this.name,
+          "graphql",
+          <
+          <
+          <
+          <
+          <
+          << HEAD
+        `query $
+      {
+        this.tableName
+      }($pid:String,$version:String,$table:String,$name:String){$
+      {
+        this.tableName
+      }(filter:
+      {
+        dataDictionary:{
+          version:{
+            equals:[$version]
+          }
+        ,
+          resource:{
+            pid:{
+              equals:[$pid]
+            }
+          }
         }
+      ,
+        table:{
+          name:{
+            equals:[$table]
+          }
+        }
+      ,
+        name:{
+          equals:[$name]
+        }
+      })
+    {name,table
+      {
+        name
+      },repeats
+      {
+        name, table
+        {
+          name
+        }
+      ,
+        collectionEvent
+        {
+          name
+        }
+      },format
+      {
+        name
+      },vocabularies
+      {
+        name, definition, ontologyTermURI
+      },mandatory,unit
+      {
+        name, definition, ontologyTermURI
+      },exampleValues,permittedValues
+      {
+        value, label, isMissing
+      },dataDictionary
+      {
+        version, resource
+        {
+          pid, name, mg_tableclass
+        }
+      },description,notes,label,keywords
+      {
+        name, ontologyTermURI, definition
+      }
+    mappings
+      {
+        description, syntax, match
+        {
+          name
+        }
+        fromTable
+        {
+          name
+        }
+        fromVariable
+        {
+          name
+        }
+        fromDataDictionary
+        {
+          resource
+          {
+            pid, mg_tableclass
+          }
+          version
+        }
+      }}}`,
+    =======
+    `query Variables($pid:String,$version:String,$table:String,$name:String){Variables(filter:
+      {
+        release:{
+          version:{
+            equals:[$version]
+          }
+        ,
+          resource:{
+            pid:{
+              equals:[$pid]
+            }
+          }
+        }
+      ,
+        table:{
+          name:{
+            equals:[$table]
+          }
+        }
+      ,
+        name:{
+          equals:[$name]
+        }
+      })
+    {name,table
+      {
+        name
+      },repeats
+      {
+        name, table
+        {
+          name
+        }
+      ,
+        collectionEvent
+        {
+          name
+        }
+      },format
+      {
+        name
+      },vocabularies
+      {
+        name, definition, ontologyTermURI
+      },mandatory,unit
+      {
+        name, definition, ontologyTermURI
+      },exampleValues,permittedValues
+      {
+        value, label, isMissing
+      },release
+      {
+        version, resource
+        {
+          pid, name, mg_tableclass
+        }
+      },description,notes,label,keywords
+      {
+        name, ontologyTermURI, definition
+      }
+    mappings
+      {
+        description, syntax, match
+        {
+          name
+        }
+        fromTable
+        {
+          name
+        }
+        fromVariable
+        {
+          name
+        }
+        fromVariablesInOtherTables
+        {
+          name, table
+          {
+            name
+          }
+        }
+        fromRelease
+        {
+          resource
+          {
+            pid, mg_tableclass
+          }
+          version
+        }
+      }}}`,
+    >>>>>>> 058ef62f55e4d47e0c5061dbc5ae908100aae8eb
+      {
+        pid: this.pid,
+            version
+      :
+        this.version,
+            table
+      :
+        this.table,
+            name
+      :
+        this.name,
+      }
       )
-        .then((data) => {
-          this.variable = data.SourceVariables
-            ? data.SourceVariables[0]
-            : data.TargetVariables[0];
-        })
-        .catch((error) => {
-          if (error.response)
-            this.graphqlError = error.response.errors[0].message;
-          else this.graphqlError = error;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+    .then((data) => {
+    this.variable = data.SourceVariables
+    ? data.SourceVariables[0]
+    : data.TargetVariables[0];
+    })
+    .catch((error) => {
+    if (error.response)
+    this.graphqlError = error.response.errors[0].message;
+    else this.graphqlError = error;
+    })
+    .finally(() => {
+    this.loading = false;
+    });
     },
-  },
-  created() {
+    },
+    created() {
     this.reload();
-  },
-};
+    },
+    };
 </script>

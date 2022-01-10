@@ -39,3 +39,4 @@ procedure is to update.
 | 1.11 => 2.0 | Delete AllVariables and split tables Variables, RepeatedVariables and VariableValues in SourceVariables and TargetVariables, RepeatedSourceVariables and RepeatedTargetVariables, SourceVariableValues and TargetVariableValues. |
 | | Split table Tables in SourceTables and TargetTables. |
 | | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. | 
+

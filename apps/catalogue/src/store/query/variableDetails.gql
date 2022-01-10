@@ -30,6 +30,10 @@ query TargetVariables($filter: TargetVariablesFilter) {
             fromVariable {
                 name
             }
+            fromVariablesInOtherTables {
+                table{name}
+                name
+            }
             fromTable {
                 dataDictionary {
                     resource {
