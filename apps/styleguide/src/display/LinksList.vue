@@ -32,20 +32,6 @@ export default {
 <docs>
 Display a list of links
 ```
-<script>
-  export default {
-    data() {
-      return {
-        links: [{label: 'Molgenis', href: 'https://molgenis.org'}]
-      }
-    }
-  }
-</script>
-<template>
-  <LinksList :items="links">
-    <p>Sample content</p>
-  </LinksList>
-</template>
-
+<links-list :items="[{label: 'Molgenis', href: 'https://molgenis.org'}]"/>
 ```
 </docs>
