@@ -1,10 +1,21 @@
 <template>
-  <div>Not meant for direct use</div>
+  <div>
+    <h3>For testing purposes</h3>
+    <p>TableMetadataMixin</p>
+    <pre>session: {{ session }}</pre>
+    <pre>schema: <ShowMore title="schema">{{ schema }}</ShowMore></pre>
+    <pre>error: {{ graphqlError }}</pre>
+  </div>
 </template>
+
 <script>
 import { request } from "graphql-request";
+import ShowMore from "../layout/ShowMore";
 
 export default {
+  components: {
+    ShowMore,
+  },
   props: {
     graphqlURL: {
       default: "graphql",
