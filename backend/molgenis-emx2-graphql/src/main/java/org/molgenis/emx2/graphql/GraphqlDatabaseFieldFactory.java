@@ -1,9 +1,7 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.VALUE;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
@@ -79,9 +77,7 @@ public class GraphqlDatabaseFieldFactory {
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
-        .dataFetcher(
-            dataFetchingEnvironment ->
-                List.of(Map.of("key", IS_OIDC_ENABLED, VALUE, database.isOidcEnabled())));
+        .dataFetcher(dataFetchingEnvironment -> database.getSettings());
   }
 
   public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {

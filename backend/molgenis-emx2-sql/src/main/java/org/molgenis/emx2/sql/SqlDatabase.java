@@ -145,6 +145,11 @@ public class SqlDatabase implements Database {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
+
+      if (settings.stream().noneMatch(s -> s.key().equals(Constants.IS_OIDC_ENABLED))) {
+        this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+      }
+
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
