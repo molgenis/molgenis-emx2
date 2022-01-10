@@ -355,6 +355,13 @@ TargetVariableValues,,order,int,,,,,,,,
 TargetVariableValues,,isMissing,bool,,,,,,,,
 TargetVariableValues,,ontologyTermIRI,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
+VariableMappings,,fromDataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,
+VariableMappings,,fromTable,ref,1,TRUE,SourceTables,fromDataDictionary,,,,
+VariableMappings,,fromVariable,ref_array,,,SourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
+VariableMappings,,fromVariablesOtherTables,ref_array,,,SourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
+VariableMappings,,toDataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,
+VariableMappings,,toTable,ref,1,TRUE,TargetTables,toDataDictionary,,,,
+VariableMappings,,toVariable,ref,1,TRUE,TargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
 VariableMappings,,match,ontology,,TRUE,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
 VariableMappings,,status,ontology,,,Status,,,,,whether harmonisation is still draft or final
 VariableMappings,,description,text,,,,,,,,human readible description of the mapping

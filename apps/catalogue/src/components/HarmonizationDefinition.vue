@@ -7,7 +7,8 @@
         <dd class="col-10">
           <template
             v-if="variable.cohortMapping && variable.cohortMapping.description"
-            >{{ variable.cohortMapping.description }}
+          >
+            {{ variable.cohortMapping.description }}
           </template>
           <template v-else> -</template>
         </dd>

@@ -103,7 +103,7 @@
                   pid: fromPid,
                   version: fromVersion,
                   table: fromTable,
-                  name: v.name,
+                  name: m.fromVariable.name,
                 },
               }"
             >
