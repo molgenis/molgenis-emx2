@@ -32,6 +32,7 @@ export default {
 <docs>
 Display a list of links
 ```
-<links-list :items="[{label: 'Molgenis', href: 'https://molgenis.org'}]"/>
+<links-list
+    :items="[{label: 'Molgenis', href: 'https://molgenis.org'}, {label: 'Google', href: 'https://google.com'}]"/>
 ```
 </docs>
