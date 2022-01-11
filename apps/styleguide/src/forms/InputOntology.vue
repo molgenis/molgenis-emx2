@@ -418,7 +418,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Tag" :list="true" graphqlURL="/pet store/graphql"/>
+                   table="Category" :list="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -438,7 +438,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Keywords" graphqlURL="/catalogue/graphql" :showExpanded="true" :list="true"/>
+                   table="Category" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

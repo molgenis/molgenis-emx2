@@ -13,7 +13,7 @@ Vue.use(RuntimeTemplateCompiler);
 
 export default {
   props: {
-    a: Object,
+    row: Object,
     template: String,
   },
 };

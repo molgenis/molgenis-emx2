@@ -93,7 +93,7 @@ examples
   <div>
     <div class="row">
       <div class="col-3">
-        <FilterSidebar :filters.sync="table.filters" graphqlURL="/CohortNetwork/graphql"/>
+        <FilterSidebar :filters.sync="table.filters" graphqlURL="/pet store/graphql"/>
       </div>
       <div class="col-9">
         <FilterWells :filters.sync="table.filters"/>
@@ -142,8 +142,8 @@ examples
             },
             {
               "name": "tags",
-              "refTable": "AreasOfInformation",
-              "graphqlURL": "/CohortNetworks/graphql",
+              "refTable": "Tag",
+              "graphqlURL": "/pet store/graphql",
               "columnType": "ONTOLOGY_ARRAY",
               "showFilter": true
             }]
