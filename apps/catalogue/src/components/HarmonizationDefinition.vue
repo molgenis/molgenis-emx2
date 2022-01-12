@@ -41,7 +41,7 @@
             </li>
             <li
               v-for="fromVariable in variable.cohortMapping
-                .fromVariablesInOtherTables"
+                .fromVariablesOtherTables"
               :key="fromVariable.name"
             >
               <router-link

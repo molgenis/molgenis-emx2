@@ -30,7 +30,7 @@ query TargetVariables($filter: TargetVariablesFilter) {
             fromVariable {
                 name
             }
-            fromVariablesInOtherTables {
+            fromVariablesOtherTables {
                 table{name}
                 name
             }
