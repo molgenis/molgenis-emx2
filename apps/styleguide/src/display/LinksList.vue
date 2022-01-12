@@ -32,13 +32,7 @@ export default {
 <docs>
 Display a list of links
 ```
-const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org', },
-    { label: 'Vue',  href: 'https://vuejs.org/' } 
-]
-<template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
-</template>
-
+<links-list
+    :items="[{label: 'Molgenis', href: 'https://molgenis.org'}, {label: 'Google', href: 'https://google.com'}]"/>
 ```
 </docs>

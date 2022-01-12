@@ -56,12 +56,6 @@ export default {
 Example
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<RowButtonAdd table="Variables" graphqlURL="/CohortNetwork/graphql"/>
-```
-
-Example with names
-```
-<!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<RowButtonAdd table="Person_details" graphqlURL="/testNamesWithSpaces/graphql"/>
+<RowButtonAdd table="Pet" graphqlURL="/pet store/graphql"/>
 ```
 </docs>
