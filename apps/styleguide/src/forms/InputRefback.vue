@@ -130,11 +130,11 @@ note, this input doesn't have value on its own, it just allows you to edit the r
 This also means you cannot do this unless your current record has a pkey to point to
 ```
 <InputRefback
-    label="Contributions"
-    table="Contributions"
-    refBack="resource"
-    :refbackValue="{acronym:'ALSPAC'}"
-    graphqlURL="/CohortNetwork/graphql"
+    label="Orders"
+    table="Order"
+    refBack="pet"
+    :pkey="{name:'spike'}"
+    graphqlURL="/pet store/graphql"
 />
 
 ```
