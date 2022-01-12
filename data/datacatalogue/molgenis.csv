@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,2
+Version,,,,,,,,,,,2.0
 InstitutionTypes,OntologyTerms,,,,,,,,,,
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
@@ -259,7 +259,7 @@ Studies,,leadInstitution,ref,,,Institutions,,,,,Name of lead institution that co
 TargetDataDictionaries,,,,,,,,,,,Definition of a data dictionary for common data model
 TargetDataDictionaries,,resource,ref,1,TRUE,Models,,,,,Link to the resource of which contents has been released
 TargetDataDictionaries,,version,,1,TRUE,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-TargetDataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
+TargetDataDictionaries,,tables,refback,,,TargetTables,,dataDictionary,,,tables part of this data dictionary
 TargetDataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
 TargetDataDictionaries,,date,date,,,,,,,,date of creation
 TargetDataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
