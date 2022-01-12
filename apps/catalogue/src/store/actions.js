@@ -282,8 +282,6 @@ export default {
       console.error(e)
     );
 
-    console.log(resp);
-
     return resp.Networks.flatMap((n) => n.models).filter((m) => m != undefined);
   },
 };
