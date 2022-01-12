@@ -106,6 +106,8 @@ query Cohorts($pid: String) {
     networks {
       pid
       name
+      description
+      website
       logo {
         id
         url
