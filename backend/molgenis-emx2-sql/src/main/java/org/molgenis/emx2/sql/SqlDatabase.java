@@ -410,6 +410,8 @@ public class SqlDatabase implements Database {
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
+      } catch (DataAccessException e) {
+        throw new SqlMolgenisException("Transaction failed", e);
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);
       }
