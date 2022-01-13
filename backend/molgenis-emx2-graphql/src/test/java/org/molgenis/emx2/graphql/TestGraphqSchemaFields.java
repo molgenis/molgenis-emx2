@@ -471,5 +471,8 @@ public class TestGraphqSchemaFields {
             .build());
     assertEquals(
         execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt(), 0);
+
+    // reset
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
   }
 }
