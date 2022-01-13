@@ -15,8 +15,13 @@ ul.list-group li.list-group-item {
   border: none;
 }
 
-ul.list-group:not(.list-group-horizontal) li.list-group-item {
+ul.list-group li.list-group-item {
   padding-left: 0px;
+}
+
+ul.list-group.list-group-horizontal li.list-group-item {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 </style>
 
