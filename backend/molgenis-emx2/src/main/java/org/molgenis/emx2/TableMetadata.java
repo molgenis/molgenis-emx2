@@ -43,7 +43,9 @@ public class TableMetadata implements Comparable {
   private String[] semantics = null;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*") || tableName.length() > 341) {
+    // max length 31 because of Excel
+    // we allow only graphql compatible names PLUS spaces
+    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*") || tableName.length() > 31) {
       throw new MolgenisException(
           "Invalid table name '"
               + tableName
