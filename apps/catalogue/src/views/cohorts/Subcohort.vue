@@ -80,7 +80,7 @@ export default {
         },
         {
           label: "Other inclusion criteria",
-          value: this.subcohort.numberOfParticipants,
+          value: this.subcohort.inclusionCriteria,
         },
       ];
     },
