@@ -2,7 +2,7 @@
   <div>
     <h1>Admin tools</h1>
     <MolgenisSignin
-      v-show="showSigninForm && session.email === 'anonymous'"
+      v-if="showSigninForm && session.email === 'anonymous'"
       @cancel="showSigninForm = false"
     />
     <Spinner v-if="loading"></Spinner>

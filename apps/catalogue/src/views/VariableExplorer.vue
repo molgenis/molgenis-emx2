@@ -7,7 +7,12 @@
         <input-ref table="Networks" v-model="networks" :list="true"></input-ref>
         <template v-if="hasKeywords">
           <h6 class="mt-3">Topics</h6>
-          <InputOntology table="Keywords" v-model="keywords" :list="true" />
+          <InputOntology
+            table="Keywords"
+            v-model="keywords"
+            :list="true"
+            :show-expanded="true"
+          />
         </template>
       </div>
       <div class="col-6 col-sm-7 col-md-8 col-lg-9">

@@ -10,17 +10,7 @@
           {{ tableMetadata.description }}
         </p>
         <div
-          class="
-            navbar
-            pl-0
-            ml-0
-            shadow-none
-            navbar-expand-lg
-            justify-content-between
-            mb-3
-            pt-3
-            bg-white
-          "
+          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
         >
           <div class="btn-group">
             <ShowHide
@@ -555,46 +545,6 @@ example (graphqlURL is usually not needed because app is served on right path)
         page: 1,
         limit: 10,
         showOrder: 'DESC', showOrderBy: 'name'
-      }
-    },
-    methods: {
-      click(event) {
-        alert(JSON.stringify(event));
-      }
-    }
-  }
-</script>
-```
-
-example with spaces in name
-```
-<template>
-  <div>
-    <TableExplorer
-        table="Person details"
-        graphqlURL="/testNamesWithSpaces/graphql"
-        :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
-        :showPage.sync="page" :showLimit.sync="limit"
-        :conditions.sync="conditions"/>
-    showColumns: {{ showColumns }}<br/>
-    showFilters: {{ showFilters }}<br/>
-    conditions: {{ conditions }} <br/>
-    page: {{ page }}<br/>
-    limit: {{ limit }}
-
-  </div>
-</template>
-<script>
-  export default {
-    data() {
-      return {
-        showColumns: ['name'],
-        showFilters: ['name'],
-        page: 1,
-        limit: 10,
-        conditions: {},
-        showOrder: null,
-        showOrderBy: null
       }
     },
     methods: {

@@ -37,47 +37,27 @@
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
     <h6>Mappings/ETLs</h6>
-    <ul v-if="table.mappings || table.mappingsTo">
+    <ul v-if="table.mappings">
       <li v-for="(m, index) in table.mappings" :key="index">
-        From:
+        {{ tableName == "SourceTables" ? "To" : "From" }}:
         <RouterLink
           :to="{
             name: 'tablemapping',
             params: {
-              fromPid: m.fromDatadictionary.resource.pid,
-              fromVersion: m.fromDatadictionary.version,
+              fromPid: m.fromDataDictionary.resource.pid,
+              fromVersion: m.fromDataDictionary.version,
               fromTable: m.fromTable.name,
-              toPid: table.datadictionary.resource.pid,
-              toVersion: table.datadictionary.version,
-              toTable: table.name,
-            },
-          }"
-        >
-          {{ getType(m.fromRelease.resource.mg_tableclass) }}:
-          {{ m.fromRelease.resource.pid }} - Version:
-          {{ m.fromRelease.version }} - Table:
-          {{ m.fromTable.name }}
-        </RouterLink>
-      </li>
-      <li v-for="(m, index) in table.mappingsTo" :key="index">
-        To:
-        <RouterLink
-          :to="{
-            name: 'tablemapping',
-            params: {
-              toPid: m.toRelease.resource.pid,
-              toVersion: m.toRelease.version,
+              toPid: m.toDataDictionary.resource.pid,
+              toVersion: m.toDataDictionary.version,
               toTable: m.toTable.name,
-              fromPid: table.release.resource.pid,
-              fromVersion: table.release.version,
-              fromTable: table.name,
             },
           }"
         >
-          {{ getType(m.toRelease.resource.mg_tableclass) }}:
-          {{ m.toRelease.resource.pid }} - Version: {{ m.toRelease.version }} -
-          Table:
-          {{ m.toTable.name }}
+          <span>
+            {{ m.fromDataDictionary.resource.pid }} - Version:
+            {{ m.fromDataDictionary.version }} - Table:
+            {{ m.fromTable.name }}
+          </span>
         </RouterLink>
       </li>
     </ul>
@@ -161,7 +141,7 @@ export default {
         "graphql",
         `query ${this.tableName}($pid:String,$version:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
         {dataDictionary{resource{pid,mg_tableclass},version}name,unitOfObservation{name,definition,ontologyTermURI},description,label,
-        mappings{fromDataDictionary{resource{pid,mg_tableclass}version}fromTable{name}}
+        mappings{fromDataDictionary{resource{pid,mg_tableclass}version}fromTable{name}toDataDictionary{resource{pid,mg_tableclass}version}toTable{name}}
           }}`,
         {
           pid: this.pid,
