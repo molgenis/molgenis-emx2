@@ -6,7 +6,17 @@ query Cohorts($pid: String) {
     keywords
     acknowledgements
     fundingStatement
-    designPaper
+    designPaper {
+      doi
+      title
+    }
+    designDescription
+    designSchematic {
+      id
+      size
+      extension
+      url
+    }
     externalIdentifiers
     description
     website
@@ -92,6 +102,13 @@ query Cohorts($pid: String) {
       code
       definition
     }
+    dataUseConditions {
+      name
+      ontologyTermURI
+      code
+      definition
+    }
+    dataAccessFee
     institution {
       pid
       name
