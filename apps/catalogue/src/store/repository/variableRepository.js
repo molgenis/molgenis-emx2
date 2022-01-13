@@ -6,7 +6,7 @@ const fetchDetails = async (name, model, version) => {
   const params = {
     filter: {
       name: { equals: name },
-      release: {
+      dataDictionary: {
         equals: [
           {
             resource: {
@@ -23,14 +23,14 @@ const fetchDetails = async (name, model, version) => {
     await request("graphql", variableDetails, params).catch((e) =>
       console.error("fetch variableDetails details failed: " + e)
     )
-  ).Variables[0];
+  ).TargetVariables[0];
 };
 
 const fetchFromVariableDetails = async (names, network, version) => {
   const params = {
     filter: {
       name: { equals: names },
-      release: {
+      dataDictionary: {
         equals: [{ resource: { pid: network }, version: version }],
       },
     },
@@ -40,7 +40,7 @@ const fetchFromVariableDetails = async (names, network, version) => {
     await request("graphql", fromVariableDetails, params).catch((e) =>
       console.error("fetch fromVariableDetails details failed: " + e)
     )
-  ).Variables[0];
+  ).SourceVariables[0];
 };
 
 export { fetchDetails, fetchFromVariableDetails };

@@ -20,33 +20,39 @@
         :to="{
           name: resourceType + '-details',
           params: {
-            pid: variable.release.resource.pid,
+            pid: variable.dataDictionary.resource.pid,
           },
         }"
-        >{{ variable.release.resource.pid }}
+        >{{ variable.dataDictionary.resource.pid }}
       </RouterLink>
       /
-      <h6 class="d-inline">Release</h6>
+      <h6 class="d-inline">DataDictionary</h6>
       <RouterLink
         :to="{
-          name: 'Releases-details',
+          name:
+            tableName == 'SourceVariables'
+              ? 'SourceDataDictionaries-details'
+              : 'TargetDataDictionaries-details',
           params: {
-            pid: variable.release.resource.pid,
-            version: variable.release.version,
+            resource: variable.dataDictionary.resource.pid,
+            version: variable.dataDictionary.version,
           },
         }"
       >
-        {{ variable.release.version }}
+        {{ variable.dataDictionary.version }}
       </RouterLink>
       /
       <h6 class="d-inline">Table name</h6>
       <RouterLink
         :to="{
-          name: 'Tables-details',
+          name:
+            tableName == 'SourceVariables'
+              ? 'SourceTables-details'
+              : 'TargetTables-details',
           params: {
-            pid: variable.release.resource.pid,
+            pid: variable.dataDictionary.resource.pid,
             name: variable.table.name,
-            version: variable.release.version,
+            version: variable.dataDictionary.version,
           },
         }"
       >
@@ -161,18 +167,19 @@
                   :to="{
                     name: 'tablemapping',
                     params: {
-                      fromPid: m.fromRelease.resource.pid,
-                      fromVersion: m.fromRelease.version,
+                      fromPid: m.fromDataDictionary.resource.pid,
+                      fromVersion: m.fromDataDictionary.version,
                       fromTable: m.fromTable.name,
-                      toPid: variable.release.resource.pid,
-                      toVersion: variable.release.version,
+                      toPid: variable.dataDictionary.resource.pid,
+                      toVersion: variable.dataDictionary.version,
                       toTable: variable.table.name,
                     },
                   }"
                 >
-                  {{ getType(m.fromRelease.resource.mg_tableclass) }}:
-                  {{ m.fromRelease.resource.pid }}
-                  {{ m.fromRelease.version }}, table: {{ m.fromTable.name }}
+                  {{ getType(m.fromDataDictionary.resource.mg_tableclass) }}:
+                  {{ m.fromDataDictionary.resource.pid }}
+                  {{ m.fromDataDictionary.version }}, table:
+                  {{ m.fromTable.name }}
                 </RouterLink>
               </td>
 
@@ -180,29 +187,15 @@
                 <div v-for="v in m.fromVariable" :key="v.name">
                   <RouterLink
                     :to="{
-                      name: 'Variables-details',
+                      name: 'tablemapping',
                       params: {
-                        pid: m.fromRelease.resource.pid,
-                        version: m.fromRelease.version,
+                        fromPid: m.fromDataDictionary.resource.pid,
+                        version: m.fromDataDictionary.version,
                         table: m.fromTable.name,
                         name: v.name,
                       },
                     }"
                     >{{ v.name }}
-                  </RouterLink>
-                </div>
-                <div v-for="v in m.fromVariablesInOtherTables" :key="v.name">
-                  <RouterLink
-                    :to="{
-                      name: 'Variables-details',
-                      params: {
-                        pid: m.fromRelease.resource.pid,
-                        version: m.fromRelease.version,
-                        table: v.table.name,
-                        name: v.name,
-                      },
-                    }"
-                    >{{ v.table.name }}.{{ v.name }}
                   </RouterLink>
                 </div>
               </td>
@@ -232,6 +225,7 @@ export default {
     ButtonAlt,
   },
   props: {
+    tableName: String,
     pid: String,
     version: String,
     table: String,
@@ -246,8 +240,10 @@ export default {
   },
   computed: {
     resourceType() {
-      if (this.variable.release) {
-        return this.getType(this.variable.release.resource.mg_tableclass);
+      if (this.variable.dataDictionary) {
+        return this.getType(
+          this.variable.dataDictionary.resource.mg_tableclass
+        );
       }
     },
   },
@@ -261,9 +257,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Variables($pid:String,$version:String,$table:String,$name:String){Variables(filter:{release:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
-        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},release{version,resource{pid,name,mg_tableclass}},description,notes,label,keywords{name,ontologyTermURI,definition}
-                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromVariablesInOtherTables{name,table{name}}fromRelease{resource{pid,mg_tableclass}version}}}}`,
+        `query ${this.tableName}($pid:String,$version:String,$table:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
+        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},dataDictionary{version,resource{pid,name,mg_tableclass}},description,notes,label,keywords{name,ontologyTermURI,definition}
+                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromDataDictionary{resource{pid,mg_tableclass}version}}}}`,
         {
           pid: this.pid,
           version: this.version,
@@ -272,7 +268,9 @@ export default {
         }
       )
         .then((data) => {
-          this.variable = data.Variables[0];
+          this.variable = data.SourceVariables
+            ? data.SourceVariables[0]
+            : data.TargetVariables[0];
         })
         .catch((error) => {
           if (error.response)

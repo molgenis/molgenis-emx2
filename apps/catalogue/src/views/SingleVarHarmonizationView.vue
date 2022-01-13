@@ -4,24 +4,24 @@
       <li
         class="nav-item"
         v-for="mapping in variable.mappings"
-        :key="mapping.fromTable.release.resource.pid"
+        :key="mapping.fromTable.dataDictionary.resource.pid"
       >
         <router-link
           class="nav-link"
           :class="{
             active:
               $route.query.sourceCohort ===
-              mapping.fromTable.release.resource.pid,
+              mapping.fromTable.dataDictionary.resource.pid,
           }"
           :to="{
             name: 'VariableDetailView',
             query: {
               ...$route.query,
-              sourceCohort: mapping.fromTable.release.resource.pid,
+              sourceCohort: mapping.fromTable.dataDictionary.resource.pid,
             },
           }"
         >
-          {{ mapping.fromTable.release.resource.pid }}
+          {{ mapping.fromTable.dataDictionary.resource.pid }}
         </router-link>
       </li>
     </ul>
@@ -37,6 +37,7 @@
 
 <script>
 import ResourceHarmonizationDetails from "./ResourceHarmonizationDetails";
+
 export default {
   name: "SingleVarHarmonizationView",
   components: { ResourceHarmonizationDetails },
@@ -58,7 +59,7 @@ export default {
         query: {
           ...this.$route.query,
           sourceCohort:
-            this.variable.mappings[0].fromTable.release.resource.pid,
+            this.variable.mappings[0].fromTable.dataDictionary.resource.pid,
         },
       });
     }

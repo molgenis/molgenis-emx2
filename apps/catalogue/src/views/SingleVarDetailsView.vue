@@ -99,7 +99,7 @@ export default {
         return "unmapped"; // not mapped
       }
       const resourceMapping = variable.mappings.find((mapping) => {
-        return mapping.fromRelease.resource.pid === resourceName;
+        return mapping.fromDataDictionary.resource.pid === resourceName;
       });
       if (!resourceMapping) {
         return "unmapped"; // not mapped
