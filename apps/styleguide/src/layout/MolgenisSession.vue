@@ -60,7 +60,7 @@ const query = `{
   _session { email, roles },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
-}`
+}`;
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
@@ -113,11 +113,17 @@ export default {
       this.loading = true;
 
       const responses = await Promise.allSettled([
-        request('/apps/central/graphql', query),
-        request( this.graphql, query)
-      ])
-      const dbSettings = responses[0].status === 'fulfilled' ? responses[0].value : this.handleError(responses[0].reason);
-      const schemaSettings = responses[1].status === 'fulfilled' ? responses[1].value : this.handleError(responses[1].reason);
+        request("/apps/central/graphql", query),
+        request(this.graphql, query),
+      ]);
+      const dbSettings =
+        responses[0].status === "fulfilled"
+          ? responses[0].value
+          : this.handleError(responses[0].reason);
+      const schemaSettings =
+        responses[1].status === "fulfilled"
+          ? responses[1].value
+          : this.handleError(responses[1].reason);
 
       if (schemaSettings && schemaSettings._session) {
         this.session = schemaSettings._session;
@@ -126,23 +132,24 @@ export default {
       }
       //convert settings to object
       this.session.settings = {};
-      if(dbSettings && dbSettings._settings) {
+      if (dbSettings && dbSettings._settings) {
         dbSettings._settings.forEach(
-            (s) =>
-                (this.session.settings[s.key] =
-                    s.value.startsWith("[") || s.value.startsWith("{")
-                        ? this.parseJson(s.value)
-                        : s.value));
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
+        );
         this.session.manifest = dbSettings._manifest;
       }
       // schemaSettings override dbSettings if set
-      if(schemaSettings && schemaSettings._settings) {
+      if (schemaSettings && schemaSettings._settings) {
         schemaSettings._settings.forEach(
-            (s) =>
-                (this.session.settings[s.key] =
-                    s.value.startsWith("[") || s.value.startsWith("{")
-                        ? this.parseJson(s.value)
-                        : s.value)
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
         );
         this.session.manifest = schemaSettings._manifest;
       }
@@ -151,7 +158,7 @@ export default {
       this.$emit("input", this.session);
     },
     handleError(reason) {
-        this.error = "internal server error " + reason;
+      this.error = "internal server error " + reason;
     },
     parseJson(value) {
       try {

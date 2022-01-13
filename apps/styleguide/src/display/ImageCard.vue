@@ -31,7 +31,8 @@
   border-top-right-radius: calc(0px - 1px);
 }
 
-.card-group,.card-columns > .image-card > img {
+.card-group,
+.card-columns > .image-card > img {
   border-top-left-radius: 0px !important;
   border-top-right-radius: 0px !important;
   border-bottom-left-radius: 0px !important;
