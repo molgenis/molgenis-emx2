@@ -50,8 +50,8 @@
         </button>
       </div>
     </div>
-    <div v-for="val in valueArray" :key="JSON.stringify(val)">
-      <a v-if="val && val.url" :href="val.url">
+    <div>
+      <a v-if="value && value.url" :href="value.url">
         Previous value: {{ filename }}.{{ value.extension }}
       </a>
     </div>
