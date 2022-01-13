@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.MolgenisException;
 
 public class GraphqlCustomTypes {
 
@@ -28,7 +29,11 @@ public class GraphqlCustomTypes {
 
                 @Override
                 public BinaryFileWrapper parseValue(Object input) {
-                  if (input instanceof Part) {
+                  if (input == null) {
+                    return null;
+                  } else if (input instanceof String) {
+                    return new BinaryFileWrapper("text/html", "text", ((String) input).getBytes());
+                  } else if (input instanceof Part) {
                     Part part = (Part) input;
                     try (InputStream is = part.getInputStream(); ) {
                       String contentType = part.getContentType();
@@ -49,7 +54,9 @@ public class GraphqlCustomTypes {
                           "Couldn't read content of the uploaded file");
                     }
                   } else {
-                    return null;
+                    throw new MolgenisException(
+                        "Unknown data type given to graphql file input: "
+                            + input.getClass().getSimpleName());
                   }
                 }
 

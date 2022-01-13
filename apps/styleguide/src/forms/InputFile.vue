@@ -52,7 +52,7 @@
     </div>
     <div v-for="val in valueArray" :key="JSON.stringify(val)">
       <a v-if="val && val.url" :href="val.url">
-        Previous value: {{ name }}.{{ val.extension }}
+        Previous value: {{ filename }}.{{ value.extension }}
       </a>
     </div>
   </form-group>
@@ -84,7 +84,7 @@ export default {
     },
     clearInput() {
       this.$refs.file.value = "";
-      this.value = null;
+      this.value = "MG_DELETE_FILE";
       this.$emit("input", this.value);
     },
   },
@@ -119,5 +119,24 @@ Example
 Example with error
 ```
 <InputFile label="My file input" errorMessage="Some error with files"/>
+```
+
+Example with state
+```
+<template>
+  <div>
+    <InputFile label="My file input" v-model="myfile"/>
+    Value: {{ myfile }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myfile: {extension: 'doc', name: 'somefile', url: 'http://fake'}
+      }
+    }
+  }
+</script>
 ```
 </docs>
