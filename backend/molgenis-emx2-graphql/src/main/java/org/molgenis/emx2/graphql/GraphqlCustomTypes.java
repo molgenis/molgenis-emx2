@@ -29,9 +29,7 @@ public class GraphqlCustomTypes {
 
                 @Override
                 public BinaryFileWrapper parseValue(Object input) {
-                  if (input == null) {
-                    return null;
-                  } else if (input instanceof String) {
+                  if (input instanceof String) {
                     return new BinaryFileWrapper("text/html", "text", ((String) input).getBytes());
                   } else if (input instanceof Part) {
                     Part part = (Part) input;
