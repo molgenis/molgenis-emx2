@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
-import org.molgenis.emx2.MolgenisException;
 
 public class GraphqlCustomTypes {
 
@@ -52,9 +51,7 @@ public class GraphqlCustomTypes {
                           "Couldn't read content of the uploaded file");
                     }
                   } else {
-                    throw new MolgenisException(
-                        "Unknown data type given to graphql file input: "
-                            + input.getClass().getSimpleName());
+                    return null;
                   }
                 }
 
