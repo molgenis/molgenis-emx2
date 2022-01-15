@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
