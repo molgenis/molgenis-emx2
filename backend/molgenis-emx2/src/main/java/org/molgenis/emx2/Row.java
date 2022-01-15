@@ -168,14 +168,13 @@ public class Row {
   }
 
   public Row setBinary(String name, BinaryFileWrapper value) {
-    // delete flag for explicit emptying
-    if (value == null || "MG_DELETE_FILE".equals(new String(value.getContents()))) {
+    if (value == null) {
       this.values.put(name, null);
       this.values.put(name + "_extension", null);
       this.values.put(name + "_mimetype", null);
       this.values.put(name + "_size", null);
       this.values.put(name + "_contents", null);
-    } else {
+    } else if (!value.isSkip()) {
       this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());

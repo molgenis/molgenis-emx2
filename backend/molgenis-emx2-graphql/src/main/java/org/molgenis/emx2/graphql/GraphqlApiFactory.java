@@ -33,10 +33,9 @@ public class GraphqlApiFactory {
             convertRefArrayToRow(
                 (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
           } else if (column.isFile()) {
-            // skip files if not set so it is not updated
-            if (object.get(column.getName()) != null) {
-              row.set(column.getName(), object.get(escape(column.getName())));
-            }
+            // also necessary in case of 'null' to ensure all file metadata fields are made empty
+            row.setBinary(
+                column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
           } else {
             row.set(column.getName(), object.get(escape(column.getName())));
           }

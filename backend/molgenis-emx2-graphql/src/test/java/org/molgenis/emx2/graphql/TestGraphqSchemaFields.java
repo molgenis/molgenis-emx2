@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
@@ -444,7 +445,8 @@ public class TestGraphqSchemaFields {
 
     grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
 
-    // insert file
+    // insert file (note: ideally here also use mutation but I don't know how to add file part to
+    // request)
     Table table = myschema.getTable("TestFile");
     table.insert(
         row(
@@ -453,24 +455,28 @@ public class TestGraphqSchemaFields {
             "image",
             new BinaryFileWrapper("text/html", "testfile.txt", "test".getBytes())));
 
-    assertEquals(execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt(), 4);
+    assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
-    // update with null value should leave file untouched
+    // update with {} existing file metadata should keep file untouched
+    Map data = new LinkedHashMap();
+    data.put("name", "test");
+    data.put("image", Map.of("name", "dummy"));
     grapql.execute(
         new ExecutionInput.Builder()
             .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-            .variables(Map.of("value", Map.of("name", "test")))
+            .variables(Map.of("value", data))
             .build());
-    assertEquals(execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt(), 4);
+    assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
-    // update with delete flag should delete file
+    // update with null should delete
+    data.put("image", null);
     grapql.execute(
         new ExecutionInput.Builder()
             .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-            .variables(Map.of("value", Map.of("name", "test", "image", "MG_DELETE_FILE")))
+            .variables(Map.of("value", data))
             .build());
     assertEquals(
-        execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt(), 0);
+        0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
 
     // reset
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);

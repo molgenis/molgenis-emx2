@@ -4,6 +4,7 @@ import graphql.schema.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.BinaryFileWrapper;
 
@@ -28,9 +29,11 @@ public class GraphqlCustomTypes {
 
                 @Override
                 public BinaryFileWrapper parseValue(Object input) {
-                  if (input instanceof String) {
-                    return new BinaryFileWrapper("text/html", "text", ((String) input).getBytes());
+                  if (input instanceof Map) {
+                    // when user re-submitted the file metadata we skip update (skip flag)
+                    return new BinaryFileWrapper(true);
                   } else if (input instanceof Part) {
+                    // when submitted new file instance we will apply insert/update
                     Part part = (Part) input;
                     try (InputStream is = part.getInputStream(); ) {
                       String contentType = part.getContentType();
