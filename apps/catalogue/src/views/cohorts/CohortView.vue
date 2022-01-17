@@ -218,20 +218,20 @@ export default {
     generalDesignItems() {
       return [
         {
-          label: "Type",
-          value: this.cohort.collectionType
-            ? this.cohort.collectionType[0].name
-            : "na",
+          label: "Cohort type",
+          value: this.cohort.type
+            ? this.cohort.type.map((type) => type.name).join(", ")
+            : "not available",
         },
         {
           label: "Design",
-          value: this.cohort.design ? this.cohort.design.name : "na",
+          value: this.cohort.design ? this.cohort.design.name : "not available",
         },
         {
           label: "Collection type",
           value: this.cohort.collectionType
             ? this.cohort.collectionType[0].name
-            : "",
+            : "not available",
         },
         {
           label: "Start/End year",
