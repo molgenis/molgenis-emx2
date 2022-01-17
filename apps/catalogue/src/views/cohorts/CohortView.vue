@@ -95,10 +95,10 @@
     <grid-block heading="Available data & samples">
       <strong>Data categories</strong>
       <p>{{ dataCategories.join(", ") }}</p>
-      <strong>Areas of information</strong>
-      <p>{{ areasOfInformation.join(", ") }}</p>
       <strong>Sample categories</strong>
       <p>{{ sampleCategories.join(", ") }}</p>
+      <strong>Areas of information</strong>
+      <p>{{ areasOfInformation.join(", ") }}</p>
     </grid-block>
 
     <grid-block heading="Documentation" v-if="documentation.length">
