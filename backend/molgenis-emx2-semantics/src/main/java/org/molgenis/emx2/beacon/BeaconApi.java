@@ -16,20 +16,20 @@ public class BeaconApi {
   public static void create() {
 
     // framework
-    get("/:schema/beacon/", BeaconApi::getInfo);
-    get("/:schema/beacon/info", BeaconApi::getInfo);
-    get("/:schema/beacon/service-info", BeaconApi::getServiceInfo);
-    get("/:schema/beacon/configuration", BeaconApi::getConfiguration);
-    get("/:schema/beacon/map", BeaconApi::getMap);
-    get("/:schema/beacon/entry_types", BeaconApi::getEntryTypes);
-    get("/:schema/beacon/filtering_terms", BeaconApi::getFilteringTerms);
+    get("/:schema/api/beacon", BeaconApi::getInfo);
+    get("/:schema/api/beacon/info", BeaconApi::getInfo);
+    get("/:schema/api/beacon/service-info", BeaconApi::getServiceInfo);
+    get("/:schema/api/beacon/configuration", BeaconApi::getConfiguration);
+    get("/:schema/api/beacon/map", BeaconApi::getMap);
+    get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
+    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
 
     // datasets model
-    get("/:schema/beacon/datasets", BeaconApi::getDatasets);
-    get("/:schema/beacon/datasets/:table", BeaconApi::getDatasetsForTable);
+    get("/:schema/api/beacon/datasets", BeaconApi::getDatasets);
+    get("/:schema/api/beacon/datasets/:table", BeaconApi::getDatasetsForTable);
     // these are the interesting queries
-    post("/:schema/beacon/datasets", BeaconApi::postDatasets);
-    post("/:schema/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
+    post("/:schema/api/beacon/datasets", BeaconApi::postDatasets);
+    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }
 
   private static String getInfo(Request req, Response res) throws JsonProcessingException {
