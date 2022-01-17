@@ -333,11 +333,13 @@ export default {
               name: item.name,
               description: item.description,
               startAndEndYear: (() => {
-                let value =
-                  ((item.startYear && item.startYear.name) || "n/a") +
-                  " - " +
-                  ((item.endYear && item.endYear.name) || "n/a");
-                return value === "n/a - n/a" ? null : value;
+                const startYear =
+                  item.startYear && item.startYear.name
+                    ? item.startYear.name
+                    : null;
+                const endYear =
+                  item.endYear && item.endYear.name ? item.endYear.name : null;
+                return startEndYear(startYear, endYear);
               })(),
               _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
             };
