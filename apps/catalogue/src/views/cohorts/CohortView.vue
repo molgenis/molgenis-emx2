@@ -96,9 +96,9 @@
       <strong>Data categories</strong>
       <p>{{ dataCategories.join(", ") }}</p>
       <strong>Areas of information</strong>
-      <p>{{ sampleCategories.join(", ") }}</p>
-      <strong>Sample categories</strong>
       <p>{{ areasOfInformation.join(", ") }}</p>
+      <strong>Sample categories</strong>
+      <p>{{ sampleCategories.join(", ") }}</p>
     </grid-block>
 
     <grid-block heading="Documentation" v-if="documentation.length">
