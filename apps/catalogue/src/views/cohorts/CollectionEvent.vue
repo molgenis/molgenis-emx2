@@ -66,8 +66,13 @@ export default {
         {
           label: "Start/end year: ",
           value: startEndYear(
-            this.collectionEvent.startYear.name,
-            this.collectionEvent.startYear.name
+            this.collectionEvent.startYear &&
+              this.collectionEvent.startYear.name
+              ? this.collectionEvent.startYear.name
+              : null,
+            this.collectionEvent.endYear && this.collectionEvent.endYear.name
+              ? this.collectionEvent.endYear.name
+              : null
           ),
         },
         {
