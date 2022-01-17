@@ -1,9 +1,9 @@
 package org.molgenis.emx2.beacon;
 
+import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static spark.Spark.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.molgenis.emx2.beacon.common.BeaconInformationalResponseMeta;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.*;
@@ -34,26 +34,26 @@ public class BeaconApi {
 
   private static String getInfo(Request req, Response res) throws JsonProcessingException {
 
-    return new ObjectMapper().writeValueAsString(new BeaconInformationalResponseMeta());
+    return getWriter().writeValueAsString(new BeaconInformationalResponseMeta());
   }
 
   private static String getServiceInfo(Request request, Response response)
       throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(new BeaconServiceInfoResponse());
+    return getWriter().writeValueAsString(new BeaconServiceInfoResponse());
   }
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(new BeaconConfigurationResponse());
+    return getWriter().writeValueAsString(new BeaconConfigurationResponse());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(new BeaconConfigurationResponse());
+    return getWriter().writeValueAsString(new BeaconConfigurationResponse());
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(new BeaconEntryTypesResponse());
+    return getWriter().writeValueAsString(new BeaconEntryTypesResponse());
   }
 
   private static String getFilteringTerms(Request request, Response response)
@@ -61,7 +61,7 @@ public class BeaconApi {
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
     // TODO handle skip and limit
-    return new ObjectMapper().writeValueAsString(new BeaconFilteringTermsResponse());
+    return getWriter().writeValueAsString(new BeaconFilteringTermsResponse());
   }
 
   private static String getDatasets(Request request, Response response)
@@ -70,7 +70,7 @@ public class BeaconApi {
     String limit = request.queryParams("limit");
 
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    return new ObjectMapper().writeValueAsString(null);
+    return getWriter().writeValueAsString(null);
   }
 
   private static String postDatasets(Request request, Response response)
@@ -79,14 +79,14 @@ public class BeaconApi {
     BeaconRequestBody requestBody = null; // todo
 
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    return new ObjectMapper().writeValueAsString(null);
+    return getWriter().writeValueAsString(null);
   }
 
   private static Object getDatasetsForTable(Request request, Response response)
       throws JsonProcessingException {
 
     // result should be BeaconBooleanResponse, BeaconCountResponse or beaconResultsetsResponse
-    return new ObjectMapper().writeValueAsString(null);
+    return getWriter().writeValueAsString(null);
   }
 
   private static Object postDatasetsForTable(Request request, Response response)
@@ -96,6 +96,6 @@ public class BeaconApi {
     BeaconRequestBody requestBody = null; // todo
 
     // result should be BeaconBooleanResponse, BeaconCountResponse or beaconResultsetsResponse
-    return new ObjectMapper().writeValueAsString(null);
+    return getWriter().writeValueAsString(null);
   }
 }
