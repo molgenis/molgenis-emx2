@@ -11,6 +11,12 @@ public class BinaryFileWrapper implements Binary {
   // these we calculate on construction
   String mimetype;
   String extension = "";
+  // this is used to skip file updates
+  boolean skip = false;
+
+  public BinaryFileWrapper(boolean skip) {
+    this.skip = true;
+  }
 
   public BinaryFileWrapper(File file) {
     this.file = file;
@@ -71,5 +77,9 @@ public class BinaryFileWrapper implements Binary {
       }
     }
     return new byte[0];
+  }
+
+  public boolean isSkip() {
+    return skip;
   }
 }
