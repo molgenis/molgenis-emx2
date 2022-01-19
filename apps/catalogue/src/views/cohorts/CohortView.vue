@@ -24,7 +24,7 @@
 
       <key-value-block
         v-if="cohort.designPaper"
-        :items="[{ label: 'Marker paper', value: cohort.designPaper }]"
+        :items="[{ label: 'Marker paper', value: cohort.designPaper.title }]"
       ></key-value-block>
 
       <key-value-block
