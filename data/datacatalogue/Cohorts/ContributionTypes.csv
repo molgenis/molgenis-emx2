@@ -24,4 +24,4 @@ WorkPackage leader,"A Work Package is a recognized data product, not all of whic
 Task leader,"A Task is a recognized data product, not all of which is included in publication. The package, instead, may include notes, discarded documents, etc. The Work Package Leader is responsible for ensuring the comprehensive contents, versioning, and availability of the Work Package during the development of the resource.",Added by Morris Swertz
 Other,"Any person or institution making a significant contribution to the development and/or maintenance of the resource, but whose contribution does not “fit” other controlled vocabulary for contributorType.","Could be a photographer, artist, or writer whose contribution helped to publicize the resource (as opposed to creating it), a reviewer of the resource, someone providing administrative services to the author (such as depositing updates into an online repository, analysing usage, etc.), or one of many other roles."
 Participant,,
-Principle Investigator,,
+Principal Investigator,,
