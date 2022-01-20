@@ -60,8 +60,8 @@ export default {
         {
           label: "Start/end year: ",
           value: startEndYear(
-            this.subcohort.startEndYear,
-            this.subcohort.startEndYear
+            this.subcohort.inclusionStart,
+            this.subcohort.inclusionEnd
           ),
         },
         {
@@ -80,7 +80,7 @@ export default {
         },
         {
           label: "Other inclusion criteria",
-          value: this.subcohort.numberOfParticipants,
+          value: this.subcohort.inclusionCriteria,
         },
       ];
     },

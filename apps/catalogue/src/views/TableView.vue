@@ -17,64 +17,47 @@
         name: resourceType + '-details',
         params: { pid: pid },
       }"
-      >{{ table.release.resource.pid }}
+      >{{ table.dataDictionary.resource.pid }}
     </RouterLink>
     /
-    <h6 class="d-inline">Release</h6>
+    <h6 class="d-inline">Data dictionary</h6>
     <RouterLink
       :to="{
-        name: 'Releases-details',
-        params: { pid: pid, version: version },
+        name:
+          tableName == 'SourceTables'
+            ? 'SourceDataDictionaries-details'
+            : 'TargetDataDictionaries-details',
+        params: { resource: pid, version: version },
       }"
     >
-      {{ table.release.version }}
+      {{ table.dataDictionary.version }}
     </RouterLink>
     <h1>Table: {{ table.name }}</h1>
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
     <h6>Mappings/ETLs</h6>
-    <ul v-if="table.mappings || table.mappingsTo">
+    <ul v-if="table.mappings">
       <li v-for="(m, index) in table.mappings" :key="index">
-        From:
+        {{ tableName == "SourceTables" ? "To" : "From" }}:
         <RouterLink
           :to="{
             name: 'tablemapping',
             params: {
-              fromPid: m.fromRelease.resource.pid,
-              fromVersion: m.fromRelease.version,
+              fromPid: m.fromDataDictionary.resource.pid,
+              fromVersion: m.fromDataDictionary.version,
               fromTable: m.fromTable.name,
-              toPid: table.release.resource.pid,
-              toVersion: table.release.version,
-              toTable: table.name,
-            },
-          }"
-        >
-          {{ getType(m.fromRelease.resource.mg_tableclass) }}:
-          {{ m.fromRelease.resource.pid }} - Version:
-          {{ m.fromRelease.version }} - Table:
-          {{ m.fromTable.name }}
-        </RouterLink>
-      </li>
-      <li v-for="(m, index) in table.mappingsTo" :key="index">
-        To:
-        <RouterLink
-          :to="{
-            name: 'tablemapping',
-            params: {
-              toPid: m.toRelease.resource.pid,
-              toVersion: m.toRelease.version,
+              toPid: m.toDataDictionary.resource.pid,
+              toVersion: m.toDataDictionary.version,
               toTable: m.toTable.name,
-              fromPid: table.release.resource.pid,
-              fromVersion: table.release.version,
-              fromTable: table.name,
             },
           }"
         >
-          {{ getType(m.toRelease.resource.mg_tableclass) }}:
-          {{ m.toRelease.resource.pid }} - Version: {{ m.toRelease.version }} -
-          Table:
-          {{ m.toTable.name }}
+          <span>
+            {{ m.fromDataDictionary.resource.pid }} - Version:
+            {{ m.fromDataDictionary.version }} - Table:
+            {{ m.fromTable.name }}
+          </span>
         </RouterLink>
       </li>
     </ul>
@@ -82,14 +65,16 @@
     <h6>Variables</h6>
     <TableExplorer
       v-if="tab == 'Variables'"
-      table="Variables"
+      :table="
+        tableName == 'SourceTables' ? 'SourceVariables' : 'TargetVariables'
+      "
       :showHeader="false"
       :showFilters="[]"
       :showColumns="['name', 'label', 'format', 'description', 'notes']"
       :showCards="true"
       :filter="{
         table: { name: { equals: name } },
-        release: {
+        dataDictionary: {
           version: { equals: version },
           resource: { pid: { equals: pid } },
         },
@@ -114,6 +99,7 @@ export default {
     TableExplorer,
   },
   props: {
+    tableName: String,
     pid: String,
     version: String,
     name: String,
@@ -127,8 +113,8 @@ export default {
   },
   computed: {
     resourceType() {
-      if (this.table.release) {
-        return this.table.release.resource.mg_tableclass.split(".")[1];
+      if (this.table.dataDictionary) {
+        return this.table.dataDictionary.resource.mg_tableclass.split(".")[1];
       }
     },
   },
@@ -138,7 +124,10 @@ export default {
     },
     openVariable(row) {
       this.$router.push({
-        name: "Variables-details",
+        name:
+          this.tableName == "SourceTables"
+            ? "SourceVariables-details"
+            : "TargetVariables-details",
         params: {
           pid: this.pid,
           version: this.version,
@@ -150,11 +139,10 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Tables($pid:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
-        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{pid,name,mg_tableclass}}, description,label,
-        mappings{fromRelease{resource{pid,mg_tableclass}version}fromTable{name}}
-         mappingsTo{toRelease{resource{pid,mg_tableclass}version}toTable{name}}
-         }}`,
+        `query ${this.tableName}($pid:String,$version:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
+        {dataDictionary{resource{pid,mg_tableclass},version}name,unitOfObservation{name,definition,ontologyTermURI},description,label,
+        mappings{fromDataDictionary{resource{pid,mg_tableclass}version}fromTable{name}toDataDictionary{resource{pid,mg_tableclass}version}toTable{name}}
+          }}`,
         {
           pid: this.pid,
           version: this.version,
@@ -162,7 +150,9 @@ export default {
         }
       )
         .then((data) => {
-          this.table = data.Tables[0];
+          this.table = data.SourceTables
+            ? data.SourceTables[0]
+            : data.TargetTables[0];
         })
         .catch((error) => {
           if (error.response)

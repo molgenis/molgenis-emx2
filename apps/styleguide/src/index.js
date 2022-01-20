@@ -91,6 +91,7 @@ import PersonDetails from "./display/PersonDetails.vue";
 import ContactDisplay from "./display/ContactDisplay.vue";
 import LinksList from "./display/LinksList.vue";
 import TableDisplay from "./display/TableDisplay";
+import ImageCard from "./display/ImageCard";
 
 export {
   ButtonAction,
@@ -106,6 +107,7 @@ export {
   FilterContainer,
   IconBar,
   IconAction,
+  ImageCard,
   IconDanger,
   InputBoolean,
   InputCheckbox,

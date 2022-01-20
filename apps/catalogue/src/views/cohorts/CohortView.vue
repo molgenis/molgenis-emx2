@@ -3,23 +3,18 @@
     <grid-block>
       <page-header
         :title="cohort.name"
+        :subTitle="cohort.institution ? cohort.institution[0].name : null"
         :logoUrl="cohort.logo.url"
+        :subTitleLink="
+          cohort.institution
+            ? { to: '/institutions/' + cohort.institution[0].pid }
+            : null
+        "
       ></page-header>
     </grid-block>
 
     <grid-block>
-      <links-list
-        :items="[
-          {
-            label: 'Website',
-            href: cohort.website,
-          },
-          {
-            label: 'Contact',
-            href: cohort.contactEmail,
-          },
-        ]"
-      ></links-list>
+      <links-list :isHorizontal="true" :items="mainLinks"></links-list>
     </grid-block>
 
     <div class="card-columns card-columns-2">
@@ -54,35 +49,60 @@
     </grid-block>
 
     <grid-block heading="Partners" v-if="partners.length">
-      <div v-for="(partner, index) in partners" :key="index">
-        <image-display
-          style="width: 100px; height: 100px"
-          :url="partner.institution.logo.url"
-        ></image-display>
+      <div class="card-columns">
+        <image-card
+          v-for="(partner, index) in partners"
+          :key="index"
+          :title="partner.institution.name"
+          :linkUrl="`/institutions/${partner.institution.pid}`"
+        >
+          <template #image>
+            <image-display
+              :url="partner.institution.logo.url"
+              :alt="partner.institution.pid"
+            ></image-display>
+          </template>
+        </image-card>
       </div>
     </grid-block>
 
     <grid-block heading="Networks" v-if="networks.length">
-      <div class="card-deck">
-        <div class="card" v-for="(network, index) in networks" :key="index">
-          <image-display
-            style="width: 170px; height: 100px"
-            :url="network.logo.url"
-            :alt="network.name"
-            :is-clickable="true"
-            @clicked="$router.push({ path: `/networks/${network.pid}` })"
-          ></image-display>
-        </div>
+      <div class="card-columns">
+        <image-card v-for="(network, index) in networks" :key="index">
+          <template #image>
+            <image-display
+              :url="network.logo.url"
+              :alt="network.name"
+            ></image-display>
+          </template>
+          <template #body>
+            <h5 class="card-title">{{ network.name }}</h5>
+            <p class="card-text">{{ network.description }}</p>
+            <p class="card-text">
+              <small class="text-muted">
+                <router-link
+                  :to="`/networks/${network.pid}`"
+                  class="stretched-link"
+                  >LEARN MORE</router-link
+                >
+              </small>
+            </p>
+          </template>
+        </image-card>
       </div>
     </grid-block>
 
     <grid-block heading="Available data & samples">
       <strong>Data categories</strong>
       <p>{{ dataCategories.join(", ") }}</p>
-      <strong>Areas of information</strong>
-      <p>{{ sampleCategories.join(", ") }}</p>
       <strong>Sample categories</strong>
+      <p>{{ sampleCategories.join(", ") }}</p>
+      <strong>Areas of information</strong>
       <p>{{ areasOfInformation.join(", ") }}</p>
+    </grid-block>
+
+    <grid-block heading="Documentation" v-if="documentation.length">
+      <links-list :items="documentation"></links-list>
     </grid-block>
 
     <grid-block heading="Subpopulations" v-if="subpopulations.length">
@@ -141,10 +161,6 @@
     column-count: 2;
   }
 }
-
-.card {
-  border: 0;
-}
 </style>
 
 <script>
@@ -158,7 +174,11 @@ import {
   ContactDisplay,
   LinksList,
   TableDisplay,
+  ImageCard,
 } from "@mswertz/emx2-styleguide";
+
+const networkNoLogoUrl =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAABkCAYAAAAWlKtGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJbSURBVHgB7dzNbdRgEAbgl58DR0r4SuDIkRLoINsBdJDtADoIVAIdhA5SAmdOwVaUS5SNvGt712M/jzRXKxq/mtjJ50kAAAAAAAAAAAAAAAAAAACYyfuurru66+r+xLrt6qarlvXQlwW56upvTr8RT6u/1tfUpy8L8iXT3YindZW69GVBWqadGM9NkPepp2WjfXmTZfrW1cfM511X/7r6nVr0ZWH6h/z7mesu9ejLwhxqYsvx2gvXq2azfXmVZTrUrFN/3qmvdymb7cvrQAGCSglvs20Vn1M3yUSlBEGlBEGlBEGlBEGlhK2/9a/lD/6rZ6JSgqBSQrWgthyvZf1ajtfCaP1Rs7mPs92mns32ZakT9Wfm9yEPB5ErnfQ/R1/+hMH68Mz5ycXTg8KfU8Pcfemv3cJRdjlPUB/rJjVu0i7z9cCXqCfqG3euyfo4XXdZvqn70l9rF0ZpXf3IuO+F+gB+z/CXkZssf7q2TNOXfWp+kbtqLQ83d03TlRXbZV3TlRXrf931jwNDp6sXDS7qU4ZP118xXbmwfYa/hFwHLqhl+HS9i+nKhe1julJEi+lKIfuYrhTR8vDGP3S6Dp3Ez5V15Yx2zrMH1pUzSsvwf8NOUVeBEXY5z4n7qmvcWZCW84R1HxjJunJKOBSuluO1F663adU2hSzRoRBtfY37pCygoARBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBnU/L8VpgJv0RvLmP+VVc4z4pE3U868opwbpyythlvqD6EpVJWVdOGS3WlQMAAAAAAAAAAADA4vwH56V4ljC8O5IAAAAASUVORK5CYII=";
 
 export default {
   name: "CohortView",
@@ -170,6 +190,7 @@ export default {
     ImageDisplay,
     ContactDisplay,
     TableDisplay,
+    ImageCard,
   },
   data() {
     return {
@@ -178,23 +199,39 @@ export default {
     };
   },
   computed: {
+    mainLinks() {
+      const items = [];
+      if (this.cohort.website) {
+        items.push({
+          label: "Website",
+          href: this.cohort.website,
+        });
+      }
+      if (this.cohort.contactEmail) {
+        items.push({
+          label: "Contact",
+          href: this.cohort.contactEmail,
+        });
+      }
+      return items;
+    },
     generalDesignItems() {
       return [
         {
-          label: "Type",
-          value: this.cohort.collectionType
-            ? this.cohort.collectionType[0].name
-            : "na",
+          label: "Cohort type",
+          value: this.cohort.type
+            ? this.cohort.type.map((type) => type.name).join(", ")
+            : "not available",
         },
         {
           label: "Design",
-          value: this.cohort.design ? this.cohort.design.name : "na",
+          value: this.cohort.design ? this.cohort.design.name : "not available",
         },
         {
           label: "Collection type",
           value: this.cohort.collectionType
             ? this.cohort.collectionType[0].name
-            : "",
+            : "not available",
         },
         {
           label: "Start/End year",
@@ -240,10 +277,22 @@ export default {
       if (!this.cohort.networks) {
         return [];
       } else {
-        // only show networks that have a log set
-        return this.cohort.networks.filter((network) => {
-          return network.logo && network.logo.url;
-        });
+        return this.cohort.networks
+          .map((network) => {
+            if (network.description && network.description.length > 200) {
+              network.description =
+                network.description.substring(0, 200) + " ...";
+            }
+            return network;
+          })
+          .map((network) => {
+            if (!network.logo || !network.logo.url) {
+              network.logo = {
+                url: networkNoLogoUrl,
+              };
+            }
+            return network;
+          });
       }
     },
     subpopulations() {
@@ -284,11 +333,13 @@ export default {
               name: item.name,
               description: item.description,
               startAndEndYear: (() => {
-                let value =
-                  ((item.startYear && item.startYear.name) || "n/a") +
-                  " - " +
-                  ((item.endYear && item.endYear.name) || "n/a");
-                return value === "n/a - n/a" ? null : value;
+                const startYear =
+                  item.startYear && item.startYear.name
+                    ? item.startYear.name
+                    : null;
+                const endYear =
+                  item.endYear && item.endYear.name ? item.endYear.name : null;
+                return startEndYear(startYear, endYear);
               })(),
               _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
             };
@@ -314,6 +365,17 @@ export default {
       } else {
         return this.eventDetailSummary("areasOfInformation");
       }
+    },
+    documentation() {
+      if (!this.cohort.documentation) {
+        return [];
+      }
+      return this.cohort.documentation.map((d) => {
+        return {
+          text: d.name,
+          href: d.url,
+        };
+      });
     },
     cohortMetaData() {
       return this.metaData._schema.tables.find(

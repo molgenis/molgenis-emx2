@@ -60,9 +60,9 @@
             <span v-if="variableDetails.mappings">
               <span
                 v-for="mapping in variableDetails.mappings"
-                :key="mapping.fromTable.release.pid"
+                :key="mapping.fromTable.dataDictionary.pid"
               >
-                {{ mapping.fromTable.release.resource.pid }}
+                {{ mapping.fromTable.dataDictionary.resource.pid }}
               </span>
             </span>
             <span v-else>none</span>
