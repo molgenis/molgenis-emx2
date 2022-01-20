@@ -2,6 +2,7 @@ package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URLConnection;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -21,7 +23,6 @@ public class TableStoreForCsvInZipFile implements TableStore {
   static final String TSV_EXTENSION = ".tsv";
   private final Path zipFilePath;
   private static final Character comma = ',';
-  private static final Character tab = '\t';
 
   public TableStoreForCsvInZipFile(Path zipFilePath) {
     this.zipFilePath = zipFilePath;
@@ -96,9 +97,9 @@ public class TableStoreForCsvInZipFile implements TableStore {
       ZipEntry entry = getEntry(zf, name);
       Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
       if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader).iterator());
+        processor.process(CsvTableReader.read(reader).iterator(), this);
       } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader).iterator());
+        processor.process(CsvTableReader.read(reader).iterator(), this);
       } else {
         throw new MolgenisException(
             "Import failed: Table '"
@@ -161,16 +162,28 @@ public class TableStoreForCsvInZipFile implements TableStore {
     return result;
   }
 
+  @Override
+  public BinaryFileWrapper getBinaryFileWrapper(String name) {
+    try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
+      ZipEntry entry = getEntry(zf, name);
+      if (entry != null) {
+        String contentType = URLConnection.guessContentTypeFromName(entry.getName());
+        InputStream contents = zf.getInputStream(entry);
+        return new BinaryFileWrapper(contentType, zf.getName(), contents.readAllBytes());
+      } else {
+        throw new MolgenisException("Import failed: file '" + name + "' not found in file.");
+      }
+    } catch (Exception e) {
+      throw new MolgenisException("Import failed: file '" + name + "' resulted in error: ", e);
+    }
+  }
+
   // magic function to allow file in subfolder
   private ZipEntry getEntry(ZipFile zf, String name) {
     List<ZipEntry> result =
+        // find all files that have name as prefix
         zf.stream()
-            .filter(
-                e ->
-                    e.getName().equals(name + CSV_EXTENSION)
-                        || e.getName().endsWith(File.separator + name + CSV_EXTENSION)
-                        || e.getName().equals(name + TSV_EXTENSION)
-                        || e.getName().endsWith(File.separator + name + TSV_EXTENSION))
+            .filter(e -> new File(e.getName()).getName().startsWith(name + "."))
             .collect(Collectors.toList());
     if (result.size() > 1) {
       throw new MolgenisException(

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -52,7 +53,7 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator());
+    processor.process(readTable(name).iterator(), this);
   }
 
   @Override
@@ -65,7 +66,16 @@ public class TableStoreForCsvInMemory implements TableStore {
     return this.store.keySet();
   }
 
-  public String viewContents(String name) {
-    return store.get(name);
+  @Override
+  public BinaryFileWrapper getBinaryFileWrapper(String string) {
+    throw new MolgenisException(
+        "Columns of type file are not supported in memory import: please remove column "
+            + string
+            + " from file");
+  }
+
+  @Override
+  public void writeFile(String fileName, byte[] binary) {
+    throw new UnsupportedOperationException();
   }
 }

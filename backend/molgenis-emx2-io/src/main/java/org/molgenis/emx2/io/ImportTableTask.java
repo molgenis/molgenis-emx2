@@ -54,7 +54,7 @@ public class ImportTableTask extends Task {
     }
 
     @Override
-    public void process(Iterator<Row> iterator) {
+    public void process(Iterator<Row> iterator, TableStore source) {
 
       task.setIndex(0);
       int index = 0;
@@ -116,21 +116,28 @@ public class ImportTableTask extends Task {
   /** executes the import */
   private static class ImportRowProcesssor implements RowProcessor {
     private final Table table;
-    private final Task task;
+    private final ImportTableTask task;
 
-    public ImportRowProcesssor(Table table, Task task) {
+    public ImportRowProcesssor(Table table, ImportTableTask task) {
       this.table = table;
       this.task = task;
     }
 
     @Override
-    public void process(Iterator<Row> iterator) {
-
+    public void process(Iterator<Row> iterator, TableStore source) {
       task.setIndex(0);
       int index = 0;
       List<Row> batch = new ArrayList<>();
+      List<Column> columns = table.getMetadata().getColumns();
       while (iterator.hasNext()) {
-        batch.add(iterator.next());
+        Row row = iterator.next();
+        // add file attachments, if applicable
+        for (Column c : columns) {
+          if (c.isFile() && row.getValueMap().get(c.getName()) != null) {
+            row.setBinary(c.getName(), source.getBinaryFileWrapper(row.getString(c.getName())));
+          }
+        }
+        batch.add(row);
         index++;
         if (batch.size() >= 1000) {
           table.save(batch);

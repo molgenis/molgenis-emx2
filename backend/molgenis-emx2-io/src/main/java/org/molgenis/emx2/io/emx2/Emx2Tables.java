@@ -7,6 +7,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +20,17 @@ public class Emx2Tables {
   }
 
   public static void outputTable(TableStore store, Table table) {
+    TableMetadata metadata = table.getMetadata();
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
             .map(Column::getName)
             .filter(n -> !n.startsWith("mg_"))
+            // we skip file output unless supported by the format, currently csv.zip and directory
+            .filter(
+                n ->
+                    !metadata.getColumn(n).isFile()
+                        || store instanceof TableStoreForCsvInZipFile
+                        || store instanceof TableStoreForCsvFilesDirectory)
             .toList();
     SelectColumn[] select =
         downloadColumnNames.stream().map(c -> s(c)).toArray(SelectColumn[]::new);
@@ -45,118 +53,9 @@ public class Emx2Tables {
     }
 
     // in case of zip file we include the attached files
-    if (store instanceof TableStoreForCsvInZipFile) {
-      Emx2Files.outputFiles((TableStoreForCsvInZipFile) store, table);
+    if (store instanceof TableStoreForCsvInZipFile
+        || store instanceof TableStoreForCsvFilesDirectory) {
+      Emx2Files.outputFiles(store, table);
     }
   }
-
-  /** validates foreign keys against table */
-  //  private static class ValidationProcessor implements RowProcessor {
-  //    private final Table table;
-  //
-  //    public ValidationProcessor(Table table) {
-  //      this.table = table;
-  //    }
-  //
-  //    @Override
-  //    public void process(Iterator<Row> iterator) {
-  //      long start = System.currentTimeMillis();
-  //      logger.info("starting validation for " + table.getName());
-  //
-  //      Map<String, Set> keys = new LinkedHashMap<>();
-  //      List<Column> columns = table.getMetadata().getColumns();
-  //
-  //      // find all unique refs
-  //      int count = 0;
-  //      while (iterator.hasNext()) {
-  //        Row row = iterator.next();
-  //        count++;
-  //        for (Column c : columns) {
-  //          // todo will fail on indirect circular refs; should make this optional?
-  //          // instead, we should make trigger return list of errors instead of only first
-  //          if (REF.equals(c.getColumnType())) {
-  //            for (Reference ref : c.getReferences()) {
-  //              if (keys.get(ref.getName()) == null) {
-  //                keys.put(ref.getName(), new HashSet());
-  //              }
-  //              if (row.get(ref.getName(), ref.getColumnType()) != null) {
-  //                keys.get(ref.getName()).add(row.get(ref.getName(), ref.getColumnType()));
-  //              }
-  //            }
-  //          } else if (REF_ARRAY.equals(c.getColumnType())) {
-  //            for (Reference ref : c.getReferences()) {
-  //              if (keys.get(ref.getName()) == null) {
-  //                keys.put(ref.getName(), new HashSet());
-  //              }
-  //              if (row.get(ref.getName(), ref.getColumnType()) != null) {
-  //                for (Object value : (Object[]) row.get(ref.getName(), ref.getColumnType())) {
-  //                  keys.get(ref.getName()).add(value);
-  //                }
-  //              }
-  //            }
-  //          }
-  //        }
-  //        if (count % 100000 == 0) {
-  //          logger.info("Validating row " + count);
-  //        }
-  //      }
-  //
-  //      logger.info(
-  //          "indexed fkeys to check "
-  //              + table.getName()
-  //              + " in "
-  //              + (System.currentTimeMillis() - start)
-  //              + "ms");
-  //
-  //      // then check each key
-  //      for (Column c : columns) {
-  //        if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
-  //          for (Reference ref : c.getReferences()) {
-  //            List<Row> result =
-  //                table
-  //                    .getSchema()
-  //                    .getTable(c.getRefTableName())
-  //                    .query()
-  //                    .where(f(ref.getRefTo(), Operator.EQUALS,
-  // keys.get(ref.getName()).toArray()))
-  //                    .retrieveRows();
-  //            for (Row r : result) {
-  //              keys.get(ref.getName())
-  //                  .remove(
-  //                      r.get(
-  //                          ref.getRefTo(),
-  //                          c.getRefTable().getColumn(ref.getRefTo()).getColumnType()));
-  //            }
-  //          }
-  //        }
-  //      }
-  //      // if any of the lists non-empty we have missing
-  //      String result = "";
-  //      for (Column c : table.getMetadata().getColumns()) {
-  //        if (REF.equals(c.getColumnType()) || REF_ARRAY.equals(c.getColumnType())) {
-  //          for (Reference ref : c.getReferences()) {
-  //            if (keys.get(ref.getName()).size() > 0) {
-  //              result +=
-  //                  "Keys missing for column "
-  //                      + ref.getName()
-  //                      + ": "
-  //                      + keys.get(ref.getName()).stream().collect(Collectors.joining(","))
-  //                      + ". ";
-  //            }
-  //          }
-  //        }
-  //      }
-  //      logger.info(
-  //          "validation for "
-  //              + table.getName()
-  //              + " took "
-  //              + (System.currentTimeMillis() - start)
-  //              + "ms");
-  //      if (result.length() > 0) {
-  //        throw new MolgenisException("Import of table " + table.getName() + " failed: " +
-  // result);
-  //      }
-  //    }
-  //  }
-
 }

@@ -2,6 +2,7 @@ package org.molgenis.emx2.io.tablestore;
 
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.Row;
 
 public interface TableStore {
@@ -15,4 +16,8 @@ public interface TableStore {
   boolean containsTable(String name);
 
   Collection<String> tableNames();
+
+  void writeFile(String fileName, byte[] binary);
+
+  BinaryFileWrapper getBinaryFileWrapper(String name);
 }
