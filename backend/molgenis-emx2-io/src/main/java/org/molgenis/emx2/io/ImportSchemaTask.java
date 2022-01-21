@@ -25,6 +25,7 @@ public class ImportSchemaTask extends Task {
     this.schema = schema;
   }
 
+  @Override
   public void run() {
     this.start();
     try {

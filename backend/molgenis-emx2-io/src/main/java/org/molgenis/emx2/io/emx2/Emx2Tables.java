@@ -2,19 +2,14 @@ package org.molgenis.emx2.io.emx2;
 
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.SelectColumn.s;
 
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Emx2Tables {
-  private static final Logger logger = LoggerFactory.getLogger(Emx2Tables.class.getName());
-
   private Emx2Tables() {
     // hidden
   }
@@ -33,7 +28,7 @@ public class Emx2Tables {
                         || store instanceof TableStoreForCsvFilesDirectory)
             .toList();
     SelectColumn[] select =
-        downloadColumnNames.stream().map(c -> s(c)).toArray(SelectColumn[]::new);
+        downloadColumnNames.stream().map(SelectColumn::s).toArray(SelectColumn[]::new);
 
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
       store.writeTable(

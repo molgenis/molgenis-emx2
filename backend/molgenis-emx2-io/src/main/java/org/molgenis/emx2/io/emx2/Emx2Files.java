@@ -11,6 +11,11 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2Files {
+
+  private Emx2Files() {
+    // prevent
+  }
+
   public static void outputFiles(TableStore store, Table table) {
     for (Column c : table.getMetadata().getColumns()) {
       if (c.isFile()) {

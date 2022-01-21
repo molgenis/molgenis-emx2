@@ -19,6 +19,7 @@ public class ImportTableTask extends Task {
     this.source = source;
   }
 
+  @Override
   public void run() {
     this.start();
 
@@ -34,9 +35,9 @@ public class ImportTableTask extends Task {
 
     // done
     if (getIndex() > 0) {
-      this.complete("Imported " + getIndex() + " " + table.getName());
+      this.complete(String.format("Imported %s %s", getIndex(), table.getName()));
     } else {
-      this.skipped("Skipped table " + table.getName() + ": sheet was empty");
+      this.skipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
   }
 
@@ -70,7 +71,7 @@ public class ImportTableTask extends Task {
               row.getColumnNames().stream()
                   .filter(name -> !columnNames.contains(name))
                   .collect(Collectors.toSet());
-          if (warningColumns.size() > 0) {
+          if (!warningColumns.isEmpty()) {
             if (task.isStrict()) {
               throw new MolgenisException(
                   "Found unknown columns "
@@ -89,16 +90,15 @@ public class ImportTableTask extends Task {
         }
 
         // primary key
-        String keyValue = "";
-        for (Field f : metadata.getPrimaryKeyFields()) {
-          keyValue += row.getString(f.getName()) + ",";
-        }
-        keyValue = keyValue.substring(0, keyValue.length() - 1);
+        String keyValue =
+            metadata.getPrimaryKeyFields().stream()
+                .map(f -> row.getString(f.getName()))
+                .collect(Collectors.joining(","));
         if (keys.contains(keyValue)) {
           duplicates.add(keyValue);
           String keyFields =
               metadata.getPrimaryKeyFields().stream()
-                  .map(f -> f.getName())
+                  .map(Field::getName)
                   .collect(Collectors.joining(","));
           task.step("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
         } else {
@@ -106,7 +106,7 @@ public class ImportTableTask extends Task {
         }
         task.setIndex(++index);
       }
-      if (duplicates.size() > 0) {
+      if (!duplicates.isEmpty()) {
         task.completeWithError(
             "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
       }

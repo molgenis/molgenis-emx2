@@ -55,12 +55,12 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
           Files.createDirectories(dir);
         }
         Path file = directoryPath.resolve(filePath);
-        OutputStream out = Files.newOutputStream(file);
-        out.write(contents);
-        out.flush();
-        out.close();
+        try (OutputStream out = Files.newOutputStream(file)) {
+          out.write(contents);
+          out.flush();
+        }
       } catch (Exception e) {
-        new MolgenisException("Writing of file " + filePath + " failed: ", e);
+        throw new MolgenisException("Writing of file " + filePath + " failed: ", e);
       }
     }
   }
@@ -96,7 +96,7 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
   public Collection<String> tableNames() {
     List<String> result = new ArrayList<>();
     for (File f : directoryPath.toFile().listFiles()) {
-      result.add(f.getName()); // todo strip extension
+      result.add(f.getName());
     }
     return result;
   }
@@ -106,10 +106,8 @@ public class TableStoreForCsvFilesDirectory implements TableStore {
     Path fileDir = directoryPath.resolve("_files");
     try (Stream<Path> stream = Files.list(fileDir)) {
       List<Path> result =
-          stream
-              .filter(f -> f.getFileName().toString().startsWith(name + "."))
-              .collect(Collectors.toList());
-      if (result.size() == 0) {
+          stream.filter(f -> f.getFileName().toString().startsWith(name + ".")).toList();
+      if (result.isEmpty()) {
         throw new MolgenisException("File not found for id " + name);
       } else if (result.size() == 1) {
         return new BinaryFileWrapper(result.get(0).toFile());

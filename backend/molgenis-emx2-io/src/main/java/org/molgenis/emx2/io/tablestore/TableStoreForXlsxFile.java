@@ -157,8 +157,8 @@ public class TableStoreForXlsxFile implements TableStore {
               result.add(row);
             }
           }
-          this.cache.put(sheetName, result);
         }
+        this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
@@ -225,8 +225,7 @@ public class TableStoreForXlsxFile implements TableStore {
       case BLANK:
         row.set(colName, null);
         break;
-      case STRING:
-      case NUMERIC:
+      case STRING, NUMERIC:
         // don't use the auto guessing of Excel; we will do the cast ourselves
         row.setString(colName, cell.getStringCellValue().trim());
         break;
