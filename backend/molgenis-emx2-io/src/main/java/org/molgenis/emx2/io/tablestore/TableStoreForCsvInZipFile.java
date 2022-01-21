@@ -18,7 +18,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 
-public class TableStoreForCsvInZipFile implements TableStore {
+public class TableStoreForCsvInZipFile implements TableAndFileStore {
   static final String CSV_EXTENSION = ".csv";
   static final String TSV_EXTENSION = ".tsv";
   private final Path zipFilePath;

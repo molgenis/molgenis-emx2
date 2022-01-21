@@ -5,6 +5,7 @@ import static org.molgenis.emx2.FilterBean.f;
 
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -48,9 +49,8 @@ public class Emx2Tables {
     }
 
     // in case of zip file we include the attached files
-    if (store instanceof TableStoreForCsvInZipFile
-        || store instanceof TableStoreForCsvFilesDirectory) {
-      Emx2Files.outputFiles(store, table);
+    if (store instanceof TableAndFileStore) {
+      Emx2Files.outputFiles((TableAndFileStore) store, table);
     }
   }
 }

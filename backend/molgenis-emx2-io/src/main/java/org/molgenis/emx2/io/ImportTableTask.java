@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.jooq.Field;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.StepStatus;
 import org.molgenis.emx2.tasks.Task;
@@ -133,8 +134,12 @@ public class ImportTableTask extends Task {
         Row row = iterator.next();
         // add file attachments, if applicable
         for (Column c : columns) {
-          if (c.isFile() && row.getValueMap().get(c.getName()) != null) {
-            row.setBinary(c.getName(), source.getBinaryFileWrapper(row.getString(c.getName())));
+          if (c.isFile()
+              && source instanceof TableAndFileStore
+              && row.getValueMap().get(c.getName()) != null) {
+            row.setBinary(
+                c.getName(),
+                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName())));
           }
         }
         batch.add(row);

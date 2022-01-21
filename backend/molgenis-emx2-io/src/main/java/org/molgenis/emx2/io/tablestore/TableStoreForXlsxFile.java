@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
@@ -32,14 +31,6 @@ public class TableStoreForXlsxFile implements TableStore {
       this.cache();
     }
     return this.cache.keySet();
-  }
-
-  @Override
-  public BinaryFileWrapper getBinaryFileWrapper(String string) {
-    throw new MolgenisException(
-        "Columns of type file are not supported in Excel import: please remove column "
-            + string
-            + " from file");
   }
 
   @Override
@@ -249,10 +240,5 @@ public class TableStoreForXlsxFile implements TableStore {
       this.cache();
     }
     return this.cache.containsKey(name);
-  }
-
-  @Override
-  public void writeFile(String fileName, byte[] binary) {
-    throw new UnsupportedOperationException();
   }
 }

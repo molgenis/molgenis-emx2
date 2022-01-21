@@ -14,7 +14,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.RowReaderJackson;
 
-public class TableStoreForCsvFilesDirectory implements TableStore {
+public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   static final String CSV_EXTENSION = ".csv";
   private final Path directoryPath;
   private final Character separator;

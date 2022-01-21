@@ -8,7 +8,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 
 public class Emx2Files {
 
@@ -16,7 +16,7 @@ public class Emx2Files {
     // prevent
   }
 
-  public static void outputFiles(TableStore store, Table table) {
+  public static void outputFiles(TableAndFileStore store, Table table) {
     for (Column c : table.getMetadata().getColumns()) {
       if (c.isFile()) {
         // query the identifiers of this, and then retrieve (slow, but scalable) and write
