@@ -87,9 +87,6 @@ export default {
           result["- " + s] = "../../" + s; // all paths are of form /:schema/:app
         });
       }
-      if (result.length > 0) {
-        return result;
-      }
       return result;
     },
     crumbs() {
