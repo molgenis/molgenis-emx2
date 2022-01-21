@@ -11,10 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.BinaryFileWrapper;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
@@ -95,14 +92,14 @@ public class TestColumnTypeIsFile {
     MolgenisIO.fromDirectory(directory, schema, true);
 
     Table userTable = schema.getTable("User");
-    assertEquals(
-        "test",
-        new String(
-            userTable
-                .query()
-                .select(s("picture", s("contents"), s("mimetype"), s("extension")))
-                .retrieveRows()
-                .get(0)
-                .getBinary("picture_contents")));
+    Row result =
+        userTable
+            .query()
+            .select(s("picture", s("contents"), s("mimetype"), s("extension")))
+            .retrieveRows()
+            .get(0);
+    assertEquals("test", new String(result.getBinary("picture_contents")));
+    assertEquals("txt", result.getString("picture_extension"));
+    assertEquals("text/plain", result.getString("picture_mimetype"));
   }
 }
