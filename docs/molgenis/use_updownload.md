@@ -34,3 +34,10 @@ You can upload data in:
 
 * Excel
 * Csv+zip
+
+## FAQ
+
+### How can I upload/download data when using columnType=file?
+
+In case your schema contains columns with type=file then this column will be ommitted on download/upload unless you are
+using csv.zip. When using csv.zip then the files will be stored in a folder named _files.
