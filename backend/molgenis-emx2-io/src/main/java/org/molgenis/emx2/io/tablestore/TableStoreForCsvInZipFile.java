@@ -169,7 +169,7 @@ public class TableStoreForCsvInZipFile implements TableStore {
       if (entry != null) {
         String contentType = URLConnection.guessContentTypeFromName(entry.getName());
         InputStream contents = zf.getInputStream(entry);
-        return new BinaryFileWrapper(contentType, zf.getName(), contents.readAllBytes());
+        return new BinaryFileWrapper(contentType, entry.getName(), contents.readAllBytes());
       } else {
         throw new MolgenisException("Import failed: file '" + name + "' not found in file.");
       }
