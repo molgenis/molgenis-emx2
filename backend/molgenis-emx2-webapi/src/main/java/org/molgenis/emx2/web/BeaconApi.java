@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beacon;
+package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static spark.Spark.*;
