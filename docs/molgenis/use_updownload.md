@@ -40,4 +40,5 @@ You can upload data in:
 ### How can I upload/download data when using columnType=file?
 
 In case your schema contains columns with type=file then this column will be ommitted on download/upload unless you are
-using csv.zip. When using csv.zip then the files will be stored in a folder named _files.
+using csv.zip. When using csv.zip then the files will be stored in a folder named _files. In your data tables you will
+see a reference to this file (a hash code).
