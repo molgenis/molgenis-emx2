@@ -31,7 +31,7 @@
         <h6>Linkage options</h6>
         <p>{{ cohort.linkageOptions ? cohort.linkageOptions : "N/A" }}</p>
         <h6>Design paper</h6>
-        <p>{{ cohort.designPaper ? cohort.designPaper : "N/A" }}</p>
+        <p>{{ cohort.designPaper ? cohort.designPaper.title : "N/A" }}</p>
       </div>
       <div class="col-5 border-left border-primary">
         <h4>Organisation</h4>
@@ -89,23 +89,23 @@ import {
   NavTabs,
   Spinner,
 } from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import OntologyTerms from "../components/OntologyTerms";
-import PublicationList from "../components/PublicationList";
-import ResourceHeader from "../components/ResourceHeader";
-import InstitutionList from "../components/InstitutionList";
-import ReleasesList from "../components/ReleasesList";
-import ContactList from "../components/ContactList";
-import DocumentationList from "../components/DocumentationList";
-import DatasourceList from "../components/DatasourceList";
-import NetworkList from "../components/NetworkList";
-import Conditions from "../components/Conditions";
-import ContributorList from "../components/ContributorList";
-import ResourceContext from "../components/ResourceContext";
-import PartnerInList from "../components/PartnerInList";
-import PartnersList from "../components/PartnersList";
-import CollectionEventsList from "../components/CollectionEventsList";
-import SubcohortList from "../components/SubcohortList";
+import VariablesList from "../../components/VariablesList";
+import OntologyTerms from "../../components/OntologyTerms";
+import PublicationList from "../../components/PublicationList";
+import ResourceHeader from "../../components/ResourceHeader";
+import InstitutionList from "../../components/InstitutionList";
+import ReleasesList from "../../components/ReleasesList";
+import ContactList from "../../components/ContactList";
+import DocumentationList from "../../components/DocumentationList";
+import DatasourceList from "../../components/DatasourceList";
+import NetworkList from "../../components/NetworkList";
+import Conditions from "../../components/Conditions";
+import ContributorList from "../../components/ContributorList";
+import ResourceContext from "../../components/ResourceContext";
+import PartnerInList from "../../components/PartnerInList";
+import PartnersList from "../../components/PartnersList";
+import CollectionEventsList from "../../components/CollectionEventsList";
+import SubcohortList from "../../components/SubcohortList";
 
 export default {
   components: {
@@ -193,6 +193,13 @@ export default {
                 code
                 definition
               }
+              dataUseConditions {
+                name
+                ontologyTermURI
+                code
+                definition
+              }
+              dataAccessFee
               startYear
               endYear
               type {
@@ -219,7 +226,10 @@ export default {
               }
               acknowledgements
               fundingStatement
-              designPaper
+              designPaper { 
+                doi 
+                title
+              }
               collectionEvents {
                 name, description, startYear{name}, endYear{name},numberOfParticipants, ageGroups{name}, dataCategories{name},sampleCategories{name},areasOfInformation{name},subcohorts{name}
               }

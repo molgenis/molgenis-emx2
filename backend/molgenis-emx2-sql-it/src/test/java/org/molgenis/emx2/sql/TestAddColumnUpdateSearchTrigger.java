@@ -23,7 +23,7 @@ public class TestAddColumnUpdateSearchTrigger {
     Schema schema = db.dropCreateSchema(TestAddColumnUpdateSearchTrigger.class.getSimpleName());
     table =
         schema.create(
-            table("TestAddColumnUpdateSearchTrigger")
+            table("TestAddColUpdateSearchTrigger")
                 .add(column("col1").setPkey())
                 .add(column("col2").setType(STRING)));
 

@@ -81,7 +81,7 @@
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
-              name: 'Variables-details',
+              name: 'TargetVariables-details',
               params: {
                 pid: toPid,
                 version: toVersion,
@@ -94,20 +94,38 @@
           </RouterLink>
         </td>
         <td>
-          <RouterLink
-            v-if="m.fromVariable"
-            :to="{
-              name: 'Variables-details',
-              params: {
-                pid: fromPid,
-                version: fromVersion,
-                table: fromTable,
-                name: m.fromVariable.name,
-              },
-            }"
-          >
-            {{ m.fromVariable.name }}
-          </RouterLink>
+          <div v-if="m.fromVariable">
+            <RouterLink
+              v-for="v in m.fromVariable"
+              :to="{
+                name: 'SourceVariables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: fromTable,
+                  name: m.fromVariable.name,
+                },
+              }"
+            >
+              {{ fromTable }}.{{ v.name }}
+            </RouterLink>
+          </div>
+          <div v-if="m.fromVariablesOtherTables">
+            <RouterLink
+              v-for="v in m.fromVariablesOtherTables"
+              :to="{
+                name: 'SourceVariables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: v.table.name,
+                  name: v.name,
+                },
+              }"
+            >
+              {{ v.table.name }}.{{ v.name }}
+            </RouterLink>
+          </div>
         </td>
         <td>{{ m.description }}</td>
         <td>{{ m.syntax }}</td>
@@ -183,18 +201,18 @@ export default {
 query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid:String,$toVersion:String,$toTable:String)
 {
   TableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
     description
   },
   VariableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
-    description,fromVariable{name},toVariable{name},syntax
+    description,fromVariable{name},toVariable{name},syntax,fromVariablesOtherTables{table{name},name}
   }
 }`,
         {

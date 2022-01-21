@@ -28,12 +28,18 @@ subprojects {
         inputs.files(fileTree('src'))
         inputs.files(fileTree('public'))
         inputs.file('package.json')
-        if (project.name != 'docs') {
+        if(project.name == 'nuxt-ssr') {
+            inputs.files(fileTree('components'))
+            inputs.files(fileTree('middleware'))
+            inputs.files(fileTree('pages'))
+            inputs.files(fileTree('static'))
+            inputs.files(fileTree('store'))
+            inputs.file('nuxt.config.js')
+        }
+        else if (project.name != 'docs') {
             inputs.files(fileTree('../styleguide/src'))
             inputs.file('vue.config.js')
             outputs.dir('dist')
-        } else {
-            outputs.dir('src/.vitepress/dist')
         }
 
         // tell gradle to apply the build cache
@@ -52,7 +58,15 @@ subprojects {
     }
 
     //copy styleguide or normal app
-    if (project.name == 'styleguide') {
+    if(project.name == 'nuxt-ssr') {
+        task copyDistFiles(type: Copy, dependsOn: build) {
+            from ".nuxt"
+            inputs.dir(".nuxt")
+            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
+            outputs.cacheIf { true }
+        }
+    } else if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: parent.yarn_install) {
             node {
                 with nodeSpec

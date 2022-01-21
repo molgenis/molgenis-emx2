@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.0.4" apply false
+    id "com.diffplug.spotless" version "6.2.0" apply false
 }
 
 repositories {
@@ -32,20 +32,20 @@ subprojects {
 
     /* default dependencies for all projects*/
     dependencies {
-        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.15.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.15.0'
-        implementation 'org.jooq:jooq:3.15.5'
-        implementation 'com.zaxxer:HikariCP:4.0.3'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.0'
+        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
+        implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+        implementation 'org.jooq:jooq:3.16.2'
+        implementation 'com.zaxxer:HikariCP:5.0.1'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.1'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.13.1'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.1'
         implementation 'com.graphql-java:graphql-java:16.2'
         implementation 'com.sparkjava:spark-core:2.9.3'
-        implementation 'org.pac4j:pac4j-core:4.0.1'
-        implementation 'org.pac4j:pac4j-oidc:4.0.1'
-        implementation 'org.pac4j:pac4j-http:4.0.1'
+        implementation 'org.pac4j:pac4j-core:4.5.4'
+        implementation 'org.pac4j:pac4j-oidc:4.5.4'
+        implementation 'org.pac4j:pac4j-http:4.5.4'
         implementation 'org.pac4j:spark-pac4j:4.0.0'
         implementation 'org.javers:javers-core:6.5.3'
 

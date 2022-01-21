@@ -19,7 +19,8 @@
       No variables found matching the given filters
     </p>
     <p v-else class="text-center font-italic pt-3">
-      <Spinner /> Fetching variable data..
+      <Spinner />
+      Fetching variable data..
     </p>
   </div>
 </template>
@@ -28,6 +29,7 @@
 import { Spinner } from "@mswertz/emx2-styleguide";
 import VariableListItem from "../components/VariableListItem.vue";
 import { mapGetters, mapActions, mapState } from "vuex";
+
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },

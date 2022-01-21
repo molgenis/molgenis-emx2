@@ -49,7 +49,7 @@ export default {
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};
       }
-      const mappedCohort = mapping.fromTable.release.resource.pid;
+      const mappedCohort = mapping.fromTable.dataDictionary.resource.pid;
       harmonizationGrid[varName][mappedCohort] = mapping.match.name; // aka the cell value
     });
 

@@ -24,6 +24,7 @@ public class SqlDatabase implements Database {
 
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
+  public static final String WITH = "with {} = {} ";
 
   // shared between all instances
   private static DataSource source;
@@ -36,7 +37,7 @@ public class SqlDatabase implements Database {
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
-  private String INITIAL_ADMIN_PW =
+  private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
   private final Boolean isOidcEnabled =
@@ -85,10 +86,10 @@ public class SqlDatabase implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-    logger.info("Database was created using version: " + this.databaseVersion);
+    logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
-  private void initDataSource() {
+  private static void initDataSource() {
     if (source == null) {
       String url =
           (String)
@@ -104,9 +105,9 @@ public class SqlDatabase implements Database {
           (String)
               EnvironmentProperty.getParameter(
                   org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI + "=" + url);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER + "=" + user);
-      logger.info("with " + org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS + "=<HIDDEN>");
+      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI, url);
+      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, user);
+      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
 
       // create data source
       HikariDataSource dataSource = new HikariDataSource();
@@ -140,7 +141,7 @@ public class SqlDatabase implements Database {
       }
       if (!hasUser(ADMIN_USER)) {
         addUser(ADMIN_USER);
-        setUserPassword(ADMIN_USER, INITIAL_ADMIN_PW);
+        setUserPassword(ADMIN_USER, initialAdminPassword);
       }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
@@ -355,12 +356,12 @@ public class SqlDatabase implements Database {
           throw new SqlMolgenisException("Set active user failed", dae);
         }
       }
-      this.clearCache();
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
         listener.userChanged();
       }
     }
+    this.clearCache();
     this.connectionProvider.setActiveUser(username);
   }
 
