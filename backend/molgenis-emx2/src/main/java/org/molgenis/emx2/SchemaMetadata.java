@@ -181,7 +181,7 @@ public class SchemaMetadata {
       addExternalTablesRecursive(tables, current.getInheritedTable());
     }
     for (Column c : current.getColumns()) {
-      if (c.getRefTableName() != null && !tables.containsKey(c.getRefTableName())) {
+      if (c.isReference() && !tables.containsKey(c.getRefTableName())) {
         tables.put(c.getRefTableName(), c.getRefTable());
         addExternalTablesRecursive(tables, c.getRefTable());
       }
