@@ -27,7 +27,7 @@ public class SqlColumnExecutor {
     boolean isRequired = column.isRequired();
     if (column.isRefback()) {
       isRequired = false;
-    } else if (column.isRef() || column.isRefArray()) {
+    } else if (column.isReference()) {
       isRequired = column.getReferences().stream().allMatch(Reference::isRequired) && isRequired;
     } else
     // if has default, we will first update all 'null' to default
@@ -39,7 +39,7 @@ public class SqlColumnExecutor {
     }
     // in case of FILE we have to add all parts
     if (column.isFile()) {
-      for (Field f : column.getJooqFileFields()) {
+      for (Field<?> f : column.getJooqFileFields()) {
         executeSetRequired(jooq, column.getJooqTable(), f, column.isRequired());
       }
     }
@@ -56,7 +56,7 @@ public class SqlColumnExecutor {
   }
 
   private static void executeSetRequired(
-      DSLContext jooq, Table table, Field field, boolean required) {
+      DSLContext jooq, Table<?> table, Field<?> field, boolean required) {
     if (required) {
       jooq.alterTable(table).alterColumn(field).setNotNull().execute();
     } else {
@@ -90,7 +90,7 @@ public class SqlColumnExecutor {
   }
 
   static void executeAlterType(DSLContext jooq, Column oldColumn, Column newColumn) {
-    Table table = newColumn.getTable().getJooqTable();
+    Table<?> table = newColumn.getTable().getJooqTable();
 
     if (oldColumn.getColumnType().getBaseType().equals(newColumn.getColumnType().getBaseType())) {
       return; // nothing to do
@@ -139,10 +139,10 @@ public class SqlColumnExecutor {
 
   static void alterField(
       DSLContext jooq,
-      Table table,
+      Table<?> table,
       String columnName,
-      DataType oldType,
-      DataType newType,
+      DataType<?> oldType,
+      DataType<?> newType,
       String postgresType) {
 
     // change the raw type
@@ -210,7 +210,7 @@ public class SqlColumnExecutor {
           executeSetRequired(jooq, column);
         }
       } else if (column.isFile()) {
-        for (Field f : column.getJooqFileFields()) {
+        for (Field<?> f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
         }
       } else if (!column.isHeading()) {
@@ -268,35 +268,32 @@ public class SqlColumnExecutor {
       TableMetadata tm =
           new TableMetadata(column.getRefTableName())
               .setDescription(column.getDescription())
+              .setTableType(TableType.ONTOLOGY)
               .add(
-                  column("name")
-                      .setPkey()
-                      .setRequired(true)
-                      .setDescription("User friendly label for this code"),
-                  column("code")
-                      .setKey(2)
-                      .setDescription(
-                          "Identifier used for this code within this code system/ontology"),
                   column("order")
                       .setType(INT)
                       .setKey(3)
                       .setDescription("Order within the code system"),
-                  column("definition").setType(TEXT).setDescription("Definition of the term"),
+                  column("name")
+                      .setPkey()
+                      .setRequired(true)
+                      .setDescription("User friendly name for this code"),
+                  column("code")
+                      .setKey(2)
+                      .setDescription(
+                          "Identifier used for this code within this code system/ontology"),
                   column("parent")
                       .setType(REF)
                       .setRefTable(column.getRefTableName())
                       .setDescription("Parent in case this code exists in a hierarchy"),
                   column("ontologyTermURI")
                       .setDescription("reference to external definition for this term"),
+                  column("definition").setType(TEXT).setDescription("Definition of the term"),
                   column("children")
                       .setType(REFBACK)
                       .setRefTable(column.getRefTableName())
                       .setRefBack("parent"));
 
-      String schemaName = column.getRefSchema();
-      if (refSchema == null) {
-        refSchema = schema.getDatabase().createSchema(schemaName).getMetadata();
-      }
       // create the table
       refSchema.create(tm);
     }
@@ -316,33 +313,23 @@ public class SqlColumnExecutor {
     }
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
-          "Add column '"
-              + c.getTableName()
-              + "."
-              + c.getName()
-              + "' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK");
+          String.format(
+              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK",
+              c.getTableName(), c.getName()));
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
         throw new MolgenisException(
-            "Add column '"
-                + c.getTableName()
-                + "."
-                + c.getName()
-                + "' failed: refLink '"
-                + c.getRefLink()
-                + "' column cannot be found");
+            String.format(
+                "Add column '%s.%s' failed: refLink '%s' column cannot be found",
+                c.getTableName(), c.getName(), c.getRefLink()));
       }
       Column refLink = c.getTable().getColumn(c.getRefLink());
       if (!refLink.isRef() && !refLink.isRefArray()) {
         throw new MolgenisException(
-            "Add column '"
-                + c.getTableName()
-                + "."
-                + c.getName()
-                + "' failed: refLink "
-                + c.getRefLink()
-                + " is not a REF,REF_ARRAY");
+            String.format(
+                "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
+                c.getTableName(), c.getName(), c.getRefLink()));
       }
     }
     // fix required
@@ -351,7 +338,7 @@ public class SqlColumnExecutor {
     }
   }
 
-  private static void executeCreateRefArrayIndex(DSLContext jooq, Table table, Field field) {
+  private static void executeCreateRefArrayIndex(DSLContext jooq, Table<?> table, Field<?> field) {
     jooq.execute(
         "CREATE INDEX {0} ON {1} USING GIN( {2} )",
         name(table.getName() + "/" + field.getName()), table, field);
@@ -371,7 +358,7 @@ public class SqlColumnExecutor {
   static void executeRemoveColumn(DSLContext jooq, Column column) {
     executeRemoveRefConstraints(jooq, column);
     if (column.isFile()) {
-      for (Field f : column.getJooqFileFields()) {
+      for (Field<?> f : column.getJooqFileFields()) {
         jooq.alterTable(SqlTableMetadataExecutor.getJooqTable(column.getTable()))
             .dropColumnIfExists(f)
             .execute();

@@ -1,14 +1,19 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.io.ImportSchemaTask.MOLGENIS_ONTOLOGIES;
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
 
@@ -23,8 +28,45 @@ public class MolgenisIO {
     outputMetadata(store, schema);
     outputRoles(store, schema);
     outputSettings(store, schema);
+    outputOntologies(store, schema);
+
+    // user data goes on one sheet per table
     for (String tableName : schema.getTableNames()) {
-      outputTable(store, schema.getTable(tableName));
+      Table table = schema.getTable(tableName);
+      if (TableType.USER.equals(table.getMetadata().getTableType())) {
+        outputTable(store, table);
+      }
+    }
+  }
+
+  private static void outputOntologies(TableStore store, Schema schema) {
+    List<Row> ontologyRows = new ArrayList<>(); // might get memory hungry on very large ontologies
+    for (String tableName : schema.getTableNames()) {
+      Table table = schema.getTable(tableName);
+      if (TableType.ONTOLOGY.equals(table.getMetadata().getTableType())) {
+        ontologyRows.addAll(
+            table.retrieveRows().stream()
+                .map(
+                    r -> {
+                      // ensure 'ontology' is first element
+                      Row row = new Row();
+                      row.setString("ontology", table.getName());
+                      // skip "mg_"
+                      for (Map.Entry<String, Object> entry : r.getValueMap().entrySet()) {
+                        if (!entry.getKey().startsWith("mg_")) {
+                          row.getValueMap().put(entry.getKey(), entry.getValue());
+                        }
+                      }
+                      return row;
+                    })
+                .toList());
+      }
+    }
+    if (ontologyRows.size() > 0) {
+      store.writeTable(
+          MOLGENIS_ONTOLOGIES,
+          List.of("ontology", "order", "name", "parent", "code", "definition", "ontologyURI"),
+          ontologyRows);
     }
   }
 

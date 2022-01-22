@@ -3,8 +3,6 @@ package org.molgenis.emx2.io;
 import static org.molgenis.emx2.tasks.StepStatus.*;
 
 import java.util.*;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -42,11 +40,6 @@ public class ImportSchemaTask extends Task {
 
             boolean skipped = true;
 
-            // import ontologies, if any
-            if (store.containsTable("molgenis_ontologies")) {
-              loadOntologiesFromMolgenisOntologiesSheet(schema, store);
-            }
-
             // create task for the import, including subtasks for each sheet
             for (Table table : schema.getTablesSorted()) {
               if (store.containsTable(table.getName())) {
@@ -64,6 +57,7 @@ public class ImportSchemaTask extends Task {
                   && !"molgenis".equals(sheet)
                   && !"molgenis_settings".equals(sheet)
                   && !"molgenis_members".equals(sheet)
+                  && !"molgenis_ontologies".equals(sheet)
                   && !tableNames.contains(sheet)) {
                 this.step(
                         "Sheet with name '"
@@ -89,27 +83,6 @@ public class ImportSchemaTask extends Task {
       throw e;
     }
     this.complete();
-  }
-
-  private void loadOntologiesFromMolgenisOntologiesSheet(Schema schema, TableStore store) {
-    Map<String, List<Row>> batches = new LinkedHashMap<>();
-    for (Row r : store.readTable(MOLGENIS_ONTOLOGIES)) {
-      String ontology = r.getString("ontology");
-      if (!batches.containsKey(ontology)) {
-        batches.put(ontology, new LinkedList<>());
-      }
-      r.getValueMap().remove("ontology");
-      batches.get(ontology).add(r);
-    }
-    for (Map.Entry<String, List<Row>> entry : batches.entrySet()) {
-      Table table = schema.getTable(entry.getKey());
-      if (table == null) {
-        throw new MolgenisException(
-            String.format(
-                "Import molgenis_ontologies failed: ontology=%s is unknown.", entry.getKey()));
-      }
-      table.save(entry.getValue());
-    }
   }
 
   private void rollback(Task task) {

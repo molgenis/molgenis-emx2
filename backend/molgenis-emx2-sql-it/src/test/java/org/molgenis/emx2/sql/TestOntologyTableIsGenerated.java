@@ -1,16 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestOntologyTableIsGenerated {
 
@@ -32,6 +28,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code").setType(ColumnType.ONTOLOGY).setRefTable("CodeTable")));
     assertNotNull(s.getTable("CodeTable"));
+    assertEquals(TableType.ONTOLOGY, s.getTable("CodeTable").getMetadata().getTableType());
 
     // alter
     Table table = s.create(table("test_alter", column("name").setPkey(), column("code")));

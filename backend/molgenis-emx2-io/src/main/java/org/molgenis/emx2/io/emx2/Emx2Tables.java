@@ -7,8 +7,6 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesDirectory;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 
 public class Emx2Tables {
   private Emx2Tables() {
@@ -19,14 +17,11 @@ public class Emx2Tables {
     TableMetadata metadata = table.getMetadata();
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
-            .map(Column::getName)
-            .filter(n -> !n.startsWith("mg_"))
             // we skip file output unless supported by the format, currently csv.zip and directory
-            .filter(
-                n ->
-                    !metadata.getColumn(n).isFile()
-                        || store instanceof TableStoreForCsvInZipFile
-                        || store instanceof TableStoreForCsvFilesDirectory)
+            .filter(c -> !c.isFile() || store instanceof TableAndFileStore)
+            .map(Column::getName)
+            // we skip mg_ columns
+            .filter(n -> !n.startsWith("mg_"))
             .toList();
     SelectColumn[] select =
         downloadColumnNames.stream().map(SelectColumn::s).toArray(SelectColumn[]::new);
