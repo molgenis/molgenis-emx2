@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.REFBACK;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
@@ -13,9 +16,7 @@ import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.Table;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Reference;
+import org.molgenis.emx2.*;
 
 public class SqlColumnExecutor {
   private SqlColumnExecutor() {
@@ -189,6 +190,9 @@ public class SqlColumnExecutor {
     try {
       // create the column
       if (column.isReference()) {
+        if (column.isOntology()) {
+          createOntologyTable(column);
+        }
         for (Reference ref : column.getReferences()) {
           current = ref.getName();
           // check if reference name already exists, composite ref may reuse columns
@@ -246,6 +250,58 @@ public class SqlColumnExecutor {
     }
   }
 
+  private static void createOntologyTable(Column column) {
+    SchemaMetadata schema = column.getSchema();
+    if (column.getRefTableName() == null) {
+      throw new MolgenisException(
+          String.format(
+              "Create of column '%s.%s' failed: refTable must be defined for columns of type '%s'",
+              column.getTableName(), column.getName(), column.getColumnType()));
+    }
+    // check table doesn't exist
+    SchemaMetadata refSchema =
+        column.getRefSchema() != null
+            ? schema.getDatabase().getSchema(column.getRefSchema()).getMetadata()
+            : schema;
+    if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
+
+      TableMetadata tm =
+          new TableMetadata(column.getRefTableName())
+              .setDescription(column.getDescription())
+              .add(
+                  column("name")
+                      .setPkey()
+                      .setRequired(true)
+                      .setDescription("User friendly label for this code"),
+                  column("code")
+                      .setKey(2)
+                      .setDescription(
+                          "Identifier used for this code within this code system/ontology"),
+                  column("order")
+                      .setType(INT)
+                      .setKey(3)
+                      .setDescription("Order within the code system"),
+                  column("definition").setType(TEXT).setDescription("Definition of the term"),
+                  column("parent")
+                      .setType(REF)
+                      .setRefTable(column.getRefTableName())
+                      .setDescription("Parent in case this code exists in a hierarchy"),
+                  column("ontologyTermURI")
+                      .setDescription("reference to external definition for this term"),
+                  column("children")
+                      .setType(REFBACK)
+                      .setRefTable(column.getRefTableName())
+                      .setRefBack("parent"));
+
+      String schemaName = column.getRefSchema();
+      if (refSchema == null) {
+        refSchema = schema.getDatabase().createSchema(schemaName).getMetadata();
+      }
+      // create the table
+      refSchema.create(tm);
+    }
+  }
+
   static void validateColumn(Column c) {
     if (c.getName() == null) {
       throw new MolgenisException("Add column failed: Column name cannot be null");
@@ -258,7 +314,7 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: When key spans multiple columns, none of the columns can be nullable");
     }
-    if (c.isReference() && c.getRefTable() == null) {
+    if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           "Add column '"
               + c.getTableName()

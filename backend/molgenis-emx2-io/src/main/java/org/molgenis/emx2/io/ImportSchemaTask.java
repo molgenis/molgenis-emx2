@@ -2,7 +2,9 @@ package org.molgenis.emx2.io;
 
 import static org.molgenis.emx2.tasks.StepStatus.*;
 
-import java.util.Collection;
+import java.util.*;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -10,6 +12,7 @@ import org.molgenis.emx2.tasks.Step;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportSchemaTask extends Task {
+  public static final String MOLGENIS_ONTOLOGIES = "molgenis_ontologies";
   private TableStore store;
   private Schema schema;
 
@@ -32,15 +35,20 @@ public class ImportSchemaTask extends Task {
       schema.tx(
           db -> {
             // import metadata, if any
-            Schema s = db.getSchema(schema.getName());
-            Task metadataTask = new ImportMetadataTask(s, store, isStrict());
+            Schema schema = db.getSchema(this.schema.getName());
+            Task metadataTask = new ImportMetadataTask(schema, store, isStrict());
             this.add(metadataTask);
             metadataTask.run();
 
             boolean skipped = true;
 
+            // import ontologies, if any
+            if (store.containsTable("molgenis_ontologies")) {
+              loadOntologiesFromMolgenisOntologiesSheet(schema, store);
+            }
+
             // create task for the import, including subtasks for each sheet
-            for (Table table : s.getTablesSorted()) {
+            for (Table table : schema.getTablesSorted()) {
               if (store.containsTable(table.getName())) {
                 ImportTableTask importTableTask = new ImportTableTask(store, table, isStrict());
                 this.add(importTableTask);
@@ -50,7 +58,7 @@ public class ImportSchemaTask extends Task {
             }
 
             // warn for unknown sheet names
-            Collection<String> tableNames = s.getTableNames();
+            Collection<String> tableNames = schema.getTableNames();
             for (String sheet : store.tableNames()) {
               if (!sheet.startsWith("_files/")
                   && !"molgenis".equals(sheet)
@@ -81,6 +89,27 @@ public class ImportSchemaTask extends Task {
       throw e;
     }
     this.complete();
+  }
+
+  private void loadOntologiesFromMolgenisOntologiesSheet(Schema schema, TableStore store) {
+    Map<String, List<Row>> batches = new LinkedHashMap<>();
+    for (Row r : store.readTable(MOLGENIS_ONTOLOGIES)) {
+      String ontology = r.getString("ontology");
+      if (!batches.containsKey(ontology)) {
+        batches.put(ontology, new LinkedList<>());
+      }
+      r.getValueMap().remove("ontology");
+      batches.get(ontology).add(r);
+    }
+    for (Map.Entry<String, List<Row>> entry : batches.entrySet()) {
+      Table table = schema.getTable(entry.getKey());
+      if (table == null) {
+        throw new MolgenisException(
+            String.format(
+                "Import molgenis_ontologies failed: ontology=%s is unknown.", entry.getKey()));
+      }
+      table.save(entry.getValue());
+    }
   }
 
   private void rollback(Task task) {
