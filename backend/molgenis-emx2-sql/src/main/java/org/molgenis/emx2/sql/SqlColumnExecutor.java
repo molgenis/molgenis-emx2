@@ -250,7 +250,7 @@ public class SqlColumnExecutor {
     }
   }
 
-  private static void createOntologyTable(Column column) {
+  public static void createOntologyTable(Column column) {
     SchemaMetadata schema = column.getSchema();
     if (column.getRefTableName() == null) {
       throw new MolgenisException(
