@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -39,5 +40,18 @@ public class TestOntologyTableIsGenerated {
         .alterColumn(column("code").setType(ColumnType.ONTOLOGY).setRefTable("CodeTable2"));
 
     assertNotNull(s.getTable("CodeTable2"));
+
+    // external ontology table
+    s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2");
+    s.create(
+        table(
+            "test",
+            column("name").setPkey(),
+            column("code")
+                .setType(ColumnType.ONTOLOGY)
+                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefTable("CodeTable")));
+    // should not create a table but use external one
+    assertNull(s.getTable("CodeTable"));
   }
 }
