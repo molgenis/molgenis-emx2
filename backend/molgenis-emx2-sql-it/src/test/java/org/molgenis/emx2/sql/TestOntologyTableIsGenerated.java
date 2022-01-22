@@ -41,7 +41,7 @@ public class TestOntologyTableIsGenerated {
 
     assertNotNull(s.getTable("CodeTable2"));
 
-    // external ontology table
+    // external ontology table should reuse table
     s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2");
     s.create(
         table(
@@ -53,5 +53,18 @@ public class TestOntologyTableIsGenerated {
                 .setRefTable("CodeTable")));
     // should not create a table but use external one
     assertNull(s.getTable("CodeTable"));
+
+    // external ontology table should create table
+    s.create(
+        table(
+            "test_external",
+            column("name").setPkey(),
+            column("code")
+                .setType(ColumnType.ONTOLOGY)
+                .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName())
+                .setRefTable("CodeTable3")));
+
+    assertNotNull(
+        db.getSchema(TestOntologyTableIsGenerated.class.getSimpleName()).getTable("CodeTable3"));
   }
 }
