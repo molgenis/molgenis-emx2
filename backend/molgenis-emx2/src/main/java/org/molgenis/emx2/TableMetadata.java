@@ -33,7 +33,7 @@ public class TableMetadata implements Comparable {
   // old name, useful for alter table
   private String oldName;
   // use to classify the table, influences display, import, export, etc
-  private TableType tableType = TableType.TABLES;
+  private TableType tableType = TableType.DATA;
 
   public String[] getSemantics() {
     return semantics;

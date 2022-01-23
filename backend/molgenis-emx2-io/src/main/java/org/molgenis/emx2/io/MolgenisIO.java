@@ -33,7 +33,7 @@ public class MolgenisIO {
     // user data goes on one sheet per table
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      if (TableType.TABLES.equals(table.getMetadata().getTableType())) {
+      if (TableType.DATA.equals(table.getMetadata().getTableType())) {
         outputTable(store, table);
       }
     }

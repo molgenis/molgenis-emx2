@@ -10,28 +10,14 @@
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <InputSearch
-        v-if="count > 10"
-        placholder="search by name"
-        v-model="search"
-      />
-      <table class="table bg-white table-hover" v-if="tablesFiltered">
-        <thead>
-          <tr>
-            <th scope="col">Table</th>
-            <th scope="col">Description</th>
-          </tr>
-        </thead>
-        <tr
-          v-for="table in tablesFiltered"
-          :key="table.name"
-        >
-          <td>
-            <router-link :to="table.name"> {{ table.name }}</router-link>
-          </td>
-          <td>{{ table.description }}</td>
-        </tr>
-      </table>
+      <label>Search:</label>
+      <InputSearch placholder="search by name" v-model="search" />
+      <h2>Data tables</h2>
+      <TablesTable v-if="tables.length > 0" :tables="tables" />
+      <p v-else>No tables found</p>
+      <h2>Ontology tables</h2>
+      <TablesTable v-if="ontologies.length > 0" :tables="ontologies" />
+      <p v-else>No ontologies found</p>
     </div>
   </div>
 </template>
@@ -44,6 +30,7 @@ import {
   MessageWarning,
   InputSearch,
 } from "@mswertz/emx2-styleguide";
+import TablesTable from "./TablesTable";
 
 export default {
   name: "App",
@@ -53,6 +40,7 @@ export default {
     InputCheckbox,
     ButtonDropdown,
     InputSearch,
+    TablesTable,
   },
   props: {
     session: Object,
@@ -89,6 +77,12 @@ export default {
       } else {
         return this.schema.tables.filter((table) => !table.externalSchema);
       }
+    },
+    tables() {
+      return this.tablesFiltered.filter((t) => t.tableType == "DATA");
+    },
+    ontologies() {
+      return this.tablesFiltered.filter((t) => t.tableType == "ONTOLOGIES");
     },
   },
 };
