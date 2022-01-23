@@ -18,7 +18,14 @@ public class Emx2Tables {
     List<String> downloadColumnNames =
         table.getMetadata().getDownloadColumnNames().stream()
             // we skip file output unless supported by the format, currently csv.zip and directory
-            .filter(c -> !c.isFile() || store instanceof TableAndFileStore)
+            .filter(
+                c ->
+                    // note that refs have . in the name, these we also allow
+                    c.getName().contains(".")
+                        // get original metadata because download columns are format string instead
+                        // of file
+                        || metadata.getColumn(c.getName()).isFile()
+                        || store instanceof TableAndFileStore)
             .map(Column::getName)
             // we skip mg_ columns
             .filter(n -> !n.startsWith("mg_"))

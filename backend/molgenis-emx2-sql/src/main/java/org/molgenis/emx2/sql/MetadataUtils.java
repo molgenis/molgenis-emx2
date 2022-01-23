@@ -136,7 +136,7 @@ public class MetadataUtils {
       j.transaction(
           config -> {
             DSLContext jooq = config.dsl();
-            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+            try (DDLQuery step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
               jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
               jooq.execute(
