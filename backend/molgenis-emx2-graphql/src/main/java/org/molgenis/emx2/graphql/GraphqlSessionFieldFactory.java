@@ -18,6 +18,7 @@ import org.molgenis.emx2.Schema;
 public class GraphqlSessionFieldFactory {
 
   private static final String ROLES = "roles";
+  private static final String SCHEMAS = "schemas";
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -108,6 +109,10 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
+                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(SCHEMAS)
                         .type(GraphQLList.list(Scalars.GraphQLString))))
         .dataFetcher(
             dataFetchingEnvironment -> {
@@ -117,6 +122,7 @@ public class GraphqlSessionFieldFactory {
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
+              result.put(SCHEMAS, database.getSchemaNames());
               return result;
             })
         .build();
