@@ -24,7 +24,7 @@
 
       <key-value-block
         v-if="cohort.designPaper"
-        :items="[{ label: 'Marker paper', value: cohort.designPaper }]"
+        :items="[{ label: 'Marker paper', value: cohort.designPaper.title }]"
       ></key-value-block>
 
       <key-value-block
@@ -95,9 +95,9 @@
     <grid-block heading="Available data & samples">
       <strong>Data categories</strong>
       <p>{{ dataCategories.join(", ") }}</p>
-      <strong>Areas of information</strong>
-      <p>{{ sampleCategories.join(", ") }}</p>
       <strong>Sample categories</strong>
+      <p>{{ sampleCategories.join(", ") }}</p>
+      <strong>Areas of information</strong>
       <p>{{ areasOfInformation.join(", ") }}</p>
     </grid-block>
 
@@ -218,20 +218,20 @@ export default {
     generalDesignItems() {
       return [
         {
-          label: "Type",
-          value: this.cohort.collectionType
-            ? this.cohort.collectionType[0].name
-            : "na",
+          label: "Cohort type",
+          value: this.cohort.type
+            ? this.cohort.type.map((type) => type.name).join(", ")
+            : "not available",
         },
         {
           label: "Design",
-          value: this.cohort.design ? this.cohort.design.name : "na",
+          value: this.cohort.design ? this.cohort.design.name : "not available",
         },
         {
           label: "Collection type",
           value: this.cohort.collectionType
             ? this.cohort.collectionType[0].name
-            : "",
+            : "not available",
         },
         {
           label: "Start/End year",
@@ -333,11 +333,13 @@ export default {
               name: item.name,
               description: item.description,
               startAndEndYear: (() => {
-                let value =
-                  ((item.startYear && item.startYear.name) || "n/a") +
-                  " - " +
-                  ((item.endYear && item.endYear.name) || "n/a");
-                return value === "n/a - n/a" ? null : value;
+                const startYear =
+                  item.startYear && item.startYear.name
+                    ? item.startYear.name
+                    : null;
+                const endYear =
+                  item.endYear && item.endYear.name ? item.endYear.name : null;
+                return startEndYear(startYear, endYear);
               })(),
               _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
             };

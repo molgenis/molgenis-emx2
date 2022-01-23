@@ -60,8 +60,8 @@ export default {
         {
           label: "Start/end year: ",
           value: startEndYear(
-            this.subcohort.startEndYear,
-            this.subcohort.startEndYear
+            this.subcohort.inclusionStart,
+            this.subcohort.inclusionEnd
           ),
         },
         {

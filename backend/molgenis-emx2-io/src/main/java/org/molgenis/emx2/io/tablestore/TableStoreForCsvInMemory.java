@@ -52,7 +52,7 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator());
+    processor.process(readTable(name).iterator(), this);
   }
 
   @Override
@@ -63,9 +63,5 @@ public class TableStoreForCsvInMemory implements TableStore {
   @Override
   public Collection<String> tableNames() {
     return this.store.keySet();
-  }
-
-  public String viewContents(String name) {
-    return store.get(name);
   }
 }
