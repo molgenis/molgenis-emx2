@@ -16,7 +16,6 @@
               @click="toggleDropdown"
             ></i>
             <div class="dropdown-menu" :class="{ show: showDropdown }">
-              <p>Switch to:</p>
               <a
                 v-for="(url, label, index) in dropdown"
                 class="dropdown-item text-primary"
