@@ -52,9 +52,11 @@ Basic type:
 Relationships:
 
 * ref : foreign key (aka many to one)
-  * ontology: is a ref that is rendered as ontology tree (if refTable has 'parent')
-* ref_array : multiple foreign key (aka many to many)
-  * ontology_array: is ref_array  that is rendered as ontology tree (if refTable has 'parent')
+    * ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
+      is automatically generated.
+* ref_array : multiple foreign key (aka many to many).
+    * ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
+      the refTable is automatically generated.
 * refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
@@ -69,8 +71,10 @@ Arrays (i.e. list of values)
 * uuid_array
 * text_array
 
-Layout (static content, not an input): 
-* heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
+Layout (static content, not an input):
+
+* heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition
+  your forms/reports.
 
 ### key
 
@@ -140,6 +144,30 @@ Example of complex relationships:
 | Pet       | species    |         |     |          |                 |                    |          |          |                             |
 | Pet       | owner      | ref     |     | Person   | ownerFN,ownerLN | firstName,lastName |          |          | multi-foreign key to Person |
 
+## Ontologies
+
+Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the refered table
+is automatically created, using refTable as the name.
+
+### molgenis_ontologies
+
+During download, all values for all ontology tables in one sheet named 'molgenis_ontologies' as follows:
+
+| ontology  | term | definition  | ontologyTermURI | code | 
+|-----------|------|-------------|-----------------|------|
+| AgeGroups | 0y   |             |                 |      |
+| AgeGroups | 1y   |             |                 |      |
+| AgeGroups | 2y   |             |                 |      |
+
+You can also use this format for upload of ontology tables. Alternatively, you can create separate sheets, e.g.
+AgeGoups (in Excel) of AgeGroups.csv (in csv.zip)
+
+| term | definition  | ontologyTermURI | code | 
+|------|-------------|-----------------|------|
+| 0y   |             |                 |      |
+| 1y   |             |                 |      |
+| 2y   |             |                 |      |
+
 ## Expressions (alpha/planned)
 
 You can further finetune the behaviour of tables using javascript expressions. NOT YET FULLY IMPLEMENTED
@@ -182,6 +210,8 @@ You can reuse table definitions, and make more specialised tables using 'tableEx
 Should contain the value of an existing tableName. When providing tableExtends, the column with 'columnName' should be
 empty. It means the columns defined in that tableName will be added to this table. In addition, rows added to this
 table, will also be visible in the table that is extended.
+
+## molgenis_ontologies
 
 ## Cross schema references/extends
 
