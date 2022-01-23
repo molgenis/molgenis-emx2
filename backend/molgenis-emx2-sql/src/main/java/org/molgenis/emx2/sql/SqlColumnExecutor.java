@@ -268,7 +268,7 @@ public class SqlColumnExecutor {
       TableMetadata tm =
           new TableMetadata(column.getRefTableName())
               .setDescription(column.getDescription())
-              .setTableType(TableType.ONTOLOGY)
+              .setTableType(TableType.ONTOLOGIES)
               .add(
                   column("order")
                       .setType(INT)

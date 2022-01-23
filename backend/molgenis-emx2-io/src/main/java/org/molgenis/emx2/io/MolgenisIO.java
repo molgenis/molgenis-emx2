@@ -33,7 +33,7 @@ public class MolgenisIO {
     // user data goes on one sheet per table
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      if (TableType.USER.equals(table.getMetadata().getTableType())) {
+      if (TableType.TABLES.equals(table.getMetadata().getTableType())) {
         outputTable(store, table);
       }
     }
@@ -43,7 +43,7 @@ public class MolgenisIO {
     List<Row> ontologyRows = new ArrayList<>(); // might get memory hungry on very large ontologies
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      if (TableType.ONTOLOGY.equals(table.getMetadata().getTableType())) {
+      if (TableType.ONTOLOGIES.equals(table.getMetadata().getTableType())) {
         ontologyRows.addAll(
             table.retrieveRows().stream()
                 .map(

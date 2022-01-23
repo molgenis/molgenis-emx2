@@ -28,7 +28,7 @@ public class TestOntologyTableIsGenerated {
             column("name").setPkey(),
             column("code").setType(ColumnType.ONTOLOGY).setRefTable("CodeTable")));
     assertNotNull(s.getTable("CodeTable"));
-    assertEquals(TableType.ONTOLOGY, s.getTable("CodeTable").getMetadata().getTableType());
+    assertEquals(TableType.ONTOLOGIES, s.getTable("CodeTable").getMetadata().getTableType());
 
     // alter
     Table table = s.create(table("test_alter", column("name").setPkey(), column("code")));
