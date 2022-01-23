@@ -132,7 +132,7 @@ public class Emx2 {
         schema.getTables().stream()
             .map(t -> t.getNonInheritedColumns())
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .collect(Collectors.toList()); // NOSONAR cannot use toList because immutable
     // sort on position
     Collections.sort(columns);
 
