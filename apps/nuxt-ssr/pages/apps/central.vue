@@ -5,7 +5,7 @@
     <h1>Schemas</h1>
     
     <div class="list-group">
-      <nuxt-link v-for="schema in schemas" :key="schema.name" :to="'/' + schema.name + '/'" class="list-group-item list-group-item-action">
+      <nuxt-link v-for="schema in schemas" :key="schema.name" :to="'/' + schema.name + '/ssr-catalogue'" class="list-group-item list-group-item-action">
         {{schema.name}}
       </nuxt-link>
     </div>

@@ -2,8 +2,21 @@
 <div>
   <Menu :menu="menu"/>
   <div class="container pt-3">
-    <h1>Data Catalogue for schema: {{$route.params.schema}}</h1>
-        <h2>Collected data</h2>
+    <h1>
+      <span v-if="$route.params.schema == 'Minerva'">
+        Proof-of-concept catalogue tool for MINERVA metadata pilot</span
+      >
+      <span v-else>Data catalogue</span>
+    </h1>
+    <p v-if="$route.params.schema == 'Minerva'" class="text-danger">
+      Disclaimer: contents not for public disclosure.
+    </p>
+    <p>
+      Browse and manage metadata for data resources, such as cohorts,
+      registries, biobanks, and multi-center collaborations thereof such as
+      networks, common data models and studies.
+    </p>
+    <h2>Metadata on data collections</h2>
     <div class="row justify-content-between">
 
       <count-card class="btn-dark" :count="counts.institutions" label="Institutions" to="institutions">
@@ -25,13 +38,27 @@
 
     </div>
   </div>
+
 </div>
 </template>
+
+<style scoped>
+.btn .badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.card-height {
+  min-height: 200px;
+}
+</style>
 
 <script>
 import CountCard from '../../components/CountCard.vue'
 import Menu from '../../components/Menu.vue'
 export default {
+  name: "SSRCatalogue",
   components: { Menu, CountCard },
   async fetch ({store}) {
     await store.dispatch('fetchCounts')
