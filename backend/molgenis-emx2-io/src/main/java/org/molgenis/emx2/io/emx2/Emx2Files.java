@@ -8,10 +8,15 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 
 public class Emx2Files {
-  public static void outputFiles(TableStoreForCsvInZipFile store, Table table) {
+
+  private Emx2Files() {
+    // prevent
+  }
+
+  public static void outputFiles(TableAndFileStore store, Table table) {
     for (Column c : table.getMetadata().getColumns()) {
       if (c.isFile()) {
         // query the identifiers of this, and then retrieve (slow, but scalable) and write

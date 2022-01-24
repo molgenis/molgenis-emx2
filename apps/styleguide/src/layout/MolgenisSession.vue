@@ -57,7 +57,7 @@ import ChangePasswordForm from "./MolgenisAccount";
 import { request } from "graphql-request";
 
 const query = `{
-  _session { email, roles },
+  _session { email, roles, schemas },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;

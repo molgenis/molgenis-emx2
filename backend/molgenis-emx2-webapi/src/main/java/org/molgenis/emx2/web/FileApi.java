@@ -9,7 +9,6 @@ import static spark.Spark.get;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import spark.Request;
 import spark.Response;
@@ -55,19 +54,12 @@ public class FileApi {
       throw new MolgenisException(
           "Download failed: file id '" + id + "' not found in table " + tableName);
     }
-    // create file id based on pkey
-    String fileId =
-        t.getMetadata().getPrimaryKeyFields().stream()
-            .map(f -> result.get(0).getString(f.getName()))
-            .collect(Collectors.joining("-"));
     String ext = result.get(0).getString(columnName + "_extension");
     String mimetype = result.get(0).getString(columnName + "_mimetype");
     byte[] contents = result.get(0).getBinary(columnName + "_contents");
     response
         .raw()
-        .setHeader(
-            "Content-Disposition",
-            "attachment; filename=" + t.getName() + "-" + c.getName() + "-" + fileId + "." + ext);
+        .setHeader("Content-Disposition", "attachment; filename=" + c.getName() + "." + ext);
     response.raw().setContentType(mimetype);
     try (OutputStream out = response.raw().getOutputStream()) {
       out.write(contents); // autoclosing

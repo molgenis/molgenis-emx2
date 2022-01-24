@@ -5,6 +5,9 @@ import org.molgenis.emx2.Row;
 
 public class Emx1Attribute {
   public static final String ID_ATTRIBUTE = "idAttribute";
+  public static final String NILLABLE_NAME = "nillable";
+  public static final String LABEL_ATTRIBUTE = "labelAttribute";
+  public static final String READONLY_NAME = "readonly";
   private String entity;
   private String name;
   private String label;
@@ -41,16 +44,16 @@ public class Emx1Attribute {
     this.label = get(row, "label");
     this.dataType = get(row, "dataType");
     this.description = get(row, "description");
-    if (row.getBoolean("nillable") != null) this.nillable = row.getBoolean("nillable");
+    if (row.getBoolean(NILLABLE_NAME) != null) this.nillable = row.getBoolean(NILLABLE_NAME);
     this.idAttribute =
         get(row, ID_ATTRIBUTE) != null
             && ("AUTO".equalsIgnoreCase(row.getString(ID_ATTRIBUTE))
                 || row.getBoolean(ID_ATTRIBUTE) != null
                     && row.getBoolean(ID_ATTRIBUTE).equals(true));
     if (row.getBoolean("aggregatable") != null) this.aggregateable = row.getBoolean("aggregatable");
-    if (row.getBoolean("labelAttribute") != null)
-      this.labelAttribute = row.getBoolean("labelAttribute");
-    if (row.getBoolean("readonly") != null) this.readonly = row.getBoolean("readonly");
+    if (row.getBoolean(LABEL_ATTRIBUTE) != null)
+      this.labelAttribute = row.getBoolean(LABEL_ATTRIBUTE);
+    if (row.getBoolean(READONLY_NAME) != null) this.readonly = row.getBoolean(READONLY_NAME);
     this.validation = get(row, "validation");
     this.visible = get(row, "visible");
     this.defaultValue = get(row, "defaultValue");
@@ -233,10 +236,10 @@ public class Emx1Attribute {
     r.set("refEntity", refEntity);
     r.set("refBack", refBack);
     r.set(ID_ATTRIBUTE, idAttribute); // different by design
-    r.set("nillable", nillable);
-    r.set("readonly", readonly);
+    r.set(NILLABLE_NAME, nillable);
+    r.set(READONLY_NAME, readonly);
     r.set("partOfAttribute", partOfAttribute); // not supported by design
-    r.set("labelAttribute", labelAttribute); // not supported by design
+    r.set(LABEL_ATTRIBUTE, labelAttribute); // not supported by design
     r.set("defaultValue", defaultValue);
     r.set("expression", expression);
     r.set("validation", validation);
@@ -252,11 +255,9 @@ public class Emx1Attribute {
         return "bool";
       case FILE:
         return "file";
-      case STRING:
-      case UUID:
+      case STRING, UUID:
         return "varchar";
-      case TEXT:
-      case JSONB:
+      case TEXT, JSONB:
         return "text";
       case INT:
         return "int";
@@ -272,15 +273,15 @@ public class Emx1Attribute {
         return "mref";
       case REFBACK:
         return "refBack unsupported in emx1";
-      case BOOL_ARRAY:
-      case UUID_ARRAY:
-      case STRING_ARRAY:
-      case TEXT_ARRAY:
-      case INT_ARRAY:
-      case DATE_ARRAY:
-      case DATETIME_ARRAY:
-      case JSONB_ARRAY:
-      case DECIMAL_ARRAY:
+      case BOOL_ARRAY,
+          UUID_ARRAY,
+          STRING_ARRAY,
+          TEXT_ARRAY,
+          INT_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          JSONB_ARRAY,
+          DECIMAL_ARRAY:
         return "array types unsupported in emx1: " + c.getColumnType();
       default:
         return "unknown type in emx1: " + c.getColumnType();

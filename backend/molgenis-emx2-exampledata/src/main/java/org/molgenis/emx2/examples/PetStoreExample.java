@@ -82,6 +82,7 @@ public class PetStoreExample {
             .add(column("username").setPkey())
             .add(column("firstName"))
             .add(column("lastName"))
+            .add(column("picture").setType(FILE))
             .add(
                 column(EMAIL)
                     .setValidation(
