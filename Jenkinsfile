@@ -52,7 +52,7 @@ pipeline {
                 changeRequest()
             }
             environment {
-                NAME = "preview-pr-emx2-${CHANGE_ID.toLowerCase()}"
+                NAME = "preview-emx2-pr-${CHANGE_ID.toLowerCase()}"
             }
             steps {
                 container('java') {
