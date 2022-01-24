@@ -9,6 +9,7 @@
     "tables",
     "updownload",
     "pages",
-    "graphql-playground"
+    "graphql-playground",
+    "nuxt-ssr"
   ]
 }
