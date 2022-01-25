@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.sql.SqlColumnExecutor.executeRemoveRefConstraints;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
@@ -82,12 +81,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public String getRoleForUser(String user) {
-    if (user == null) user = ANONYMOUS;
-    user = user.trim();
-    for (Member m : executeGetMembers(getMetadata().getJooq(), getMetadata())) {
-      if (m.getUser().equals(user)) return m.getRole();
-    }
-    return null;
+    return getMetadata().getRoleForUser(user);
   }
 
   @Override
@@ -108,7 +102,7 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<String> getInheritedRolesForActiveUser() {
-    return getInheritedRolesForUser(db.getActiveUser());
+    return getMetadata().getInheritedRolesForActiveUser();
   }
 
   @Override
@@ -284,7 +278,9 @@ public class SqlSchema implements Schema {
         }
 
         // update table settings
-        oldTable.setSettings(mergeTable.getSettings());
+        if (!mergeTable.getSettings().isEmpty()) {
+          oldTable.setSettings(mergeTable.getSettings());
+        }
         oldTable.setDescription(mergeTable.getDescription());
         oldTable.setSemantics(mergeTable.getSemantics());
         MetadataUtils.saveTableMetadata(targetSchema.getMetadata().getJooq(), oldTable);

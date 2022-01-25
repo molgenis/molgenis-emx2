@@ -1,12 +1,13 @@
-package org.molgenis.emx2.beacon;
+package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static spark.Spark.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.molgenis.emx2.beacon.common.BeaconInformationalResponseMeta;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.*;
+import org.molgenis.emx2.beaconv2.ServiceInfo;
+import org.molgenis.emx2.beaconv2.RootInfo;
 import spark.Request;
 import spark.Response;
 
@@ -34,12 +35,12 @@ public class BeaconApi {
 
   private static String getInfo(Request req, Response res) throws JsonProcessingException {
 
-    return getWriter().writeValueAsString(new BeaconInformationalResponseMeta());
+    return getWriter().writeValueAsString(new RootInfo());
   }
 
   private static String getServiceInfo(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new BeaconServiceInfoResponse());
+    return getWriter().writeValueAsString(new ServiceInfo());
   }
 
   private static Object getConfiguration(Request request, Response response)

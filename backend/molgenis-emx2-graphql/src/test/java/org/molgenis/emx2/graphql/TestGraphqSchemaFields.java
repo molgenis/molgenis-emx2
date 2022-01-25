@@ -1,10 +1,10 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
@@ -12,8 +12,11 @@ import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -435,5 +438,47 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testFileType() {}
+  public void testFileType() throws IOException {
+    Schema myschema = database.dropCreateSchema("testFileType");
+    myschema.create(
+        table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
+
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+
+    // insert file (note: ideally here also use mutation but I don't know how to add file part to
+    // request)
+    Table table = myschema.getTable("TestFile");
+    table.insert(
+        row(
+            "name",
+            "test",
+            "image",
+            new BinaryFileWrapper("text/html", "testfile.txt", "test".getBytes())));
+
+    assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
+
+    // update with {} existing file metadata should keep file untouched
+    Map data = new LinkedHashMap();
+    data.put("name", "test");
+    data.put("image", Map.of("name", "dummy"));
+    grapql.execute(
+        new ExecutionInput.Builder()
+            .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+            .variables(Map.of("value", data))
+            .build());
+    assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
+
+    // update with null should delete
+    data.put("image", null);
+    grapql.execute(
+        new ExecutionInput.Builder()
+            .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+            .variables(Map.of("value", data))
+            .build());
+    assertEquals(
+        0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
+
+    // reset
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+  }
 }
