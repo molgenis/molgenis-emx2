@@ -55,3 +55,6 @@ jobs:
             MOLGENIS_POSTGRES_USER: molgenis_admin
             MOLGENIS_POSTGRES_PASS: molgenis_admin
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
+
+      # push ssr-catalogue to repo
+      - run: ./gradlew dockerPush

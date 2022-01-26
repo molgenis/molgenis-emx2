@@ -97,8 +97,8 @@ jib {
 }
 
 docker {
-    name "hub.docker.com/molgenis/ssr-catalogue:${project.version.toString()}"
-    tag 'latest',  "hub.docker.com/molgenis/ssr-catalogue:${project.version.toString()}"
+    name "molgenis/ssr-catalogue:${project.version.toString()}"
+    tag 'latest',  "molgenis/ssr-catalogue:${project.version.toString()}"
     dockerfile file('apps/Dockerfile')
     files 'apps/nuxt-ssr'
 }
