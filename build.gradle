@@ -13,6 +13,7 @@ plugins {
     id 'org.unbroken-dome.helm' version '1.7.0'
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
+    id 'com.palantir.docker' version '0.32.0'
 }
 
 
@@ -93,6 +94,13 @@ jib {
         mainClass = mainClassName
         ports = ['8080']
     }
+}
+
+docker {
+    name "hub.docker.com/molgenis/ssr-catalogue:${project.version.toString()}"
+    tag 'latest',  "hub.docker.com/molgenis/ssr-catalogue:${project.version.toString()}"
+    dockerfile file('apps/Dockerfile')
+    files 'apps/nuxt-ssr'
 }
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
