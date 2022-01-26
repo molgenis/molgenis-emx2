@@ -56,10 +56,8 @@ jobs:
             MOLGENIS_POSTGRES_PASS: molgenis_admin
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
 
-      # Install docker via apk on alpine based images
-      - run:
-          name: Install Docker client
-          command: apt-get install docker-ce docker-ce-cli containerd.io docker-cli
+      - setup_remote_docker:
+          version: 19.03.13
 
       # push ssr-catalogue to repo
       - run: |
