@@ -59,7 +59,7 @@ jobs:
       # Install docker via apk on alpine based images
       - run:
           name: Install Docker client
-          command: apk add docker-cli
+          command: apt-get install docker-ce docker-ce-cli containerd.io docker-cli
 
       # push ssr-catalogue to repo
       - run: |
