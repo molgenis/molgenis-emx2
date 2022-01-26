@@ -56,6 +56,11 @@ jobs:
             MOLGENIS_POSTGRES_PASS: molgenis_admin
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
 
+      # Install docker via apk on alpine based images
+      - run:
+          name: Install Docker client
+          command: apk add docker-cli
+
       # push ssr-catalogue to repo
       - run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASS
