@@ -10,7 +10,7 @@ A step by step procedure to follow when making changes to the catalogue datamode
 
 4. Assess whether changes are needed and make necessary changes to [staging area models](https://github.com/molgenis/molgenis-py-catalogue-transform/tree/master/datamodels) for [data-catalogue-staging.molgeniscloud.org](https://data-catalogue-staging.molgeniscloud.org/apps/central/#/). Update the [program to transfer data](https://github.com/molgenis/molgenis-py-catalogue-transform) accordingly.
 
-5. Assess whether changes are needed and make necessary changes to [umcg staging area model](https://raw.githubusercontent.com/molgenis/molgenis-py-cohorts-etl/main/staging-model-umcg.csv) for catalogue-acc.molgeniscloud.org. Update the [program to transfer data](https://github.com/molgenis/molgenis-py-cohorts-etl) accordingly.
+5. Assess whether changes are needed and make necessary changes to [umcg staging area model](https://raw.githubusercontent.com/molgenis/molgenis-py-cohorts-etl/main/staging-model-umcg.csv) for [catalogue-acc.molgeniscloud.org](https://catalogue-acc.molgeniscloud.org/apps/central/#/). Update the [program to transfer data](https://github.com/molgenis/molgenis-py-cohorts-etl) accordingly.
 
 6. Migrate data/update datamodel on production servers (14-1-2021: data-catalogue, catalogue-acc, conception-acc) according to instructions in [cat-admin.md](https://github.com/molgenis/molgenis-emx2/docs/catalogue/cat-admin.md).
 
