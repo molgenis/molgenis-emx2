@@ -8,7 +8,7 @@ A step by step procedure to follow when making changes to the catalogue datamode
 
 3. Assess whether changes are needed and make necessary changes to UI: variable explorer and catalogue views.
 
-4. Assess whether changes are needed and make necessary changes to [staging area models](https://github.com/molgenis/molgenis-py-catalogue-transform/tree/master/datamodels) for data-catalogue-staging.molgeniscloud.org. Update the [program to transfer data](https://github.com/molgenis/molgenis-py-catalogue-transform) accordingly.
+4. Assess whether changes are needed and make necessary changes to [staging area models](https://github.com/molgenis/molgenis-py-catalogue-transform/tree/master/datamodels) for [data-catalogue-staging.molgeniscloud.org](https://data-catalogue-staging.molgeniscloud.org/apps/central/#/). Update the [program to transfer data](https://github.com/molgenis/molgenis-py-catalogue-transform) accordingly.
 
 5. Assess whether changes are needed and make necessary changes to [umcg staging area model](https://github.com/molgenis/molgenis-py-cohorts-etl/blob/main/staging-model-umcg.csv) for catalogue-acc.molgeniscloud.org. Update the [program to transfer data](https://github.com/molgenis/molgenis-py-cohorts-etl) accordingly.
 
