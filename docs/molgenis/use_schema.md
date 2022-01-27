@@ -149,25 +149,6 @@ Example of complex relationships:
 Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the refered table
 is automatically created, using refTable as the name.
 
-### molgenis_ontologies
-
-During download, all values for all ontology tables in one sheet named 'molgenis_ontologies' as follows:
-
-| ontology  | term | definition  | ontologyTermURI | code | 
-|-----------|------|-------------|-----------------|------|
-| AgeGroups | 0y   |             |                 |      |
-| AgeGroups | 1y   |             |                 |      |
-| AgeGroups | 2y   |             |                 |      |
-
-You can also use this format for upload of ontology tables. Alternatively, you can create separate sheets, e.g.
-AgeGoups (in Excel) of AgeGroups.csv (in csv.zip)
-
-| term | definition  | ontologyTermURI | code | 
-|------|-------------|-----------------|------|
-| 0y   |             |                 |      |
-| 1y   |             |                 |      |
-| 2y   |             |                 |      |
-
 ## Expressions (alpha/planned)
 
 You can further finetune the behaviour of tables using javascript expressions. NOT YET FULLY IMPLEMENTED

@@ -270,10 +270,7 @@ public class SqlColumnExecutor {
               .setDescription(column.getDescription())
               .setTableType(TableType.ONTOLOGIES)
               .add(
-                  column("order")
-                      .setType(INT)
-                      .setKey(3)
-                      .setDescription("Order within the code system"),
+                  column("order").setType(INT).setDescription("Order within the code system"),
                   column("name")
                       .setPkey()
                       .setRequired(true)

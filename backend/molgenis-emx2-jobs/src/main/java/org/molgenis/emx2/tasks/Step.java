@@ -39,9 +39,8 @@ public class Step {
     return null;
   }
 
-  public Step setIndex(Integer index) {
+  public void setIndex(Integer index) {
     this.index = index;
-    return this;
   }
 
   public String getDescription() {
@@ -87,16 +86,14 @@ public class Step {
     return total;
   }
 
-  public Step setTotal(Integer total) {
+  public void setTotal(Integer total) {
     this.total = total;
-    return this;
   }
 
-  public Step start() {
+  public void start() {
     this.start = System.currentTimeMillis();
     this.status = RUNNING;
     this.logger.info(getDescription() + ": started");
-    return this;
   }
 
   public void complete(String description) {

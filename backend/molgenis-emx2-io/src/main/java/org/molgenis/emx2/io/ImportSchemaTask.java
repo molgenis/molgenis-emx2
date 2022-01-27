@@ -2,7 +2,7 @@ package org.molgenis.emx2.io;
 
 import static org.molgenis.emx2.tasks.StepStatus.*;
 
-import java.util.*;
+import java.util.Collection;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -10,7 +10,6 @@ import org.molgenis.emx2.tasks.Step;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportSchemaTask extends Task {
-  public static final String MOLGENIS_ONTOLOGIES = "molgenis_ontologies";
   private TableStore store;
   private Schema schema;
 
@@ -33,15 +32,15 @@ public class ImportSchemaTask extends Task {
       schema.tx(
           db -> {
             // import metadata, if any
-            Schema schema = db.getSchema(this.schema.getName());
-            Task metadataTask = new ImportMetadataTask(schema, store, isStrict());
+            Schema s = db.getSchema(schema.getName());
+            Task metadataTask = new ImportMetadataTask(s, store, isStrict());
             this.add(metadataTask);
             metadataTask.run();
 
             boolean skipped = true;
 
             // create task for the import, including subtasks for each sheet
-            for (Table table : schema.getTablesSorted()) {
+            for (Table table : s.getTablesSorted()) {
               if (store.containsTable(table.getName())) {
                 ImportTableTask importTableTask = new ImportTableTask(store, table, isStrict());
                 this.add(importTableTask);
@@ -51,13 +50,12 @@ public class ImportSchemaTask extends Task {
             }
 
             // warn for unknown sheet names
-            Collection<String> tableNames = schema.getTableNames();
+            Collection<String> tableNames = s.getTableNames();
             for (String sheet : store.tableNames()) {
               if (!sheet.startsWith("_files/")
                   && !"molgenis".equals(sheet)
                   && !"molgenis_settings".equals(sheet)
                   && !"molgenis_members".equals(sheet)
-                  && !"molgenis_ontologies".equals(sheet)
                   && !tableNames.contains(sheet)) {
                 this.step(
                         "Sheet with name '"
