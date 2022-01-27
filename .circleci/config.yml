@@ -68,6 +68,14 @@ jobs:
           name: update packages
           command: apt-get update
 
+      - run:
+          name: set repo keys
+          command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+      - run:
+          name: add repo
+          commnand: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
       # Install via apk on alpine based images
       - run:
           name: Install Docker client
