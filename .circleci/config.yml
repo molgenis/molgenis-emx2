@@ -75,15 +75,16 @@ jobs:
       - run:
           name: add repo
           command: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-     
-      - run:
-          name: Install Docker client
-          command: apt-get -y install docker-ce-cli
 
-      # Install via apk on alpine based images
       - run:
           name: update package manger
           command: apt-get update
+
+      - run:
+          name: Install Docker client
+          command: apt-get -y install docker-ce docker-ce-cli containerd.io
+
+      # Install via apk on alpine based images
 
       - setup_remote_docker:
           version: 19.03.13
