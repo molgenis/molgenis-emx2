@@ -48,43 +48,41 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-#      # run tests!
-#      - run:
-#          command: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-#          environment:
-#            MOLGENIS_POSTGRES_USER: molgenis_admin
-#            MOLGENIS_POSTGRES_PASS: molgenis_admin
-#            MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
-
+      # run tests!
       - run:
-          name: update packages
-          command: apt-get update
-
-      - run:
-          name: add packages
-          command: apt-get -y install gnupg lsb-release
-
-      - run:
-          name: update packages
-          command: apt-get update
-
-      - run:
-          name: set repo keys
-          command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-      - run:
-          name: add repo
-          command: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+          command: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          environment:
+            MOLGENIS_POSTGRES_USER: molgenis_admin
+            MOLGENIS_POSTGRES_PASS: molgenis_admin
+            MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
 
       - run:
           name: update package manger
           command: apt-get update
 
       - run:
+          name: add packages for docker cli install
+          command: apt-get -y install gnupg lsb-release
+
+      - run:
+          name: update packages again
+          command: apt-get update
+
+      - run:
+          name: set repo keys for docker packages
+          command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+      - run:
+          name: add repo for docker packages
+          command: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+      - run:
+          name: update package manager again
+          command: apt-get update
+
+      - run:
           name: Install Docker client
           command: apt-get -y install docker-ce docker-ce-cli containerd.io
-
-      # Install via apk on alpine based images
 
       - setup_remote_docker:
           version: 19.03.13
