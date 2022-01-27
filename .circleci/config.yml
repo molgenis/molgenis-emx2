@@ -62,11 +62,7 @@ jobs:
 
       - run:
           name: add packages
-          command: apt-get install \
-          ca-certificates \
-          curl \
-          gnupg \
-          lsb-release
+          command: apt-get install ca-certificates curl gnupg lsb-release
 
       - run:
           name: update packages
