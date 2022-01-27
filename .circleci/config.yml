@@ -56,6 +56,22 @@ jobs:
 #            MOLGENIS_POSTGRES_PASS: molgenis_admin
 #            MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
 
+      - run:
+          name: update packages
+          command: apt-get update
+
+      - run:
+          name: add packages
+          command: apt-get install \
+          ca-certificates \
+          curl \
+          gnupg \
+          lsb-release
+
+      - run:
+          name: update packages
+          command: apt-get update
+
       # Install via apk on alpine based images
       - run:
           name: Install Docker client
