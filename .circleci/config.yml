@@ -62,7 +62,7 @@ jobs:
 
       - run:
           name: add packages
-          command: apt-get install ca-certificates curl gnupg lsb-release
+          command: apt-get -y install gnupg lsb-release
 
       - run:
           name: update packages
@@ -71,7 +71,7 @@ jobs:
       # Install via apk on alpine based images
       - run:
           name: Install Docker client
-          command: apt-get install docker-ce-cli
+          command: apt-get -y install docker-ce-cli
 
       - setup_remote_docker:
           version: 19.03.13
