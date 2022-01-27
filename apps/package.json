@@ -13,6 +13,6 @@
     "nuxt-ssr"
   ],
   "resolutions": {
-    "css-loader": "4.2.0"
+    "css-loader": "4.3.0"
   }
 }
