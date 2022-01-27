@@ -96,9 +96,17 @@ jib {
     }
 }
 
+def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
+def ssrTagName = project.version.toString()
+if (version.toString().endsWith('-SNAPSHOT')) {
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
+    ssrTagName = "${project.version.toString()}-${ext.hash}"
+}
+
 docker {
-    name "molgenis/ssr-catalogue:${project.version.toString()}"
-    tag 'latest',  "molgenis/ssr-catalogue:${project.version.toString()}"
+    name ssrImageName
+    tags 'latest', ssrTagName
     dockerfile file('apps/Dockerfile')
     files 'apps/nuxt-ssr'
 }
