@@ -13,6 +13,7 @@ plugins {
     id 'org.unbroken-dome.helm' version '1.7.0'
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
+    id 'com.palantir.docker' version '0.32.0'
 }
 
 
@@ -93,6 +94,21 @@ jib {
         mainClass = mainClassName
         ports = ['8080']
     }
+}
+
+def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
+def ssrTagName = project.version.toString()
+if (version.toString().endsWith('-SNAPSHOT')) {
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
+    ssrTagName = "${project.version.toString()}-${ext.hash}"
+}
+
+docker {
+    name ssrImageName
+    tags 'latest', ssrTagName
+    dockerfile file('apps/Dockerfile')
+    files 'apps/nuxt-ssr'
 }
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null

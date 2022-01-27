@@ -9,6 +9,10 @@
     "tables",
     "updownload",
     "pages",
-    "graphql-playground"
-  ]
+    "graphql-playground",
+    "nuxt-ssr"
+  ],
+  "resolutions": {
+    "css-loader": "4.2.0"
+  }
 }
