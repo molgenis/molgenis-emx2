@@ -2,7 +2,7 @@
 
 A step by step procedure to follow when making changes to the catalogue datamodel. Not all steps are necessary for all model updates.
 
-1. Make changes to the catalogue datamodel in [molgenis.csv](https://raw.githubusercontent.com/molgenis/molgenis-emx2/master/data/datacatalogue/molgenis.csv). Make sure to increase version number. Test the datamodel changes on a test server.
+1. Make changes to the catalogue datamodel in [molgenis.csv](https://github.com/molgenis/molgenis-emx2/blob/master/data/datacatalogue/molgenis.csv). Make sure to increase version number. Test the datamodel changes on a test server.
 
 2. Document the changes from the previous version in [cat-admin.md](https://github.com/molgenis/molgenis-emx2/blob/master/docs/catalogue/cat_admin.md). Also document here how to migrate the data from the previous version to the next. Test the UI changes on the preview server for the PR.
 
