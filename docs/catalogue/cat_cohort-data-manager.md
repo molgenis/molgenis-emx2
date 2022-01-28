@@ -1,6 +1,23 @@
 # Data manager of a cohort or data source
 
-## Catalogue
+## Data Catalogue
+
+[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
+framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in
+cohorts and in the data banks composing the data sources (aka 'source variables') and mappings to common data models (
+aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together, and multi-data
+source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
+
+- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level
+  summary of contents and cohort design. The metadata of data sources, of the corresponding data banks and of the
+  institutions that provide access to them, include descriptive information such as contact details, reason for
+  existence of the data banks, what prompt the records in the data bank, and lag time for updating and accessing data.
+- The metadata of the source variables (also known as 'data dictionary') can be considered as a codebook or data
+  dictionary of a cohort (e.g. ALSPAC) and of the tables composing the data banks of data sources (e.g. the Danish
+  Healthcare Registries).
+- Similarly, the common data models (or 'target variables') can be considered the codebook of a network of institutions
+  with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
+- The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
 
 ### Data harmonisation
 
@@ -11,14 +28,14 @@ the data locally in [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
 
 ### Staging areas for uploads
 
-The metadata of the cohort or of the data source is uploaded to what are called "staging areas" of the Data Catalogue.
+The metadata of a cohort or data source is uploaded to what are called "staging areas" of the Data Catalogue.
 You will need credentials to log in and upload metadata.  
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
-ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
+ConcePTION uses [*conception-acc*](https://conception-acc.molgeniscloud.org).
 
 When you log in, you will be able to at least see the following databases:
 
-- Catalogue: The common data models of your consortia, which you need to use in the mappings or ETL.
+- DataCatalogue: The catalogue data, in which you can search for target variables to map to.
 - CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
@@ -29,24 +46,13 @@ When you log in, you will be able to at least see the following databases:
 
 <sup>*Figure 1. Databases in the Data Catalogue staging area.*</sup>
 
-### Define metedata of cohorts or data sources
+### Fill out cohort rich metadata
 
-[MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a
-framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in
-cohorts and in the data banks composing the data sources (aka 'source variables'), and mappings to common data models (
-aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together, and multi-data
-source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
+Open your staging area, navigate to 'Tables' and open the table 'Cohorts'. Your cohort pid and name are already 
+filled out. Click on the pencil sign next to this entry to start editing your cohort rich metadata by filling out 
+the form.
 
-- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level
-  summary of contents and cohort design. The metadata of data sources, of the correspending data banks and of the
-  institutions that provide access to them, include descriptive information such as contact details, reason for
-  existence of the data banks, what prompt the records in the data bank, and lag time for updating and accessing data.
-- The metadata of the source variables (also known as 'data dictionary') can be considered as a codebook or data
-  dictionary of a cohort (e.g. ALSPAC) and of the tables composing the data banks of data sources (e.g. the Danish
-  Healthcare Registries).
-- Similarly, the common data models (or 'target variables') can be considered the codebook of a network of institutions
-  with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
-- The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
+### Define metadata of cohorts or data sources
 
 This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into
 the Data Catalogue. Expected users of this 'how to' are data managers within the institutions with access to cohorts or
@@ -64,15 +70,26 @@ with an asterisk (\*) after its name is mandatory, i.e., it should contain value
 upload.
 
 <sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
-the cohort; it shows *SourceVariables* and *RepeatedVariables* in one table.</sup>
+the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table.</sup>
 
 It is good practice trying out adding a few variables to the template first and see whether your upload succeeds. To
-upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata)
-to the Data Catalogue.
+upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
 <sup>*Figure 2. Tables in a cohort's or DAP's database in the Data Catalogue.*</sup>
+
+#### *SourceDataDictionary* sheet
+
+This sheet is used to fill out versions of your codebook.
+
+| *Column name* | *Description* |
+| --- | --- |
+| resource \* | Fill out your cohort pid. |
+| version \* | Version of the data dictionary. |
+
+<sup>*Table 1. Description of the columns that can be filled out for SourceDataDictionaries. \* = mandatory*</sup>
+
 
 #### *SourceTables* sheet
 
@@ -81,13 +98,15 @@ asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* |
 | --- | --- |
+| dataDictionary.resource \* | Data dictionary that this table belongs to. |
+| dataDictionary.version \* |  Version of the data dictionary that this table belongs to. |
 | name \* | Unique table name. |
 | label | Table label. |
 | description | Table description. |
 | unitOfObservation | Defines what each record in this table describes. |
 | numberOfRows | Count of the number of records in this table. |
 
-<sup>*Table 1. Description of the columns that can be filled out for SourceTables. \* = mandatory*</sup>
+<sup>*Table 2. Description of the columns that can be filled out for SourceTables. \* = mandatory*</sup>
 
 ![Cohort source table sheet](../img/cat_cohort-source-tables-sheet.png ':size=400')
 
@@ -99,6 +118,8 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| dataDictionary.resource \* | Data dictionary that this variable belongs to. | Fill out your cohort pid. |
+| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to. | |
 | table \* | Table that contains the variable. | Tables must be predefined in the SourceTables sheet. |
 | name \* | Variable name, unique within a table. | |
 | label | Human readable variable label. | |
@@ -111,7 +132,7 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 CollectionEvents_ sheet; e.g. y1 or y2 |
 | keywords | Enables grouping of variables into topics and helps to display variables in a tree. | Find list to choose from in Catalogue |
 
-<sup>*Table 2. Description of the columns that can be filled out for SourceVariables. \* = mandatory*</sup>
+<sup>*Table 3. Description of the columns that can be filled out for SourceVariables. \* = mandatory*</sup>
 
 ![Cohort source variables](../img/cat_cohort-source-variables-sheet.png)
 
@@ -125,6 +146,8 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| dataDictionary.resource \* | Data dictionary that the variable belongs to. | Fill out your cohort pid. |
+| dataDictionary.version \* |  Version of the data dictionary that the variable belongs to. | |
 | variable.table \* | Table that contains the variable. | Tables must be predefined in the _SourceTables_ sheet. |
 | variable.name \* | Variable name. | Variables must be predefined in the _SourceVariables_ sheet. |
 | value \* | The code or value used. | e.g. 1, 2 or -99 |
@@ -132,7 +155,7 @@ insightful for those that are interested.
 | order | The order in which the code list should appear. | e.g. 1 |
 | isMissing | Whether this value indicates a missing field. | TRUE or FALSE |
 
-<sup>*Table 3. Description of the columns that can be filled out for SourceVariableValues. \* = mandatory*</sup>
+<sup>*Table 4. Description of the columns that can be filled out for SourceVariableValues. \* = mandatory*</sup>
 
 ![Cohort source variables values](../img/cat_cohort-source-variables-values-sheet.png ':size=300')
 
@@ -147,6 +170,8 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| dataDictionary.resource \* | Data dictionary that this variable belongs to. | Fill out your cohort pid. |
+| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to. | |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |
 | isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _
@@ -156,7 +181,7 @@ SourceVariables_ sheet; e.g. height\_0 |
 | collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _
 CollectionEvents_ sheet; e.g. y1 or y2 |
 
-<sup>*Table 4. Description of the columns that can be filled out for RepeatedSourceVariables. \* = mandatory*</sup>
+<sup>*Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. \* = mandatory*</sup>
 
 ![Cohort repeated source variables](../img/cat_cohort-repeated-source-variables-sheet.png ':size=350')
 
@@ -171,12 +196,13 @@ RepeatedSourceVariables*.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| resource \* | Your cohort pid. | |
 | name \* | Name of the collection event. | e.g. y9 |
 | description | Event description. | e.g. Between 9 and 10 years. |
 | ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
 | subcohorts | (sub)populations that are targeted with this collection event | e.g. women or children |
 
-<sup>*Table 5. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup>
+<sup>*Table 6. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup>
 
 ![Cohort collection event](../img/cat_cohort-collectionevent-sheet.png ':size=350')
 
@@ -189,10 +215,11 @@ linked to collection events.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| resource \* | Your cohort pid. | |
 | name \* | Name of the subpopulation. | e.g. mothers or children |
 | description | Subpopulation description | |
 
-<sup>*Table 6. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup>
+<sup>*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup>
 
 ![Cohort sub population](../img/cat_cohort-subpopulations-sheet.png ':size=200')
 
@@ -213,13 +240,16 @@ is in a cohort or in a data bank.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| fromDataDictionary.resource \* | Source cohort pid. |  |
+| fromDataDictionary.version \* | Source data dictionary version. | |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
-| toNetwork \* | Name of the target network or common data model. | e.g. LifeCycle, LongITools or ATHLETE or ConcePTION_WP7 |
+| toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
+| toDataDictionary.version \* | Source data dictionary version. | |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
 | description | Description of the harmonisation. | |
 | syntax | Syntax used for this harmonisation. | |
 
-<sup>*Table 7. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
+<sup>*Table 8. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
 
 ![Cohort table mapping](../img/cat_cohort-table-mappings-sheet.png)
 
@@ -231,17 +261,20 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
+| fromDataDictionary.resource \* | Source cohort pid. |  |
+| fromDataDictionary.version \* | Source data dictionary version. | |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
 | fromVariable | Source variable name(s). | Variables must be predefined in the _
 SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v\_1,v\_2,v\_3. |
-| toNetwork \* | Name of the target network or common data model.  | e.g. LifeCycle, LONGITOOLS or ATHLETE |
+| toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
+| toDataDictionary.version \* | Source data dictionary version. | |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
 | toVariable \* | Target variable name. | Map to a variable that is defined in a common data model. |
 | match | Whether the harmonisation is partial, complete or NA (non-existent). | Find list to choose from in CatalogueOntologies (StatusDetails) |
 | description | Description of the harmonisation. | |
 | syntax | Syntax used for this harmonisation. | |
 
-<sup>*Table 8. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
+<sup>*Table 9. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
 
 ![Cohort variable mapping](../img/cat_cohort-variable-mappings-sheet.png)
 
