@@ -56,6 +56,12 @@ import ChangePasswordForm from "./MolgenisAccount";
 
 import { request } from "graphql-request";
 
+const query = `{
+  _session { email, roles, schemas },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
+  _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
+}`;
+
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
   components: {
@@ -103,39 +109,56 @@ export default {
     },
   },
   methods: {
-    reload() {
+    async reload() {
       this.loading = true;
-      request(
-        this.graphql,
-        `{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
-      )
-        .then((data) => {
-          if (data._session != undefined) {
-            this.session = data._session;
-          } else {
-            this.session = {};
-          }
-          //convert settings to object
-          this.session.settings = {};
-          data._settings.forEach(
-            (s) =>
-              (this.session.settings[s.key] =
-                s.value.startsWith("[") || s.value.startsWith("{")
-                  ? this.parseJson(s.value)
-                  : s.value)
-          );
-          this.session.manifest = data._manifest;
-          this.loading = false;
-          this.$emit("input", this.session);
-        })
-        .catch((error) => {
-          if (error.response.status === 504) {
-            this.error = "Error. Server cannot be reached.";
-          } else {
-            this.error = "internal server error " + error;
-          }
-          this.loading = false;
-        });
+
+      const responses = await Promise.allSettled([
+        request("/apps/central/graphql", query),
+        request(this.graphql, query),
+      ]);
+      const dbSettings =
+        responses[0].status === "fulfilled"
+          ? responses[0].value
+          : this.handleError(responses[0].reason);
+      const schemaSettings =
+        responses[1].status === "fulfilled"
+          ? responses[1].value
+          : this.handleError(responses[1].reason);
+
+      if (schemaSettings && schemaSettings._session) {
+        this.session = schemaSettings._session;
+      } else {
+        this.session = {};
+      }
+      //convert settings to object
+      this.session.settings = {};
+      if (dbSettings && dbSettings._settings) {
+        dbSettings._settings.forEach(
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
+        );
+        this.session.manifest = dbSettings._manifest;
+      }
+      // schemaSettings override dbSettings if set
+      if (schemaSettings && schemaSettings._settings) {
+        schemaSettings._settings.forEach(
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
+        );
+        this.session.manifest = schemaSettings._manifest;
+      }
+
+      this.loading = false;
+      this.$emit("input", this.session);
+    },
+    handleError(reason) {
+      this.error = "internal server error " + reason;
     },
     parseJson(value) {
       try {

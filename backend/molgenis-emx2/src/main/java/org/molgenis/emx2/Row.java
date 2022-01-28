@@ -168,11 +168,20 @@ public class Row {
   }
 
   public Row setBinary(String name, BinaryFileWrapper value) {
-    this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
-    this.values.put(name + "_extension", value.getExtension());
-    this.values.put(name + "_mimetype", value.getMimeType());
-    this.values.put(name + "_size", value.getSize());
-    this.values.put(name + "_contents", value.getContents());
+    if (value == null) {
+      // fix: this is needed to also empty all file metadata fields
+      this.values.put(name, null);
+      this.values.put(name + "_extension", null);
+      this.values.put(name + "_mimetype", null);
+      this.values.put(name + "_size", null);
+      this.values.put(name + "_contents", null);
+    } else {
+      this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
+      this.values.put(name + "_extension", value.getExtension());
+      this.values.put(name + "_mimetype", value.getMimeType());
+      this.values.put(name + "_size", value.getSize());
+      this.values.put(name + "_contents", value.getContents());
+    }
     return this;
   }
 
