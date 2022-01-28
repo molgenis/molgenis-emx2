@@ -19,20 +19,20 @@
     <h2>Metadata on data collections</h2>
     <div class="row justify-content-between">
 
-      <count-card class="btn-dark" :count="counts.institutions" label="Institutions" to="institutions">
+      <count-card class="btn-dark" :count="counts.institutions" label="Institutions" to="ssr-catalogue/institutions">
         Contributors to the catalogue such as universities, companies, medical
           centres and research institutes
       </count-card>
 
-      <count-card class="btn-secondary" :count="counts.datasources" label="Data sources" to="datasources">
+      <count-card class="btn-secondary" :count="counts.datasources" label="Data sources" to="ssr-catalogue/datasources">
         Collections of data banks covering the same population
       </count-card>
 
-      <count-card class="btn-info" :count="counts.databanks" label="Data banks" to="databanks">
+      <count-card class="btn-info" :count="counts.databanks" label="Data banks" to="ssr-catalogue/databanks">
         Data collections such as registries or biobanks
       </count-card>
 
-      <count-card class="btn-primary" :count="counts.cohorts" label="Cohorts" to="cohorts">
+      <count-card class="btn-primary" :count="counts.cohorts" label="Cohorts" to="ssr-catalogue/cohorts">
          Systematic observations of large groups of individuals over time.
       </count-card>
 
@@ -55,8 +55,8 @@
 </style>
 
 <script>
-import CountCard from '../../components/CountCard.vue'
-import Menu from '../../components/Menu.vue'
+import CountCard from '../../../components/CountCard.vue'
+import Menu from '../../../components/Menu.vue'
 export default {
   name: "SSRCatalogue",
   components: { Menu, CountCard },
@@ -70,6 +70,9 @@ export default {
     },
     counts () {
       return this.$store.state.counts
+    },
+    schema () {
+      return this.$store.state.schema
     }
   },
 }

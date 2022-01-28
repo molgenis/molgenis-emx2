@@ -45,7 +45,7 @@ export default {
   },
   proxy: {
     "/apps/central/theme.css": `${BACKEND_LOCATION}`,
-    "/*/theme.css": `${BACKEND_LOCATION}`,
+    "/**/theme.css": `${BACKEND_LOCATION}`,
     "/apps/styleguide/assets/img/molgenis_logo_white.png": `${BACKEND_LOCATION}`,
     "/graphql": `${BACKEND_LOCATION}`,
     "/*/graphql": `${BACKEND_LOCATION}`
