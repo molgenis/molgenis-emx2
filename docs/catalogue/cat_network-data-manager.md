@@ -107,7 +107,7 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the network that contains this variable. | e.g LifeCycle_CDM |
+| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM |
 | dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
 | variable.table \* | Table that contains the variable. | Tables must be predefined in the TargetTables sheet. |
 | variable.name \* | Variable name. | Variables must be predefined in the TargetVariables sheet. |
@@ -128,7 +128,7 @@ optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the network that contains this variable. | e.g LifeCycle_CDM or ATHLETE_CDM |
+| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM or ATHLETE_CDM |
 | dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |

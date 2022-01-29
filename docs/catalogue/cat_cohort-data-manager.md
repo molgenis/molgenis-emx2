@@ -73,14 +73,16 @@ upload. You can download this
 as a reference for filling out the template.
 
 <sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
-the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table.</sup>
+the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table. </sup>
 
 It is good practice trying out adding a few variables to the template first and see whether your upload succeeds. To
 upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
-<sup>*Figure 2. Tables in a cohort's or DAP's database in the Data Catalogue.*</sup>
+<sup>*Figure 2. Tables in a cohort's or DAP's database in the Data Catalogue. Note that not all tables are filled via 
+the templates, some are filled via an online form, see section 
+[Fill out cohort rich metadata](cat_cohort-data-manager.md#fill-out-cohort-rich-metadata).*</sup>
 
 #### *SourceDataDictionary* sheet
 
