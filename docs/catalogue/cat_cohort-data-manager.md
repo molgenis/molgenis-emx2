@@ -39,6 +39,7 @@ When you log in, you will be able to at least see the following databases:
 - CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
+- SharedStaging: A communal staging area in which Contacts and Institutions are added and edited.
 - The database of your own cohort or data source, that you can use to upload the templates once you have filled them
   out.
 
@@ -67,7 +68,9 @@ template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/D
 sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to
 columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column
 with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data
-upload.
+upload. You can download this 
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testCohort.xlsx) 
+as a reference for filling out the template.
 
 <sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
 the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table.</sup>
@@ -90,7 +93,6 @@ This sheet is used to fill out versions of your codebook.
 
 <sup>*Table 1. Description of the columns that can be filled out for SourceDataDictionaries. \* = mandatory*</sup>
 
-
 #### *SourceTables* sheet
 
 The tables in a cohort or in the data banks of a data source are defined in the *SourceTables* sheet. Columns with an
@@ -107,10 +109,6 @@ asterisk (\*) after their name are mandatory.
 | numberOfRows | Count of the number of records in this table. |
 
 <sup>*Table 2. Description of the columns that can be filled out for SourceTables. \* = mandatory*</sup>
-
-![Cohort source table sheet](../img/cat_cohort-source-tables-sheet.png ':size=400')
-
-<sup>*Figure 3. Example of SourceTables filled out in Excel.*</sup>
 
 #### *SourceVariables* sheet
 
@@ -134,10 +132,6 @@ CollectionEvents_ sheet; e.g. y1 or y2 |
 
 <sup>*Table 3. Description of the columns that can be filled out for SourceVariables. \* = mandatory*</sup>
 
-![Cohort source variables](../img/cat_cohort-source-variables-sheet.png)
-
-<sup>*Figure 4. Example of SourceVariables filled out in Excel.*</sup>
-
 #### *SourceVariableValues* sheet
 
 The coding of categorical variables is defined in the *SourceVariableValues* sheet. This sheet is optional, but it is
@@ -156,10 +150,6 @@ insightful for those that are interested.
 | isMissing | Whether this value indicates a missing field. | TRUE or FALSE |
 
 <sup>*Table 4. Description of the columns that can be filled out for SourceVariableValues. \* = mandatory*</sup>
-
-![Cohort source variables values](../img/cat_cohort-source-variables-values-sheet.png ':size=300')
-
-<sup>*Figure 5. Example of SourceVariableValues filled out in Excel.*</sup>
 
 #### *RepeatedSourceVariables* sheet
 
@@ -183,10 +173,6 @@ CollectionEvents_ sheet; e.g. y1 or y2 |
 
 <sup>*Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. \* = mandatory*</sup>
 
-![Cohort repeated source variables](../img/cat_cohort-repeated-source-variables-sheet.png ':size=350')
-
-<sup>*Figure 6. Example of RepeatedSourceVariables filled out in Excel.*</sup>
-
 #### *CollectionEvents* sheet
 
 The *CollectionEvents* sheet is optional, and is most often used by cohorts. The timing of data collection in events is
@@ -204,10 +190,6 @@ RepeatedSourceVariables*.
 
 <sup>*Table 6. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup>
 
-![Cohort collection event](../img/cat_cohort-collectionevent-sheet.png ':size=350')
-
-<sup>*Figure 7. Example of CollectionEvents filled out in Excel.*</sup>
-
 #### *Subcohorts* sheet
 
 The sheet *Subcohorts* is optional, and is most often used by cohorts. Here you may describe populations that can be
@@ -221,10 +203,6 @@ linked to collection events.
 
 <sup>*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup>
 
-![Cohort sub population](../img/cat_cohort-subpopulations-sheet.png ':size=200')
-
-<sup>*Figure 8. Example of Subcohorts filled out in Excel.*</sup>
-
 #### Define harmonisations
 
 We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) to
@@ -232,6 +210,9 @@ describe the harmonisations. The [*
 Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) consists of two
 sheets (TableMappings and VariableMappings). It is used to define the mappings from source variables to target
 variables, or the Extraction, Transformation and Load (ETL) process from a data source to a common data model (CDM).
+You can download this
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
+as a reference for filling out the template.
 
 #### *TableMappings* sheet
 
@@ -250,10 +231,6 @@ is in a cohort or in a data bank.
 | syntax | Syntax used for this harmonisation. | |
 
 <sup>*Table 8. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
-
-![Cohort table mapping](../img/cat_cohort-table-mappings-sheet.png)
-
-<sup>*Figure 9. Example of TableMappings filled out in Excel.*</sup>
 
 #### *VariableMappings* sheet
 
@@ -275,10 +252,6 @@ SourceVariables_ sheet. When multiple variables are mapped together use a comma-
 | syntax | Syntax used for this harmonisation. | |
 
 <sup>*Table 9. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
-
-![Cohort variable mapping](../img/cat_cohort-variable-mappings-sheet.png)
-
-<sup>*Figure 10. Example of VariableMappings filled out in Excel.*</sup>
 
 ### Upload metadata
 
