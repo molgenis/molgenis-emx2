@@ -80,8 +80,8 @@ upload the metadata to the Data Catalogue see the section [Upload metadata](cat_
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
-<sup>*Figure 2. Tables in a cohort's or DAP's database in the Data Catalogue. Note that not all tables are filled via 
-the templates, some are filled via an online form, see section 
+<sup>*Figure 2. Tables in a cohort's or DAP's database in the Data Catalogue. Note that not all tables are filled out 
+via the templates, some are filled via an online form, see section 
 [Fill out cohort rich metadata](cat_cohort-data-manager.md#fill-out-cohort-rich-metadata).*</sup>
 
 #### *SourceDataDictionary* sheet
@@ -180,7 +180,8 @@ CollectionEvents_ sheet; e.g. y1 or y2 |
 The *CollectionEvents* sheet is optional, and is most often used by cohorts. The timing of data collection in events is
 defined in the *CollectionEvents* sheet. It can be used to describe time periods within which the data for variables are
 collected. The events are defined here and referred to from the sheets *SourceVariables* and/or *
-RepeatedSourceVariables*.
+RepeatedSourceVariables*. Collection events can also be filled out when filling out the 
+[cohort rich metadata](cat_cohort-data-manager.md#fill-out-cohort-rich-metadata).
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -195,7 +196,8 @@ RepeatedSourceVariables*.
 #### *Subcohorts* sheet
 
 The sheet *Subcohorts* is optional, and is most often used by cohorts. Here you may describe populations that can be
-linked to collection events.
+linked to collection events. Subcohorts can also be filled out when filling out the
+[cohort rich metadata](cat_cohort-data-manager.md#fill-out-cohort-rich-metadata).
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
@@ -244,7 +246,12 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 | fromDataDictionary.version \* | Source data dictionary version. | |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
 | fromVariable | Source variable name(s). | Variables must be predefined in the _
-SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v\_1,v\_2,v\_3. |
+SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3. |
+| fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, 
+use a comma-separated list, e.g. table1,table2,table3\*\* |
+| fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using 
+variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables 
+they are derived from specified under fromVariablesOtherTables.table\*\* |
 | toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
 | toDataDictionary.version \* | Source data dictionary version. | |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
@@ -253,7 +260,10 @@ SourceVariables_ sheet. When multiple variables are mapped together use a comma-
 | description | Description of the harmonisation. | |
 | syntax | Syntax used for this harmonisation. | |
 
-<sup>*Table 9. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
+<sup>*Table 9. Description of the columns that can be filled out for VariableMappings. \* = mandatory \*\* = 
+see sheet VariableMappings in the 
+[*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
+for an example on how to fill this out (last line) </sup> 
 
 ### Upload metadata
 
