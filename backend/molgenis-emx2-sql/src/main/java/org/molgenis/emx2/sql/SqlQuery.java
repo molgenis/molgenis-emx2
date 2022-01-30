@@ -266,19 +266,14 @@ public class SqlQuery extends QueryBean {
     }
 
     long start = System.currentTimeMillis();
-    SelectSelectStep<Record1<JSON>> sql =
+    SelectSelectStep<Record1<JSON>> query =
         table.getJooq().select(jsonObject(fields.toArray(new JSONEntry[fields.size()])));
-    try {
-      String result = sql.fetchOne(0, String.class);
-      if (logger.isInfoEnabled()) {
-        logger.info(
-            "query in {}ms: {}", System.currentTimeMillis() - start, sql.getSQL(ParamType.INLINED));
-      }
-      return result;
-    } catch (Exception e) {
-      System.out.println(sql.getSQL());
-      throw e;
+    String result = query.fetchOne().get(0, String.class);
+    if (logger.isInfoEnabled()) {
+      logger.info(
+          "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
     }
+    return result;
   }
 
   private SelectJoinStep<Record> jsonSubselect(
