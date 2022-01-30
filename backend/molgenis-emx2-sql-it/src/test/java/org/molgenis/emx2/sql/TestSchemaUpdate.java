@@ -16,7 +16,7 @@ public class TestSchemaUpdate {
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    db.createSchema(TestSchemaUpdate.class.getName(), desc);
+    db.dropCreateSchema(TestSchemaUpdate.class.getSimpleName(), desc);
   }
 
   @AfterClass
