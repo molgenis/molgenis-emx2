@@ -10,7 +10,8 @@
     "updownload",
     "pages",
     "graphql-playground",
-    "nuxt-ssr"
+    "nuxt-ssr",
+    "components"
   ],
   "resolutions": {
     "css-loader": "4.2.0"

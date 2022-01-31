@@ -34,14 +34,22 @@ subprojects {
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
 
+        } else if(project.name == 'components') {
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('lib'))
+            inputs.file('package.json')
+            inputs.file('vite.config.js')
+            outputs.dir('dist')
         } else {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
         }
 
-        if (project.name != 'docs' && project.name != 'nuxt-ssr' ) {
+        if (project.name != 'docs' && project.name != 'nuxt-ssr' && project.name != 'components' ) {
             inputs.files(fileTree('../styleguide/src'))
+            inputs.files(fileTree('../components/src'))
             inputs.file('vue.config.js')
             outputs.dir('dist')
         }

@@ -13,6 +13,7 @@ include(':apps:tables')
 include(':apps:pages')
 include(':apps:graphql-playground')
 include(':apps:nuxt-ssr')
+include(':apps:components')
 include(':docs')
 include(':backend:molgenis-emx2')
 include(':backend:molgenis-emx2-io')
@@ -24,3 +25,5 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-jobs')
 include(':backend:molgenis-emx2-semantics')
+findProject(':apps:components')?.name = 'components'
+
