@@ -64,18 +64,9 @@
 <script>
 import DemoItem from './DemoItem.vue';
 
-import PageHeader from './components/display/PageHeader.vue';
-import LinksList from './components/display/LinksList.vue';
-import ReadMore from './components/layout/ReadMore.vue';
-import GridBlock from './components/display/GridBlock.vue';
-
 export default {
   components: {
-    DemoItem,
-    PageHeader,
-    LinksList,
-    ReadMore,
-    GridBlock
+    DemoItem
   },
 };
 </script>
