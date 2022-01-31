@@ -41,3 +41,4 @@ procedure is to update.
 | | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. | 
 | 2.0 => 2.1 | Add Cohorts.designDescription and Cohorts.designSchematic. Change ColumnType of Resources.designPaper to ref, referring to table Publications. |
 | | Split Cohorts.dataAccessConditions into dataAccessConditions and dataUseConditions, add Cohorts.dataAccessFee. |
+| 2.1 => 2.2 | Alter division of AllVariables, Variables and RepeatedVariables (for Sources and Targets). Download whole database, replace molgenis.csv and reupload in new Schema. |
