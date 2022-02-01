@@ -438,6 +438,13 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
+  public void testTableType() throws IOException {
+    JsonNode result = execute("{_schema{name,tables{name,tableType}}}");
+    assertEquals("DATA", result.at("/_schema/tables/0/tableType").asText(), "DATA");
+    assertEquals("ONTOLOGIES", result.at("/_schema/tables/3/tableType").asText());
+  }
+
+  @Test
   public void testFileType() throws IOException {
     Schema myschema = database.dropCreateSchema("testFileType");
     myschema.create(
