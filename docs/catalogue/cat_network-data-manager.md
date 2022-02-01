@@ -80,8 +80,7 @@ The cohort variables are defined in the *TargetVariables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM, LongITools_CDM or 
-ATHLETE_CDM |
+| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
 | dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
 | table \* | Table that contains the variable. | Tables must be predefined in the TargetTables sheet. |
 | name \* | Variable name, unique within a table. | |
@@ -132,13 +131,10 @@ optional.
 | dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |
-| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _
-TargetTables_ sheet; e.g. core |
-| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _
-TargetVariables_ sheet; e.g. height\_0 |
+| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _TargetTables_ sheet; e.g. core |
+| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _TargetVariables_ sheet; e.g. height\_0 |
 | collectionEvent.resource | Refer to the network that contains the collection event. | e.g. LifeCycle |
-| collectionEvent.name | Refer to the name of a collection event. | The collectionEvent needs to be predefined in the *
-CollectionEvents* sheet; e.g. y1 or y2 |
+| collectionEvent.name | Refer to the name of a collection event. | The collectionEvent needs to be predefined in the *CollectionEvents* sheet; e.g. y1 or y2 |
 
 <sup>*Table 5. Description of the columns that can be filled out for RepeatedTargetVariables. \* = mandatory*</sup>
 
@@ -154,8 +150,7 @@ here and referred to from the sheets *TargetVariables* and/or *RepeatedTargetVar
 | name \* | Name of the collection event. | e.g. y9 |
 | description | Event description. | e.g. Between 9 and 10 years. |
 | ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
-| subcohorts | Subcohorts or subpopulations that are targeted with this variable. | Subcohorts need to be predefined in the _
-Subcohorts_ sheet. |
+| subcohorts | Subcohorts or subpopulations that are targeted with this variable. | Subcohorts need to be predefined in the _Subcohorts_ sheet. |
 
 <sup>*Table 6. Description of the columns that can be filled out for CollectionEvents. \* = mandatory;* *\*\** *
 contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add AgeCategories*</sup>

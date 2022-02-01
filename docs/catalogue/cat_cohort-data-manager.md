@@ -128,8 +128,7 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 | description | Description of the variable. | |
 | exampleValues | Examples of values in a comma separated list. | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
 | vocabularies | Refer to ontologies being used. | Find list to choose from in CatalogueOntologies Vocabularies |
-| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _
-CollectionEvents_ sheet; e.g. y1 or y2 |
+| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 | keywords | Enables grouping of variables into topics and helps to display variables in a tree. | Find list to choose from in Catalogue |
 
 <sup>*Table 3. Description of the columns that can be filled out for SourceVariables. \* = mandatory*</sup>
@@ -166,12 +165,9 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 | dataDictionary.version \* |  Version of the data dictionary that this variable belongs to. | |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |
-| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _
-SourceTables_ sheet; e.g. core |
-| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _
-SourceVariables_ sheet; e.g. height\_0 |
-| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _
-CollectionEvents_ sheet; e.g. y1 or y2 |
+| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _SourceTables_ sheet; e.g. core |
+| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _SourceVariables_ sheet; e.g. height\_0 |
+| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 
 <sup>*Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. \* = mandatory*</sup>
 
@@ -210,8 +206,8 @@ linked to collection events. Subcohorts can also be filled out when filling out 
 #### Define harmonisations
 
 We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) to
-describe the harmonisations. The [*
-Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) consists of two
+describe the harmonisations. The 
+[*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) consists of two
 sheets (TableMappings and VariableMappings). It is used to define the mappings from source variables to target
 variables, or the Extraction, Transformation and Load (ETL) process from a data source to a common data model (CDM).
 You can download this
@@ -245,13 +241,9 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 | fromDataDictionary.resource \* | Source cohort pid. |  |
 | fromDataDictionary.version \* | Source data dictionary version. | |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
-| fromVariable | Source variable name(s). | Variables must be predefined in the _
-SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3. |
-| fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, 
-use a comma-separated list, e.g. table1,table2,table3\*\* |
-| fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using 
-variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables 
-they are derived from specified under fromVariablesOtherTables.table\*\* |
+| fromVariable | Source variable name(s). | Variables must be predefined in the _SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3. |
+| fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, use a comma-separated list, e.g. table1,table2,table3\*\* |
+| fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables they are derived from specified under fromVariablesOtherTables.table\*\* |
 | toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
 | toDataDictionary.version \* | Source data dictionary version. | |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model. |
