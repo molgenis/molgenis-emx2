@@ -4,49 +4,49 @@
 
 ### Data harmonisation
 
-Each organization with access to data (which may be a cohort, or to a data source composed by one or more data banks)
+Each organisation with access to data (which may be a cohort, or a data source composed of one or more data banks)
 harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been
-centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores
-the data locally in [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
+centrally agreed upon. In some projects, data may be made available via DataSHIELD. In these cases each resource stores
+the data locally in a [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
 
 ### Staging areas for uploads
 
-The metadata of the cohort or of the data source is uploaded to what are called "staging areas" of the Data Catalogue.
+The metadata of the cohort or of the data source are first uploaded into what are called "staging areas" of the Data Catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the metadata are entered in the live catalogue.
 You will need credentials to log in and upload metadata.  
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
 ConcePTION uses [*emx2-conception*](https://emx2-conception.test.molgenis.org).
 
-When you log in, you will be able to at least see the following databases:
+When you log in, you will be able to see at least the following databases:
 
 - Catalogue: The common data models of your consortia, which you need to use in the mappings or ETL.
 - CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
-- The database of your own cohort or data source, that you can use to upload the templates once you have filled them
+- The database of your own cohort or data source, that you can use to upload the [templates] (https://data-catalogue.molgeniscloud.org/apps/docs/#/catalogue/cat_cohort-data-manager?id=define-source-variable-metadata-data-dictionary) once you have filled them
   out.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
 <sup>*Figure 1. Databases in the Data Catalogue staging area.*</sup>
 
-### Define metedata of cohorts or data sources
+### Define metadata of cohorts or data sources
 
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) provides a
-framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in
-cohorts and in the data banks composing the data sources (aka 'source variables'), and mappings to common data models (
+framework to describe in detail: metadata of cohorts and of data sources; definitions of the variables collected in
+cohorts and in the data banks composing the data sources (aka 'source variables'); and mappings to common data models (
 aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together, and multi-data
 source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level
-  summary of contents and cohort design. The metadata of data sources, of the correspending data banks and of the
+- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high-level
+  summary of contents and cohort design. The metadata of data sources, of the corresponding data banks and of the
   institutions that provide access to them, include descriptive information such as contact details, reason for
-  existence of the data banks, what prompt the records in the data bank, and lag time for updating and accessing data.
+  existence of the data banks, the prompt for the records in the data bank, and lag time for updating and accessing data.
 - The metadata of the source variables (also known as 'data dictionary') can be considered as a codebook or data
-  dictionary of a cohort (e.g. ALSPAC) and of the tables composing the data banks of data sources (e.g. the Danish
+  dictionary of a cohort (e.g. ALSPAC) and of the tables contained within the data sources' data banks (e.g. the Danish
   Healthcare Registries).
-- Similarly, the common data models (or 'target variables') can be considered the codebook of a network of institutions
+- Similarly, the common data models (or 'target variables') can be considered the codebook for a network of institutions
   with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
-- The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
+- The mappings describe how source variables have been converted into target variables as a basis for integrated analysis.
 
 This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into
 the Data Catalogue. Expected users of this 'how to' are data managers within the institutions with access to cohorts or
@@ -249,22 +249,22 @@ SourceVariables_ sheet. When multiple variables are mapped together use a comma-
 
 ### Upload metadata
 
-When you filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you
-will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to '
-Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view
-your data under 'Tables'.
+When you have filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you
+will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Go to '
+Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After uploading, you can view
+your metadata under 'Tables'.
 
 Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-support@umcg.nl).
 
 #### Find harmonisations
 
-When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details.
+When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the [Variable Explorer] (https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/).
 
 Use the search bar to find your variable(s) of interest.
 
 ![Variable search](../img/cat_variable-open.png)
 
-Click on "variable details"
+Click on "Details"
 
 ![Variable detail](../img/cat_variable-detail.png)
 
