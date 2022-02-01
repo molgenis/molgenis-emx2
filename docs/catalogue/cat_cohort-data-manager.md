@@ -5,7 +5,8 @@
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
 framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in
 cohorts and in the data banks composing the data sources (aka 'source variables') and mappings to common data models (
-aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together, and multi-data
+aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together 
+[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/), and multi-data
 source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 - The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level
@@ -35,13 +36,12 @@ ConcePTION uses [*conception-acc*](https://conception-acc.molgeniscloud.org).
 
 When you log in, you will be able to at least see the following databases:
 
-- DataCatalogue: The catalogue data, in which you can search for target variables to map to.
-- CatalogueOntologies: This database contains the look-up list that you need for filling out some columns in the
+- <b> DataCatalogue</b>: The catalogue data, in which you can search for target variables to map to.
+- <b>CatalogueOntologies</b>: This database contains the look-up list that you need for filling out some columns in the
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
-- SharedStaging: A communal staging area in which Contacts and Institutions are added and edited.
-- The database of your own cohort or data source, that you can use to upload the templates once you have filled them
-  out.
+- <b>SharedStaging</b>: A communal staging area in which e.g. Contacts and Institutions are added and edited.
+- <b>Your own database</b>: use this to upload the templates once you have filled them out.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
