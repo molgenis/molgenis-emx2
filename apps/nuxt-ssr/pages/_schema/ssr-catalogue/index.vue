@@ -1,6 +1,5 @@
 <template>
 <div>
-  <Menu :menu="menu"/>
   <div class="container pt-3">
     <h1>
       <span v-if="$route.params.schema == 'Minerva'">
@@ -56,18 +55,14 @@
 
 <script>
 import CountCard from '../../../components/CountCard.vue'
-import Menu from '../../../components/Menu.vue'
 export default {
   name: "SSRCatalogue",
-  components: { Menu, CountCard },
+  components: { CountCard },
   async fetch ({store}) {
     await store.dispatch('fetchCounts')
     return store.dispatch('fetchSession')
   },
   computed: {
-    menu () {
-      return this.$store.state.menu
-    },
     counts () {
       return this.$store.state.counts
     },
