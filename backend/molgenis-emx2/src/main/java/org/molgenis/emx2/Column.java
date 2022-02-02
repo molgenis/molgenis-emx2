@@ -67,6 +67,10 @@ public class Column implements Comparable<Column> {
   }
 
   public Column(String columnName, boolean skipValidation) {
+    this.columnName = validateName(columnName, skipValidation);
+  }
+
+  private String validateName(String columnName, boolean skipValidation) {
     if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
       throw new MolgenisException(
           "Invalid column name '"
@@ -77,7 +81,7 @@ public class Column implements Comparable<Column> {
       throw new MolgenisException(
           "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
     }
-    this.columnName = columnName.trim();
+    return columnName.trim();
   }
 
   public Column(TableMetadata table, String columnName) {
