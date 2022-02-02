@@ -90,10 +90,10 @@ This sheet is used to fill out versions of your codebook.
 
 | *Column name* | *Description* |
 | --- | --- |
-| resource \* | Fill out your cohort pid. |
-| version \* | Version of the data dictionary. |
+| resource \* | Fill out your cohort pid |
+| version \* | Version of the data dictionary |
 
-<sup>*Table 1. Description of the columns that can be filled out for SourceDataDictionaries. \* = mandatory*</sup>
+<sup>Table 1. Description of the columns that can be filled out for SourceDataDictionaries. * = mandatory</sup>
 
 #### *SourceTables* sheet
 
@@ -102,15 +102,15 @@ asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* |
 | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this table belongs to. |
-| dataDictionary.version \* |  Version of the data dictionary that this table belongs to. |
-| name \* | Unique table name. |
-| label | Table label. |
-| description | Table description. |
-| unitOfObservation | Defines what each record in this table describes. |
-| numberOfRows | Count of the number of records in this table. |
+| dataDictionary.resource \* | Data dictionary that this table belongs to |
+| dataDictionary.version \* |  Version of the data dictionary that this table belongs to |
+| name \* | Unique table name |
+| label | Table label |
+| description | Table description |
+| unitOfObservation | Defines what each record in this table describes |
+| numberOfRows | Count of the number of records in this table |
 
-<sup>*Table 2. Description of the columns that can be filled out for SourceTables. \* = mandatory*</sup>
+<sup>Table 2. Description of the columns that can be filled out for SourceTables. * = mandatory</sup>
 
 #### *SourceVariables* sheet
 
@@ -118,20 +118,20 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this variable belongs to. | Fill out your cohort pid. |
-| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to. | |
-| table \* | Table that contains the variable. | Tables must be predefined in the SourceTables sheet. |
-| name \* | Variable name, unique within a table. | |
-| label | Human readable variable label. | |
-| format | The data type of the variable. | Find list to choose from in CatalogueOntologies |
-| unit | Unit in case of a continuous or integer format. | Find list to choose from in CatalogueOntologies Units |
-| description | Description of the variable. | |
-| exampleValues | Examples of values in a comma separated list. | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| vocabularies | Refer to ontologies being used. | Find list to choose from in CatalogueOntologies Vocabularies |
-| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
-| keywords | Enables grouping of variables into topics and helps to display variables in a tree. | Find list to choose from in Catalogue |
+| dataDictionary.resource \* | Data dictionary that this variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to | |
+| table \* | Table that contains the variable. | Tables must be predefined in the SourceTables sheet |
+| name \* | Variable name, unique within a table | |
+| label | Human readable variable label | |
+| format | The data type of the variable | Find list to choose from in CatalogueOntologies |
+| unit | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies Units |
+| description | Description of the variable | |
+| exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| vocabularies | Refer to ontologies being used | Find list to choose from in CatalogueOntologies Vocabularies |
+| collectionEvent | Refer to a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| keywords | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
 
-<sup>*Table 3. Description of the columns that can be filled out for SourceVariables. \* = mandatory*</sup>
+<sup>Table 3. Description of the columns that can be filled out for SourceVariables. * = mandatory</sup>
 
 #### *SourceVariableValues* sheet
 
@@ -141,16 +141,16 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that the variable belongs to. | Fill out your cohort pid. |
-| dataDictionary.version \* |  Version of the data dictionary that the variable belongs to. | |
-| variable.table \* | Table that contains the variable. | Tables must be predefined in the _SourceTables_ sheet. |
-| variable.name \* | Variable name. | Variables must be predefined in the _SourceVariables_ sheet. |
-| value \* | The code or value used. | e.g. 1, 2 or -99 |
-| label \* | The label corresponding to the value. | e.g. 'yes', 'no' or 'NA' |
-| order | The order in which the code list should appear. | e.g. 1 |
-| isMissing | Whether this value indicates a missing field. | TRUE or FALSE |
+| dataDictionary.resource \* | Data dictionary that the variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the data dictionary that the variable belongs to | |
+| variable.table \* | Table that contains the variable | Tables must be predefined in the _SourceTables_ sheet |
+| variable.name \* | Variable name | Variables must be predefined in the _SourceVariables_ sheet |
+| value \* | The code or value used | e.g. 1, 2 or -99 |
+| label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
+| order | The order in which the code list should appear | e.g. 1 |
+| isMissing | Whether this value indicates a missing field | TRUE or FALSE |
 
-<sup>*Table 4. Description of the columns that can be filled out for SourceVariableValues. \* = mandatory*</sup>
+<sup>Table 4. Description of the columns that can be filled out for SourceVariableValues. * = mandatory</sup>
 
 #### *RepeatedSourceVariables* sheet
 
@@ -161,15 +161,15 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this variable belongs to. | Fill out your cohort pid. |
-| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to. | |
+| dataDictionary.resource \* | Data dictionary that this variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to | |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |
-| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _SourceTables_ sheet; e.g. core |
-| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _SourceVariables_ sheet; e.g. height\_0 |
-| collectionEvent | Refer to a collection event. | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| isRepeatOf.table \* | Table that contains the variable that is repeated | Tables must be predefined in the _SourceTables_ sheet; e.g. core |
+| isRepeatOf.name \* | Name of the variable that is repeated | Variables must be predefined in the _SourceVariables_ sheet; e.g. height\_0 |
+| collectionEvent | Refer to a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 
-<sup>*Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. \* = mandatory*</sup>
+<sup>Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. * = mandatory</sup>
 
 #### *CollectionEvents* sheet
 
@@ -181,13 +181,13 @@ RepeatedSourceVariables*. Collection events can also be filled out when filling 
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Your cohort pid. | |
-| name \* | Name of the collection event. | e.g. y9 |
-| description | Event description. | e.g. Between 9 and 10 years. |
-| ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
+| resource \* | Your cohort pid | |
+| name \* | Name of the collection event | e.g. y9 |
+| description | Event description | e.g. Between 9 and 10 years |
+| ageGroups | The age groups that were sampled within this collection event | Find list to choose from in CatalogueOntologies  (AgeGroups) |
 | subcohorts | (sub)populations that are targeted with this collection event | e.g. women or children |
 
-<sup>*Table 6. Description of the columns that can be filled out for SourceCollectionEvents. \* = mandatory*</sup>
+<sup>Table 6. Description of the columns that can be filled out for SourceCollectionEvents. * = mandatory</sup>
 
 #### *Subcohorts* sheet
 
@@ -197,11 +197,11 @@ linked to collection events. Subcohorts can also be filled out when filling out 
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Your cohort pid. | |
-| name \* | Name of the subpopulation. | e.g. mothers or children |
+| resource \* | Your cohort pid | |
+| name \* | Name of the subpopulation | e.g. mothers or children |
 | description | Subpopulation description | |
 
-<sup>*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup>
+<sup>Table 7. Description of the columns that can be filled out for Subpopulations. * = mandatory</sup>
 
 #### Define harmonisations
 
@@ -221,16 +221,16 @@ is in a cohort or in a data bank.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| fromDataDictionary.resource \* | Source cohort pid. |  |
-| fromDataDictionary.version \* | Source data dictionary version. | |
-| fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
-| toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
-| toDataDictionary.version \* | Source data dictionary version. | |
-| toTable \* | Target table name. | Map to a table that is defined in a common data model. |
-| description | Description of the harmonisation. | |
-| syntax | Syntax used for this harmonisation. | |
+| fromDataDictionary.resource \* | Source cohort pid |  |
+| fromDataDictionary.version \* | Source data dictionary version | |
+| fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet |
+| toDataDictionary.resource \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
+| toDataDictionary.version \* | Source data dictionary version | |
+| toTable \* | Target table name | Map to a table that is defined in a common data model |
+| description | Description of the harmonisation | |
+| syntax | Syntax used for this harmonisation | |
 
-<sup>*Table 8. Description of the columns that can be filled out for VariableMappings. \* = mandatory</sup>
+<sup>Table 8. Description of the columns that can be filled out for VariableMappings. * = mandatory</sup>
 
 #### *VariableMappings* sheet
 
@@ -238,22 +238,21 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| fromDataDictionary.resource \* | Source cohort pid. |  |
-| fromDataDictionary.version \* | Source data dictionary version. | |
-| fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet. |
-| fromVariable | Source variable name(s). | Variables must be predefined in the _SourceVariables_ sheet. When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3. |
-| fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, use a comma-separated list, e.g. table1,table2,table3\*\* |
-| fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables they are derived from specified under fromVariablesOtherTables.table\*\* |
-| toDataDictionary.resource \* | Name of the target common data model.  | e.g. LifeCycle_CDM, LongITools_CDM |
-| toDataDictionary.version \* | Source data dictionary version. | |
-| toTable \* | Target table name. | Map to a table that is defined in a common data model. |
-| toVariable \* | Target variable name. | Map to a variable that is defined in a common data model. |
-| match | Whether the harmonisation is partial, complete or NA (non-existent). | Find list to choose from in CatalogueOntologies (StatusDetails) |
-| description | Description of the harmonisation. | |
-| syntax | Syntax used for this harmonisation. | |
+| fromDataDictionary.resource \* | Source cohort pid |  |
+| fromDataDictionary.version \* | Source data dictionary version | |
+| fromTable \* | Source table name | Tables must be predefined in the *SourceTables* sheet |
+| fromVariable | Source variable name(s) | Variables must be predefined in the _SourceVariables_ sheet; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
+| fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, use a comma-separated list, e.g. table1,table2,table3<sup>1</sup> |
+| fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables they are derived from specified under fromVariablesOtherTables.table<sup>1</sup> |
+| toDataDictionary.resource \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
+| toDataDictionary.version \* | Source data dictionary version | |
+| toTable \* | Target table name. | Map to a table that is defined in a common data model |
+| toVariable \* | Target variable name | Map to a variable that is defined in a common data model |
+| match | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies (StatusDetails) |
+| description | Description of the harmonisation | |
+| syntax | Syntax used for this harmonisation | |
 
-<sup>*Table 9. Description of the columns that can be filled out for VariableMappings. \* = mandatory \*\* = 
-see sheet VariableMappings in the 
+<sup>*Table 9. Description of the columns that can be filled out for VariableMappings. * = mandatory <sup>1</sup>see sheet VariableMappings in the 
 [*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 for an example on how to fill this out (last line) </sup> 
 

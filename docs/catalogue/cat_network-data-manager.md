@@ -25,10 +25,9 @@ LongITools. You will need login details to upload data to MOLGENIS Data Catalogu
 
 #### Define common data elements
 
-We use the [*
-NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
-to describe the common data model elements. The [*
-NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
+We use the [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
+to describe the common data model elements. The 
+[*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
 consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
@@ -55,10 +54,10 @@ after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Name of the network's model. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| version \* | Version of the data dictionary. | e.g. 1.1 |
+| resource \* | Name of the network's model | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
+| version \* | Version of the data dictionary | e.g. 1.1 |
 
-<sup>*Table 1. Description of the columns that can be filled out for TargetDataDictionaries. \* = mandatory*</sup>
+<sup>*Table 1. Description of the columns that can be filled out for TargetDataDictionaries. * = mandatory</sup>
 
 #### *TargetTables* sheet
 
@@ -68,11 +67,11 @@ The cohort tables are defined in the *SourceTables* sheet. Columns with an aster
 | --- | --- | --- |
 | dataDictionary.resource \* | Name of the model. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
 | dataDictionary.version \* | Data dictionary version this table is part of. | e.g. 1.0.1 |
-| name \* | Unique table name. | |
-| label | Table label. | |
-| description | Table description. | |
+| name \* | Unique table name | |
+| label | Table label | |
+| description | Table description | |
 
-<sup>*Table 2. Description of the columns that can be filled out for TargetTables. \* = mandatory*</sup>
+<sup>*Table 2. Description of the columns that can be filled out for TargetTables. * = mandatory*</sup>
 
 #### *TargetVariables* sheet
 
@@ -80,23 +79,23 @@ The cohort variables are defined in the *TargetVariables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
-| table \* | Table that contains the variable. | Tables must be predefined in the TargetTables sheet. |
-| name \* | Variable name, unique within a table. | |
-| label | Human readable variable label. | |
-| format | The data type of the variable. | Find list to choose from in CatalogueOntologies |
-| unit \*\* | Unit in case of a continuous or integer format. | Find list to choose from in CatalogueOntologies |
-| description | Description of the variable. | |
-| keywords \*\* | Enables grouping of variables into topics and displaying in a tree. | Find list to choose from in CatalogueOntologies  |
-| exampleValues | Examples of values in a comma separated list. | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| mandatory | Whether this variable is required within this collection. | |
-| vocabularies \*\* | Refer to ontologies being used. | Find list to choose from in CatalogueOntologies e.g. ICD10 |
-| collectionEvent.resource | Refer to the resource that contains the collectionEvent. | e.g. LifeCycle |
-| collectionEvent.name | Refer to a collection event. | e.g. y1 or y2 |
+| dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
+| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| table \* | Table that contains the variable | Tables must be predefined in the TargetTables sheet |
+| name \* | Variable name, unique within a table | |
+| label | Human readable variable label | |
+| format | The data type of the variable | Find list to choose from in CatalogueOntologies |
+| unit \*\* | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies |
+| description | Description of the variable | |
+| keywords \*\* | Enables grouping of variables into topics and displaying in a tree | Find list to choose from in CatalogueOntologies  |
+| exampleValues | Examples of values in a comma separated list | Makes your data more insightful; e.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
+| mandatory | Whether this variable is required within this collection | |
+| vocabularies \*\* | Refer to ontologies being used | Find list to choose from in CatalogueOntologies e.g. ICD10 |
+| collectionEvent.resource | Refer to the resource that contains the collectionEvent | e.g. LifeCycle |
+| collectionEvent.name | Refer to a collection event | e.g. y1 or y2 |
 
-<sup>*Table 3. Description of the columns that can be filled out for TargetVariables. \* = mandatory;* *\*\** *
-contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add Vocabularies, Keywords or Units*</sup>
+<sup>Table 3. Description of the columns that can be filled out for TargetVariables. * = mandatory;
+contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords or Units</sup>
 
 #### *TargetVariableValues* sheet
 
@@ -106,17 +105,17 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
-| variable.table \* | Table that contains the variable. | Tables must be predefined in the TargetTables sheet. |
-| variable.name \* | Variable name. | Variables must be predefined in the TargetVariables sheet. |
-| value \* | The code or value used. | e.g. 1, 2 or -99 |
-| label \* | The label corresponding to the value. | e.g. 'yes', 'no' or 'NA' |
-| order | The order in which the code list should appear. | e.g. 1 |
-| isMissing | Whether this value indicates a missing field. | TRUE or FALSE |
-| ontologyTermIRI | Reference to an ontology term that defines this categorical value. | e.g. [http://purl.obolibrary.org/obo/DOID\_1094](http://purl.obolibrary.org/obo/DOID\_1094) |
+| dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM |
+| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| variable.table \* | Table that contains the variable | Tables must be predefined in the TargetTables sheet |
+| variable.name \* | Variable name | Variables must be predefined in the TargetVariables sheet |
+| value \* | The code or value used | e.g. 1, 2 or -99 |
+| label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
+| order | The order in which the code list should appear | e.g. 1 |
+| isMissing | Whether this value indicates a missing field | TRUE or FALSE |
+| ontologyTermIRI | Reference to an ontology term that defines this categorical value | e.g. [http://purl.obolibrary.org/obo/DOID\_1094](http://purl.obolibrary.org/obo/DOID\_1094) |
 
-<sup>*Table 4. Description of the columns that can be filled out for TargetVariableValues. \* = mandatory*</sup>
+<sup>*Table 4. Description of the columns that can be filled out for TargetVariableValues. * = mandatory</sup>
 
 #### *RepeatedTargetVariables* sheet
 
@@ -127,16 +126,16 @@ optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Name of the model that contains this variable. | e.g LifeCycle_CDM or ATHLETE_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of. | e.g. 1.0.1 |
-| table \* | Table name. | e.g. core |
-| name \* | Variable name. | e.g. height\_1 |
-| isRepeatOf.table \* | Table that contains the variable that is repeated. | Tables must be predefined in the _TargetTables_ sheet; e.g. core |
-| isRepeatOf.name \* | Name of the variable that is repeated. | Variables must be predefined in the _TargetVariables_ sheet; e.g. height\_0 |
-| collectionEvent.resource | Refer to the network that contains the collection event. | e.g. LifeCycle |
-| collectionEvent.name | Refer to the name of a collection event. | The collectionEvent needs to be predefined in the *CollectionEvents* sheet; e.g. y1 or y2 |
+| dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM or ATHLETE_CDM |
+| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| table \* | Table name | e.g. core |
+| name \* | Variable name | e.g. height\_1 |
+| isRepeatOf.table \* | Table that contains the variable that is repeated | Tables must be predefined in the _TargetTables_ sheet; e.g. core |
+| isRepeatOf.name \* | Name of the variable that is repeated | Variables must be predefined in the _TargetVariables_ sheet; e.g. height\_0 |
+| collectionEvent.resource | Refer to the network that contains the collection event | e.g. LifeCycle |
+| collectionEvent.name | Refer to the name of a collection event | The collectionEvent needs to be predefined in the *CollectionEvents* sheet; e.g. y1 or y2 |
 
-<sup>*Table 5. Description of the columns that can be filled out for RepeatedTargetVariables. \* = mandatory*</sup>
+<sup>*Table 5. Description of the columns that can be filled out for RepeatedTargetVariables. * = mandatory</sup>
 
 #### *CollectionEvents* sheet
 
@@ -146,11 +145,11 @@ here and referred to from the sheets *TargetVariables* and/or *RepeatedTargetVar
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Name of the model that contains this collection event. | e.g LifeCycle_CDM |
-| name \* | Name of the collection event. | e.g. y9 |
-| description | Event description. | e.g. Between 9 and 10 years. |
-| ageGroups | The age groups that were sampled within this collection event. | Find list to choose from in CatalogueOntologies  (AgeGroups) |
-| subcohorts | Subcohorts or subpopulations that are targeted with this variable. | Subcohorts need to be predefined in the _Subcohorts_ sheet. |
+| resource \* | Name of the model that contains this collection event | e.g LifeCycle_CDM |
+| name \* | Name of the collection event | e.g. y9 |
+| description | Event description | e.g. Between 9 and 10 years |
+| ageGroups | The age groups that were sampled within this collection event | Find list to choose from in CatalogueOntologies (AgeGroups) |
+| subcohorts | Subcohorts or subpopulations that are targeted with this variable | Subcohorts need to be predefined in the _Subcohorts_ sheet |
 
 <sup>*Table 6. Description of the columns that can be filled out for CollectionEvents. \* = mandatory;* *\*\** *
 contact* [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) *to add AgeCategories*</sup>
@@ -161,11 +160,11 @@ The sheet *Subcohorts* is optional. Here you may describe populations that can b
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource | Name of the model that contains this subcohort. | e.g LifeCycle_CDM |
-| name \* | Name of the subpopulation or subcohort. | e.g. mothers or children |
+| resource | Name of the model that contains this subcohort | e.g LifeCycle_CDM |
+| name \* | Name of the subpopulation or subcohort | e.g. mothers or children |
 | description | Subpopulation description | |
 
-<sup>*Table 7. Description of the columns that can be filled out for Subpopulations. \* = mandatory*</sup>
+<sup>*Table 7. Description of the columns that can be filled out for Subpopulations. * = mandatory</sup>
 
 ### Request access
 
