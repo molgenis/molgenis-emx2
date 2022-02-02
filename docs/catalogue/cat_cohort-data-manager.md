@@ -3,38 +3,42 @@
 ## Data Catalogue
 
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
-framework to describe in detail metadata of cohorts and of data sources, definitions of the variables collected in
-cohorts and in the data banks composing the data sources (aka 'source variables') and mappings to common data models (
-aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together 
+framework to describe in detail: metadata of cohorts and of data sources; definitions of the variables collected in
+cohorts and in the data banks composing the data sources (aka 'source variables'); and mappings to common data models 
+(aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together 
 [Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/), and multi-data
 source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
-- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high level
+- The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high-level
   summary of contents and cohort design. The metadata of data sources, of the corresponding data banks and of the
   institutions that provide access to them, include descriptive information such as contact details, reason for
-  existence of the data banks, what prompt the records in the data bank, and lag time for updating and accessing data.
+  existence of the data banks, the prompt for the records in the data bank, and lag time for updating and accessing data.
 - The metadata of the source variables (also known as 'data dictionary') can be considered as a codebook or data
-  dictionary of a cohort (e.g. ALSPAC) and of the tables composing the data banks of data sources (e.g. the Danish
+  dictionary of a cohort (e.g. ALSPAC) and of the tables which make up a data source's data bank(s) (e.g. the Danish
   Healthcare Registries).
-- Similarly, the common data models (or 'target variables') can be considered the codebook of a network of institutions
+- Similarly, the common data models (or 'target variables') can be considered the codebook for a network of institutions
   with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
-- The mappings describe how source variables have been converted into target variables as basis for integrated analysis.
+- The mappings describe how source variables have been converted into target variables as a basis for integrated analysis.
 
 ### Data harmonisation
 
-Each organization with access to data (which may be a cohort, or to a data source composed by one or more data banks)
+Each organisation with access to data (which may be a cohort, or a data source composed of one or more data banks)
 harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been
-centrally agreed on. In some projects, data may be made available via DataSHIELD. In these cases each resource stores
-the data locally in [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
+centrally agreed upon. In some projects, data may be made available via DataSHIELD. In these cases each resource stores
+the data locally in a [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
 
 ### Staging areas for uploads
 
-The metadata of a cohort or data source is uploaded to what are called "staging areas" of the Data Catalogue.
-You will need credentials to log in and upload metadata.  
+The metadata of the cohort or of the data source are first uploaded into what are called "staging areas" of the Data 
+Catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the 
+metadata are entered in the live catalogue. 
+
+You will need credentials to log in and upload metadata. 
+
 LifeCycle, ATHLETE and LongITools use [*data-catalogue-staging*](https://data-catalogue-staging.molgeniscloud.org).  
 ConcePTION uses [*conception-acc*](https://conception-acc.molgeniscloud.org).
 
-When you log in, you will be able to at least see the following databases:
+When you log in, you will be able to see at least the following databases:
 
 - <b> DataCatalogue</b>: The catalogue data, in which you can search for target variables to map to.
 - <b>CatalogueOntologies</b>: This database contains the look-up list that you need for filling out some columns in the
@@ -75,7 +79,7 @@ as a reference for filling out the template.
 <sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
 the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table. </sup>
 
-It is good practice trying out adding a few variables to the template first and see whether your upload succeeds. To
+It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
 upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
@@ -124,14 +128,15 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 | name \* | Variable name, unique within a table | |
 | label | Human readable variable label | |
 | format | The data type of the variable | Find list to choose from in CatalogueOntologies |
-| unit | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies Units |
+| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies Units |
 | description | Description of the variable | |
 | exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| vocabularies | Refer to ontologies being used | Find list to choose from in CatalogueOntologies Vocabularies |
+| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies Vocabularies |
 | collectionEvent | Refer to a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
-| keywords | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
+| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
 
-<sup>Table 3. Description of the columns that can be filled out for SourceVariables. * = mandatory</sup>
+<sup>Table 3. Description of the columns that can be filled out for SourceVariables. * = mandatory; 
+<sup>1</sup>contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Vocabularies, Keywords or Units</sup>
 
 #### *SourceVariableValues* sheet
 
@@ -258,15 +263,18 @@ for an example on how to fill this out (last line) </sup>
 
 ### Upload metadata
 
-When you have filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you
-will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After uploading, you can view your metadata under 'Tables'.
+When you have filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data 
+Catalogue you will see a listing of databases that are accessible to you. Click on your cohort's database to access it. 
+Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After 
+uploading, you can view your metadata under 'Tables'.
 
 Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-support@umcg.nl).
 
 #### Find harmonisations
 
-When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the [Variable Explorer] (https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/).
-
+When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the 
+[Variable Explorer] (https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) 
+once they have been transferred there. 
 Use the search bar to find your variable(s) of interest.
 
 ![Variable search](../img/cat_variable-open.png)
