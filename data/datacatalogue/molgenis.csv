@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,2.1
+Version,,,,,,,,,,,2.3
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -273,50 +273,50 @@ SourceDataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables p
 SourceDataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
 SourceDataDictionaries,,date,date,,,,,,,,date of creation
 SourceDataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
-AllSourceVariables,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
-AllSourceVariables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,data dictionary of the resource
-AllSourceVariables,,table,ref,1,TRUE,SourceTables,dataDictionary,,,,table this variable is part of
-AllSourceVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
-AllSourceVariables,,label,,,,,,,,,
-AllSourceVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
-AllSourceVariables,,unit,ontology,,,Units,,,,,unit ontology
-AllSourceVariables,,references,ref,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-AllSourceVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection
-AllSourceVariables,,description,text,,,,,,,,
-AllSourceVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value
-AllSourceVariables,,exampleValues,string_array,,,,,,,,
-AllSourceVariables,,permittedValues,refback,,,SourceVariableValues,,variable,,,
-AllSourceVariables,,keywords,ontology_array,,,Keywords,,,,,
-AllSourceVariables,,repeats,refback,,,RepeatedSourceVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-AllSourceVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,
-AllSourceVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllSourceVariables,,mappings,refback,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable
-AllSourceVariables,,notes,text,,,,,,,,Any other information on this variable
-SourceVariables,AllSourceVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-RepeatedSourceVariables,AllSourceVariables,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
-RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated
-AllTargetVariables,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead"
-AllTargetVariables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,data dictionary of the target model
-AllTargetVariables,,table,ref,1,TRUE,TargetTables,dataDictionary,,,,table this variable is part of
-AllTargetVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
-AllTargetVariables,,label,,,,,,,,,
-AllTargetVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
-AllTargetVariables,,unit,ontology,,,Units,,,,,unit ontology
-AllTargetVariables,,references,ref,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-AllTargetVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection
-AllTargetVariables,,description,text,,,,,,,,
-AllTargetVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value
-AllTargetVariables,,exampleValues,string_array,,,,,,,,
-AllTargetVariables,,permittedValues,refback,,,TargetVariableValues,,variable,,,
-AllTargetVariables,,keywords,ontology_array,,,Keywords,,,,,
-AllTargetVariables,,repeats,refback,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-AllTargetVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,
-AllTargetVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllTargetVariables,,mappings,refback,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s)
-AllTargetVariables,,notes,text,,,,,,,,Any other information on this variable
-TargetVariables,AllTargetVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
-RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
+AllSourceVariables,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",
+AllSourceVariables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,data dictionary of the resource,
+AllSourceVariables,,table,ref,1,TRUE,SourceTables,dataDictionary,,,,table this variable is part of,
+AllSourceVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table",
+AllSourceVariables,,label,,,,,,,,,,
+AllSourceVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,
+AllSourceVariables,,mappings,refback,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable,
+SourceVariables,AllSourceVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",
+SourceVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc",
+SourceVariables,,unit,ontology,,,Units,,,,,unit ontology,
+SourceVariables,,references,ref,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables,
+SourceVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection,
+SourceVariables,,description,text,,,,,,,,,
+SourceVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value,
+SourceVariables,,exampleValues,string_array,,,,,,,,,
+SourceVariables,,permittedValues,refback,,,SourceVariableValues,,variable,,,,
+SourceVariables,,keywords,ontology_array,,,Keywords,,,,,,
+SourceVariables,,repeats,refback,,,RepeatedSourceVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable,
+SourceVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,,
+SourceVariables,,notes,text,,,,,,,,Any other information on this variable,
+RepeatedSourceVariables,AllSourceVariables,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.,
+RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated,
+AllTargetVariables,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead",
+AllTargetVariables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,data dictionary of the target model,
+AllTargetVariables,,table,ref,1,TRUE,TargetTables,dataDictionary,,,,table this variable is part of,
+AllTargetVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table",
+AllTargetVariables,,label,,,,,,,,,,
+AllTargetVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,
+AllTargetVariables,,mappings,refback,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s),
+TargetVariables,AllTargetVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",
+TargetVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc",
+TargetVariables,,unit,ontology,,,Units,,,,,unit ontology,
+TargetVariables,,references,ref,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables,
+TargetVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection,
+TargetVariables,,description,text,,,,,,,,,
+TargetVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value,
+TargetVariables,,exampleValues,string_array,,,,,,,,,
+TargetVariables,,permittedValues,refback,,,TargetVariableValues,,variable,,,,
+TargetVariables,,keywords,ontology_array,,,Keywords,,,,,,
+TargetVariables,,repeats,refback,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable,
+TargetVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,,
+TargetVariables,,notes,text,,,,,,,,Any other information on this variable,
+RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.,
+RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated,
 TargetTables,,,,,,,,,,,Definition of a table within a (common) data model
 TargetTables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,resource + version this table is defined for
 TargetTables,,name,,1,TRUE,,,,,,unique table name in the model
