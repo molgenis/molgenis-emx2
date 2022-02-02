@@ -32,6 +32,8 @@ public class TableMetadata implements Comparable {
   protected String tableName;
   // old name, useful for alter table
   private String oldName;
+  // use to classify the table, influences display, import, export, etc
+  private TableType tableType = TableType.DATA;
 
   public String[] getSemantics() {
     return semantics;
@@ -100,6 +102,7 @@ public class TableMetadata implements Comparable {
       this.inherit = metadata.getInherit();
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
+      this.tableType = metadata.getTableType();
     }
   }
 
@@ -558,5 +561,14 @@ public class TableMetadata implements Comparable {
     return getColumns().stream()
         .filter(c -> !c.getName().startsWith("mg_"))
         .collect(Collectors.toList());
+  }
+
+  public TableType getTableType() {
+    return tableType;
+  }
+
+  public TableMetadata setTableType(TableType tableType) {
+    this.tableType = tableType;
+    return this;
   }
 }

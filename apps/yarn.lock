@@ -5163,10 +5163,10 @@ core-js-compat@^3.6.5, core-js-compat@^3.8.0:
     browserslist "^4.16.3"
     semver "7.0.0"
 
-core-js@3.20.3:
-  version "3.20.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.20.3.tgz#c710d0a676e684522f3db4ee84e5e18a9d11d69a"
-  integrity sha512-vVl8j8ph6tRS3B8qir40H7yw7voy17xL0piAjlbBUsH7WIfzoedL/ZOr1OV9FyZQLWXsayOJyV4tnRyXR85/ag==
+core-js@3.21.0:
+  version "3.21.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.21.0.tgz#f479dbfc3dffb035a0827602dd056839a774aa71"
+  integrity sha512-YUdI3fFu4TF/2WykQ2xzSiTQdldLB4KVuL9WeAy5XONZYt5Cun/fpQvctoKbCgvPhmzADeesTk/j2Rdx77AcKQ==
 
 core-js@^1.1.1:
   version "1.2.7"
@@ -14786,12 +14786,12 @@ vscode-languageserver-types@^3.15.1:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
   integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
 
-vue-cli-plugin-styleguidist@4.44.2:
-  version "4.44.2"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.2.tgz#d3cf07453a84c075a60bc85c4bc597d5eecac249"
-  integrity sha512-xCAgsjyExezR5CRk2pMoFobiZsAMIfuPzKi6R+OnZJbJQ0dpyxqQ2Uu3P+i4ZCoLZ6TF7Nr68K1D3btw6BCjEw==
+vue-cli-plugin-styleguidist@4.44.15:
+  version "4.44.15"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.15.tgz#4d73b2108b88035a9bf914e86463cdd99d09c8eb"
+  integrity sha512-fQcTE0ULrDqSImedpWnK8hKNu5tu3E03N/aNFkBHwJJlTKppoXQlApTIbpKA3Stt5gMCQMj9CNvvVKiHBoxqVw==
   dependencies:
-    vue-styleguidist "^4.44.2"
+    vue-styleguidist "^4.44.15"
     webpack-merge "^4.2.2"
 
 vue-client-only@^2.0.0:
@@ -14799,10 +14799,10 @@ vue-client-only@^2.0.0:
   resolved "https://registry.yarnpkg.com/vue-client-only/-/vue-client-only-2.1.0.tgz#1a67a47b8ecacfa86d75830173fffee3bf8a4ee3"
   integrity sha512-vKl1skEKn8EK9f8P2ZzhRnuaRHLHrlt1sbRmazlvsx6EiC3A8oWF8YCBrMJzoN+W3OnElwIGbVjsx6/xelY1AA==
 
-vue-docgen-api@^4.44.2:
-  version "4.44.2"
-  resolved "https://registry.yarnpkg.com/vue-docgen-api/-/vue-docgen-api-4.44.2.tgz#f26908f7ed91efe7a471b16b5494983e07cd4272"
-  integrity sha512-5+stFfagge/ECaDyC8CJn6R5+gYvdHwaW0qfSFMxmcREJONNhVFmCwdGm44BgTEsDhWWyEfa5mrapZss79FhMw==
+vue-docgen-api@^4.44.15:
+  version "4.44.15"
+  resolved "https://registry.yarnpkg.com/vue-docgen-api/-/vue-docgen-api-4.44.15.tgz#97d3c30f635d59995480ceb69e92f3466ab3e4a5"
+  integrity sha512-JBFe4EAUSmRqRHaNNHqDo1U+w1HRaHh00C0bYKE65HdN9QS6pCJCUBwi1blow0beDzLTAJYCa90xwG61WYBo4A==
   dependencies:
     "@babel/parser" "^7.13.12"
     "@babel/types" "^7.13.12"
@@ -14814,7 +14814,7 @@ vue-docgen-api@^4.44.2:
     pug "^3.0.2"
     recast "0.20.5"
     ts-map "^1.0.3"
-    vue-inbrowser-compiler-utils "^4.44.0"
+    vue-inbrowser-compiler-utils "^4.44.15"
 
 vue-eslint-parser@^7.10.0:
   version "7.10.0"
@@ -14841,24 +14841,24 @@ vue-hot-reload-api@^2.3.0:
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
 
-vue-inbrowser-compiler-utils@^4.44.0:
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-utils/-/vue-inbrowser-compiler-utils-4.44.0.tgz#c07d7e3bc18334f0c76731fdd034eebe32d9a390"
-  integrity sha512-JSX7b/hiUUhGLKK1umzMhVT0Vm3msAo0Za07sP6hl7t4bNP0exgDtPqRfkSVHNURCW+rODDt6fTa5uBHVfVAyw==
+vue-inbrowser-compiler-utils@^4.44.15:
+  version "4.44.15"
+  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-utils/-/vue-inbrowser-compiler-utils-4.44.15.tgz#c86265e47f9572d8dda192fbcfc7417e427d97a1"
+  integrity sha512-dbuZbFNl7q3+MjLyFxD14LnrbYuhexVCbCU9AFJ2zd3zqHrueXSYGzYTLLTZ++fnCMC3J60xe409e/KEft+Cbw==
   dependencies:
     camelcase "^5.3.1"
 
-vue-inbrowser-compiler@^4.44.0:
-  version "4.44.0"
-  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler/-/vue-inbrowser-compiler-4.44.0.tgz#6154b66d77b23c8a5f3dc6bae37293361082bb7a"
-  integrity sha512-BedmU7YqW11pw72EzF2uOJ/oVXxihODyUu9NT9m80TaLd7sAA1vOYAY8S2mH87nNcv8fSWMgRcTQ78SxUEqVMg==
+vue-inbrowser-compiler@^4.44.15:
+  version "4.44.15"
+  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler/-/vue-inbrowser-compiler-4.44.15.tgz#fea5cbc0d41c2f0f11e9143ce2e90f5677220338"
+  integrity sha512-AVYQglhZ3+MeCOCHHY5/RFoF3SG7275f8ENj+GQe5a+48xMQUcy8wayEdKAcCuFDXpBwO8QuzqflaYHb8YvR8w==
   dependencies:
     acorn "^6.4.2"
     acorn-jsx "^5.3.1"
     buble "^0.20.0"
     camelcase "^5.3.1"
     detect-browser "^5.2.0"
-    vue-inbrowser-compiler-utils "^4.44.0"
+    vue-inbrowser-compiler-utils "^4.44.15"
     walkes "^0.2.1"
 
 "vue-loader-v16@npm:vue-loader@^16.1.0":
@@ -14954,10 +14954,10 @@ vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-styleguidist@^4.44.2:
-  version "4.44.2"
-  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.2.tgz#d0059f7f98ad0e04fce2faa11b98063fced8c415"
-  integrity sha512-sE4JvBzKn2N0/dl6pwksRdXjbe8s2Vw4D+AVZFaeqky/v1egigsNBvsLbJmSkdEhNzoxTEjoeECPez4YofdODg==
+vue-styleguidist@^4.44.15:
+  version "4.44.15"
+  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.15.tgz#8cdf111584fe1f84e8b749350845f71cc0df5cdc"
+  integrity sha512-EPUQJZjG70ASwe+Q4gXfS7L9eIGB10vcZtABnTquC7h5D8GcnGajWxfdjpycOhAvR2HXZpp5zikVg5tsXixs+Q==
   dependencies:
     "@vxna/mini-html-webpack-template" "^1.0.0"
     ast-types "0.13.4"
@@ -15008,9 +15008,9 @@ vue-styleguidist@^4.44.2:
     style-loader "^1.3.0"
     terser-webpack-plugin "^2.3.8"
     to-ast "^1.0.0"
-    vue-docgen-api "^4.44.2"
-    vue-inbrowser-compiler "^4.44.0"
-    vue-inbrowser-compiler-utils "^4.44.0"
+    vue-docgen-api "^4.44.15"
+    vue-inbrowser-compiler "^4.44.15"
+    vue-inbrowser-compiler-utils "^4.44.15"
     webpack-dev-server "^3.11.2"
     webpack-merge "^4.2.2"
 

@@ -192,18 +192,7 @@ public class Column implements Comparable<Column> {
 
       // other relation
       if (schema != null) {
-        TableMetadata result = schema.getTableMetadata(this.refTable);
-        if (result == null) {
-          throw new MolgenisException(
-              "Internal error: Column.getRefTable failed for column '"
-                  + getQualifiedName()
-                  + "' because refTable '"
-                  + getRefTableName()
-                  + "' does not exist in schema '"
-                  + schema.getName()
-                  + "'");
-        }
-        return result;
+        return schema.getTableMetadata(this.refTable);
       }
     }
     return null;
@@ -632,5 +621,9 @@ public class Column implements Comparable<Column> {
     } else {
       return this.getName().compareTo(o.getName());
     }
+  }
+
+  public boolean isOntology() {
+    return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
   }
 }

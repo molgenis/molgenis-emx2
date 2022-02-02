@@ -42,8 +42,10 @@ public class MetadataUtils {
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TALBE_SEMANTICS =
+  private static final org.jooq.Field TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
+  private static final org.jooq.Field TABLE_TYPE =
+      field(name("table_type"), VARCHAR.nullable(true));
 
   // column
   private static final org.jooq.Field COLUMN_NAME =
@@ -134,7 +136,7 @@ public class MetadataUtils {
       j.transaction(
           config -> {
             DSLContext jooq = config.dsl();
-            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+            try (DDLQuery step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
               jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
               jooq.execute(
@@ -173,7 +175,8 @@ public class MetadataUtils {
                           TABLE_INHERITS,
                           TABLE_IMPORT_SCHEMA,
                           TABLE_DESCRIPTION,
-                          TALBE_SEMANTICS)
+                          TABLE_SEMANTICS,
+                          TABLE_TYPE)
                       .constraints(
                           primaryKey(TABLE_SCHEMA, TABLE_NAME),
                           foreignKey(TABLE_SCHEMA)
@@ -314,20 +317,23 @@ public class MetadataUtils {
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
-              TALBE_SEMANTICS)
+              TABLE_SEMANTICS,
+              TABLE_TYPE)
           .values(
               table.getSchema().getName(),
               table.getTableName(),
               table.getInherit(),
               table.getImportSchema(),
               table.getDescription(),
-              table.getSemantics())
+              table.getSemantics(),
+              table.getTableType())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
-          .set(TALBE_SEMANTICS, table.getSemantics())
+          .set(TABLE_SEMANTICS, table.getSemantics())
+          .set(TABLE_TYPE, table.getTableType())
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of table metadata failed", e);
@@ -434,7 +440,10 @@ public class MetadataUtils {
     table.setInherit(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
-    table.setSemantics(r.get(TALBE_SEMANTICS, String[].class));
+    table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
+    if (r.get(TABLE_TYPE, String.class) != null) {
+      table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
+    }
     return table;
   }
 
