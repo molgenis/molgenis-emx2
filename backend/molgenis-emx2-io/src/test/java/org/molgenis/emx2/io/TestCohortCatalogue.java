@@ -54,7 +54,7 @@ public class TestCohortCatalogue {
             false);
     task3.run();
 
-    assertEquals(76, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(79, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
@@ -79,7 +79,7 @@ public class TestCohortCatalogue {
             new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
     task2.run();
 
-    assertEquals(76, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(79, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }

@@ -185,6 +185,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
@@ -328,6 +332,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(SETTINGS)
                   .type(GraphQLList.list(inputSettingsMetadataType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
 
   public GraphqlSchemaFieldFactory() {

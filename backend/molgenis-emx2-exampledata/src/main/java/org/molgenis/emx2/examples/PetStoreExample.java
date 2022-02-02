@@ -37,10 +37,6 @@ public class PetStoreExample {
 
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
-    // parent makes it behave as ontology
-    schema.create(
-        table(TAG).add(column(NAME).setPkey(), column(PARENT).setType(REF).setRefTable(TAG)));
-
     schema.create(
         table(PET)
             .add(column(NAME).setDescription("the name").setPkey())
@@ -82,6 +78,7 @@ public class PetStoreExample {
             .add(column("username").setPkey())
             .add(column("firstName"))
             .add(column("lastName"))
+            .add(column("picture").setType(FILE))
             .add(
                 column(EMAIL)
                     .setValidation(

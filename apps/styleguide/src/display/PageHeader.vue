@@ -1,19 +1,31 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-9">
+      <div :class="'col-' + nTitleColumns">
         <h1>{{ title }}</h1>
       </div>
 
-      <div class="col-3 d-flex flex-row-reverse">
+      <div v-if="logoUrl" class="col-3 d-flex flex-row-reverse">
         <img
-          v-if="logoUrl"
           class="justify-content-center align-self-center"
           :src="logoUrl"
           alt="page logo"
         />
       </div>
     </div>
+    <h3 v-if="subTitle">
+      <small class="text-muted">
+        <template v-if="subTitleLink && isVueRouterLink"
+          ><router-link v-bind="subTitleLink">{{
+            subTitle
+          }}</router-link></template
+        >
+        <template v-else-if="subTitleLink && !isVueRouterLink"
+          ><a :href="subTitleLink">{{ subTitle }}</a></template
+        >
+        <template v-else>{{ subTitle }}</template>
+      </small>
+    </h3>
   </div>
 </template>
 
@@ -32,16 +44,39 @@ export default {
       type: String,
       required: true,
     },
+    subTitle: {
+      type: String,
+      required: false,
+    },
+    subTitleLink: {
+      type: [String, Object],
+      required: false,
+    },
     logoUrl: {
       type: String,
       required: false,
+    },
+  },
+  computed: {
+    nTitleColumns() {
+      return this.logoUrl ? 9 : 12;
+    },
+    isVueRouterLink() {
+      return (
+        (this.subTitleLink && typeof this.subTitleLink === "object") ||
+        (typeof this.subTitleLink === "string" &&
+          !(
+            this.subTitleLink.startsWith("http://") ||
+            this.subTitleLink.startsWith("https://")
+          ))
+      );
     },
   },
 };
 </script>
 
 <docs>
-Example (label only)
+Example (title only)
 
 ```
 <template>
@@ -51,7 +86,7 @@ Example (label only)
 
 ```
 
-Example (label and logo)
+Example (title and logo)
 
 ```
 <template>
@@ -60,4 +95,28 @@ Example (label and logo)
 
 ````
 
+Example (title and subTitle)
+
+```
+<template>
+  <page-header title="Molgenis" subTitle="All your data are belong to us." ></page-header>
+</template>
+````
+
+Example (title and subTitle with link)
+
+```
+<template>
+  <page-header title="Molgenis" subTitle="molgenis.org" subTitleLink="https://www.molgenis.org/" ></page-header>
+</template>
+````
+
+Example (title and subTitle with vue router link)
+
+```
+const routerLink = {to: "https://router.vuejs.org/api/#to"}
+<template>
+  <page-header title="Molgenis" subTitle="molgenis.org" :subTitleLink="routerLink" ></page-header>
+</template>
+````
 </docs>

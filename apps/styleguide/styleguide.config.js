@@ -7,6 +7,7 @@ module.exports = {
     },
     maxWidth: "auto",
   },
+  require: ["./router-mock.js"],
   assetsDir: "public",
   webpackConfig: {
     devServer: {

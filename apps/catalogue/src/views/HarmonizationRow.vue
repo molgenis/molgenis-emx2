@@ -17,6 +17,7 @@
 import Vue from "vue";
 import { mapActions } from "vuex";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell";
+
 export default {
   name: "HarmonizationRow",
   components: { HarmonizationCell },
@@ -48,7 +49,7 @@ export default {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
               mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.release.resource.pid === resource.pid
+              mapping.fromTable.dataDictionary.resource.pid === resource.pid
             );
           });
 
@@ -64,7 +65,7 @@ export default {
         }
       } else {
         const resourceMapping = this.resourceMappings.find((mapping) => {
-          return mapping.fromTable.release.resource.pid === resource.pid;
+          return mapping.fromTable.dataDictionary.resource.pid === resource.pid;
         });
 
         if (!resourceMapping) {

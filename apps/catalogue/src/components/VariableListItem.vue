@@ -15,7 +15,9 @@
       <i v-else class="fa fa-caret-down mr-2"></i>
       {{ variable.label }}
       <span class="mg-model-label">
-        {{ variable.release.resource.pid }} ({{ variable.release.version }})
+        {{ variable.dataDictionary.resource.pid }} ({{
+          variable.dataDictionary.version
+        }})
       </span>
     </div>
     <p class="mt-3" v-if="showDetail">
@@ -27,8 +29,8 @@
             name: variable.name,
           },
           query: {
-            model: variable.release.resource.pid,
-            version: variable.release.version,
+            model: variable.dataDictionary.resource.pid,
+            version: variable.dataDictionary.version,
           },
         }"
         >view details
@@ -92,22 +94,26 @@
             <span v-if="variable.variableDetails.mappings">
               <span
                 v-for="mapping in variable.variableDetails.mappings"
-                :key="mapping.fromTable.release.resource.pid"
+                :key="mapping.fromTable.dataDictionary.resource.pid"
               >
-                {{ mapping.fromTable.release.resource.pid }}
+                {{ mapping.fromTable.dataDictionary.resource.pid }}
               </span>
             </span>
             <span v-else>none</span>
           </dd>
         </dl>
       </template>
-      <template v-else> <Spinner class="mt-2" /> Fetching data.. </template>
+      <template v-else>
+        <Spinner class="mt-2" />
+        Fetching data..
+      </template>
     </p>
   </li>
 </template>
 
 <script>
 import { Spinner } from "@mswertz/emx2-styleguide";
+
 export default {
   name: "VariableListItem",
   components: { Spinner },
@@ -148,10 +154,12 @@ export default {
 .mg-variable-header:hover {
   cursor: pointer;
 }
+
 .mg-list-group-item-header {
   display: block;
   width: 100%;
 }
+
 .list-group-item:hover .hover-rotate-clockwize {
   transform: rotate(90deg);
   transition: transform 0.2s;

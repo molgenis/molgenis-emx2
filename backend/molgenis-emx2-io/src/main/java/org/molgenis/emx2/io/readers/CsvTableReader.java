@@ -28,12 +28,12 @@ public class CsvTableReader {
 
       // if file is empty we return empty iterator
       if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
       }
       char separator = ',';
       // if file is empty we return empty iterator
-      if (firstLine == null || firstLine.trim().equals("")) {
-        return Collections.EMPTY_LIST;
+      if (firstLine.trim().equals("")) {
+        return Collections.emptyList();
       }
       // guess the separator
       if (firstLine.contains("\t")) {
@@ -53,22 +53,6 @@ public class CsvTableReader {
               .trimSpaces()
               .mapTo(Map.class)
               .iterator(bufferedReader);
-
-      //        // configure csv reader
-      //        CsvMapper csvMapper =
-      //                new CsvMapper()
-      //                        .configure(CsvParser.Feature.TRIM_SPACES, true)
-      //                        .configure(CsvParser.Feature.ALLOW_TRAILING_COMMA, true)
-      //                        .configure(CsvParser.Feature.FAIL_ON_MISSING_COLUMNS, false)
-      //                        .configure(CsvParser.Feature.IGNORE_TRAILING_UNMAPPABLE, true)
-      //                        .configure(CsvParser.Feature.INSERT_NULLS_FOR_MISSING_COLUMNS, true)
-      //                        .configure(CsvParser.Feature.SKIP_EMPTY_LINES, true)
-      //                        .configure(CsvParser.Feature.TRIM_SPACES, true)
-      //                        .configure(CsvParser.Feature.WRAP_AS_ARRAY, false);
-      //        CsvSchema csvSchema =
-      //                csvMapper.schemaWithHeader().withColumnSeparator(separator).withComments();
-      //        Iterator<Map> iterator =
-      //                csvMapper.readerFor(Map.class).with(csvSchema).readValues(bufferedReader);
 
       return () ->
           new Iterator<>() {

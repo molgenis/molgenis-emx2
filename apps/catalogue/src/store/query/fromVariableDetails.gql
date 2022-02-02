@@ -1,20 +1,20 @@
-query Variables($filter: VariablesFilter) {
-  Variables(limit: 1, filter: $filter) {
-    name
-    label
-    description
-    format {
-      name
+query SourceVariables($filter: SourceVariablesFilter) {
+    SourceVariables(limit: 1, filter: $filter) {
+        name
+        label
+        description
+        format {
+            name
+        }
+        unit {
+            name
+        }
+        dataDictionary {
+            resource {
+                mg_tableclass
+                pid
+            }
+            version
+        }
     }
-    unit {
-      name
-    }
-    release {
-      resource {
-        mg_tableclass
-        pid
-      }
-      version
-    }
-  }
 }

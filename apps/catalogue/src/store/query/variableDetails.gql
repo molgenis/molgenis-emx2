@@ -1,5 +1,5 @@
-query Variables($filter: VariablesFilter) {
-    Variables(limit: 1, filter: $filter) {
+query TargetVariables($filter: TargetVariablesFilter) {
+    TargetVariables(limit: 1, filter: $filter) {
         name
         label
         description
@@ -22,7 +22,7 @@ query Variables($filter: VariablesFilter) {
             match {
                 name
             }
-            fromRelease {
+            fromDataDictionary {
                 resource {
                     pid
                 }
@@ -30,12 +30,12 @@ query Variables($filter: VariablesFilter) {
             fromVariable {
                 name
             }
-            fromVariablesInOtherTables {
+            fromVariablesOtherTables {
                 table{name}
                 name
             }
             fromTable {
-                release {
+                dataDictionary {
                     resource {
                         pid
                     }
@@ -52,7 +52,7 @@ query Variables($filter: VariablesFilter) {
                 match {
                     name
                 }
-                fromRelease {
+                fromDataDictionary {
                     resource {
                         pid
                     }
@@ -61,7 +61,7 @@ query Variables($filter: VariablesFilter) {
                     name
                 }
                 fromTable {
-                    release {
+                    dataDictionary {
                         resource {
                             pid
                         }

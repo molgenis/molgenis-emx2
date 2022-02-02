@@ -2,7 +2,7 @@
   <ul style="list-style-type: none">
     <li v-for="term in terms" :key="term.name">
       <!--show if selected or search-->
-      <div class="d-flex overflow-auto" v-if="visible(term)">
+      <div v-if="visible(term)">
         <i
           class="fa-fw pl-2 pt-1 ml-3"
           role="button"
@@ -12,7 +12,7 @@
         <i
           class="fa-fw text-primary pl-2 pt-1"
           :class="selectState(term)"
-          @click="toggleSelect(term)"
+          @click.stop="toggleSelect(term)"
           role="button"
         />
         <span

@@ -10,6 +10,10 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2Settings {
 
+  private Emx2Settings() {
+    // prevent
+  }
+
   public static void outputSettings(TableStore store, Schema schema) {
     List<Row> settings = new ArrayList<>();
 
@@ -32,7 +36,7 @@ public class Emx2Settings {
       }
     }
 
-    if (settings.size() > 0) {
+    if (!settings.isEmpty()) {
       store.writeTable(
           Constants.SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
     }

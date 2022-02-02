@@ -1,7 +1,21 @@
+<template>
+  <div>
+    <h3>For testing purposes</h3>
+    <p>TableMetadataMixin</p>
+    <pre>session: {{ session }}</pre>
+    <pre>schema: <ShowMore title="schema">{{ schema }}</ShowMore></pre>
+    <pre>error: {{ graphqlError }}</pre>
+  </div>
+</template>
+
 <script>
 import { request } from "graphql-request";
+import ShowMore from "../layout/ShowMore";
 
 export default {
+  components: {
+    ShowMore,
+  },
   props: {
     graphqlURL: {
       default: "graphql",
@@ -22,7 +36,7 @@ export default {
       this.graphqlError = null;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,id,description,externalSchema,semantics,columns{name,id,columnType,key,refTable,refLink,refLabel,refBack,required,semantics,description,position}settings{key,value}}}}"
+        "{_session{email,roles}_schema{name,tables{name,tableType,id,description,externalSchema,semantics,columns{name,id,columnType,key,refTable,refLink,refLabel,refBack,required,semantics,description,position}settings{key,value}}}}"
       )
         .then((data) => {
           this.session = data._session;

@@ -6,7 +6,7 @@ import static org.molgenis.emx2.Privileges.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jooq.CreateSchemaFinalStep;
+import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
@@ -18,7 +18,7 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
-    try (CreateSchemaFinalStep step = db.getJooq().createSchema(schema.getName())) {
+    try (DDLQuery step = db.getJooq().createSchema(schema.getName())) {
       step.execute();
 
       String schemaName = schema.getName();

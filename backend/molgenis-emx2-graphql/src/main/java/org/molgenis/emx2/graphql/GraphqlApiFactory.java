@@ -32,6 +32,14 @@ public class GraphqlApiFactory {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
                 (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
+          } else if (column.isFile()) {
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
+            if (bfw == null || !bfw.isSkip()) {
+              // also necessary in case of 'null' to ensure all file metadata fields are made empty
+              // skip is used when use submitted only metadata (that they received in query)
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
+            }
           } else {
             row.set(column.getName(), object.get(escape(column.getName())));
           }

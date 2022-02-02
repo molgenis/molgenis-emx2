@@ -6,7 +6,10 @@
       :variable="repeatedVariable"
     />
   </div>
-  <div class="mt-2" v-else><Spinner /> Fetching data..</div>
+  <div class="mt-2" v-else>
+    <Spinner />
+    Fetching data..
+  </div>
 </template>
 
 <script>
@@ -35,7 +38,8 @@ export default {
         ? undefined
         : this.variable.mappings.find(
             (mapping) =>
-              mapping.fromTable.release.resource.pid === this.sourceCohort
+              mapping.fromTable.dataDictionary.resource.pid ===
+              this.sourceCohort
           );
       let repeats = [
         {
@@ -49,7 +53,8 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.release.resource.pid === this.sourceCohort
+                  mapping.fromTable.dataDictionary.resource.pid ===
+                  this.sourceCohort
               );
             }
             return repeat;

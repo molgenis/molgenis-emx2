@@ -81,7 +81,7 @@
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
-              name: 'Variables-details',
+              name: 'TargetVariables-details',
               params: {
                 pid: toPid,
                 version: toVersion,
@@ -98,23 +98,23 @@
             <RouterLink
               v-for="v in m.fromVariable"
               :to="{
-                name: 'Variables-details',
+                name: 'SourceVariables-details',
                 params: {
                   pid: fromPid,
                   version: fromVersion,
                   table: fromTable,
-                  name: v.name,
+                  name: m.fromVariable.name,
                 },
               }"
             >
               {{ fromTable }}.{{ v.name }}
             </RouterLink>
           </div>
-          <div v-if="m.fromVariablesInOtherTables">
+          <div v-if="m.fromVariablesOtherTables">
             <RouterLink
-              v-for="v in m.fromVariablesInOtherTables"
+              v-for="v in m.fromVariablesOtherTables"
               :to="{
-                name: 'Variables-details',
+                name: 'SourceVariables-details',
                 params: {
                   pid: fromPid,
                   version: fromVersion,
@@ -201,18 +201,18 @@ export default {
 query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid:String,$toVersion:String,$toTable:String)
 {
   TableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
     description
   },
   VariableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
-    description,fromVariable{name},toVariable{name},syntax,fromVariablesInOtherTables{table{name},name}
+    description,fromVariable{name},toVariable{name},syntax,fromVariablesOtherTables{table{name},name}
   }
 }`,
         {
