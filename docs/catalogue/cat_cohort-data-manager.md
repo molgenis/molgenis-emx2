@@ -258,22 +258,20 @@ for an example on how to fill this out (last line) </sup>
 
 ### Upload metadata
 
-When you filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you
-will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Move to '
-Up/Download' via the menu. Use 'browse' to select a template and 'upload' to start uploading your data. You can now view
-your data under 'Tables'.
+When you have filled out the template(s) you can start uploading the metadata. When you log in to MOLGENIS Data Catalogue you
+will see a listing of databases that are accessible to you. Click on your cohort's database to access it. Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After uploading, you can view your metadata under 'Tables'.
 
 Please report any bugs or difficulties to [molgenis-support](mailto:molgenis-support@umcg.nl).
 
 #### Find harmonisations
 
-When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details.
+When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the [Variable Explorer] (https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/).
 
 Use the search bar to find your variable(s) of interest.
 
 ![Variable search](../img/cat_variable-open.png)
 
-Click on "variable details"
+Click on "Details"
 
 ![Variable detail](../img/cat_variable-detail.png)
 
