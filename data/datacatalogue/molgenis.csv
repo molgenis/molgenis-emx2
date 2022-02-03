@@ -1,6 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,2.1
-InstitutionTypes,OntologyTerms,,,,,,,,,,
+Version,,,,,,,,,,,2.3
 Institutions,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -30,20 +29,20 @@ Resources,,localName,,,,,,,,,"If different from above, name in the national lang
 Resources,,acronym,,,,,,,,,Resource acronym
 Resources,,website,,,,,,,,,Link to the website or homepage of this resource
 Resources,,description,text,,,,,,,,Short description of this resource
-Datasources,,type,ref_array,,,DatasourceTypes,,,,,Select one or multiple datasource types
+Datasources,,type,ontology_array,,,DatasourceTypes,,,,,Select one or multiple datasource types
 Resources,,keywords,text,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Cohorts,Resources,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
 Cohorts,,contactEmail,,,,,,,,,Contact e-mail address for this cohort
 Resources,,contributors,refback,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,externalIdentifiers,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
-Cohorts,,type,ref_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
+Cohorts,,type,ontology_array,,,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,"If other, describe the type of resource"
-Cohorts,,design,ref,,,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
+Cohorts,,design,ontology,,,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
 Cohorts,,designDescription,,,,,,,,,"Short description of the study design of this cohort"
 Cohorts,,designSchematic,file,,,,,,,,"A schematic depiction of the study design of this cohort"
-Cohorts,,collectionType,ref_array,,,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
+Cohorts,,collectionType,ontology_array,,,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Studies,Resources,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
-Studies,,type,ref,,,StudyTypes,,,,,Select 1 of the following types of study
+Studies,,type,ontology,,,StudyTypes,,,,,Select 1 of the following types of study
 Databanks,,databankFamily,ontology,,,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,"If 'other' selected above, describe the type of data bank"
 Resources,,institution,ref_array,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
@@ -174,7 +173,7 @@ Contacts,,firstName,,1,TRUE,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,Initials of the contact person
-Contacts,,title,ref,,,Titles,,,,,Title of the contact person
+Contacts,,title,ontology,,,Titles,,,,,Title of the contact person
 Contacts,,institution,ref,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,2,,,,,,,Contact's email address
@@ -225,16 +224,16 @@ CollectionEvents,,resource,ref,1,TRUE,Resources,,,,,Resource this collection eve
 CollectionEvents,,name,,1,TRUE,,,,,,Name of the collection event
 CollectionEvents,,description,,,,,,,,,Description of the collection event
 CollectionEvents,,subcohorts,ref_array,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
-CollectionEvents,,startYear,ref,,,Years,,,,,Start year of data collection
-CollectionEvents,,startMonth,ref,,,Months,,,,,Start month of data collection
-CollectionEvents,,endYear,ref,,,Years,,,,,End year of data collection. Leave empty if collection is ongoing
-CollectionEvents,,endMonth,ref,,,Months,,,,,End month of data collection. Leave empty if collection is ongoing
+CollectionEvents,,startYear,ontology,,,Years,,,,,Start year of data collection
+CollectionEvents,,startMonth,ontology,,,Months,,,,,Start month of data collection
+CollectionEvents,,endYear,ontology,,,Years,,,,,End year of data collection. Leave empty if collection is ongoing
+CollectionEvents,,endMonth,ontology,,,Months,,,,,End month of data collection. Leave empty if collection is ongoing
 CollectionEvents,,ageGroups,ontology_array,,,AgeGroups,,,,,Age groups included in this data collection event
 CollectionEvents,,numberOfParticipants,int,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,areasOfInformation,ontology_array,,,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ontology_array,,,DataCategories,,,,,Methods of data collection used in this collection event
 CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,,,,,Samples that were collected in this collection event
-CollectionEvents,,standardizedTools,ref_array,,,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+CollectionEvents,,standardizedTools,ontology_array,,,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,"If 'other', please specify"
 CollectionEvents,,supplementaryInformation,text,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,Subcohorts defined for this resource
@@ -274,55 +273,55 @@ SourceDataDictionaries,,tables,refback,,,SourceTables,,dataDictionary,,,tables p
 SourceDataDictionaries,,models,ref_array,,,Models,,,,,existing data models that are used to produce this data dictionary
 SourceDataDictionaries,,date,date,,,,,,,,date of creation
 SourceDataDictionaries,,description,text,,,,,,,,notes specific to this data dictionary
-AllSourceVariables,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
-AllSourceVariables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,data dictionary of the resource
-AllSourceVariables,,table,ref,1,TRUE,SourceTables,dataDictionary,,,,table this variable is part of
-AllSourceVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
-AllSourceVariables,,label,,,,,,,,,
-AllSourceVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
-AllSourceVariables,,unit,ontology,,,Units,,,,,unit ontology
-AllSourceVariables,,references,ref,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-AllSourceVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection
-AllSourceVariables,,description,text,,,,,,,,
-AllSourceVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value
-AllSourceVariables,,exampleValues,string_array,,,,,,,,
-AllSourceVariables,,permittedValues,refback,,,SourceVariableValues,,variable,,,
-AllSourceVariables,,keywords,ontology_array,,,Keywords,,,,,
-AllSourceVariables,,repeats,refback,,,RepeatedSourceVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-AllSourceVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,
-AllSourceVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllSourceVariables,,mappings,refback,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable
-AllSourceVariables,,notes,text,,,,,,,,Any other information on this variable
-SourceVariables,AllSourceVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-RepeatedSourceVariables,AllSourceVariables,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
-RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated
-AllTargetVariables,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead"
-AllTargetVariables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,data dictionary of the target model
-AllTargetVariables,,table,ref,1,TRUE,TargetTables,dataDictionary,,,,table this variable is part of
-AllTargetVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table"
-AllTargetVariables,,label,,,,,,,,,
-AllTargetVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc"
-AllTargetVariables,,unit,ontology,,,Units,,,,,unit ontology
-AllTargetVariables,,references,ref,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-AllTargetVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection
-AllTargetVariables,,description,text,,,,,,,,
-AllTargetVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value
-AllTargetVariables,,exampleValues,string_array,,,,,,,,
-AllTargetVariables,,permittedValues,refback,,,TargetVariableValues,,variable,,,
-AllTargetVariables,,keywords,ontology_array,,,Keywords,,,,,
-AllTargetVariables,,repeats,refback,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-AllTargetVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,
-AllTargetVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-AllTargetVariables,,mappings,refback,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s)
-AllTargetVariables,,notes,text,,,,,,,,Any other information on this variable
-TargetVariables,AllTargetVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
-RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
+AllSourceVariables,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",
+AllSourceVariables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,data dictionary of the resource,
+AllSourceVariables,,table,ref,1,TRUE,SourceTables,dataDictionary,,,,table this variable is part of,
+AllSourceVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table",
+AllSourceVariables,,label,,,,,,,,,,
+AllSourceVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,
+AllSourceVariables,,mappings,refback,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable,
+SourceVariables,AllSourceVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",
+SourceVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc",
+SourceVariables,,unit,ontology,,,Units,,,,,unit ontology,
+SourceVariables,,references,ref,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables,
+SourceVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection,
+SourceVariables,,description,text,,,,,,,,,
+SourceVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value,
+SourceVariables,,exampleValues,string_array,,,,,,,,,
+SourceVariables,,permittedValues,refback,,,SourceVariableValues,,variable,,,,
+SourceVariables,,keywords,ontology_array,,,Keywords,,,,,,
+SourceVariables,,repeats,refback,,,RepeatedSourceVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable,
+SourceVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,,
+SourceVariables,,notes,text,,,,,,,,Any other information on this variable,
+RepeatedSourceVariables,AllSourceVariables,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.,
+RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated,
+AllTargetVariables,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead",
+AllTargetVariables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,data dictionary of the target model,
+AllTargetVariables,,table,ref,1,TRUE,TargetTables,dataDictionary,,,,table this variable is part of,
+AllTargetVariables,,name,,1,TRUE,,,,,,"name of the variable, unique within a table",
+AllTargetVariables,,label,,,,,,,,,,
+AllTargetVariables,,collectionEvent,ref,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,
+AllTargetVariables,,mappings,refback,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s),
+TargetVariables,AllTargetVariables,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",
+TargetVariables,,format,ontology,,,Formats,,,,,"string,int,decimal,date,datetime etc",
+TargetVariables,,unit,ontology,,,Units,,,,,unit ontology,
+TargetVariables,,references,ref,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables,
+TargetVariables,,mandatory,bool,,,,,,,,whether this variable is required within this collection,
+TargetVariables,,description,text,,,,,,,,,
+TargetVariables,,order,int,,,,,,,,to sort variables you can optionally add an order value,
+TargetVariables,,exampleValues,string_array,,,,,,,,,
+TargetVariables,,permittedValues,refback,,,TargetVariableValues,,variable,,,,
+TargetVariables,,keywords,ontology_array,,,Keywords,,,,,,
+TargetVariables,,repeats,refback,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable,
+TargetVariables,,vocabularies,ontology_array,,,Vocabularies,,,,,,
+TargetVariables,,notes,text,,,,,,,,Any other information on this variable,
+RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.,
+RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated,
 TargetTables,,,,,,,,,,,Definition of a table within a (common) data model
 TargetTables,,dataDictionary,ref,1,TRUE,TargetDataDictionaries,,,,,resource + version this table is defined for
 TargetTables,,name,,1,TRUE,,,,,,unique table name in the model
 TargetTables,,label,,,,,,,,,short human readible description
-TargetTables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
+TargetTables,,unitOfObservation,ontology,,,ObservationTargets,,,,,defines what each record in this table describes
 TargetTables,,keywords,ontology_array,,,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 TargetTables,,description,text,,,,,,,,description of the role/function of this table
 TargetTables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
@@ -331,7 +330,7 @@ SourceTables,,,,,,,,,,,Definition of a table within a data dictionary
 SourceTables,,dataDictionary,ref,1,TRUE,SourceDataDictionaries,,,,,resource + data dictionary this table is defined for
 SourceTables,,name,,1,TRUE,,,,,,unique table name in the data dictionary
 SourceTables,,label,,,,,,,,,short human readible description
-SourceTables,,unitOfObservation,ref,,,ObservationTargets,,,,,defines what each record in this table describes
+SourceTables,,unitOfObservation,ontology,,,ObservationTargets,,,,,defines what each record in this table describes
 SourceTables,,keywords,ontology_array,,,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 SourceTables,,description,text,,,,,,,,description of the role/function of this table
 SourceTables,,numberOfRows,int,,,,,,,,count of the numbe of records in this table
@@ -373,63 +372,6 @@ VariableMappings,,status,ontology,,,Status,,,,,whether harmonisation is still dr
 VariableMappings,,description,text,,,,,,,,human readible description of the mapping
 VariableMappings,,comments,text,,,,,,,,additional notes and comments
 VariableMappings,,syntax,text,,,,,,,,"formal definition of the mapping, ideally executable code"
-OntologyTerms,,,,,,,,,,,OntologyTerm table is superclass for all stuff that links to ontology terms
-OntologyTerms,,name,,1,TRUE,,,,,,
-OntologyTerms,,code,,2,,,,,,,identifier used for this code with the ontology
-OntologyTerms,,order,int,,,,,,,,
-OntologyTerms,,definition,text,,,,,,,,
-OntologyTerms,,comments,text,,,,,,,,
-OntologyTerms,,parent,ref,,,OntologyTerms,,,,,link to a more broad term
-OntologyTerms,,ontologyTermURI,,3,,,,,,,
-OntologyTerms,,children,refback,,,OntologyTerms,,parent,,,link to more specific terms
-AreasOfInformation,OntologyTerms,,,,,,,,,,
-Vocabularies,OntologyTerms,,,,,,,,,,
-CohortDesigns,OntologyTerms,,,,,,,,,,
-CollectionTypes,OntologyTerms,,,,,,,,,,
-SampleCategories,OntologyTerms,,,,,,,,,,
-DataCategories,OntologyTerms,,,,,,,,,,
-Diseases,OntologyTerms,,,,,,,,,,
-DataAccessConditions,OntologyTerms,,,,,,,,,,
-DataUseConditions,OntologyTerms,,,,,,,,,,
-ContributionTypes,OntologyTerms,,,,,,,,,,
-DocumentTypes,OntologyTerms,,,,,,,,,,
-Formats,OntologyTerms,,,,,,,,,,
-InclusionCriteria,OntologyTerms,,,,,,,,,,
-Keywords,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
-Data,OntologyTerms,,,,,,,,,,Used to generate the tree on the left; we might want to make multiple trees?
-ObservationTargets,OntologyTerms,,,,,,,,,,
-PartnerRoles,OntologyTerms,,,,,,,,,,
-Prompts,OntologyTerms,,,,,,,,,,
-Regions,OntologyTerms,,,,,,,,,,"Parts of countries, states, provinces and other geographic areas (e.g. using ISO_3166)"
-ReleaseTypes,OntologyTerms,,,,,,,,,,
-ResourceTypes,OntologyTerms,,,,,,,,,,
-ResourceTypes,,originator,,,,,,,,,
-ResourceTypes,,collectingOrganizations,,,,,,,,,
-ResourceTypes,,recordPrompt,text,,,,,,,,
-ResourceTypes,,typicalContent,text,,,,,,,,
-ResourceTypes,,lessCommonContent,text,,,,,,,,
-Status,OntologyTerms,,,,,,,,,,
-StatusDetails,OntologyTerms,,,,,,,,,,
-Units,OntologyTerms,,,,,,,,,,
-Countries,OntologyTerms,,,,,,,,,,
-PopulationSubsets,OntologyTerms,,,,,,,,,,
-DAPsAccessCompleteness,OntologyTerms,,,,,,,,,,
-DAPsAccessLevels,OntologyTerms,,,,,,,,,,
-DAPsAccessPermissions,OntologyTerms,,,,,,,,,,
-DAPsReasonsForAccess,OntologyTerms,,,,,,,,,,
-CareSettings,OntologyTerms,,,,,,,,,,
-DatabankFamilies,OntologyTerms,,,,,,,,,,
-LinkageStrategies,OntologyTerms,,,,,,,,,,
-PopulationEntryCauses,OntologyTerms,,,,,,,,,,
-PopulationExitCauses,OntologyTerms,,,,,,,,,,
-AgeGroups,OntologyTerms,,,,,,,,,,
-InformedConsents,OntologyTerms,,,,,,,,,,
-Months,OntologyTerms,,,,,,,,,,
-Languages,OntologyTerms,,,,,,,,,,
-InstitutionRoles,OntologyTerms,,,,,,,,,,
-Years,OntologyTerms,,,,,,,,,,
-Titles,OntologyTerms,,,,,,,,,,
-DatasourceTypes,OntologyTerms,,,,,,,,,,
 Counts,,resource,ref,1,TRUE,RWEresources,,,,,
 Counts,,year,int,1,TRUE,,,,,,
 Counts,,ageband,,1,TRUE,,,,,,
@@ -440,5 +382,3 @@ PopulationSizes,,databank,ref,1,TRUE,Databanks,,,,,Databank to which population 
 PopulationSizes,,ageband,,1,TRUE,,,,,,Age band to which the counts apply
 PopulationSizes,,numberCaptured,int,,TRUE,,,,,,Number of individuals with records captured
 PopulationSizes,,numberActive,int,,TRUE,,,,,,Number of individuals with records captured
-StudyTypes,OntologyTerms,,,,,,,,,,
-StandardizedTools,OntologyTerms,,,,,,,,,,
