@@ -20,7 +20,7 @@ export default {
       default: () => 0,
     },
     to: {
-      type: String,
+      type: String|Object,
     },
   },
 };

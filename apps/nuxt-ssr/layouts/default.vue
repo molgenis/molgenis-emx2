@@ -15,9 +15,6 @@ body, div.wrapper {
 
 <script>
 export default {
-  async fetch ({store}) {
-    return store.dispatch('fetchSession')
-  },
   computed: {
     menu () {
       return this.$store.state.menu

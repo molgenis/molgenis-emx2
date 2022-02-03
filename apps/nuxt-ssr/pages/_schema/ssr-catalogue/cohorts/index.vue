@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import query from "../../../store/gql/cohorts.gql";
+import query from "../../../../store/gql/cohorts.gql";
 import { TableDisplay } from "components";
   export default {
     name: "Cohorts",

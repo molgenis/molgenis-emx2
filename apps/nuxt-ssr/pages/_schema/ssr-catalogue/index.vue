@@ -18,20 +18,20 @@
     <h2>Metadata on data collections</h2>
     <div class="row justify-content-between">
 
-      <count-card class="btn-dark" :count="counts.institutions" label="Institutions" to="ssr-catalogue/institutions">
+      <count-card class="btn-dark" :count="counts.institutions" label="Institutions" :to="{path: this.routePath + 'institutions' }">
         Contributors to the catalogue such as universities, companies, medical
           centres and research institutes
       </count-card>
 
-      <count-card class="btn-secondary" :count="counts.datasources" label="Data sources" to="ssr-catalogue/datasources">
+      <count-card class="btn-secondary" :count="counts.datasources" label="Data sources" :to="{path: this.routePath + 'datasources' }">
         Collections of data banks covering the same population
       </count-card>
 
-      <count-card class="btn-info" :count="counts.databanks" label="Data banks" to="ssr-catalogue/databanks">
+      <count-card class="btn-info" :count="counts.databanks" label="Data banks" :to="{path: this.routePath + 'databanks' }">
         Data collections such as registries or biobanks
       </count-card>
 
-      <count-card class="btn-primary" :count="counts.cohorts" label="Cohorts" to="ssr-catalogue/cohorts">
+      <count-card class="btn-primary" :count="counts.cohorts" label="Cohorts" :to="{path: this.routePath + 'cohorts' }">
          Systematic observations of large groups of individuals over time.
       </count-card>
 
@@ -68,6 +68,9 @@ export default {
     },
     schema () {
       return this.$store.state.schema
+    },
+    routePath () {
+      return this.$route.path.endsWith('/') ? this.$route.path : this.$route.path + '/'
     }
   },
 }

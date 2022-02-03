@@ -43,19 +43,25 @@ export default {
         exclude: /node_modules/,
         loader: "webpack-graphql-loader",
       });
-        
     },
   },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     proxy: true,
-    debug: true,
+    debug: false,
     baseUrl: `${BACKEND_LOCATION}`,
   },
   proxy: {
     "/apps/central/theme.css": `${BACKEND_LOCATION}`,
-    "/**/theme.css": `${BACKEND_LOCATION}`,
+    "/**/theme.css": {
+      target: `${BACKEND_LOCATION}`, pathRewrite: (path, req) => {
+        const segments = path.split("/")
+        if (segments.length > 3) {
+          return [segments[0], segments[1], segments.pop()].join("/");
+        }
+        return path;
+    }},
     "/apps/styleguide/assets/img/molgenis_logo_white.png": `${BACKEND_LOCATION}`,
     "/graphql": `${BACKEND_LOCATION}`,
     "/*/graphql": `${BACKEND_LOCATION}`,

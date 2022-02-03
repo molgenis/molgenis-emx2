@@ -17,13 +17,22 @@ export const mutations = {
 };
 
 export const actions = {
+  async nuxtServerInit({ dispatch, commit }, context) {
+    if (process.server) {
+      const { req, res, beforeNuxtRender } = context;
+      const path = context.req.url;
+      const schema = path.split("/").filter((i) => i !== "")[0];
+      commit("setSchema", schema);
+      await dispatch("fetchSession");
+    }
+  },
   async fetchSession(context) {
+    console.log("fetchSession for schema: " + context.state.schema);
     const query =
       '{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}';
+    const sessionUrl = context.state.schema ? context.state.schema + "/graphql" : "apps/central/graphql";
     const resp = await this.$axios({
-      url: context.state.schema
-        ? context.state.schema + "/graphql"
-        : "apps/central/graphql",
+      url: sessionUrl,
       method: "post",
       data: { query },
     }).catch((e) => console.error(e));
@@ -55,11 +64,11 @@ export const actions = {
       url: url,
       method: "post",
       data: { query },
-    }).catch((e) => {
-      console.error(e);
+    }).catch((e) => { 
       console.error(
-        "Unable to fetch catalog count, make use this current schema support the catalog model"
+        "Unable to fetch catalog count, make sure the current schema supports the catalog model"
       );
+       console.error(e);
     });
     if (resp && resp.data && resp.data.data) {
       const counts = resp.data.data;
@@ -69,10 +78,10 @@ export const actions = {
         databanks: counts.Databanks_agg.count,
         datasources: counts.Datasources_agg.count,
         networks: counts.Networks_agg.count,
-       
+
         models: counts.Models_agg.count,
         studies: counts.Studies_agg.count,
-        
+
         // variables: counts.Variables_agg.count,
         // variableMappings: counts.VariableMappings_agg.count,
         // tableMappings: counts.TableMappings_agg.count,
