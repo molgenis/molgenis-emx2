@@ -132,7 +132,8 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 | description | Description of the variable | |
 | exampleValues | Examples of values in a comma separated list | Makes your data more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies Vocabularies |
-| collectionEvent | Refer to a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| collectionEvent.resource | Your cohort pid | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| collectionEvent.name | Refer to the name of a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
 
 <sup>Table 3. Description of the columns that can be filled out for SourceVariables. * = mandatory; 
@@ -172,7 +173,8 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 | name \* | Variable name. | e.g. height\_1 |
 | isRepeatOf.table \* | Table that contains the variable that is repeated | Tables must be predefined in the _SourceTables_ sheet; e.g. core |
 | isRepeatOf.name \* | Name of the variable that is repeated | Variables must be predefined in the _SourceVariables_ sheet; e.g. height\_0 |
-| collectionEvent | Refer to a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| collectionEvent.resource | Your cohort pid | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
+| collectionEvent.name | Refer to the name of a collection event | The collectionEvent needs to be predefined in the _CollectionEvents_ sheet; e.g. y1 or y2 |
 
 <sup>Table 5. Description of the columns that can be filled out for RepeatedSourceVariables. * = mandatory</sup>
 
