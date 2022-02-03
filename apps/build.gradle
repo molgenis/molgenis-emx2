@@ -55,7 +55,9 @@ subprojects {
         }
 
         //first install the workspace
-        args = ['run', 'build']
+        if (project.name != 'nuxt-ssr') {
+            args = ['run', 'build']
+        }
 
         //remove the target folder with copy of all build materials
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
