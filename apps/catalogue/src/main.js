@@ -26,7 +26,6 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
-    { name: "Cohorts", path: "/alt", component: NetworkView },
     {
       name: "Databanks",
       path: "/databanks",
