@@ -417,7 +417,7 @@ class SqlTableMetadata extends TableMetadata {
     SqlTableMetadata tm = schema.getTableMetadata(tableName);
     for (Setting setting : settings) {
       MetadataUtils.saveSetting(db.getJooq(), schema, tm, setting);
-      tm.settings.put(setting.getKey(), setting);
+      tm.settings.put(setting.key(), setting);
     }
     return tm;
   }
