@@ -244,12 +244,17 @@ public class SqlDatabase implements Database {
 
   @Override
   public Schema dropCreateSchema(String name) {
+    return this.dropCreateSchema(name, null);
+  }
+
+  @Override
+  public Schema dropCreateSchema(String name, String description) {
     tx(
         db -> {
           if (getSchema(name) != null) {
             SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
           }
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           executeCreateSchema((SqlDatabase) db, metadata);
           ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
         });
