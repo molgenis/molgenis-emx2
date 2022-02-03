@@ -62,7 +62,7 @@ const links = [
     { label: 'Vue',  href: 'https://vuejs.org/', text:'link 2' } 
 ]
 <template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links"> </links-list>
 </template>
 ```
 
@@ -73,7 +73,7 @@ const links = [
     { href: 'https://vuejs.org/', text:'Vue' } 
 ]
 <template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links" ></links-list>
 </template>
 
 ```
@@ -86,7 +86,7 @@ const links = [
 
 const isHorizontal = true
 <template>
-  <links-list :items="links" :isHorizontal="isHorizontal" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links" :isHorizontal="isHorizontal" ></links-list>
 </template>
 
 ```
