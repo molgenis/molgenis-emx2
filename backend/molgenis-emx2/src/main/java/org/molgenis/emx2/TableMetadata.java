@@ -47,6 +47,10 @@ public class TableMetadata implements Comparable {
   private String[] semantics = null;
 
   public TableMetadata(String tableName) {
+    this.tableName = validateName(tableName);
+  }
+
+  private String validateName(String tableName) {
     // max length 31 because of Excel
     // we allow only graphql compatible names PLUS spaces
     if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
@@ -60,7 +64,7 @@ public class TableMetadata implements Comparable {
       throw new MolgenisException(
           "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
     }
-    this.tableName = tableName.trim();
+    return tableName.trim();
   }
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
@@ -541,7 +545,7 @@ public class TableMetadata implements Comparable {
   }
 
   public TableMetadata alterName(String name) {
-    this.tableName = name;
+    this.tableName = validateName(tableName);
     return this;
   }
 
