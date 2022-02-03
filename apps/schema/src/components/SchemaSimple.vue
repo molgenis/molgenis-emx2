@@ -118,7 +118,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
           this.schema = this.addOldNamesAndRemoveMeta(data._schema);
@@ -143,7 +143,10 @@ export default {
     addOldNamesAndRemoveMeta(schema) {
       if (schema) {
         if (schema.tables) {
-          schema.tables.forEach((t) => {
+          let tables = schema.tables.filter(
+            (table) => table.tableType != "ONTOLOGIES"
+          );
+          tables.forEach((t) => {
             t.oldName = t.name;
             if (t.columns) {
               t.columns = t.columns
@@ -157,6 +160,7 @@ export default {
               t.columns = [];
             }
           });
+          schema.tables = tables;
         } else {
           schema.tables = [];
         }

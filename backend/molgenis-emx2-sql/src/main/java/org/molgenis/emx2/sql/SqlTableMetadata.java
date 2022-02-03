@@ -164,6 +164,8 @@ class SqlTableMetadata extends TableMetadata {
                 sync(
                     alterColumnTransaction(
                         getSchemaName(), getTableName(), columnName, column, db)));
+    // reload the state
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
     return this;
   }
 
@@ -209,6 +211,11 @@ class SqlTableMetadata extends TableMetadata {
 
     // remove refBacks if exist
     executeRemoveRefback(oldColumn, newColumn);
+
+    // add ontology table if needed
+    if (newColumn.isOntology()) {
+      createOntologyTable(newColumn);
+    }
 
     // rename and retype if needed
     executeAlterType(tm.getJooq(), oldColumn, newColumn);
