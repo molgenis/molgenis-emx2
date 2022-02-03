@@ -6,6 +6,7 @@
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
+      style="overflow-x: scroll"
     >
       <template v-slot:colheader>
         <slot
