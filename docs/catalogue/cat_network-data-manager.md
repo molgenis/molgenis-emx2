@@ -25,14 +25,14 @@ LongITools. You will need login details to upload metadata to MOLGENIS Data Cata
 
 #### Define common data elements
 
-We use the [*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
+We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 to describe the common data model elements. The 
-[*NetworkDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary.xlsx)
+[*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 consists of multiple sheets. Each sheet corresponds to a table in the Data Catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
 accept a data upload. You can download this
-[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/NetworkDictionary_testDCM.xlsx)
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testDCM.xlsx)
 as a reference for filling out the template.
 
 
@@ -55,7 +55,7 @@ after their name are mandatory.
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | resource \* | Name of the network's model | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| version \* | Version of the data dictionary | e.g. 1.1 |
+| version \* | Version of the target data dictionary | e.g. 1.1 |
 
 <sup>Table 1. Description of the columns that can be filled out for TargetDataDictionaries. * = mandatory</sup>
 
@@ -66,7 +66,7 @@ The cohort tables are defined in the *SourceTables* sheet. Columns with an aster
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | dataDictionary.resource \* | Name of the model. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| dataDictionary.version \* | Data dictionary version this table is part of. | e.g. 1.0.1 |
+| dataDictionary.version \* | Target data dictionary version this table is part of. | e.g. 1.0.1 |
 | name \* | Unique table name | |
 | label | Table label | |
 | description | Table description | |
@@ -80,7 +80,7 @@ The cohort variables are defined in the *TargetVariables* sheet.
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| dataDictionary.version \* | Target data dictionary version this variable is part of | e.g. 1.0.1 |
 | table \* | Table that contains the variable | Tables must be predefined in the TargetTables sheet |
 | name \* | Variable name, unique within a table | |
 | label | Human readable variable label | |
@@ -106,7 +106,7 @@ insightful for those that are interested.
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| dataDictionary.version \* | Target data dictionary version this variable is part of | e.g. 1.0.1 |
 | variable.table \* | Table that contains the variable | Tables must be predefined in the TargetTables sheet |
 | variable.name \* | Variable name | Variables must be predefined in the TargetVariables sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
@@ -127,7 +127,7 @@ optional.
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
 | dataDictionary.resource \* | Name of the model that contains this variable | e.g LifeCycle_CDM or ATHLETE_CDM |
-| dataDictionary.version \* | Data dictionary version this variable is part of | e.g. 1.0.1 |
+| dataDictionary.version \* | Target data dictionary version this variable is part of | e.g. 1.0.1 |
 | table \* | Table name | e.g. core |
 | name \* | Variable name | e.g. height\_1 |
 | isRepeatOf.table \* | Table that contains the variable that is repeated | Tables must be predefined in the _TargetTables_ sheet; e.g. core |

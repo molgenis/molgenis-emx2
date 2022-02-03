@@ -64,16 +64,16 @@ the Data Catalogue. Expected users of this 'how to' are data managers within the
 data sources. This document assumes you have received login details for upload of your metadata. You can also watch
 this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 
-#### Define source variable metadata / data dictionary
+#### Define source variable metadata / source data dictionary
 
-We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
-to define variable metadata. The [*Dictionary
-template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx) consists of multiple
+We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx)
+to define variable metadata. The [*SourceDictionary
+template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx) consists of multiple
 sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to
 columns in the table concerned. This document describes how to fill out each of the sheets and their columns. A column
 with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to accept a data
 upload. You can download this 
-[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testCohort.xlsx) 
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary_testCohort.xlsx) 
 as a reference for filling out the template.
 
 <sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
@@ -95,7 +95,7 @@ This sheet is used to fill out versions of your codebook.
 | *Column name* | *Description* |
 | --- | --- |
 | resource \* | Fill out your cohort pid |
-| version \* | Version of the data dictionary |
+| version \* | Version of the source data dictionary |
 
 <sup>Table 1. Description of the columns that can be filled out for SourceDataDictionaries. * = mandatory</sup>
 
@@ -106,8 +106,8 @@ asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* |
 | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this table belongs to |
-| dataDictionary.version \* |  Version of the data dictionary that this table belongs to |
+| dataDictionary.resource \* | Source data dictionary that this table belongs to |
+| dataDictionary.version \* |  Version of the source data dictionary that this table belongs to |
 | name \* | Unique table name |
 | label | Table label |
 | description | Table description |
@@ -122,8 +122,8 @@ The variables of the tables specified in the *SourceTables* sheet are defined in
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this variable belongs to | Fill out your cohort pid |
-| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to | |
+| dataDictionary.resource \* | Source data dictionary that this variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to | Source data dictionaries must be predefined in the _SourceDataDictionaries_ sheet  |
 | table \* | Table that contains the variable. | Tables must be predefined in the SourceTables sheet |
 | name \* | Variable name, unique within a table | |
 | label | Human readable variable label | |
@@ -147,8 +147,8 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that the variable belongs to | Fill out your cohort pid |
-| dataDictionary.version \* |  Version of the data dictionary that the variable belongs to | |
+| dataDictionary.resource \* | Source data dictionary that the variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the data dictionary that the variable belongs to | Source data dictionaries must be predefined in the _SourceDataDictionaries_ sheet |
 | variable.table \* | Table that contains the variable | Tables must be predefined in the _SourceTables_ sheet |
 | variable.name \* | Variable name | Variables must be predefined in the _SourceVariables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
@@ -167,8 +167,8 @@ that has to be repeated when filling out repeated variables. This sheet is optio
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| dataDictionary.resource \* | Data dictionary that this variable belongs to | Fill out your cohort pid |
-| dataDictionary.version \* |  Version of the data dictionary that this variable belongs to | |
+| dataDictionary.resource \* | Source data dictionary that this variable belongs to | Fill out your cohort pid |
+| dataDictionary.version \* |  Version of the source data dictionary that this variable belongs to | Source data dictionaries must be predefined in the _SourceDataDictionaries_ sheet |
 | table \* | Table name. | e.g. core |
 | name \* | Variable name. | e.g. height\_1 |
 | isRepeatOf.table \* | Table that contains the variable that is repeated | Tables must be predefined in the _SourceTables_ sheet; e.g. core |
@@ -212,13 +212,13 @@ linked to collection events. Subcohorts can also be filled out when filling out 
 
 #### Define harmonisations
 
-We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) to
+We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceMappings.xlsx) to
 describe the harmonisations. The 
-[*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) consists of two
+[*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceMappings.xlsx) consists of two
 sheets (TableMappings and VariableMappings). It is used to define the mappings from source variables to target
 variables, or the Extraction, Transformation and Load (ETL) process from a data source to a common data model (CDM).
 You can download this
-[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceMappings_testCohort.xlsx)
 as a reference for filling out the template.
 
 #### *TableMappings* sheet
@@ -232,7 +232,7 @@ is in a cohort or in a data bank.
 | fromDataDictionary.version \* | Source data dictionary version | |
 | fromTable \* | Source table name. | Tables must be predefined in the *SourceTables* sheet |
 | toDataDictionary.resource \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
-| toDataDictionary.version \* | Source data dictionary version | |
+| toDataDictionary.version \* | Target data dictionary version | Look up in [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/)|
 | toTable \* | Target table name | Map to a table that is defined in a common data model |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
@@ -252,7 +252,7 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 | fromVariablesOtherTables.table | Other source tables | When using variables from multiple other tables, use a comma-separated list, e.g. table1,table2,table3<sup>1</sup> |
 | fromVariablesOtherTables.name | Source variable(s) from other tables than filled out under fromTable | When using variables from multiple other tables, use a comma-separated list, the order corresponding to the order of the tables they are derived from specified under fromVariablesOtherTables.table<sup>1</sup> |
 | toDataDictionary.resource \* | Name of the target common data model  | e.g. LifeCycle_CDM, LongITools_CDM |
-| toDataDictionary.version \* | Source data dictionary version | |
+| toDataDictionary.version \* | Source data dictionary version | Look up in [variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/) |
 | toTable \* | Target table name. | Map to a table that is defined in a common data model |
 | toVariable \* | Target variable name | Map to a variable that is defined in a common data model |
 | match | Whether the harmonisation is partial, complete or NA (non-existent) | Find list to choose from in CatalogueOntologies (StatusDetails) |
@@ -260,7 +260,7 @@ Harmonisation procedures at the variable level are defined in the *VariableMappi
 | syntax | Syntax used for this harmonisation | |
 
 <sup>*Table 9. Description of the columns that can be filled out for VariableMappings. * = mandatory <sup>1</sup>see sheet VariableMappings in the 
-[*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
+[*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceMappings_testCohort.xlsx)
 for an example on how to fill this out (last line) </sup> 
 
 ### Upload metadata
