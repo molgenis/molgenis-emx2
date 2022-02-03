@@ -57,6 +57,10 @@ jobs:
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
 
       - run:
+          name: add nuxt
+          command: yarn --cwd apps/nuxt-ssr
+
+      - run:
           name: update package manger
           command: apt-get update
 
