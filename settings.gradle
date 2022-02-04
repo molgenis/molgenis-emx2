@@ -25,5 +25,3 @@ include(':backend:molgenis-emx2-graphql')
 include(':backend:molgenis-emx2-run')
 include(':backend:molgenis-emx2-jobs')
 include(':backend:molgenis-emx2-semantics')
-findProject(':apps:components')?.name = 'components'
-

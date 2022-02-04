@@ -19,7 +19,7 @@ public class Emx2Settings {
 
     // schema settings
     for (Setting setting : schema.getMetadata().getSettings()) {
-      settings.add(row(SETTINGS_NAME, setting.getKey(), SETTINGS_VALUE, setting.getValue()));
+      settings.add(row(SETTINGS_NAME, setting.key(), SETTINGS_VALUE, setting.value()));
     }
 
     // table settings
@@ -30,9 +30,9 @@ public class Emx2Settings {
                 TABLE,
                 table.getTableName(),
                 SETTINGS_NAME,
-                setting.getKey(),
+                setting.key(),
                 SETTINGS_VALUE,
-                setting.getValue()));
+                setting.value()));
       }
     }
 

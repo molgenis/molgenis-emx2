@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -16,12 +15,7 @@ public class TestSchemaUpdate {
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    db.createSchema(TestSchemaUpdate.class.getName(), desc);
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    db.dropSchema(TestSchemaUpdate.class.getName());
+    db.dropCreateSchema(TestSchemaUpdate.class.getName(), desc);
   }
 
   @Test

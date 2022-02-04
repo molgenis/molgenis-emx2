@@ -35,6 +35,7 @@ public class SqlDatabase implements Database {
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
+  private Collection<Setting> settings = new ArrayList<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
@@ -68,6 +69,7 @@ public class SqlDatabase implements Database {
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
+    this.settings.addAll(copy.settings);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -143,6 +145,11 @@ public class SqlDatabase implements Database {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
+
+      if (settings.stream().noneMatch(s -> s.key().equals(Constants.IS_OIDC_ENABLED))) {
+        this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+      }
+
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
@@ -235,6 +242,7 @@ public class SqlDatabase implements Database {
           SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
           sqlDatabase.schemaNames.remove(name);
           sqlDatabase.schemaInfos.clear();
+          sqlDatabase.settings.clear();
           sqlDatabase.schemaCache.remove(name);
         });
 
@@ -244,12 +252,17 @@ public class SqlDatabase implements Database {
 
   @Override
   public Schema dropCreateSchema(String name) {
+    return this.dropCreateSchema(name, null);
+  }
+
+  @Override
+  public Schema dropCreateSchema(String name, String description) {
     tx(
         db -> {
           if (getSchema(name) != null) {
             SqlSchemaMetadataExecutor.executeDropSchema((SqlDatabase) db, name);
           }
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name);
+          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
           executeCreateSchema((SqlDatabase) db, metadata);
           ((SqlDatabase) db).schemaCache.put(name, new SqlSchemaMetadata(db, metadata));
         });
@@ -270,6 +283,36 @@ public class SqlDatabase implements Database {
       this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
     }
     return this.schemaInfos;
+  }
+
+  @Override
+  public Collection<Setting> getSettings() {
+    if (this.settings.isEmpty()) {
+      this.settings = MetadataUtils.loadSettings(jooq);
+    }
+    return this.settings;
+  }
+
+  @Override
+  public Setting createSetting(String key, String value) {
+    if (isAdmin()) {
+      Setting newSetting = new Setting(key, value);
+      MetadataUtils.saveSetting(jooq, newSetting);
+      this.settings.add(newSetting);
+      return newSetting;
+    } else {
+      throw new MolgenisException("Insufficient rights to create database level setting");
+    }
+  }
+
+  @Override
+  public Boolean deleteSetting(String key) {
+    if (isAdmin()) {
+      MetadataUtils.deleteSetting(jooq, key);
+      return this.settings.removeIf((Setting s) -> s.key().equals(key));
+    } else {
+      throw new MolgenisException("Insufficient rights to delete database level setting");
+    }
   }
 
   @Override
@@ -425,6 +468,7 @@ public class SqlDatabase implements Database {
 
       this.schemaNames = from.schemaNames;
       this.schemaInfos = from.schemaInfos;
+      this.settings = from.settings;
 
       // remove schemas that were dropped
       Set<String> removeSet = new HashSet<>();
@@ -462,6 +506,7 @@ public class SqlDatabase implements Database {
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
+    this.settings.clear();
   }
 
   public DSLContext getJooq() {

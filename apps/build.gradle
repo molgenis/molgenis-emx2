@@ -19,8 +19,14 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
+    task installNuxt(type: YarnTask, dependsOn: parent.yarn_install) {
+        if(project.name == 'nuxt-ssr') {
+            args = ['run', 'install-nuxt']
+        }
+    }
+
     //all depends on styleguide, so that needs build first
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task build(type: YarnTask, dependsOn: installNuxt) {
         node {
             with nodeSpec
         }
