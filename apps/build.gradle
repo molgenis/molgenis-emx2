@@ -19,18 +19,13 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    task installNuxt(type: YarnTask, dependsOn: parent.yarn_install) {
-        if(project.name == 'nuxt-ssr') {
-            args = ['run', 'install-nuxt']
-        }
-    }
-
     //all depends on styleguide, so that needs build first
-    task build(type: YarnTask, dependsOn: installNuxt) {
+    task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node {
             with nodeSpec
         }
 
+        inputs.file('package.json')
         if(project.name == 'nuxt-ssr') {
             inputs.files(fileTree('components'))
             inputs.files(fileTree('middleware'))
@@ -43,7 +38,6 @@ subprojects {
         } else {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
-            inputs.file('package.json')
         }
 
         if (project.name != 'docs' && project.name != 'nuxt-ssr' ) {
