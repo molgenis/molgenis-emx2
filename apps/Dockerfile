@@ -4,6 +4,8 @@ COPY . /app
 
 WORKDIR /app
 
+RUN rm -rf node_modules
+
 RUN yarn
 
 RUN yarn build
