@@ -49,20 +49,24 @@ public class ImportSchemaTask extends Task {
               }
             }
 
-            // warn for unknown sheet names
+            // warn for unknown sheet names, if supported
             Collection<String> tableNames = s.getTableNames();
-            for (String sheet : store.tableNames()) {
-              if (!sheet.startsWith("_files/")
-                  && !"molgenis".equals(sheet)
-                  && !"molgenis_settings".equals(sheet)
-                  && !"molgenis_members".equals(sheet)
-                  && !tableNames.contains(sheet)) {
-                this.step(
-                        "Sheet with name '"
-                            + sheet
-                            + "' was skipped: no table with that name found")
-                    .skipped();
+            try {
+              for (String sheet : store.tableNames()) {
+                if (!sheet.startsWith("_files/")
+                    && !"molgenis".equals(sheet)
+                    && !"molgenis_settings".equals(sheet)
+                    && !"molgenis_members".equals(sheet)
+                    && !tableNames.contains(sheet)) {
+                  this.step(
+                          "Sheet with name '"
+                              + sheet
+                              + "' was skipped: no table with that name found")
+                      .skipped();
+                }
               }
+            } catch (UnsupportedOperationException e) {
+              // ignore, not important
             }
 
             // execute the import tasks

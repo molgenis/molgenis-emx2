@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static spark.Service.ignite;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import spark.Service;
 
 public class TestGraphqlDatabaseFields {
 
@@ -40,6 +42,9 @@ public class TestGraphqlDatabaseFields {
     if (database.getSchema(schemaName + "B") != null) {
       database.dropSchema(schemaName + "B");
     }
+    if (database.getSchema(schemaName + "C") != null) {
+      database.dropSchema(schemaName + "C");
+    }
 
     assertNull(database.getSchema(schemaName + "B"));
     String result = execute("{Schemas{name}}").at("/data/Schemas").toString();
@@ -52,6 +57,32 @@ public class TestGraphqlDatabaseFields {
 
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
     assertNull(database.getSchema(schemaName + "B"));
+
+    // create schema by sourcing example data from server
+    Service http = ignite().port(8082);
+    try {
+      http.staticFiles.location("/dataexample");
+      http.init();
+      http.awaitInitialization(); // don't forget this one!
+      execute(
+          "mutation{createSchema(name:\""
+              + schemaName
+              + "C\", sourceURL:\"http://localhost:8082/dataexample\"){message}}");
+      assertNotNull(database.getSchema(schemaName + "C"));
+      assertEquals(
+          "a",
+          database
+              .getSchema(schemaName + "C")
+              .getTable("test")
+              .retrieveRows()
+              .get(0)
+              .getString("col1"));
+
+      execute("mutation{deleteSchema(name:\"" + schemaName + "C\"){message}}");
+    } finally {
+      // close
+      http.stop();
+    }
   }
 
   @Test

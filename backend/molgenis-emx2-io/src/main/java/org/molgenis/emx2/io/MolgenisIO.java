@@ -5,6 +5,7 @@ import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
 import org.molgenis.emx2.Schema;
@@ -70,6 +71,10 @@ public class MolgenisIO {
 
   public static void fromDirectory(Path directory, Schema schema, boolean strict) {
     new ImportDirectoryTask(directory, schema, strict).run();
+  }
+
+  public static void fromURL(URL url, Schema schema, boolean strict) {
+    new ImportURLTask(url, schema, strict).run();
   }
 
   public static void fromZipFile(Path zipFile, Schema schema, boolean strict) {

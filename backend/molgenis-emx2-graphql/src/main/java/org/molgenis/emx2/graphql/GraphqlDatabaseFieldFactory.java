@@ -6,14 +6,14 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 
 import graphql.Scalars;
 import graphql.schema.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.SchemaInfo;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.MolgenisIO;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -43,11 +43,27 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SOURCE_URL).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument("name");
-              String description = dataFetchingEnvironment.getArgument("description");
-              database.createSchema(name, description);
+              String name = dataFetchingEnvironment.getArgument(GraphqlConstants.NAME);
+              String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
+              String sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URL);
+              database.tx(
+                  db -> {
+                    Schema schema = db.createSchema(name, description);
+                    if (sourceUrl != null) {
+                      try {
+                        MolgenisIO.fromURL(new URL(sourceUrl), schema, false);
+                        // todo enable async running with link to progress via TaskApi (holds for
+                        // all long running api calls)
+                      } catch (Exception e) {
+                        throw new MolgenisException(e.getMessage());
+                      }
+                    }
+                  });
+
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
   }
