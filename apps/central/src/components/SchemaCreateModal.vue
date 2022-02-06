@@ -50,17 +50,22 @@
           </LayoutForm>
           <hr />
           <p>Templates</p>
-          <ButtonAlt
-            @click="
-              schemaName = 'CohortCatalogue';
-              sourceURL = [
-                host + '/public_html/apps/data/datacatalogue',
-                host + '/public_html/apps/data/datacatalogue/Cohorts',
-              ];
-            "
-          >
-            Cohort Catalogue
-          </ButtonAlt>
+          <ul>
+            <li>
+              <ButtonAlt
+                @click="
+                  schemaName = 'CohortCatalogue';
+                  sourceURL = [
+                    host + '/public_html/apps/data/datacatalogue',
+                    host + '/public_html/apps/data/datacatalogue/Cohorts',
+                  ];
+                "
+              >
+                Cohort Catalogue
+              </ButtonAlt>
+              - template for multi-center cohort data harmonization studies
+            </li>
+          </ul>
           <br />
         </div>
       </template>
