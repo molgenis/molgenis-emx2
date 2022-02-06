@@ -27,25 +27,47 @@
       <template v-slot:body>
         <Spinner v-if="loading" />
         <div v-else>
+          page: {{ host }}
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm :key="key">
             <InputString
               v-model="schemaName"
               label="name"
               :defaultValue="schemaName"
+              :required="true"
             />
             <InputText
               v-model="schemaDescription"
-              label="description"
+              label="description (optional)"
               :defaultValue="schemaDescription"
             />
+            <InputString
+              v-model="sourceURL"
+              label="sourceURL (optional)"
+              description="You can automatically populate your database from a url that has similar contents as when you download a zip."
+              :list="true"
+            />
           </LayoutForm>
+          <hr />
+          <p>Templates</p>
+          <ButtonAlt
+            @click="
+              schemaName = 'CohortCatalogue';
+              sourceURL = [
+                host + '/public_html/apps/data/datacatalogue',
+                host + '/public_html/apps/data/datacatalogue/Cohorts',
+              ];
+            "
+          >
+            Cohort Catalogue
+          </ButtonAlt>
+          <br />
         </div>
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema"
-          >Create database
+        <ButtonAction @click="executeCreateSchema">
+          Create database
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -89,6 +111,7 @@ export default {
       success: null,
       schemaName: null,
       schemaDescription: null,
+      sourceURL: null,
     };
   },
   computed: {
@@ -98,6 +121,11 @@ export default {
     endpoint() {
       return "/api/graphql";
     },
+    host() {
+      if (window) {
+        return window.location.origin;
+      }
+    },
   },
   methods: {
     executeCreateSchema() {
@@ -106,10 +134,11 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String){createSchema(name:$name, description:$description){message}}`,
+        `mutation createSchema($name:String, $description:String, $sourceURL: [String]){createSchema(name:$name, description:$description, sourceURL: $sourceURL){message}}`,
         {
           name: this.schemaName,
-          description: this.schemaDescription
+          description: this.schemaDescription,
+          sourceURL: this.sourceURL,
         }
       )
         .then((data) => {
