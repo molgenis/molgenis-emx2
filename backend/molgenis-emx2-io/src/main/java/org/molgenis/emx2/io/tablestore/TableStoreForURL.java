@@ -8,17 +8,26 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.readers.RowReaderJackson;
+import org.molgenis.emx2.io.readers.CsvTableReader;
 
 /** We test this in webapi */
 public class TableStoreForURL implements TableAndFileStore {
   private URL baseURL;
 
   public TableStoreForURL(URL baseURL) {
-    this.baseURL = baseURL;
+    if (!baseURL.toString().endsWith("/")) {
+      try {
+        this.baseURL = new URL(baseURL.toString() + "/");
+      } catch (Exception e) {
+        // should never happen
+      }
+    } else {
+      this.baseURL = baseURL;
+    }
   }
 
   @Override
@@ -29,9 +38,9 @@ public class TableStoreForURL implements TableAndFileStore {
   @Override
   public Iterable<Row> readTable(String name) {
     try {
-      URL relativeUrl = new URL(this.baseURL, "/" + name + CSV_EXTENSION);
+      URL relativeUrl = new URL(this.baseURL, name + CSV_EXTENSION);
       BufferedReader reader = new BufferedReader(new InputStreamReader(relativeUrl.openStream()));
-      return RowReaderJackson.readList(reader, ',');
+      return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage());
     }
@@ -46,7 +55,7 @@ public class TableStoreForURL implements TableAndFileStore {
   public boolean containsTable(String name) {
     try {
       // we assume only csv at the moment
-      URL relativeUrl = new URL(this.baseURL, "/" + name + CSV_EXTENSION);
+      URL relativeUrl = new URL(this.baseURL, name + CSV_EXTENSION);
       HttpURLConnection huc = (HttpURLConnection) relativeUrl.openConnection();
       int responseCode = huc.getResponseCode();
       return HttpURLConnection.HTTP_OK == responseCode;
