@@ -44,22 +44,26 @@ public class GraphqlDatabaseFieldFactory {
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .argument(
-            GraphQLArgument.newArgument().name(Constants.SOURCE_URL).type(Scalars.GraphQLString))
+            GraphQLArgument.newArgument()
+                .name(Constants.SOURCE_URL)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(GraphqlConstants.NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              String sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URL);
+              List<String> sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URL);
               database.tx(
                   db -> {
                     Schema schema = db.createSchema(name, description);
                     if (sourceUrl != null) {
-                      try {
-                        MolgenisIO.fromURL(new URL(sourceUrl), schema, false);
-                        // todo enable async running with link to progress via TaskApi (holds for
-                        // all long running api calls)
-                      } catch (Exception e) {
-                        throw new MolgenisException(e.getMessage());
+                      for (String url : sourceUrl) {
+                        try {
+                          MolgenisIO.fromURL(new URL(url), schema, false);
+                          // todo enable async running with link to progress via TaskApi (holds for
+                          // all long running api calls)
+                        } catch (Exception e) {
+                          throw new MolgenisException(e.getMessage());
+                        }
                       }
                     }
                   });
