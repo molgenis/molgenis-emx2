@@ -22,7 +22,7 @@ public class TestTableStoreForURL {
       http.awaitInitialization();
 
       // test store
-      TableStoreForURL store = new TableStoreForURL(new URL("http://localhost:8081"));
+      TableStoreForURL store = new TableStoreForURL(new URL("http://localhost:8081/"));
       assertTrue(store.containsTable("test"));
       assertFalse(store.containsTable("test2"));
 
@@ -31,7 +31,7 @@ public class TestTableStoreForURL {
           TestDatabaseFactory.getTestDatabase()
               .dropCreateSchema(TestTableStoreForURL.class.getSimpleName());
 
-      MolgenisIO.fromURL(new URL("http://localhost:8081/TestImportTableTask"), schema, false);
+      MolgenisIO.fromURL(new URL("http://localhost:8081/"), schema, false);
 
       // check if success
       assertNotNull(schema.getMetadata().getTableMetadata("test"));
