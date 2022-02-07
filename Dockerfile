@@ -1,12 +1,20 @@
 FROM node:lts-gallium
 
-COPY . /app
+COPY ./nuxt-ssr /app/nuxt-ssr
+COPY ./molgenis-components /app/molgenis-components
+COPY ssr-package.json /app
 
 WORKDIR /app
 
-RUN rm -rf node_modules
+RUN ls
 
-RUN yarn
+RUN mv ssr-package.json package.json
+
+RUN yarn install
+
+WORKDIR /app/nuxt-ssr
+
+RUN ls
 
 RUN yarn build
 

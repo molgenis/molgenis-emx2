@@ -1,15 +1,15 @@
 {
-  "name": "components",
+  "name": "molgenis-components",
   "version": "0.0.0",
   "files": [
     "dist"
   ],
-  "main": "./dist/components.umd.js",
-  "module": "./dist/components.es.js",
+  "main": "./dist/molgenis-components.umd.js",
+  "module": "",
   "exports": {
     ".": {
-      "import": "./dist/components.es.js",
-      "require": "./dist/components.umd.js"
+      "import": "./dist/molgenis-components.es.js",
+      "require": "./dist/molgenis-components.umd.js"
     }
   },
   "scripts": {

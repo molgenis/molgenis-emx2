@@ -32,7 +32,7 @@ subprojects {
         }
 
         if(project.name == 'nuxt-ssr') {
-            inputs.files(fileTree('components'))
+            inputs.files(fileTree('molgenis-components'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
@@ -40,7 +40,7 @@ subprojects {
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
 
-        } else if(project.name == 'components') {
+        } else if(project.name == 'molgenis-components') {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.files(fileTree('lib'))
@@ -53,9 +53,9 @@ subprojects {
             inputs.file('package.json')
         }
 
-        if (project.name != 'docs' && project.name != 'nuxt-ssr' && project.name != 'components' ) {
+        if (project.name != 'docs' && project.name != 'nuxt-ssr' && project.name != 'molgenis-components' ) {
             inputs.files(fileTree('../styleguide/src'))
-            inputs.files(fileTree('../components/src'))
+            inputs.files(fileTree('../molgenis-components/src'))
             inputs.file('vue.config.js')
             outputs.dir('dist')
         }

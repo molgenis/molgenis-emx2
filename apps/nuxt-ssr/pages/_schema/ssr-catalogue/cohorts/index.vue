@@ -8,7 +8,8 @@
 
 <script>
 import query from "../../../../store/gql/cohorts.gql";
-import { TableDisplay } from "components";
+import { TableDisplay} from "molgenis-components"
+// import { TableDisplay } from "molgenis-components";
   export default {
     name: "Cohorts",
     components: { TableDisplay },

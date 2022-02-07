@@ -9,8 +9,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, "lib/main.js"),
-      name: "Components",
-      fileName: (format) => `components.${format}.js`,
+      name: "MolgenisComponents",
+      fileName: (format) => `molgenis-components.${format}.js`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
