@@ -6,15 +6,13 @@ COPY ssr-package.json /app
 
 WORKDIR /app
 
-RUN ls
-
 RUN mv ssr-package.json package.json
 
 RUN yarn install
 
-WORKDIR /app/nuxt-ssr
+COPY ./molgenis-components/dist/style.css /app/nuxt-ssr/assets/css
 
-RUN ls
+WORKDIR /app/nuxt-ssr
 
 RUN yarn build
 

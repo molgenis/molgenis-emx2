@@ -20,7 +20,7 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  css: ["assets/css/style.css"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
@@ -55,13 +55,15 @@ export default {
   proxy: {
     "/apps/central/theme.css": `${BACKEND_LOCATION}`,
     "/**/theme.css": {
-      target: `${BACKEND_LOCATION}`, pathRewrite: (path, req) => {
-        const segments = path.split("/")
+      target: `${BACKEND_LOCATION}`,
+      pathRewrite: (path, req) => {
+        const segments = path.split("/");
         if (segments.length > 3) {
           return [segments[0], segments[1], segments.pop()].join("/");
         }
         return path;
-    }},
+      },
+    },
     "/apps/styleguide/assets/img/molgenis_logo_white.png": `${BACKEND_LOCATION}`,
     "/graphql": `${BACKEND_LOCATION}`,
     "/*/graphql": `${BACKEND_LOCATION}`,
