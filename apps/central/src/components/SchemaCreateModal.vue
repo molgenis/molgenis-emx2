@@ -27,7 +27,6 @@
       <template v-slot:body>
         <Spinner v-if="loading" />
         <div v-else>
-          page: {{ host }}
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm :key="key">
             <InputString
