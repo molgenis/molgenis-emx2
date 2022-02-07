@@ -58,7 +58,7 @@ public class EvaluateExpressions {
   public static void checkValidation(Row row, Collection<Column> columns) {
     // convert row in correct type
     for (Column c : columns) {
-      row.set(c.getName(), row.get(c));
+      row.set(c.getName(), row.get(c.getName, c));
     }
     // apply
     for (Column c : columns) {
