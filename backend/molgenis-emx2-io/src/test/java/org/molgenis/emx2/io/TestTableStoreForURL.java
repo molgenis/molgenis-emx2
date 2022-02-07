@@ -31,7 +31,7 @@ public class TestTableStoreForURL {
           TestDatabaseFactory.getTestDatabase()
               .dropCreateSchema(TestTableStoreForURL.class.getSimpleName());
 
-      MolgenisIO.fromURL(new URL("http://localhost:8081/"), schema, false);
+      MolgenisIO.fromURL(new URL("http://localhost:8081"), schema, false);
 
       // check if success
       assertNotNull(schema.getMetadata().getTableMetadata("test"));
