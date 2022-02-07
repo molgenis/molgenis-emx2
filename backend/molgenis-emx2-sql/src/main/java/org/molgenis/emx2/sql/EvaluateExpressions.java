@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
@@ -55,23 +56,19 @@ public class EvaluateExpressions {
     return result.get();
   }
 
-  public static void checkValidation(Row row, Collection<Column> columns) {
-    // convert row in correct type
-    for (Column c : columns) {
-      row.set(c.getName(), row.get(c.getName(), c));
-    }
+  public static void checkValidation(Map<String, Object> values, Collection<Column> columns) {
+
     // apply
     for (Column c : columns) {
       if (c.getValidation() != null) {
-        Try<Object> result =
-            evaluator.parseAndEvaluate(List.of(c.getValidation()), row.getValueMap()).get(0);
+        Try<Object> result = evaluator.parseAndEvaluate(List.of(c.getValidation()), values).get(0);
         if (result.isFailure()) {
           throw new MolgenisException(
               String.format("Cannot execute expression: %s", c.getValidation()));
         }
         if (!TypeUtils.toBool(result.get())) {
           throw new MolgenisException(
-              String.format("%s. Values provided: %s", c.getValidation(), row));
+              String.format("%s. Values provided: %s", c.getValidation(), values));
         }
       }
     }

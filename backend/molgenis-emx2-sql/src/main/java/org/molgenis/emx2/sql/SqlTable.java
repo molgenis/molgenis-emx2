@@ -389,11 +389,6 @@ class SqlTable implements Table {
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      // when insert, we should include all columns, not only 'updateColumns'
-      if (!row.isDraft()) {
-        checkRequired(row, allColumns);
-        checkValidation(row, columns);
-      }
       // get values
       Map values = SqlTypeUtils.getValuesAsMap(row, columns);
       if (!inherit) {
@@ -401,6 +396,11 @@ class SqlTable implements Table {
         values.put(MG_INSERTEDON, now);
         values.put(MG_UPDATEDBY, user);
         values.put(MG_UPDATEDON, now);
+      }
+      // when insert, we should include all columns, not only 'updateColumns'
+      if (!row.isDraft()) {
+        checkRequired(row, allColumns);
+        checkValidation(values, columns);
       }
       step.values(values.values());
     }
@@ -468,7 +468,7 @@ class SqlTable implements Table {
 
       if (!row.isDraft()) {
         checkRequired(row, columns);
-        checkValidation(row, columns);
+        checkValidation(values, columns);
       }
 
       list.add(
