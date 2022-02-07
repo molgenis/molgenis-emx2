@@ -32,8 +32,9 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                  icon="external-link-alt"
-                  @click="openGroup(schema.name)"
+                  v-if="session && session.email == 'admin'"
+                  icon="edit"
+                  @click="openEditSchema(schema.name, schema.description)"
                 />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
@@ -47,7 +48,9 @@
                 schema.name
               }}</a>
             </td>
-            <td>{{ schema.description }}</td>
+            <td>
+              {{ schema.description }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -57,9 +60,12 @@
         @close="closeDeleteSchema"
         :schemaName="showDeleteSchema"
       />
-      <ShowMore title="debug"
-        >session = {{ session }}, schemas = {{ schemas }}
-      </ShowMore>
+      <SchemaEditModal
+        v-if="showEditSchema"
+        @close="closeEditSchema"
+        :schemaName="showEditSchema"
+        :schemaDescription="editDescription"
+      />
     </div>
   </div>
 </template>
@@ -69,11 +75,11 @@ import { request } from "graphql-request";
 
 import SchemaCreateModal from "./SchemaCreateModal";
 import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaEditModal from "./SchemaEditModal";
 import {
   IconAction,
   IconBar,
   IconDanger,
-  ShowMore,
   Spinner,
   MessageWarning,
   InputSearch,
@@ -84,10 +90,10 @@ export default {
     Spinner,
     SchemaCreateModal,
     SchemaDeleteModal,
+    SchemaEditModal,
     IconBar,
     IconAction,
     IconDanger,
-    ShowMore,
     MessageWarning,
     InputSearch,
   },
@@ -100,6 +106,8 @@ export default {
       loading: false,
       showCreateSchema: false,
       showDeleteSchema: false,
+      showEditSchema: false,
+      editDescription: null,
       graphqlError: null,
       search: null,
     };
@@ -127,7 +135,7 @@ export default {
   },
   methods: {
     openGroup(name) {
-      window.open("/" + name + "/tables/", "_blank");
+      window.open("/" + name + "/tables/", "_self");
     },
     openCreateSchema() {
       this.showCreateSchema = true;
@@ -143,9 +151,18 @@ export default {
       this.showDeleteSchema = null;
       this.getSchemaList();
     },
+    openEditSchema(schemaName, schemaDescription) {
+      this.showEditSchema = schemaName;
+      this.editDescription = schemaDescription;
+    },
+    closeEditSchema() {
+      this.showEditSchema = null;
+      this.editDescription = null;
+      this.getSchemaList();
+    },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name}}")
+      request("graphql", "{Schemas{name description}}")
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;

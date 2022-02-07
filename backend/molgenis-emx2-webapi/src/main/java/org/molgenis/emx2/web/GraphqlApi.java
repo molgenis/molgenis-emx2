@@ -22,6 +22,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.Part;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -72,7 +73,8 @@ public class GraphqlApi {
 
     // todo, really check permissions
     if (getSchema(request) == null) {
-      return handleDatabaseRequests(request, response);
+      throw new GraphqlException(
+          "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
     GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
     response.header(CONTENT_TYPE, ACCEPT_JSON);

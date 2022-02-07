@@ -10,7 +10,7 @@
           v-for="(column, index) in filters"
           :expanded.sync="filters[index].expanded"
           :title="column.name"
-          :visible="column.showFilter && column.columnType != 'CONSTANT'"
+          :visible="column.showFilter && column.columnType != 'HEADING'"
           :conditions="column.conditions"
           :key="column.name"
           :style="column.showFilter ? '' : 'display: none'"
@@ -24,12 +24,6 @@
           />
         </FilterContainer>
       </Draggable>
-      <ShowMore title="debug">
-        <pre>
-filters = {{ filters }}
-      </pre
-        >
-      </ShowMore>
     </div>
   </div>
 </template>
@@ -37,7 +31,6 @@ filters = {{ filters }}
 <script>
 import FilterContainer from "./FilterContainer";
 import FilterInput from "./FilterInput";
-import ShowMore from "../layout/ShowMore";
 import Draggable from "vuedraggable";
 
 export default {
@@ -45,7 +38,6 @@ export default {
     FilterInput,
     FilterContainer,
     Draggable,
-    ShowMore,
   },
   props: {
     filters: Array,
@@ -101,7 +93,7 @@ examples
   <div>
     <div class="row">
       <div class="col-3">
-        <FilterSidebar :filters.sync="table.filters"/>
+        <FilterSidebar :filters.sync="table.filters" graphqlURL="/pet store/graphql"/>
       </div>
       <div class="col-9">
         <FilterWells :filters.sync="table.filters"/>
@@ -147,6 +139,13 @@ examples
             {
               "name": "birthday",
               "columnType": "DATE", showFilter: true
+            },
+            {
+              "name": "tags",
+              "refTable": "Tag",
+              "graphqlURL": "/pet store/graphql",
+              "columnType": "ONTOLOGY_ARRAY",
+              "showFilter": true
             }]
         }
       }

@@ -1,111 +1,54 @@
+[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2)
 [![TravisCI](https://travis-ci.com/molgenis/molgenis-emx2.svg?branch=master)](https://travis-ci.com/molgenis/molgenis-emx2)
 [![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=molgenis_molgenis-emx2)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2)
+![Docker Pulls](https://img.shields.io/docker/pulls/molgenis/molgenis-emx2)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social) 
 
+# MOLGENIS EMX2 scientific data platform
 
-# molgenis-emx2 BETA
+The world's most customizable platform for (scientific) data and FAIR principles (findability, accessbility,
+interoperability and reusability).
 
-This is a BETA implementation of new MOLGENIS/EMX2 data service. Core differences with molgenis/molgenis include that it
-is simpler to setup and operate, it allows multiple data schemas and that for developers it exposes data via a
-self-documenting graphql api.
+## Introduction
 
-Demo server: https://emx2.test.molgenis.org/
+Use MOLGENIS to precisely model your data as a schema of tables, columns and relationships.
+Then [MOLGENIS](http://molgenis.org)
+auto generates a complete database application with advanced data entry forms, powerful data up/download options and
+flexible query tools to help you collect, analyse and share your data. If you want to program, you can use PostgreSQL,
+GraphQL api, batch web services or linked data RDF/TTL interface to query/update the data, and use VueJS to create your
+own 'apps'.
 
-## How to run
+## Guides
 
-You can start molgenis-emx2:
+* [User guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/use)
+* [Installation guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/run)
+* [Developer guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_quickstart)
 
-* using docker compose
-* using java commandline + postgresql
-* using kubernetes
+## Quick start
 
-Details below:
+* [Demo server](https://emx2.test.molgenis.org)
+* [java commandline + postgresql](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_java)
+* [docker compose](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_docker)
+* [using kubernetes](https://molgenis.github.io/molgenis-emx2/#/molgenis/run_helm)
 
-### 1. Using docker compose
+## How to contribute
 
-* Install [Docker compose](https://docs.docker.com/compose/install/).
-* Download
-  molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>
-  docker-compose.yml</a> file
-* In directory with docker-compose.yml run:
+* [Build the source code](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_quickstart)
+* [Technologies we use](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_technologies)
 
-```
-docker-compose up
-``` 
+## Changelog
 
-To update to latest release, run:
+Detailed changes for each release are documented in
+the [release notes](https://github.com/molgenis/molgenis-emx2/releases).
 
-```console
-docker-compose pull
-```
+## Licence
 
-Stop by typing ctrl+c.
+![lgplv3logo](https://www.gnu.org/graphics/lgplv3-with-text-154x68.png)
 
-N.B.
-
-* because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
-  normal.
-* the data of postgresql will be stored in 'psql_data' folder. Remove this folder you want a clean start.
-* if you want
-  particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
-  then add version in docker-compose.yml file 'molgenis/molgenis-emx2:version'
-
-### 2. Using java and your own postgresql
-
-* Install java (we use java 11 or higher)
-* Download a molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
-* Download and install [Postgresql](https://www.postgresql.org/download/) (we use 11 or higher)
-* Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
-    ```console
-    sudo -u postgres psql
-    postgres=# create database molgenis;
-    postgres=# create user molgenis with superuser encrypted password 'molgenis';
-    postgres=# grant all privileges on database molgenis to molgenis;
-    ```
-* Start molgenis-emx2; will run on 8080
-    ```console
-    java -jar molgenis-emx2-<version>-all.jar
-    ```
-
-Optionally, you can change defaults using either java properties or using env variables:
-
-* MOLGENIS_POSTGRES_URI
-* MOLGENIS_POSTGRES_USER
-* MOLGENIS_POSTGRES_PASS
-* MOLGENIS_HTTP_PORT
-
-For example:
-
-```console
-java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
-```
-
-### 3. Using Helm on Kubernetes
-
-If you have Kubernetes server then you can install using [Helm](https://helm.sh/docs/).
-
-Add helm chart repository (once)
-
-```console
-helm repo add emx2 https://github.com/molgenis/molgenis-ops-helm/tree/master/charts/molgenis-emx2
-```
-
-Run the latest release (see [Helm docs](https://helm.sh/docs/intro/using_helm/))
-
-```console
-helm install emx2/emx2
-```
-
-Update helm repository to get newest release
-
-```console
-helm repo update
-```
-
-Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-emx2/tree/master/docs/helm-charts)
-
-# For developers
-
-Find developer documentation [here](../master/DEVELOP.md)
+MOLGENIS is licensed as [LGPLv3](LICENSE). This means it is free to use, and can be integrated both open source and
+proprietary software as long as MOLGENIS is acknowledged and changes to its source code are given back to the community.
+Please cite Van der [Velde et al (2018)](https://pubmed.ncbi.nlm.nih.gov/30165396)
+or [Swertz et al (2010)](https://pubmed.ncbi.nlm.nih.gov/21210979) if you use MOLGENIS for a scientific publication.

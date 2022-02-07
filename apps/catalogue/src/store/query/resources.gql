@@ -1,0 +1,6 @@
+query Resources {
+  Resources {
+    pid
+    name
+  }
+}

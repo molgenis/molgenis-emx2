@@ -7,9 +7,13 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.SchemaInfo;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -37,21 +41,76 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(
             GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
-              database.createSchema(name);
+              String description = dataFetchingEnvironment.getArgument("description");
+              database.createSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
+            });
+  }
+
+  public GraphQLFieldDefinition.Builder updateMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updateSchema")
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String name = dataFetchingEnvironment.getArgument("name");
+              String description = dataFetchingEnvironment.getArgument("description");
+              database.updateSchema(name, description);
+              return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
   }
 
   public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getSettings());
+  }
+
+  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("createSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.SETTINGS_VALUE)
+                .type(Scalars.GraphQLString))
         .dataFetcher(
-            dataFetchingEnvironment -> new ArrayList() // big todo
-            );
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
+              database.createSetting(key, value);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
+            });
+  }
+
+  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("deleteSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              database.deleteSetting(key);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
+            });
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
@@ -60,8 +119,13 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               List<Map<String, String>> result = new ArrayList<>();
-              for (String name : database.getSchemaNames()) {
-                result.add(Map.of("name", name));
+              for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
+                HashMap<String, String> fields = new HashMap<>();
+                fields.put("name", schemaInfo.tableSchema());
+                if (!Objects.isNull(schemaInfo.description())) {
+                  fields.put("description", schemaInfo.description());
+                }
+                result.add(fields);
               }
               return result;
             })
@@ -72,6 +136,11 @@ public class GraphqlDatabaseFieldFactory {
                     .field(
                         GraphQLFieldDefinition.newFieldDefinition()
                             .name(GraphqlConstants.NAME)
+                            .type(Scalars.GraphQLString)
+                            .build())
+                    .field(
+                        GraphQLFieldDefinition.newFieldDefinition()
+                            .name(Constants.DESCRIPTION)
                             .type(Scalars.GraphQLString)
                             .build())
                     .build()));

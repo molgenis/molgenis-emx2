@@ -15,13 +15,15 @@ import IconBar from "./forms/IconBar";
 import IconDanger from "./forms/IconDanger";
 
 import InputBoolean from "./forms/InputBoolean";
-import InputConstant from "./forms/InputConstant";
+import InputHeading from "./forms/InputHeading";
 import InputDate from "./forms/InputDate";
 import InputDateTime from "./forms/InputDateTime";
 import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
+import InputOntology from "./forms/InputOntology";
+import InputOntologySubtree from "./forms/InputOntologySubtree";
 import InputPassword from "./forms/InputPassword";
 import InputRadio from "./forms/InputRadio";
 import InputRef from "./forms/InputRef";
@@ -51,11 +53,16 @@ import TableExplorer from "./tables/TableExplorer";
 import NavBar from "./layout/MolgenisMenu";
 import Pagination from "./tables/Pagination";
 
+import RecordCard from "./tables/RecordCard";
+import RowCard from "./tables/RowCard";
 import RowButtonAdd from "./tables/RowButtonAdd";
 import RowButtonEdit from "./tables/RowButtonEdit";
+import RowButtonClone from "./tables/RowButtonClone";
+
 import RowButtonDelete from "./tables/RowButtonDelete";
 import ReadMore from "./layout/ReadMore";
 import RowFormInput from "./tables/RowFormInput";
+import RenderValue from "./tables/RenderValue";
 
 import SelectionBox from "./tables/SelectionBox";
 import Spinner from "./layout/Spinner";
@@ -67,9 +74,24 @@ import TableMetadataMixin from "./mixins/TableMetadataMixin";
 import TableSimple from "./tables/TableSimple";
 import TableSearch from "./tables/TableSearch";
 
+import StringDisplay from "./tables/cellTypes/StringDisplay";
+import ObjectDisplay from "./tables/cellTypes/ObjectDisplay";
+import TextDisplay from "./tables/cellTypes/TextDisplay";
+import FileDisplay from "./tables/cellTypes/FileDisplay";
+
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
-import TreeComponent from "./tree/TreeComponent";
+import MolgenisSignin from "./layout/MolgenisSignin.vue";
+
+import PageHeader from "./display/PageHeader.vue";
+import GridBlock from "./display/GridBlock.vue";
+import KeyValueBlock from "./display/KeyValueBlock.vue";
+import ImageDisplay from "./display/ImageDisplay.vue";
+import PersonDetails from "./display/PersonDetails.vue";
+import ContactDisplay from "./display/ContactDisplay.vue";
+import LinksList from "./display/LinksList.vue";
+import TableDisplay from "./display/TableDisplay";
+import ImageCard from "./display/ImageCard";
 
 export {
   ButtonAction,
@@ -85,15 +107,18 @@ export {
   FilterContainer,
   IconBar,
   IconAction,
+  ImageCard,
   IconDanger,
   InputBoolean,
   InputCheckbox,
-  InputConstant,
+  InputHeading,
   InputDate,
   InputDateTime,
   InputDecimal,
   InputFile,
   InputInt,
+  InputOntology,
+  InputOntologySubtree,
   InputPassword,
   InputRadio,
   InputRef,
@@ -117,11 +142,15 @@ export {
   NavBar,
   NavTabs,
   Pagination,
+  RecordCard,
+  RowCard,
   ReadMore,
   RowButtonEdit,
   RowButtonAdd,
   RowButtonDelete,
+  RowButtonClone,
   RowFormInput,
+  RenderValue,
   SelectionBox,
   Spinner,
   ShowMore,
@@ -132,5 +161,17 @@ export {
   TableExplorer,
   TableSimple,
   TableSearch,
-  TreeComponent,
+  StringDisplay,
+  ObjectDisplay,
+  TextDisplay,
+  FileDisplay,
+  MolgenisSignin,
+  PageHeader,
+  GridBlock,
+  KeyValueBlock,
+  ImageDisplay,
+  PersonDetails,
+  ContactDisplay,
+  LinksList,
+  TableDisplay,
 };

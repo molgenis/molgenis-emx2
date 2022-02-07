@@ -102,11 +102,6 @@
         />
       </div>
     </div>
-    <ShowMore title="debug">
-      columns: {{ table }} <br />
-      selectedColumn: {{ selectedColumn }} <br />
-      errorPerColumn: {{ errorPerColumn }} <br />
-    </ShowMore>
   </div>
 </template>
 
@@ -129,7 +124,6 @@ import {
   IconAction,
   RowFormInput,
   InputSelect,
-  ShowMore,
   InputString,
   MessageSuccess,
   MessageError,
@@ -149,7 +143,6 @@ export default {
     InputString,
     RowFormInput,
     InputSelect,
-    ShowMore,
     MessageSuccess,
     MessageError,
     ButtonAction,
@@ -187,14 +180,12 @@ export default {
       this.$emit("input", this.table);
     },
     changed() {
-      console.log("changed");
       this.changetime = Date.now();
     },
     eval(expression) {
       try {
         let args = Object.keys(this.example).join(",");
         let func = `(function (${args}) { return ${expression}; })`;
-        console.log(func);
         return eval(func)(Object.values(this.example)); // eslint-disable-line
       } catch (e) {
         return "Error in validation script: " + e.message;

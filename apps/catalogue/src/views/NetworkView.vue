@@ -14,6 +14,8 @@
         />
         <h6>Databanks involved</h6>
         <DatabankList :databanks="network.databanks" />
+        <h6>Cohorts involved</h6>
+        <CohortList :cohorts="network.cohorts" />
         <h6>Funding</h6>
         <p>{{ network.fundingStatement ? network.fundingStatement : "N/A" }}</p>
       </div>
@@ -40,6 +42,7 @@ import InstitutionList from "../components/InstitutionList";
 import ResourceHeader from "../components/ResourceHeader";
 import DatasourceList from "../components/DatasourceList";
 import DatabankList from "../components/DatabankList";
+import CohortList from "../components/CohortList";
 import ReleasesList from "../components/ReleasesList";
 import DocumentationList from "../components/DocumentationList";
 import ResourceContext from "../components/ResourceContext";
@@ -50,6 +53,7 @@ export default {
     DocumentationList,
     ReleasesList,
     DatabankList,
+    CohortList,
     DatasourceList,
     InstitutionList,
     PartnersList,
@@ -63,7 +67,7 @@ export default {
     ResourceHeader,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -77,9 +81,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Networks($acronym:String){Networks(filter:{acronym:{equals:[$acronym]}}){name,acronym,type{name},institution{acronym,name}, contact{name,email},description,homepage,fundingStatement, partners{institution{acronym,name,country{name}}}, datasources{acronym,name}, databanks{acronym,name},models{acronym,name}, releases{resource{acronym,name},version}}}`,
+        `query Networks($pid:String){Networks(filter:{pid:{equals:[$pid]}}){name,pid,type{name},institution{pid,name}, contact{name,email},description,homepage,fundingStatement, partners{institution{pid,name,country{name}}}, datasources{pid,name}, cohorts{pid,name}, databanks{pid,name},models{pid,name}, releases{resource{pid,name},version}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -97,7 +101,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

@@ -13,7 +13,7 @@
       </div>
       <VariablesList
         class="col-9"
-        :resource-acronym="resourceAcronym"
+        :resource-pid="resourcePid"
         :topic="selectedTopic"
       />
     </div>
@@ -39,7 +39,6 @@ import {
   MessageSuccess,
   Molgenis,
   Pagination,
-  ShowMore,
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
@@ -65,11 +64,10 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore,
     VariablesList,
   },
   props: {
-    resourceAcronym: String,
+    resourcePid: String,
   },
   data: function () {
     return {

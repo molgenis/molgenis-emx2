@@ -2,7 +2,6 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
-      <MessageError v-if="error">{{ error }}</MessageError>
       <span v-if="session.email && session.email != 'anonymous'">
         <a
           href="#"
@@ -19,16 +18,21 @@
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
-        <ButtonOutline @click="showSigninForm = true" :light="true">
+        <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
+          Sign in</ButtonOutline
+        >
+        <ButtonOutline v-else @click="showSigninForm = true" :light="true">
           Sign in</ButtonOutline
         >
         <SigninForm
           v-if="showSigninForm"
-          :error="error"
           @signin="changed"
           @cancel="closeSigninForm"
         />
-        <ButtonAlt @click="showSignupForm = true" :light="true"
+        <ButtonAlt
+          v-show="!isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
           >Sign up</ButtonAlt
         >
         <SignupForm
@@ -45,13 +49,18 @@
 import Spinner from "./Spinner";
 import ButtonOutline from "../forms/ButtonOutline";
 import ButtonAlt from "../forms/ButtonAlt";
-import MessageError from "../forms/MessageError";
 
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import ChangePasswordForm from "./MolgenisAccount";
 
 import { request } from "graphql-request";
+
+const query = `{
+  _session { email, roles, schemas },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
+  _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
+}`;
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default {
@@ -62,7 +71,6 @@ export default {
     ChangePasswordForm,
     Spinner,
     ButtonAlt,
-    MessageError,
   },
   props: {
     graphql: {
@@ -91,41 +99,66 @@ export default {
   created() {
     this.reload();
   },
+  computed: {
+    isOidcEnabled() {
+      return (
+        this.session &&
+        this.session.settings &&
+        this.session.settings["isOidcEnabled"] === "true"
+      );
+    },
+  },
   methods: {
-    reload() {
+    async reload() {
       this.loading = true;
-      request(
-        this.graphql,
-        `{_session{email,roles},_settings{key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}`
-      )
-        .then((data) => {
-          if (data._session != undefined) {
-            this.session = data._session;
-          } else {
-            this.session = {};
-          }
-          //convert settings to object
-          this.session.settings = {};
-          data._settings.forEach(
-            (s) =>
-              (this.session.settings[s.key] =
-                s.value.startsWith("[") || s.value.startsWith("{")
-                  ? this.parseJson(s.value)
-                  : s.value)
-          );
-          this.session.manifest = data._manifest;
-          this.loading = false;
-          console.log("reloaded session: " + JSON.stringify(this.session));
-          this.$emit("input", this.session);
-        })
-        .catch((error) => {
-          if (error.response.status === 504) {
-            this.error = "Error. Server cannot be reached.";
-          } else {
-            this.error = "internal server error " + error;
-          }
-          this.loading = false;
-        });
+
+      const responses = await Promise.allSettled([
+        request("/apps/central/graphql", query),
+        request(this.graphql, query),
+      ]);
+      const dbSettings =
+        responses[0].status === "fulfilled"
+          ? responses[0].value
+          : this.handleError(responses[0].reason);
+      const schemaSettings =
+        responses[1].status === "fulfilled"
+          ? responses[1].value
+          : this.handleError(responses[1].reason);
+
+      if (schemaSettings && schemaSettings._session) {
+        this.session = schemaSettings._session;
+      } else {
+        this.session = {};
+      }
+      //convert settings to object
+      this.session.settings = {};
+      if (dbSettings && dbSettings._settings) {
+        dbSettings._settings.forEach(
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
+        );
+        this.session.manifest = dbSettings._manifest;
+      }
+      // schemaSettings override dbSettings if set
+      if (schemaSettings && schemaSettings._settings) {
+        schemaSettings._settings.forEach(
+          (s) =>
+            (this.session.settings[s.key] =
+              s.value.startsWith("[") || s.value.startsWith("{")
+                ? this.parseJson(s.value)
+                : s.value)
+        );
+        this.session.manifest = schemaSettings._manifest;
+      }
+
+      this.loading = false;
+      this.$emit("input", this.session);
+    },
+    handleError(reason) {
+      this.error = "internal server error " + reason;
     },
     parseJson(value) {
       try {

@@ -1,6 +1,9 @@
-# Introduction
+# MOLGENIS documentation
 
-## What is MOLGENIS
+Find below links to documentation of the tools in the MOLGENIS 'emx2' suite:
 
-Fully customizable
-: you can fully configure the schema (data structure/model) of your database
+* [Platform guide](/molgenis/)
+* [Catalogue guide](/catalogue/)
+* [Armadillo guide](/armadillo/)
+
+You can also use the menu on right top to switch between guides.

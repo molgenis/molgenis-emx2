@@ -19,19 +19,17 @@ public class TestSettingsAndMembersLoading {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("settings_and_members.xlsx").getFile()).toPath();
 
-    new ImportExcelTask(path, schema).run();
+    new ImportExcelTask(path, schema, true).run();
 
-    assertEquals("key1", schema.getTable("table1").getMetadata().getSettings().get(0).getKey());
-    assertEquals("value1", schema.getTable("table1").getMetadata().getSettings().get(0).getValue());
+    assertEquals("key1", schema.getTable("table1").getMetadata().getSettings().get(0).key());
+    assertEquals("value1", schema.getTable("table1").getMetadata().getSettings().get(0).value());
 
-    assertEquals("key2", schema.getMetadata().getSettings().get(0).getKey());
-    assertEquals("value2", schema.getMetadata().getSettings().get(0).getValue());
+    assertEquals("key2", schema.getMetadata().getSettings().get(0).key());
+    assertEquals("value2", schema.getMetadata().getSettings().get(0).value());
 
-    assertEquals(2, schema.getMembers().size());
+    assertEquals(1, schema.getMembers().size());
     assertEquals("anonymous", schema.getMembers().get(0).getUser());
     assertEquals("Viewer", schema.getMembers().get(0).getRole());
-    assertEquals("admin", schema.getMembers().get(1).getUser());
-    assertEquals("Manager", schema.getMembers().get(1).getRole());
 
     database.dropSchema(schema.getName());
   }

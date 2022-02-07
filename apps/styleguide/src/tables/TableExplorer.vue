@@ -1,6 +1,6 @@
 <template>
   <div class="h-100">
-    <div v-if="columns" class="overflow-auto">
+    <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <div class="bg-white">
         <h1 v-if="showHeader" class="pl-2">
@@ -10,17 +10,7 @@
           {{ tableMetadata.description }}
         </p>
         <div
-          class="
-            navbar
-            pl-0
-            ml-0
-            shadow-none
-            navbar-expand-lg
-            justify-content-between
-            mb-3
-            pt-3
-            bg-white
-          "
+          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
         >
           <div class="btn-group">
             <ShowHide
@@ -28,6 +18,7 @@
               :columns.sync="columns"
               @update:columns="emitFilters"
               checkAttribute="showFilter"
+              :exclude="['HEADING', 'FILE']"
               label="filters"
               icon="filter"
             />
@@ -137,22 +128,35 @@
             :table-metadata="tableMetadata"
             :data="data"
             :showSelect="showSelect"
+            @column-click="onColumnClick"
             @click="$emit('click', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
             </template>
-            <template v-slot:colheader>
+            <template v-slot:colheader="slotProps">
               <RowButtonAdd
-                v-if="canEdit"
+                v-if="canEdit && !slotProps.col"
                 :table="table"
                 :graphqlURL="graphqlURL"
                 @close="reload"
                 class="d-inline p-0"
               />
+              <IconAction
+                v-if="slotProps.col && orderByColumn == slotProps.col.id"
+                :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButtonEdit
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
+              />
+              <RowButtonClone
                 v-if="canEdit"
                 :table="table"
                 :graphqlURL="graphqlURL"
@@ -171,37 +175,6 @@
         </div>
       </div>
     </div>
-    <ShowMore title="debug">
-      <pre>
-        columns = {{ columns }}
-
-        selection = {{ selectedItems }}
-
-      graphqlFilter = {{ JSON.stringify(graphqlFilter) }}
-
-      session = {{ session }}
-
-        graphqlError = {{ graphqlError }}
-
-        schema = {{ schema }}
-
-
-      columns = {{ JSON.stringify(columns) }}
-
-      table = {{ table }} }
-
-      graphql={{ JSON.stringify(graphql) }}
-
-      columnNames = {{ columnNames }}
-
-      rows = {{ data }}
-
-      tableMetadata={{ JSON.stringify(tableMetadata, null, "\t") }}
-
-    data={{ JSON.stringify(data, null, "\t") }}
-    </pre
-      >
-    </ShowMore>
   </div>
 </template>
 
@@ -213,9 +186,9 @@ import MessageError from "../forms/MessageError";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonDelete from "./RowButtonDelete";
 import RowButtonEdit from "./RowButtonEdit";
+import RowButtonClone from "./RowButtonClone";
 import Spinner from "../layout/Spinner";
 import TableMixin from "../mixins/TableMixin";
-import ShowMore from "../layout/ShowMore";
 import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
@@ -240,8 +213,8 @@ export default {
     FilterWells,
     RowButtonEdit,
     RowButtonAdd,
+    RowButtonClone,
     RowButtonDelete,
-    ShowMore,
     ShowHide,
     InputSearch,
     Pagination,
@@ -289,7 +262,14 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
+    },
+    showOrderBy: {
+      type: String,
+    },
+    showOrder: {
+      type: String,
+      default: () => "ASC",
     },
   },
   data() {
@@ -303,9 +283,25 @@ export default {
       //a copy of column metadata used to show/hide filters and columns
       columns: [],
       view: View.TABLE,
+      orderByColumn: null,
+      order: "ASC",
     };
   },
   methods: {
+    onColumnClick(column) {
+      let orderByColumn = this.orderByColumn;
+      let order = this.order;
+      if (orderByColumn != column.id) {
+        orderByColumn = column.id;
+        order = "ASC";
+      } else if (order == "ASC") {
+        order = "DESC";
+      } else {
+        order = "ASC";
+      }
+      this.$emit("update:showOrderBy", orderByColumn);
+      this.$emit("update:showOrder", order);
+    },
     toggleView() {
       if (this.view == View.TABLE) {
         this.view = View.CARDS;
@@ -320,16 +316,15 @@ export default {
     },
     emitColumns() {
       let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType != "CONSTANT")
+        .filter((c) => c.showColumn && c.columnType != "HEADING")
         .map((c) => c.name);
       this.$emit("update:showColumns", columns);
     },
     emitFilters() {
-      console.log("emitFilters");
       this.$emit(
         "update:showFilters",
         this.columns
-          .filter((c) => c.showFilter && c.columnType != "CONSTANT")
+          .filter((c) => c.showFilter && c.columnType != "HEADING")
           .map((c) => c.name)
       );
     },
@@ -337,7 +332,7 @@ export default {
       let result = {};
       this.columns.forEach((c) => {
         if (c.conditions && c.conditions.length > 0)
-          result[c.name] = c.conditions;
+          result[c.id] = c.conditions;
       });
       this.$emit("update:conditions", result);
     },
@@ -381,26 +376,36 @@ export default {
       return false;
     },
     //overrides from TableMixin
+    orderByObject() {
+      if (this.orderByColumn) {
+        let result = {};
+        result[this.orderByColumn] = this.order;
+        return result;
+      } else {
+        return {};
+      }
+    },
+    //overrides from TableMixin
     graphqlFilter() {
       let filter = this.filter ? this.filter : {};
       if (this.columns) {
-        //filter on subclass, if exists
-        if (this.hasSubclass) {
-          filter.mg_tableclass = {
-            equals: this.schema.name + "." + this.tableMetadata.name,
-          };
-        }
         this.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
             ? col.conditions.filter((f) => f !== "" && f != undefined)
             : [];
           if (conditions.length > 0) {
-            if (col.columnType.startsWith("STRING")) {
-              filter[col.name] = { like: col.conditions };
+            if (
+              col.columnType.startsWith("STRING") ||
+              col.columnType.startsWith("TEXT")
+            ) {
+              filter[col.id] = { like: col.conditions };
             } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.name] = { equals: col.conditions };
-            } else if (col.columnType.startsWith("REF")) {
-              filter[col.name] = { equals: col.conditions };
+              filter[col.id] = { equals: col.conditions };
+            } else if (
+              col.columnType.startsWith("REF") ||
+              col.columnType.startsWith("ONTOLOGY")
+            ) {
+              filter[col.id] = { equals: col.conditions };
             } else if (
               [
                 "DECIMAL",
@@ -411,9 +416,15 @@ export default {
                 "DATE_ARRAY",
               ].includes(col.columnType)
             ) {
-              filter[col.name] = {
+              filter[col.id] = {
                 between: conditions.flat(),
               };
+            } else {
+              alert(
+                "filter unsupported for column type '" +
+                  col.columnType +
+                  "' (please report a bug)"
+              );
             }
           }
         });
@@ -428,6 +439,14 @@ export default {
       this.$emit("update:showPage", this.page);
       this.reload();
     },
+    showOrderBy() {
+      this.orderByColumn = this.showOrderBy;
+      this.$emit("update:showOrderBy", this.showOrderBy);
+    },
+    showOrder() {
+      this.order = this.showOrder;
+      this.$emit("update:showOrder", this.showOrder);
+    },
     showPage() {
       this.page = this.showPage;
     },
@@ -437,6 +456,8 @@ export default {
     tableMetadata() {
       this.page = this.showPage;
       this.limit = this.showLimit;
+      this.orderByColumn = this.showOrderBy;
+      this.order = this.showOrder;
       if (this.columns.length == 0) {
         this.columns.push(...this.tableMetadata.columns);
         // //init settings
@@ -502,10 +523,13 @@ example (graphqlURL is usually not needed because app is served on right path)
         graphqlURL="/pet store/graphql"
         :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
         :showPage.sync="page" :showLimit.sync="limit"
+        :showOrderBy.sync="showOrderBy" :showOrder.sync="showOrder"
         :conditions.sync="conditions"/>
     showColumns: {{ showColumns }}<br/>
     showFilters: {{ showFilters }}<br/>
     conditions: {{ conditions }} <br/>
+    showOrderBy: {{ showOrderBy }} <br/>
+    showOrder: {{ showOrder }} <br/>
     page: {{ page }}<br/>
     limit: {{ limit }}
 
@@ -515,7 +539,12 @@ example (graphqlURL is usually not needed because app is served on right path)
   export default {
     data() {
       return {
-        showColumns: ['name'], showFilters: ['name'], conditions: {"name": ["pooky", "spike"]}, page: 1, limit: 10
+        showColumns: ['name'],
+        showFilters: ['name'],
+        conditions: {"name": ["pooky", "spike"]},
+        page: 1,
+        limit: 10,
+        showOrder: 'DESC', showOrderBy: 'name'
       }
     },
     methods: {

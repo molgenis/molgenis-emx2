@@ -3,7 +3,10 @@ kind: Deployment
 metadata:
   name: {{ include "emx2.fullname" . }}
   labels:
-    {{- include "emx2.labels" . | nindent 4 }}
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
 spec:
   replicas: 1
   selector:
@@ -19,21 +22,42 @@ spec:
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
-          imagePullPolicy: Always
-          env:
-            - name: jdbc
-              value: jdbc:postgresql:molgenis
-          #          resources:
-          #            requests:
-          #              cpu: 1
-          #              memory: 2.5Gi
-          #            limits:
-          #              cpu: 1
-          #              memory: 2.5Gi
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
-        - image: postgres:11-alpine
+          env:
+            - name: MOLGENIS_ADMIN_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: adminpassword
+            - name: MOLGENIS_POSTGRES_USER
+              value: {{ .Values.database.username }}
+            - name: MOLGENIS_POSTGRES_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}
+                  key: databasepassword
+            - name: MOLGENIS_POSTGRES_URI
+              value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+{{- if .Values.oidc.enabled  }}
+            - name: MOLGENIS_OIDC_CLIENT_ID
+              value: {{ .Values.oidc.client_id }}
+            - name: MOLGENIS_OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-oidc
+                  key: client_secret
+            - name: MOLGENIS_OIDC_CLIENT_NAME
+              value: {{ .Values.oidc.client_name }}
+            - name: MOLGENIS_OIDC_DISCOVERY_URI
+              value: {{ .Values.oidc.discovery_url }}
+            - name: MOLGENIS_OIDC_CALLBACK_URL
+              value: {{ .Values.oidc.callback_url }}
+{{- end }}
+        - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           name: postgres
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - -c
             - shared_buffers=256MB
@@ -41,24 +65,25 @@ spec:
             - max_locks_per_transaction=1024
           env:
             - name: POSTGRES_DB
-              value: molgenis
+              value: {{ .Values.postgres.name }}
             - name: POSTGRES_PASSWORD
-              value: molgenis
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "emx2.fullname" $ }}-postgres
+                  key: postgrespassword
             - name: POSTGRES_USER
-              value: molgenis
-          #          resources:
-          #            requests:
-          #              cpu: 1
-          #              memory: 2.5Gi
-          #            limits:
-          #              cpu: 1
-          #              memory: 2.5Gi
+              value: {{ .Values.postgres.username }}
           ports:
             - containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-pv
+            - name: postgres-pv
+              mountPath: /var/lib/postgresql/data
+            - name: postgres-initdb
+              mountPath: /docker-entrypoint-initdb.d
       volumes:
+        - name: postgres-initdb
+          configMap:
+            name: postgres-initdb-config
         - name: postgres-pv
           persistentVolumeClaim:
             claimName: {{ include "emx2.fullname" . }}-postgres-pv

@@ -71,13 +71,14 @@ export default {
         this.error = null;
         this.loading = true;
         request(
-          "graphql",
+          "/api/graphql",
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
             if (data.signin.status === "SUCCESS") {
               this.success = "Signed in with " + this.email;
               this.$emit("signin", this.email);
+              location.reload();
             } else this.error = data.signin.message;
           })
           .catch(

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 public class GraphqlConstants {
+  public static final String ID = "id";
   public static final String INPUT = "Input";
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
@@ -8,7 +9,7 @@ public class GraphqlConstants {
   public static final String REQUIRED = "required";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
-  public static final String COLUMN_FORMAT = "columnFormat";
+  public static final String TABLE_TYPE = "tableType";
   public static final String VALIDATION_EXPRESSION = "validation";
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
@@ -35,6 +36,8 @@ public class GraphqlConstants {
   public static final String OFFSET = "offset";
   public static final String SEARCH = "search";
   public static final String ORDERBY = "orderby";
+  public static final String KEYS = "keys";
+  public static final String LABEL = "label";
   static final String COUNT = "count";
 
   private GraphqlConstants() {

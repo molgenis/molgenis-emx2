@@ -3,7 +3,9 @@ package org.molgenis.emx2.io.tablestore;
 import java.io.*;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
@@ -19,17 +21,22 @@ public class TableStoreForCsvInMemory implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       Writer writer = new StringWriter();
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
-      CsvTableWriter.write(rows, bufferedWriter, separator);
+      if (rows.iterator().hasNext()) {
+        CsvTableWriter.write(rows, bufferedWriter, separator);
+      } else {
+        // only header in case no rows provided
+        writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
+      }
       bufferedWriter.close();
       store.put(name, existing + writer.toString());
     } catch (IOException ioe) {
-      throw new MolgenisException("import failed", ioe);
+      throw new MolgenisException("export failed", ioe);
     }
   }
 
@@ -45,7 +52,7 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator());
+    processor.process(readTable(name).iterator(), this);
   }
 
   @Override
@@ -56,9 +63,5 @@ public class TableStoreForCsvInMemory implements TableStore {
   @Override
   public Collection<String> tableNames() {
     return this.store.keySet();
-  }
-
-  public String viewContents(String name) {
-    return store.get(name);
   }
 }

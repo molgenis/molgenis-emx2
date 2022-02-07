@@ -66,16 +66,6 @@
           <router-view :search="search" />
         </div>
       </div>
-      <ShowMore title="debug">
-        <pre>
-        timestamp = {{ timestamp }}
-          search = {{ search }}
-          selectedTopic = {{ selectedTopic }}
-          selectedDatabanks = {{ selectedDatabanks }}
-          topics = {{ topics }}
-      </pre
-        >
-      </ShowMore>
     </Molgenis>
   </div>
 </template>
@@ -100,7 +90,6 @@ import {
   MessageSuccess,
   Molgenis,
   Pagination,
-  ShowMore,
   Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
@@ -129,7 +118,6 @@ export default {
     InputCheckbox,
     InputString,
     InputSelect,
-    ShowMore,
     VariablePanel,
   },
   data: function () {

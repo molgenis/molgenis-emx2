@@ -1,55 +1,33 @@
 package org.molgenis.emx2.web;
 
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** To clear caches if schema or users change, which changes what users can see */
-public class MolgenisSessionManagerDatabaseListener implements DatabaseListener {
+public class MolgenisSessionManagerDatabaseListener extends DatabaseListener {
   private static final Logger logger =
       LoggerFactory.getLogger(MolgenisSessionManagerDatabaseListener.class);
-  private Database database;
   private MolgenisSessionManager sessionManager;
-  private boolean onEndTransactionClear = false;
+  private MolgenisSession session;
 
   public MolgenisSessionManagerDatabaseListener(
-      MolgenisSessionManager sessionManager, Database database) {
+      MolgenisSessionManager sessionManager, MolgenisSession session) {
     this.sessionManager = sessionManager;
-    this.database = database;
+    this.session = session;
   }
 
   @Override
   public void userChanged() {
-    database.clearCache();
-  }
-
-  @Override
-  public void schemaRemoved(String schemaName) {
-    // schema change might affect all users,
-    // todo make smarter is to inefficient to reload all caches
-    logger.info("clear caches on schemaRemove");
-    sessionManager.clearAllCaches();
-  }
-
-  @Override
-  public void schemaChanged(String schemaName) {
-    // schema change might affect all users,
-    // todo make smarter is to inefficient to reload all caches
-    if (!database.inTx()) {
-      sessionManager.clearAllCaches();
-      logger.info("clear caches on schemaChanged");
-    } else {
-      onEndTransactionClear = true;
-    }
+    logger.info("cleared cache for this session because user changed");
+    session.clearCache();
   }
 
   @Override
   public void afterCommit() {
-    if (onEndTransactionClear) {
-      sessionManager.clearAllCaches();
-      onEndTransactionClear = false;
-      logger.info("clear caches on schemaChanged (waited for commit)");
-    }
+    super.afterCommit();
+    sessionManager.clearAllCaches();
+    logger.info(
+        "cleared all caches after commit that may include changes on schema(s) or permissions");
   }
 }

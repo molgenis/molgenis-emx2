@@ -39,9 +39,9 @@ N.B.
 
 ## Using java and your own postgresql
 
-* Install java (we use java 11 or higher)
+* Install java (we use java 16)
 * Download a molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
-* Download and install [Postgresql](https://www.postgresql.org/download/) (we use 11 or higher)
+* Download and install [Postgresql](https://www.postgresql.org/download/) (we use 13)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     sudo -u postgres psql
@@ -60,6 +60,7 @@ Optionally, you can change defaults using either java properties or using env va
 * MOLGENIS_POSTGRES_USER
 * MOLGENIS_POSTGRES_PASS
 * MOLGENIS_HTTP_PORT
+* MOLGENIS_ADMIN_PW
 
 For example:
 

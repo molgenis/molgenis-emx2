@@ -1,26 +1,27 @@
 <template>
-  <div>
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <router-link :to="{ name: 'variableDetails' }">
-            Variables
-          </router-link>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">{{ name }}</li>
-      </ol>
-    </nav>
-    <h3 v-if="variable">{{ variable.label }}</h3>
-    <ul class="nav nav-tabs">
+  <div v-if="variable">
+    <h3 v-if="!$route.query.fromName">{{ variable.label }}</h3>
+    <ul class="nav nav-tabs" v-if="!$route.query.fromName">
       <li class="nav-item">
-        <router-link class="nav-link" :to="{ name: 'singleVariableDetails' }">
+        <router-link
+          class="nav-link"
+          :class="{ active: $route.query.tab !== 'harmonization' }"
+          :to="{
+            name: 'VariableDetailView',
+            query: { ...$route.query, tab: 'detail' },
+          }"
+        >
           Details
         </router-link>
       </li>
       <li v-if="variable.mappings" class="nav-item">
         <router-link
           class="nav-link"
-          :to="{ name: 'singleVariableHarmonization' }"
+          :class="{ active: $route.query.tab === 'harmonization' }"
+          :to="{
+            name: 'VariableDetailView',
+            query: { ...$route.query, tab: 'harmonization' },
+          }"
         >
           Harmonization
         </router-link>
@@ -29,18 +30,41 @@
         <a class="nav-link">Harmonization</a>
       </li>
     </ul>
-    <router-view :variable="variable"></router-view>
+    <template
+      v-if="$route.query.tab === 'harmonization' && !$route.query.fromName"
+    >
+      <single-var-harmonization-view :variable="variable" />
+    </template>
+    <template v-else-if="$route.query.fromName">
+      <from-variable-details
+        :version="version"
+        :sourceCohort="$route.query.sourceCohort"
+        :fromName="$route.query.fromName"
+        :toName="variable.label"
+      />
+    </template>
+    <template v-else>
+      <single-var-details-view :variable="variable" />
+    </template>
   </div>
 </template>
 
 <script>
 import { fetchDetails } from "../store/repository/variableRepository";
+import SingleVarDetailsView from "./SingleVarDetailsView";
+import SingleVarHarmonizationView from "./SingleVarHarmonizationView";
+import FromVariableDetails from "./FromVariableDetails";
 
 export default {
   name: "VariableDetailView",
+  components: {
+    SingleVarDetailsView,
+    SingleVarHarmonizationView,
+    FromVariableDetails,
+  },
   props: {
     name: String,
-    network: String,
+    model: String,
     version: String,
   },
   data() {
@@ -49,15 +73,7 @@ export default {
     };
   },
   async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
+    this.variable = await fetchDetails(this.name, this.model, this.version);
   },
 };
 </script>
-
-<style scoped>
-nav {
-  margin-top: -1rem;
-  margin-left: -2rem;
-  margin-right: -2rem;
-}
-</style>

@@ -26,11 +26,11 @@ export default {
     return state.filters.find((filters) => filters.name === "networks")
       .conditions;
   },
-  cohorts: (state) => state.cohorts,
+  resources: (state) => state.resources,
   /**
    * @returns Grid like object o[x][y], where;
    *  x = variableName,
-   *  y = cohortAcronym
+   *  y = cohortPid
    *  and cell value is match status
    *
    * @example
@@ -49,7 +49,7 @@ export default {
       if (!harmonizationGrid[varName]) {
         harmonizationGrid[varName] = {};
       }
-      const mappedCohort = mapping.fromTable.release.resource.acronym;
+      const mappedCohort = mapping.fromTable.dataDictionary.resource.pid;
       harmonizationGrid[varName][mappedCohort] = mapping.match.name; // aka the cell value
     });
 

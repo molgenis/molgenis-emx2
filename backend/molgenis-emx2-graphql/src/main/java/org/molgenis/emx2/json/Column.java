@@ -1,10 +1,13 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
   private String table;
+  private String id;
   private String name;
   private boolean drop = false; // needed in case of migrations
   private String oldName;
@@ -22,7 +25,6 @@ public class Column {
   private String visible = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
-  private String columnFormat = null;
   private String[] semantics = null;
 
   private boolean inherited = false;
@@ -38,6 +40,7 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
+    this.id = escape(column.getName());
     this.name = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
@@ -45,7 +48,6 @@ public class Column {
     if (!minimal || !ColumnType.STRING.equals(column.getColumnType())) {
       this.columnType = column.getColumnType();
     }
-    this.columnFormat = column.getColumnFormat();
     this.refSchema =
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
@@ -53,12 +55,11 @@ public class Column {
     this.refLabel = column.getRefLabel();
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
-    this.validation = column.getValidIf();
+    this.validation = column.getValidation();
     this.required = column.isRequired();
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
-    this.columnFormat = column.getColumnFormat();
 
     // calculated field
     if (table.getInherit() != null)
@@ -70,7 +71,6 @@ public class Column {
     c.setOldName(oldName);
     c.setType(columnType);
     if (drop) c.drop();
-    c.setColumnFormat(columnFormat);
     c.setRequired(required);
     c.setRefSchema(refSchema);
     c.setRefTable(refTable);
@@ -80,11 +80,10 @@ public class Column {
     c.setPosition(position);
     // c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBack);
-    c.setValidIf(validation);
+    c.setValidation(validation);
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
-    c.setColumnFormat(columnFormat);
     // ignore inherited
     return c;
   }
@@ -209,14 +208,6 @@ public class Column {
     this.refSchema = refSchema;
   }
 
-  public String getColumnFormat() {
-    return columnFormat;
-  }
-
-  public void setColumnFormat(String columnFormat) {
-    this.columnFormat = columnFormat;
-  }
-
   public String getVisible() {
     return visible;
   }
@@ -247,5 +238,13 @@ public class Column {
 
   public void setPosition(Integer position) {
     this.position = position;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 }

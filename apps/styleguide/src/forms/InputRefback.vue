@@ -6,6 +6,7 @@
       :data="data"
       :columns="visibleColumns"
       :table-metadata="tableMetadata"
+      style="overflow-x: scroll"
     >
       <template v-slot:colheader>
         <slot
@@ -40,6 +41,15 @@
           :pkey="getPkey(slotProps.row)"
           @close="reload"
         />
+        <RowButtonClone
+          v-if="canEdit"
+          :table="table"
+          :graphqlURL="graphqlURL"
+          :pkey="getPkey(slotProps.row)"
+          @close="reload"
+          :visible-columns="visibleColumnNames"
+          :default-value="defaultValue"
+        />
         <RowButtonDelete
           v-if="canEdit"
           :table="table"
@@ -63,6 +73,7 @@ import TableMixin from "../mixins/TableMixin";
 import RowButtonAdd from "../tables/RowButtonAdd";
 import RowButtonDelete from "../tables/RowButtonDelete";
 import RowButtonEdit from "../tables/RowButtonEdit";
+import RowButtonClone from "../tables/RowButtonClone";
 import MessageWarning from "./MessageWarning";
 import Spinner from "../layout/Spinner";
 
@@ -75,6 +86,7 @@ export default {
     RowButtonDelete,
     RowButtonEdit,
     RowButtonAdd,
+    RowButtonClone,
     Spinner,
     MessageWarning,
   },
@@ -119,11 +131,11 @@ note, this input doesn't have value on its own, it just allows you to edit the r
 This also means you cannot do this unless your current record has a pkey to point to
 ```
 <InputRefback
-    label="Contributions"
-    table="Contributions"
-    refBack="resource"
-    :refbackValue="{acronym:'ALSPAC'}"
-    graphqlURL="/CohortNetwork/graphql"
+    label="Orders"
+    table="Order"
+    refBack="pet"
+    :pkey="{name:'spike'}"
+    graphqlURL="/pet store/graphql"
 />
 
 ```

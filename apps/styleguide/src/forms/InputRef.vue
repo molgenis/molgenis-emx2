@@ -31,11 +31,12 @@
         <div
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="row in notSelectedRows"
-          :key="JSON.stringify(row)"
+          v-for="(row, index) in notSelectedRows"
+          :key="index"
         >
           <input
             v-if="list"
+            :id="id + index"
             class="form-check-input"
             type="checkbox"
             :value="getPkey(row)"
@@ -45,13 +46,14 @@
           <input
             v-else
             class="form-check-input"
+            :id="id + index"
             :name="id"
             type="radio"
             :value="getPkey(row)"
             v-model="selection"
             @change="$emit('input', getPkey(row))"
           />
-          <label class="form-check-label">
+          <label class="form-check-label" :for="id + index">
             {{ flattenObject(getPkey(row)) }}
           </label>
         </div>
@@ -298,8 +300,8 @@ Example with list
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
     <InputRef :list="true"
               v-model="value"
-              table="Variables"
-              graphqlURL="/CohortNetwork/graphql"
+              table="Tag"
+              graphqlURL="/pet store/graphql"
     />
     Selection: {{ value }}
   </div>

@@ -32,7 +32,9 @@
         v-if="
           column.columnType == 'REF' ||
           column.columnType == 'REF_ARRAY' ||
-          column.columnType == 'REFBACK'
+          column.columnType == 'REFBACK' ||
+          column.columnType == 'ONTOLOGY' ||
+          column.columnType == 'ONTOLOGY_ARRAY'
         "
         v-model="column.refTable"
         :options="tableNames()"
@@ -167,7 +169,7 @@ export default {
       if (name == undefined) {
         return "Name is required";
       }
-      if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]+$/)) {
+      if (!name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
         return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
       }
     },

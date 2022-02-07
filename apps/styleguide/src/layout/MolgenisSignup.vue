@@ -90,19 +90,17 @@ export default {
         this.error = null;
         this.loading = true;
         request(
-          "graphql",
+          "/api/graphql",
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
             if (data.signup.status === "SUCCESS") {
               this.success = "Success. Signed up with email: " + this.email;
             } else {
-              console.log("signup data " + JSON.stringify(data));
               this.error = "Signup failed: " + data.signup.message;
             }
           })
           .catch((error) => {
-            console.log("signup error " + JSON.stringify(error));
             this.error = "Sign up failed: " + error.response.message;
           });
         this.loading = false;

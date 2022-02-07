@@ -1,8 +1,7 @@
 package org.molgenis.emx2.utils;
 
-import static org.molgenis.emx2.ColumnType.REFBACK;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
@@ -18,6 +17,15 @@ public class TableSort {
   public static void sortTableByDependency(List<TableMetadata> tableList) {
     ArrayList<TableMetadata> result = new ArrayList<>();
     ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
+
+    // ensure deterministic order
+    todo.sort(
+        new Comparator<TableMetadata>() {
+          @Override
+          public int compare(TableMetadata o1, TableMetadata o2) {
+            return o1.getTableName().compareTo(o2.getTableName());
+          }
+        });
 
     // dependency come from foreign key and from inheritance
 
@@ -37,7 +45,7 @@ public class TableSort {
         }
         if (!depends)
           for (Column c : current.getColumns()) {
-            if (c.getRefTableName() != null && !c.getColumnType().equals(REFBACK)) {
+            if (c.getRefTableName() != null && !c.isRefback()) {
               for (int j = 0; j < todo.size(); j++) {
                 if (i != j && (todo.get(j).getTableName().equals(c.getRefTableName()))) {
                   depends = true;

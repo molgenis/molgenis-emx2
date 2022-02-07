@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -16,9 +17,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlSchemaMetadata;
 
 public class GraphqlSchemaFieldFactory {
 
@@ -84,6 +86,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
@@ -93,10 +99,6 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_TYPE)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(COLUMN_FORMAT)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -157,6 +159,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.EXTERNAL_SCHEMA)
                   .type(Scalars.GraphQLString))
           .field(
@@ -179,6 +185,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
   private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
@@ -219,16 +229,16 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(COLUMN_POSITION)
                   .type(Scalars.GraphQLInt))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(COLUMN_FORMAT)
-                  .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(Constants.KEY)
@@ -294,6 +304,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
           .field(
@@ -318,6 +332,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(SETTINGS)
                   .type(GraphQLList.list(inputSettingsMetadataType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
           .build();
 
   public GraphqlSchemaFieldFactory() {
@@ -353,13 +371,19 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> dropFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       StringBuilder message = new StringBuilder();
-      schema.tx(
-          db -> {
-            dropTables(schema, dataFetchingEnvironment, message);
-            dropMembers(schema, dataFetchingEnvironment, message);
-            dropColumns(schema, dataFetchingEnvironment, message);
-            dropSettings(schema, dataFetchingEnvironment, message);
-          });
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema s = db.getSchema(schema.getName());
+                dropTables(s, dataFetchingEnvironment, message);
+                dropMembers(s, dataFetchingEnvironment, message);
+                dropColumns(s, dataFetchingEnvironment, message);
+                dropSettings(s, dataFetchingEnvironment, message);
+                // this sync is a bit sad.
+                ((SqlSchemaMetadata) schema.getMetadata())
+                    .sync((SqlSchemaMetadata) s.getMetadata());
+              });
       Map result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
       return result;
@@ -403,6 +427,7 @@ public class GraphqlSchemaFieldFactory {
                 "Cannot remove setting because table " + setting.get("table") + " does not exist");
           }
           table.getMetadata().removeSetting(setting.get("key"));
+          message.append("Removed table setting '" + (setting.get("key")) + "'\n");
         } else {
           schema.getMetadata().removeSetting(setting.get("key"));
           message.append("Removed schema setting '" + (setting.get("key")) + "'\n");
@@ -432,13 +457,34 @@ public class GraphqlSchemaFieldFactory {
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
         .dataFetcher(
-            dataFetchingEnvironment ->
-                // add settings
-                schema.getMetadata().getSettings().stream()
-                    .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue()))
-                    .collect(Collectors.toList()));
+            dataFetchingEnvironment -> {
+              final List<String> selectedKeys =
+                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
+              final boolean includePages =
+                  selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
+
+              return Stream.concat(
+                      schema.getMetadata().getSettings().stream()
+                          .filter(
+                              setting ->
+                                  selectedKeys.isEmpty()
+                                      || selectedKeys.contains(setting.key())
+                                      || (includePages && setting.key().startsWith("page.")))
+                          .map(entry -> Map.of("key", entry.key(), VALUE, entry.value())),
+                      Stream.of(
+                          Map.of(
+                              "key",
+                              IS_OIDC_ENABLED,
+                              VALUE,
+                              String.valueOf(schema.getDatabase().isOidcEnabled()))))
+                  .toList();
+            });
   }
 
   public GraphQLFieldDefinition changeMutation(Schema schema) {
@@ -467,17 +513,23 @@ public class GraphqlSchemaFieldFactory {
 
   private DataFetcher<?> changeFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      schema.tx(
-          db -> {
-            try {
-              changeTables(schema, dataFetchingEnvironment);
-              changeMembers(schema, dataFetchingEnvironment);
-              changeColumns(schema, dataFetchingEnvironment);
-              changeSettings(schema, dataFetchingEnvironment);
-            } catch (IOException e) {
-              throw new GraphqlException("Save metadata failed", e);
-            }
-          });
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                try {
+                  Schema s = db.getSchema(schema.getName());
+                  changeTables(s, dataFetchingEnvironment);
+                  changeMembers(s, dataFetchingEnvironment);
+                  changeColumns(s, dataFetchingEnvironment);
+                  changeSettings(s, dataFetchingEnvironment);
+                  // this sync is a bit sad.
+                  ((SqlSchemaMetadata) schema.getMetadata())
+                      .sync((SqlSchemaMetadata) s.getMetadata());
+                } catch (IOException e) {
+                  throw new GraphqlException("Save metadata failed", e);
+                }
+              });
       return new GraphqlApiMutationResult(SUCCESS, "Meta update success");
     };
   }

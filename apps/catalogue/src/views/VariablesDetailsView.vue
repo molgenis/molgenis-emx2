@@ -1,11 +1,10 @@
 <template>
   <div class="mt-1">
-    <div v-if="variables.length" class="list-group">
+    <ul v-if="variables.length" class="list-group">
       <variable-list-item
         v-for="(variable, index) in variables"
         :key="index"
         :variable="variable"
-        :variableDetails="variableDetails"
         @request-variable-detail="handleVariableDetailsRequest(variable)"
       />
       <button
@@ -15,12 +14,13 @@
       >
         Show more variables
       </button>
-    </div>
+    </ul>
     <p v-else-if="!isLoading" class="text-center font-italic pt-3">
       No variables found matching the given filters
     </p>
     <p v-else class="text-center font-italic pt-3">
-      <Spinner /> Fetching variable data..
+      <Spinner />
+      Fetching variable data..
     </p>
   </div>
 </template>
@@ -29,14 +29,10 @@
 import { Spinner } from "@mswertz/emx2-styleguide";
 import VariableListItem from "../components/VariableListItem.vue";
 import { mapGetters, mapActions, mapState } from "vuex";
+
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
-  data () {
-    return {
-      variableDetails: {}
-    }
-  },
   computed: {
     ...mapState(["isLoading"]),
     ...mapGetters(["variables", "variableCount"]),
@@ -46,10 +42,10 @@ export default {
   },
   methods: {
     ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
-    async handleVariableDetailsRequest (variable) {
-      const result = await this.fetchVariableDetails(variable)
-      this.variableDetails = result
-    }
+    async handleVariableDetailsRequest(variable) {
+      const result = await this.fetchVariableDetails(variable);
+      this.$set(variable, "variableDetails", result);
+    },
   },
 };
 </script>

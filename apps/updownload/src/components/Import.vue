@@ -95,14 +95,6 @@
         </div>
       </div>
     </div>
-    <ShowMore>
-      <pre>
-        session = {{ session }}
-        taskUrl = {{ taskUrl }}
-        task = {{ task }}
-        file = {{ file }}
-      </pre>
-    </ShowMore>
   </Molgenis>
 </template>
 
@@ -115,7 +107,6 @@ import {
   MessageWarning,
   Molgenis,
   Spinner,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import Task from "./Task";
@@ -131,7 +122,6 @@ export default {
     Spinner,
     Molgenis,
     Task,
-    ShowMore,
   },
   data: function () {
     return {
@@ -210,7 +200,6 @@ export default {
       this.loading = true;
       //upload file contents
       let type = this.file.name.split(".").pop();
-      console.log(type);
       if (["csv", "json", "yaml"].includes(type)) {
         let reader = new FileReader();
         reader.readAsText(this.file);
@@ -219,21 +208,18 @@ export default {
         reader.onload = function () {
           fetch(url, { method: "POST", body: reader.result })
             .then((response) => {
-              console.log("response " + JSON.stringify(response));
               response.text().then((successText) => {
                 _this.success = successText;
                 _this.error = null;
               });
             })
             .catch((error) => {
-              console.log(JSON.stringify("error " + error));
               error.text().then((errorText) => {
                 _this.success = null;
                 _this.error = "Failed: " + errorText;
               });
             })
             .finally(() => {
-              console.log("finally");
               _this.file = null;
               _this.loading = false;
               this.loadSchema();

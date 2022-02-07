@@ -3,161 +3,395 @@ import VueRouter from "vue-router";
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
-import InstitutionView from "./views/InstitutionView";
-import DatabankView from "./views/DatabankView";
+import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
 import NetworkView from "./views/NetworkView";
-import ReleasesView from "./views/ReleasesView";
-import DatasourceView from "./views/DatasourceView";
-import ModelView from "./views/ModelView";
 import ResourceListView from "./views/ResourceListView";
-import ContactView from "./views/ContactView";
-import StudiesView from "./views/StudiesView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
 import TableMappingsView from "./views/TableMappingsView";
 import VariableExplorer from "./views/VariableExplorer";
-import VariablesDetailsView from "./views/VariablesDetailsView";
-import HarmonizationView from "./views/HarmonizationView";
 import VariableDetailView from "./views/VariableDetailView";
-import SingleVarDetailsView from "./views/SingleVarDetailsView";
-import SingleVarHarmonizationView from "./views/SingleVarHarmonizationView";
-import ResourceHarmonizationDetails from "./views/ResourceHarmonizationDetails";
+import OldCohortView from "./views/cohorts/OldCohortView";
+import CohortView from "./views/cohorts/CohortView";
+import SearchResourceView from "./views/SearchResourceView";
+import ResourceRedirectView from "./views/ResourceRedirectView";
+import Subcohort from "./views/cohorts/Subcohort";
+import CollectionEvent from "./views/cohorts/CollectionEvent";
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-  linkActiveClass: "active", // bootstrap 4 active tab class
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
-    { name: "Cohorts", path: "/alt", component: NetworkView },
-    //list views
     {
-      name: "list",
-      path: "/list/:tableName",
-      props: true,
+      name: "Databanks",
+      path: "/databanks",
+      props: { tableName: "Databanks" },
       component: ResourceListView,
     },
     {
-      name: "institution",
-      path: "/institutions/:acronym",
-      component: InstitutionView,
-      props: true,
-    },
-
-    {
-      name: "release",
-      path: "/releases/:acronym/:version",
-      component: ReleasesView,
-      props: true,
+      name: "search",
+      path: "/search",
+      props: (route) => ({ resourceType: route.query.type }),
+      component: SearchResourceView,
     },
     {
-      name: "databank",
-      path: "/databanks/:acronym",
-      component: DatabankView,
-      props: true,
-    },
-
-    {
-      name: "datasource",
-      path: "/datasources/:acronym",
-      component: DatasourceView,
-      props: true,
+      name: "Cohorts",
+      path: "/cohorts",
+      props: (route) => ({ searchTerm: route.query.q, tableName: "Cohorts" }),
+      component: ResourceListView,
     },
     {
-      name: "model",
-      path: "/models/:acronym",
-      component: ModelView,
+      name: "Institutions",
+      path: "/institutions",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Institutions",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Datasources",
+      path: "/datasources",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Datasources",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Networks",
+      path: "/networks",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Networks",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Models",
+      path: "/models",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Models",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "SourceDataDictionaries",
+      path: "/source-data-dictionaries",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "SourceDataDictionaries",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "TargetDataDictionaries",
+      path: "/target-data-dictionaries",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "TargetDataDictionaries",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Studies",
+      path: "/studies",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Studies",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "SourceVariables",
+      path: "/source-variables",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "SourceVariables",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "TargetVariables",
+      path: "/target-variables",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "TargetVariables",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "SourceTables",
+      path: "/source-tables",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "SourceTables",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "TargetTables",
+      path: "/target-tables",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "TargetTables",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "TableMappings",
+      path: "/table-mappings",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "TableMappings",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "VariableMappings",
+      path: "/variable-mappings",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "VariableMappings",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Institutions-details",
+      path: "/institutions/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Institutions",
+        color: "dark",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Resources-details",
+      path: "/resources/:pid",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        table: "Resources",
+        color: "dark",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Networks-details",
+      path: "/networks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Networks",
+        color: "danger",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Databanks-details",
+      path: "/databanks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Databanks",
+        color: "info",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Cohorts-details",
+      path: "/cohorts/:pid",
+      component: CohortView,
       props: true,
+    },
+    {
+      path: "/alt-cohorts/:pid",
+      component: OldCohortView,
+      props: true,
+    },
+    {
+      name: "Datasources-details",
+      path: "/datasources/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Datasources",
+        color: "secondary",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "Models-details",
+      path: "/models/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Models",
+        color: "warning",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    {
+      name: "SourceDataDictionaries-details",
+      path: "/source-data-dictionaries/:resource/:version",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "SourceDataDictionaries",
+        color: "warning",
+        filter: {
+          resource: { pid: { equals: route.params.resource } },
+          version: { equals: route.params.version },
+        },
+      }),
+    },
+    {
+      name: "TargetDataDictionaries-details",
+      path: "/target-data-dictionaries/:resource/:version",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "TargetDataDictionaries",
+        color: "warning",
+        filter: {
+          resource: { pid: { equals: route.params.resource } },
+          version: { equals: route.params.version },
+        },
+      }),
     },
     {
       name: "network",
-      path: "/networks/:acronym",
-      props: true,
-      component: NetworkView,
+      path: "/networks/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Networks",
+        color: "danger",
+        filter: { pid: { equals: route.params.pid } },
+      }),
     },
     {
-      name: "contact",
+      name: "Contacts-details",
       path: "/contacts/:name",
-      props: true,
-      component: ContactView,
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Contacts",
+        color: "dark",
+        filter: { name: { equals: route.params.name } },
+      }),
     },
     {
-      name: "studie",
-      path: "/studies/:acronym",
-      props: true,
-      component: StudiesView,
+      name: "Studies-details",
+      path: "/studies/:pid",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Studies",
+        color: "success",
+        filter: { pid: { equals: route.params.pid } },
+      }),
+    },
+    //make bread crumb work for variable details
+    {
+      path: "/variables/:pid",
+      redirect: "/resources/:pid",
     },
     {
-      name: "variable",
-      path: "/variables/:acronym/:version/:table/:name",
-      props: true,
+      path: "/variables/:pid/:version",
+      redirect: "/releases/:pid/:version",
+    },
+    {
+      path: "/variables/:pid/:version/:table",
+      redirect: "/tables/:pid/:version/:table",
+    },
+    //variable details
+    {
+      name: "SourceVariables-details",
+      path: "/source-variables/:pid/:version/:table/:name",
+      props: (route) => ({
+        ...route.params,
+        tableName: "SourceVariables",
+      }),
       component: VariableView,
     },
     {
-      name: "table",
-      path: "/tables/:acronym/:version/:name",
-      component: TableView,
-      props: true,
+      name: "TargetVariables-details",
+      path: "/target-variables/:pid/:version/:table/:name",
+      props: (route) => ({
+        ...route.params,
+        tableName: "TargetVariables",
+      }),
+      component: VariableView,
+    },
+    //make bread crumb work for table-details
+    {
+      path: "/tables/:pid",
+      redirect: "/resources/:pid",
     },
     {
-      name: "variablemapping",
-      path: "/variablemappings/:acronym/:version/:name",
+      path: "/tables/:pid/:version",
+      redirect: "/releases/:pid/:version",
+    },
+    {
+      name: "SourceTables-details",
+      path: "/source-tables/:pid/:version/:name",
+      component: TableView,
+      props: (route) => ({
+        ...route.params,
+        tableName: "SourceTables",
+      }),
+    },
+    {
+      name: "TargetTables-details",
+      path: "/target-tables/:pid/:version/:name",
+      component: TableView,
+      props: (route) => ({
+        ...route.params,
+        tableName: "TargetTables",
+      }),
+    },
+    {
+      name: "VariableMappings-details",
+      path: "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:fromAcronym/:fromVersion/:fromTable/:toAcronym/:toVersion/:toTable",
+      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },
     {
-      path: "/explorer",
+      name: "variableExplorer",
+      path: "/variable-explorer",
+      props: true,
       component: VariableExplorer,
-      children: [
-        {
-          name: "variableDetails",
-          path: "details",
-          component: VariablesDetailsView,
-        },
-        {
-          name: "variableHarmonization",
-          path: "harmonization",
-          component: HarmonizationView,
-        },
-        { path: "", redirect: "/explorer/details" },
-      ],
     },
     {
-      name: "variable-detail",
-      path: "/explorer/details/:network/:version/:name",
+      name: "VariableDetailView",
+      path: "/variable-explorer/:name",
+      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
+    },
+    {
+      name: "Subcohort",
+      path: "/cohorts/:cohort/subcohorts/:name",
       props: true,
-      children: [
-        {
-          name: "singleVariableDetails",
-          path: "details",
-          component: SingleVarDetailsView,
-          props: true,
-        },
-        {
-          name: "singleVariableHarmonization",
-          path: "harmonization",
-          component: SingleVarHarmonizationView,
-          props: true,
-          children: [
-            {
-              name: "resourceHarmonizationDetails",
-              path: ":sourceCohort",
-              component: ResourceHarmonizationDetails,
-              props: true,
-            },
-          ],
-        },
-      ],
+      component: Subcohort,
+    },
+    {
+      name: "CollectionEvent",
+      path: "/cohorts/:cohort/collection-events/:name",
+      props: true,
+      component: CollectionEvent,
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/collection-events",
+      redirect: "/cohorts/:cohort",
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/cohorts/:cohort/subcohorts",
+      redirect: "/cohorts/:cohort",
     },
   ],
 });

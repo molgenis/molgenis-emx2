@@ -1,18 +1,28 @@
 <template>
   <div class="mt-3">
-    <template v-if="variables.length && cohorts.length">
+    <template v-if="variables.length && resources.length">
       <table class="table table-bordered table-sm">
+        <caption>
+          <span
+            ><span class="table-success"><i class="fa fa-fw fa-check" /></span>
+            = completed,
+          </span>
+          <span
+            ><span class="table-light"><i class="fa fa-fw fa-question" /></span>
+            = unharmonized or partially harmonized</span
+          >
+        </caption>
         <thead>
           <tr>
             <th scope="col"></th>
             <th
               class="rotated-text text-nowrap"
               scope="col"
-              v-for="cohort in cohorts"
-              :key="cohort.acronym"
+              v-for="resource in resources"
+              :key="resource.pid"
             >
               <div>
-                <span class="table-label">{{ cohort.acronym }}</span>
+                <span class="table-label">{{ resource.pid }}</span>
               </div>
             </th>
           </tr>
@@ -22,7 +32,7 @@
             <harmonization-row
               :key="variable.name"
               :variable="variable"
-              :cohorts="cohorts"
+              :resources="resources"
             />
           </template>
         </tbody>
@@ -60,13 +70,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["cohorts", "variables"]),
+    ...mapGetters(["resources", "variables"]),
     variablePage() {
       return this.variables.slice(0, this.pageSize);
     },
   },
   methods: {
-    ...mapActions(["fetchCohorts"]),
+    ...mapActions(["fetchResources"]),
     fetchNextPage() {
       this.pageSize += 10;
     },
@@ -77,12 +87,16 @@ export default {
     },
   },
   async mounted() {
-    await this.fetchCohorts();
+    await this.fetchResources();
   },
 };
 </script>
 
 <style scoped>
+caption {
+  caption-side: top;
+}
+
 th.rotated-text {
   height: 13rem;
   padding: 0;
@@ -93,10 +107,6 @@ th.rotated-text > div {
 }
 th.rotated-text > div > span {
   padding: 5px 10px;
-}
-
-td.colored-grid-cell {
-  padding: 0.97rem;
 }
 
 .table-label {

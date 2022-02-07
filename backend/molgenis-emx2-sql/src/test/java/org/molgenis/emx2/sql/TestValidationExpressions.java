@@ -21,6 +21,6 @@ public class TestValidationExpressions {
     assertFalse(EvaluateExpressions.check(exp, row2));
     assertEquals(1976 + 2021, (int) TypeUtils.toInt(EvaluateExpressions.compute(exp2, row1)));
 
-    Column c = new Column("currentYear").setValidIf("{birthYear} <= {currentYear}");
+    Column c = new Column("currentYear").setValidation("{birthYear} <= {currentYear}");
   }
 }

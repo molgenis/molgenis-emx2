@@ -1,10 +1,14 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.TableType;
 
 public class Table {
   private String name;
@@ -18,26 +22,33 @@ public class Table {
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
+  private String id;
+  private TableType tableType;
 
   public Table() {
     // for json serialisation
   }
 
-  public Table(TableMetadata tableMetadata) {
-    this(tableMetadata, false);
+  public Table(SchemaMetadata schema, TableMetadata tableMetadata) {
+    this(schema, tableMetadata, false);
   }
 
-  public Table(TableMetadata tableMetadata, boolean minimal) {
+  public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
+    this.id = escape(tableMetadata.getTableName());
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
     this.semantics = tableMetadata.getSemantics();
     this.settings = tableMetadata.getSettings();
+    if (!tableMetadata.getSchemaName().equals(schema.getName())) {
+      this.externalSchema = tableMetadata.getSchemaName();
+    }
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
+    this.tableType = tableMetadata.getTableType();
   }
 
   public String getName() {
@@ -126,5 +137,21 @@ public class Table {
 
   public void setDrop(boolean drop) {
     this.drop = drop;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public TableType getTableType() {
+    return tableType;
+  }
+
+  public void setTableType(TableType tableType) {
+    this.tableType = tableType;
   }
 }

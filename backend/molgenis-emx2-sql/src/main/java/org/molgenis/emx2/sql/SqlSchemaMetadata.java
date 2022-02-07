@@ -1,23 +1,85 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Setting;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
+  // cache for retrieved roles
+  private List<String> rolesCache = null;
 
-  public SqlSchemaMetadata(SqlDatabase db, String name) {
-    super(db, MetadataUtils.loadSchemaMetadata(db.getJooq(), new SchemaMetadata(name)));
+  // copy constructor
+  protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
+    this.name = copy.getName();
+    this.database = db;
+    this.sync(copy);
+  }
+
+  public synchronized void sync(SqlSchemaMetadata from) {
+    if (from != this) {
+      // database is excluded from sync
+
+      // remove tables not available anymore
+      Set<String> remove =
+          this.tables.keySet().stream()
+              .filter(t -> !from.tables.containsKey(t))
+              .collect(Collectors.toSet());
+      remove.forEach(t -> this.tables.remove(t));
+
+      // sync tables metadata
+      from.tables
+          .entrySet()
+          .forEach(
+              e -> {
+                if (this.tables.containsKey(e.getKey())) {
+                  this.tables.get(e.getKey()).sync(e.getValue());
+                } else {
+                  this.tables.put(e.getKey(), new SqlTableMetadata(this, e.getValue()));
+                }
+              });
+
+      // remove settings not available anymore
+      remove =
+          this.settings.keySet().stream()
+              .filter(t -> !from.settings.containsKey(t))
+              .collect(Collectors.toSet());
+      remove.forEach(s -> this.settings.remove(s));
+
+      from.settings.entrySet().stream()
+          .forEach(
+              s -> {
+                this.settings.put(s.getKey(), new Setting(s.getKey(), s.getValue().value()));
+              });
+    }
+  }
+
+  public SqlSchemaMetadata(Database db, String name, String description) {
+    super(
+        db,
+        MetadataUtils.loadSchemaMetadata(
+            ((SqlDatabase) db).getJooq(), new SchemaMetadata(name, description)));
+    this.reload();
+  }
+
+  public SqlSchemaMetadata(Database db, String name) {
+    super(
+        db,
+        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
     this.reload();
   }
 
@@ -29,11 +91,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     long start = System.currentTimeMillis();
     this.tables.clear();
     this.settings.clear();
+    this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
     for (Setting setting : MetadataUtils.loadSettings(getDatabase().getJooq(), this)) {
-      super.setSetting(setting.getKey(), setting.getValue());
+      super.setSetting(setting.key(), setting.value());
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -62,14 +125,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     getDatabase()
         .tx(
             database -> {
+              SqlSchema s = (SqlSchema) database.getSchema(getName());
+              SqlSchemaMetadata sm = s.getMetadata();
               List<TableMetadata> tableList = new ArrayList<>();
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
-                SqlTableMetadata result = new SqlTableMetadata(this, table);
-                executeCreateTable(getJooq(), result);
-                super.create(result);
+                SqlTableMetadata result = new SqlTableMetadata(sm, table);
+                sm.tables.put(table.getTableName(), result);
+                executeCreateTable(((SqlDatabase) database).getJooq(), result);
               }
+              sync(sm);
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
@@ -77,25 +143,60 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    getTableMetadata(tableName).drop();
-    super.tables.remove(tableName);
+    getDatabase()
+        .tx(
+            database -> {
+              sync(dropTransaction(tableName, database));
+            });
+    getDatabase().getListener().schemaChanged(getName());
+  }
+
+  private SqlSchemaMetadata dropTransaction(String tableName, Database database) {
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) database.getSchema(getName()).getMetadata();
+    sm.getTableMetadata(tableName).drop();
+    sm.tables.remove(tableName);
+    return sm;
+  }
+
+  public boolean hasActiveUserRole(String role) {
+    return this.getInheritedRolesForActiveUser().contains(role);
   }
 
   @Override
   public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
-    super.setSettings(settings);
-    for (Setting setting : settings) {
-      MetadataUtils.saveSetting(getDatabase().getJooq(), this, null, setting);
+    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
+      getDatabase()
+          .tx(
+              db -> {
+                sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
+              });
+      getDatabase().getListener().schemaChanged(getName());
+      return this;
+    } else {
+      throw new MolgenisException(
+          "Permission denied for user "
+              + getDatabase().getActiveUser()
+              + " to change setting on schema "
+              + getName()
+              + ". You need at least MANAGER permission for schema settings");
     }
-    return this;
   }
 
   @Override
   public SqlSchemaMetadata setSetting(String key, String value) {
-    MetadataUtils.saveSetting(getDatabase().getJooq(), this, null, new Setting(key, value));
-    // clear caches
-    this.settings.clear();
+    this.setSettings(List.of(new Setting(key, value)));
     return this;
+  }
+
+  private static SqlSchemaMetadata setSettingsTransaction(
+      SqlDatabase db, String schemaName, Collection<Setting> settings) {
+    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    settings.forEach(
+        s -> {
+          MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
+          schema.settings.put(s.key(), s);
+        });
+    return schema;
   }
 
   @Override
@@ -107,11 +208,22 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public void removeSetting(String key) {
-    MetadataUtils.deleteSetting(getDatabase().getJooq(), this, null, new Setting(key, null));
-    // clear caches
-    this.settings.clear();
-    super.removeSetting(key);
+  public SqlSchemaMetadata removeSetting(String key) {
+    getDatabase()
+        .tx(
+            db -> {
+              sync(removeSettingTransaction(key, (SqlDatabase) db, getName()));
+            });
+    getDatabase().getListener().schemaChanged(getName());
+    return this;
+  }
+
+  private static SqlSchemaMetadata removeSettingTransaction(
+      String key, SqlDatabase db, String schemaName) {
+    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    MetadataUtils.deleteSetting(db.getJooq(), schema, null, new Setting(key, null));
+    schema.settings.remove(key);
+    return schema;
   }
 
   protected DSLContext getJooq() {
@@ -130,8 +242,60 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public void renameTable(TableMetadata table, String newName) {
-    tables.remove(table.getTableName());
-    table.alterName(newName);
-    tables.put(table.getTableName(), table);
+    getDatabase()
+        .tx(
+            db -> {
+              sync(renameTableTransaction(db, getName(), table.getTableName(), newName));
+            });
+  }
+
+  private static SqlSchemaMetadata renameTableTransaction(
+      Database db, String schemaName, String tableName, String newName) {
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = sm.getTableMetadata(tableName);
+    tm.alterName(newName);
+    sm.tables.remove(tableName);
+    sm.tables.put(newName, tm);
+    return sm;
+  }
+
+  public List<String> getIneritedRolesForUser(String user) {
+    if (user == null) return new ArrayList<>();
+    if (ADMIN_USER.equals(user)) {
+      // admin has all roles
+      return executeGetRoles(getJooq(), getName());
+    }
+    final String username = user.trim();
+    List<String> result = new ArrayList<>();
+    // need elevated privileges, so clear user and run as root
+    // this is not thread safe therefore must be in a transaction
+    getDatabase()
+        .tx(
+            tdb -> {
+              String current = tdb.getActiveUser();
+              tdb.clearActiveUser(); // elevate privileges
+              result.addAll(
+                  SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                      ((SqlDatabase) tdb).getJooq(), getName(), username));
+              tdb.setActiveUser(current);
+            });
+    return result;
+  }
+
+  public List<String> getInheritedRolesForActiveUser() {
+    // add cache because this function is called often
+    if (rolesCache == null) {
+      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+    }
+    return rolesCache;
+  }
+
+  public String getRoleForUser(String user) {
+    if (user == null) user = ANONYMOUS;
+    user = user.trim();
+    for (Member m : executeGetMembers(getJooq(), this)) {
+      if (m.getUser().equals(user)) return m.getRole();
+    }
+    return null;
   }
 }

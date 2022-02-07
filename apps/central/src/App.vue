@@ -21,7 +21,7 @@ export default {
   computed: {
     menuItems() {
       let result = [
-        { label: "Databases", href: ".", active: true },
+        { label: "Databases", href: "/apps/central/", active: true },
         {
           label: "GraphQL API",
           href: "/apps/graphql-playground/",

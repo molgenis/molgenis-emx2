@@ -12,10 +12,12 @@
       >
         <MolgenisSession v-model="session" :key="timestamp" />
       </MolgenisMenu>
+      <Breadcrumb
+        v-if="showCrumbs && Object.keys(crumbs).length > 1"
+        :crumbs="crumbs"
+        :dropdown="schemaUrlsForCrumbs"
+      />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
-        <MessageWarning v-if="majorDatabaseVersionToOldError"
-          >{{ majorDatabaseVersionToOldError }}
-        </MessageWarning>
         <h1 v-if="title">{{ title }}</h1>
         <slot />
       </div>
@@ -31,14 +33,7 @@
           >{{ session.manifest.SpecificationVersion }}</a
         >.
         <span v-if="session.manifest.DatabaseVersion"
-          >Database version:
-          <a
-            :href="
-              'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
-              session.manifest.DatabaseVersion
-            "
-            >{{ session.manifest.DatabaseVersion }}</a
-          >.</span
+          >Database version: {{ session.manifest.DatabaseVersion }}.</span
         >
       </span>
     </Footer>
@@ -51,23 +46,27 @@ import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
-import MessageWarning from "../forms/MessageWarning";
+import Breadcrumb from "./Breadcrumb";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
 export default {
   components: {
-    MessageWarning,
     MolgenisSession,
     MolgenisMenu,
     Footer,
     MolgenisTheme,
+    Breadcrumb,
   },
   mixins: [DefaultMenuMixin],
   props: {
     menuItems: Array,
     title: String,
+    showCrumbs: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: function () {
     return {
@@ -80,21 +79,43 @@ export default {
     };
   },
   computed: {
-    majorDatabaseVersionToOldError() {
-      if (this.session) {
-        let dbVer = this.session.manifest.DatabaseVersion;
-        let swVer = this.session.manifest.SpecificationVersion;
-        if (dbVer != null && dbVer.split(".")[0] != swVer.split(".")[0]) {
-          return (
-            "Database has different major version " +
-            dbVer +
-            " then Software version " +
-            swVer +
-            ". It is recommended to downgrade software to match database version, and export/import all data before continuing"
-          );
-        }
+    schemaUrlsForCrumbs() {
+      var result = {};
+      if (this.session && this.session.schemas) {
+        //all databases
+        result["list all databases"] = "/apps/central";
+        this.session.schemas.forEach((s) => {
+          result[s] = "../../" + s; // all paths are of form /:schema/:app
+        });
       }
-      return null;
+      return result;
+    },
+    crumbs() {
+      this.$route;
+      let path = decodeURI(
+        window.location.pathname.replace(location.search, "")
+      ).split("/");
+      let url = "/";
+      let result = {};
+      if (window.location.pathname != "/apps/central/") {
+        path.forEach((el) => {
+          if (el != "") {
+            url += el + "/";
+            result[el] = url;
+          }
+        });
+      }
+      if (this.$route) {
+        path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
+        url += "#";
+        path.forEach((el) => {
+          if (el != "") {
+            url += "/" + el;
+            result[el] = url;
+          }
+        });
+      }
+      return result;
     },
     logo() {
       if (this.logoURL) return this.logoURL;
@@ -118,21 +139,17 @@ export default {
     session: {
       deep: true,
       handler() {
-        console.log("loading session");
         if (this.session != undefined && this.session.settings) {
           if (this.session.settings.cssURL) {
-            console.log("changed url " + this.session.settings.cssURL);
             this.cssURL = this.session.settings.cssURL;
           }
           if (this.session.settings.logoURL) {
-            console.log("changed url " + this.session.settings.logoURL);
             this.logoURL = this.session.settings.logoURL;
           }
         }
         //load themeCss
         fetch(this.css).then(() => {
           this.cssLoaded = true;
-          console.log("loaded");
         });
         this.$emit("input", this.session);
       },

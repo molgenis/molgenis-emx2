@@ -3,21 +3,28 @@ services:
   postgres:
     image: postgres:13-alpine
     environment:
-      - POSTGRES_USER=molgenis
-      - POSTGRES_PASSWORD=molgenis
-      - POSTGRES_DB=molgenis
-    expose:
-      - "5432"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
     volumes:
       - ./psql_data:/var/lib/postgresql/data
+      - ./.docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
   emx2:
     image: molgenis/molgenis-emx2
     environment:
-      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis
+      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenisdb
+      - MOLGENIS_POSTGRES_USER=molgenis_admin
+      - MOLGENIS_POSTGRES_PASS=molgenis_admin
+#      - MOLGENIS_OIDC_CLIENT_ID=[]
+#      - MOLGENIS_OIDC_CLIENT_SECRET=[]
+#      - MOLGENIS_OIDC_CLIENT_NAME=MolgenisAuth
+#      - MOLGENIS_OIDC_DISCOVERY_URI=https://auth.molgenis.org/.well-known/openid-configuration/
+#      - MOLGENIS_OIDC_CALLBACK_URL=http://localhost:8080
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     restart: on-failure
-

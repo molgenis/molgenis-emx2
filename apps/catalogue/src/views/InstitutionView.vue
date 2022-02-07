@@ -2,21 +2,21 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="institution"
-      header-css="bg-info text-white"
+      header-css="bg-dark text-white"
       table-name="Institutions"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <hr class="border-info" />
+    <hr class="border-dark" />
     <div class="row">
       <div class="col-7">
         <h5>Provider of:</h5>
         <div class="m-4">
           <h6>Datasources</h6>
-          <DatasourceList :datasources="datasources" />
+          <DatasourceList :datasources="datasources" color="dark" />
           <h6>Databanks</h6>
-          <DatabankList :databanks="databanks" />
+          <DatabankList :databanks="databanks" color="dark" />
           <h6>Networks</h6>
-          <NetworkList :networks="networks" />
+          <NetworkList :networks="networks" color="dark" />
         </div>
         <h5>Partner in:</h5>
         <PartnerInList :partnerIn="institution.partnerIn" />
@@ -54,7 +54,7 @@ export default {
     TableSearch,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -104,9 +104,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Institutions($acronym:String){Institutions(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},country{name},description,homepage,providerOf{acronym,name,mg_tableclass,keywords{name},type{name}},partnerIn{resource{acronym,name,mg_tableclass},role{name}}}}`,
+        `query Institutions($pid:String){Institutions(filter:{pid:{equals:[$pid]}}){name,pid,logo{url},country{name},description,homepage,providerOf{pid,name,mg_tableclass,keywords,type{name}},partnerIn{resource{pid,name,mg_tableclass},role{name}}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
@@ -126,7 +126,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

@@ -7,10 +7,12 @@ export default [
   "DATETIME",
   "REF",
   "REF_ARRAY",
-  //depcrecated "MREF",
+  "ONTOLOGY",
+  "ONTOLOGY_ARRAY",
   "REFBACK",
   "UUID",
   "TEXT",
+  "FILE",
   "STRING_ARRAY",
   "INT_ARRAY",
   "BOOL_ARRAY",
@@ -19,5 +21,5 @@ export default [
   "DATETIME_ARRAY",
   "UUID_ARRAY",
   "TEXT_ARRAY",
-    "CONSTANT"
+  "HEADING",
 ];

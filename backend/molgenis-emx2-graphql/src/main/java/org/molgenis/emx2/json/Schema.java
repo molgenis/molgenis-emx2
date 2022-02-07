@@ -20,34 +20,14 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema, boolean minimal) {
-    // deterministic order is important for all kinds of comparisons
-    List<String> list = new ArrayList<>();
-    list.addAll(schema.getTableNames());
     this.settings = List.of(schema.getSettings().toArray(new Setting[0]));
+    List<TableMetadata> list = new ArrayList<>();
+    list.addAll(schema.getTablesIncludingExternal());
+    // deterministic order is important for all kinds of comparisons
     Collections.sort(list);
-    Set<String> imported = new LinkedHashSet<>();
-    for (String tableName : list) {
-      org.molgenis.emx2.TableMetadata t = schema.getTableMetadata(tableName);
-      tables.add(new Table(t, minimal));
-      getImportedTablesRecursively(imported, t);
-    }
-  }
-
-  private void getImportedTablesRecursively(Set<String> imported, TableMetadata t) {
-    for (org.molgenis.emx2.Column c : t.getColumns()) {
-      if (!c.getRefSchema().equals(c.getSchemaName()) && !imported.contains(c.getRefTableName())) {
-        Table ref = new Table(c.getRefTable());
-        ref.setExternalSchema(c.getRefSchema());
-        tables.add(ref);
-        imported.add(c.getRefTableName());
-
-        // recurse
-        for (org.molgenis.emx2.Column c2 : c.getRefTable().getPrimaryKeyColumns()) {
-          if (c2.isReference()) {
-            getImportedTablesRecursively(imported, c2.getRefTable());
-          }
-        }
-      }
+    // add these tables
+    for (TableMetadata t : list) {
+      tables.add(new Table(schema, t, minimal));
     }
   }
 
@@ -70,6 +50,7 @@ public class Schema {
           tm.add(cm);
         }
       }
+      tm.setTableType(t.getTableType());
     }
     return s;
   }

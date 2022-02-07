@@ -7,14 +7,12 @@ module.exports = {
     },
     maxWidth: "auto",
   },
+  require: ["./router-mock.js"],
   assetsDir: "public",
   webpackConfig: {
     devServer: {
-      proxy: {
-        "/graphql": "http://localhost:8080/CohortsCentral/graphql",
-        "**/graphql": "http://localhost:8080/",
-        "/apps": "http://localhost:8080",
-      },
+      port: "9090",
+      proxy: require("../dev-proxy.config"),
     },
   },
   tocMode: "collapse",
@@ -56,8 +54,8 @@ module.exports = {
       components: "src/mixins/[A-Z]*.vue",
     },
     {
-      name: "Tree",
-      components: "src/tree/[A-Z]*.vue",
+      name: "Display",
+      components: "src/display/[A-Z]*.vue",
     },
   ],
 };

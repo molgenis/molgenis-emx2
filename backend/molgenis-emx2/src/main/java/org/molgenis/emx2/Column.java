@@ -16,14 +16,12 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column {
+public class Column implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
   private ColumnType columnType = STRING; // type of the column
-  private String columnFormat =
-      null; // influences how data is rendered, in addition to type. E.g. hyperlink
 
   // transient for enabling migrations
   @DiffIgnore private String oldName; // use this when wanting to change name
@@ -38,10 +36,14 @@ public class Column {
 
   // options
   private String description = null; // long description of the column
-  private Integer position = null; // column order within the table
+
+  @DiffIgnore
+  private Integer position =
+      null; // column order within the table. During import/export these may change
+
   private int key = 0; // 1 is primary key 2..n is secondary keys
   private boolean required = false;
-  private String validIf = null;
+  private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
   private String[] semantics = null; // json ld expression
@@ -65,13 +67,21 @@ public class Column {
   }
 
   public Column(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_]*")) {
+    this.columnName = validateName(columnName, skipValidation);
+  }
+
+  private String validateName(String columnName, boolean skipValidation) {
+    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
       throw new MolgenisException(
           "Invalid column name '"
               + columnName
-              + "': Column must start with a letter, followed by letters, underscores or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
+              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
     }
-    this.columnName = columnName;
+    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
+      throw new MolgenisException(
+          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+    }
+    return columnName.trim();
   }
 
   public Column(TableMetadata table, String columnName) {
@@ -118,13 +128,12 @@ public class Column {
     refLink = column.refLink;
     refSchema = column.refSchema;
     refBack = column.refBack;
-    validIf = column.validIf;
+    validation = column.validation;
     refLabel = column.refLabel;
     computed = column.computed;
     description = column.description;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
-    columnFormat = column.columnFormat;
     visible = column.visible;
   }
 
@@ -187,18 +196,7 @@ public class Column {
 
       // other relation
       if (schema != null) {
-        TableMetadata result = schema.getTableMetadata(this.refTable);
-        if (result == null) {
-          throw new MolgenisException(
-              "Internal error: Column.getRefTable failed for column '"
-                  + getQualifiedName()
-                  + "' because refTable '"
-                  + getRefTableName()
-                  + "' does not exist in schema '"
-                  + schema.getName()
-                  + "'");
-        }
-        return result;
+        return schema.getTableMetadata(this.refTable);
       }
     }
     return null;
@@ -273,7 +271,7 @@ public class Column {
   }
 
   public Column setCascadeDelete(Boolean cascadeDelete) {
-    if (cascadeDelete && !REF.equals(this.columnType)) {
+    if (cascadeDelete && !isRef()) {
       throw new MolgenisException(
           "Set casecadeDelete=true failed", "Columnn " + getName() + " must be of type REF");
     }
@@ -314,12 +312,12 @@ public class Column {
     return null;
   }
 
-  public String getValidIf() {
-    return validIf;
+  public String getValidation() {
+    return validation;
   }
 
-  public Column setValidIf(String validIf) {
-    this.validIf = validIf;
+  public Column setValidation(String validation) {
+    this.validation = validation;
     return this;
   }
 
@@ -354,11 +352,12 @@ public class Column {
     return getTable().getJooqTable();
   }
 
+  public boolean isRef() {
+    return getColumnType().isRef();
+  }
+
   public boolean isReference() {
-    return REF.equals(getColumnType())
-        //        || MREF.equals(getColumnType())
-        || REF_ARRAY.equals(getColumnType())
-        || REFBACK.equals(getColumnType());
+    return getColumnType().isReference();
   }
 
   public String getSchemaName() {
@@ -393,7 +392,7 @@ public class Column {
   }
 
   public Boolean isArray() {
-    return this.columnType.toString().endsWith("ARRAY") || this.columnType.equals(REFBACK);
+    return this.columnType.isArray();
   }
 
   /** will return self in case of single, and multiple in case of composite key wrapper */
@@ -423,7 +422,7 @@ public class Column {
       if (keyPart.isReference()) {
         for (Reference ref : keyPart.getReferences()) {
           ColumnType type = ref.getPrimitiveType();
-          if (!REF.equals(getColumnType())) {
+          if (!isRef()) {
             type = getArrayType(type);
           }
           List<String> path = ref.getPath();
@@ -460,7 +459,7 @@ public class Column {
         ColumnType type = keyPart.getColumnType();
 
         // all but ref is array
-        if (!REF.equals(getColumnType())) {
+        if (!isRef()) {
           type = getArrayType(type);
         }
 
@@ -506,7 +505,7 @@ public class Column {
     if (isReference()) {
       List<Reference> refs = getReferences();
       if (refs.size() == 1) {
-        return refs.get(0).getPrimitiveType();
+        return refs.get(0).getPrimitiveType().getBaseType();
       } else {
         throw new MolgenisException(
             "Cannot get columnType for column '"
@@ -515,7 +514,7 @@ public class Column {
                 + getName()
                 + "': composite key");
       }
-    } else return getColumnType();
+    } else return getColumnType().getBaseType();
   }
 
   public String getRefLabelIfSet() {
@@ -553,14 +552,6 @@ public class Column {
   public Column setRefSchema(String refSchema) {
     this.refSchema = refSchema;
     return this;
-  }
-
-  public String getColumnFormat() {
-    return columnFormat;
-  }
-
-  public void setColumnFormat(String columnFormat) {
-    this.columnFormat = columnFormat;
   }
 
   public String getVisible() {
@@ -607,5 +598,36 @@ public class Column {
 
   public boolean isPrimaryKey() {
     return getKey() == 1;
+  }
+
+  public boolean isRefArray() {
+    return getColumnType().isRefArray();
+  }
+
+  public boolean isRefback() {
+    return getColumnType().isRefback();
+  }
+
+  public boolean isFile() {
+    return getColumnType().isFile();
+  }
+
+  public boolean isHeading() {
+    return this.getColumnType().isHeading();
+  }
+
+  @Override
+  public int compareTo(Column o) {
+    if (this.getPosition() > o.getPosition()) {
+      return 1;
+    } else if (this.getPosition() < o.getPosition()) {
+      return -1;
+    } else {
+      return this.getName().compareTo(o.getName());
+    }
+  }
+
+  public boolean isOntology() {
+    return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
   }
 }

@@ -1,9 +1,0 @@
-query Databanks {
-  Databanks {
-    acronym
-    name
-    type {
-      name
-    }
-  }
-}

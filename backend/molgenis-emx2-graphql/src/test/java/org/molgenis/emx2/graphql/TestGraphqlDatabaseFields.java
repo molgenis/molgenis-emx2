@@ -1,10 +1,13 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.Assert.*;
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.GraphQL;
 import java.io.IOException;
 import junit.framework.TestCase;
@@ -15,6 +18,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
@@ -51,15 +55,67 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
+  public void testCreateDatabaseSetting() throws IOException {
+    String createSettingQuery =
+        """
+            mutation {
+              createSetting(key: "db-key-1", value: "db-value-1" ){
+                    message
+              }
+            }
+            """;
+
+    var result = execute(createSettingQuery);
+
+    // verify
+    ObjectNode expected =
+        new ObjectMapper()
+            .readValue(
+                "{\"data\":{\"createSetting\":{\"message\":\"Database setting db-key-1 created\"}}}",
+                ObjectNode.class);
+    assertEquals(expected, result);
+  }
+
+  @Test
+  public void testDeleteDatabaseSetting() throws IOException {
+    String createSettingQuery =
+        """
+                mutation {
+                  deleteSetting(key: "db-key-1"){
+                        message
+                  }
+                }
+                """;
+
+    var result = execute(createSettingQuery);
+
+    // verify
+    ObjectNode expected =
+        new ObjectMapper()
+            .readValue(
+                "{\"data\":{\"deleteSetting\":{\"message\":\"Database setting db-key-1 deleted\"}}}",
+                ObjectNode.class);
+    assertEquals(expected, result);
+  }
+
+  @Test
   public void testRegisterAndLoginUsers() throws IOException {
 
     // todo: default user should be anonymous?
-    assertNull(database.getActiveUser());
-    database.setUserPassword("admin", "admin");
+    assertTrue(database.isAdmin());
 
-    // login is admin
-    execute("mutation { signin(email: \"admin\",password:\"admin\") {message}}");
-    Assert.assertEquals("admin", database.getActiveUser());
+    // read admin password from environment if necessary
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+    execute(
+        "mutation { signin(email: \""
+            + database.getAdminUserName()
+            + "\",password:\""
+            + adminPass
+            + "\") {message}}");
+    Assert.assertTrue(database.isAdmin());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -71,7 +127,8 @@ public class TestGraphqlDatabaseFields {
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
-    Assert.assertEquals("admin", database.getActiveUser());
+    // still admin
+    Assert.assertTrue(database.isAdmin());
 
     TestCase.assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
@@ -92,6 +149,14 @@ public class TestGraphqlDatabaseFields {
 
     // back to superuser
     database.clearActiveUser();
+  }
+
+  @Test
+  public void testDatabaseVersion() throws IOException {
+    String result =
+        execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
+    // should be a number
+    assertTrue(Integer.valueOf(result) > 0);
   }
 
   private JsonNode execute(String query) throws IOException {

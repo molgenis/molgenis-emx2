@@ -30,7 +30,7 @@
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
-          <template v-slot:colheader>
+          <template v-slot:colheader="slotProps">
             <slot
               name="colheader"
               v-bind="$props"
@@ -39,7 +39,7 @@
               :grapqlURL="graphqlURL"
             />
             <RowButtonAdd
-              v-if="canEdit"
+              v-if="canEdit && !slotProps.col"
               :table="table"
               :graphqlURL="graphqlURL"
               @close="reload"
@@ -71,14 +71,6 @@
         </TableMolgenis>
       </div>
     </div>
-    <ShowMore title="debug">
-      <pre>
-canEdit = {{ canEdit }}
-session = {{ session }}
-schema = {{ schema }}
-data = {{ data }}
-      </pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -90,7 +82,6 @@ import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import SelectionBox from "./SelectionBox";
-import ShowMore from "../layout/ShowMore";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonEdit from "./RowButtonEdit";
 import RowButtonDelete from "./RowButtonDelete";
@@ -103,7 +94,6 @@ export default {
     InputSearch,
     Pagination,
     Spinner,
-    ShowMore,
     RowButtonEdit,
     RowButtonDelete,
     RowButtonAdd,
@@ -167,7 +157,7 @@ Example:
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Variables" graphqlURL="/CohortsCentral/graphql" :limit="10">
+    <TableSearch table="Pet" graphqlURL="/pet store/graphql" :limit="10">
       <template :selection.sync="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
     </TableSearch>
     Selected: {{ selectedItems }}
@@ -218,8 +208,8 @@ Example with filter:
   <div>
     Example with filter:
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <TableSearch table="Variables" :filter="{collection:{name:{equals:['LifeCycle','ARS']}}}"
-                 graphqlURL="/CohortsCentral/graphql" :showSelect="true">
+    <TableSearch table="Pet" :filter="{equals:{name:'pooky'}}"
+                 graphqlURL="/pet store/graphql" :showSelect="true">
       <template v-model="selectedItems" v-slot:rowheader="props">my row action {{ props.row.name }}</template>
     </TableSearch>
     Selected: {{ selectedItems }}

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <InputConstant
-      v-if="columnType === 'CONSTANT'"
+    <InputHeading
+      v-if="columnType === 'HEADING'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -33,6 +33,14 @@
       v-else-if="columnType === 'BOOL'"
       v-bind="$props"
       v-model="input"
+      v-on="$listeners"
+    />
+    <InputOntology
+      v-else-if="columnType === 'ONTOLOGY' || columnType === 'ONTOLOGY_ARRAY'"
+      v-bind="$props"
+      v-model="input"
+      :table="table"
+      :list="columnType === 'ONTOLOGY_ARRAY'"
       v-on="$listeners"
     />
     <InputRefSelect
@@ -109,7 +117,7 @@ import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
-import InputConstant from "../forms/InputConstant";
+import InputHeading from "../forms/InputHeading";
 
 export default {
   name: "RowFormInput",
@@ -146,7 +154,8 @@ export default {
     InputDateTime,
     InputFile,
     InputText,
-    InputConstant,
+    InputHeading,
+    InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },
@@ -168,12 +177,15 @@ export default {
 Example:
 ```
 <div>
+  <RowFormInput columnType="HEADING" label="my header" description="my description"/>
   <RowFormInput columnType="STRING" label="Test String"/>
   <RowFormInput columnType="STRING_ARRAY" label="Test String"/>
-  <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/Pet store/graphql"/>
+  <RowFormInput columnType="REF" label="Test ref" table="Pet" graphqlURL="/pet store/graphql"/>
   <RowFormInput columnType="REF_ARRAY" label="Test ref" table="Pet" :defaultValue="[{name:'spike'}]"
-                graphqlURL="/Pet store/graphql"/>
+                graphqlURL="/pet store/graphql"/>
   <RowFormInput columnType="DATE" label="Test Date"/>
+  <RowFormInput columnType="ONTOLOGY_ARRAY" label="Test ontology" table="Category"
+                graphqlURL="/pet store/graphql"/>
 </div>
 ```
 

@@ -14,75 +14,50 @@
     <h6 class="d-inline">{{ resourceType }}:&nbsp;</h6>
     <RouterLink
       :to="{
-        name: resourceType.toLowerCase(),
-        params: { acronym: acronym },
+        name: resourceType + '-details',
+        params: { pid: pid },
       }"
-      >{{ table.release.resource.acronym }}
+      >{{ table.dataDictionary.resource.pid }}
     </RouterLink>
     /
-    <h6 class="d-inline">Release</h6>
+    <h6 class="d-inline">Data dictionary</h6>
     <RouterLink
       :to="{
-        name: 'release',
-        params: { acronym: acronym, version: version },
+        name:
+          tableName == 'SourceTables'
+            ? 'SourceDataDictionaries-details'
+            : 'TargetDataDictionaries-details',
+        params: { resource: pid, version: version },
       }"
     >
-      {{ table.release.version }}
+      {{ table.dataDictionary.version }}
     </RouterLink>
     <h1>Table: {{ table.name }}</h1>
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
-    <div class="row">
-      <div class="col">
-        <h6>Keywords</h6>
-        <OntologyTerms :terms="table.keywords" color="dark" />
-        <h6>Unit of observation</h6>
-        <OntologyTerms :terms="[table.unitOfObservation]" color="dark" />
-      </div>
-    </div>
     <h6>Mappings/ETLs</h6>
-    <ul v-if="table.mappings || table.mappingsTo">
-      <li v-for="m in table.mappings">
-        From:
+    <ul v-if="table.mappings">
+      <li v-for="(m, index) in table.mappings" :key="index">
+        {{ tableName == "SourceTables" ? "To" : "From" }}:
         <RouterLink
           :to="{
             name: 'tablemapping',
             params: {
-              fromAcronym: m.fromRelease.resource.acronym,
-              fromVersion: m.fromRelease.version,
+              fromPid: m.fromDataDictionary.resource.pid,
+              fromVersion: m.fromDataDictionary.version,
               fromTable: m.fromTable.name,
-              toAcronym: table.release.resource.acronym,
-              toVersion: table.release.version,
-              toTable: table.name,
-            },
-          }"
-        >
-          {{ getType(m.fromRelease.resource.mg_tableclass) }}:
-          {{ m.fromRelease.resource.acronym }} - Version:
-          {{ m.fromRelease.version }} - Table:
-          {{ m.fromTable.name }}
-        </RouterLink>
-      </li>
-      <li v-for="m in table.mappingsTo">
-        To:
-        <RouterLink
-          :to="{
-            name: 'tablemapping',
-            params: {
-              toAcronym: m.toRelease.resource.acronym,
-              toVersion: m.toRelease.version,
+              toPid: m.toDataDictionary.resource.pid,
+              toVersion: m.toDataDictionary.version,
               toTable: m.toTable.name,
-              fromAcronym: table.release.resource.acronym,
-              fromVersion: table.release.version,
-              fromTable: table.name,
             },
           }"
         >
-          {{ getType(m.toRelease.resource.mg_tableclass) }}:
-          {{ m.toRelease.resource.acronym }} - Version:
-          {{ m.toRelease.version }} - Table:
-          {{ m.toTable.name }}
+          <span>
+            {{ m.fromDataDictionary.resource.pid }} - Version:
+            {{ m.fromDataDictionary.version }} - Table:
+            {{ m.fromTable.name }}
+          </span>
         </RouterLink>
       </li>
     </ul>
@@ -90,16 +65,18 @@
     <h6>Variables</h6>
     <TableExplorer
       v-if="tab == 'Variables'"
-      table="Variables"
+      :table="
+        tableName == 'SourceTables' ? 'SourceVariables' : 'TargetVariables'
+      "
       :showHeader="false"
-      :showFilters="['keywords']"
-      :showColumns="['name', 'label', 'format', 'unit', 'mandatory', 'keywords']"
+      :showFilters="[]"
+      :showColumns="['name', 'label', 'format', 'description', 'notes']"
       :showCards="true"
       :filter="{
         table: { name: { equals: name } },
-        release: {
+        dataDictionary: {
           version: { equals: version },
-          resource: { acronym: { equals: acronym } },
+          resource: { pid: { equals: pid } },
         },
       }"
       @click="openVariable"
@@ -122,7 +99,8 @@ export default {
     TableExplorer,
   },
   props: {
-    acronym: String,
+    tableName: String,
+    pid: String,
     version: String,
     name: String,
   },
@@ -135,22 +113,23 @@ export default {
   },
   computed: {
     resourceType() {
-      if (this.table.release) {
-        return this.table.release.resource.mg_tableclass
-          .split(".")[1]
-          .slice(0, -1);
+      if (this.table.dataDictionary) {
+        return this.table.dataDictionary.resource.mg_tableclass.split(".")[1];
       }
     },
   },
   methods: {
     getType(mg_tableclass) {
-      return mg_tableclass.split(".")[1].slice(0, -1);
+      return mg_tableclass.split(".")[1];
     },
     openVariable(row) {
       this.$router.push({
-        name: "variable",
+        name:
+          this.tableName == "SourceTables"
+            ? "SourceVariables-details"
+            : "TargetVariables-details",
         params: {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
           table: this.name,
           name: row.name,
@@ -160,19 +139,20 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Tables($acronym:String,$version:String,$name:String){Tables(filter:{release:{version:{equals:[$version]},resource:{acronym:{equals:[$acronym]}}},name:{equals:[$name]}})
-        {name,unitOfObservation{name,definition,ontologyTermURI},release{version,resource{acronym,name,mg_tableclass}},keywords{name,ontologyTermURI,definition}, description,label,keywords{name}
-        mappings{fromRelease{resource{acronym,mg_tableclass}version}fromTable{name}}
-         mappingsTo{toRelease{resource{acronym,mg_tableclass}version}toTable{name}}
-         }}`,
+        `query ${this.tableName}($pid:String,$version:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},name:{equals:[$name]}})
+        {dataDictionary{resource{pid,mg_tableclass},version}name,unitOfObservation{name,definition,ontologyTermURI},description,label,
+        mappings{fromDataDictionary{resource{pid,mg_tableclass}version}fromTable{name}toDataDictionary{resource{pid,mg_tableclass}version}toTable{name}}
+          }}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
           name: this.name,
         }
       )
         .then((data) => {
-          this.table = data.Tables[0];
+          this.table = data.SourceTables
+            ? data.SourceTables[0]
+            : data.TargetTables[0];
         })
         .catch((error) => {
           if (error.response)

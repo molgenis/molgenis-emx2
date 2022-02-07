@@ -1,8 +1,10 @@
 <template>
   <ul v-if="institutions">
-    <li v-for="i in institutions" :key="i.acronym">
-      <RouterLink :to="{ name: 'institution', params: { acronym: i.acronym } }">
-        {{ i.acronym }} - {{ i.name }}
+    <li v-for="i in institutions" :key="i.pid">
+      <RouterLink
+        :to="{ name: 'Institutions-details', params: { pid: i.pid } }"
+      >
+        {{ i.pid }} - {{ i.name }}
       </RouterLink>
     </li>
   </ul>

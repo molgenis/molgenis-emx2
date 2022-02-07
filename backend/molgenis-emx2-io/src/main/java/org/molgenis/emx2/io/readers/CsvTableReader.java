@@ -1,8 +1,9 @@
 package org.molgenis.emx2.io.readers;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
@@ -23,7 +24,18 @@ public class CsvTableReader {
       BufferedReader bufferedReader = new BufferedReader(in);
       bufferedReader.mark(2000000);
       String firstLine = bufferedReader.readLine();
+      String secondLine = bufferedReader.readLine();
+
+      // if file is empty we return empty iterator
+      if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
+        return Collections.emptyList();
+      }
       char separator = ',';
+      // if file is empty we return empty iterator
+      if (firstLine.trim().equals("")) {
+        return Collections.emptyList();
+      }
+      // guess the separator
       if (firstLine.contains("\t")) {
         separator = '\t';
       }
@@ -35,16 +47,16 @@ public class CsvTableReader {
       bufferedReader.reset();
 
       // don't use buffered, it is slower
-      Iterator<LinkedHashMap> iterator =
+      Iterator<Map> iterator =
           CsvParser.dsl()
               .separator(separator)
               .trimSpaces()
-              .mapTo(LinkedHashMap.class)
+              .mapTo(Map.class)
               .iterator(bufferedReader);
 
       return () ->
           new Iterator<>() {
-            final Iterator<LinkedHashMap> it = iterator;
+            final Iterator<Map> it = iterator;
             final AtomicInteger line = new AtomicInteger(1);
 
             public boolean hasNext() {

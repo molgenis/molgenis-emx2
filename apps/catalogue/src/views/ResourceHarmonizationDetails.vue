@@ -6,13 +6,16 @@
       :variable="repeatedVariable"
     />
   </div>
-  <div class="mt-2" v-else><Spinner /> Fetching data..</div>
+  <div class="mt-2" v-else>
+    <Spinner />
+    Fetching data..
+  </div>
 </template>
 
 <script>
-import { fetchDetails } from "../store/repository/variableRepository";
 import { Spinner } from "@mswertz/emx2-styleguide";
 import HarmonizationDefinition from "../components/HarmonizationDefinition.vue";
+import { mapActions } from "vuex";
 
 export default {
   name: "ResourceHarmonizationDetails",
@@ -22,21 +25,26 @@ export default {
     network: String,
     version: String,
     sourceCohort: String,
+    variable: Object,
   },
   data() {
     return {
-      variable: null,
+      fromVariables: null,
     };
   },
   computed: {
     repeats() {
+      const cohortMapping = !this.variable.mappings
+        ? undefined
+        : this.variable.mappings.find(
+            (mapping) =>
+              mapping.fromTable.dataDictionary.resource.pid ===
+              this.sourceCohort
+          );
       let repeats = [
         {
           ...this.variable,
-          cohortMapping: this.variable.mappings.find(
-            (mapping) =>
-              mapping.fromTable.release.resource.acronym === this.sourceCohort
-          ),
+          cohortMapping,
         },
       ];
       if (this.variable.repeats) {
@@ -45,7 +53,7 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.fromTable.release.resource.acronym ===
+                  mapping.fromTable.dataDictionary.resource.pid ===
                   this.sourceCohort
               );
             }
@@ -56,8 +64,8 @@ export default {
       return repeats;
     },
   },
-  async created() {
-    this.variable = await fetchDetails(this.name, this.network, this.version);
+  methods: {
+    ...mapActions(["fetchSchema"]),
   },
 };
 </script>

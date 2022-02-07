@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col">
         <h6>Study ID</h6>
-        <p>{{ study.acronym }}</p>
+        <p>{{ study.pid }}</p>
         <h6>Study title</h6>
         <p>{{ study.name }}</p>
         <h6>Keywords</h6>
@@ -75,7 +75,7 @@ export default {
     IconAction,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -87,10 +87,10 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Studies($acronym:String){Studies(filter:{acronym:{equals:[$acronym]}})
-        {acronym,institution{acronym,name},keywords{name,definition}description,homepage,contact{name,email},name,partners{institution{acronym,name}},networks{acronym,name},datasources{acronym,name},networks{acronym,name},databanks{acronym,name},documentation{name,url}}}`,
+        `query Studies($pid:String){Studies(filter:{pid:{equals:[$pid]}})
+        {pid,institution{pid,name},keywords{name,definition}description,homepage,contact{name,email},name,partners{institution{pid,name}},networks{pid,name},datasources{pid,name},networks{pid,name},databanks{pid,name},documentation{name,url}}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {

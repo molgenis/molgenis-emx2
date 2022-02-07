@@ -1,10 +1,74 @@
 categories:
   - EMX2
 questions:
-  - variable: ingress.hosts[0].name
+  - variable: ingress.hosts[0].host
     label: Hostname(s)
-    description: "Specify a hostname for this EMX2  instance"
+    description: "Specify a hostname for this EMX2 instance"
     type: string
     required: true
-    default: "emx2.test.molgenis.org"
+    default: "emx2.dev.molgenis.org"
     group: "Loadbalancing"
+  - variable: image.repository
+    label: Repository
+    description: "Specify a repository"
+    type: enum
+    required: true
+    options:
+      - molgenis/molgenis-emx2
+      - molgenis/molgenis-emx2-snapshot
+    default: "molgenis/molgenis-emx2"
+    group: "Provisioning"
+  - variable: image.tag
+    label: Version
+    description: "Specify a version of the application"
+    type: string
+    required: true
+    default: "latest"
+    group: "Provisioning"
+  - variable: adminPassword
+    label: Administrator password
+    description: "Specify an administrator password"
+    type: password
+    required: true
+    group: "Provisioning"
+  - variable: oidc.enabled
+    label: OIDC enabled
+    description: "Enabled OIDC"
+    type: boolean
+    required: true
+    default: false
+    group: "Authentication"
+    show_subquestion_if: true
+    subquestions:
+      - variable: oidc.client_name
+        label: Client name
+        description: "Specify a client name for the authentication service"
+        type: string
+        required: true
+        default: "MolgenisAuth"
+        group: "Authentication"
+      - variable: oidc.client_id
+        label: Client ID
+        description: "Specify a client ID for the authentication service"
+        type: string
+        required: true
+        group: "Authentication"
+      - variable: oidc.client_secret
+        label: Client secret
+        description: "Specify a client secret for the authentication service"
+        type: password
+        required: true
+        group: "Authentication"
+      - variable: oidc.discovery_url
+        label: Discovery url
+        description: "Specify a discovery url of the authentication service"
+        type: string
+        required: true
+        default: "https://auth.molgenis.org/.well-known/openid-configuration/"
+        group: "Authentication"
+      - variable: oidc.callback_url
+        label: Domain of the callback url
+        description: "Specify a the domain of the callback url e.g. https://example.org "
+        type: string
+        required: true
+        group: "Authentication"

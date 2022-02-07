@@ -7,10 +7,6 @@
         :schema="schema"
       />
     </div>
-    <ShowMore title="debug">
-      {{ timestamp }}
-      <pre>{{ schema }}</pre>
-    </ShowMore>
   </div>
 </template>
 
@@ -22,7 +18,6 @@ import {
   InputText,
   ButtonAlt,
   IconDanger,
-  ShowMore,
 } from "@mswertz/emx2-styleguide";
 import columnTypes from "../columnTypes";
 import Draggable from "vuedraggable";
@@ -36,7 +31,6 @@ export default {
     InputText,
     ButtonAlt,
     IconDanger,
-    ShowMore,
     TableEditor,
     Draggable,
   },

@@ -1,20 +1,26 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -23,11 +29,12 @@ public class TestGraphqSchemaFields {
   private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = "TestGraphqlSchemaFields";
+  private static Schema schema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(schemaName);
+    schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema);
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
@@ -36,13 +43,11 @@ public class TestGraphqSchemaFields {
   @Test
   public void testSession() throws IOException {
     try {
+      database.setActiveUser(ANONYMOUS);
       TestCase.assertEquals(0, execute("{_session{email,roles}}").at("/_session/roles").size());
-
-      // first become other user
-      database.setActiveUser("shopmanager");
-
-      TestCase.assertEquals(
-          "Manager", execute("{_session{email,roles}}").at("/_session/roles/2").textValue());
+      execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName));
+      TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.clearActiveUser();
     }
@@ -57,8 +62,40 @@ public class TestGraphqSchemaFields {
 
     // remove value
     execute("mutation{drop(settings:{key:\"test\"}){message}}");
+  }
 
-    assertEquals(0, execute("{_settings{key,value}}").at("/_settings").size());
+  @Test
+  public void testFetchSchemaSettingsByKey() throws IOException {
+    // add value
+    execute("mutation{change(settings:{key:\"setA\",value:\"valA\"}){message}}");
+    execute("mutation{change(settings:{key:\"setB\",value:\"valB\"}){message}}");
+
+    // fetch by key
+    assertEquals(2, execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings").size());
+    assertEquals(
+        "valB",
+        execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
+
+    // return all without key
+    assertEquals(3, execute("{_settings{key,value}}").at("/_settings").size());
+
+    // remove value
+    execute("mutation{drop(settings:{key:\"setA\"}){message}}");
+    execute("mutation{drop(settings:{key:\"setB\"}){message}}");
+  }
+
+  @Test
+  public void testFetchSchemaSettingsForPages() throws IOException {
+    // add value
+    execute("mutation{change(settings:{key:\"page.mypage\",value:\"page value\"}){message}}");
+
+    // include all pages
+    assertEquals(
+        "page value",
+        execute("{_settings(keys: [\"page.\"]){key,value}}").at("/_settings/0/value").textValue());
+
+    // remove value
+    execute("mutation{drop(settings:{key:\"page.mypage\"}){message}}");
   }
 
   @Test
@@ -76,6 +113,7 @@ public class TestGraphqSchemaFields {
     // remove value
     execute("mutation{drop(settings:[{table:\"Pet\", key:\"test\"}]){message}}");
 
+    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
@@ -244,13 +282,15 @@ public class TestGraphqSchemaFields {
     // root agg
     TestCase.assertEquals(
         7,
-        execute("{Order_agg{quantity{max,min,sum,avg}}}").at("/Order_agg/quantity/max").intValue());
+        execute("{Order_agg{max{quantity},min{quantity},sum{quantity},avg{quantity}}}")
+            .at("/Order_agg/max/quantity")
+            .intValue());
 
     // nested agg
     TestCase.assertEquals(
         15.7d,
-        execute("{User{pets_agg{count,weight{max,min,sum,avg}}}}")
-            .at("/User/0/pets_agg/weight/max")
+        execute("{User{pets_agg{count,max{weight},min{weight},sum{weight},avg{weight}}}}")
+            .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
   }
@@ -347,16 +387,8 @@ public class TestGraphqSchemaFields {
     assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
 
     execute(
-        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", columnFormat:\"Hyperlink\", visible:\"blaat\"}){message}}");
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
     database.clearCache(); // cannot know here, server clears caches
-    assertEquals(
-        "Hyperlink",
-        database
-            .getSchema(schemaName)
-            .getTable("Pet")
-            .getMetadata()
-            .getColumn("test2")
-            .getColumnFormat());
     assertEquals(
         "blaat",
         database
@@ -369,5 +401,99 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testFileType() {}
+  public void testNamesWithSpaces() throws IOException {
+    try {
+      Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
+
+      // test escaping
+      assertEquals("first_name", escape("first name"));
+      assertEquals("first_name", escape("first  name"));
+      assertEquals("first__name", escape("first_name"));
+
+      System.out.println(escape("Person details"));
+
+      myschema.create(
+          table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
+          table(
+              "Some",
+              column("id").setPkey(),
+              column("person").setType(REF).setRefTable("Person details"),
+              column("persons").setType(REF_ARRAY).setRefTable("Person details")));
+
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+
+      int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
+
+      // insert should increase count
+      execute(
+          "mutation{insert(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+      TestCase.assertEquals(
+          count + 1,
+          execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+      // delete
+      execute(
+          "mutation{delete(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+      TestCase.assertEquals(
+          count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+
+      // reset
+    } finally {
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    }
+  }
+
+  @Test
+  public void testTableType() throws IOException {
+    JsonNode result = execute("{_schema{name,tables{name,tableType}}}");
+    assertEquals("DATA", result.at("/_schema/tables/0/tableType").asText(), "DATA");
+    assertEquals("ONTOLOGIES", result.at("/_schema/tables/3/tableType").asText());
+  }
+
+  @Test
+  public void testFileType() throws IOException {
+    try {
+      Schema myschema = database.dropCreateSchema("testFileType");
+      myschema.create(
+          table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
+
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+
+      // insert file (note: ideally here also use mutation but I don't know how to add file part to
+      // request)
+      Table table = myschema.getTable("TestFile");
+      table.insert(
+          row(
+              "name",
+              "test",
+              "image",
+              new BinaryFileWrapper("text/html", "testfile.txt", "test".getBytes())));
+
+      assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
+
+      // update with {} existing file metadata should keep file untouched
+      Map data = new LinkedHashMap();
+      data.put("name", "test");
+      data.put("image", Map.of("name", "dummy"));
+      grapql.execute(
+          new ExecutionInput.Builder()
+              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+              .variables(Map.of("value", data))
+              .build());
+      assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
+
+      // update with null should delete
+      data.put("image", null);
+      grapql.execute(
+          new ExecutionInput.Builder()
+              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+              .variables(Map.of("value", data))
+              .build());
+      assertEquals(
+          0, execute("{TestFile{image{size,extension,url}}}").at("/TestFile/0/image/size").asInt());
+
+      // reset
+    } finally {
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    }
+  }
 }

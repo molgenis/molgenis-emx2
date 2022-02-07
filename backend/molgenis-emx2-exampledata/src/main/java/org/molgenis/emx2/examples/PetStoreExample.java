@@ -24,6 +24,10 @@ public class PetStoreExample {
   public static final String PRICE = "price";
   public static final String COMPLETE = "complete";
   public static final String EMAIL = "email";
+  public static final String PARENT = "parent";
+  public static final String COLORS = "colors";
+  public static final String SPECIES = "species";
+  public static final String MAMMALS = "mammals";
 
   private PetStoreExample() {
     // hide public constructor
@@ -33,8 +37,6 @@ public class PetStoreExample {
 
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
-    schema.create(table(TAG).add(column(NAME).setPkey()));
-
     schema.create(
         table(PET)
             .add(column(NAME).setDescription("the name").setPkey())
@@ -42,10 +44,11 @@ public class PetStoreExample {
             .add(column("photoUrls").setType(STRING_ARRAY))
             .add(
                 column("details")
-                    .setType(CONSTANT)
-                    .setDescription("<h1>Details:</h1>")) // add a layout element
+                    .setType(HEADING)
+                    .setDescription(
+                        "Details")) // add a layout element, for now html formatting not allowed
             .add(column(STATUS)) // todo enum: available, pending, sold
-            .add(column("tags").setType(REF_ARRAY).setRefTable(TAG))
+            .add(column("tags").setType(ONTOLOGY_ARRAY).setRefTable(TAG))
             .add(column(WEIGHT).setType(DECIMAL).setRequired(true))
             .setDescription("My pet store example table"));
 
@@ -56,11 +59,11 @@ public class PetStoreExample {
             .add(
                 column(QUANTITY)
                     .setType(INT)
-                    .setValidIf("if(value<1)'Must be larger than 1'")) // todo: validation >=1
+                    .setValidation("{quantity} >= 1")) // todo: validation >=1
             .add(
                 column(PRICE)
                     .setType(DECIMAL)
-                    .setValidIf("if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
+                    .setValidation("{price} >= 1")) // todo: validation >=1
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
@@ -74,10 +77,11 @@ public class PetStoreExample {
             .add(column("username").setPkey())
             .add(column("firstName"))
             .add(column("lastName"))
+            .add(column("picture").setType(FILE))
             .add(
                 column(EMAIL)
-                    .setValidIf(
-                        "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
+                    .setValidation(
+                        "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email})")) // todo: validation email
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))
@@ -87,6 +91,7 @@ public class PetStoreExample {
   public static void populate(Schema schema) {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
+    final String shopowner = "shopowner";
 
     // initual user
     schema.addMember(shopmanager, "Manager");
@@ -95,8 +100,21 @@ public class PetStoreExample {
     schema.addMember(shopviewer, "Viewer");
     schema.getDatabase().setUserPassword(shopviewer, shopviewer);
 
+    schema.addMember(shopowner, "Owner");
+    schema.getDatabase().setUserPassword(shopowner, shopowner);
+
     schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
-    schema.getTable(TAG).insert(new Row().set(NAME, "red"), new Row().set(NAME, "green"));
+    schema
+        .getTable(TAG)
+        .insert(
+            new Row().set(NAME, COLORS),
+            new Row().set(NAME, "red").set(PARENT, COLORS),
+            new Row().set(NAME, "green").set(PARENT, COLORS),
+            new Row().set(NAME, SPECIES),
+            new Row().set(NAME, MAMMALS).set(PARENT, SPECIES),
+            new Row().set(NAME, "carnivorous mammals").set(PARENT, MAMMALS),
+            new Row().set(NAME, "herbivorous mammals").set(PARENT, MAMMALS),
+            new Row().set(NAME, "birds").set(PARENT, SPECIES));
 
     schema
         .getTable(PET)

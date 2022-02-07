@@ -3,27 +3,26 @@ package org.molgenis.emx2.io;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.Field;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.tasks.StepStatus;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportTableTask extends Task {
   private Table table;
   private TableStore source;
 
-  public ImportTableTask(TableStore source, Table table) {
-    super("Import table " + table.getName());
+  public ImportTableTask(TableStore source, Table table, boolean strict) {
+    super("Import table " + table.getName(), strict);
     this.table = table;
     this.source = source;
   }
 
+  @Override
   public void run() {
     this.start();
-
-    // validate column names, provide warning if some columns will be ignored
 
     // validate uniqueness of the keys in the set
     this.setDescription(
@@ -37,9 +36,9 @@ public class ImportTableTask extends Task {
 
     // done
     if (getIndex() > 0) {
-      this.complete("Imported " + getIndex() + " " + table.getName());
+      this.complete(String.format("Imported %s %s", getIndex(), table.getName()));
     } else {
-      this.skipped("Skipped table " + table.getName() + ": sheet was empty");
+      this.skipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
   }
 
@@ -49,6 +48,7 @@ public class ImportTableTask extends Task {
     Set<String> keys = new HashSet<>();
     TableMetadata metadata;
     Task task;
+    Set<String> warningColumns = new HashSet<>();
 
     public ValidatePkeyProcessor(TableMetadata metadata, Task task) {
       this.metadata = metadata;
@@ -56,30 +56,58 @@ public class ImportTableTask extends Task {
     }
 
     @Override
-    public void process(Iterator<Row> iterator) {
+    public void process(Iterator<Row> iterator, TableStore source) {
 
       task.setIndex(0);
+      int index = 0;
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
-        String keyValue = "";
-        for (Field f : metadata.getPrimaryKeyFields()) {
-          keyValue += row.getString(f.getName()) + ",";
+
+        // column warning
+        if (task.getIndex() == 0) {
+          List<String> columnNames =
+              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
+          warningColumns =
+              row.getColumnNames().stream()
+                  .filter(name -> !columnNames.contains(name))
+                  .collect(Collectors.toSet());
+          if (!warningColumns.isEmpty()) {
+            if (task.isStrict()) {
+              throw new MolgenisException(
+                  "Found unknown columns "
+                      + warningColumns
+                      + " in sheet "
+                      + metadata.getTableName());
+            } else {
+              task.step(
+                  "Found unknown columns "
+                      + warningColumns
+                      + " in sheet "
+                      + metadata.getTableName(),
+                  StepStatus.WARNING);
+            }
+          }
         }
-        keyValue = keyValue.substring(0, keyValue.length() - 1);
+
+        // primary key
+        String keyValue =
+            metadata.getPrimaryKeyFields().stream()
+                .map(f -> row.getString(f.getName()))
+                .collect(Collectors.joining(","));
         if (keys.contains(keyValue)) {
           duplicates.add(keyValue);
           String keyFields =
               metadata.getPrimaryKeyFields().stream()
-                  .map(f -> f.getName())
+                  .map(Field::getName)
                   .collect(Collectors.joining(","));
           task.step("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
         } else {
           keys.add(keyValue);
         }
-        task.setIndex(task.getIndex());
+        task.setIndex(++index);
       }
-      if (duplicates.size() > 0) {
+      if (!duplicates.isEmpty()) {
         task.completeWithError(
             "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
       }
@@ -89,21 +117,32 @@ public class ImportTableTask extends Task {
   /** executes the import */
   private static class ImportRowProcesssor implements RowProcessor {
     private final Table table;
-    private final Task task;
+    private final ImportTableTask task;
 
-    public ImportRowProcesssor(Table table, Task task) {
+    public ImportRowProcesssor(Table table, ImportTableTask task) {
       this.table = table;
       this.task = task;
     }
 
     @Override
-    public void process(Iterator<Row> iterator) {
-
+    public void process(Iterator<Row> iterator, TableStore source) {
       task.setIndex(0);
       int index = 0;
       List<Row> batch = new ArrayList<>();
+      List<Column> columns = table.getMetadata().getColumns();
       while (iterator.hasNext()) {
-        batch.add(iterator.next());
+        Row row = iterator.next();
+        // add file attachments, if applicable
+        for (Column c : columns) {
+          if (c.isFile()
+              && source instanceof TableAndFileStore
+              && row.getValueMap().get(c.getName()) != null) {
+            row.setBinary(
+                c.getName(),
+                ((TableAndFileStore) source).getBinaryFileWrapper(row.getString(c.getName())));
+          }
+        }
+        batch.add(row);
         index++;
         if (batch.size() >= 1000) {
           table.save(batch);
@@ -116,6 +155,7 @@ public class ImportTableTask extends Task {
       if (!batch.isEmpty()) {
         table.save(batch);
         task.setIndex(index);
+        task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
       }
     }
   }

@@ -1,9 +1,7 @@
 <template>
   <ul v-if="contributors">
-    <li v-for="c in contributors">
-      <RouterLink :to="{ name: 'contact', params: { name: c.contact.name } }">
-        {{ c.contact.name }}
-      </RouterLink>
+    <li v-for="(c, index) in contributors" :key="index">
+      {{ c.contact.firstName }} {{ c.contact.surname }}
       <OntologyTerms
         :terms="c.contributionType"
         :inline="true"

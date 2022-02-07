@@ -2,19 +2,21 @@
   <div class="container bg-white">
     <ResourceHeader
       :resource="datasource"
-      headerCss="bg-warning text-dark"
+      headerCss="bg-secondary text-white"
       table-name="Datasources"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div class="row">
       <div class="col-8">
         <h6>Population</h6>
-        <OntologyTerms :terms="datasource.population" color="warning" />
+        <OntologyTerms :terms="datasource.population" color="secondary" />
         <h6>Databanks</h6>
-        <DatabankList :databanks="datasource.databanks" color="warning" />
+        <DatabankList :databanks="datasource.databanks" color="secondary" />
         <h6>Data use conditions</h6>
-        <OntologyTerms :terms="datasource.conditions" color="warning" />
-        <p v-if="datasource.conditionsDescription">{{datasource.conditionsDescription}}</p>
+        <OntologyTerms :terms="datasource.conditions" color="secondary" />
+        <p v-if="datasource.conditionsDescription">
+          {{ datasource.conditionsDescription }}
+        </p>
         <h6>Summary statistics<i class="fa fa-caret-down"></i></h6>
         <p v-if="datasource.statistics">{{ datasource.statistics }}</p>
       </div>
@@ -64,7 +66,7 @@ export default {
     NetworkList,
   },
   props: {
-    acronym: String,
+    pid: String,
   },
   data() {
     return {
@@ -78,18 +80,19 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Datasources($acronym:String){Datasources(filter:{acronym:{equals:[$acronym]}}){name,acronym,logo{url},releases{resource{acronym},version},population{name},inclusionCriteria{name}type{name},networks{acronym,name}conditionsDescription,conditions{name,definition}databanks{acronym,name,type{name,definition}},institution{acronym,name} description,homepage}}`,
+        `query Datasources($pid:String){Datasources(filter:{pid:{equals:[$pid]}}){name,pid,logo{url},releases{resource{pid},version},population{name},inclusionCriteria{name}type{name},networks{pid,name}conditionsDescription,conditions{name,definition}databanks{pid,name,type{name,definition}},institution{pid,name} description,homepage}}`,
         {
-          acronym: this.acronym,
+          pid: this.pid,
         }
       )
         .then((data) => {
           console.log(data);
           this.datasource = data.Datasources[0];
           if (this.datasource.releases) {
-            this.version = this.datasource.releases[
-              this.datasource.releases.length - 1
-            ].version;
+            this.version =
+              this.datasource.releases[
+                this.datasource.releases.length - 1
+              ].version;
           }
         })
         .catch((error) => {
@@ -104,7 +107,7 @@ export default {
     this.reload();
   },
   watch: {
-    databankAcronym() {
+    pid() {
       this.reload();
     },
   },

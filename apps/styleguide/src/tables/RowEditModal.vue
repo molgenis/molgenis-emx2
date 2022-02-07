@@ -6,15 +6,17 @@
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
+        {{ tableMetadata }}
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="
-              (visibleColumns == null ||
-                visibleColumns.includes(column.name)) &&
+              (visibleColumns == null || visibleColumns.includes(column.id)) &&
               visible(column.visible) &&
-              column.name != 'mg_tableclass'
+              column.name != 'mg_tableclass' &&
+              //if dependent, show only if dependent value is set
+              (!column.refLink || value[column.refLink])
             "
-            v-model="value[column.name]"
+            v-model="value[column.id]"
             :label="column.name"
             :description="column.description"
             :columnType="column.columnType"
@@ -24,35 +26,13 @@
             :refBack="column.refBack"
             :required="column.required"
             :errorMessage="errorPerColumn[column.name]"
-            :readonly="column.readonly || (pkey && column.key == 1)"
+            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
             :graphqlURL="graphqlURL"
             :refBackType="getRefBackType(column)"
             :pkey="getPkey(value)"
           />
         </span>
       </LayoutForm>
-      <ShowMore title="debug">
-        <pre>
-
-defaultValue = {{ defaultValue }}
-
-visibleColumns = {{ visibleColumns }}
-
-value={{ JSON.stringify(value) }}
-
-data={{ JSON.stringify(data) }}
-
-graphql = {{ JSON.stringify(graphql) }}
-
-filter = {{ JSON.stringify(filter) }}
-
-errorPerColumn = {{ JSON.stringify(errorPerColumn) }}
-
-schema = {{ JSON.stringify(schema, null, 2) }}
-
-
-        </pre>
-      </ShowMore>
     </template>
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
@@ -76,7 +56,7 @@ import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
-import ShowMore from "../layout/ShowMore";
+import { Expressions } from "@molgenis/expressions";
 
 export default {
   extends: TableMixin,
@@ -92,9 +72,11 @@ export default {
   props: {
     /** when updating existing record, this is the primary key value */
     pkey: Object,
+    /** when you want to clone instead of update */
+    clone: Boolean,
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
-    /** whebn creating new record, this is initialization value */
+    /** when creating new record, this is initialization value */
     defaultValue: Object,
   },
   components: {
@@ -106,7 +88,6 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ShowMore,
     ButtonOutline,
   },
   methods: {
@@ -139,7 +120,7 @@ export default {
       this.graphqlError = null;
       this.success = null;
       // todo spinner
-      let name = this.table;
+      let name = this.tableId;
 
       // indicate if draft
       if (isDraft) {
@@ -150,7 +131,7 @@ export default {
 
       let variables = { value: [this.value] };
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
-      if (this.pkey) {
+      if (this.pkey && !this.clone) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
       this.requestMultipart(this.graphqlURL, query, variables)
@@ -169,7 +150,7 @@ export default {
               "Schema doesn't exist or permission denied. Do you need to Sign In?";
             this.showLogin = true;
           } else {
-            this.graphqlError = error.errors;
+            this.graphqlError = error.errors[0].message;
           }
         });
     },
@@ -192,38 +173,43 @@ export default {
       if (this.tableMetadata) {
         this.tableMetadata.columns.forEach((column) => {
           // make really empty if empty
-          if (/^\s*$/.test(this.value[column.name])) {
+          if (/^\s*$/.test(this.value[column.id])) {
             //this.value[column.name] = null;
           }
-          delete this.errorPerColumn[column.name];
+          delete this.errorPerColumn[column.id];
           // when required
           if (
             column.required &&
-            (this.value[column.name] == null ||
-              (typeof this.value[column.name] === "number" &&
-                isNaN(this.value[column.name])))
+            (this.value[column.id] == null ||
+              (typeof this.value[column.id] === "number" &&
+                isNaN(this.value[column.id])))
           ) {
-            this.errorPerColumn[column.name] = column.name + " is required ";
+            this.errorPerColumn[column.id] = column.name + " is required ";
           } else {
             // when not empty
             // when validation
             if (
-              typeof this.value[column.name] !== "undefined" &&
+              typeof this.value[column.id] !== "undefined" &&
               typeof column.validation !== "undefined"
             ) {
-              let value = this.value[column.name]; //used for eval, two lines below
-              this.errorPerColumn[column.name] = value; //dummy assign
-              this.errorPerColumn[column.name] = this.eval(column.validation);
+              this.errorPerColumn[column.id] = null;
+              try {
+                if (!Expressions.evaluate(column.validation, this.value)) {
+                  this.errorPerColumn[column.id] = column.validation;
+                }
+              } catch (error) {
+                this.errorPerColumn[column.id] = error.toString();
+              }
             } else if (
               column.refLink &&
-              this.value[column.name] &&
-              this.value[column.refLink] &&
-              !JSON.stringify(this.value[column.name]).includes(
-                JSON.stringify(this.value[column.refLink])
+              this.value[column.id] &&
+              this.value[column.refLink.replace(" ", "_")] &&
+              !JSON.stringify(this.value[column.id]).includes(
+                JSON.stringify(this.value[column.refLink.replace(" ", "_")])
               )
             ) {
               //reflinks should overlap
-              this.errorPerColumn[column.name] =
+              this.errorPerColumn[column.id] =
                 "value should match your selection in column '" +
                 column.refLink +
                 "' ";
@@ -272,13 +258,15 @@ export default {
       if (this.tableMetadata && this.pkey) {
         this.tableMetadata.columns
           .filter((c) => c.key == 1)
-          .map((c) => (result[c.name] = { equals: this.pkey[c.name] }));
+          .map((c) => (result[c.id] = { equals: this.pkey[c.id] }));
       }
       return result;
     },
     // override from tableMixin
     title() {
-      if (this.pkey) {
+      if (this.pkey && this.clone) {
+        return `copy ${this.table}`;
+      } else if (this.pkey) {
         return `update ${this.table}`;
       } else {
         return `insert ${this.table}`;
@@ -292,8 +280,14 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          if (data[column.name]) {
-            defaultValue[column.name] = data[column.name];
+          //skip key in case of clone and visible
+          if (
+            data[column.id] &&
+            (!this.clone ||
+              column.key != 1 ||
+              !this.visibleColumns.includes(column.name))
+          ) {
+            defaultValue[column.id] = data[column.id];
           }
         });
         this.value = defaultValue;

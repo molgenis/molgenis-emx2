@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.ColumnType.REF;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
+import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,15 +24,24 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getName())) {
-          if (column.isReference() && REF.equals(column.getColumnType())) {
-            convertRefToRow((Map<String, Object>) object.get(column.getName()), row, column);
+        if (object.containsKey(escape(column.getName()))) {
+          if (column.isRef()) {
+            convertRefToRow(
+                (Map<String, Object>) object.get(escape(column.getName())), row, column);
           } else if (column.isReference()) {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getName()), row, column);
+                (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
+          } else if (column.isFile()) {
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
+            if (bfw == null || !bfw.isSkip()) {
+              // also necessary in case of 'null' to ensure all file metadata fields are made empty
+              // skip is used when use submitted only metadata (that they received in query)
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
+            }
           } else {
-            row.set(column.getName(), object.get(column.getName()));
+            row.set(column.getName(), object.get(escape(column.getName())));
           }
         }
       }
@@ -104,11 +112,42 @@ public class GraphqlApiFactory {
   /** bit unfortunate that we have to convert from json to map and back */
   static Object transform(String json) throws IOException {
     // benchmark shows this only takes a few ms so not a large performance issue
+    // alternatively, we should change the SQL to result escaped results but that is a nightmare to
+    // build
     if (json != null) {
-      return new ObjectMapper().readValue(json, Map.class);
+      return escapeMap(new ObjectMapper().readValue(json, Map.class));
     } else {
       return null;
     }
+  }
+
+  static Map<String, Object> escapeMap(Map<String, Object> source) {
+    Map<String, Object> result = new HashMap<>();
+    source.forEach(
+        (k, v) -> {
+          if (v instanceof List) {
+            result.put(escape(k), escapeList((List) v));
+          } else if (v instanceof Map) {
+            result.put(escape(k), escapeMap((Map<String, Object>) v));
+          } else {
+            result.put(escape(k), v);
+          }
+        });
+    return result;
+  }
+
+  public static List escapeList(List source) {
+    List result = new ArrayList();
+    for (int i = 0; i < source.size(); i++) {
+      if (source.get(i) instanceof Map) {
+        result.add(escapeMap((Map<String, Object>) source.get(i)));
+      } else if (source.get(i) instanceof List) {
+        result.add(escapeList((List) source.get(i)));
+      } else {
+        result.add(source.get(i));
+      }
+    }
+    return result;
   }
 
   public GraphQL createGraphqlForDatabase(Database database) {
@@ -121,7 +160,7 @@ public class GraphqlApiFactory {
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
 
     // admin operations
-    if (ADMIN.equals(database.getActiveUser())) {
+    if (database.isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
     }
 
@@ -140,6 +179,11 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
+    mutationBuilder.field(db.updateMutation(database));
+    if (database.isAdmin()) {
+      mutationBuilder.field(db.createSettingsMutation(database));
+      mutationBuilder.field(db.deleteSettingsMutation(database));
+    }
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
@@ -156,7 +200,7 @@ public class GraphqlApiFactory {
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // admin operations
-    if (ADMIN.equals(schema.getDatabase().getActiveUser())) {
+    if (schema.getDatabase().isAdmin()) {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(schema.getDatabase()));
     }
 
@@ -180,10 +224,11 @@ public class GraphqlApiFactory {
 
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
-    Set<String> importedTables = new HashSet<>();
-    for (String tableName : schema.getTableNames()) {
-      addImportedTablesRecursively(
-          schema, queryBuilder, tableField, importedTables, schema.getTable(tableName));
+    for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
+      if (table.getColumns().size() > 0) {
+        queryBuilder.field(tableField.tableQueryField(table.getTable()));
+        queryBuilder.field(tableField.tableAggField(table.getTable()));
+      }
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
@@ -211,44 +256,5 @@ public class GraphqlApiFactory {
     }
 
     return result;
-  }
-
-  private void addImportedTablesRecursively(
-      Schema schema,
-      GraphQLObjectType.Builder queryBuilder,
-      GraphqlTableFieldFactory tableField,
-      Set<String> importedTables,
-      Table table) {
-    // only add tables that have columns, otherwise will be error
-    if (table.getMetadata().getColumns().size() > 0) {
-      queryBuilder.field(tableField.tableQueryField(table));
-      queryBuilder.field(tableField.tableAggField(table));
-    }
-    for (Column column : table.getMetadata().getColumns()) {
-      if (column.isReference()
-          && !column.getRefSchema().equals(schema.getName())
-          && !importedTables.contains(column.getRefTableName())) {
-        Table importedTable =
-            schema
-                .getDatabase()
-                .getSchema(column.getRefSchema())
-                .getTable(column.getRefTableName());
-        importedTables.add(importedTable.getName());
-
-        addImportedTablesRecursively(
-            schema,
-            queryBuilder,
-            tableField,
-            importedTables,
-            column
-                .getRefTable()
-                .getSchema()
-                .getDatabase()
-                .getSchema(column.getRefTable().getSchemaName())
-                .getTable(column.getRefTableName())); // lolwut, should probably merge
-        // table+tablemetadata
-
-      }
-    }
   }
 }

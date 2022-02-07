@@ -33,7 +33,6 @@ export default {
   methods: {
     toggle() {
       if (this.value.options == undefined) {
-        console.log("reload");
         this.loading = true;
         request(
           "graphql",
@@ -50,7 +49,6 @@ export default {
           });
       }
       this.expand = !this.expand;
-      console.log(this.value);
     },
   },
 };

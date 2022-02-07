@@ -47,6 +47,13 @@ public class TestGraphqlCrossSchemaRefs {
             .at("/_schema/tables")
             .findValuesAsText("name")
             .contains("Parent"));
+
+    // checks for a reported bug that ChildInput were not created
+    Assert.assertTrue(
+        execute("mutation{save(Child:{name:\"test\"}){message}}")
+            .at("/save/message")
+            .asText()
+            .contains("upserted"));
   }
 
   private JsonNode execute(String query) throws IOException {

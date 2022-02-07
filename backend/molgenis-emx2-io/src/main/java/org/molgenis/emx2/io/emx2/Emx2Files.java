@@ -1,6 +1,5 @@
 package org.molgenis.emx2.io.emx2;
 
-import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 
@@ -9,12 +8,17 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Operator;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 
 public class Emx2Files {
-  public static void outputFiles(TableStoreForCsvInZipFile store, Table table) {
+
+  private Emx2Files() {
+    // prevent
+  }
+
+  public static void outputFiles(TableAndFileStore store, Table table) {
     for (Column c : table.getMetadata().getColumns()) {
-      if (c.getColumnType().equals(FILE)) {
+      if (c.isFile()) {
         // query the identifiers of this, and then retrieve (slow, but scalable) and write
         List<Row> rows = table.select(s(c.getName())).retrieveRows();
         for (Row r : rows) {

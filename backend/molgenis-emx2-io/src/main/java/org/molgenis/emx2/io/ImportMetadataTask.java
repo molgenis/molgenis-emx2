@@ -9,15 +9,17 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportMetadataTask extends Task {
+  public static final String MOLGENIS = "molgenis";
   private TableStore store;
   private Schema schema;
 
-  public ImportMetadataTask(Schema schema, TableStore store) {
-    super("Import metadata");
+  public ImportMetadataTask(Schema schema, TableStore store, boolean strict) {
+    super("Import metadata", strict);
     this.schema = schema;
     this.store = store;
   }
 
+  @Override
   public void run() {
     this.start();
     try {
@@ -26,12 +28,12 @@ public class ImportMetadataTask extends Task {
         this.complete("Imported emx1 metadata");
       }
 
-      if (store.containsTable("molgenis")
+      if (store.containsTable(MOLGENIS)
           || store.containsTable("molgenis_settings")
           || store.containsTable("molgenis_members")) {
 
-        if (store.containsTable("molgenis")) {
-          schema.migrate(Emx2.fromRowList(store.readTable("molgenis")));
+        if (store.containsTable(MOLGENIS)) {
+          schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
           this.step("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
           this.step("Metadata loading skipped: 'molgenis' sheet not included in the file")

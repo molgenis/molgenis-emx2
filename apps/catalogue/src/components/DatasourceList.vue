@@ -1,12 +1,17 @@
 <template>
   <ul v-if="datasources">
-    <li v-for="d in datasources" :key="d.acronym">
+    <li v-for="d in datasources" :key="d.pid">
       <RouterLink
         :to="{
           name: 'datasource',
-          params: { acronym: d.acronym },
+          params: { pid: d.pid },
         }"
-        >{{ d.acronym }} - {{ d.name }}
+        >{{ d.pid }} - {{ d.name }}
+        <OntologyTerms
+          :terms="d.type"
+          :inline="true"
+          :color="color"
+        ></OntologyTerms>
       </RouterLink>
     </li>
   </ul>
@@ -14,8 +19,14 @@
 </template>
 
 <script>
+import OntologyTerms from "./OntologyTerms";
+
 export default {
+  components: {
+    OntologyTerms,
+  },
   props: {
+    color: String,
     datasources: Array,
   },
 };

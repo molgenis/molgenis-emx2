@@ -34,7 +34,7 @@ public class TableStoreForXlsxFile implements TableStore {
   }
 
   @Override
-  public void writeTable(String name, Iterable<Row> rows) {
+  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     try {
       if (name.length() > 30)
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
@@ -42,14 +42,22 @@ public class TableStoreForXlsxFile implements TableStore {
       if (!Files.exists(excelFilePath)) {
         try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
             Workbook wb = new SXSSFWorkbook(100)) {
-          writeRowsToSheet(name, rows, wb);
+          if (rows.iterator().hasNext()) {
+            writeRowsToSheet(name, rows, wb);
+          } else {
+            writeHeaderOnlyToSheet(name, columnNames, wb);
+          }
           wb.write(out);
         }
       } else {
         Workbook wb;
         try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
           wb = WorkbookFactory.create(inputStream);
-          writeRowsToSheet(name, rows, wb);
+          if (rows.iterator().hasNext()) {
+            writeRowsToSheet(name, rows, wb);
+          } else {
+            writeHeaderOnlyToSheet(name, columnNames, wb);
+          }
         }
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
           wb.write(outputStream);
@@ -60,6 +68,14 @@ public class TableStoreForXlsxFile implements TableStore {
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
+    }
+  }
+
+  private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
+    Sheet sheet = wb.createSheet(name);
+    org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
+    for (int i = 0; i < columnNames.size(); i++) {
+      excelRow.createCell(i).setCellValue(columnNames.get(i));
     }
   }
 
@@ -132,8 +148,8 @@ public class TableStoreForXlsxFile implements TableStore {
               result.add(row);
             }
           }
-          this.cache.put(sheetName, result);
         }
+        this.cache.put(sheetName, result);
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
@@ -164,7 +180,7 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator());
+    processor.process(readTable(name).iterator(), this);
   }
 
   private Row convertRow(
@@ -173,21 +189,23 @@ public class TableStoreForXlsxFile implements TableStore {
     Row row = new Row();
     for (Cell cell : excelRow) {
       String colName = columnNames.get(cell.getColumnIndex());
-      if (colName == null && !BLANK.equals(cell.getCellType())) {
-        throw new IOException(
-            "Read of table '"
-                + name
-                + "' failed: column index "
-                + cell.getColumnIndex()
-                + " has no column name and contains value '"
-                + cell.getStringCellValue()
-                + "'");
-      }
+      if (!cell.getStringCellValue().trim().equals("")) {
+        if (colName == null) {
+          throw new IOException(
+              "Read of table '"
+                  + name
+                  + "' failed: column index "
+                  + cell.getColumnIndex()
+                  + " has no column name and contains value '"
+                  + cell.getStringCellValue()
+                  + "'");
+        }
 
-      if (cell.getCellType().equals(FORMULA)) {
-        convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
-      } else {
-        convertCellToRowValue(row, cell, cell.getCellType(), colName);
+        if (cell.getCellType().equals(FORMULA)) {
+          convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
+        } else {
+          convertCellToRowValue(row, cell, cell.getCellType(), colName);
+        }
       }
     }
     return row;
@@ -198,8 +216,7 @@ public class TableStoreForXlsxFile implements TableStore {
       case BLANK:
         row.set(colName, null);
         break;
-      case STRING:
-      case NUMERIC:
+      case STRING, NUMERIC:
         // don't use the auto guessing of Excel; we will do the cast ourselves
         row.setString(colName, cell.getStringCellValue().trim());
         break;

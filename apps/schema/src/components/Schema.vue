@@ -118,8 +118,7 @@
                         v-if="table.semantics"
                         style="font-size: small; text-transform: none"
                       >
-                        <<i>semantics:{{ table.semantics }}</i
-                        >> <br />
+                        <i>semantics:{{ table.semantics }}</i> <br />
                       </span>
                     </h3>
                     <small v-if="table.description">
@@ -324,7 +323,7 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,columnFormat,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
           this.schema = data._schema.name;
@@ -364,12 +363,8 @@ export default {
     this.loadSchema();
   },
   watch: {
-    tableAdd() {
-      console.log("tableadd changed " + JSON.stringify(this.tableAdd));
-    },
-    tableAlter() {
-      console.log("tableAlter changed " + JSON.stringify(this.tableAlter));
-    },
+    tableAdd() {},
+    tableAlter() {},
     session: {
       deep: true,
       handler() {

@@ -18,18 +18,18 @@
         <td colspan="4">
           <RouterLink
             :to="{
-              name: 'table',
-              params: { acronym: toAcronym, version: toVersion, name: toTable },
+              name: 'Tables-details',
+              params: { pid: toPid, version: toVersion, name: toTable },
             }"
             >{{ toTable }}
           </RouterLink>
           within release
           <RouterLink
             :to="{
-              name: 'release',
-              params: { acronym: toAcronym, version: toVersion },
+              name: 'Releases-details',
+              params: { pid: toPid, version: toVersion },
             }"
-            >{{ toAcronym }}
+            >{{ toPid }}
             {{ toVersion }}
           </RouterLink>
         </td>
@@ -39,9 +39,9 @@
         <td colspan="4">
           <RouterLink
             :to="{
-              name: 'table',
+              name: 'Tables-details',
               params: {
-                acronym: fromAcronym,
+                pid: fromPid,
                 version: fromVersion,
                 name: fromTable,
               },
@@ -51,10 +51,10 @@
           within release
           <RouterLink
             :to="{
-              name: 'release',
-              params: { acronym: fromAcronym, version: fromVersion },
+              name: 'Releases-details',
+              params: { pid: fromPid, version: fromVersion },
             }"
-            >{{ fromAcronym }}
+            >{{ fromPid }}
             {{ fromVersion }}
           </RouterLink>
         </td>
@@ -81,9 +81,9 @@
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
-              name: 'variable',
+              name: 'TargetVariables-details',
               params: {
-                acronym: toAcronym,
+                pid: toPid,
                 version: toVersion,
                 table: toTable,
                 name: m.toVariable.name,
@@ -94,20 +94,38 @@
           </RouterLink>
         </td>
         <td>
-          <RouterLink
-            v-if="m.fromVariable"
-            :to="{
-              name: 'variable',
-              params: {
-                acronym: fromAcronym,
-                version: fromVersion,
-                table: fromTable,
-                name: m.fromVariable.name,
-              },
-            }"
-          >
-            {{ m.fromVariable.name }}
-          </RouterLink>
+          <div v-if="m.fromVariable">
+            <RouterLink
+              v-for="v in m.fromVariable"
+              :to="{
+                name: 'SourceVariables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: fromTable,
+                  name: m.fromVariable.name,
+                },
+              }"
+            >
+              {{ fromTable }}.{{ v.name }}
+            </RouterLink>
+          </div>
+          <div v-if="m.fromVariablesOtherTables">
+            <RouterLink
+              v-for="v in m.fromVariablesOtherTables"
+              :to="{
+                name: 'SourceVariables-details',
+                params: {
+                  pid: fromPid,
+                  version: fromVersion,
+                  table: v.table.name,
+                  name: v.name,
+                },
+              }"
+            >
+              {{ v.table.name }}.{{ v.name }}
+            </RouterLink>
+          </div>
         </td>
         <td>{{ m.description }}</td>
         <td>{{ m.syntax }}</td>
@@ -138,10 +156,10 @@ export default {
     TableExplorer,
   },
   props: {
-    fromAcronym: String,
+    fromPid: String,
     fromVersion: String,
     fromTable: String,
-    toAcronym: String,
+    toPid: String,
     toVersion: String,
     toTable: String,
   },
@@ -169,7 +187,7 @@ export default {
       this.$router.push({
         name: "variable",
         params: {
-          acronym: this.acronym,
+          pid: this.pid,
           version: this.version,
           table: this.name,
           name: row.name,
@@ -180,28 +198,28 @@ export default {
       request(
         "graphql",
         `
-query TableMappings($fromAcronym:String,$fromVersion:String,$fromTable:String,$toAcronym:String,$toVersion:String,$toTable:String)
+query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid:String,$toVersion:String,$toTable:String)
 {
   TableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{acronym:{equals:[$fromAcronym]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{acronym:{equals:[$toAcronym]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
     description
   },
   VariableMappings(filter:{
-  fromRelease:{version:{equals:[$fromVersion]},resource:{acronym:{equals:[$fromAcronym]}}},fromTable:{name:{equals:[$fromTable]}},
-  toRelease:{version:{equals:[$toVersion]},resource:{acronym:{equals:[$toAcronym]}}},toTable:{name:{equals:[$toTable]}}
+  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
+  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
   })
   {
-    description,fromVariable{name},toVariable{name},syntax
+    description,fromVariable{name},toVariable{name},syntax,fromVariablesOtherTables{table{name},name}
   }
 }`,
         {
-          fromAcronym: this.fromAcronym,
+          fromPid: this.fromPid,
           fromVersion: this.fromVersion,
           fromTable: this.fromTable,
-          toAcronym: this.toAcronym,
+          toPid: this.toPid,
           toVersion: this.toVersion,
           toTable: this.toTable,
         }

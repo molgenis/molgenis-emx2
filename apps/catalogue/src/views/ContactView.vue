@@ -9,14 +9,14 @@
     <div class="row">
       <div class="col">
         <h6>Contributions:</h6>
-        <div v-for="c in contact.contributedTo" :key="c.acronym">
+        <div v-for="c in contact.contributedTo" :key="c.pid">
           <RouterLink
             :to="{
               name: routename(c.resource.mg_tableclass),
-              params: { acronym: c.resource.acronym },
+              params: { pid: c.resource.pid },
             }"
           >
-            {{ c.resource.acronym }}
+            {{ c.resource.pid }}
             <OntologyTerms :terms="c.contributionType" />
           </RouterLink>
           <p>{{ c.contributionDescription }}</p>
@@ -94,7 +94,7 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Contacts($name:String){Contacts(filter:{name:{equals:[$name]}}){name,homepage,contributedTo{resource{acronym,name,mg_tableclass},contributionType{name},contributionDescription},institution{name,acronym},orcid,email,linkedin,researchgate,twitter}}`,
+        `query Contacts($name:String){Contacts(filter:{name:{equals:[$name]}}){name,homepage,contributedTo{resource{pid,name,mg_tableclass},contributionType{name},contributionDescription},institution{name,pid},orcid,email,linkedin,researchgate,twitter}}`,
         {
           name: this.name,
         }
@@ -116,7 +116,7 @@ export default {
     this.reload();
   },
   watch: {
-    acronym() {
+    pid() {
       this.reload();
     },
   },

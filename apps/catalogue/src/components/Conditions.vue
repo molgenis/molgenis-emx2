@@ -1,11 +1,20 @@
 <template>
   <div>
-    <h6>Access conditions</h6>
-    <OntologyTerms :terms="resource.conditions" color="danger" :inline="true" />
-    <p v-if="resource.conditionsDescription">{{resource.conditionsDescription}}</p>
+    <h6>Data access conditions</h6>
+    <OntologyTerms :terms="resource.dataAccessConditions" :color="color" />
+    <h6>Data use conditions</h6>
+    <OntologyTerms :terms="resource.dataUseConditions" :color="color" />
+    <h6>Data access conditions description</h6>
+    <p>
+      {{ resource.dataAccessConditionsDescription ? resource.dataAccessConditionsDescription : "N/A" }}
+    </p>
+    <h6>Fee required?</h6>
+    <p>
+      {{ resource.dataAccessFee }}
+    </p>
     <h6>Funding statement</h6>
     <p>
-      {{ resource.funding ? resource.funding : "N/A" }}
+      {{ resource.fundingStatement ? resource.fundingStatement : "N/A" }}
     </p>
     <h6>Acknowledgement statement</h6>
     <p>
@@ -20,6 +29,7 @@ import OntologyTerms from "./OntologyTerms";
 export default {
   components: { OntologyTerms },
   props: {
+    color: String,
     resource: Object,
   },
 };

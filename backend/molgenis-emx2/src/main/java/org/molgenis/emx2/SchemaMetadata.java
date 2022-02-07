@@ -1,5 +1,8 @@
 package org.molgenis.emx2;
 
+import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
+import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
 
@@ -7,33 +10,48 @@ public class SchemaMetadata {
 
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected Map<String, Setting> settings = new LinkedHashMap<>();
-  private String name;
+  protected String name;
   // optional
-  private Database database;
+  protected String description;
+  // optional
+  protected Database database;
 
   public SchemaMetadata() {}
 
   public SchemaMetadata(String name) {
-    if (name == null || name.isEmpty())
-      throw new MolgenisException("Create schema failed: Schema name was null or empty");
+    validateSchemaName(name);
     this.name = name;
+  }
+
+  public SchemaMetadata(String name, String description) {
+    this(name);
+    this.description = description;
   }
 
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
+    this.description = schema.getDescription();
     this.database = schema.getDatabase();
     this.setSettings(schema.getSettings());
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
+    this.description = schema.getDescription();
     this.database = db;
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
+  }
+
+  private void validateSchemaName(String name) {
+    if (name == null || name.isEmpty())
+      throw new MolgenisException("Create schema failed: Schema name was null or empty");
+    if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
+      throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
   }
 
   public String getName() {
@@ -42,6 +60,14 @@ public class SchemaMetadata {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public Set<String> getTableNames() {
@@ -103,7 +129,7 @@ public class SchemaMetadata {
   public SchemaMetadata setSettings(Collection<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), new Setting(setting));
+      this.settings.put(setting.key(), setting);
     }
     return this;
   }
@@ -121,16 +147,44 @@ public class SchemaMetadata {
     this.database = database;
   }
 
-  public void removeSetting(String key) {
+  public SchemaMetadata removeSetting(String key) {
     this.settings.remove(key);
+    return this;
   }
 
   public String getSetting(String key) {
     for (Setting s : getSettings()) {
-      if (s.getKey().equals(key)) {
-        return s.getValue();
+      if (s.key().equals(key)) {
+        return s.value();
       }
     }
     return null;
+  }
+
+  public List<TableMetadata> getTablesIncludingExternal() {
+    Map<String, TableMetadata> tables = new LinkedHashMap<>();
+    for (String tableName : getTableNames()) {
+      tables.put(tableName, getTableMetadata(tableName));
+    }
+    // add exteral references recursively
+    for (String tableName : getTableNames()) {
+      addExternalTablesRecursive(tables, getTableMetadata(tableName));
+    }
+
+    return new ArrayList<>(tables.values());
+  }
+
+  private void addExternalTablesRecursive(
+      Map<String, TableMetadata> tables, TableMetadata current) {
+    if (current.getInheritedTable() != null && !tables.containsKey(current.getInherit())) {
+      tables.put(current.getInherit(), current.getInheritedTable());
+      addExternalTablesRecursive(tables, current.getInheritedTable());
+    }
+    for (Column c : current.getColumns()) {
+      if (c.isReference() && !tables.containsKey(c.getRefTableName())) {
+        tables.put(c.getRefTableName(), c.getRefTable());
+        addExternalTablesRecursive(tables, c.getRefTable());
+      }
+    }
   }
 }

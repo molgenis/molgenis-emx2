@@ -1,7 +1,7 @@
 import { request, gql } from "graphql-request";
-import databanks from "./query/databanks.gql";
 import schema from "./query/schema.gql";
 import mappings from "./query/mappings.gql";
+import { fetchResources } from "./repository/resourceRepository";
 
 export default {
   fetchSchema: async ({ state, commit }) => {
@@ -12,45 +12,44 @@ export default {
     commit("setSchema", resp._schema.name);
     return resp._schema.name;
   },
-  fetchVariables: async ({ state, commit, getters }, offset = 0) => {
+  fetchVariables: async ({ state, commit, getters, dispatch }, offset = 0) => {
     state.isLoading = true;
     const query = gql`
-      query Variables($search: String, $filter: VariablesFilter) {
-        Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
-          name
-          release {
-            resource {
-              acronym
+            query TargetVariables($search: String, $filter: TargetVariablesFilter) {
+                TargetVariables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
+                    name
+                    dataDictionary {
+                        resource {
+                            pid
+                        }
+                        version
+                    }
+                    label
+                    repeats {
+                        name
+                    }
+                }
+                TargetVariables_agg(search: $search, filter: $filter) {
+                    count
+                }
             }
-            version
-          }
-          label
-          repeats {
-            name
-          }
-        }
-        Variables_agg(search: $search, filter: $filter) {
-          count
-        }
-      }
-    `;
+        `;
 
     let queryVariables = { filter: {} };
 
-    queryVariables.filter = {
-      release: {
-        resource: {
-          mg_tableclass: { equals: [`${state.schema}.Networks`] },
-        },
-      },
-    };
+    queryVariables.filter = {}; //all target variables are valid
 
     if (getters.selectedNetworks.length) {
-      queryVariables.filter.release = {
-        equals: getters.selectedNetworks.map((selectedNetwork) => {
+      const networkModels = await dispatch(
+        "fetchNetworkModels",
+        getters.selectedNetworks
+      );
+
+      queryVariables.filter.dataDictionary = {
+        equals: networkModels.map((model) => {
           return {
-            version: "1.0.0",
-            resource: selectedNetwork,
+            // version: "1.0.0",
+            resource: model,
           };
         }),
       };
@@ -58,7 +57,7 @@ export default {
 
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
-        equals: getters.selectedKeywords.map((sk) => ({ name: sk })),
+        equals: getters.selectedKeywords,
       };
     }
 
@@ -77,16 +76,16 @@ export default {
       getters.searchString === queryVariables.search
     ) {
       if (offset === 0) {
-        commit("setVariables", resp.Variables);
+        commit("setVariables", resp.TargetVariables);
       } else {
         // add for show more variables
-        commit("addVariables", resp.Variables);
+        commit("addVariables", resp.TargetVariables);
       }
-      commit("setVariableCount", resp.Variables_agg.count);
+      commit("setVariableCount", resp.TargetVariables_agg.count);
       state.isLoading = false;
     }
 
-    return resp.Variables;
+    return resp.TargetVariables;
   },
 
   fetchAdditionalVariables: async ({ state, dispatch }) => {
@@ -95,8 +94,8 @@ export default {
 
   fetchVariableDetails: async (context, variable) => {
     const query = gql`
-      query Variables($filter: VariablesFilter) {
-        Variables(limit: 1, filter: $filter) {
+      query TargetVariables($filter: TargetVariablesFilter) {
+        TargetVariables(limit: 1, filter: $filter) {
           name
           label
           format {
@@ -124,13 +123,13 @@ export default {
         name: {
           equals: [`${variable.name}`],
         },
-        release: {
+        dataDictionary: {
           equals: [
             {
               resource: {
-                acronym: variable.release.resource.acronym,
+                pid: variable.dataDictionary.resource.pid,
               },
-              version: variable.release.version,
+              version: variable.dataDictionary.version,
             },
           ],
         },
@@ -141,15 +140,15 @@ export default {
       console.error(e)
     );
 
-    let variableDetails = resp.Variables[0];
+    let variableDetails = resp.TargetVariables[0];
 
     const mappingQuery = gql`
       query VariableMappings($filter: VariableMappingsFilter) {
         VariableMappings(filter: $filter) {
           fromTable {
-            release {
+            dataDictionary {
               resource {
-                acronym
+                pid
               }
               version
             }
@@ -167,11 +166,11 @@ export default {
         toVariable: {
           equals: [
             {
-              release: {
+              dataDictionary: {
                 resource: {
-                  acronym: variable.release.resource.acronym,
+                  pid: variable.dataDictionary.resource.pid,
                 },
-                version: variable.release.version,
+                version: variable.dataDictionary.version,
               },
               name: variable.name,
             },
@@ -186,15 +185,20 @@ export default {
       mappingQueryVariables
     ).catch((e) => console.error(e));
 
-    // Put list in to map, use acronym as key
-    const mappingsByAcronym = mappingQueryResp.VariableMappings.reduce(
-      (accum, item) => {
-        accum[item.fromTable.release.resource.acronym] = item;
-        return accum;
-      },
-      {}
-    );
-    variableDetails.mappings = mappingsByAcronym;
+    // Put list in to map, use pid as key
+    if (
+      mappingQueryResp.VariableMappings &&
+      mappingQueryResp.VariableMappings.length
+    ) {
+      const mappingsByPid = mappingQueryResp.VariableMappings.reduce(
+        (accum, item) => {
+          accum[item.fromTable.dataDictionary.resource.pid] = item;
+          return accum;
+        },
+        {}
+      );
+      variableDetails.mappings = mappingsByPid;
+    }
 
     return variableDetails;
   },
@@ -223,11 +227,9 @@ export default {
     return state.keywords;
   },
 
-  fetchCohorts: async ({ commit }) => {
-    const resp = await request("graphql", databanks).catch((e) =>
-      console.error(e)
-    );
-    commit("setCohorts", resp.Databanks);
+  fetchResources: async ({ commit }) => {
+    const resources = await fetchResources();
+    commit("setResources", resources);
   },
 
   fetchMappings: async (context, variable) => {
@@ -241,14 +243,14 @@ export default {
         name: {
           equals: nameFilter,
         },
-        release: {
+        dataDictionary: {
           resource: {
             equals: {
-              acronym: variable.release.resource.acronym,
+              pid: variable.dataDictionary.resource.pid,
             },
           },
           version: {
-            equals: variable.release.version,
+            equals: variable.dataDictionary.version,
           },
         },
       },
@@ -258,5 +260,28 @@ export default {
       console.error(e)
     );
     return resp.VariableMappings;
+  },
+
+  fetchNetworkModels: async (context, selectedNetworks) => {
+    const query = gql`
+      query Networks($filter: NetworksFilter) {
+        Networks(filter: $filter) {
+          pid
+          models {
+            pid
+          }
+        }
+      }
+    `;
+
+    const filter = {
+      pid: { equals: selectedNetworks.map((sn) => sn.pid) },
+    };
+
+    const resp = await request("graphql", query, { filter }).catch((e) =>
+      console.error(e)
+    );
+
+    return resp.Networks.flatMap((n) => n.models).filter((m) => m != undefined);
   },
 };

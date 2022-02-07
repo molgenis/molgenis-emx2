@@ -1,15 +1,21 @@
 <template>
-  <ShowMore>
-    <pre>graphqlError = {{ graphqlError }}</pre>
-    <pre>session = {    { session }}</pre>
-    <pre>schema = {{ schema }}</pre>
-  </ShowMore>
+  <div>
+    <h3>For testing purposes</h3>
+    <p>TableMetadataMixin</p>
+    <pre>session: {{ session }}</pre>
+    <pre>schema: <ShowMore title="schema">{{ schema }}</ShowMore></pre>
+    <pre>error: {{ graphqlError }}</pre>
+  </div>
 </template>
 
 <script>
 import { request } from "graphql-request";
+import ShowMore from "../layout/ShowMore";
 
 export default {
+  components: {
+    ShowMore,
+  },
   props: {
     graphqlURL: {
       default: "graphql",
@@ -30,7 +36,7 @@ export default {
       this.graphqlError = null;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,description,externalSchema,semantics,columns{name,columnType,key,refTable,refLink,refLabel,refBack,required,semantics,description}settings{key,value}}}}"
+        "{_session{email,roles}_schema{name,tables{name,tableType,id,description,externalSchema,semantics,columns{name,id,columnType,key,refTable,refLink,refLabel,refBack,required,semantics,description,position,validation}settings{key,value}}}}"
       )
         .then((data) => {
           this.session = data._session;
@@ -38,7 +44,11 @@ export default {
           this.loading = false;
         })
         .catch((error) => {
-          this.graphqlError = "internal server graphqlError" + error;
+          if (Array.isArray(error.response.errors)) {
+            this.graphqlError = error.response.errors[0].message;
+          } else {
+            this.graphqlError = error;
+          }
           this.loading = false;
         });
     },

@@ -11,11 +11,25 @@ public interface Database {
 
   Schema createSchema(String name);
 
+  Schema createSchema(String name, String description);
+
+  Schema updateSchema(String name, String description);
+
   Schema dropCreateSchema(String name);
+
+  Schema dropCreateSchema(String name, String description);
 
   void dropSchema(String name);
 
   Collection<String> getSchemaNames();
+
+  Collection<SchemaInfo> getSchemaInfos();
+
+  Collection<Setting> getSettings();
+
+  Setting createSetting(String key, String value);
+
+  Boolean deleteSetting(String key);
 
   Schema getSchema(String name);
 
@@ -47,7 +61,26 @@ public interface Database {
 
   void clearCache();
 
-  String getDatabaseVersion();
+  Integer getDatabaseVersion();
 
   int countUsers();
+
+  /** for testing purposes */
+  String getAdminUserName();
+
+  /**
+   * check if the user that is logged in is admin
+   *
+   * <p>Shorthand for getAdminUserName().equals(getActiveUser()) to help understand code
+   */
+  boolean isAdmin();
+
+  /**
+   * change active user to admin
+   *
+   * <p>Shorthand for setActiveUser(getAdminUserName()) to help understand code
+   */
+  void becomeAdmin();
+
+  boolean isOidcEnabled();
 }

@@ -1,13 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnValue;
 
 import java.util.*;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class SqlTypeUtils extends TypeUtils {
@@ -36,20 +32,6 @@ public class SqlTypeUtils extends TypeUtils {
           }
         } else {
           value = getTypedValue(row, c);
-        }
-
-        // validation
-        if (value != null && c.getValidIf() != null) {
-          String error = executeJavascriptOnValue(c.getValidIf(), value);
-          if (error != null)
-            throw new MolgenisException(
-                "Validation error on column '"
-                    + c.getName()
-                    + "'"
-                    + error
-                    + ". Instead found value '"
-                    + value
-                    + "'");
         }
 
         // get value

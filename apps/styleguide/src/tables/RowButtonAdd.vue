@@ -1,13 +1,15 @@
 <template>
-  <RowEditModal
-    v-if="open"
-    :table="table"
-    :defaultValue="defaultValue"
-    @close="closeForm"
-    :graphqlURL="graphqlURL"
-    :visible-columns="visibleColumns"
-  />
-  <IconAction v-else icon="plus" @click="openForm" />
+  <span>
+    <RowEditModal
+      v-if="open"
+      :table="table"
+      :defaultValue="defaultValue"
+      @close="closeForm"
+      :graphqlURL="graphqlURL"
+      :visible-columns="visibleColumns"
+    />
+    <IconAction icon="plus" @click="openForm" />
+  </span>
 </template>
 
 <script>
@@ -54,6 +56,6 @@ export default {
 Example
 ```
 <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-<RowButtonAdd table="Variables" graphqlURL="/CohortNetwork/graphql"/>
+<RowButtonAdd table="Pet" graphqlURL="/pet store/graphql"/>
 ```
 </docs>

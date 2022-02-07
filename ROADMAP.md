@@ -42,10 +42,15 @@
 * make lookup editable
 * in catalogue replace 'publications' lookup with a text area for the citation
 * breaking change: mg_* columns
+* first save draft with pkeys only
+* Databank.type should only types relevant to conception (but we also want type on this position)
 
 ### todo first
 
-* first save draft with pkeys only
+* oicd integration
+* test ERN data models against EMX2 (to see if we need additional visible/validation options)
+* enable autosave; first only show pkey and then all items (like 'new' and 'save')
+* add query option to per table csv/excel endpoints to download what you see
 
 cohort catalogue
 
@@ -55,22 +60,17 @@ cohort catalogue
 
 conception
 
-* Databank.type should only types relevant to conception (but we also want type on this position)
 * Enable column order to be different in subclasses????
 * Databank.institution we would like custom refLabel
 * Add refLabel as option in schema
-
 * hide 'ontology' tables
 
 ### todo second
 
-* enable autosave; first only show pkey and then all items (like 'new' and 'save')
 * enable a 'not null' filter
 * for ref/ref_array/refback show only filter options for which you have values, incl counts
-* test ERN data models against EMX2 (to see if we need additional visible/validation options)
 * as admin can use user manager so I can update passwords for users
 * extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
-* oicd integration
 * hide mg_modifiedBy columns when not editor
 * enable tagging of tables as 'metadata' (or create seperate view for ontologies???)
 * group subclasses in a tree? remodel repeated variables?

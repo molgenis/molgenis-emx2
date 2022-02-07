@@ -4,7 +4,6 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -19,6 +18,7 @@ import org.molgenis.emx2.Schema;
 public class GraphqlSessionFieldFactory {
 
   private static final String ROLES = "roles";
+  private static final String SCHEMAS = "schemas";
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -60,12 +60,12 @@ public class GraphqlSessionFieldFactory {
               database.tx(
                   db -> {
                     // uplift permissions
-                    String active = db.getActiveUser();
+                    String activeUser = db.getActiveUser();
                     db.clearActiveUser();
                     db.addUser(userName);
                     db.setUserPassword(userName, passWord);
                     // and lift down again
-                    db.setActiveUser(active);
+                    db.setActiveUser(activeUser);
                   });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);
@@ -109,6 +109,10 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
+                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(SCHEMAS)
                         .type(GraphQLList.list(Scalars.GraphQLString))))
         .dataFetcher(
             dataFetchingEnvironment -> {
@@ -118,6 +122,7 @@ public class GraphqlSessionFieldFactory {
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
+              result.put(SCHEMAS, database.getSchemaNames());
               return result;
             })
         .build();
@@ -128,7 +133,7 @@ public class GraphqlSessionFieldFactory {
         GraphQLFieldDefinition.newFieldDefinition()
             .name("changePassword")
             .type(typeForMutationResult);
-    if (ADMIN.equals(database.getActiveUser())) {
+    if (database.isAdmin()) {
       builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
     }
     return builder

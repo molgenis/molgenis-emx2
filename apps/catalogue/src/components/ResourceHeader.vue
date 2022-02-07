@@ -1,30 +1,14 @@
 <template>
   <div>
-    <div class="p-2 mb-2" :class="headerCss">
-      <h6>
-        <RouterLink to="/" :class="headerCss"> home</RouterLink>
-        /
-        <RouterLink :to="'/list/' + tableName" :class="headerCss">
-          {{ tableName }}
-        </RouterLink>
-        /
-      </h6>
+    <div class="p-2 mb-2" :class="headerCss" v-if="resource">
+      {{ tableName }}
     </div>
     <div class="row">
       <div class="col">
-        <h4>
-          <span
-            class="badge badge-pill float-right"
-            :class="headerCss"
-            v-if="resource.type"
-          >
-            {{ resource.type.map((t) => t.name).join(",") }}
-          </span>
-        </h4>
+        <h4></h4>
         <h1>
-          {{ resource.name }} <sup>({{ resource.acronym }})</sup>
+          {{ resource.name }}
         </h1>
-
         <a v-if="resource.homepage" :href="resource.homepage">
           {{ resource.homepage }}
         </a>

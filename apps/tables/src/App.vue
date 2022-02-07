@@ -1,7 +1,8 @@
 <template>
   <Molgenis id="__top" v-model="session">
+    <MessageWarning v-if="error">{{ error }}</MessageWarning>
     <router-view
-      v-if="session"
+      v-else
       :session="session"
       :schema="schema"
       :key="JSON.stringify(session)"
@@ -10,17 +11,19 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import { Molgenis, MessageWarning } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 
 export default {
   components: {
     Molgenis,
+    MessageWarning,
   },
   data() {
     return {
       session: null,
       schema: null,
+      error: null,
     };
   },
   computed: {
@@ -37,17 +40,25 @@ export default {
     loadSchema() {
       this.loading = true;
       this.schema = null;
+      this.error = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
+        "{_schema{name,tables{name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
       )
         .then((data) => {
           this.schema = data._schema;
         })
         .catch((error) => {
-          if (error.response.error.status === 403) {
-            this.graphqlError = "Forbidden. Do you need to login?";
-          } else this.graphqlError = error.response.error;
+          console.log(JSON.stringify(error));
+          if (
+            error.response &&
+            error.response.errors[0] &&
+            error.response.errors[0].message
+          ) {
+            this.error = error.response.errors[0].message;
+          } else {
+            this.error = error;
+          }
         })
         .finally((this.loading = false));
     },

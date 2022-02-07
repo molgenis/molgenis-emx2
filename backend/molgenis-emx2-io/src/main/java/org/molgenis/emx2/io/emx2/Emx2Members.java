@@ -15,13 +15,17 @@ public class Emx2Members {
   public static final String USER = "user";
   public static final String ROLE = "role";
 
+  private Emx2Members() {
+    // prevent
+  }
+
   public static void outputRoles(TableStore store, Schema schema) {
     List<Row> members = new ArrayList<>();
     for (Member m : schema.getMembers()) {
       members.add(row(USER, m.getUser(), ROLE, m.getRole()));
     }
-    if (members.size() > 0) {
-      store.writeTable(ROLES_TABLE, members);
+    if (!members.isEmpty()) {
+      store.writeTable(ROLES_TABLE, List.of(USER, ROLE), members);
     }
   }
 

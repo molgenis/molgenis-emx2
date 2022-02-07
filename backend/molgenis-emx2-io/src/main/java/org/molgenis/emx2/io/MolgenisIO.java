@@ -6,17 +6,14 @@ import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
 import java.nio.file.Path;
+import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Short hands for running the tasks */
 public class MolgenisIO {
-
-  private static final Logger logger = LoggerFactory.getLogger(MolgenisIO.class.getName());
 
   private MolgenisIO() {
     // hide constructor
@@ -49,8 +46,10 @@ public class MolgenisIO {
 
   private static void executeEmx1Export(TableStore store, Schema schema) {
     // write metadata
-    store.writeTable("entities", Emx1.getEmx1Entities(schema.getMetadata()));
-    store.writeTable("attributes", Emx1.getEmx1Attributes(schema.getMetadata()));
+    store.writeTable(
+        "entities", List.of("UNSUPPORTED"), Emx1.getEmx1Entities(schema.getMetadata()));
+    store.writeTable(
+        "attributes", List.of("UNSUPPORTED"), Emx1.getEmx1Attributes(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
       outputTable(store, schema.getTable(tableName));
@@ -69,19 +68,19 @@ public class MolgenisIO {
     outputTable(new TableStoreForCsvFile(csvFile), table);
   }
 
-  public static void fromDirectory(Path directory, Schema schema) {
-    new ImportDirectoryTask(directory, schema).run();
+  public static void fromDirectory(Path directory, Schema schema, boolean strict) {
+    new ImportDirectoryTask(directory, schema, strict).run();
   }
 
-  public static void fromZipFile(Path zipFile, Schema schema) {
-    new ImportCsvZipTask(zipFile, schema).run();
+  public static void fromZipFile(Path zipFile, Schema schema, boolean strict) {
+    new ImportCsvZipTask(zipFile, schema, strict).run();
   }
 
-  public static void importFromExcelFile(Path excelFile, Schema schema) {
-    new ImportExcelTask(excelFile, schema).run();
+  public static void importFromExcelFile(Path excelFile, Schema schema, boolean strict) {
+    new ImportExcelTask(excelFile, schema, strict).run();
   }
 
-  public static void fromStore(TableStore store, Schema schema) {
-    new ImportSchemaTask(store, schema).run();
+  public static void fromStore(TableStore store, Schema schema, boolean strict) {
+    new ImportSchemaTask(store, schema, strict).run();
   }
 }

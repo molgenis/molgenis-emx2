@@ -56,7 +56,7 @@ public class TaskApi {
         String deleteUrl = getUrl + "/delete";
         result +=
             String.format(
-                "{id:'%s', description:'%s',status:'%s',url:'%s','deleteUrl:'%s'}",
+                "{\"id\":\"%s\", description:\"%s\",\"status\":\"%s\",\"url\":\"%s\",\"deleteUrl\":\"%s\"}",
                 id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
       }
 

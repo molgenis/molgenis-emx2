@@ -3,74 +3,84 @@
     <th class="table-label text-nowrap" scope="row">
       {{ variable.name }}
     </th>
-    <td
-      v-for="cohort in cohorts"
-      :key="cohort.acronym"
+
+    <harmonization-cell
+      v-for="resource in resources"
+      :key="resource.pid"
       class="colored-grid-cell"
-      :class="'table-' + getCellClass(cohort)"
-    ></td>
+      :status="getCellClass(resource)"
+    />
   </tr>
 </template>
 
 <script>
+import Vue from "vue";
 import { mapActions } from "vuex";
+import HarmonizationCell from "../components/harmonization/HarmonizationCell";
+
 export default {
   name: "HarmonizationRow",
+  components: { HarmonizationCell },
   props: {
     variable: Object,
-    cohorts: Array,
+    resources: Array,
   },
   data() {
     return {
-      cohortMappings: undefined,
+      resourceMappings: undefined,
+      resourceStatusMap: undefined,
     };
   },
   methods: {
     ...mapActions(["fetchMappings"]),
     getCellClass(cohort) {
-      return this.cohortMappings ? this.getMatchStatus(cohort) : null;
+      return this.resourceMappings ? this.getMatchStatus(cohort) : null;
     },
     async fetchData() {
-      this.cohortMappings = await this.fetchMappings(this.variable);
+      this.resourceMappings = await this.fetchMappings(this.variable);
+      this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
+        Vue.set(statusMap, resource.pid, this.getMatchStatus(resource));
+        return statusMap;
+      }, {});
     },
-    getMatchStatus(cohort) {
+    getMatchStatus(resource) {
       if (this.variable.repeats) {
         const statusList = this.variable.repeats.map((repeatedVariable) => {
-          const cohortMapping = this.cohortMappings.find((mapping) => {
+          const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
               mapping.toVariable.name === repeatedVariable.name &&
-              mapping.fromTable.release.resource.acronym === cohort.acronym
+              mapping.fromTable.dataDictionary.resource.pid === resource.pid
             );
           });
 
-          return cohortMapping ? cohortMapping.match.name : "zna";
+          return resourceMapping ? resourceMapping.match.name : "zna";
         });
 
         if (statusList.includes("complete")) {
-          return "success";
+          return "complete";
         } else if (statusList.includes("partial")) {
-          return "success";
+          return "complete";
         } else {
-          return "danger";
+          return "unmapped";
         }
       } else {
-        const cohortMapping = this.cohortMappings.find((mapping) => {
-          return mapping.fromTable.release.resource.acronym === cohort.acronym;
+        const resourceMapping = this.resourceMappings.find((mapping) => {
+          return mapping.fromTable.dataDictionary.resource.pid === resource.pid;
         });
 
-        if (!cohortMapping) {
+        if (!resourceMapping) {
           return "danger";
         }
 
-        switch (cohortMapping.match.name) {
-          case "zna":
-            return "danger";
+        switch (resourceMapping.match.name) {
+          case "na":
+            return "unmapped";
           case "partial":
-            return "success";
+            return "complete";
           case "complete":
-            return "success";
+            return "complete";
           default:
-            return "danger";
+            return "unmapped";
         }
       }
     },
@@ -82,10 +92,6 @@ export default {
 </script>
 
 <style scoped>
-td.colored-grid-cell {
-  padding: 0.97rem;
-}
-
 .table-label {
   font-size: 0.8rem;
 }

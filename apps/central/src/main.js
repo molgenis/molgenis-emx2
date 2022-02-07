@@ -2,7 +2,9 @@ import Vue from "vue";
 import App from "./App.vue";
 import VueRouter from "vue-router";
 import Groups from "./components/Groups";
-import Admin from "./components/Admin";
+import Admin from "./components/admin/Admin";
+import ManageSettings from "./components/admin/ManageSettings";
+import ManageUsers from "./components/admin/ManageUsers";
 
 Vue.config.productionTip = false;
 
@@ -11,7 +13,16 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "central", path: "/", component: Groups },
-    { name: "admin", path: "/admin", component: Admin },
+    {
+      name: "admin",
+      path: "/admin",
+      component: Admin,
+      redirect: "/admin/users",
+      children: [
+        { name: "users", path: "users", component: ManageUsers },
+        { name: "settings", path: "settings", component: ManageSettings },
+      ],
+    },
   ],
 });
 

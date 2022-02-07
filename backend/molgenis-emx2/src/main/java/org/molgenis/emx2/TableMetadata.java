@@ -10,10 +10,12 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
-public class TableMetadata {
+public class TableMetadata implements Comparable {
 
+  public static final String TABLE_NAME_MESSAGE =
+      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
   // if a table extends another table (optional)
-  protected String inherit = null;
+  public String inherit = null;
   // to allow indicate that a table should be dropped
   protected boolean drop = false;
   // for refenence to another schema (rare use)
@@ -27,9 +29,11 @@ public class TableMetadata {
   // link to the schema this table is part of (optional)
   private SchemaMetadata schema;
   // name unique within this schema (required)
-  private String tableName;
+  protected String tableName;
   // old name, useful for alter table
   private String oldName;
+  // use to classify the table, influences display, import, export, etc
+  private TableType tableType = TableType.DATA;
 
   public String[] getSemantics() {
     return semantics;
@@ -43,13 +47,24 @@ public class TableMetadata {
   private String[] semantics = null;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_]*") || tableName.length() > 341) {
-      throw new MolgenisException(
-          "Invalid table name '"
-              + tableName
-              + "': Table name must start with a letter , followed by letters, underscores or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
+    this.tableName = validateName(tableName);
+  }
+
+  private String validateName(String tableName) {
+    // max length 31 because of Excel
+    // we allow only graphql compatible names PLUS spaces
+    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+      throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
     }
-    this.tableName = tableName;
+    if (tableName.length() > 31) {
+      throw new MolgenisException(
+          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
+    }
+    if (tableName.contains("_ ") || tableName.contains(" _")) {
+      throw new MolgenisException(
+          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
+    }
+    return tableName.trim();
   }
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
@@ -60,7 +75,7 @@ public class TableMetadata {
   public TableMetadata(SchemaMetadata schema, TableMetadata metadata) {
     this.clearCache();
     this.schema = schema;
-    this.copy(metadata);
+    this.sync(metadata);
   }
 
   public static TableMetadata table(String tableName) {
@@ -75,20 +90,24 @@ public class TableMetadata {
     return tm;
   }
 
-  protected void copy(TableMetadata metadata) {
-    clearCache();
-    this.tableName = metadata.getTableName();
-    this.description = metadata.getDescription();
-    this.oldName = metadata.getOldName();
-    for (Setting setting : metadata.getSettings()) {
-      this.settings.put(setting.getKey(), setting);
+  public void sync(TableMetadata metadata) {
+    // skip if same object!
+    if (this != metadata) {
+      clearCache();
+      this.tableName = metadata.getTableName();
+      this.description = metadata.getDescription();
+      this.oldName = metadata.getOldName();
+      for (Setting setting : metadata.getSettings()) {
+        this.settings.put(setting.key(), setting);
+      }
+      for (Column c : metadata.columns.values()) {
+        this.columns.put(c.getName(), new Column(this, c));
+      }
+      this.inherit = metadata.getInherit();
+      this.importSchema = metadata.getImportSchema();
+      this.semantics = metadata.getSemantics();
+      this.tableType = metadata.getTableType();
     }
-    for (Column c : metadata.columns.values()) {
-      this.columns.put(c.getName(), new Column(this, c));
-    }
-    this.inherit = metadata.getInherit();
-    this.importSchema = metadata.getImportSchema();
-    this.semantics = metadata.getSemantics();
   }
 
   public String getTableName() {
@@ -104,36 +123,57 @@ public class TableMetadata {
   }
 
   public List<Column> getColumns() {
-    Map<String, Column> result = new LinkedHashMap<>();
+    // we want to sort on position,
+    // first external schema (because their positions local to that schema)
+    // last we attach the 'meta
+    Map<String, Column> external = new LinkedHashMap<>(); // external schema has own ordering
+    Map<String, Column> internal = new LinkedHashMap<>();
     Map<String, Column> meta = new LinkedHashMap<>();
+
     if (getInheritedTable() != null) {
       // we create copies so we don't need worry on changes
       for (Column col : getInheritedTable().getColumns()) {
         if (col.getName().startsWith("mg_")) {
           meta.put(col.getName(), new Column(getInheritedTable(), col));
+          // sorting of external schema is seperate from internal schema
+        } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
+          external.put(col.getName(), new Column(getInheritedTable(), col));
         } else {
-          result.put(col.getName(), new Column(getInheritedTable(), col));
+          internal.put(col.getName(), new Column(getInheritedTable(), col));
         }
       }
     }
 
     // ignore primary key from child class because that is same as in inheritedTable
     for (Column col : getLocalColumns()) {
-      if (!result.containsKey(col.getName())) {
-        result.put(col.getName(), new Column(col.getTable(), col));
+      if (!internal.containsKey(col.getName()) && !external.containsKey(col.getName())) {
+        if (col.getName().startsWith("mg_")) {
+          meta.put(col.getName(), new Column(col.getTable(), col));
+          // sorting of external schema is seperate from internal schema
+        } else {
+          internal.put(col.getName(), new Column(col.getTable(), col));
+        }
       }
     }
 
-    // add meta at the end
-    result.putAll(meta);
+    // sort by position
+    List<Column> externalList = new ArrayList<>(external.values());
+    List<Column> internalList = new ArrayList<>(internal.values());
+    List<Column> metaList = new ArrayList<>(meta.values());
 
-    return new ArrayList<>(result.values());
+    Collections.sort(externalList);
+    Collections.sort(internalList);
+    Collections.sort(metaList);
+
+    List<Column> finalResult = new ArrayList<>();
+    finalResult.addAll(externalList);
+    finalResult.addAll(internalList);
+    finalResult.addAll(metaList);
+    return finalResult;
   }
 
-  public List<Column> getColumnsWithoutConstant() {
-    return this.getColumns().stream()
-        .filter(c -> !CONSTANT.equals(c.getColumnType()))
-        .collect(Collectors.toList());
+  public List<Column> getColumnsWithoutHeadings() {
+    return this.getColumns().stream().filter(c -> !c.isHeading()).toList();
   }
 
   public List<String> getPrimaryKeys() {
@@ -149,8 +189,8 @@ public class TableMetadata {
   public List<Column> getDownloadColumnNames() {
     return getExpandedColumns(
         getColumns().stream()
-            .filter(c -> !c.getColumnType().equals(REFBACK))
-            .map(c2 -> c2.getColumnType().equals(FILE) ? column(c2.getName()) : c2)
+            .filter(c -> !c.isRefback())
+            .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
             .collect(Collectors.toList()));
   }
 
@@ -163,7 +203,7 @@ public class TableMetadata {
     Map<String, Column> result =
         new LinkedHashMap<>(); // overlapping references can lead to duplicates
     for (Column c : columns) {
-      if (FILE.equals(c.getColumnType())) {
+      if (c.isFile()) {
         result.put(c.getName(), new Column(c.getTable(), c.getName()));
         result.put(
             c.getName() + "_contents",
@@ -202,13 +242,13 @@ public class TableMetadata {
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !CONSTANT.equals(c.getColumnType()))
+        .filter(c -> !HEADING.equals(c.getColumnType()))
         .collect(Collectors.toList());
   }
 
   public List<Column> getLocalColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
-    // get primary key from parent
+    // get primary key from parent, always first
     if (getInheritedTable() != null) {
       for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
         result.put(pkey.getName(), pkey);
@@ -216,23 +256,32 @@ public class TableMetadata {
     }
 
     // get all implemented columns (keep superclass because of type)
-    List<Column> columnList = new ArrayList<>(columns.values());
-    columnList.sort(Comparator.comparing(Column::getPosition));
+    List<Column> columnList =
+        new ArrayList<>(
+            columns.values().stream()
+                .filter(c -> !c.getName().startsWith("mg_"))
+                .collect(Collectors.toList()));
+    Collections.sort(columnList);
+
+    // add meta behind non-meta
+    List<Column> metaList =
+        new ArrayList<>(
+            columns.values().stream()
+                .filter(c -> c.getName().startsWith("mg_"))
+                .collect(Collectors.toList()));
+    columnList.addAll(metaList);
+
     for (Column c : columnList) {
       if (!result.containsKey(c.getName())) {
         result.put(c.getName(), c);
       }
     }
+
     return new ArrayList<>(result.values());
   }
 
   public List<String> getColumnNames() {
-    List<String> result = new ArrayList<>();
-    if (inherit != null) {
-      result.addAll(getInheritedTable().getColumnNames());
-    }
-    result.addAll(getLocalColumnNames());
-    return result;
+    return getColumns().stream().map(c -> c.getName()).collect(Collectors.toList());
   }
 
   public List<String> getLocalColumnNames() {
@@ -368,6 +417,7 @@ public class TableMetadata {
 
   public void clearCache() {
     columns = new LinkedHashMap<>();
+    settings = new LinkedHashMap<>();
     inherit = null;
     importSchema = null;
   }
@@ -454,7 +504,7 @@ public class TableMetadata {
   public TableMetadata setSettings(List<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), setting);
+      this.settings.put(setting.key(), setting);
     }
     return this;
   }
@@ -490,13 +540,39 @@ public class TableMetadata {
     return drop;
   }
 
-  public TableMetadata drop() {
+  public void drop() {
     this.drop = true;
-    return this;
   }
 
   public TableMetadata alterName(String name) {
-    this.tableName = name;
+    this.tableName = validateName(tableName);
+    return this;
+  }
+
+  @Override
+  public int compareTo(Object o) {
+    if (o instanceof TableMetadata) {
+      return getTableName().compareTo(((TableMetadata) o).getTableName());
+    }
+    return 0;
+  }
+
+  public Table getTable() {
+    return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
+  }
+
+  public List<Column> getColumnsWithoutMetadata() {
+    return getColumns().stream()
+        .filter(c -> !c.getName().startsWith("mg_"))
+        .collect(Collectors.toList());
+  }
+
+  public TableType getTableType() {
+    return tableType;
+  }
+
+  public TableMetadata setTableType(TableType tableType) {
+    this.tableType = tableType;
     return this;
   }
 }

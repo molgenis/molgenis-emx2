@@ -4,31 +4,43 @@
       <li
         class="nav-item"
         v-for="mapping in variable.mappings"
-        :key="mapping.fromTable.release.resource.acronym"
+        :key="mapping.fromTable.dataDictionary.resource.pid"
       >
         <router-link
           class="nav-link"
+          :class="{
+            active:
+              $route.query.sourceCohort ===
+              mapping.fromTable.dataDictionary.resource.pid,
+          }"
           :to="{
-            name: 'resourceHarmonizationDetails',
-            params: {
-              name,
-              version,
-              network,
-              sourceCohort: mapping.fromTable.release.resource.acronym,
+            name: 'VariableDetailView',
+            query: {
+              ...$route.query,
+              sourceCohort: mapping.fromTable.dataDictionary.resource.pid,
             },
           }"
         >
-          {{ mapping.fromTable.release.resource.acronym }}
+          {{ mapping.fromTable.dataDictionary.resource.pid }}
         </router-link>
       </li>
     </ul>
-    <router-view :key="$route.fullPath" :variable="variable"></router-view>
+    <template v-if="$route.query.tab === 'harmonization'">
+      <resource-harmonization-details
+        :variable="variable"
+        :name="name"
+        :sourceCohort="$route.query.sourceCohort"
+      />
+    </template>
   </div>
 </template>
 
 <script>
+import ResourceHarmonizationDetails from "./ResourceHarmonizationDetails";
+
 export default {
   name: "SingleVarHarmonizationView",
+  components: { ResourceHarmonizationDetails },
   props: {
     name: String,
     network: String,
@@ -40,16 +52,14 @@ export default {
     if (
       this.variable.mappings &&
       this.variable.mappings[0] &&
-      !this.$route.params.acronym
+      !this.$route.query.sourceCohort
     ) {
       this.$router.replace({
-        name: "resourceHarmonizationDetails",
-        params: {
-          name: this.name,
-          network: this.network,
-          version: this.version,
+        name: "VariableDetailView",
+        query: {
+          ...this.$route.query,
           sourceCohort:
-            this.variable.mappings[0].fromTable.release.resource.acronym,
+            this.variable.mappings[0].fromTable.dataDictionary.resource.pid,
         },
       });
     }

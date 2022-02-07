@@ -61,7 +61,6 @@ export default {
   },
   methods: {
     updatePassword() {
-      console.log("start");
       if (this.password !== this.password2) {
         this.error = "Error: Passwords entered must be the same";
       } else {

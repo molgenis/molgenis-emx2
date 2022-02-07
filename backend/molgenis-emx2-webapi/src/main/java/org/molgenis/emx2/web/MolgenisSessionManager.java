@@ -1,111 +1,141 @@
 package org.molgenis.emx2.web;
 
-import static org.joda.time.Minutes.minutesBetween;
-
-import java.util.LinkedHashMap;
+import java.util.EventListener;
 import java.util.Map;
-import javax.sql.DataSource;
-import org.joda.time.DateTime;
-import org.joda.time.Minutes;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.ExceptionMapper;
 import spark.Request;
-import spark.Response;
+import spark.embeddedserver.EmbeddedServers;
+import spark.embeddedserver.jetty.EmbeddedJettyServer;
+import spark.embeddedserver.jetty.JettyHandler;
+import spark.embeddedserver.jetty.JettyServerFactory;
+import spark.http.matching.MatcherFilter;
+import spark.route.Routes;
+import spark.staticfiles.StaticFilesConfiguration;
 
 public class MolgenisSessionManager {
-  public static final String MOLGENIS_TOKEN = "x-molgenis-token";
-  private static final String SESSION_ATTRIBUTE = "session";
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
+  // map so we can track the sessions, necessary for 'clearCache' in case of schema changes
+  // session id is the key
+  private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
-  // key is the user, might lead to trouble
-  private Map<String, MolgenisSession> sessions = new LinkedHashMap<>();
-  private DataSource dataSource;
-
-  public MolgenisSessionManager(DataSource dataSource) {
-    this.dataSource = dataSource;
+  public MolgenisSessionManager() {
+    createCustomJettyServerFactoryWithCustomSessionListener();
   }
 
-  public synchronized MolgenisSession getSession(Request request) {
-    // already in a session, then return that
-    if (request.session().attribute(SESSION_ATTRIBUTE) != null) {
-      MolgenisSession session = request.session().attribute(SESSION_ATTRIBUTE);
-      // timeout
-      if (minutesBetween(session.getCreateTime(), DateTime.now())
-          .isGreaterThan(Minutes.minutes(30))) {
-        request.session(false); // destroy session
-        if (logger.isInfoEnabled()) {
-          logger.info(
-              "Destroyed session for user({0}) because timeout more than 30mins",
-              session.getSessionUser());
-        }
-
-      } else {
-        logger.info("Reusing session for user({})", session.getSessionUser());
-        // refresh timeout
-        session.setCreateTime(DateTime.now());
-        return session;
-      }
-    }
-
-    // otherwise try tokens (also in case of sessionless requests)
-    final String user =
-        request.headers(MOLGENIS_TOKEN) == null
-            ? "anonymous"
-            : request.headers(MOLGENIS_TOKEN).replaceAll("[\n|\r|\t]", "_");
-
-    return sessions.computeIfAbsent(
-        user,
-        t -> {
-          Database database = new SqlDatabase(dataSource, false);
-          if (!database.hasUser(user)) {
-            throw new MolgenisException("Authentication failed: User " + user + " not known");
-          }
-          database.setActiveUser(user);
-          database.setListener(new MolgenisSessionManagerDatabaseListener(this, database));
-          logger.info("Initializing session for user: {}", database.getActiveUser());
-          MolgenisSession session = new MolgenisSession(database);
-          logger.info("Initializing session complete for user: {}", database.getActiveUser());
-          return session;
-        });
-  }
-
-  void updateSession(Request request, Response response) {
-    MolgenisSession session = getSession(request);
-
-    // check if we need to put in session because user has logged in
-    if (session.getDatabase().getActiveUser() != null && request.session() == null) {
+  /** Retrieve MolgenisSession for current request */
+  public MolgenisSession getSession(Request request) {
+    // if new session create a MolgenisSession object
+    if (request.session().isNew()) {
+      // jetty session will manage session create/destroy, see handler in constructor
       request.session(true);
-      request.session().attribute(SESSION_ATTRIBUTE, session);
-      logger.info("Saved session for user: {}", session.getDatabase().getActiveUser());
     }
 
-    // check if session state and session user map still in sync
-    if (!session.getSessionUser().equals(session.getDatabase().getActiveUser())) {
-      // remove old sessions
-      sessions.remove(session.getSessionUser());
-      request.session(false);
-      logger.info("Destroyed session because user {} logged out", session.getSessionUser());
-
-      // only create new session is user != null
-      if (session.getDatabase().getActiveUser() != null) {
-        MolgenisSession newSession = new MolgenisSession(session.getDatabase());
-        request.session(true);
-        request.session().attribute(SESSION_ATTRIBUTE, newSession);
-        sessions.put(newSession.getSessionUser(), newSession);
-        logger.info(
-            "Changed session from old user({}]) to new user({}) because login changed",
-            session.getSessionUser(),
-            newSession.getSessionUser());
-      }
+    // get the session
+    MolgenisSession session = sessions.get(request.session().id());
+    if (session.getSessionUser() == null) {
+      throw new MolgenisException(
+          "Invalid session found with user == null. This should not happen so please report as a bug");
+    } else {
+      logger.info(
+          "get session for user({}) and key ({})",
+          session.getSessionUser(),
+          request.session().id());
     }
+    return session;
   }
 
-  void clearAllCaches() {
+  /**
+   * this method is used to reset cache of all sessions, necessary when for example metadata changes
+   */
+  public void clearAllCaches() {
     for (MolgenisSession session : sessions.values()) {
       session.clearCache();
     }
+  }
+
+  /**
+   * Because we cannot access jetty outside spark, we override SparkJava EmbeddedServersFactory to
+   * add custom session listener for session create/destroy logic
+   */
+  private void createCustomJettyServerFactoryWithCustomSessionListener() {
+
+    EmbeddedServers.add(
+        EmbeddedServers.Identifiers.JETTY,
+        (Routes routeMatcher,
+            StaticFilesConfiguration staticFilesConfiguration,
+            ExceptionMapper exceptionMapper,
+            boolean hasMultipleHandler) -> {
+
+          // this part has been copied from sparkjava
+          MatcherFilter matcherFilter =
+              new MatcherFilter(
+                  routeMatcher,
+                  staticFilesConfiguration,
+                  exceptionMapper,
+                  false,
+                  hasMultipleHandler);
+          matcherFilter.init(null);
+          JettyHandler handler = new JettyHandler(matcherFilter);
+          handler.getSessionCookieConfig().setHttpOnly(true);
+          handler.setMaxInactiveInterval(30 * 60); // default session timeout 30mins
+
+          // our custom logic for session create and destroy, reason for us setting up this factory
+          handler.addEventListener(createSessionListener());
+
+          // again copied from docs, simplified because we use default thread pool
+          return new EmbeddedJettyServer(
+              new JettyServerFactory() {
+                @Override
+                public Server create(int maxThreads, int minThreads, int threadTimeoutMillis) {
+                  return new Server();
+                }
+
+                @Override
+                public Server create(ThreadPool threadPool) {
+                  return new Server();
+                }
+              },
+              handler);
+        });
+  }
+
+  /**
+   * takes care of creating and destroying session attributes when Jetty creates/destroys sessions
+   */
+  private EventListener createSessionListener() {
+    MolgenisSessionManager _this = this;
+    return new HttpSessionListener() {
+      public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+        logger.info("Initializing session");
+        // create private database wrapper to session
+        Database database = new SqlDatabase(false);
+        database.setActiveUser("anonymous"); // set default use to "anonymous"
+
+        // create session and add to sessions lists so we can also access all active
+        // sessions
+        MolgenisSession molgenisSession = new MolgenisSession(database);
+        sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
+        logger.info("session created: " + httpSessionEvent.getSession().getId());
+
+        // create listener
+        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
+      }
+
+      public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
+        // remove from session pool
+        sessions.remove(httpSessionEvent.getSession().getId());
+        logger.info("session destroyed: " + httpSessionEvent.getSession().getId());
+      }
+    };
   }
 }

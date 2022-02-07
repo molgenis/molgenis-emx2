@@ -1,11 +1,15 @@
 <template>
-  <ShowMore>
-    <pre>graphqlError = {{ graphqlError }}</pre>
-    <pre>graphql = {{ graphql }}</pre>
-    <pre>data = {{ data }}</pre>
-  </ShowMore>
+  <div>
+    <h3>For testing purposes</h3>
+    <p>TableMetadataMixin</p>
+    <pre>session: {{ session }}</pre>
+    <pre>schema: <ShowMore title="schema">{{ schema }}</ShowMore></pre>
+    <pre>error: {{ graphqlError }}</pre>
+    <p>TableMixin</p>
+    <pre>data: {{ count }}</pre>
+    <pre>data: <ShowMore title="data">{{ data }}</ShowMore></pre>
+  </div>
 </template>
-
 <script>
 import { request } from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";
@@ -17,6 +21,12 @@ export default {
     table: String,
     /** pass filters conform TableMixin */
     filter: {},
+    /** pass orderBy as Object {field1: 'ASC', field2 {field3:'ASC'}}*/
+    orderBy: {},
+    initialSearchTerms: {
+      type: String,
+      default: () => null,
+    },
   },
   data: function () {
     return {
@@ -24,10 +34,13 @@ export default {
       count: 0,
       offset: 0,
       limit: 20,
-      searchTerms: null,
+      searchTerms: this.initialSearchTerms,
     };
   },
   computed: {
+    tableId() {
+      return this.tableMetadata.id;
+    },
     //filter can be passed as prop or overridden in subclass
     graphqlFilter() {
       if (this.filter) {
@@ -40,27 +53,41 @@ export default {
       }
       let search =
         this.searchTerms != null && this.searchTerms !== ""
-          ? ',search:"' + this.searchTerms + '"'
+          ? ',search:"' + this.searchTerms.trim() + '"'
           : "";
-      return `query ${this.table}($filter:${this.table}Filter){
-              ${this.table}(filter:$filter,limit:${this.limit},offset:${this.offset}${search}){${this.columnNames}}
-              ${this.table}_agg(filter:$filter${search}){count}}`;
+      return `query ${this.tableId}($filter:${this.tableId}Filter, $orderby:${this.tableId}orderby){
+              ${this.tableId}(filter:$filter,limit:${this.limit},offset:${this.offset}${search},orderby:$orderby){${this.columnNames}}
+              ${this.tableId}_agg(filter:$filter${search}){count}}`;
     },
     tableMetadata() {
       return this.getTable(this.table);
+    },
+    //this method allows overrides
+    orderByObject() {
+      if (this.orderBy) {
+        return this.orderBy;
+      } else {
+        return {};
+      }
     },
     columnNames() {
       let result = "";
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (
-            ["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(col.columnType)
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(col.columnType) > 0
           ) {
-            result = result + " " + col.name + "{" + this.refGraphql(col) + "}";
+            result = result + " " + col.id + "{" + this.refGraphql(col) + "}";
           } else if (col.columnType == "FILE") {
-            result = result + " " + col.name + "{id,size,extension,url}";
-          } else if (col.columnType != "CONSTANT") {
-            result = result + " " + col.name;
+            result = result + " " + col.id + "{id,size,extension,url}";
+          } else if (col.columnType != "HEADING") {
+            result = result + " " + col.id;
           }
         });
       }
@@ -72,14 +99,21 @@ export default {
       if (this.tableMetadata != undefined) {
         this.loading = true;
         this.graphqlError = null;
-        request(this.graphqlURL, this.graphql, { filter: this.graphqlFilter })
+        request(this.graphqlURL, this.graphql, {
+          filter: this.graphqlFilter,
+          orderby: this.orderByObject,
+        })
           .then((data) => {
-            this.data = data[this.table];
-            this.count = data[this.table + "_agg"]["count"];
+            this.data = data[this.tableId];
+            this.count = data[this.tableId + "_agg"]["count"];
             this.loading = false;
           })
           .catch((error) => {
-            this.graphqlError = "internal server graphqlError" + error;
+            if (Array.isArray(error.response.errors)) {
+              this.graphqlError = error.response.errors[0].message;
+            } else {
+              this.graphqlError = error;
+            }
             this.loading = false;
           });
       }
@@ -88,8 +122,16 @@ export default {
       let graphqlString = "";
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
-          graphqlString += c.name + " ";
-          if (["REF", "REF_ARRAY", "REFBACK", "MREF"].includes(c.columnType)) {
+          graphqlString += c.id + " ";
+          if (
+            [
+              "REF",
+              "REF_ARRAY",
+              "REFBACK",
+              "ONTOLOGY",
+              "ONTOLOGY_ARRAY",
+            ].includes(c.columnType) > 0
+          ) {
             graphqlString += "{" + this.refGraphql(c) + "}";
           }
         }
@@ -116,8 +158,8 @@ export default {
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
-          if (col.key == 1 && row[col.name]) {
-            result[col.name] = row[col.name];
+          if (col.key == 1 && row[col.id]) {
+            result[col.id] = row[col.id];
           }
         });
       }
@@ -125,8 +167,19 @@ export default {
     },
   },
   watch: {
-    searchTerms: "reload",
+    searchTerms: {
+      handler(newValue) {
+        this.$emit("searchTerms", newValue);
+        this.reload();
+      },
+    },
     graphqlFilter: {
+      deep: true,
+      handler() {
+        this.reload();
+      },
+    },
+    orderByObject: {
       deep: true,
       handler() {
         this.reload();

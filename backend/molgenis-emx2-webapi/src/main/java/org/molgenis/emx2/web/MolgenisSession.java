@@ -3,7 +3,6 @@ package org.molgenis.emx2.web;
 import graphql.GraphQL;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.joda.time.DateTime;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -13,17 +12,12 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-
-  private String sessionUser;
   private Database database;
   private GraphQL graphqlForDatabase;
-  private DateTime createTime;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
 
   public MolgenisSession(Database database) {
     this.database = database;
-    this.sessionUser = database.getActiveUser();
-    this.createTime = DateTime.now();
   }
 
   public GraphQL getGraphqlForDatabase() {
@@ -55,11 +49,7 @@ public class MolgenisSession {
   }
 
   public String getSessionUser() {
-    return sessionUser;
-  }
-
-  public DateTime getCreateTime() {
-    return createTime;
+    return database.getActiveUser();
   }
 
   public void clearCache() {
@@ -67,9 +57,5 @@ public class MolgenisSession {
     this.graphqlForDatabase = null;
     this.database.clearCache();
     logger.info("cleared database and caches for user {}", getSessionUser());
-  }
-
-  public void setCreateTime(DateTime newTime) {
-    this.createTime = newTime;
   }
 }

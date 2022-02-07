@@ -48,7 +48,11 @@ public class TypeUtils {
   }
 
   public static String[] toStringArray(Object v) {
-    return (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
+    String[] result = (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
+    if (result != null) {
+      result = Arrays.stream(result).map(s -> s != null ? s.trim() : s).toArray(String[]::new);
+    }
+    return result;
   }
 
   public static String toString(Object v) {
@@ -106,8 +110,10 @@ public class TypeUtils {
   public static Boolean toBool(Object v) {
     if (v == null) return null; // NOSONAR
     if (v instanceof String) {
-      if ("true".equalsIgnoreCase((String) v)) return true;
-      if ("false".equalsIgnoreCase((String) v)) return false;
+      if ("true".equalsIgnoreCase(((String) v).trim())
+          || "yes".equalsIgnoreCase(((String) v).trim())) return true;
+      if ("false".equalsIgnoreCase(((String) v).trim())
+          || "no".equalsIgnoreCase(((String) v).trim())) return false;
     }
     try {
       return (Boolean) v;
@@ -204,7 +210,7 @@ public class TypeUtils {
   }
 
   public static ColumnType getNonArrayType(ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID_ARRAY:
         return ColumnType.UUID;
       case STRING_ARRAY:
@@ -227,7 +233,7 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID:
         return ColumnType.UUID_ARRAY;
       case STRING:
@@ -291,7 +297,7 @@ public class TypeUtils {
   }
 
   public static DataType toJooqType(ColumnType type) {
-    switch (type) {
+    switch (type.getBaseType()) {
       case FILE:
         return SQLDataType.BINARY;
       case UUID:
@@ -337,7 +343,7 @@ public class TypeUtils {
   }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
-    switch (columnType) {
+    switch (columnType.getBaseType()) {
       case UUID:
         return TypeUtils.toUuid(v);
       case UUID_ARRAY:

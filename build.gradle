@@ -7,14 +7,18 @@ plugins {
     id "org.sonarqube" version "3.3"
     id "de.gliderpilot.semantic-release" version "1.4.2"
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.1.1'
+    id 'com.google.cloud.tools.jib' version '3.2.0'
+    id 'org.unbroken-dome.helm' version '1.7.0'
+    id 'org.unbroken-dome.helm-publish' version '1.7.0'
+    id 'org.unbroken-dome.helm-commands' version '1.7.0'
+    id 'com.palantir.docker' version '0.32.0'
 }
 
 
-targetCompatibility = '11'
-sourceCompatibility = '11'
+targetCompatibility = '16'
+sourceCompatibility = '16'
 
 sonarqube {
     properties {
@@ -83,7 +87,7 @@ task ci(type: WriteProperties) {
 
 jib {
     from {
-        image = 'adoptopenjdk:13-jdk-hotspot-bionic'
+        image = 'adoptopenjdk:16-jdk-hotspot-focal'
     }
     to {
         image = imageName
@@ -92,6 +96,52 @@ jib {
     container {
         mainClass = mainClassName
         ports = ['8080']
+    }
+}
+
+def ssrImageName = 'docker.io/molgenis/ssr-catalogue'
+def ssrTagName = project.version.toString()
+if (version.toString().endsWith('-SNAPSHOT')) {
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    ssrImageName = "docker.io/molgenis/ssr-catalogue-snapshot"
+    ssrTagName = "${project.version.toString()}-${ext.hash}"
+}
+
+docker {
+    name ssrImageName
+    tags 'latest', ssrTagName
+    dockerfile file('apps/Dockerfile')
+    files 'apps/nuxt-ssr'
+}
+
+def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
+def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null
+helm {
+    downloadClient {
+        enabled = true
+    }
+
+    publishing {
+        repositories {
+            nexus {
+                url = uri('https://registry.molgenis.org/')
+                repository = 'helm'
+                apiVersion = 'v1'
+                credentials {
+                    username = "${nexusUser}"
+                    password = "${nexusPassword}"
+                }
+            }
+        }
+    }
+
+    charts {
+        main {
+            sourceDir = file('helm-chart')
+            lint {
+                strict = true
+            }
+        }
     }
 }
 
@@ -106,12 +156,6 @@ String getGitHash() {
     String gitCommitHash = command.inputStream.text.trim()
 
     return gitCommitHash
-}
-
-//gradle cleanTest test --no-build-cache
-task createHelm(type: Exec) {
-    commandLine 'helm', 'package', 'deploy/helm-chart/', '-d', 'docs/helm-charts/'
-    commandLine 'helm', 'repo', 'index', 'docs/helm-charts', '--url', 'http://mswertz.github.io/molgenis-emx2/helm-charts'
 }
 
 ext {
@@ -133,5 +177,12 @@ jar {
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
+}
+
+task cleandb(type: JavaExec) {
+    group = "Execution"
+    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
+    classpath = sourceSets.main.runtimeClasspath
+    main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
 
