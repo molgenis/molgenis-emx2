@@ -5,14 +5,14 @@
   "packageRules": [
     {
       "matchPackageNames": ["vue"],
-      "allowedVersions": ">=2.6"
+      "allowedVersions": "<3.0"
     },    {
       "matchPackageNames": ["vue-router"],
-      "allowedVersions": ">=3.5"
+      "allowedVersions": "<4.0"
     },
     {
       "matchPackageNames": ["vuex"],
-      "allowedVersions": ">=3.6"
+      "allowedVersions": "<4.0"
     }
   ]
 }
