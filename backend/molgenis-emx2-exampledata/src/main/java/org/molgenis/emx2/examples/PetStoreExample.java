@@ -78,10 +78,10 @@ public class PetStoreExample {
             .add(column("firstName"))
             .add(column("lastName"))
             .add(column("picture").setType(FILE))
-            .add(
-                column(EMAIL)
-                    .setValidation(
-                        "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email})")) // todo: validation email
+            .add(column(EMAIL))
+            // future work .setValidation(
+            //  "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email},'i')")) //
+            // todo: validation email
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))
