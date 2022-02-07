@@ -21,7 +21,7 @@ public class TableStoreForURL implements TableAndFileStore {
   public TableStoreForURL(URL baseURL) {
     if (!baseURL.toString().endsWith("/")) {
       try {
-        this.baseURL = new URL(baseURL.toString() + "/");
+        this.baseURL = new URL(baseURL + "/");
       } catch (Exception e) {
         // should never happen
       }
