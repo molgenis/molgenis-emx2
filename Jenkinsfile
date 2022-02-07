@@ -57,7 +57,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test jacocoMergedReport shadowJar jib release ci sonarqube \
+                    sh "./gradlew test jacocoMergedReport shadowJar jib release ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
