@@ -40,8 +40,17 @@ export const actions = {
     const menuSetting = settings.find((s) => s.key === "menu");
     if (menuSetting) {
       const menuString = menuSetting.value;
-      const menu = JSON.parse(menuString);
-      context.commit("setMenu", menu);
+      const menuItems = JSON.parse(menuString).map((menuItem) => {
+        // Strip the added ssr context from the menu.href if relative
+        const separator = menuItem.href.startsWith("/") ? "" : "/";
+        if (menuItem.href) {
+          menuItem.href = context.state.schema
+            ? `/${context.state.schema}${separator}${menuItem.href}`
+            : `${separator}${menuItem.href}`;
+        }
+        return menuItem;
+      });
+      context.commit("setMenu", menuItems);
     }
   },
 
