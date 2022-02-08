@@ -345,7 +345,13 @@ public class SqlDatabase implements Database {
       throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
     }
     long start = System.currentTimeMillis();
-    tx(db -> MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), user, password));
+    tx(
+        db -> {
+          if (!db.hasUser(user)) {
+            db.addUser(user);
+          }
+          MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), user, password);
+        });
     log(start, "set password for user '" + user + "'");
   }
 
