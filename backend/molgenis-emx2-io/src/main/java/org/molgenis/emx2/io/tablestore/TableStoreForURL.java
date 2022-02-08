@@ -23,7 +23,7 @@ public class TableStoreForURL implements TableAndFileStore {
       try {
         this.baseURL = new URL(baseURL + "/");
       } catch (Exception e) {
-        // should never happen
+        throw new RuntimeException("baseURL reformatting failed");
       }
     } else {
       this.baseURL = baseURL;
