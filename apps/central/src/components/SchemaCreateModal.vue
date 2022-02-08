@@ -40,32 +40,37 @@
               label="description (optional)"
               :defaultValue="schemaDescription"
             />
-            <InputString
-              v-model="sourceURL"
-              label="sourceURL (optional)"
-              description="You can automatically populate your database from a url that has similar contents as when you download a zip."
-              :list="true"
-            />
+            <ButtonAlt
+              class="pl-0"
+              @click="showAdvanced = !showAdvanced"
+              href=""
+              >Advanced: automatically load existing data
+            </ButtonAlt>
+            <div v-if="showAdvanced">
+              <InputString
+                v-model="sourceURL"
+                label="source URL"
+                description="You can automatically populate your database from one or more url that has contents equal as when you download a zip."
+                :list="true"
+              />
+              <p>Examples:</p>
+              <p>
+                <ButtonAlt
+                  class="p-0"
+                  @click="
+                    schemaName = 'CohortCatalogue';
+                    sourceURL = [
+                      host + '/public_html/apps/data/datacatalogue',
+                      host + '/public_html/apps/data/datacatalogue/Cohorts',
+                    ];
+                  "
+                >
+                  Cohort Catalogue - template for multi-center cohort data
+                  harmonization studies
+                </ButtonAlt>
+              </p>
+            </div>
           </LayoutForm>
-          <hr />
-          <p>Templates</p>
-          <ul>
-            <li>
-              <ButtonAlt
-                @click="
-                  schemaName = 'CohortCatalogue';
-                  sourceURL = [
-                    host + '/public_html/apps/data/datacatalogue',
-                    host + '/public_html/apps/data/datacatalogue/Cohorts',
-                  ];
-                "
-              >
-                Cohort Catalogue
-              </ButtonAlt>
-              - template for multi-center cohort data harmonization studies
-            </li>
-          </ul>
-          <br />
         </div>
       </template>
       <template v-slot:footer>
@@ -116,6 +121,7 @@ export default {
       schemaName: null,
       schemaDescription: null,
       sourceURL: null,
+      showAdvanced: false,
     };
   },
   computed: {
