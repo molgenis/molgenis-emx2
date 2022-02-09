@@ -12,12 +12,13 @@
               : null
           "
         ></page-header>
-        <NuxtLink v-if="$route.params.collectionEvent" :to="`..`">&lt; Back to cohort</NuxtLink>
+        <NuxtLink v-if="$route.params.collectionEvent || $route.params.subCohort" :to="`..`">&lt; Back to cohort</NuxtLink>
       </grid-block>
 
-      <NuxtChild :collectionEvent="$route.params.collectionEvent" />
+      <NuxtChild v-if="$route.params.collectionEvent" :collectionEvent="$route.params.collectionEvent" />
+      <NuxtChild v-if="$route.params.subCohort" :subCohort="$route.params.subCohort" />
 
-      <template v-if="!$route.params.collectionEvent">
+      <template v-if="!($route.params.collectionEvent || $route.params.subCohort)">
       <grid-block>
         <links-list :isHorizontal="true" :items="mainLinks"></links-list>
       </grid-block>
@@ -333,7 +334,7 @@ export default {
                     }, [])
                     .map((ag) => ag.name)
                     .join(","),
-              _path: `/cohorts/${this.$route.params.pid}/subcohorts/${subcohort.name}`,
+              _path: `${this.cohort.pid}/subcohorts/${subcohort.name}`,
             };
           });
     },
