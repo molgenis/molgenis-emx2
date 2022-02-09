@@ -40,36 +40,20 @@
               label="description (optional)"
               :defaultValue="schemaDescription"
             />
-            <ButtonAlt
-              class="pl-0"
-              @click="showAdvanced = !showAdvanced"
-              href=""
-              >Advanced: automatically load existing data
-            </ButtonAlt>
-            <div v-if="showAdvanced">
-              <InputString
-                v-model="sourceURL"
-                label="source URL"
-                description="You can automatically populate your database from one or more url that has contents equal as when you download a zip."
-                :list="true"
-              />
-              <p>Examples:</p>
-              <p>
-                <ButtonAlt
-                  class="p-0"
-                  @click="
-                    schemaName = 'CohortCatalogue';
-                    sourceURL = [
-                      host + '/public_html/apps/data/datacatalogue',
-                      host + '/public_html/apps/data/datacatalogue/Cohorts',
-                    ];
-                  "
-                >
-                  Cohort Catalogue - template for multi-center cohort data
-                  harmonization studies
-                </ButtonAlt>
-              </p>
-            </div>
+            <InputRadio
+              label="load data (optional)"
+              description="Choose options below to load pre-existing schema and/or contents into your newly created database"
+              v-model="option"
+              :options="Object.keys(options)"
+              :required="true"
+            />
+            <InputString
+              v-if="option == 'from source URL'"
+              v-model="sourceURL"
+              label="source URL"
+              description="You can automatically populate your database from one or more url that has contents equal as when you download a zip."
+              :list="true"
+            />
           </LayoutForm>
         </div>
       </template>
@@ -92,6 +76,7 @@ import {
   IconAction,
   InputString,
   InputText,
+  InputRadio,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -108,6 +93,7 @@ export default {
     LayoutModal,
     InputString,
     InputText,
+    InputRadio,
     LayoutForm,
     Spinner,
     IconAction,
@@ -121,7 +107,15 @@ export default {
       schemaName: null,
       schemaDescription: null,
       sourceURL: null,
-      showAdvanced: false,
+      option: "none",
+      options: {
+        none: [],
+        "cohort catalogue": [
+          "/public_html/apps/data/datacatalogue",
+          "/public_html/apps/data/datacatalogue/Cohorts",
+        ],
+        "from source URL": [],
+      },
     };
   },
   computed: {
@@ -164,6 +158,11 @@ export default {
           }
           this.loading = false;
         });
+    },
+  },
+  watch: {
+    option() {
+      this.sourceURL = this.options[this.option];
     },
   },
 };
