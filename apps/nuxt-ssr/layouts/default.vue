@@ -1,6 +1,6 @@
 <template>
 <div class="wrapper d-flex flex-column">
-  <Menu :menu="menu"/>
+  <Menu :brandHref=brandHref :menu="menu"/>
   <Nuxt class="flex-fill" />
   <molgenis-footer></molgenis-footer>
 </div>
@@ -21,6 +21,9 @@ export default {
     },
     schema () {
       return this.$store.state.schema
+    },
+    brandHref () {
+      return '/' + this.$store.state.schema
     }
   },
 }
