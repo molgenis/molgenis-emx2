@@ -12,8 +12,12 @@
               : null
           "
         ></page-header>
+        <NuxtLink v-if="$route.params.collectionEvent" :to="`..`">&lt; Back to cohort</NuxtLink>
       </grid-block>
 
+      <NuxtChild :collectionEvent="$route.params.collectionEvent" />
+
+      <template v-if="!$route.params.collectionEvent">
       <grid-block>
         <links-list :isHorizontal="true" :items="mainLinks"></links-list>
       </grid-block>
@@ -153,6 +157,9 @@
           </p>
         </grid-block>
       </div>
+
+      </template>
+
     </div>
   </div>
 </template>
@@ -346,7 +353,7 @@ export default {
                   item.endYear && item.endYear.name ? item.endYear.name : null;
                 return startEndYear(startYear, endYear);
               })(),
-              _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
+              _path: `${this.cohort.pid}/collection-events/${item.name}`,
             };
           });
     },

@@ -22,7 +22,6 @@
         </li>
       </ul>
     </div>
-    {{brandHref}}
   </nav>
 </template>
 
