@@ -71,13 +71,8 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
     try {
       Reader reader = Files.newBufferedReader(relativePath);
       return RowReaderJackson.readList(reader, separator);
-    } catch (IOException ioe) {
-      throw new MolgenisException(
-          "Import failed: Table not found. File with name '"
-              + name
-              + "' doesn't exist. "
-              + ioe.getMessage(),
-          ioe);
+    } catch (Exception ioe) {
+      throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
     }
   }
 

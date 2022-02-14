@@ -1,1 +1,12 @@
 name,code,order,definition,comments,parent,ontologyTermURI
+Binary,,,
+binary,,,
+categorical,,,
+Categorical,,,
+Character,,,
+Continuous,,,
+continuous,,,
+Date,,,
+int,,,
+Integer,,,
+String,,,
