@@ -43,8 +43,12 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     cohortsSchema.migrate(schema);
 
-    // load ontologies, todo
-
+    ImportDirectoryTask task1 =
+        new ImportDirectoryTask(
+            new File("../../data/datacatalogue/CatalogueOntologies").toPath(),
+            ontologySchema,
+            false);
+    task1.run();
     ImportDirectoryTask task2 =
         new ImportDirectoryTask(
             new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema, false);
@@ -90,13 +94,6 @@ public class TestCohortCatalogue {
 
   @Test
   public void importStagingSchemas() {
-    // import ontologies
-    Schema ontologiesSchema = database.dropCreateSchema("CatalogueOntologies");
-    new ImportDirectoryTask(
-            new File("../../data/datacatalogue/CatalogueOntologies").toPath(),
-            ontologiesSchema,
-            true)
-        .run();
 
     // import cdm that uses schemaRef to ontologies
     Schema cdmSchema = database.dropCreateSchema("Catalogue_cdm");
