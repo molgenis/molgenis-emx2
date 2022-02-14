@@ -20,6 +20,7 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestCohortCatalogue {
 
   static Database database;
+  static Schema ontologySchema;
   static Schema cohortsSchema;
   static Schema conceptionSchema;
   static Schema rweSchema;
@@ -27,6 +28,7 @@ public class TestCohortCatalogue {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    ontologySchema = database.dropCreateSchema("CatalogueOntologies");
     conceptionSchema = database.dropCreateSchema("Conception");
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
     rweSchema = database.dropCreateSchema("RWENetwork");
@@ -40,6 +42,8 @@ public class TestCohortCatalogue {
     SchemaMetadata schema =
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     cohortsSchema.migrate(schema);
+
+    // load ontologies, todo
 
     ImportDirectoryTask task2 =
         new ImportDirectoryTask(
