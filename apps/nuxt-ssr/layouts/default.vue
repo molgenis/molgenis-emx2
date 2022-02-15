@@ -2,13 +2,17 @@
 <div class="wrapper d-flex flex-column">
   <Menu :brandHref=brandHref :menu="menu"/>
   <Nuxt class="flex-fill" />
-  <molgenis-footer></molgenis-footer>
+  <molgenis-footer class="footer"></molgenis-footer>
 </div>
 </template>
 
 <style>
 body, div.wrapper {
    min-height:100vh;
+}
+
+.footer {
+  margin-top: 6rem;
 }
 
 </style>
