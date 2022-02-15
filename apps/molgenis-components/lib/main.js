@@ -9,6 +9,8 @@ import TableDisplay from "../src/components/display/TableDisplay.vue"
 
 import ReadMore from "../src/components/layout/ReadMore.vue";
 
+import Pagination from "../src/components/tables/Pagination.vue"
+
 
 export {
   ContactDisplay,
@@ -19,5 +21,6 @@ export {
   LinksList,
   PageHeader,
   ReadMore,
-  TableDisplay
+  TableDisplay,
+  Pagination,
 };
