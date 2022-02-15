@@ -68,5 +68,14 @@ export default {
     "/graphql": `${BACKEND_LOCATION}`,
     "/*/graphql": `${BACKEND_LOCATION}`,
   },
-  router: { middleware: ["emx2"] },
+  router: {
+    middleware: ["emx2"],
+    scrollBehavior(to, from, savedPosition) {
+      if (savedPosition) {
+        return savedPosition;
+      }
+
+      return { x: 0, y: 0 };
+    },
+  },
 };
