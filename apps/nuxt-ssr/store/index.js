@@ -27,7 +27,7 @@ export const actions = {
     }
   },
   async fetchSession(context) {
-    console.log("fetchSession for schema: " + context.state.schema);
+    // console.log("fetchSession for schema: " + context.state.schema);
     const query =
       '{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}';
     const sessionUrl = context.state.schema ? context.state.schema + "/graphql" : "apps/central/graphql";
