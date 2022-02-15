@@ -54,47 +54,4 @@ export const actions = {
     }
   },
 
-  async fetchCounts(context) {
-    const query = `query {
-      Institutions_agg{count},
-      Studies_agg{count},
-      Cohorts_agg{count},Databanks_agg{count},
-      Datasources_agg{count},Networks_agg{count},
-      SourceTables_agg{count},TargetTables_agg{count},
-      Models_agg{count},Studies_agg{count},
-      SourceDataDictionaries_agg{count},
-      TargetDataDictionaries_agg{count},
-      SourceVariables_agg{count},
-      TargetVariables_agg{count},
-      VariableMappings_agg{count}, TableMappings_agg{count}}
-    `;
-    const url = context.state.schema + "/graphql";
-    const resp = await this.$axios({
-      url: url,
-      method: "post",
-      data: { query },
-    }).catch((e) => { 
-      console.error(
-        "Unable to fetch catalog count, make sure the current schema supports the catalog model"
-      );
-       console.error(e);
-    });
-    if (resp && resp.data && resp.data.data) {
-      const counts = resp.data.data;
-      context.commit("setCounts", {
-        institutions: counts.Institutions_agg.count,
-        cohorts: counts.Cohorts_agg.count,
-        databanks: counts.Databanks_agg.count,
-        datasources: counts.Datasources_agg.count,
-        networks: counts.Networks_agg.count,
-
-        models: counts.Models_agg.count,
-        studies: counts.Studies_agg.count,
-
-        // variables: counts.Variables_agg.count,
-        // variableMappings: counts.VariableMappings_agg.count,
-        // tableMappings: counts.TableMappings_agg.count,
-      });
-    }
-  },
 };
