@@ -6,19 +6,8 @@
       <p>Use settings below to change look and feel:</p>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <label>Choose primary color</label><br />
-      <v-swatches class="mb-2" v-model="primary" show-fallback />
+      <v-swatches class="mb-2" v-model="primaryColor" show-fallback />
       <InputString label="Set logo url" v-model="logoURL" />
-      <!--      <div class="form-group form-inline">-->
-      <!--        <label>secondary color</label>-->
-      <!--        <v-swatches-->
-      <!--          class="ml-2"-->
-      <!--          v-model="secondary"-->
-      <!--          shapes="circles"-->
-      <!--          popover-x="left"-->
-      <!--          swatches="text-advanced"-->
-      <!--          show-fallback-->
-      <!--        />-->
-      <!--    </div>-->
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
       <a :href="this.session.settings.cssURL">view theme css</a>
@@ -50,8 +39,8 @@ export default {
   },
   data() {
     return {
-      primary: null,
-      secondary: null,
+      primaryColor: null,
+      secondaryColor: null,
       logoURL: null,
       loading: false,
       graphqlError: null,
@@ -74,11 +63,11 @@ export default {
           this.session.settings.cssURL,
           document.baseURI
         ).searchParams;
-        this.primary = urlParams.get("primary")
-          ? "#" + urlParams.get("primary")
+        this.primaryColor = urlParams.get("primaryColor")
+          ? "#" + urlParams.get("primaryColor")
           : null;
-        this.secondary = urlParams.get("secondary")
-          ? "#" + urlParams.get("secondary")
+        this.secondaryColor = urlParams.get("secondaryColor")
+          ? "#" + urlParams.get("secondaryColor")
           : null;
       }
     },
@@ -86,10 +75,11 @@ export default {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
-      if (this.primary || this.secondary) {
-        if (this.primary) cssUrl += "primary=" + this.primary.substr(1) + "&";
-        if (this.secondary)
-          cssUrl += "secondary=" + this.secondary.substr(1) + "&";
+      if (this.primaryColor || this.secondaryColor) {
+        if (this.primaryColor)
+          cssUrl += "primaryColor=" + this.primaryColor.substr(1) + "&";
+        if (this.secondaryColor)
+          cssUrl += "secondaryColor=" + this.secondaryColor.substr(1) + "&";
         cssUrl = cssUrl.substr(0, cssUrl.length - 1);
         settingsAlter.push({ key: "cssURL", value: cssUrl });
       } else {

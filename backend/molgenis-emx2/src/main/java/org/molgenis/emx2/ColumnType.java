@@ -120,4 +120,8 @@ public enum ColumnType {
   public boolean isHeading() {
     return HEADING.equals(getBaseType());
   }
+
+  public boolean isAtomicType() {
+    return !isFile() && !isReference() && !isHeading();
+  }
 }

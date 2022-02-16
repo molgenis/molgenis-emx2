@@ -25,6 +25,19 @@ public class TestTypeUtils {
     executeTest(
         ColumnType.JSONB_ARRAY,
         new JSONB[] {JSONB.valueOf("{name:\"blaat\"}"), JSONB.valueOf("{name2:\"blaat2\"}")});
+
+    // test null string is trimmed to null correctly
+    for (ColumnType type : ColumnType.values()) {
+      // not applicable to file
+      if (type.isAtomicType()) {
+        assertNull(
+            "Empty string should result in null for columnType=" + type,
+            TypeUtils.getTypedValue("", type));
+      }
+    }
+
+    // check that spaces are trimmed around string
+    assertEquals(TypeUtils.toString(" blaat "), "blaat");
   }
 
   private void executeTest(ColumnType type, Object[] b) {

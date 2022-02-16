@@ -4650,10 +4650,10 @@ ckeditor4-integrations-common@^1.0.0:
   resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-1.0.0.tgz#a8afc33b94877b4d01362c7c73aa9eec162b2d20"
   integrity sha512-OAoQT/gYrHkg0qgzf6MS/rndYhq3SScLVQ3rtXQeuCE8ju7nFHg3qZ7WGA2XpFxcZzsMP6hhugXqdel5vbcC3g==
 
-ckeditor4-vue@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.5.0.tgz#404c3d9896a66bb301fa1cc2b6f2b3573963ff71"
-  integrity sha512-h8oO0SvWLSLeXsvLCakhpT0EDJNW/WVBu2TEG95ApolagXGuzUNSGEV4eSpEWWKjKuBS1Bj+jn6C55llo9juhA==
+ckeditor4-vue@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-1.5.1.tgz#069dd56f2ac3fbc96fbfaca560c2b5bd74888bf9"
+  integrity sha512-2/Ot/MgVyTiXKMAPcxgghb1BodfqiAzNzMUGOB2dyOrFLCmIODbgrnfs+lutExQjBToXSzSJ0Ii3yCcKFpW92Q==
   dependencies:
     ckeditor4-integrations-common "^1.0.0"
 
@@ -7092,9 +7092,9 @@ flush-write-stream@^1.0.0:
     readable-stream "^2.3.6"
 
 follow-redirects@^1.0.0, follow-redirects@^1.14.0:
-  version "1.14.7"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
-  integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
+  version "1.14.8"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
+  integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
 
 for-in@^1.0.2:
   version "1.0.2"
