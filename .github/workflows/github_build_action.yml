@@ -1,0 +1,33 @@
+name: Run Gradle on PRs
+on: push
+jobs:
+  container-job: 
+    runs-on: ubuntu-latest
+    container: gradle:jdk16-hotspot
+
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+
+    steps:
+      - name: Checkout out repository
+        uses: actions/checkout@v2
+
+      - name: Get postgresql client
+        run: apt-get update && apt-get install postgresql-client -y
+
+      - name: Initialize psql
+        run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+
+      - name: Build with run tests and sonar
+        run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+        env:
+          MOLGENIS_POSTGRES_USER: molgenis_admin
+          MOLGENIS_POSTGRES_PASS: molgenis_admin
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
