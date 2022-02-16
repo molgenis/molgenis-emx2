@@ -105,7 +105,7 @@ public class TestQueryJsonGraph {
 
     result = s.retrieveJSON();
     System.out.println(result);
-    assertTrue(result.contains("\"children\": [{\"name\": \"kind\"}]}"));
+    assertTrue(result.contains("\"children\" : [{\"name\" : \"kind\"}]}"));
 
     // smoke test limit offset
     s = schema.getTable("Person").query();
@@ -178,6 +178,16 @@ public class TestQueryJsonGraph {
   }
 
   @Test
+  public void testAgg() {
+    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testAgg");
+    PetStoreExample.create(schema.getMetadata());
+    PetStoreExample.populate(schema);
+
+    String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
+  }
+
+  // todo @Test
+  // we want to refactor this
   public void testGroupBy() throws JsonProcessingException {
     Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
 

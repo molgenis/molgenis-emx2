@@ -34,7 +34,7 @@ public class SchemaMetadata {
     this.database = schema.getDatabase();
     this.setSettings(schema.getSettings());
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
   }
 
@@ -43,7 +43,7 @@ public class SchemaMetadata {
     this.description = schema.getDescription();
     this.database = db;
     for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.getKey(), setting.getValue());
+      this.setSetting(setting.key(), setting.value());
     }
   }
 
@@ -129,7 +129,7 @@ public class SchemaMetadata {
   public SchemaMetadata setSettings(Collection<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), new Setting(setting));
+      this.settings.put(setting.key(), setting);
     }
     return this;
   }
@@ -154,8 +154,8 @@ public class SchemaMetadata {
 
   public String getSetting(String key) {
     for (Setting s : getSettings()) {
-      if (s.getKey().equals(key)) {
-        return s.getValue();
+      if (s.key().equals(key)) {
+        return s.value();
       }
     }
     return null;
@@ -181,7 +181,7 @@ public class SchemaMetadata {
       addExternalTablesRecursive(tables, current.getInheritedTable());
     }
     for (Column c : current.getColumns()) {
-      if (c.getRefTableName() != null && !tables.containsKey(c.getRefTableName())) {
+      if (c.isReference() && !tables.containsKey(c.getRefTableName())) {
         tables.put(c.getRefTableName(), c.getRefTable());
         addExternalTablesRecursive(tables, c.getRefTable());
       }

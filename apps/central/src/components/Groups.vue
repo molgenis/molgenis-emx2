@@ -32,9 +32,9 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                    v-if="session && session.email == 'admin'"
-                    icon="edit"
-                    @click="openEditSchema(schema.name, schema.description)"
+                  v-if="session && session.email == 'admin'"
+                  icon="edit"
+                  @click="openEditSchema(schema.name, schema.description)"
                 />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
@@ -61,10 +61,10 @@
         :schemaName="showDeleteSchema"
       />
       <SchemaEditModal
-          v-if="showEditSchema"
-          @close="closeEditSchema"
-          :schemaName="showEditSchema"
-          :schemaDescription="editDescription"
+        v-if="showEditSchema"
+        @close="closeEditSchema"
+        :schemaName="showEditSchema"
+        :schemaDescription="editDescription"
       />
     </div>
   </div>
@@ -153,7 +153,7 @@ export default {
     },
     openEditSchema(schemaName, schemaDescription) {
       this.showEditSchema = schemaName;
-      this.editDescription = schemaDescription
+      this.editDescription = schemaDescription;
     },
     closeEditSchema() {
       this.showEditSchema = null;

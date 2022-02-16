@@ -63,7 +63,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       from.settings.entrySet().stream()
           .forEach(
               s -> {
-                this.settings.put(s.getKey(), new Setting(s.getKey(), s.getValue().getValue()));
+                this.settings.put(s.getKey(), new Setting(s.getKey(), s.getValue().value()));
               });
     }
   }
@@ -96,7 +96,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       super.create(new SqlTableMetadata(this, table));
     }
     for (Setting setting : MetadataUtils.loadSettings(getDatabase().getJooq(), this)) {
-      super.setSetting(setting.getKey(), setting.getValue());
+      super.setSetting(setting.key(), setting.value());
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -194,7 +194,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     settings.forEach(
         s -> {
           MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
-          schema.settings.put(s.getKey(), s);
+          schema.settings.put(s.key(), s);
         });
     return schema;
   }

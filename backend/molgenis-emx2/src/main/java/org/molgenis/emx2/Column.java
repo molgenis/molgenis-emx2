@@ -67,6 +67,10 @@ public class Column implements Comparable<Column> {
   }
 
   public Column(String columnName, boolean skipValidation) {
+    this.columnName = validateName(columnName, skipValidation);
+  }
+
+  private String validateName(String columnName, boolean skipValidation) {
     if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
       throw new MolgenisException(
           "Invalid column name '"
@@ -77,7 +81,7 @@ public class Column implements Comparable<Column> {
       throw new MolgenisException(
           "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
     }
-    this.columnName = columnName.trim();
+    return columnName.trim();
   }
 
   public Column(TableMetadata table, String columnName) {
@@ -192,18 +196,7 @@ public class Column implements Comparable<Column> {
 
       // other relation
       if (schema != null) {
-        TableMetadata result = schema.getTableMetadata(this.refTable);
-        if (result == null) {
-          throw new MolgenisException(
-              "Internal error: Column.getRefTable failed for column '"
-                  + getQualifiedName()
-                  + "' because refTable '"
-                  + getRefTableName()
-                  + "' does not exist in schema '"
-                  + schema.getName()
-                  + "'");
-        }
-        return result;
+        return schema.getTableMetadata(this.refTable);
       }
     }
     return null;
@@ -632,5 +625,9 @@ public class Column implements Comparable<Column> {
     } else {
       return this.getName().compareTo(o.getName());
     }
+  }
+
+  public boolean isOntology() {
+    return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
   }
 }

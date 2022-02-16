@@ -17,11 +17,19 @@ public interface Database {
 
   Schema dropCreateSchema(String name);
 
+  Schema dropCreateSchema(String name, String description);
+
   void dropSchema(String name);
 
   Collection<String> getSchemaNames();
 
   Collection<SchemaInfo> getSchemaInfos();
+
+  Collection<Setting> getSettings();
+
+  Setting createSetting(String key, String value);
+
+  Boolean deleteSetting(String key);
 
   Schema getSchema(String name);
 

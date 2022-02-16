@@ -1,8 +1,12 @@
-FROM node:17
+FROM node:lts-gallium
 
 COPY . /app
 
 WORKDIR /app
+
+RUN rm -rf node_modules
+
+RUN yarn
 
 RUN yarn build
 

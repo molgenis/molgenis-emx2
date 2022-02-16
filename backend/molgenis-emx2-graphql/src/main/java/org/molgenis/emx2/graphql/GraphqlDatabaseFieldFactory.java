@@ -1,9 +1,7 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.VALUE;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
@@ -79,9 +77,40 @@ public class GraphqlDatabaseFieldFactory {
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getSettings());
+  }
+
+  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("createSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.SETTINGS_VALUE)
+                .type(Scalars.GraphQLString))
         .dataFetcher(
-            dataFetchingEnvironment ->
-                List.of(Map.of("key", IS_OIDC_ENABLED, VALUE, database.isOidcEnabled())));
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
+              database.createSetting(key, value);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
+            });
+  }
+
+  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(("deleteSetting"))
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
+              database.deleteSetting(key);
+              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
+            });
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {

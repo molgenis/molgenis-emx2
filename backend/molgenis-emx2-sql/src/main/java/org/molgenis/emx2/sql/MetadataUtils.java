@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
 import java.util.*;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
@@ -42,8 +43,10 @@ public class MetadataUtils {
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final org.jooq.Field TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TALBE_SEMANTICS =
+  private static final org.jooq.Field TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
+  private static final org.jooq.Field TABLE_TYPE =
+      field(name("table_type"), VARCHAR.nullable(true));
 
   // column
   private static final org.jooq.Field COLUMN_NAME =
@@ -134,7 +137,7 @@ public class MetadataUtils {
       j.transaction(
           config -> {
             DSLContext jooq = config.dsl();
-            try (CreateSchemaFinalStep step = jooq.createSchemaIfNotExists(MOLGENIS)) {
+            try (DDLQuery step = jooq.createSchemaIfNotExists(MOLGENIS)) {
               step.execute();
               jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
               jooq.execute(
@@ -173,7 +176,8 @@ public class MetadataUtils {
                           TABLE_INHERITS,
                           TABLE_IMPORT_SCHEMA,
                           TABLE_DESCRIPTION,
-                          TALBE_SEMANTICS)
+                          TABLE_SEMANTICS,
+                          TABLE_TYPE)
                       .constraints(
                           primaryKey(TABLE_SCHEMA, TABLE_NAME),
                           foreignKey(TABLE_SCHEMA)
@@ -314,20 +318,23 @@ public class MetadataUtils {
               TABLE_INHERITS,
               TABLE_IMPORT_SCHEMA,
               TABLE_DESCRIPTION,
-              TALBE_SEMANTICS)
+              TABLE_SEMANTICS,
+              TABLE_TYPE)
           .values(
               table.getSchema().getName(),
               table.getTableName(),
               table.getInherit(),
               table.getImportSchema(),
               table.getDescription(),
-              table.getSemantics())
+              table.getSemantics(),
+              table.getTableType())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
-          .set(TALBE_SEMANTICS, table.getSemantics())
+          .set(TABLE_SEMANTICS, table.getSemantics())
+          .set(TABLE_TYPE, table.getTableType())
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of table metadata failed", e);
@@ -434,7 +441,10 @@ public class MetadataUtils {
     table.setInherit(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
-    table.setSemantics(r.get(TALBE_SEMANTICS, String[].class));
+    table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
+    if (r.get(TABLE_TYPE, String.class) != null) {
+      table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
+    }
     return table;
   }
 
@@ -528,32 +538,68 @@ public class MetadataUtils {
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
+    return asSettingsList(settingRecords);
+  }
+
+  /**
+   * Loads a list of all database settings ( i.e., settings not related to a specific Schema or
+   * Table)
+   */
+  protected static List<Setting> loadSettings(DSLContext jooq) {
+    List<org.jooq.Record> settingRecords =
+        jooq.selectFrom(SETTINGS_METADATA)
+            .where(TABLE_SCHEMA.eq(NOT_PROVIDED), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
+            .fetch();
+    return asSettingsList(settingRecords);
+  }
+
+  private static List<Setting> asSettingsList(List<Record> settingRecords) {
     List<Setting> settings = new ArrayList<>();
-    for (org.jooq.Record record : settingRecords) {
+    for (Record settingRecord : settingRecords) {
       settings.add(
           new Setting(
-              record.get(SETTINGS_NAME, String.class), record.get(SETTINGS_VALUE, String.class)));
+              settingRecord.get(SETTINGS_NAME, String.class),
+              settingRecord.get(SETTINGS_VALUE, String.class)));
     }
     return settings;
   }
 
   protected static void saveSetting(
       DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
+    String tableName = table != null ? table.getTableName() : NOT_PROVIDED;
+    insertSetting(jooq, schema.getName(), tableName, setting.key(), setting.value());
+  }
+
+  protected static void saveSetting(DSLContext jooq, Setting setting) {
+    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.key(), setting.value());
+  }
+
+  private static void insertSetting(
+      DSLContext jooq,
+      String schemaName,
+      String tableName,
+      String settingKey,
+      String settingValue) {
     try {
       jooq.insertInto(SETTINGS_METADATA)
           .columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-          .values(
-              schema.getName(),
-              table != null ? table.getTableName() : NOT_PROVIDED,
-              setting.getKey(),
-              setting.getValue())
+          .values(schemaName, tableName, settingKey, settingValue)
           .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
           .doUpdate()
-          .set(SETTINGS_VALUE, setting.getValue())
+          .set(SETTINGS_VALUE, settingValue)
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of settings failed", e);
     }
+  }
+
+  protected static void deleteSetting(DSLContext jooq, String settingKey) {
+    jooq.deleteFrom(SETTINGS_METADATA)
+        .where(
+            TABLE_SCHEMA.eq(NOT_PROVIDED),
+            TABLE_NAME.eq(NOT_PROVIDED),
+            SETTINGS_NAME.eq(settingKey))
+        .execute();
   }
 
   protected static void deleteSetting(
@@ -562,7 +608,7 @@ public class MetadataUtils {
         .where(
             TABLE_SCHEMA.eq(schema.getName()),
             table != null ? TABLE_NAME.eq(table.getTableName()) : TABLE_NAME.eq(NOT_PROVIDED),
-            SETTINGS_NAME.eq(setting.getKey()))
+            SETTINGS_NAME.eq(setting.key()))
         .execute();
   }
 
