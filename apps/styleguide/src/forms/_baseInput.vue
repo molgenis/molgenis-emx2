@@ -2,12 +2,12 @@
 guide */
 
 <script>
-const uuidv4 = require("uuid/v4");
+const uuidv4 = require('uuid/v4');
 
 export default {
   props: {
     /**  value */
-    value: { type: [String, Number, Object, Array, Boolean], default: null },
+    value: {type: [String, Number, Object, Array, Boolean], default: null},
     /** wether to enable in place editing */
     inplace: Boolean,
     /** value to be shown as placeholder in the input (if possible) */
@@ -19,29 +19,29 @@ export default {
     /** whether input must be required (does not validate, but show option to clear input) */
     required: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** whether input is readonly (default: false) */
     readonly: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** message when in error state */
     errorMessage: null,
     /** whether this is a list of values*/
     list: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** whether to show clear buttons */
     clear: {
       type: Boolean,
-      default: true,
+      default: true
     },
     /** parse function, such as parseInt to type value*/
     parser: Function,
     /** whether metadata can be edited */
-    editMeta: Boolean,
+    editMeta: Boolean
   },
   data() {
     return {
@@ -50,7 +50,7 @@ export default {
       /** whether list input should show empty input */
       showNewItem: false,
       /** whether input has focus */
-      focus: false,
+      focus: false
     };
   },
   computed: {
@@ -65,7 +65,7 @@ export default {
         result.push(null);
       }
       return result;
-    },
+    }
   },
   // generate automatic id
   mounted() {
@@ -92,7 +92,12 @@ export default {
       } else {
         result = value;
       }
-      this.$emit("input", result);
+
+      if (this.parser) {
+        this.$emit('input', this.parser(result));
+      } else {
+        this.$emit('input', result);
+      }
     },
     toggleFocus() {
       this.focus = !this.focus;
@@ -107,7 +112,7 @@ export default {
       } else {
         result = null;
       }
-      this.$emit("input", result);
+      this.$emit('input', result);
     },
     showPlus(idx) {
       //always on last line
@@ -124,7 +129,7 @@ export default {
     },
     showMinus(idx) {
       return this.list && !this.showPlus(idx);
-    },
+    }
   },
   directives: {
     focus: {
@@ -132,8 +137,8 @@ export default {
         if (binding.value) {
           el.focus();
         }
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>

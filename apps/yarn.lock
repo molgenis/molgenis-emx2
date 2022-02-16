@@ -2027,6 +2027,11 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     sourcemap-codec "1.4.8"
 
+"@molgenis/expressions@0.21.1":
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/@molgenis/expressions/-/expressions-0.21.1.tgz#2ae2b4f8a17bdaec2cb074d7c43b8e41b21e868c"
+  integrity sha512-549ckozAbCYUyP2hgOsutFyMeWXU0NqHc86u3T5bCplZh2HdtrBXrLINXetl/0DbGAkdLPlSSAasYVRuKc1zFA==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
