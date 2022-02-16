@@ -2,7 +2,6 @@ name: github/actions build
 on: push
 jobs:
   container-job: 
-    runs-on: ubuntu-latest
     container: gradle:jdk16-hotspot
 
     services:
