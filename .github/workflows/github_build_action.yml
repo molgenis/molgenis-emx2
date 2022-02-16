@@ -25,6 +25,9 @@ jobs:
         env:
           PGPASSWORD: postgres
 
+      - name: What java version do we have
+        run: java -version
+
       - name: dependencies
         run: ./gradlew dependencies
 
