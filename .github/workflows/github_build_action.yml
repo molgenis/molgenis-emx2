@@ -20,8 +20,10 @@ jobs:
       - name: Get postgresql client
         run: apt-get update && apt-get install postgresql-client -y
 
-      - name: Initialize psql
+      - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
+        env:
+          PGPASSWORD: postgres
 
       - name: Build with run tests and sonar
         run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
@@ -31,3 +33,5 @@ jobs:
           MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenisdb
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          JVM_OPTS: -Xmx3200m
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
