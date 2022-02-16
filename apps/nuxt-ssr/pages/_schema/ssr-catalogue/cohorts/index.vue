@@ -2,17 +2,27 @@
   <div class="container mt-3">
     <h1>Cohorts</h1>
     <div class="pb-1">
-      <pagination v-if="count > limit" v-model="page" :count="count"></pagination>
+      <pagination
+        v-if="count > limit"
+        v-model="page"
+        :count="count"
+      ></pagination>
     </div>
     <ul class="mt-3 list-group">
-      <li v-for="row in rows" :key="row.pid" class="list-group-item">
+      <li v-for="row in cohorts" :key="row.pid" class="list-group-item">
         <nuxt-link :to="'cohorts/' + row.pid">
           {{ row.name }}
         </nuxt-link>
       </li>
     </ul>
     <div class="p-3">
-      <pagination v-if="count > limit" v-model="page" :count="count" :limit="limit" :defaultValue="page"></pagination>
+      <pagination
+        v-if="count > limit"
+        v-model="page"
+        :count="count"
+        :limit="limit"
+        :defaultValue="page"
+      ></pagination>
     </div>
   </div>
 </template>
@@ -25,40 +35,42 @@ export default {
   components: { Pagination },
   data() {
     return {
+      cohorts: [],
+      count: 0,
       page: 1,
-      limit: 20
+      limit: 20,
     };
   },
-  async asyncData({ $axios, store, params, query }) {
-    const offset = query.offset === undefined ? 0 : parseInt(query.offset)
-    console.log('offset: ' + offset)
-    const resp = await $axios({
-      url: store.state.schema + "/graphql",
-      method: "post",
-      data: { query: cohortsQuery, variables: { offset, limit: 20 } },
-    }).catch((e) => console.error(e));
+  async fetch() {
+    const resp = await this.$axios
+      .post(this.$route.params.schema + "/graphql", {
+        query: cohortsQuery,
+        variables: { offset: this.pagingOffset, limit: this.limit },
+      })
+      .catch((e) => console.error(e));
 
     if (!resp) return;
 
-    return {
-      cohorts: resp.data.data.Cohorts,
-      count: resp.data.data.Cohorts_agg.count,
-    };
+    this.cohorts = resp.data.data.Cohorts;
+    this.count = resp.data.data.Cohorts_agg.count;
   },
   computed: {
-    rows() {
-      return this.cohorts ? this.cohorts : [];
-    },
+    pagingOffset () {
+      return this.$route.query.offset === undefined ? 0 : parseInt(this.$route.query.offset);
+    }
   },
   watch: {
-    page (newVal, oldVal) {
-      if(newVal !== oldVal) {
-        this.$router.push({path: this.$route.path, query: { offset: (newVal - 1) * this.limit }})
+    page(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$router.push({
+          path: this.$route.path,
+          query: { offset: (newVal - 1) * this.limit },
+        });
       }
     },
-    $route () {
-      this.$nuxt.refresh()
-    }
-  }
+    $route() {
+      this.$nuxt.refresh();
+    },
+  },
 };
 </script>
