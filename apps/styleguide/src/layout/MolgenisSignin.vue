@@ -65,7 +65,6 @@ export default {
   },
   methods: {
     signin() {
-      console.log("Ik  kan loggen");
       if (this.email == null || this.password == null) {
         this.error = "Email and password should be filled in";
       } else {
