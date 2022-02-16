@@ -19,7 +19,7 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the provided password"
-          @keyup.enter="signin"
+          @enterPressed="signin"
         />
       </LayoutForm>
     </template>
@@ -65,6 +65,7 @@ export default {
   },
   methods: {
     signin() {
+      console.log("Ik  kan loggen");
       if (this.email == null || this.password == null) {
         this.error = "Email and password should be filled in";
       } else {
