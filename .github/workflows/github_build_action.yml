@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get postgresql client
-        run: apt-get update && apt-get install postgresql-client -y
+        run: apt-get update && apt-get install postgresql-client git -y
 
       - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
