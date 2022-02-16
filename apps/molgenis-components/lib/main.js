@@ -7,12 +7,14 @@ import LinksList from "../src/components/display/LinksList.vue";
 import PageHeader from "../src/components/display/PageHeader.vue";
 import TableDisplay from "../src/components/display/TableDisplay.vue"
 
+import BreadCrumb from "../src/components/layout/BreadCrumb.vue"
 import ReadMore from "../src/components/layout/ReadMore.vue";
 
 import Pagination from "../src/components/tables/Pagination.vue"
 
 
 export {
+  BreadCrumb,
   ContactDisplay,
   GridBlock,
   ImageCard,

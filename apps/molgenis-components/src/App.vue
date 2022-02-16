@@ -12,6 +12,7 @@
         <a href="#table-display" class="list-group-item">Table display</a>
         <li class="list-group-item"><strong>Layout</strong></li>
         <a href="#read-more" class="list-group-item">Read more</a>
+        <a href="#breadcrumb" class="list-group-item">Breadcrumb</a>
         <li class="list-group-item"><strong>Table</strong></li>
          <a href="#table-display" class="list-group-item">Table display</a>
         <a href="#pagination" class="list-group-item">Pagination</a>
@@ -87,6 +88,13 @@
         ></read-more>
       </demo-item>
 
+      <demo-item id="breadcrumb" label="Breadcrumb">
+        <breadcrumb :crumbs="{'Home':'/', 'Schema':'/schema', 'Page':'/schema/page'}"/>
+        <label>Example with nested</label>
+        <breadcrumb :crumbs="{'Home':'/', 'Schema':'/schema', 'Page':'/schema/page'}"
+            :dropdown="{'Other':'/other','Other2':'/other2'}"/>
+      </demo-item>
+
       <demo-item id="table-display" label="Table Display">
         <label class="font-italic">example</label>
 
@@ -132,13 +140,12 @@
 </style>
 
 <script>
-import Vue from "vue"
 import DemoItem from "./DemoItem.vue";
 
 export default {
   components: {
     DemoItem,
-  },
+},
   data() {
     return {
       examples: {
