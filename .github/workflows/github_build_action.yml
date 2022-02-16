@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew dependencies
 
       - name: Build with run tests and sonar
-        run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${{secrets.SONAR_TOKEN}} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${{secrets.GITHUB_TOKEN}} -Dorg.ajoberstar.grgit.auth.password
+        run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${{secrets.SONAR_TOKEN}} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${{secrets.GITHUB_TOKEN}} -Dorg.ajoberstar.grgit.auth.password --stacktrace
         env:
           MOLGENIS_POSTGRES_USER: molgenis_admin
           MOLGENIS_POSTGRES_PASS: molgenis_admin
