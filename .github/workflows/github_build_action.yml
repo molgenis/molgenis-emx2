@@ -16,7 +16,8 @@ jobs:
     steps:
       - name: Checkout out repository
         uses: actions/checkout@v2
-        fetch-depth: 0
+        with:
+	  fetch-depth: 0
 
       - name: Get postgresql client
         run: apt-get update && apt-get install postgresql-client git -y
