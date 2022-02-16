@@ -45,18 +45,18 @@
 </template>
 
 <script>
-import LayoutForm from "../layout/LayoutForm.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import ButtonAction from "../forms/ButtonAction.vue";
-import ButtonAlt from "../forms/ButtonAlt.vue";
-import ButtonOutline from "../forms/ButtonOutline";
-import SigninForm from "../layout/MolgenisSignin";
-import TableMixin from "../mixins/TableMixin";
-import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
-import RowFormInput from "./RowFormInput.vue";
-import { Expressions } from "@molgenis/expressions";
+import LayoutForm from '../layout/LayoutForm.vue';
+import LayoutModal from '../layout/LayoutModal.vue';
+import MessageError from '../forms/MessageError';
+import MessageSuccess from '../forms/MessageSuccess';
+import ButtonAction from '../forms/ButtonAction.vue';
+import ButtonAlt from '../forms/ButtonAlt.vue';
+import ButtonOutline from '../forms/ButtonOutline';
+import SigninForm from '../layout/MolgenisSignin';
+import TableMixin from '../mixins/TableMixin';
+import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin';
+import RowFormInput from './RowFormInput.vue';
+import {Expressions} from '@molgenis/expressions';
 
 export default {
   extends: TableMixin,
@@ -66,7 +66,7 @@ export default {
       showLogin: false,
       value: {},
       errorPerColumn: {},
-      success: null,
+      success: null
     };
   },
   props: {
@@ -77,7 +77,7 @@ export default {
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
-    defaultValue: Object,
+    defaultValue: Object
   },
   components: {
     LayoutForm,
@@ -88,11 +88,11 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ButtonOutline,
+    ButtonOutline
   },
   methods: {
     getRefBackType(column) {
-      if (column.columnType === "REFBACK") {
+      if (column.columnType === 'REFBACK') {
         //get the other table, find the refback column and check its type
         return this.getTable(column.refTable)
           .columns.filter((c) => c.name === column.refBack)
@@ -124,12 +124,12 @@ export default {
 
       // indicate if draft
       if (isDraft) {
-        this.value["mg_draft"] = true;
+        this.value['mg_draft'] = true;
       } else {
-        this.value["mg_draft"] = false;
+        this.value['mg_draft'] = false;
       }
 
-      let variables = { value: [this.value] };
+      let variables = {value: [this.value]};
       let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
       if (this.pkey && !this.clone) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
@@ -142,7 +142,7 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.$emit("close");
+          this.$emit('close');
         })
         .catch((error) => {
           if (error.status === 403) {
@@ -157,9 +157,9 @@ export default {
 
     eval(expression) {
       try {
-        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
+        return eval('(function (row) { ' + expression + '})')(this.value); // eslint-disable-line
       } catch (e) {
-        return "Script error contact admin: " + e.message;
+        return 'Script error contact admin: ' + e.message;
       }
     },
     visible(expression) {
@@ -181,16 +181,16 @@ export default {
           if (
             column.required &&
             (this.value[column.id] == null ||
-              (typeof this.value[column.id] === "number" &&
+              (typeof this.value[column.id] === 'number' &&
                 isNaN(this.value[column.id])))
           ) {
-            this.errorPerColumn[column.id] = column.name + " is required ";
+            this.errorPerColumn[column.id] = column.name + ' is required ';
           } else {
             // when not empty
             // when validation
             if (
-              typeof this.value[column.id] !== "undefined" &&
-              typeof column.validation !== "undefined"
+              typeof this.value[column.id] !== 'undefined' &&
+              typeof column.validation !== 'undefined'
             ) {
               this.errorPerColumn[column.id] = null;
               try {
@@ -203,9 +203,9 @@ export default {
             } else if (
               column.refLink &&
               this.value[column.id] &&
-              this.value[column.refLink.replace(" ", "_")] &&
+              this.value[column.refLink.replace(' ', '_')] &&
               !JSON.stringify(this.value[column.id]).includes(
-                JSON.stringify(this.value[column.refLink.replace(" ", "_")])
+                JSON.stringify(this.value[column.refLink.replace(' ', '_')])
               )
             ) {
               //reflinks should overlap
@@ -217,12 +217,12 @@ export default {
           }
         });
       }
-    },
+    }
   },
   computed: {
     columnsWithoutMeta() {
       return this.tableMetadata.columns.filter(
-        (c) => !c.name.startsWith("mg_")
+        (c) => !c.name.startsWith('mg_')
       );
     },
     refLinkFilters() {
@@ -239,7 +239,7 @@ export default {
                       if (c3.refTable === c2.refTable) {
                         filter[c.name] = {};
                         filter[c.name][c3.name] = {
-                          equals: this.value[c.refLink],
+                          equals: this.value[c.refLink]
                         };
                       }
                     });
@@ -258,7 +258,7 @@ export default {
       if (this.tableMetadata && this.pkey) {
         this.tableMetadata.columns
           .filter((c) => c.key == 1)
-          .map((c) => (result[c.id] = { equals: this.pkey[c.id] }));
+          .map((c) => (result[c.id] = {equals: this.pkey[c.id]}));
       }
       return result;
     },
@@ -271,7 +271,7 @@ export default {
       } else {
         return `insert ${this.table}`;
       }
-    },
+    }
   },
   watch: {
     data(val) {
@@ -298,14 +298,14 @@ export default {
       handler() {
         this.validate();
       },
-      deep: true,
+      deep: true
     },
     tableMetadata: {
       handler() {
         this.validate();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     //pass by value
@@ -313,6 +313,6 @@ export default {
       this.value = JSON.parse(JSON.stringify(this.defaultValue));
     }
     this.validate();
-  },
+  }
 };
 </script>
