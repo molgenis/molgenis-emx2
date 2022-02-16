@@ -1,4 +1,4 @@
-name: Run Gradle on PRs
+name: github/actions build
 on: push
 jobs:
   container-job: 
@@ -21,7 +21,7 @@ jobs:
         run: apt-get update && apt-get install postgresql-client -y
 
       - name: Initialize psql
-        run: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
 
       - name: Build with run tests and sonar
         run: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
