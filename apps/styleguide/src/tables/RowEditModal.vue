@@ -154,20 +154,9 @@ export default {
           }
         });
     },
-
-    eval(expression) {
-      try {
-        return eval('(function (row) { ' + expression + '})')(this.value); // eslint-disable-line
-      } catch (e) {
-        return 'Script error contact admin: ' + e.message;
-      }
-    },
     visible(expression) {
-      if (expression) {
-        return this.eval(expression);
-      } else {
-        return true;
-      }
+      // Todo Make this work
+      console.log(expression);
     },
     validate() {
       if (this.tableMetadata) {

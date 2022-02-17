@@ -55,6 +55,7 @@
             <th scope="col" style="width: 10em">refBack</th>
             <th scope="col" style="width: 10em">semantics</th>
             <th scope="col" style="width: 10em">validation expression</th>
+            <th scope="col" style="width: 10em">visibility expression</th>
             <th scope="col">description</th>
             <th scope="col" style="width: 3em"></th>
           </thead>

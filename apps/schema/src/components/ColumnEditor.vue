@@ -76,6 +76,9 @@
       <InputText v-model="column.validation" :inplace="true" />
     </td>
     <td>
+      <InputText v-model="column.visible" :inplace="true" />
+    </td>
+    <td>
       <InputText v-model="column.description" :inplace="true" />
     </td>
     <td>
