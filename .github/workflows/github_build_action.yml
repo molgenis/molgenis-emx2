@@ -21,8 +21,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get postgresql client
-        run: apt-get update && apt-get install postgresql-client git -y
+      - name: Get postgresql, git, docker
+        run: |
+           apt-get update && apt-get install postgresql-client git -y
+           curl -fsSL https://get.docker.com -o get-docker.sh
 
       - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
