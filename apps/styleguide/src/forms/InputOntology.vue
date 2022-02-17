@@ -325,15 +325,30 @@ export default {
     },
     data() {
       if (this.data) {
-        this.terms = this.data
-          .filter((o) => !o.parent)
-          .map((o) => {
-            let children = this.getChildrenRecursive(o.name);
-            if (children.length > 0) {
-              o.children = children;
+        let roots = {};
+        let all = {};
+        this.data.forEach((e) => {
+          //roots don't have parent
+          if (!e.parent) {
+            roots[e.name] = e;
+          }
+          // did we see it before?
+          if (all[e.name]) {
+            all[e.name].definition = e.definition;
+          } else {
+            all[e.name] = e;
+          }
+          if (e.parent) {
+            if (!all[e.parent]) {
+              all[e.parent] = { name: e.parent };
             }
-            return o;
-          });
+            if (!all[e.parent]["children"]) {
+              all[e.parent]["children"] = [];
+            }
+            all[e.parent].children.push(e);
+          }
+        });
+        this.terms = Object.values(roots);
       }
     },
   },
@@ -342,7 +357,7 @@ export default {
       this.data = this.options;
     } else {
       //override default
-      this.limit = 10000;
+      this.limit = 100000;
     }
     this.loading = false;
   },
