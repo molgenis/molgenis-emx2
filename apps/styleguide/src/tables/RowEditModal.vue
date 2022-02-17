@@ -195,10 +195,14 @@ export default {
               this.errorPerColumn[column.id] = null;
               try {
                 if (!Expressions.evaluate(column.validation, this.value)) {
-                  this.errorPerColumn[column.id] = column.validation;
+                  this.errorPerColumn[
+                    column.id
+                  ] = `Error evaluating template: ${column.validation}`;
                 }
               } catch (error) {
-                this.errorPerColumn[column.id] = error.toString();
+                this.errorPerColumn[
+                  column.id
+                ] = `Invalid validation expression`;
               }
             } else if (
               column.refLink &&
