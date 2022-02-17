@@ -25,6 +25,7 @@ jobs:
         run: |
            apt-get update && apt-get install postgresql-client git -y
            curl -fsSL https://get.docker.com -o get-docker.sh
+           sh get-docker.sh
 
       - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
