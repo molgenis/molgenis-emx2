@@ -30,14 +30,14 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput";
-import InputInt from "./InputInt";
-import FormGroup from "./_formGroup";
-import InputAppend from "./_inputAppend";
+import BaseInput from './_baseInput';
+import InputInt from './InputInt';
+import FormGroup from './_formGroup';
+import InputAppend from './_inputAppend';
 
 /** Input for integer values */
 export default {
-  components: { InputInt, FormGroup, InputAppend },
+  components: {InputInt, FormGroup, InputAppend},
   extends: BaseInput,
   computed: {
     //@override
@@ -45,21 +45,21 @@ export default {
       let result = this.value;
       if (!Array.isArray(result)) {
         result = [];
-        if (this.list) {
+        if (this.isList) {
           result = [[]];
         }
       } else {
         //check each row
-        if (!this.list) {
+        if (!this.isList) {
           result = [result];
         }
       }
       result = this.removeNulls(result);
-      if (result.length == 0 || (this.list && this.showNewItem)) {
+      if (result.length == 0 || (this.isList && this.showNewItem)) {
         result.push([null, null]);
       }
       return result;
-    },
+    }
   },
   methods: {
     //@override
@@ -70,7 +70,7 @@ export default {
     showPlus(idx) {
       //always on last line
       return (
-        this.list &&
+        this.isList &&
         !this.showNewItem &&
         idx == this.valueArray.length - 1 &&
         (this.valueArray[idx][0] != null || this.valueArray[idx][1] != null)
@@ -86,13 +86,13 @@ export default {
       result[idx][idx2] = value;
       //remove nulls
       result = this.removeNulls(result);
-      if (!this.list) {
+      if (!this.isList) {
         if (result && result.length > 0) result = result[0];
         else result = null;
       }
-      this.$emit("input", result);
-    },
-  },
+      this.$emit('input', result);
+    }
+  }
 };
 </script>
 
@@ -137,7 +137,7 @@ Example list
 ```
 <template>
   <div>
-    <InputRangeInt :list="true" v-model="value"/>
+    <InputRangeInt :isList="true" v-model="value"/>
     {{ value }}
   </div>
 </template>
@@ -155,7 +155,7 @@ Example with list and default
 ```
 <template>
   <div>
-    <InputRangeInt :list="true" v-model="value"/>
+    <InputRangeInt :isList="true" v-model="value"/>
     {{ value }}
   </div>
 </template>

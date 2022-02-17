@@ -1,5 +1,5 @@
 <script>
-import InputDate from "./InputDate";
+import InputDate from './InputDate';
 
 export default {
   extends: InputDate,
@@ -7,13 +7,13 @@ export default {
     config() {
       return {
         wrap: true, // set wrap to true only when using 'input-group'
-        dateFormat: "Y-m-dTH:i:S",
+        dateFormat: 'Y-m-dTH:i:S',
         allowInput: false,
         enableTime: true,
-        clickOpens: !this.readonly,
+        clickOpens: !this.readonly
       };
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -41,7 +41,7 @@ Example list
 ```
 <template>
   <div>
-    <InputDateTime :list="true" v-model="value" label="My date time input label" description="Some help needed?"/>
+    <InputDateTime :isList="true" v-model="value" label="My date time input label" description="Some help needed?"/>
     <br/>
     You typed: {{ value }}
   </div>

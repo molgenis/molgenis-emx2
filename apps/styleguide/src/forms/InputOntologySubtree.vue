@@ -32,7 +32,7 @@
         :expanded="expanded"
         :selection="selection"
         :terms="term.children"
-        :list="list"
+        :isList="isList"
         :search="search"
         @select="select(term, $event)"
         @deselect="$emit('deselect', $event)"
@@ -44,13 +44,13 @@
 
 <script>
 export default {
-  name: "InputOntologySubtree",
+  name: 'InputOntologySubtree',
   props: {
     terms: Array,
     selection: Array,
     expanded: Array,
-    list: { type: Boolean, default: false },
-    search: String,
+    isList: {type: Boolean, default: false},
+    search: String
   },
   computed: {
     hasChildren() {
@@ -58,7 +58,7 @@ export default {
     },
     hasSearch() {
       return this.search && this.search.length > 0;
-    },
+    }
   },
   methods: {
     countChildren(term) {
@@ -79,7 +79,7 @@ export default {
       //visible when matches search, or if children have search (recursive)
       else if (
         this.search
-          .split(" ")
+          .split(' ')
           .every((t) => term.name.toLowerCase().includes(t.toLowerCase())) ||
         (term.children && term.children.some((t) => this.visible(t)))
       ) {
@@ -96,32 +96,32 @@ export default {
           items.push(self.name);
         }
       }
-      this.$emit("select", items);
+      this.$emit('select', items);
     },
     expandState(item) {
       if (!item.children) {
-        return "fas fa-angle-right invisible";
+        return 'fas fa-angle-right invisible';
       } else if (
         this.expanded.includes(item.name) &&
         item.children.some((t) => this.visible(t))
       ) {
-        return "fas fa-angle-down";
+        return 'fas fa-angle-down';
       } else {
-        return "fas fa-angle-right";
+        return 'fas fa-angle-right';
       }
     },
     selectState(item) {
       if (this.selection.includes(item.name)) {
-        return this.list ? "fas fa-check-square" : "fas fa-check-circle";
+        return this.isList ? 'fas fa-check-square' : 'fas fa-check-circle';
       } else if (
         item.children &&
         item.children
           .map((c) => c.name)
           .some((c) => this.selection.indexOf(c) != -1)
       ) {
-        return this.list ? "far fa-check-square" : "far fa-circle";
+        return this.isList ? 'far fa-check-square' : 'far fa-circle';
       } else {
-        return this.list ? "far fa-square" : "far fa-circle";
+        return this.isList ? 'far fa-square' : 'far fa-circle';
       }
     },
     getAllChildNames(term) {
@@ -148,21 +148,21 @@ export default {
       //if deselection we keep it open
       if (this.selection.indexOf(term.name) === -1) {
         if (this.expanded.indexOf(term.name) === -1) {
-          this.$emit("toggleExpand", term.name);
+          this.$emit('toggleExpand', term.name);
         }
         //select children, recursively in case of list
-        if (this.list) {
-          this.$emit("select", this.getAllChildNames(term));
+        if (this.isList) {
+          this.$emit('select', this.getAllChildNames(term));
         } else {
-          this.$emit("select", [term.name]);
+          this.$emit('select', [term.name]);
         }
       } else {
-        this.$emit("deselect", this.getAllChildNames(term));
+        this.$emit('deselect', this.getAllChildNames(term));
       }
     },
     toggleExpand(term) {
-      this.$emit("toggleExpand", term.name);
-    },
-  },
+      this.$emit('toggleExpand', term.name);
+    }
+  }
 };
 </script>

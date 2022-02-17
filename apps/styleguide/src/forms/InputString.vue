@@ -1,8 +1,8 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="list && value">{{ value.join(", ") }}</span>
-      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
+      <span v-if="isList && value">{{ value.join(', ') }}</span>
+      <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
     </span>
     <FormGroup v-else v-bind="$props" v-on="$listeners">
       <InputAppend
@@ -16,9 +16,9 @@
         :showMinus="showMinus(idx)"
       >
         <input
-          v-focus="inplace && !list"
+          v-focus="inplace && !isList"
           :value="item"
-          :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+          :class="{'form-control': true, 'is-invalid': errorMessage}"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
@@ -38,22 +38,22 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput.vue";
-import InputAppend from "./_inputAppend";
-import IconAction from "./IconAction";
+import BaseInput from './_baseInput.vue';
+import InputAppend from './_inputAppend';
+import IconAction from './IconAction';
 
 export default {
   extends: BaseInput,
   components: {
     InputAppend,
-    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
-    IconAction,
+    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
+    IconAction
   },
   methods: {
     keyhandler(event) {
       return event;
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -117,7 +117,7 @@ Example list
 ```
 <template>
   <div>
-    <InputString v-model="value" :list="true" label="test"
+    <InputString v-model="value" :isList="true" label="test"
                  description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
@@ -156,7 +156,7 @@ Example list in place
 <template>
   <div>
     In place some
-    <InputString label="test" :list="true" v-model="value" :inplace="true"
+    <InputString label="test" :isList="true" v-model="value" :inplace="true"
                  description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}

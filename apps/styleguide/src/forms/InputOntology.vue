@@ -4,7 +4,7 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div
       class="p-0 m-0"
-      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
+      :class="{dropdown: !showExpanded, 'border rounded': !showExpanded}"
       v-else
     >
       <div
@@ -27,7 +27,7 @@
           @click.stop="deselect(selection)"
           v-if="showExpanded && selectionWithoutParents.length > 0"
         />
-        <span :class="{ 'input-group': showExpanded }">
+        <span :class="{'input-group': showExpanded}">
           <div v-if="showExpanded" class="input-group-prepend">
             <button
               class="btn border-right-0 border btn-outline-primary"
@@ -42,7 +42,7 @@
             :placeholder="focus || showExpanded ? 'Type to search' : ''"
             :class="{
               'form-control': showExpanded,
-              'border-0': !showExpanded,
+              'border-0': !showExpanded
             }"
             v-model="search"
             @click.stop
@@ -65,7 +65,7 @@
       </div>
       <div
         class="w-100 show p-0 overflow-auto"
-        :class="{ 'dropdown-menu': !showExpanded }"
+        :class="{'dropdown-menu': !showExpanded}"
         v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
@@ -76,7 +76,7 @@
           :terms="terms"
           :selection="selection"
           :expanded="expanded"
-          :list="list"
+          :isList="isList"
           :search="search"
           @toggleExpand="toggleExpand"
           @select="select"
@@ -95,14 +95,14 @@ input:focus {
 </style>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableMixin from "../mixins/TableMixin";
-import TableMetadataMixin from "../mixins/TableMetadataMixin";
-import FormGroup from "./_formGroup";
-import InputOntologySubtree from "./InputOntologySubtree";
-import MessageError from "./MessageError";
-import Spinner from "../layout/Spinner";
-import vClickOutside from "v-click-outside";
+import _baseInput from './_baseInput';
+import TableMixin from '../mixins/TableMixin';
+import TableMetadataMixin from '../mixins/TableMetadataMixin';
+import FormGroup from './_formGroup';
+import InputOntologySubtree from './InputOntologySubtree';
+import MessageError from './MessageError';
+import Spinner from '../layout/Spinner';
+import vClickOutside from 'v-click-outside';
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -117,33 +117,33 @@ export default {
   extends: _baseInput,
   mixins: [TableMixin],
   directives: {
-    clickOutside: vClickOutside.directive,
+    clickOutside: vClickOutside.directive
   },
   components: {
     FormGroup,
     InputOntologySubtree,
     MessageError,
-    Spinner,
+    Spinner
   },
   props: {
     /** if you don't want to use autoload using table you can provide options via 'items'. Should be format [{name:a, parent:b},{name:b}]
      */
     options: {
       type: Array,
-      default: null,
+      default: null
     },
     /** show as pulldown. When false, shows always expanded*/
     showExpanded: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
       terms: [],
       selection: [],
       expanded: [],
-      search: null,
+      search: null
     };
   },
   computed: {
@@ -151,16 +151,16 @@ export default {
     orderByObject() {
       if (
         this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
+        this.tableMetadata.columns.some((c) => c.name === 'order')
       ) {
-        return { order: "ASC" };
+        return {order: 'ASC'};
       } else {
         return {};
       }
     },
     //below will be used in case ontology is not a hierarchy
     selectionWithoutParents() {
-      if (this.list) {
+      if (this.isList) {
         return this.selection.filter((t) => this.getParents(t).length > 0);
       } else if (this.selection[0] != null) {
         return this.selection;
@@ -170,7 +170,7 @@ export default {
     },
     //below will be used in case ontology is a hierarchy
     selectionWithoutChildren() {
-      if (this.list) {
+      if (this.isList) {
         //skip children if parent selected
         return this.selection.filter((t) => {
           let parents = this.getParents([t]);
@@ -187,12 +187,12 @@ export default {
         return this.hasSearchResultsRecursive(this.terms);
       }
       return true;
-    },
+    }
   },
   methods: {
     hasSearchResultsRecursive(terms) {
       return this.search
-        .split(" ")
+        .split(' ')
         .every((t) =>
           terms.some(
             (term) =>
@@ -238,7 +238,7 @@ export default {
     },
     select(items) {
       //if not a list you can only select one
-      if (!this.list) {
+      if (!this.isList) {
         this.selection = [];
       }
       //add items not yet selected
@@ -264,7 +264,7 @@ export default {
       return result;
     },
     deselectWithChildren(item) {
-      if (this.list) {
+      if (this.isList) {
         this.deselect([item]);
         this.getChildren(item).forEach((t) =>
           this.deselectWithChildren(t.name)
@@ -276,7 +276,7 @@ export default {
       this.$refs.search.focus();
     },
     deselect(items) {
-      if (this.list) {
+      if (this.isList) {
         //add parents
         items.push(...this.getParents(items));
         //should also deselect any (indirect) parents
@@ -288,15 +288,15 @@ export default {
       this.$refs.search.focus();
     },
     emitValue() {
-      if (this.list) {
+      if (this.isList) {
         this.$emit(
-          "input",
+          'input',
           this.selection.map((s) => {
-            return { name: s };
+            return {name: s};
           })
         );
       } else {
-        this.$emit("input", { name: this.selection[0] });
+        this.$emit('input', {name: this.selection[0]});
       }
     },
     reloadMetadata() {
@@ -310,14 +310,14 @@ export default {
       if (!this.options) {
         TableMixin.methods.reload.call(this);
       }
-    },
+    }
   },
   watch: {
     options() {
       this.data = this.options;
     },
     value() {
-      if (this.list) {
+      if (this.isList) {
         this.selection = this.value ? this.value.map((term) => term.name) : [];
       } else {
         this.selection = this.value ? [this.value.name] : [];
@@ -335,7 +335,7 @@ export default {
             return o;
           });
       }
-    },
+    }
   },
   created() {
     if (this.options) {
@@ -345,7 +345,7 @@ export default {
       this.limit = 10000;
     }
     this.loading = false;
-  },
+  }
 };
 </script>
 
@@ -356,7 +356,7 @@ Example with hardcoded options, can select multiple
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
-                   :list="true"/>
+                   :isList="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -377,7 +377,7 @@ Example 'expanded' with hardcoded options, can select multiple
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    :showExpanded="true"
                    :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
-                   :list="true"/>
+                   :isList="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -418,7 +418,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Category" :list="true" graphqlURL="/pet store/graphql"/>
+                   table="Category" :isList="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

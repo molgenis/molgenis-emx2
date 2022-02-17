@@ -1,12 +1,12 @@
 <script>
-import InputString from "./InputString";
+import InputString from './InputString';
 
 /** Input for decimal values */
 export default {
   extends: InputString,
   props: {
     placeholder: {
-      default: "enter decimal (does not accept A-Za-z,)",
+      default: 'enter decimal (does not accept A-Za-z,)'
     },
     //for outputing not string but floats
     parser: {
@@ -14,8 +14,8 @@ export default {
         return (value) => {
           return parseFloat(value);
         };
-      },
-    },
+      }
+    }
   },
   methods: {
     keyhandler(event) {
@@ -26,10 +26,10 @@ export default {
       var ret =
         (keyCode >= 48 && keyCode <= 57) ||
         keyCode === 8 ||
-        (keyCode === 46 && !this.value.includes("."));
+        (keyCode === 46 && !this.value.includes('.'));
       return ret;
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -57,7 +57,7 @@ Example with list
 ```
 <template>
   <div>
-    <InputDecimal :list="true" v-model="value" label="My decimal input label" description="Some help needed?"/>
+    <InputDecimal :isList="true" v-model="value" label="My decimal input label" description="Some help needed?"/>
     You typed: {{ value }}
   </div>
 </template>

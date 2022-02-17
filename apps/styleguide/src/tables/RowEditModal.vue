@@ -56,7 +56,7 @@ import SigninForm from '../layout/MolgenisSignin';
 import TableMixin from '../mixins/TableMixin';
 import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin';
 import RowFormInput from './RowFormInput.vue';
-import {evaluate} from '@molgenis/expressions';
+import Expressions from '@molgenis/expressions';
 
 export default {
   extends: TableMixin,
@@ -194,7 +194,7 @@ export default {
             ) {
               this.errorPerColumn[column.id] = null;
               try {
-                if (!evaluate(column.validation, this.value)) {
+                if (!Expressions.evaluate(column.validation, this.value)) {
                   this.errorPerColumn[column.id] = column.validation;
                 }
               } catch (error) {
