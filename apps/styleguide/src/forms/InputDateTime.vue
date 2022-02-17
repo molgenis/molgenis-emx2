@@ -41,7 +41,7 @@ Example list
 ```
 <template>
   <div>
-    <InputDateTime :isList="true" v-model="value" label="My date time input label" description="Some help needed?"/>
+    <InputDateTime :list="true" v-model="value" label="My date time input label" description="Some help needed?"/>
     <br/>
     You typed: {{ value }}
   </div>

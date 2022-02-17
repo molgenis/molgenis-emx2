@@ -82,7 +82,7 @@ Example list
 ```
 <template>
   <div>
-    <InputRangeDecimal :isList="true" v-model="value"/>
+    <InputRangeDecimal :list="true" v-model="value"/>
     {{ value }}
   </div>
 </template>
@@ -100,7 +100,7 @@ Example list and default
 ```
 <template>
   <div>
-    <InputRangeDecimal :isList="true" v-model="value"/>
+    <InputRangeDecimal :list="true" v-model="value"/>
     {{ value }}
   </div>
 </template>

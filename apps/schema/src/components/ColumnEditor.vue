@@ -1,5 +1,5 @@
 <template>
-  <tr :class="{ 'table-danger': column.drop }" :key="timestamp">
+  <tr :class="{'table-danger': column.drop}" :key="timestamp">
     <td>
       <IconAction class="hoverIcon moveHandle" icon="ellipsis-v" />
     </td>
@@ -106,9 +106,9 @@ import {
   InputText,
   ButtonAlt,
   IconDanger,
-  IconAction,
-} from '@mswertz/emx2-styleguide'
-import columnTypes from '../columnTypes'
+  IconAction
+} from '@mswertz/emx2-styleguide';
+import columnTypes from '../columnTypes';
 
 export default {
   components: {
@@ -118,42 +118,42 @@ export default {
     InputText,
     ButtonAlt,
     IconDanger,
-    IconAction,
+    IconAction
   },
   data() {
-    return { column: {}, columnTypes: columnTypes, timestamp: Date.now() }
+    return {column: {}, columnTypes: columnTypes, timestamp: Date.now()};
   },
   props: {
     value: Object,
     tableName: String,
     columnIndex: Number,
     schema: Object,
-    needsRefBackColumn: Boolean,
+    needsRefBackColumn: Boolean
   },
   methods: {
     tableNames() {
-      let result = this.schema.tables.map((t) => t.name)
-      return result
+      let result = this.schema.tables.map((t) => t.name);
+      return result;
     },
     deleteColumn() {
       if (this.column.drop) {
-        delete this.column.drop
+        delete this.column.drop;
       } else {
-        this.column.drop = true
+        this.column.drop = true;
       }
-      this.timestamp = Date.now()
+      this.timestamp = Date.now();
     },
     refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
-        .map((c) => c.name)
+        .map((c) => c.name);
     },
     refLinkCandidates(tableName, columnName) {
       let result = this.schema.tables
         .filter((t) => t.name === tableName)
-        .map((t) => t.columns)[0]
+        .map((t) => t.columns)[0];
       if (result) {
         result = result
           .filter(
@@ -161,11 +161,11 @@ export default {
               c.name != columnName &&
               (c.columnType == 'REF' || c.columnType == 'REF_ARRAY')
           )
-          .map((c) => c.name)
-        result.unshift(null)
-        return result
+          .map((c) => c.name);
+        result.unshift(null);
+        return result;
       } else {
-        return []
+        return [];
       }
     },
     validateName(name) {
@@ -173,18 +173,18 @@ export default {
       //   return "Name should be unique";
       // }
       if (name == undefined) {
-        return 'Name is required'
+        return 'Name is required';
       }
       if (!name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return 'Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)'
+        return 'Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)';
       }
-    },
-  },
-  created() {
-    this.column = this.value
-    if (this.column) {
-      this.column.oldName = this.column.name
     }
   },
-}
+  created() {
+    this.column = this.value;
+    if (this.column) {
+      this.column.oldName = this.column.name;
+    }
+  }
+};
 </script>

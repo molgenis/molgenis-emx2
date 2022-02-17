@@ -2,7 +2,7 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
     <div v-else>
-      <div v-if="isList && count > maxNum">
+      <div v-if="list && count > maxNum">
         <FilterWell
           v-for="(item, key) in selection"
           :key="JSON.stringify(item)"
@@ -35,7 +35,7 @@
           :key="index"
         >
           <input
-            v-if="isList"
+            v-if="list"
             :id="id + index"
             class="form-check-input"
             type="checkbox"
@@ -72,7 +72,7 @@
         <template v-slot:body>
           <MessageError v-if="errorMessage">{{ graphqlError }}</MessageError>
           <TableSearch
-            v-if="isList"
+            v-if="list"
             :selection.sync="selection"
             :table="table"
             :filter="filter"
@@ -172,11 +172,11 @@ export default {
       this.$emit('input', this.selection);
     },
     emitClear() {
-      if (this.isList) this.$emit('input', []);
+      if (this.list) this.$emit('input', []);
       else this.$emit('input', null);
     },
     select(event) {
-      if (this.isList) {
+      if (this.list) {
         this.$emit('input', this.selection);
       } else {
         this.$emit('input', event);
@@ -185,7 +185,7 @@ export default {
     closeSelect() {
       this.showSelect = false;
       this.reload();
-      if (this.isList) {
+      if (this.list) {
         this.$emit('input', this.selection);
       }
     },
@@ -298,7 +298,7 @@ Example with list
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRef :isList="true"
+    <InputRef :list="true"
               v-model="value"
               table="Tag"
               graphqlURL="/pet store/graphql"

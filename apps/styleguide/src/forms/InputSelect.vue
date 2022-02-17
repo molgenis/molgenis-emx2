@@ -149,7 +149,7 @@ Example list with default
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
-        :isList="true"
+        :list="true"
     />
     Selected: {{ check }}
   </div>

@@ -64,7 +64,7 @@ Example with list
 ```
 <template>
   <div>
-    <InputRangeDate :isList="true" v-model="value"
+    <InputRangeDate :list="true" v-model="value"
     />
     {{ value }}
   </div>
@@ -83,7 +83,7 @@ Example with list and default
 ```
 <template>
   <div>
-    <InputRangeDate :isList="true" v-model="value"/>
+    <InputRangeDate :list="true" v-model="value"/>
     {{ value }}
   </div>
 </template>

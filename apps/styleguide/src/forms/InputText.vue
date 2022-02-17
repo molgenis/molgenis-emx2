@@ -26,7 +26,7 @@
     >
       <ResizableTextarea :key="key">
         <textarea
-          v-focus="inplace && !isList"
+          v-focus="inplace && !list"
           :id="id + idx"
           v-model="valueArray[idx]"
           :class="{'form-control': true, 'is-invalid': errorMessage}"
@@ -126,7 +126,7 @@ Example with list
     <LayoutForm>
       <InputText
           v-model="value"
-          :isList="true"
+          :list="true"
           label="My text label"
           placholder="type here your text"
           description="Some help needed?"

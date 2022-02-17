@@ -216,7 +216,7 @@ Example with list
 <template>
   <div>
     <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-    <InputRefSelect :isList="true"
+    <InputRefSelect :list="true"
                     v-model="value"
                     table="Pet"
                     graphqlURL="/pet store/graphql"

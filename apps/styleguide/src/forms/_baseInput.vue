@@ -29,7 +29,7 @@ export default {
     /** message when in error state */
     errorMessage: null,
     /** whether this is a list of values*/
-    isList: {
+    list: {
       type: Boolean,
       default: false
     },
@@ -61,7 +61,7 @@ export default {
         result = [result];
       }
       result = this.removeNulls(result);
-      if (result.length == 0 || (this.isList && this.showNewItem)) {
+      if (result.length == 0 || (this.list && this.showNewItem)) {
         result.push(null);
       }
       return result;
@@ -78,7 +78,7 @@ export default {
     //emit update with new item on list
     emitValue(event, index) {
       let value = event ? (event.target ? event.target.value : event) : null;
-      if (this.isList) {
+      if (this.list) {
         this.$emit(
           'input',
           this.updateValueArrayValue(this.valueArray, value, index)
@@ -106,7 +106,7 @@ export default {
     },
     clearValue(idx) {
       let result = this.valueArray;
-      if (this.isList) {
+      if (this.list) {
         result.splice(idx, 1);
       } else {
         result = null;
@@ -116,7 +116,7 @@ export default {
     showPlus(idx) {
       //always on last line
       return (
-        this.isList &&
+        this.list &&
         !this.showNewItem &&
         idx == this.valueArray.length - 1 &&
         this.valueArray[idx] != null
@@ -127,7 +127,7 @@ export default {
       return this.clear && !this.readonly && this.value != null;
     },
     showMinus(idx) {
-      return this.isList && !this.showPlus(idx);
+      return this.list && !this.showPlus(idx);
     }
   },
   directives: {

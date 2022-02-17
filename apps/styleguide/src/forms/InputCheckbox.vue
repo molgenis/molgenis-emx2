@@ -53,7 +53,7 @@ import InputSelect from './InputSelect';
 export default {
   extends: InputSelect,
   props: {
-    isList: {
+    list: {
       default: true
     }
   },

@@ -132,7 +132,7 @@ Example with list set
 ```
 <template>
   <div>
-    <InputDate :isList="true" v-model="value" label="My date input label"/>
+    <InputDate :list="true" v-model="value" label="My date input label"/>
     Value: {{ value }}
   </div>
 </template>
@@ -150,7 +150,7 @@ Example with list default
 ```
 <template>
   <div>
-    <InputDate :isList="true" v-model="value" label="My date input label"/>
+    <InputDate :list="true" v-model="value" label="My date input label"/>
     Value: {{ value }}
   </div>
 </template>

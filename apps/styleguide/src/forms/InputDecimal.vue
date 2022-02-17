@@ -57,7 +57,7 @@ Example with list
 ```
 <template>
   <div>
-    <InputDecimal :isList="true" v-model="value" label="My decimal input label" description="Some help needed?"/>
+    <InputDecimal :list="true" v-model="value" label="My decimal input label" description="Some help needed?"/>
     You typed: {{ value }}
   </div>
 </template>

@@ -63,8 +63,8 @@
             v-model="table.columns"
             tag="tbody"
             @end="
-              timestamp = Date.now()
-              applyPosition()
+              timestamp = Date.now();
+              applyPosition();
             "
             :key="timestamp"
           >
@@ -84,8 +84,8 @@
       :show="formedit"
       title="Form editor"
       @close="
-        formedit = false
-        timestamp = Date.now()
+        formedit = false;
+        timestamp = Date.now();
       "
     >
       <template v-slot:body>
@@ -114,12 +114,12 @@ import {
   ButtonAlt,
   IconDanger,
   IconAction,
-  LayoutModal,
-} from '@mswertz/emx2-styleguide'
-import columnTypes from '../columnTypes'
-import ColumnEditor from './ColumnEditor'
-import Draggable from 'vuedraggable'
-import FormEdit from './FormEdit'
+  LayoutModal
+} from '@mswertz/emx2-styleguide';
+import columnTypes from '../columnTypes';
+import ColumnEditor from './ColumnEditor';
+import Draggable from 'vuedraggable';
+import FormEdit from './FormEdit';
 
 export default {
   components: {
@@ -134,85 +134,85 @@ export default {
     IconDanger,
     ColumnEditor,
     LayoutModal,
-    Draggable,
+    Draggable
   },
   props: {
     value: Object,
-    schema: Object,
+    schema: Object
   },
   data() {
     return {
       table: {},
       formedit: false,
       columnTypes,
-      timestamp: Date.now(), //used for updating when sorting
-    }
+      timestamp: Date.now() //used for updating when sorting
+    };
   },
   methods: {
     applyPosition() {
-      let position = 1
-      this.columns.forEach((c) => (c.position = position++))
-      this.timestamp = Date.now()
+      let position = 1;
+      this.columns.forEach((c) => (c.position = position++));
+      this.timestamp = Date.now();
     },
     validateName() {
       if (!this.name) {
-        return 'Table name is required'
+        return 'Table name is required';
       }
       if (this.schema.tables.filter((t) => t.name == this.name).length > 1) {
-        return 'Table name must be unique within schema'
+        return 'Table name must be unique within schema';
       }
     },
     emitValue() {
-      this.$emit('input', this.table)
+      this.$emit('input', this.table);
     },
     createColumn() {
       this.table.columns.push({
         name: 'NewColumn',
-        columnType: 'STRING',
-      })
-      this.timestamp = Date.now()
+        columnType: 'STRING'
+      });
+      this.timestamp = Date.now();
     },
     deleteTable() {
       if (this.table.drop) {
-        delete this.table.drop
+        delete this.table.drop;
       } else {
-        this.table.drop = true
+        this.table.drop = true;
       }
-      this.timestamp = Date.now()
+      this.timestamp = Date.now();
     },
     refBackCandidates(fromTable, toTable) {
       return this.schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
-        .map((c) => c.name)
-    },
+        .map((c) => c.name);
+    }
   },
   computed: {
     tables() {
       if (this.schema.tables) {
-        return this.schema.tables.map((t) => t.name)
+        return this.schema.tables.map((t) => t.name);
       }
-      return []
-    },
+      return [];
+    }
   },
   watch: {
     table: {
       deep: true,
       handler() {
-        this.emitValue()
-      },
+        this.emitValue();
+      }
     },
     value() {
       if (this.value) {
-        this.table = this.value
+        this.table = this.value;
       }
-    },
+    }
   },
   created() {
     if (this.value) {
-      this.table = this.value
+      this.table = this.value;
     }
-  },
-}
+  }
+};
 </script>

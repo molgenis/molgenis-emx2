@@ -76,7 +76,7 @@
           :terms="terms"
           :selection="selection"
           :expanded="expanded"
-          :isList="isList"
+          :list="list"
           :search="search"
           @toggleExpand="toggleExpand"
           @select="select"
@@ -160,7 +160,7 @@ export default {
     },
     //below will be used in case ontology is not a hierarchy
     selectionWithoutParents() {
-      if (this.isList) {
+      if (this.list) {
         return this.selection.filter((t) => this.getParents(t).length > 0);
       } else if (this.selection[0] != null) {
         return this.selection;
@@ -170,7 +170,7 @@ export default {
     },
     //below will be used in case ontology is a hierarchy
     selectionWithoutChildren() {
-      if (this.isList) {
+      if (this.list) {
         //skip children if parent selected
         return this.selection.filter((t) => {
           let parents = this.getParents([t]);
@@ -238,7 +238,7 @@ export default {
     },
     select(items) {
       //if not a list you can only select one
-      if (!this.isList) {
+      if (!this.list) {
         this.selection = [];
       }
       //add items not yet selected
@@ -264,7 +264,7 @@ export default {
       return result;
     },
     deselectWithChildren(item) {
-      if (this.isList) {
+      if (this.list) {
         this.deselect([item]);
         this.getChildren(item).forEach((t) =>
           this.deselectWithChildren(t.name)
@@ -276,7 +276,7 @@ export default {
       this.$refs.search.focus();
     },
     deselect(items) {
-      if (this.isList) {
+      if (this.list) {
         //add parents
         items.push(...this.getParents(items));
         //should also deselect any (indirect) parents
@@ -288,7 +288,7 @@ export default {
       this.$refs.search.focus();
     },
     emitValue() {
-      if (this.isList) {
+      if (this.list) {
         this.$emit(
           'input',
           this.selection.map((s) => {
@@ -317,7 +317,7 @@ export default {
       this.data = this.options;
     },
     value() {
-      if (this.isList) {
+      if (this.list) {
         this.selection = this.value ? this.value.map((term) => term.name) : [];
       } else {
         this.selection = this.value ? [this.value.name] : [];
@@ -356,7 +356,7 @@ Example with hardcoded options, can select multiple
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
-                   :isList="true"/>
+                   :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -377,7 +377,7 @@ Example 'expanded' with hardcoded options, can select multiple
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    :showExpanded="true"
                    :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
-                   :isList="true"/>
+                   :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -418,7 +418,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Category" :isList="true" graphqlURL="/pet store/graphql"/>
+                   table="Category" :list="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

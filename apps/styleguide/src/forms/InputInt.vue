@@ -57,7 +57,7 @@ Example list
 <template>
   <div>
     <LayoutForm>
-      <InputInt :isList="true" v-model="value" label="My int input label" description="Some help needed?"/>
+      <InputInt :list="true" v-model="value" label="My int input label" description="Some help needed?"/>
     </LayoutForm>
     <br/>
     You typed: {{ JSON.stringify(value) }}

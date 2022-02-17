@@ -45,17 +45,17 @@ export default {
       let result = this.value;
       if (!Array.isArray(result)) {
         result = [];
-        if (this.isList) {
+        if (this.list) {
           result = [[]];
         }
       } else {
         //check each row
-        if (!this.isList) {
+        if (!this.list) {
           result = [result];
         }
       }
       result = this.removeNulls(result);
-      if (result.length == 0 || (this.isList && this.showNewItem)) {
+      if (result.length == 0 || (this.list && this.showNewItem)) {
         result.push([null, null]);
       }
       return result;
@@ -70,7 +70,7 @@ export default {
     showPlus(idx) {
       //always on last line
       return (
-        this.isList &&
+        this.list &&
         !this.showNewItem &&
         idx == this.valueArray.length - 1 &&
         (this.valueArray[idx][0] != null || this.valueArray[idx][1] != null)
@@ -86,7 +86,7 @@ export default {
       result[idx][idx2] = value;
       //remove nulls
       result = this.removeNulls(result);
-      if (!this.isList) {
+      if (!this.list) {
         if (result && result.length > 0) result = result[0];
         else result = null;
       }
@@ -137,7 +137,7 @@ Example list
 ```
 <template>
   <div>
-    <InputRangeInt :isList="true" v-model="value"/>
+    <InputRangeInt :list="true" v-model="value"/>
     {{ value }}
   </div>
 </template>
@@ -155,7 +155,7 @@ Example with list and default
 ```
 <template>
   <div>
-    <InputRangeInt :isList="true" v-model="value"/>
+    <InputRangeInt :list="true" v-model="value"/>
     {{ value }}
   </div>
 </template>

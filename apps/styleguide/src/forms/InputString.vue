@@ -1,7 +1,7 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="isList && value">{{ value.join(', ') }}</span>
+      <span v-if="list && value">{{ value.join(', ') }}</span>
       <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
     </span>
     <FormGroup v-else v-bind="$props" v-on="$listeners">
@@ -16,7 +16,7 @@
         :showMinus="showMinus(idx)"
       >
         <input
-          v-focus="inplace && !isList"
+          v-focus="inplace && !list"
           :value="item"
           :class="{'form-control': true, 'is-invalid': errorMessage}"
           :aria-describedby="id + 'Help'"
@@ -117,7 +117,7 @@ Example list
 ```
 <template>
   <div>
-    <InputString v-model="value" :isList="true" label="test"
+    <InputString v-model="value" :list="true" label="test"
                  description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
@@ -156,7 +156,7 @@ Example list in place
 <template>
   <div>
     In place some
-    <InputString label="test" :isList="true" v-model="value" :inplace="true"
+    <InputString label="test" :list="true" v-model="value" :inplace="true"
                  description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
