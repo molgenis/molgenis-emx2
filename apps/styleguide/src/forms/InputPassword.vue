@@ -13,7 +13,7 @@
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @input="emitValue"
-      @keydown.enter="$emit('enterPressed')"
+      @keyup.enter.stop="$emit('enterPressed')"
     />
   </form-group>
 </template>
