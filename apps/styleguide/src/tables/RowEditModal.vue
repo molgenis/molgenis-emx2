@@ -155,8 +155,9 @@ export default {
         });
     },
     visible(expression) {
-      // Todo Make this work
+      // TODO: Make this work
       console.log(expression);
+      return true;
     },
     validate() {
       if (this.tableMetadata) {
