@@ -76,28 +76,27 @@ export default {
       return arr.filter((v) => v === 0 || v);
     },
     //emit update with new item on list
-    emitValue(event, idx) {
+    emitValue(event, index) {
       let value = event ? (event.target ? event.target.value : event) : null;
-      let result;
       if (this.isList) {
-        result = this.valueArray;
-        //update value
-        result[idx] = value;
-        //update newItem if needed
-        if (this.showNewItem && result[result.length - 1] != null) {
-          this.showNewItem = false;
-        }
-        //remove nulls
-        result = this.removeNulls(result);
+        this.$emit(
+          'input',
+          this.updateValueArrayValue(this.valueArray, value, index)
+        );
       } else {
-        result = value;
+        this.$emit('input', this.useParserIfAvailable(value));
       }
-
-      if (this.parser) {
-        this.$emit('input', this.parser(result));
-      } else {
-        this.$emit('input', result);
+    },
+    updateValueArrayValue(valueArray, value, index) {
+      let newValueArray = valueArray;
+      newValueArray[index] = this.useParserIfAvailable(value);
+      if (this.showNewItem && newValueArray[newValueArray.length - 1] != null) {
+        this.showNewItem = false;
       }
+      return this.removeNulls(newValueArray);
+    },
+    useParserIfAvailable(value) {
+      return this.parser ? this.parser(value) : value;
     },
     toggleFocus() {
       this.focus = !this.focus;
