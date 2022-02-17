@@ -29,6 +29,12 @@ jobs:
         env:
           PGPASSWORD: postgres
 
+      - name: Sign into docker
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        env:
+          DOCKER_PASSWORD: ${{DOCKER_PASSWORD}}
+          DOCKER_USERNAME: ${{DOCKER_USERNAME}}
+
       - name: dependencies
         run: ./gradlew dependencies
 
