@@ -19,7 +19,7 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the provided password"
-          @keyup.enter="signin"
+          @enterPressed="signin"
         />
       </LayoutForm>
     </template>
