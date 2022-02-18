@@ -4,8 +4,8 @@ FAIR Data Point (FDP, [fairdatapoint.org](https://www.fairdatapoint.org)) is cur
 For MOLGENIS EMX1, the FDP implementation guide can be found [here](https://molgenis.gitbooks.io/molgenis/content/guide-fair.html).
 
 The easiest way to enable FDP in MOLGENIS EMX2 is by uploading a FDP template into an EMX2 database.
-A prototype EMX2-FDP template (in XLSX format) is available [here](https://docs.google.com/spreadsheets/d/1ojmw7QZwO42S63eNsXFjJaU4XCCOui0u/edit?usp=sharing&ouid=115315510762019790835&rtpof=true&sd=true).
-In addition to the FDP structure, this template includes an example implementation of a FDP developed for ERN-CRANIO.
+A prototype EMX2-FDP template (in XLSX format) is available [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/FairDataPointTemplate.xlsx).
+In addition to the FDP structure, this template includes an example implementation of a FDP developed for 'ERN-FAKE'.
 
 How to import the template and access the FDP endpoints:
 * Upload the template into any schema, for instance, a schema called `erns` via `Up/Download`.
@@ -23,8 +23,8 @@ How to import the template and access the FDP endpoints:
   * fdp_Publisher
   * fdp_RightsStatement
 
-Uploading this template, including the ERN-CRANIO example, should result in the following `fdp_Metadata` endpoint when deployed at `localhost`.
-Obviously, we strongly suggest removing or replacing this example when deploying any publicly accessible databases to avoid confusion with the actual ERN-CRANIO FDP.
+Uploading this template, including the ERN-FAKE example, should result in the following `fdp_Metadata` endpoint when deployed at `localhost`.
+Obviously, we suggest removing or replacing this example when deploying to any publicly accessible databases.
 
 ```
 {
