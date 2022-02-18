@@ -13,7 +13,11 @@ import query from "../../../../../../store/gql/subcohortDetails.gql";
 export default {
   name: "SubCohort",
   components: { PageHeader, GridBlock, KeyValueBlock },
-  async asyncData({ params, $axios, store }) {
+  async asyncData({ params, $axios, store, redirect  }) {
+    if(!params.subCohort) {
+      redirect({to: "cohorts/" + params.cohort})
+      return
+    }
 
     const resp = await $axios({
       url: store.state.schema + "/graphql",

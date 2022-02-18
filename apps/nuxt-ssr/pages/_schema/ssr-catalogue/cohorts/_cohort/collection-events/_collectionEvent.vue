@@ -19,7 +19,10 @@ export default {
   components: { PageHeader, GridBlock, KeyValueBlock },
   scrollToTop: true,
   async asyncData({ params, $axios, store }) {
-
+    if(!params.collectionEvent) {
+      redirect({to: "cohorts/" + params.cohort})
+      return
+    }
     const resp = await $axios({
       url: store.state.schema + "/graphql",
       method: "post",
