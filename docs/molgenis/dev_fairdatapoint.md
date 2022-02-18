@@ -53,7 +53,7 @@ Obviously, we suggest removing or replacing this example when deploying to any p
   "@id" : "http://localhost/erns/fdp_Metadata",
   "fdp_Metadata" : [ {
     "api" : "FAIR",
-    "title" : "ERN-CRANIO Patient Registry FAIR Data Point",
+    "title" : "ERN-FAKE Patient Registry FAIR Data Point",
     "issued" : "2021-12-10",
     "rights" : "restricted",
     "country" : "NL",
@@ -65,17 +65,17 @@ Obviously, we suggest removing or replacing this example when deploying to any p
     "conformsTo" : "https://www.w3.org/TR/vocab-dcat-2/",
     "hasVersion" : "0.1",
     "identifier" : "fdp_meta",
-    "alternative" : "ERN-CRANIO Patient Registry FAIR Data Point implemented in MOLGENIS",
+    "alternative" : "ERN-FAKE Patient Registry FAIR Data Point implemented in MOLGENIS",
     "certificate" : "USERTrust RSA Certification Authority",
     "dataCatalog" : [ "http://localhost/erns/fdp_Catalog/fdp_cat" ],
-    "description" : "ERN-CRANIO Patient Registry FAIR Data Point implemented in MOLGENIS",
-    "institution" : "ERN-CRANIO",
+    "description" : "ERN-FAKE Patient Registry FAIR Data Point implemented in MOLGENIS",
+    "institution" : "ERN-FAKE",
     "mg_updatedBy" : "admin",
-    "mg_updatedOn" : "2022-02-18T11:33:44.082034",
+    "mg_updatedOn" : "2022-02-18T16:53:36.296116",
     "mg_insertedBy" : "admin",
-    "mg_insertedOn" : "2022-02-18T11:33:44.082034",
+    "mg_insertedOn" : "2022-02-18T16:53:36.296116",
     "repositoryType" : "institutional",
-    "repositoryContact" : "Erasmus University Medical Center",
+    "repositoryContact" : "Fake University Medical Center",
     "@id" : "http://localhost/erns/fdp_Metadata/fdp_meta"
   } ]
 }
