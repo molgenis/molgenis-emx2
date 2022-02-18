@@ -9,13 +9,7 @@
         {{ tableMetadata }}
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
-            v-if="
-              (visibleColumns == null || visibleColumns.includes(column.id)) &&
-              visible(column.visible) &&
-              column.name != 'mg_tableclass' &&
-              //if dependent, show only if dependent value is set
-              (!column.refLink || value[column.refLink])
-            "
+            v-if="showColumn(column)"
             v-model="value[column.id]"
             :label="column.name"
             :description="column.description"
@@ -154,10 +148,27 @@ export default {
           }
         });
     },
-    visible(expression) {
-      // TODO: Make this work
-      console.log(expression);
-      return true;
+    showColumn(column) {
+      const hasRefValue = !column.refLink || this.value[column.refLink];
+      const visibleColumns =
+        this.visibleColumns == null || this.visibleColumns.includes(column.id);
+      return (
+        visibleColumns &&
+        this.visible(column.visible, column.id) &&
+        column.name != 'mg_tableclass' &&
+        hasRefValue
+      );
+    },
+    visible(expression, columnId) {
+      if (expression) {
+        try {
+          return Expressions.evaluate(expression, this.value);
+        } catch (error) {
+          this.errorPerColumn[columnId] = `Invalid visibility expression`;
+        }
+      } else {
+        return true;
+      }
     },
     validate() {
       if (this.tableMetadata) {
