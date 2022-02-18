@@ -59,11 +59,11 @@ public class PetStoreExample {
             .add(
                 column(QUANTITY)
                     .setType(INT)
-                    .setValidation("{quantity} >= 1")) // todo: validation >=1
+                    .setValidation("{quantity} >= 2")) // todo: validation >=1
             .add(
                 column(PRICE)
                     .setType(DECIMAL)
-                    .setValidation("{price} >= 1")) // todo: validation >=1
+                    .setValidation("{price} >= 3")) // todo: validation >=1
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 

@@ -1,5 +1,6 @@
 <script>
 import InputString from './InputString';
+import {CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE} from '../constants';
 
 /** Input for decimal values */
 export default {
@@ -8,7 +9,6 @@ export default {
     placeholder: {
       default: 'enter decimal (does not accept A-Za-z,)'
     },
-    //for outputing not string but floats
     parser: {
       default() {
         return (value) => {
@@ -21,13 +21,13 @@ export default {
     keyhandler(event) {
       if (!this.isDecimal(event)) event.preventDefault();
     },
-    isDecimal(e) {
-      var keyCode = e.which ? e.which : e.keyCode;
-      var ret =
-        (keyCode >= 48 && keyCode <= 57) ||
-        keyCode === 8 ||
-        (keyCode === 46 && !this.value.includes('.'));
-      return ret;
+    isDecimal(event) {
+      const keyCode = event.which ? event.which : event.keyCode;
+      return (
+        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
+        keyCode === CODE_BACKSPACE ||
+        (keyCode === CODE_DELETE && !this.value.toString().includes('.'))
+      );
     }
   }
 };

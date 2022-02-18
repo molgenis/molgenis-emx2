@@ -87,7 +87,6 @@ export default {
   methods: {
     getRefBackType(column) {
       if (column.columnType === 'REFBACK') {
-        //get the other table, find the refback column and check its type
         return this.getTable(column.refTable)
           .columns.filter((c) => c.name === column.refBack)
           .map((c) => c.columnType)[0];
@@ -105,29 +104,20 @@ export default {
       this.showLogin = false;
     },
     saveDraft() {
-      this.executeCommand(true);
+      this.executeSaveCommand(true);
     },
     save() {
-      this.executeCommand(false);
+      this.executeSaveCommand(false);
     },
-    executeCommand(isDraft) {
+    executeSaveCommand(isDraft) {
       this.graphqlError = null;
       this.success = null;
-      // todo spinner
-      let name = this.tableId;
+      // TODO: add spinner
 
-      // indicate if draft
-      if (isDraft) {
-        this.value['mg_draft'] = true;
-      } else {
-        this.value['mg_draft'] = false;
-      }
+      this.setDraft(isDraft);
 
-      let variables = {value: [this.value]};
-      let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
-      if (this.pkey && !this.clone) {
-        query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
-      }
+      const variables = {value: [this.value]};
+      const query = this.getUpsertQuery();
       this.requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
           if (data.insert) {
@@ -148,12 +138,27 @@ export default {
           }
         });
     },
+    setDraft(isDraft) {
+      if (isDraft) {
+        this.value['mg_draft'] = true;
+      } else {
+        this.value['mg_draft'] = false;
+      }
+    },
+    getUpsertQuery() {
+      const name = this.tableId;
+      if (this.pkey && !this.clone) {
+        return `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
+      } else {
+        return `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
+      }
+    },
     showColumn(column) {
       const hasRefValue = !column.refLink || this.value[column.refLink];
-      const visibleColumns =
+      const isColumnVisible =
         this.visibleColumns == null || this.visibleColumns.includes(column.id);
       return (
-        visibleColumns &&
+        isColumnVisible &&
         this.visible(column.visible, column.id) &&
         column.name != 'mg_tableclass' &&
         hasRefValue
@@ -172,55 +177,54 @@ export default {
     },
     validate() {
       if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((column) => {
-          // make really empty if empty
-          if (/^\s*$/.test(this.value[column.id])) {
-            //this.value[column.name] = null;
-          }
-          delete this.errorPerColumn[column.id];
-          // when required
-          if (
-            column.required &&
-            (this.value[column.id] == null ||
-              (typeof this.value[column.id] === 'number' &&
-                isNaN(this.value[column.id])))
-          ) {
-            this.errorPerColumn[column.id] = column.name + ' is required ';
-          } else {
-            // when not empty
-            // when validation
-            if (
-              typeof this.value[column.id] !== 'undefined' &&
-              typeof column.validation !== 'undefined'
-            ) {
-              this.errorPerColumn[column.id] = null;
-              try {
-                if (!Expressions.evaluate(column.validation, this.value)) {
-                  this.errorPerColumn[
-                    column.id
-                  ] = `Error evaluating template: ${column.validation}`;
-                }
-              } catch (error) {
-                this.errorPerColumn[
-                  column.id
-                ] = `Invalid validation expression`;
-              }
-            } else if (
-              column.refLink &&
-              this.value[column.id] &&
-              this.value[column.refLink.replace(' ', '_')] &&
-              !JSON.stringify(this.value[column.id]).includes(
-                JSON.stringify(this.value[column.refLink.replace(' ', '_')])
-              )
-            ) {
-              //reflinks should overlap
-              this.errorPerColumn[column.id] =
-                "value should match your selection in column '" +
-                column.refLink +
-                "' ";
-            }
-          }
-        });
+        this.tableMetadata.columns.forEach((column) =>
+          this.validateColumn(column)
+        );
+      }
+    },
+    validateColumn(column) {
+      delete this.errorPerColumn[column.id];
+      const isInvalidNumber =
+        typeof this.value[column.id] === 'number' &&
+        isNaN(this.value[column.id]);
+      const isColumnValueInvalid = // how about undefined?
+        this.value[column.id] == null || isInvalidNumber;
+      if (column.required && isColumnValueInvalid) {
+        this.errorPerColumn[column.id] = column.name + ' is required ';
+      } else {
+        if (this.value[column.id] !== undefined && column.validation) {
+          this.evaluateValidationExpression(column);
+        } else if (this.isRefLinkWithoutOverlap(column)) {
+          this.errorPerColumn[column.id] =
+            "value should match your selection in column '" +
+            column.refLink +
+            "' ";
+        }
+      }
+    },
+    evaluateValidationExpression(column) {
+      try {
+        if (!Expressions.evaluate(column.validation, this.value)) {
+          this.errorPerColumn[
+            column.id
+          ] = `Error evaluating template: ${column.validation}`;
+        }
+      } catch (error) {
+        this.errorPerColumn[column.id] = `Invalid validation expression`;
+      }
+    },
+    isRefLinkWithoutOverlap(column) {
+      if (!column.refLink) {
+        return false;
+      } else {
+        const underscoredRefValue = column.refLink.replace(' ', '_');
+        return (
+          this.value[column.id] &&
+          this.value[underscoredRefValue] &&
+          !JSON.stringify(this.value[column.id]).includes(
+            JSON.stringify(this.value[underscoredRefValue])
+          )
+        );
       }
     }
   },
@@ -233,18 +237,18 @@ export default {
     refLinkFilters() {
       let filter = {};
       if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((c) => {
-          if (c.refLink) {
+        this.tableMetadata.columns.forEach((column1) => {
+          if (column1.refLink) {
             //get the overlap, should be a key column of [refLink][refTable]
-            this.tableMetadata.columns.forEach((c2) => {
-              if (c2.name === c.refLink) {
-                this.schema.tables.forEach((t) => {
-                  if (t.name === c.refTable) {
-                    t.columns.forEach((c3) => {
-                      if (c3.refTable === c2.refTable) {
-                        filter[c.name] = {};
-                        filter[c.name][c3.name] = {
-                          equals: this.value[c.refLink]
+            this.tableMetadata.columns.forEach((column2) => {
+              if (column2.name === column1.refLink) {
+                this.schema.tables.forEach((table) => {
+                  if (table.name === column1.refTable) {
+                    table.columns.forEach((tableColumn) => {
+                      if (tableColumn.refTable === column2.refTable) {
+                        filter[column1.name] = {}; //JJ: Should this overwrite if it already exists?
+                        filter[column1.name][tableColumn.name] = {
+                          equals: this.value[column1.refLink]
                         };
                       }
                     });
@@ -259,13 +263,16 @@ export default {
     },
     //@overide
     graphqlFilter() {
-      let result = {};
       if (this.tableMetadata && this.pkey) {
-        this.tableMetadata.columns
-          .filter((c) => c.key == 1)
-          .map((c) => (result[c.id] = {equals: this.pkey[c.id]}));
+        return this.tableMetadata.columns
+          .filter((column) => column.key == 1)
+          .reduce((accum, column) => {
+            accum[column.id] = {equals: this.pkey[column.id]};
+            return accum;
+          }, {});
+      } else {
+        return {};
       }
-      return result;
     },
     // override from tableMixin
     title() {
@@ -280,12 +287,12 @@ export default {
   },
   watch: {
     data(val) {
-      //TODO prevent loading of parent class if no pkey
+      // TODO: prevent loading of parent class if no pkey
       if (this.pkey && val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          //skip key in case of clone and visible
+          // skip key in case of clone and visible
           if (
             data[column.id] &&
             (!this.clone ||

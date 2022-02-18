@@ -1,5 +1,6 @@
 <script>
 import InputString from './InputString';
+import {CODE_0, CODE_9, CODE_BACKSPACE} from '../constants';
 
 /** Input for integer values */
 export default {
@@ -19,12 +20,13 @@ export default {
       if (!this.isInt(event)) event.preventDefault();
     },
     isInt(e) {
-      var specialKeys = [];
-      specialKeys.push(8); // Backspace
-      var keyCode = e.which ? e.which : e.keyCode;
-      var ret =
-        (keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) !== -1;
-      return ret;
+      let specialKeys = [];
+      specialKeys.push(CODE_BACKSPACE);
+      const keyCode = e.which ? e.which : e.keyCode;
+      return (
+        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
+        specialKeys.indexOf(keyCode) !== -1
+      );
     }
   }
 };
