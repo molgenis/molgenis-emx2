@@ -325,13 +325,8 @@ export default {
     },
     data() {
       if (this.data) {
-        let roots = {};
         let all = {};
         this.data.forEach((e) => {
-          //roots don't have parent
-          if (!e.parent) {
-            roots[e.name] = e;
-          }
           // did we see it before?
           if (all[e.name]) {
             all[e.name].definition = e.definition;
@@ -339,16 +334,18 @@ export default {
             all[e.name] = e;
           }
           if (e.parent) {
-            if (!all[e.parent]) {
-              all[e.parent] = { name: e.parent };
+            //did we see already the parent?
+            if (!all[e.parent.name]) {
+              all[e.parent.name] = { name: e.parent.name };
             }
-            if (!all[e.parent]["children"]) {
-              all[e.parent]["children"] = [];
+            // first child?
+            if (!all[e.parent.name].children) {
+              all[e.parent.name].children = [];
             }
-            all[e.parent].children.push(e);
+            all[e.parent.name].children.push(e);
           }
         });
-        this.terms = Object.values(roots);
+        this.terms = Object.values(all).filter((e) => !e.parent);
       }
     },
   },
@@ -433,7 +430,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Category" :list="true" graphqlURL="/pet store/graphql"/>
+                   table="Tag" :list="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -453,7 +450,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Category" graphqlURL="/pet store/graphql"/>
+                   table="Tag" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
