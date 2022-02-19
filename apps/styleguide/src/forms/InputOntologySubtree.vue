@@ -1,6 +1,9 @@
 <template>
   <ul style="list-style-type: none">
-    <li v-for="term in terms.filter((t) => t.visible)" :key="term.name">
+    <li
+      v-for="term in terms.filter((t) => t.visible)"
+      :key="term.name + term.selected + term.expanded"
+    >
       <!--show if selected or search-->
       <i
         class="fa-fw pl-2 pt-1 ml-3"
@@ -29,7 +32,6 @@
       >
       <InputOntologySubtree
         v-if="term.expanded"
-        :selection="selection"
         :terms="term.children"
         :list="list"
         @select="$emit('select', $event)"
@@ -46,7 +48,6 @@ export default {
   props: {
     terms: Array,
     list: { type: Boolean, default: false },
-    selection: Array,
   },
   methods: {
     countVisibleChildren(term) {
@@ -77,14 +78,9 @@ export default {
       return childNames;
     },
     getSelectState(term) {
-      if (this.selection.includes(term.name)) {
+      if (term.selected == "complete") {
         return this.list ? "fas fa-check-square" : "fas fa-check-circle";
-      } else if (
-        term.children &&
-        this.getAllChildNames(term).some((childName) =>
-          this.selection.includes(childName)
-        )
-      ) {
+      } else if (term.selected == "partial") {
         return this.list ? "far fa-check-square" : "far fa-circle";
       } else {
         return this.list ? "far fa-square" : "far fa-circle";
@@ -103,10 +99,10 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (this.selection.indexOf(term.name) === -1) {
-        this.$emit("select", term.name);
-      } else {
+      if (term.selected) {
         this.$emit("deselect", term.name);
+      } else {
+        this.$emit("select", term.name);
       }
     },
     toggleExpand(term) {
