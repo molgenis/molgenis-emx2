@@ -16,7 +16,7 @@
           class="btn btn-sm btn-primary mb-2 text-white mr-1"
           v-for="v in selectionWithoutChildren"
           :key="v"
-          @click.stop="deselectWithChildren(v)"
+          @click.stop="deselect(v)"
         >
           {{ v }}
           <span class="fa fa-times"></span>
@@ -25,7 +25,7 @@
           class="p-2 fa fa-times"
           style="vertical-align: middle"
           @click.stop="deselect(selection)"
-          v-if="showExpanded && selectionWithoutParents.length > 0"
+          v-if="showExpanded && this.selection.length > 0"
         />
         <span :class="{ 'input-group': showExpanded }">
           <div v-if="showExpanded" class="input-group-prepend">
@@ -54,7 +54,7 @@
             class="p-2 fa fa-times"
             style="vertical-align: middle"
             @click.stop="deselect(selection)"
-            v-if="!showExpanded && selectionWithoutParents.length > 0"
+            v-if="!showExpanded && this.selection.length > 0"
           />
           <i
             class="p-2 fa fa-caret-down"
@@ -70,17 +70,16 @@
         v-click-outside="loseFocusWhenClickedOutside"
       >
         <InputOntologySubtree
-          v-if="hasSearchResults"
-          style="max-height: 50vh"
+          :key="key"
+          v-if="rootTerms.length > 0"
+          style="max-height: 100vh"
           class="pt-2 pl-0 dropdown-item"
-          :terms="terms"
+          :terms="rootTerms"
           :selection="selection"
-          :expanded="expanded"
           :list="list"
-          :search="search"
-          @toggleExpand="toggleExpand"
           @select="select"
           @deselect="deselect"
+          @toggleExpand="toggleExpand"
         />
         <div v-else>No results found</div>
       </div>
@@ -140,13 +139,28 @@ export default {
   },
   data() {
     return {
-      terms: [],
-      selection: [],
-      expanded: [],
+      //huge object with all the terms, flattened
+      //includes also its children
+      terms: {},
       search: null,
+      selection: [],
+      key: 1,
     };
   },
   computed: {
+    rootTerms() {
+      if (this.terms) {
+        console.log("root terms");
+        let timer = Date.now();
+        let result = Object.values(this.terms).filter(
+          (t) => !t.parent && t.visible
+        );
+        console.log("root terms complete " + (Date.now() - timer));
+        return result;
+      } else {
+        return [];
+      }
+    },
     //Override tableMixin
     orderByObject() {
       if (
@@ -158,48 +172,43 @@ export default {
         return {};
       }
     },
-    //below will be used in case ontology is not a hierarchy
-    selectionWithoutParents() {
-      if (this.list) {
-        return this.selection.filter((t) => this.getParents(t).length > 0);
-      } else if (this.selection[0] != null) {
-        return this.selection;
-      } else {
-        return [];
-      }
-    },
-    //below will be used in case ontology is a hierarchy
     selectionWithoutChildren() {
       if (this.list) {
-        //skip children if parent selected
-        return this.selection.filter((t) => {
-          let parents = this.getParents([t]);
-          return parents.length == 0 || !this.selection.includes(parents[0]);
-        });
+        console.log("start selectionWithoutChildren");
+        let timer = Date.now();
+        //navigate the tree, recurse into children if parent is not selected
+        let result = [];
+        this.rootTerms.forEach((t) =>
+          result.push(...this.getSelectedChildNodes(t))
+        );
+        console.log(
+          "complete selectionWithoutChildren " + (Date.now() - timer)
+        );
+        return result;
       } else if (this.selection[0] != null) {
         return this.selection;
       } else {
         return [];
       }
-    },
-    hasSearchResults() {
-      if (this.search) {
-        return this.hasSearchResultsRecursive(this.terms);
-      }
-      return true;
     },
   },
   methods: {
-    hasSearchResultsRecursive(terms) {
-      return this.search
-        .split(" ")
-        .every((t) =>
-          terms.some(
-            (term) =>
-              term.name.toLowerCase().includes(t.toLowerCase()) ||
-              (term.children && this.hasSearchResultsRecursive(term.children))
-          )
-        );
+    toggleExpand(term) {
+      this.terms[term].expanded = !this.terms[term].expanded;
+      this.key++;
+    },
+    getSelectedChildNodes(term) {
+      let result = [];
+      if (this.selection.includes(term.name)) {
+        result.push(term.name);
+      } else {
+        if (term.children) {
+          term.children.forEach((t) =>
+            result.push(...this.getSelectedChildNodes(t))
+          );
+        }
+      }
+      return result;
     },
     loseFocusWhenClickedOutside() {
       if (this.focus && !this.showExpanded) {
@@ -214,78 +223,87 @@ export default {
         }
       }
     },
-    getChildren(name) {
-      return this.data.filter((o) => o.parent && o.parent.name === name);
-    },
-    getChildrenRecursive(name) {
-      return this.data
-        .filter((o) => o.parent && o.parent.name === name)
-        .map((t) => {
-          let children = this.getChildrenRecursive(t.name);
-          if (children.length > 0) {
-            t.children = children;
-          }
-          return t;
-        });
-    },
-    toggleExpand(name) {
-      if (this.expanded.indexOf(name) === -1) {
-        this.expanded.push(name);
-      } else {
-        this.expanded = this.expanded.filter((s) => s !== name);
-      }
-      this.$refs.search.focus();
-    },
-    select(items) {
-      //if not a list you can only select one
-      if (!this.list) {
-        this.selection = [];
-      }
-      //add items not yet selected
-      items.forEach((i) => {
-        if (this.selection.indexOf(i) === -1) {
-          this.selection.push(i);
+    getParentNames(term) {
+      let result = [];
+      let parent = term.parent;
+      while (parent) {
+        result.push(parent.name);
+        if (
+          this.terms[parent.name].parent &&
+          //check for parent that are indirect parent of themselves
+          !result.includes(this.terms[parent.name].parent.name)
+        ) {
+          parent = this.terms[parent.name].parent;
+        } else {
+          parent = null;
         }
-      });
-      //if all children are selected for a node then also select the parent (query expansion)
-
-      //alert("selectArray: " + JSON.stringify(this.selection));
-      this.emitValue();
-      this.$refs.search.focus();
-    },
-    getParents(items) {
-      let result = this.data
-        .filter((t) => t.parent && items.indexOf(t.name) != -1)
-        .map((t) => t.parent.name);
-      //get parents of the parents
-      if (result.length > 0) {
-        result.push(...this.getParents(result));
       }
       return result;
     },
-    deselectWithChildren(item) {
+    getChildren(name) {
+      return this.data.filter((o) => o.parent && o.parent.name === name);
+    },
+    getAllChildren(term) {
+      let result = [];
+      if (term.children) {
+        result = term.children;
+        term.children.forEach(
+          (childTerm) =>
+            (result = result.concat(this.getAllChildren(childTerm)))
+        );
+      }
+      return result;
+    },
+    select(item) {
+      console.log("start select");
+      let timer = Date.now();
+      if (!this.list) {
+        this.selection = [];
+      }
+      this.selection.push(item);
+      let term = this.terms[item];
       if (this.list) {
-        this.deselect([item]);
-        this.getChildren(item).forEach((t) =>
-          this.deselectWithChildren(t.name)
+        //if list also select also its children
+        this.getAllChildren(term).forEach((childTerm) =>
+          this.selection.push(childTerm.name)
+        );
+        //select parent(s) if all siblings are selected
+        this.getParentNames(term).forEach((parentName) => {
+          let parent = this.terms[parentName];
+          if (
+            parent.children.every((childTerm) =>
+              this.selection.includes(childTerm.name)
+            )
+          ) {
+            this.selection.push(parentName);
+          }
+        });
+      }
+      this.emitValue();
+      this.$refs.search.focus();
+      console.log("complete select " + (Date.now() - timer));
+    },
+    deselect(item) {
+      console.log("start deselect");
+      let timer = Date.now();
+      if (this.list) {
+        this.selection = this.selection.filter((s) => s != item);
+        //also deselect all its children
+        this.getAllChildren(this.terms[item]).forEach(
+          (childTerm) =>
+            (this.selection = this.selection.filter((s) => s != childTerm.name))
+        );
+        //also its deselect its parents
+        this.getParentNames(this.terms[item]).forEach(
+          (parentName) =>
+            (this.selection = this.selection.filter((s) => s != parentName))
         );
       } else {
         this.selection = [];
       }
       this.emitValue();
       this.$refs.search.focus();
-    },
-    deselect(items) {
-      if (this.list) {
-        //add parents
-        items.push(...this.getParents(items));
-        //should also deselect any (indirect) parents
-        this.selection = this.selection.filter((name) => !items.includes(name));
-      } else {
-        this.selection = [];
-      }
-      this.emitValue();
-      this.$refs.search.focus();
+      console.log("complete deselect " + (Date.now() - timer));
     },
     emitValue() {
       if (this.list) {
@@ -316,6 +334,38 @@ export default {
     options() {
       this.data = this.options;
     },
+    search() {
+      console.log("apply search");
+      let timer = Date.now();
+      //first show/hide depending on filter
+      Object.values(this.terms).forEach(
+        (t) => (t.visible = this.search == "" || !this.search)
+      );
+      if (this.search && this.search.length > 0) {
+        let searchTerms = this.search.split(" ").map((s) => s.toLowerCase());
+        console.log("searching " + searchTerms);
+        Object.values(this.terms).forEach((term) => {
+          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+            //items are visible when matching search, or when a child matches search
+            term.visible = true;
+            this.getParentNames(term).forEach((parentName) => {
+              this.terms[parentName].visible = true;
+            });
+          }
+        });
+      }
+      //collapse all first
+      Object.values(this.terms).forEach((t) => (t.expanded = false));
+      //auto expand visible automatically if total visible <50
+      if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
+        //then expand visible
+        Object.values(this.terms)
+          .filter((t) => t.visible && t.children)
+          .forEach((t) => (t.expanded = true));
+      }
+      this.key++;
+      console.log("apply search complete " + (Date.now() - timer));
+    },
     value() {
       if (this.list) {
         this.selection = this.value ? this.value.map((term) => term.name) : [];
@@ -325,27 +375,37 @@ export default {
     },
     data() {
       if (this.data) {
-        let all = {};
+        //convert to tree of terms
+        console.log("create term tree");
+        let timer = Date.now();
+        //list all terms, incl subtrees
+        let terms = {};
         this.data.forEach((e) => {
-          // did we see it before?
-          if (all[e.name]) {
-            all[e.name].definition = e.definition;
+          // did we see it maybe as parent before?
+          if (terms[e.name]) {
+            //then copy properties, currently only definition
+            terms[e.name].definition = e.definition;
           } else {
-            all[e.name] = e;
+            //else simply add the record
+            terms[e.name] = e;
+            e.visible = true;
           }
           if (e.parent) {
-            //did we see already the parent?
-            if (!all[e.parent.name]) {
-              all[e.parent.name] = { name: e.parent.name };
+            //did we see this parent before?
+            if (!terms[e.parent.name]) {
+              //otherwise add it
+              terms[e.parent.name] = { name: e.parent.name, visible: true };
             }
-            // first child?
-            if (!all[e.parent.name].children) {
-              all[e.parent.name].children = [];
+            // if first child then add children array
+            if (!terms[e.parent.name].children) {
+              terms[e.parent.name].children = [];
             }
-            all[e.parent.name].children.push(e);
+            // add the child
+            terms[e.parent.name].children.push(e);
           }
         });
-        this.terms = Object.values(all).filter((e) => !e.parent);
+        this.terms = terms;
+        console.log("complete create term tree " + (Date.now() - timer));
       }
     },
   },
