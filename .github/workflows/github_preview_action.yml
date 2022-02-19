@@ -1,4 +1,4 @@
-name: github/actions build
+name: preview
 jobs:
   container-job: 
     runs-on: ubuntu-latest
@@ -15,14 +15,14 @@ jobs:
           - 5432:5432
 
     steps:
-    - name: Public IP
-      id: ip
-      uses: haythem/public-ip@v1.2
+      - name: Public IP
+        id: ip
+        uses: haythem/public-ip@v1.2
 
-    - name: Print Public IP
-      run: |
-        echo ${{ steps.ip.outputs.ipv4 }}
-        echo ${{ steps.ip.outputs.ipv6 }}
+      - name: Print Public IP
+        run: |
+          echo ${{ steps.ip.outputs.ipv4 }}
+          echo ${{ steps.ip.outputs.ipv6 }}
 
       - name: Checkout out repository
         uses: actions/checkout@v2
