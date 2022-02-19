@@ -1,4 +1,7 @@
 name: preview
+on:
+  pull_request:
+    types: [ labeled ]
 jobs:
   container-job: 
     runs-on: ubuntu-latest
