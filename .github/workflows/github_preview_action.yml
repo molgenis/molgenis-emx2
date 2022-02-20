@@ -5,7 +5,8 @@ on:
 jobs:
   container-job: 
     runs-on: ubuntu-latest
-    container: gradle:jdk16-hotspot
+    container: 
+      image: gradle:jdk16-hotspot
       ports: 
 	- 8080
 
