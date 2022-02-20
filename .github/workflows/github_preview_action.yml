@@ -39,6 +39,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_DEFAULT_REGION: eu-central-1
 
+      - uses: cardinalby/export-env-action@v1
+        with:
+          envFile: 'constants.env'
+          expand: 'true'
+
       - name: Post comment on the preview
         uses: marocchino/sticky-pull-request-comment@v2
         with:
