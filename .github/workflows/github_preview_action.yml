@@ -11,8 +11,10 @@ jobs:
         - 8080
 
     steps:
-      - name: test aws
+      - name: install aws
         uses: unfor19/install-aws-cli-action@v1
+
+      - name: test aws
         run: aws s3 ls
         shell: bash
         env:
