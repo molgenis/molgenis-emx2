@@ -25,7 +25,7 @@ echo "uploaded molgenis binary, starting emx2"
 ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo java -DMOLGENIS_HTTP_PORT=80 -jar molgenis-emx2.jar 1>/dev/null 2>/dev/null &'
 echo "emx2 started"
 
-ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo shutdown -P +10 1>/dev/null 2>/dev/null &'
-echo "sent shutdown timer set for 10 minutes"
+ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo shutdown -P +60 1>/dev/null 2>/dev/null &'
+echo "sent shutdown timer set for 60 minutes"
 
 echo "PUBLIC_IP=$PUBLIC_IP" >> constants.env
