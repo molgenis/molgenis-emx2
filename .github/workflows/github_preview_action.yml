@@ -18,9 +18,11 @@ jobs:
           java-version: '17'
 
       - name: run build without tests, we only need the product jar
-        run: ./gradlew --no-daemon build -x test
+        run: ./gradlew build -x test
         env:
           JVM_OPTS: -Xmx3200m
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+
 
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
@@ -29,7 +31,7 @@ jobs:
           known_hosts: molgenis.org
 
       - name: push to aws
-        run: .aws/aws_start_preview_from_build.sh
+        run: sh .aws/aws_start_preview_from_build.sh
         env:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
