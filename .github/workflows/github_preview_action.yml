@@ -2,8 +2,10 @@ name: preview
 on:
   pull_request:
     branches: master
+    types: [labeled]
 jobs:
   create-preview:
+    if: ${{ github.event.label.name == 'preview' }}
     runs-on: ubuntu-latest
     steps:
       - name: Install SSH Key
