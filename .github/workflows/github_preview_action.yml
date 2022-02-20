@@ -6,6 +6,12 @@ jobs:
   create-preview:
     runs-on: ubuntu-latest
     steps:
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AWS_SSH_KEY }}
+          known_hosts: molgenis.org
+
       - name: Checkout out repository
         uses: actions/checkout@v2
         with:
@@ -22,13 +28,6 @@ jobs:
         env:
           JVM_OPTS: -Xmx3200m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
-
-
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.AWS_SSH_KEY }}
-          known_hosts: molgenis.org
 
       - name: push to aws
         run: ./.aws/aws_start_preview_from_build.sh
