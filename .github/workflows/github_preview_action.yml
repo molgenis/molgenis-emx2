@@ -48,5 +48,5 @@ jobs:
           recreate: true
           message: |
             ```
-            Preview available for 60 minutes at <http://${{ steps.test.outputs.result }}>
+            Preview available for 60 minutes at <http://${{ steps.aws.outputs.result }}>
             ```
