@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container pt-3">
+    <div class="container">
       <h1>
         <span v-if="$route.params.schema == 'Minerva'">
           Proof-of-concept catalogue tool for MINERVA metadata pilot</span
@@ -16,9 +16,9 @@
         networks, common data models and studies.
       </p>
       <h2>Metadata on data collections</h2>
-      <div class="row justify-content-between">
+      <div class="card-columns">
         <count-card
-          class="btn-dark"
+          class="bg-dark text-white"
           :count="counts.institutions"
           label="Institutions"
           :to="{ path: this.routePath + 'institutions' }"
@@ -28,7 +28,7 @@
         </count-card>
 
         <count-card
-          class="btn-secondary"
+          class="bg-primary text-white"
           :count="counts.datasources"
           label="Data sources"
           :to="{ path: this.routePath + 'datasources' }"
@@ -37,7 +37,7 @@
         </count-card>
 
         <count-card
-          class="btn-info"
+          class="bg-info text-white"
           :count="counts.databanks"
           label="Data banks"
           :to="{ path: this.routePath + 'databanks' }"
@@ -46,14 +46,102 @@
         </count-card>
 
         <count-card
-          class="btn-primary"
+          class="bg-primary text-white"
           :count="counts.cohorts"
           label="Cohorts"
           :to="{ path: this.routePath + 'cohorts' }"
         >
           Systematic observations of large groups of individuals over time.
         </count-card>
+
+        <count-card
+          class="bg-danger text-white"
+          :count="counts.networks"
+          label="Networks"
+          :to="{ path: this.routePath + 'networks' }"
+        >
+          Collaborations of multiple institutions
+        </count-card>
+
+        <count-card
+          class="bg-success text-white"
+          :count="counts.studies"
+          label="Studies"
+          :to="{ path: this.routePath + 'studies' }"
+        >
+          Collaborations of multiple institutions, addressing research questions
+          using data sources and/or data banks
+        </count-card>
       </div>
+
+      <h2>Browse data definitions</h2>
+      <div class="card-columns">
+        <div class="card card-body border border-dark rounded card-height">
+          <h3>Collected data dictionaries</h3>
+          <div class="text-left">
+            Data dictionaries of collected data in databanks and/or cohorts.
+            <ul>
+              <li>
+                <RouterLink to="source-data-dictionaries">
+                  Source Data dictionaries ({{ counts.sourceDataDictionaries }})
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="source-tables"> Source Tables ({{ counts.sourceTables }}) </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="source-variables">
+                  Source Variables ({{ counts.sourceVariables }})
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card card-body border border-dark rounded card-height">
+          <h3>Common data models</h3>
+          <div class="text-left">
+            Data dictionaries of standards for integrated analysis
+            <ul>
+              <li>
+                <RouterLink to="target-data-dictionaries">
+                  Target Data dictionaries ({{counts.targetDataDictionaries}})
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="target-tables"> Target Tables ({{counts.targetTables}}) </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="target-variables">
+                  Target Variables ({{counts.targetVariables}})
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card card-body border border-dark card-height">
+          <h3>Data model mappings</h3>
+          <div class="text-left">
+            Mappings between collected data dictionaries and standard models
+            <ul>
+              <li>
+                <RouterLink to="variable-mappings">
+                  Variable mappings ({{ counts.variableMappings }})
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="table-mappings"> Table mappings ({{ counts.tableMappings }}) </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <p>
+        This catalogue software has been made possible by contributions from
+        H2020 EUCAN-connect, LifeCycle, Longitools and ATHLETE as well as IMI
+        Conception and EMA Minerva.
+      </p>
     </div>
   </div>
 </template>
@@ -76,14 +164,20 @@ const query = `query {
       Institutions_agg{count},
       Studies_agg{count},
       Cohorts_agg{count},Databanks_agg{count},
+      Databanks_agg{count}
       Datasources_agg{count},Networks_agg{count},
-      SourceTables_agg{count},TargetTables_agg{count},
-      Models_agg{count},Studies_agg{count},
+      Networks_agg{count}
+      SourceTables_agg{count},
+      TargetTables_agg{count},
+      Models_agg{count},
+      Studies_agg{count},
       SourceDataDictionaries_agg{count},
       TargetDataDictionaries_agg{count},
       SourceVariables_agg{count},
       TargetVariables_agg{count},
-      VariableMappings_agg{count}, TableMappings_agg{count}}`;
+      VariableMappings_agg{count},
+      TableMappings_agg{count}
+    }`;
 export default {
   name: "SSRCatalogue",
   components: { CountCard },
@@ -101,15 +195,20 @@ export default {
       const countsRespData = resp.data.data;
       const counts = {
         institutions: countsRespData.Institutions_agg.count,
-        cohorts: countsRespData.Cohorts_agg.count,
         databanks: countsRespData.Databanks_agg.count,
-        datasources: countsRespData.Datasources_agg.count,
+        cohorts: countsRespData.Cohorts_agg.count,
         networks: countsRespData.Networks_agg.count,
+        datasources: countsRespData.Datasources_agg.count,
+        sourceDataDictionaries: countsRespData.SourceDataDictionaries_agg.count,
+        sourceTables: countsRespData.SourceTables_agg.count,
+        sourceVariables: countsRespData.SourceVariables_agg.count,
         models: countsRespData.Models_agg.count,
+        targetDataDictionaries: countsRespData.TargetDataDictionaries_agg.count,
+        targetTables: countsRespData.TargetTables_agg.count,
+        targetVariables: countsRespData.TargetVariables_agg.count,
+        variableMappings: countsRespData.VariableMappings_agg.count,
+        tableMappings: countsRespData.TableMappings_agg.count,
         studies: countsRespData.Studies_agg.count,
-        // variables: countsRespData.Variables_agg.count,
-        // variableMappings: countsRespData.VariableMappings_agg.count,
-        // tableMappings: countsRespData.TableMappings_agg.count,
       };
       return resp ? { counts } : null;
     }
