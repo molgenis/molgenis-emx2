@@ -34,19 +34,21 @@ jobs:
       - name: push to aws
         run: |
           sh .aws/aws_start_preview_from_build.sh
-          echo "::set-output name=result::$PUBLIC_IP"
-        shell: bash
-        id: aws
         env:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_DEFAULT_REGION: eu-central-1
+
+      - name: get public ip as output
+        id: getip
+        run: echo "::set-output name=result::$PUBLIC_IP"
 
       - name: Post comment on the preview
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
           message: |
+            $PUBLIC_IP
             ```
-            Preview available for 60 minutes at <http://${{ steps.aws.outputs.result }}>
+            Preview available for 60 minutes at <http://${{ steps.getip.outputs.result }}>
             ```
