@@ -13,17 +13,17 @@ echo "starting complete"
 sleep 5;
 
 #get public DNS
-PUBLIC_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[*].Instances[*].PublicIpAddress" --output=text )
-echo "retrieved public IP=${PUBLIC_ID}"
+PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[*].Instances[*].PublicIpAddress" --output=text )
+echo "retrieved public IP=${PUBLIC_IP}"
 
 #get file name from build folder
 JAR_FILE=$(ls build/libs/molgenis-emx2-*)
 
-scp -o StrictHostKeyChecking=no $JAR_FILE ubuntu@$PUBLIC_ID:molgenis-emx2.jar
+scp -o StrictHostKeyChecking=no $JAR_FILE ubuntu@$PUBLIC_IP:molgenis-emx2.jar
 echo "uploaded molgenis binary, starting emx2"
 
-ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_ID 'nohup sudo java -DMOLGENIS_HTTP_PORT=80 -jar molgenis-emx2.jar 1>/dev/null 2>/dev/null &'
+ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo java -DMOLGENIS_HTTP_PORT=80 -jar molgenis-emx2.jar 1>/dev/null 2>/dev/null &'
 echo "emx2 started"
 
-ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_ID 'nohup sudo shutdown -P +10 1>/dev/null 2>/dev/null &'
+ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo shutdown -P +10 1>/dev/null 2>/dev/null &'
 echo "sent shutdown timer set for 10 minutes"
