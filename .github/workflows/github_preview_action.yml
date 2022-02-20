@@ -6,12 +6,6 @@ jobs:
   create-preview:
     runs-on: ubuntu-latest
     steps:
-      - name: test aws
-        run: aws --version
-        env:
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-
       - name: Checkout out repository
         uses: actions/checkout@v2
         with:
@@ -28,3 +22,14 @@ jobs:
         env:
           JVM_OPTS: -Xmx3200m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AWS_SSH_KEY }}
+
+      - name: push to aws
+        run: .aws/aws_start_preview_from_build.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
