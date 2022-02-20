@@ -49,7 +49,7 @@ jobs:
         with:
           recreate: true
           message: |
-            $PUBLIC_IP
+            $PUBLIC_IP or ${PUBLIC_IP} or ${{env.PUBLIC_IP}}
             ```
-            Preview available for 60 minutes at <http://${{ steps.getip.outputs.result }}>
+            Preview available for 60 minutes at <http://${{ env.PUBLIC_IP }}>
             ```
