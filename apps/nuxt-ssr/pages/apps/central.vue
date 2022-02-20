@@ -3,14 +3,13 @@
     <div class="container">
       <h1>Schemas</h1>
       <div class="list-group">
-        <nuxt-link
+        <a
           v-for="schema in schemas"
           :key="schema.name"
-          :to="'/' + schema.name + '/ssr-catalogue'"
           class="list-group-item list-group-item-action"
+          :href="'/' + schema.name + '/ssr-catalogue'"
+          >{{ schema.name }}</a
         >
-          {{ schema.name }}
-        </nuxt-link>
       </div>
     </div>
   </div>
