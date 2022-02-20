@@ -17,11 +17,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: run build without tests, we only need the product jar
+      - name:setup java
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: run build without tests, we only need the product jar
         run: ./gradlew build --no-daemon -x test
         env:
           JVM_OPTS: -Xmx3200m
