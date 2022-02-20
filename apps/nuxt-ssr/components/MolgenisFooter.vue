@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="text-center">
+  <div class="text-center">
+    <div>
       This database was created using the
       <a href="http://molgenis.org">MOLGENIS</a>&nbsp;
       <a href="http://github.com/mswertz/molgenis-emx2"> molgenis-emx2 </a>
@@ -9,7 +9,7 @@
         >LGPLv3</a
       >).
     </div>
-    <div class="text-center">
+    <div >
       Please cite
       <a href="https://www.ncbi.nlm.nih.gov/pubmed/30165396">
         Van der Velde et al (2018)</a
@@ -21,7 +21,7 @@
       on use.
     </div>
     <br />
-    <slot />
+    <slot  />
   </div>
 </template>
 
