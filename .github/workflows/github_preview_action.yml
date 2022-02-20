@@ -39,10 +39,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_DEFAULT_REGION: eu-central-1
 
-      - name: get public ip as output
-        id: getip
-        run: echo "::set-output name=result::$PUBLIC_IP"
-
       - name: Post comment on the preview
         uses: marocchino/sticky-pull-request-comment@v2
         with:

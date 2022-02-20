@@ -27,3 +27,5 @@ echo "emx2 started"
 
 ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo shutdown -P +10 1>/dev/null 2>/dev/null &'
 echo "sent shutdown timer set for 10 minutes"
+
+echo "::set-output name=result::$PUBLIC_IP"
