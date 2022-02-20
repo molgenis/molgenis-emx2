@@ -16,7 +16,10 @@ sleep 5;
 PUBLIC_DNS=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[*].Instances[*].PublicDnsName" --output=text )
 echo "retrieved public IP=${PUBLIC_DNS}"
 
-scp -o StrictHostKeyChecking=no build/libs/molgenis-emx2-8.49.2-feat-update-data-model-SNAPSHOT-all.jar ubuntu@$PUBLIC_DNS:molgenis-emx2.jar
+#get file name from build folder
+JAR_FILE=$(ls build/libs/molgenis-emx2-*)
+
+scp -o StrictHostKeyChecking=no $JAR_FILE ubuntu@$PUBLIC_DNS:molgenis-emx2.jar
 echo "uploaded molgenis binary, starting emx2"
 
 ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_DNS 'nohup sudo java -DMOLGENIS_HTTP_PORT=80 -jar molgenis-emx2.jar 1>/dev/null 2>/dev/null &'
