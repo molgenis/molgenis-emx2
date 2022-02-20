@@ -43,7 +43,10 @@ jobs:
           AWS_DEFAULT_REGION: eu-central-1
 
       - name: Post comment on the preview
-        uses: thollander/actions-comment-pull-request@v1
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          message: "Preview created for 60 mins at http://${{ steps.aws.outputs.result }}"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          recreate: true
+          message: |
+            ```
+            Preview available for 60 minutes at <http://${{ steps.test.outputs.result }}>
+            ```
