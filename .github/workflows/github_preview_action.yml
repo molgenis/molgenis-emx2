@@ -1,7 +1,7 @@
 name: preview
 on:
   pull_request:
-    types: [ labeled ]
+    branches: master
 jobs:
   container-job: 
     runs-on: ubuntu-latest
@@ -10,45 +10,22 @@ jobs:
       ports: 
         - 8080
 
-    services:
-      postgres:
-        image: postgres:14-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-
     steps:
-      - name: Public IP
-        id: ip
-        uses: haythem/public-ip@v1.2
-
-      - name: Print Public IP
-        run: |
-          echo ${{ steps.ip.outputs.ipv4 }}
-          echo ${{ steps.ip.outputs.ipv6 }}
+      - name: test aws
+        uses: unfor19/install-aws-cli-action@v1
+        run: aws s3 ls
+        shell: bash
+        env:
+            AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+            AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: Checkout out repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Get postgresql, git, docker
-        run: |
-           apt-get update && apt-get install postgresql-client git -y
-
-      - name: Initialize database
-        run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
+      - name: run build without tests, we only need the product jar
+        run: ./gradlew build --no-daemon -x test
         env:
-          PGPASSWORD: postgres
-
-      - name: run
-        run: ./gradlew run
-        env:
-          MOLGENIS_POSTGRES_USER: molgenis_admin
-          MOLGENIS_POSTGRES_PASS: molgenis_admin
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://postgres/molgenisdb
           JVM_OPTS: -Xmx3200m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
