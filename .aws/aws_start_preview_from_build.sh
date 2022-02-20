@@ -1,13 +1,16 @@
 # check version
 aws --version
 
-# create an instance
-INSTANCE_ID=$(aws ec2 run-instances --image-id ami-0ba724c59d3c2b346 --count 1 --instance-type t2.micro --key-name mswertz --security-group-ids sg-030fc72bb47b17f64 --subnet-id subnet-093e36ba6d1b5f420 --instance-initiated-shutdown-behavior terminate --query 'Instances[0].InstanceId' --output text)
+# create an instance, that will shutdown after 60mins
+INSTANCE_ID=$(aws ec2 run-instances --image-id ami-0ba724c59d3c2b346 --count 1 --instance-type t2.micro --key-name mswertz --security-group-ids sg-030fc72bb47b17f64 --subnet-id subnet-093e36ba6d1b5f420 --instance-initiated-shutdown-behavior terminate --user-data "sudo shutdown -P +60" --query 'Instances[0].InstanceId' --output text)
 echo "starting AWS instance with id=${INSTANCE_ID}"
 
 #wait
 aws ec2 wait instance-status-ok --instance-ids $INSTANCE_ID
 echo "starting complete"
+
+#just wait a bit more
+sleep 5;
 
 #get public DNS
 PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[*].Instances[*].PublicIpAddress" --output=text )
