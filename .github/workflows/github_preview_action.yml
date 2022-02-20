@@ -6,7 +6,8 @@ jobs:
   container-job: 
     runs-on: ubuntu-latest
     container: gradle:jdk16-hotspot
-      ports: 8080
+      ports: 
+	- 8080:8080
 
     services:
       postgres:
