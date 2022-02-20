@@ -22,14 +22,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-     - uses: actions/cache@v2
-       with:
-         path: |
-           ~/.gradle/caches
-           ~/.gradle/wrapper
-         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-         restore-keys: |
-           ${{ runner.os }}-gradle-
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Get postgresql, git, docker
         run: |
@@ -52,7 +53,7 @@ jobs:
         run: ./gradlew dependencies
 
       - name: Build with run tests and sonar (add 'release' to also do releases, and jib to push docker)
-        run: ./gradlew --stacktrace test jacocoMergedReport sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
+        run: ./gradlew --no-daemon --stacktrace test jacocoMergedReport sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
         env:
           MOLGENIS_POSTGRES_USER: molgenis_admin
           MOLGENIS_POSTGRES_PASS: molgenis_admin
