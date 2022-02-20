@@ -30,7 +30,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
 
       - name: push to aws
-        run: ./.aws/aws_start_preview_from_build.sh
+        run: sh .aws/aws_start_preview_from_build.sh
         env:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
