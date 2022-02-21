@@ -28,4 +28,5 @@ echo "emx2 started"
 ssh -o StrictHostKeyChecking=no ubuntu@$PUBLIC_IP 'nohup sudo shutdown -P +60 1>/dev/null 2>/dev/null &'
 echo "sent shutdown timer set for 60 minutes"
 
+# for reuse in later github steps.
 echo "PUBLIC_IP=$PUBLIC_IP" >> constants.env
