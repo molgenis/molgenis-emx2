@@ -4,15 +4,23 @@ on:
     branches: master
     types: [labeled]
 jobs:
-  create-preview:
+  create:
     if: ${{ github.event.label.name == 'preview-create' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
+      - name: remove preview-create label
+        uses: buildsville/add-remove-label@v1
         with:
-          key: ${{ secrets.AWS_SSH_KEY }}
-          known_hosts: molgenis.org
+          token: ${{secrets.GITHUB_TOKEN}}
+          label: preview-create
+          type: remove
+
+      - name: remove preview-ready label
+        uses: buildsville/add-remove-label@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          label: preview-ready
+          type: remove
 
       - name: Checkout out repository
         uses: actions/checkout@v2
@@ -31,7 +39,13 @@ jobs:
           JVM_OPTS: -Xmx3200m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
 
-      - name: push to aws
+      - name: Install AWS SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AWS_SSH_KEY }}
+          known_hosts: molgenis.org
+
+      - name: Push preview to aws
         run: |
           sh .aws/aws_start_preview_from_build.sh
         env:
@@ -39,29 +53,23 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
           AWS_DEFAULT_REGION: eu-central-1
 
-      - uses: cardinalby/export-env-action@v1
+      - name: Get public IP
+        uses: cardinalby/export-env-action@v1
         with:
           envFile: 'constants.env'
           expand: 'true'
 
-      - name: Get current date + 60 minus
+      - name: Get experation date (current date + 60 mins)
         id: date
-        run: echo "::set-output name=date::$(date -d '+50 minutes' '+%Y-%m-%d:%H:%M')"
+        run: echo "::set-output name=expirationdate::$(TZ=CET date -d '+59 minutes')"
 
-      - name: Post comment on the preview
+      - name: Post comment on the preview with public IP and expirationdate
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
           message: |
             Preview available for 60 minutes at <http://${{ env.PUBLIC_IP }}>
-            Experiation date: ${{steps.date.outputs.date}}
-
-      - name: remove preview-create label
-        uses: buildsville/add-remove-label@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          label: preview-create
-          type: remove
+            Experation date: ${{steps.date.outputs.expirationdate}}
 
       - name: add preview-ready label
         uses: buildsville/add-remove-label@v1
@@ -69,3 +77,26 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           label: preview-ready
           type: add
+
+      - name: get pull request ref
+        id: get_pull_request_ref
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/:repository/pulls/:issue_id
+          repository: ${{ github.repository }}
+          issue_id: ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: post about the preview deployment
+        id: create_deployment
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/:repository/deployments
+          repository: ${{ github.repository }}
+          ref: ${{ fromJson(steps.get_pull_request_ref.outputs.data).head.ref }}
+          url: http://${{ env.PUBLIC_IP }}
+          environment: preview
+          auto_merge: false
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
