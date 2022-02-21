@@ -1,9 +1,9 @@
-name: build
-on: 
+name: github/actions
+on:
   pull_request:
     branches: master
 jobs:
-  build: 
+  build:
     runs-on: ubuntu-latest
     container: gradle:jdk16-hotspot
 
@@ -23,20 +23,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Get postgresql, git, docker
         run: |
-           apt-get update && apt-get install postgresql-client git -y
-           curl -fsSL https://get.docker.com -o get-docker.sh
-           sh get-docker.sh
+          apt-get update && apt-get install postgresql-client git -y
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
 
       - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
@@ -53,7 +44,7 @@ jobs:
         run: ./gradlew dependencies
 
       - name: Build with run tests and sonar (add 'release' to also do releases, and jib to push docker)
-        run: ./gradlew --no-daemon --stacktrace test jacocoMergedReport sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
+        run: ./gradlew --stacktrace test jacocoMergedReport sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
         env:
           MOLGENIS_POSTGRES_USER: molgenis_admin
           MOLGENIS_POSTGRES_PASS: molgenis_admin
