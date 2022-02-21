@@ -12,17 +12,15 @@
         style="height: auto"
         @click="toggleFocus"
       >
-        <div>
-          <span
-            class="btn btn-sm btn-primary mb-2 text-white mr-1"
-            v-for="v in selectionWithoutChildren"
-            :key="v"
-            @click.stop="deselect(v)"
-          >
-            {{ v }}
-            <span class="fa fa-times"></span>
-          </span>
-        </div>
+        <span
+          class="btn btn-sm btn-primary mb-2 text-white mr-1"
+          v-for="v in selectionWithoutChildren"
+          :key="v"
+          @click.stop="deselect(v)"
+        >
+          {{ v }}
+          <span class="fa fa-times"></span>
+        </span>
         <i
           class="p-2 fa fa-times"
           style="vertical-align: middle"
