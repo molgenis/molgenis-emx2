@@ -50,3 +50,17 @@ jobs:
           recreate: true
           message: |
             Preview available for 60 minutes at <http://${{ env.PUBLIC_IP }}>
+
+      - name: remove preview-create label
+        uses: buildsville/add-remove-label@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          label: preview-create
+          type: remove
+
+      - name: add preview-ready label
+        uses: buildsville/add-remove-label@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          label: preview-ready
+          type: add
