@@ -61,7 +61,7 @@ jobs:
 
       - name: Get experation date (current date + 60 mins)
         id: date
-        run: echo "::set-output name=expirationdate::$(TZ=CET date -d '+59 minutes')"
+        run: echo "::set-output name=expirationdate::$(TZ=CET date -d '+59 minutes' '+%Y-%m-%d:%H:%M %Z')"
 
       - name: Post comment on the preview with public IP and expirationdate
         uses: marocchino/sticky-pull-request-comment@v2
