@@ -5,7 +5,7 @@ on:
     types: [labeled]
 jobs:
   create-preview:
-    if: ${{ github.event.label.name == 'preview' }}
+    if: ${{ github.event.label.name == 'preview-create' }}
     runs-on: ubuntu-latest
     steps:
       - name: Install SSH Key
