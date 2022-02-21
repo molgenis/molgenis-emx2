@@ -46,7 +46,7 @@ jobs:
 
       - name: Get current date + 60 minus
         id: date
-        run: echo "::set-output name=date::$(date -d '+1 hour' '+%Y-%m-%d:%h:%m')"
+        run: echo "::set-output name=date::$(date -d '+50 minutes' '+%Y-%m-%d:%H:%M')"
 
       - name: Post comment on the preview
         uses: marocchino/sticky-pull-request-comment@v2
