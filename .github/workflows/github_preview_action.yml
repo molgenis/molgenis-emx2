@@ -44,12 +44,17 @@ jobs:
           envFile: 'constants.env'
           expand: 'true'
 
+      - name: Get current date + 60 minus
+        id: date
+        run: echo "::set-output name=date::$(date -d '+1 hour' '+%Y-%m-%d:%h:%m')"
+
       - name: Post comment on the preview
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
           message: |
             Preview available for 60 minutes at <http://${{ env.PUBLIC_IP }}>
+            Experiation date: ${{steps.date.outputs.date}}
 
       - name: remove preview-create label
         uses: buildsville/add-remove-label@v1
