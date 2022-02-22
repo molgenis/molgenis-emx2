@@ -47,16 +47,7 @@
       <input v-model="patientNumber" placeholder="patient number "/>
       <p>Patient number is: {{patientNumber}}</p>
       <br/>
-
-
-<!--    <select v-model="selected">-->
-<!--      <option disabled value="">Please select one</option>-->
-<!--      <option>1234</option>-->
-<!--      <option>4321</option>-->
-<!--      <option>2314</option>-->
-<!--    </select>-->
-<!--    <span>Selected: {{selected}}</span>-->
-
+      {{ hpoResults }}
     </div>
   </div>
 </template>
@@ -75,15 +66,23 @@ export default {
       count: 0,
       patientNumber: 0,
       selected: 1234,
+      hpoResults: {}
     };
   },
   methods: {
     plusOne() {
       this.count++;
     },
-    apiCall(hpoTerm) {
+    async apiCall(hpoTerm) {
       console.log("in api call");
-      console.log(hpoTerm);
+
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
+        .then(response => response.json());
+        // .then(data => console.log(data['terms']));
+      // let {results} = await res.json();
+      console.log(resultData['terms']);
+      this.hpoResults = resultData['terms'];
+
     }
   },
 };
