@@ -6,8 +6,10 @@ import static spark.Spark.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.*;
-import org.molgenis.emx2.beaconv2.ServiceInfo;
+import org.molgenis.emx2.beaconv2.Configuration;
+import org.molgenis.emx2.beaconv2.EntryTypes;
 import org.molgenis.emx2.beaconv2.RootInfo;
+import org.molgenis.emx2.beaconv2.ServiceInfo;
 import spark.Request;
 import spark.Response;
 
@@ -45,7 +47,7 @@ public class BeaconApi {
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new BeaconConfigurationResponse());
+    return getWriter().writeValueAsString(new Configuration());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
@@ -54,7 +56,7 @@ public class BeaconApi {
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new BeaconEntryTypesResponse());
+    return getWriter().writeValueAsString(new EntryTypes());
   }
 
   private static String getFilteringTerms(Request request, Response response)
