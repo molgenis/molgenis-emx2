@@ -135,7 +135,7 @@ export default {
   },
   methods: {
     openGroup(name) {
-      window.open("/" + name + "/tables/", "_self");
+      window.open("/" + name, "_self");
     },
     openCreateSchema() {
       this.showCreateSchema = true;
