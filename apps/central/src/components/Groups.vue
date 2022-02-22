@@ -44,9 +44,7 @@
               </div>
             </td>
             <td>
-              <a href="#" @click.prevent="openGroup(schema.name)">{{
-                schema.name
-              }}</a>
+              <a :href="'/' + schema.name">{{ schema.name }}</a>
             </td>
             <td>
               {{ schema.description }}
@@ -134,9 +132,6 @@ export default {
     this.getSchemaList();
   },
   methods: {
-    openGroup(name) {
-      window.open("/" + name, "_self");
-    },
     openCreateSchema() {
       this.showCreateSchema = true;
     },
