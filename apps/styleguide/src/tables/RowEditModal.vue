@@ -6,24 +6,24 @@
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
-        {{ tableMetadata }}
+        DEBUG: {{ tableMetadata }}
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="showColumn(column)"
             v-model="value[column.id]"
-            :label="column.name"
-            :description="column.description"
             :columnType="column.columnType"
-            :table="column.refTable"
-            :filter="refLinkFilters[column.name]"
-            :refLabel="column.refLabel"
-            :refBack="column.refBack"
-            :required="column.required"
+            :description="column.description"
             :errorMessage="errorPerColumn[column.name]"
-            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+            :filter="refLinkFilters[column.name]"
             :graphqlURL="graphqlURL"
-            :refBackType="getRefBackType(column)"
+            :label="column.name"
             :pkey="getPkey(value)"
+            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+            :refBack="column.refBack"
+            :refBackType="getRefBackType(column)"
+            :refLabel="column.refLabel"
+            :required="column.required"
+            :table="column.refTable"
           />
         </span>
       </LayoutForm>
@@ -217,13 +217,16 @@ export default {
       if (!column.refLink) {
         return false;
       } else {
-        const underscoredRefValue = column.refLink.replace(' ', '_');
+        const refLinkId = getRefLinkColumnByName(
+          this.tableMetadata,
+          column.refLink
+        ).id;
+        const value = this.value[column.id];
+        const refValue = this.value[refLinkId];
         return (
-          this.value[column.id] &&
-          this.value[underscoredRefValue] &&
-          !JSON.stringify(this.value[column.id]).includes(
-            JSON.stringify(this.value[underscoredRefValue])
-          )
+          value &&
+          refValue &&
+          !JSON.stringify(value).includes(JSON.stringify(refValue))
         );
       }
     }
@@ -246,7 +249,7 @@ export default {
                   if (table.name === column1.refTable) {
                     table.columns.forEach((tableColumn) => {
                       if (tableColumn.refTable === column2.refTable) {
-                        filter[column1.name] = {}; //JJ: Should this overwrite if it already exists?
+                        filter[column1.name] = {}; //JJ: Should this overwrite if it already exists? Refactor into .find()
                         filter[column1.name][tableColumn.name] = {
                           equals: this.value[column1.refLink]
                         };
@@ -327,4 +330,8 @@ export default {
     this.validate();
   }
 };
+
+function getRefLinkColumnByName(tableMetadata, refLink) {
+  return tableMetadata.columns.find((column) => column.name === refLink);
+}
 </script>

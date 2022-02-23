@@ -6,42 +6,32 @@ const uuidv4 = require('uuid/v4');
 
 export default {
   props: {
-    /**  value */
-    value: {type: [String, Number, Object, Array, Boolean], default: null},
-    /** wether to enable in place editing */
-    inplace: Boolean,
-    /** value to be shown as placeholder in the input (if possible) */
-    placeholder: String,
-    /** label to be shown above the input */
-    label: String,
-    /** optional description string shown below input */
-    description: String,
-    /** whether input must be required (does not validate, but show option to clear input) */
-    required: {
-      type: Boolean,
-      default: false
-    },
-    /** whether input is readonly (default: false) */
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    /** message when in error state */
-    errorMessage: null,
-    /** whether this is a list of values*/
-    list: {
-      type: Boolean,
-      default: false
-    },
     /** whether to show clear buttons */
     clear: {
       type: Boolean,
       default: true
     },
-    /** parse function, such as parseInt to type value*/
-    parser: Function,
+    description: String,
     /** whether metadata can be edited */
-    editMeta: Boolean
+    editMeta: Boolean,
+    errorMessage: null,
+    inplace: Boolean,
+    label: String,
+    list: {
+      type: Boolean,
+      default: false
+    },
+    parser: Function,
+    placeholder: String,
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    required: {
+      type: Boolean,
+      default: false
+    },
+    value: {type: [String, Number, Object, Array, Boolean], default: null}
   },
   data() {
     return {
