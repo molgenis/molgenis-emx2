@@ -3,14 +3,14 @@
     <template v-if="$route.path === '/'">
       <router-view name="sidebar"></router-view>
       <div id="page-content-wrapper" class="m-3 container-fluid">
-        <router-view
-          v-for="name in docNames"
-          :key="name"
-          :name="name"
-        ></router-view>
+        <div v-for="name in docNames" :key="name">
+          <router-link class="float-right" :to="'/component/' + name">focus</router-link>
+          <router-view :name="name"></router-view>
+        </div>
       </div>
     </template>
     <div class="container" v-else>
+      <router-link :to="'/'">Back to listing</router-link>
       <router-view></router-view>
     </div>
   </div>
