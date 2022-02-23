@@ -1,5 +1,5 @@
 import {shallowMount} from '@vue/test-utils';
-import RowEditModal from '@src/tables/RowEditModal';
+import RowEditModal from '../../../src/tables/RowEditModal.vue';
 
 describe('RowEditModal', () => {
   let wrapper;
