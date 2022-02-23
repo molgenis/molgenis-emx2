@@ -21,7 +21,7 @@
           class="bg-dark text-white"
           :count="counts.institutions"
           label="Institutions"
-          :to="{ path: this.routePath + 'institutions' }"
+          :to="{ path: this.routePath + 'Institutions' }"
         >
           Contributors to the catalogue such as universities, companies, medical
           centres and research institutes
@@ -31,7 +31,7 @@
           class="bg-primary text-white"
           :count="counts.datasources"
           label="Data sources"
-          :to="{ path: this.routePath + 'datasources' }"
+          :to="{ path: this.routePath + 'Datasources' }"
         >
           Collections of data banks covering the same population
         </count-card>
@@ -40,7 +40,7 @@
           class="bg-info text-white"
           :count="counts.databanks"
           label="Data banks"
-          :to="{ path: this.routePath + 'databanks' }"
+          :to="{ path: this.routePath + 'Databanks' }"
         >
           Data collections such as registries or biobanks
         </count-card>
@@ -49,7 +49,7 @@
           class="bg-primary text-white"
           :count="counts.cohorts"
           label="Cohorts"
-          :to="{ path: this.routePath + 'cohorts' }"
+          :to="{ path: this.routePath + 'Cohorts' }"
         >
           Systematic observations of large groups of individuals over time.
         </count-card>
@@ -58,7 +58,7 @@
           class="bg-danger text-white"
           :count="counts.networks"
           label="Networks"
-          :to="{ path: this.routePath + 'networks' }"
+          :to="{ path: this.routePath + 'Networks' }"
         >
           Collaborations of multiple institutions
         </count-card>
@@ -67,7 +67,7 @@
           class="bg-success text-white"
           :count="counts.studies"
           label="Studies"
-          :to="{ path: this.routePath + 'studies' }"
+          :to="{ path: this.routePath + 'Studies' }"
         >
           Collaborations of multiple institutions, addressing research questions
           using data sources and/or data banks
