@@ -12,6 +12,10 @@ import ReadMore from "../src/components/layout/ReadMore.vue";
 
 import Pagination from "../src/components/tables/Pagination.vue"
 
+import MessageError from "../src/components/forms/MessageError.vue"
+
+import Client from "../src/client/client.js"
+
 
 export {
   BreadCrumb,
@@ -25,4 +29,6 @@ export {
   ReadMore,
   TableDisplay,
   Pagination,
+  MessageError,
+  Client
 };
