@@ -1,7 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
-import ComponentList from "./ComponentList.vue";
 import ClientView from "./ClientView.vue";
 import SideBar from "./Sidebar.vue";
 import DemoItem from "./DemoItem.vue";
@@ -24,7 +23,7 @@ Object.entries(components).forEach(([path, definition]) => {
 Vue.component("DemoItem", DemoItem);
 
 const routes = [
-  { path: "/", components: { default: ComponentList, sidebar: SideBar } },
+  { path: "/", components: { sidebar: SideBar } },
   { path: "/client", component: ClientView },
 ];
 
