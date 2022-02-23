@@ -13,6 +13,7 @@ import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.Schema;
 
 public class GraphqlSessionFieldFactory {
@@ -76,7 +77,7 @@ public class GraphqlSessionFieldFactory {
   public GraphQLFieldDefinition signinField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
+        .type(GraphqlApiSigninResult.typeForSigniResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
@@ -86,8 +87,13 @@ public class GraphqlSessionFieldFactory {
 
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 database.setActiveUser(userName);
-                return new GraphqlApiMutationResult(
-                    GraphqlApiMutationResult.Status.SUCCESS, "Signed in as '%s'", userName);
+                GraphqlApiSigninResult result =
+                    new GraphqlApiSigninResult(
+                        GraphqlApiMutationResult.Status.SUCCESS,
+                        JWTgenerator.createTokenForUser(userName, 60),
+                        "Signed in as '%s'",
+                        userName);
+                return result;
               } else {
                 return new GraphqlApiMutationResult(
                     FAILED, "Sign in as '%s' failed: user or password unknown", userName);

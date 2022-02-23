@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
@@ -447,6 +448,40 @@ public class WebApiSmokeTests {
 
     schema.getMetadata().removeSetting("menu");
     db.clearActiveUser();
+  }
+
+  @Test
+  public void testTokenBasedAuth() throws JsonProcessingException {
+
+    // check if we can use token based auth
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // without token we are anonymous
+    assertTrue(
+        given()
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("anonymous"));
+
+    // witht token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
   }
 
   @Test
