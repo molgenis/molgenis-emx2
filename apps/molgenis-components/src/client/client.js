@@ -134,12 +134,16 @@ const fetchTableData = async (
 
 export default {
   newClient: (axios, graphqlURL) => {
+    // use closure to have metaData cache private to client
     let metaData = null;
     return {
       fetchMetaData: () => {
         return fetchMetaData(axios, graphqlURL).then((schema) => {
           metaData = schema;
-          return structuredClone(metaData);
+          // node js may not have structuredClone function, then fallback to deep clone via JSON
+          return typeof structuredClone === "function"
+            ? structuredClone(metaData)
+            : JSON.parse(JSON.stringify(metaData));
         });
       },
       fetchTableData: async (tableId, properties) => {
