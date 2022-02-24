@@ -3,18 +3,7 @@
     <h1>Database interactions</h1>
     <button @click="getPetNames">Query the database!</button>
     <br/>
-    <input v-model="table" placeholder="enter table name"/>
     <br/>
-
-    <h2>Select</h2>
-    <select v-model="selectedTable">
-      <option disabled value="">Select table to query:</option>
-      <option>Category</option>
-      <option>Order</option>
-      <option>Pet</option>
-      <option>User</option>
-      <option>Tag</option>
-    </select>
 
     <br/>
     <div v-if="loading">loading...</div>
