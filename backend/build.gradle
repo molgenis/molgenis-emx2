@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.2.1" apply false
+    id "com.diffplug.spotless" version "6.3.0" apply false
 }
 
 repositories {
@@ -34,7 +34,7 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
         implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
-        implementation 'org.jooq:jooq:3.16.3'
+        implementation 'org.jooq:jooq:3.16.4'
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.1'

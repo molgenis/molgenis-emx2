@@ -6,12 +6,13 @@ import static spark.Spark.get;
 
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.Options;
-import io.bit3.jsass.Output;
 import io.bit3.jsass.importer.Import;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,15 +22,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import spark.Request;
 import spark.Response;
 
 public class BootstrapThemeService {
-  private static Map<String, String> cache = new LinkedHashMap<>();
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
   private static final Pattern pattern = Pattern.compile(HEX_WEBCOLOR_PATTERN);
+  private static Map<String, String> cache = new LinkedHashMap<>();
 
   private BootstrapThemeService() {
     // hide constructor
@@ -41,21 +43,9 @@ public class BootstrapThemeService {
     get(schemaPath, BootstrapThemeService::getCss);
   }
 
-  public static String getCss(Request request, Response response)
-      throws UnsupportedEncodingException {
+  public static String getCss(Request request, Response response) {
     response.type("text/css");
-
-    Map<String, String> params = new LinkedHashMap<>();
-
-    // first get params from schema settings, if exists
-    Schema schema = getSchema(request);
-    if (schema != null) {
-      String cssUrl = schema.getMetadata().getSetting("cssURL");
-
-      if (cssUrl != null) {
-        params.putAll(splitQuery(cssUrl.split("\\?")[1]));
-      }
-    }
+    Map<String, String> params = getParams(request);
 
     // then override with url query, if any
     params.putAll(splitQuery(request.queryString()));
@@ -63,7 +53,7 @@ public class BootstrapThemeService {
     // see if we have it cached, otherwise generate the css
     String key =
         params.entrySet().stream()
-            .map(e -> e.getKey() + "=" + e.getValue())
+            .map(entry -> entry.getKey() + "=" + entry.getValue())
             .collect(Collectors.joining("&"));
     if (cache.containsKey(key)) {
       return cache.get(key);
@@ -72,48 +62,64 @@ public class BootstrapThemeService {
     }
   }
 
-  public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {
+  @NotNull
+  private static Map<String, String> getParams(Request request) {
+    Schema schema = getSchema(request);
+    Map<String, String> params = new LinkedHashMap<>();
+    if (schema != null) {
+      String cssUrl = schema.getMetadata().getSetting("cssURL");
+      if (cssUrl != null) {
+        params.putAll(splitQuery(cssUrl.split("\\?")[1]));
+      }
+    }
+    return params;
+  }
+
+  private static Map<String, String> splitQuery(String query) {
     Map<String, String> query_pairs = new LinkedHashMap<>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
         int idx = pair.indexOf("=");
         query_pairs.put(
-            URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
-            URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8),
+            URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
       }
     }
     return query_pairs;
   }
 
   public static String generateCss(Map<String, String> params) {
-    // prepare the params with defaults
-    String primary = params.get("primary") == null ? "#017FFD" : "#" + params.get("primary");
-    if (!isValid(primary)) throw new MolgenisException("Primary color invalid: " + primary);
-    String secondary = params.get("secondary") == null ? "#005EC4" : "#" + params.get("secondary");
-    if (!isValid(secondary)) throw new MolgenisException("Secondary color invalid: " + primary);
+    String primaryColor =
+        getColor(params.get("primaryColor"), "#017FFD", "Primary color invalid: ");
+    String secondaryColor =
+        getColor(params.get("secondaryColor"), "#005EC4", "Secondary color invalid: ");
 
     String input =
-        String.format("$theme-colors:(\nprimary: %s, \nsecondary: %s\n);\n\n", primary, secondary);
-
+        String.format(
+            "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n@import 'theme.scss'",
+            primaryColor, secondaryColor);
+    Compiler compiler = new Compiler();
+    Options options = new Options();
+    options.setImporters(Collections.singleton(BootstrapThemeService::doScssImport));
     try {
-      input += "@import \"theme.scss\"";
-      Compiler compiler = new Compiler();
-      Options options = new Options();
-      options.setImporters(Collections.singleton(BootstrapThemeService::doImport));
-
-      // example here
-      // https://gitlab.com/jsass/jsass/blob/master/example/webapp/src/main/java/io/bit3/jsass/example/webapp/JsassServlet.java#L89-192
-
-      Output output = compiler.compileString(input, options);
-      return output.getCss();
+      return compiler.compileString(input, options).getCss();
     } catch (Exception e) {
-      logger.error("SASS compilation failed, input was:\n" + input);
+      logger.error(String.format("SASS compilation failed, input was:%n%s", input));
       throw new MolgenisException("SASS compilation failed", e);
     }
   }
 
-  public static boolean isValid(final String colorCode) {
+  private static String getColor(String customColor, String defaultColor, String errorMessage) {
+    String primaryColor = customColor == null ? defaultColor : "#" + customColor;
+    if (isValidColor(primaryColor)) {
+      return primaryColor;
+    } else {
+      throw new MolgenisException(errorMessage + primaryColor);
+    }
+  }
+
+  public static boolean isValidColor(final String colorCode) {
     Matcher matcher = pattern.matcher(colorCode);
     return matcher.matches();
   }
@@ -121,47 +127,38 @@ public class BootstrapThemeService {
   /**
    * Resolve the target file for an {@code @import} directive.
    *
-   * @param url The {@code import} url.
-   * @param previous The file that contains the {@code import} directive.
+   * @param fileName The {@code import} fileName.
+   * @param previousFile The file that contains the {@code import} directive.
    * @return The resolve import objects or {@code null} if the import file was not found.
    */
-  private static Collection<Import> doImport(String url, Import previous) {
+  private static Collection<Import> doScssImport(String fileName, Import previousFile) {
     try {
-
-      // find in import paths
-      final List<Path> importPaths = new LinkedList<>();
-
-      // (a) relative to the previous import file
-      String previousPath = previous.getAbsoluteUri().getPath();
-      Path previousParentPath = Paths.get(previousPath).getParent();
-      // inside jar we have relative path
-      if (BootstrapThemeService.class
-          .getClassLoader()
-          .getResource("theme")
-          .getPath()
-          .contains("!")) {
-        previousParentPath = Paths.get(previousPath.replaceFirst("/", "")).getParent();
-      }
-      if (previousParentPath != null) {
-        importPaths.add(previousParentPath);
-      }
-
-      // (b) or simply in the root folder
-      importPaths.add(Path.of("theme"));
-
-      for (Path importPath : importPaths) {
-        Path target = importPath.resolve(url);
-
-        Collection<Import> imports = resolveImport(target);
-        if (null != imports) {
-          return imports;
-        }
-      }
-
-      // file not found
-      throw new FileNotFoundException(url);
+      final Path importPath = getImportPath(previousFile);
+      Path targetPath = importPath.resolve(fileName);
+      return resolveImport(targetPath);
     } catch (URISyntaxException | IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @NotNull
+  private static Path getImportPath(Import previous) {
+    Path previousParentPath = getPreviousParentPath(previous);
+    return Objects.requireNonNullElseGet(previousParentPath, () -> Path.of("theme"));
+  }
+
+  private static Path getPreviousParentPath(Import previous) {
+    String previousPath = getPreviousPath(previous);
+    return Paths.get(previousPath).getParent();
+  }
+
+  @NotNull
+  private static String getPreviousPath(Import previous) {
+    String absoluteUri = previous.getAbsoluteUri().toString();
+    if (absoluteUri.contains("!")) {
+      return absoluteUri.split("!/")[1];
+    } else {
+      return absoluteUri;
     }
   }
 
@@ -174,20 +171,8 @@ public class BootstrapThemeService {
   private static Collection<Import> resolveImport(Path path)
       throws IOException, URISyntaxException {
     URL resource = resolveResource(path);
-
-    if (null == resource) {
-      return null;
-    }
-
-    // calculate a jar absolute URI
     final String source = IOUtils.toString(resource, StandardCharsets.UTF_8);
-
-    final URI absoluteIRI =
-        resource.toString().contains("!")
-            ? Paths.get("/").resolve(resource.toURI().toString().split("!")[1]).toUri()
-            : resource.toURI();
-
-    final Import scssImport = new Import(absoluteIRI, absoluteIRI, source);
+    final Import scssImport = new Import(resource.toURI(), resource.toURI(), source);
     return Collections.singleton(scssImport);
   }
 
@@ -209,26 +194,42 @@ public class BootstrapThemeService {
    * @param path The path to resolve.
    * @return The resource URL of the resolved file or {@code null} if the file was not found.
    */
-  private static URL resolveResource(Path path) throws MalformedURLException {
+  private static URL resolveResource(Path path)
+      throws FileNotFoundException, MalformedURLException {
     final Path dir = path.getParent();
     final String basename = path.getFileName().toString();
 
     for (String prefix : new String[] {"_", ""}) {
       for (String suffix : new String[] {".scss", ".css", ""}) {
         final Path target = dir.resolve(prefix + basename + suffix);
-        URL resource = BootstrapThemeService.class.getClassLoader().getResource(target.toString());
-
-        if (null != resource) {
+        URL resource = getResource(target);
+        if (resource != null) {
           return resource;
-        } else {
-          // when running tests we are not inside a jar we test
-          Path fullPath = Paths.get(target.toString());
-          if (Files.exists(fullPath)) {
-            return Paths.get(target.toString()).toUri().toURL();
-          }
         }
       }
     }
-    return null;
+    throw new FileNotFoundException(basename);
+  }
+
+  private static URL getResource(Path target) throws MalformedURLException {
+    URL resourceUrl =
+        BootstrapThemeService.class
+            .getClassLoader()
+            .getResource(target.toString().replace('\\', '/'));
+
+    if (resourceUrl == null) {
+      return getNonJarUrlForTest(target);
+    } else {
+      return resourceUrl;
+    }
+  }
+
+  private static URL getNonJarUrlForTest(Path target) throws MalformedURLException {
+    Path fullPath = Paths.get(target.toString());
+    if (Files.exists(fullPath)) {
+      return Paths.get(target.toString()).toUri().toURL();
+    } else {
+      return null;
+    }
   }
 }

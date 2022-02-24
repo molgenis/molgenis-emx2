@@ -11,7 +11,9 @@
     "pages",
     "graphql-playground",
     "nuxt-ssr",
-    "molgenis-components"
+    "molgenis-components",
+    "helloworld",
+    "gendecs"
   ],
   "resolutions": {
     "nuxt-ssr/**/css-loader": "4.3.0",

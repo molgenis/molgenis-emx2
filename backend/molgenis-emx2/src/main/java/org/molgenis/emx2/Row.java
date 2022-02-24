@@ -101,11 +101,11 @@ public class Row {
   }
 
   public String getText(String name) {
-    return getString(name);
+    return TypeUtils.toText(values.get(name));
   }
 
   public String[] getTextArray(String name) {
-    return getStringArray(name);
+    return TypeUtils.toTextArray(values.get(name));
   }
 
   public LocalDate getDate(String name) {

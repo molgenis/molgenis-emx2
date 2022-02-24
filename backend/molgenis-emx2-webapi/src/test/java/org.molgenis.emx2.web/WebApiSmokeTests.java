@@ -359,11 +359,11 @@ public class WebApiSmokeTests {
   @Test
   public void testBootstrapThemeService() {
     // should success
-    String css = given().when().get("/pet store/tables/theme.css?primary=123123").asString();
+    String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
     Assert.assertTrue(css.contains("123123"));
 
     // should fail
-    css = given().when().get("/pet store/tables/theme.css?primary=pink").asString();
+    css = given().when().get("/pet store/tables/theme.css?primaryColor=pink").asString();
     Assert.assertTrue(css.contains("pink"));
   }
 
