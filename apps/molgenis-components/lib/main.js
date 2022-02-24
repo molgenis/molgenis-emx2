@@ -10,7 +10,7 @@ import TableDisplay from "../src/components/display/TableDisplay.vue"
 
 import MessageError from "../src/components/forms/MessageError.vue"
 
-import BreadCrumb from "../src/components/layout/BreadCrumb.vue"
+import Breadcrumb from "../src/components/layout/Breadcrumb.vue"
 import ReadMore from "../src/components/layout/ReadMore.vue";
 
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
@@ -33,7 +33,7 @@ export {
   PersonDetails,
   TableDisplay,
   MessageError,
-  BreadCrumb,
+  Breadcrumb,
   ReadMore,
   DataDisplayCell,
   ExplorerTable,

@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper d-flex flex-column">
     <Menu :brandHref="brandHref" :menu="menu" />
-    <BreadCrumb v-if="isBreadCrumbShown" :crumbs="crumbs" />
+    <Breadcrumb v-if="isBreadcrumbShown" :crumbs="crumbs" />
     <Nuxt class="flex-fill" />
     <molgenis-footer class="footer">
       <span v-if="session && manifest">
@@ -34,10 +34,10 @@ div.wrapper {
 </style>
 
 <script>
-import { BreadCrumb } from "molgenis-components";
+import { Breadcrumb } from "molgenis-components";
 import { mapGetters } from "vuex";
 export default {
-  components: { BreadCrumb },
+  components: { Breadcrumb },
   computed: {
     ...mapGetters(["menu"]),
     schema() {
@@ -71,7 +71,7 @@ export default {
         return accum;
       }, {});
     },
-    isBreadCrumbShown() {
+    isBreadcrumbShown() {
       return this.$route.path !== "/apps/central/";
     },
   },

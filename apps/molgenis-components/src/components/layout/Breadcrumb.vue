@@ -34,7 +34,7 @@
 
 <script>
 export default {
-  name: "BreadCrumb",
+  name: "Breadcrumb",
   props: {
     /* list of crumbs, array of  {'label':'url'} */
     crumbs: Object,
