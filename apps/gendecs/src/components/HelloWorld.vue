@@ -40,33 +40,50 @@
       </SearchAutoComplete>
 
     </div>
+    <div>
+      <br/>
+      <h2>Enter gene</h2>
+      <form>
+      <input v-model="geneEntered" type="text">
+      <input type="submit" @click="geneToHpo">
+      </form>
+        {{ geneEntered }}
+    </div>
 
     <div>
-      <br/> <br/>
-      <h2>Enter patient number</h2>
-      <input v-model="patientNumber" placeholder="patient number "/>
-      <p>Patient number is: {{patientNumber}}</p>
       <br/>
-      {{ hpoResults }}
+      <PatientSearch>
+
+      </PatientSearch>
+
     </div>
+
+    <h3>here are results from the HPO api call</h3>
+    {{ hpoResults }}
+    <br/> <br/>
+    <h3>here are results from the Gene api call</h3>
+    {{ geneAssociates }}
   </div>
 </template>
 
 <script>
 import { ButtonAction } from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
+import PatientSearch from "./PatientSearch";
 
 export default {
   components: {
     ButtonAction,
-    SearchAutoComplete
+    SearchAutoComplete,
+    PatientSearch
   },
   data() {
     return {
       count: 0,
-      patientNumber: 0,
       selected: 1234,
-      hpoResults: {}
+      hpoResults: {},
+      geneEntered: '',
+      geneAssociates: {}
     };
   },
   methods: {
@@ -74,15 +91,38 @@ export default {
       this.count++;
     },
     async apiCall(hpoTerm) {
-      console.log("in api call");
-
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
         .then(response => response.json());
-        // .then(data => console.log(data['terms']));
-      // let {results} = await res.json();
-      console.log(resultData['terms']);
       this.hpoResults = resultData['terms'];
+      this.getHpoId();
+    },
+    async geneToHpo() {
+      // HMGCL
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + this.geneEntered)
+        .then(response => response.json());
+      let entrezId = resultData['genes'][0].entrezGeneId;
 
+      let resultData2 = await fetch("https://hpo.jax.org/api/hpo/gene/" + entrezId)
+        .then(response => response.json());
+      let geneTermAssoc = [];
+      for (let i = 0; i < resultData2['termAssoc'].length; i++) {
+        geneTermAssoc.push(resultData2['termAssoc'][i].name);
+      }
+      this.geneAssociates = geneTermAssoc;
+    },
+    getHpoId() {
+      // let id = this.hpoResults[0].id;
+      // this.getChildren(id);
+    },
+    async getChildren(id) {
+      // http://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=HP:0000478
+      // gives cors error
+      let resultData = await fetch("http://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=" + id, {
+        mode: 'cors',
+        method: 'GET',
+      })
+        .then(response => response.json());
+      console.log(resultData['terms']);
     }
   },
 };
