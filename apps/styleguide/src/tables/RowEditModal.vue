@@ -87,9 +87,10 @@ export default {
   methods: {
     getRefBackType(column) {
       if (column.columnType === 'REFBACK') {
-        return this.getTable(column.refTable)
-          .columns.filter((c) => c.name === column.refBack)
-          .map((c) => c.columnType)[0];
+        const table = this.getTable(column.refTable);
+        return table.columns.find(
+          (otherColumn) => otherColumn.name === column.refBack
+        ).columnType;
       }
     },
     reload() {
@@ -147,16 +148,13 @@ export default {
     },
     getUpsertQuery() {
       const name = this.tableId;
-      if (this.pkey && !this.clone) {
-        return `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
-      } else {
-        return `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
-      }
+      const action = this.pkey && !this.clone ? 'update' : 'insert';
+      return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
     },
     showColumn(column) {
       const hasRefValue = !column.refLink || this.value[column.refLink];
       const isColumnVisible =
-        this.visibleColumns == null || this.visibleColumns.includes(column.id);
+        !this.visibleColumns || this.visibleColumns.includes(column.id);
       return (
         isColumnVisible &&
         this.visible(column.visible, column.id) &&
@@ -223,11 +221,17 @@ export default {
         ).id;
         const value = this.value[column.id];
         const refValue = this.value[refLinkId];
-        return (
-          value &&
-          refValue &&
-          !JSON.stringify(value).includes(JSON.stringify(refValue))
-        );
+
+        // TODO: find out if this should check for equality instead of overlap
+        if (typeof value === 'string' && typeof refValue === 'string') {
+          return value && refValue && !value.includes(refValue);
+        } else {
+          return (
+            value &&
+            refValue &&
+            !JSON.stringify(value).includes(JSON.stringify(refValue))
+          );
+        }
       }
     }
   },
