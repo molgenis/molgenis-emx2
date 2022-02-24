@@ -21,7 +21,7 @@ public class GraphqlApiSigninResult {
     this.token = token;
   }
 
-  public static final GraphQLObjectType typeForSigniResult =
+  public static final GraphQLObjectType typeForSignResult =
       GraphQLObjectType.newObject()
           .name("SigninResult")
           .field(

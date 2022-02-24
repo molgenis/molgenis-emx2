@@ -77,7 +77,7 @@ public class GraphqlSessionFieldFactory {
   public GraphQLFieldDefinition signinField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
-        .type(GraphqlApiSigninResult.typeForSigniResult)
+        .type(GraphqlApiSigninResult.typeForSignResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
