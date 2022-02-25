@@ -53,9 +53,7 @@
     <div>
       <br/>
       <PatientSearch>
-
       </PatientSearch>
-
     </div>
 
     <h3>here are results from the HPO api call</h3>
@@ -63,6 +61,7 @@
     <br/> <br/>
     <h3>here are results from the Gene api call</h3>
     {{ geneAssociates }}
+
   </div>
 </template>
 
@@ -84,6 +83,7 @@ export default {
       hpoResults: {},
       geneEntered: '',
       geneAssociates: {}
+
     };
   },
   methods: {
@@ -111,18 +111,21 @@ export default {
       this.geneAssociates = geneTermAssoc;
     },
     getHpoId() {
-      // let id = this.hpoResults[0].id;
-      // this.getChildren(id);
+      let id = this.hpoResults[0].id;
+      this.getChildren(id);
     },
     async getChildren(id) {
-      // http://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=HP:0000478
-      // gives cors error
-      let resultData = await fetch("http://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=" + id, {
-        mode: 'cors',
-        method: 'GET',
+      let resultData = await fetch("https://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=" + id, {
       })
         .then(response => response.json());
-      console.log(resultData['terms']);
+
+      let hpoChildren = resultData['_embedded']['terms'];
+      let hpoChildrenName = [];
+      for (let i = 0; i < hpoChildren.length; i++) {
+        hpoChildrenName.push(hpoChildren[i].label);
+      }
+      console.log(hpoChildrenName);
+
     }
   },
 };
