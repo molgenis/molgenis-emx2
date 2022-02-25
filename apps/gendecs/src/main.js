@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import App from "./App";
-import HelloWorld from "./components/HelloWorld";
+import GenDecs from "./components/GenDecs";
 import SomeQuery from "./components/SomeQuery";
 
 Vue.use(VueRouter);
@@ -12,7 +12,7 @@ const router = new VueRouter({
   routes: [
     {
       path: "/",
-      component: HelloWorld,
+      component: GenDecs,
       props: true,
     },
     {

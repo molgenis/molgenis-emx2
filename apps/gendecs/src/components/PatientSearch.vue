@@ -6,9 +6,11 @@
     <input type="submit" @click="fetchPatient">
     <p>Patient number is: {{patientId}}</p>
     <br/>
+    <h3>here are the database results</h3>
     <div v-if="loading">loading...</div>
     <div v-else-if="graphqlError">Error: {{ graphqlError }}</div>
     <div v-else>result: {{ rows }}</div>
+
   </div>
 
 </template>
