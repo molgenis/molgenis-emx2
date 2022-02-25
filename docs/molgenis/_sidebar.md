@@ -23,6 +23,7 @@
     - [Architecture](dev_architecture.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)
+    - [FAIR Data Point](dev_fairdatapoint.md)
     - [App development](dev_apps.md)
     - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)
