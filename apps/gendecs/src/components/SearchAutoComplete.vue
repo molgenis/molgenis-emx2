@@ -1,6 +1,6 @@
 <template>
   <div class="autocomplete">
-    <input v-model="HpoTerm"
+    <InputSearch v-model="HpoTerm"
            @input="onChange"
            @keydown.down="onArrowDown"
            @keydown.up="onArrowUp"
@@ -24,10 +24,17 @@
   </div>
 </template>
 
+
 <script>
+
+import {InputSearch} from "@mswertz/emx2-styleguide";
+
 export default {
   name: "SearchAutoComplete",
   emits: "selectedHpoTerm",
+  components: {
+    InputSearch
+  },
   props: {
     items: {
       type: Array,

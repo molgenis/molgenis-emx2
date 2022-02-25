@@ -40,27 +40,27 @@
       </SearchAutoComplete>
 
     </div>
-    <div>
-      <br/>
-      <h2>Enter gene</h2>
-      <form>
-      <input v-model="geneEntered" type="text">
-      <input type="submit" @click="geneToHpo">
-      </form>
-        {{ geneEntered }}
-    </div>
+<!--    <div>-->
+<!--      <br/>-->
+<!--      <h2>Enter gene</h2>-->
+<!--      <form>-->
+<!--      <input v-model="geneEntered" type="text">-->
+<!--      <input type="submit" @click="geneToHpo">-->
+<!--      </form>-->
+<!--        {{ geneEntered }}-->
+<!--    </div>-->
 
     <div>
       <br/>
-      <PatientSearch>
+      <PatientSearch @geneOfPatient="geneToHpo">
       </PatientSearch>
     </div>
-
-    <h3>here are results from the HPO api call</h3>
+    <br/> <br/>
+    <h3 v-if="loadingHpo">here are results from the HPO api call</h3>
     {{ hpoResults }}
     <br/> <br/>
-    <h3>here are results from the Gene api call</h3>
-    {{ geneAssociates }}
+<!--    <h3>here are results from the Gene api call</h3>-->
+<!--    {{ geneAssociates }}-->
 
   </div>
 </template>
@@ -80,10 +80,10 @@ export default {
     return {
       count: 0,
       selected: 1234,
-      hpoResults: {},
+      hpoResults: null,
       geneEntered: '',
-      geneAssociates: {}
-
+      geneAssociates: null,
+      loadingHpo: false
     };
   },
   methods: {
@@ -93,12 +93,14 @@ export default {
     async apiCall(hpoTerm) {
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
         .then(response => response.json());
+      this.loadingHpo = true;
       this.hpoResults = resultData['terms'];
       this.getHpoId();
     },
-    async geneToHpo() {
+    async geneToHpo(geneOfPatient) {
       // HMGCL
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + this.geneEntered)
+      console.log("ik be nu hier")
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + geneOfPatient)
         .then(response => response.json());
       let entrezId = resultData['genes'][0].entrezGeneId;
 
@@ -124,7 +126,8 @@ export default {
       for (let i = 0; i < hpoChildren.length; i++) {
         hpoChildrenName.push(hpoChildren[i].label);
       }
-      console.log(hpoChildrenName);
+
+      console.log("Children of " + this.hpoResults[0].name + ": " + hpoChildrenName);
 
     }
   },

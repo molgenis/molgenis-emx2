@@ -2,14 +2,14 @@
   <div>
     <h2>Enter patient number</h2>
 
-    <input v-model="patientId" placeholder="patient number" type="number"/>
-    <input type="submit" @click="fetchPatient">
-    <p>Patient number is: {{patientId}}</p>
+    <InputInt v-model="patientId" placeholder="patient number" type="number"/>
+    <ButtonOutline @click="fetchPatient">Submit</ButtonOutline>
+<!--    <p>Patient number is: {{patientId}}</p>-->
     <br/>
-    <h3>here are the database results</h3>
+    <h3 v-if="dataLoaded">Here is the patient Data:</h3>
     <div v-if="loading">loading...</div>
     <div v-else-if="graphqlError">Error: {{ graphqlError }}</div>
-    <div v-else>result: {{ rows }}</div>
+    <div v-else>{{ rows }}</div>
 
   </div>
 
@@ -17,36 +17,38 @@
 
 <script>
 import {request} from "graphql-request";
+import {InputInt, ButtonOutline} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "PatientSearch",
+  emits: "geneOfPatient",
+  components: {
+    InputInt,
+    ButtonOutline
+  },
   props: {
     id: Number
   },
   data() {
     return {
-      rows: Array,
+      rows: null,
       loading: false,
       graphqlError: null,
-      patientId: 0
+      patientId: 0,
+      dataLoaded: false
     }
   },
   methods: {
-    fetchPatient() {
-      // let query = "{Patients(id: " + this.patientId + "){gender}}";
-      let query = "{Patients{identifier gender}}"
-      // let query = '{Patients(search : male) {' +
-      //     'identifier gender}' +
-      //     '}'
-
-      console.log(query);
+    async fetchPatient() {
+      let query = "{Patients{id gender birthdate genesymbol}}";
+      let resultPatients = [];
       this.loading = true;
       //do query
-      request("graphql", query)
+      await request("graphql", query)
           .then((data) => {
-            console.log(data);
+            this.dataLoaded = true;
             this.rows = data["Patients"];
-
+            resultPatients = data["Patients"];
             this.loading = false;
           })
           .catch((error) => {
@@ -57,7 +59,18 @@ export default {
             }
             this.loading = false;
           });
-    }
+      this.getCorrectPatient(resultPatients);
+      // console.log(resultPatients[0]['gender']);
+    },
+    getCorrectPatient(patients) {
+      for (let i = 0; i < patients.length; i++) {
+        if(patients[i].id === parseInt(this.patientId)) {
+          let geneOfPatient = patients[i].genesymbol;
+          this.$emit('geneOfPatient', geneOfPatient);
+          console.log(geneOfPatient);
+        }
+      }
+      }
   }
 }
 </script>
