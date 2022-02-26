@@ -38,7 +38,8 @@ public class GraphqlConstants {
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
   public static final String LABEL = "label";
-  static final String COUNT = "count";
+  public static final String COUNT = "count";
+  public static final String SCHEMAS = "schemas";
 
   private GraphqlConstants() {
     // hide constructor

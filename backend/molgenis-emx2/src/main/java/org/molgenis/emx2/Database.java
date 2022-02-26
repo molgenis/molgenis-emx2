@@ -19,6 +19,8 @@ public interface Database {
 
   Schema dropCreateSchema(String name, String description);
 
+  void dropSchemaIfExists(String name);
+
   void dropSchema(String name);
 
   Collection<String> getSchemaNames();

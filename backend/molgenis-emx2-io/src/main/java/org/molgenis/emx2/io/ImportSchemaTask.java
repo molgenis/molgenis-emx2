@@ -12,6 +12,13 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportSchemaTask extends Task {
   private TableStore store;
   private Schema schema;
+  private Filter filter = Filter.ALL;
+
+  public static enum Filter {
+    METADATA_ONLY,
+    DATA_ONLY,
+    ALL
+  };
 
   public ImportSchemaTask(String description, TableStore store, Schema schema, boolean strict) {
     super(description, strict);
@@ -25,6 +32,11 @@ public class ImportSchemaTask extends Task {
     this.schema = schema;
   }
 
+  public ImportSchemaTask setFilter(Filter filter) {
+    this.filter = filter;
+    return this;
+  }
+
   @Override
   public void run() {
     this.start();
@@ -33,53 +45,64 @@ public class ImportSchemaTask extends Task {
           db -> {
             // import metadata, if any
             Schema s = db.getSchema(schema.getName());
-            Task metadataTask = new ImportMetadataTask(s, store, isStrict());
-            this.add(metadataTask);
-            metadataTask.run();
 
-            boolean skipped = true;
-
-            // create task for the import, including subtasks for each sheet
-            for (Table table : s.getTablesSorted()) {
-              if (store.containsTable(table.getName())) {
-                ImportTableTask importTableTask = new ImportTableTask(store, table, isStrict());
-                this.add(importTableTask);
-                importTableTask.run();
-                skipped = false;
-              }
+            if (!filter.equals(Filter.DATA_ONLY)) {
+              Task metadataTask = new ImportMetadataTask(s, store, isStrict());
+              this.add(metadataTask);
+              metadataTask.run();
             }
 
-            // warn for unknown sheet names, if supported
-            Collection<String> tableNames = s.getTableNames();
-            try {
-              for (String sheet : store.tableNames()) {
-                if (!sheet.startsWith("_files/")
-                    && !"molgenis".equals(sheet)
-                    && !"molgenis_settings".equals(sheet)
-                    && !"molgenis_members".equals(sheet)
-                    && !tableNames.contains(sheet)) {
-                  this.step(
-                          "Sheet with name '"
-                              + sheet
-                              + "' was skipped: no table with that name found")
-                      .skipped();
+            if (!filter.equals(Filter.METADATA_ONLY)) {
+              boolean skipped = true;
+
+              // create task for the import, including subtasks for each sheet
+              for (Table table : s.getTablesSorted()) {
+                if (store.containsTable(table.getName())) {
+                  ImportTableTask importTableTask = new ImportTableTask(store, table, isStrict());
+                  this.add(importTableTask);
+                  importTableTask.run();
+                  skipped = false;
                 }
               }
-            } catch (UnsupportedOperationException e) {
-              // ignore, not important
-            }
 
-            // execute the import tasks
-            if (skipped) {
-              this.step("Import data skipped: No data sheet included").skipped();
+              // warn for unknown sheet names, if supported
+              Collection<String> tableNames = s.getTableNames();
+              try {
+                for (String sheet : store.tableNames()) {
+                  if (!sheet.startsWith("_files/")
+                      && !"molgenis".equals(sheet)
+                      && !"molgenis_settings".equals(sheet)
+                      && !"molgenis_members".equals(sheet)
+                      && !tableNames.contains(sheet)) {
+                    this.step(
+                            "Sheet with name '"
+                                + sheet
+                                + "' was skipped: no table with that name found")
+                        .skipped();
+                  }
+                }
+              } catch (UnsupportedOperationException e) {
+                // ignore, not important
+              }
+
+              // execute the import tasks
+              if (skipped) {
+                this.step("Import data skipped: No data sheet included").skipped();
+              }
             }
 
             // commit
-            this.step("Committing data (may take a while)").start();
+            if (filter.equals(Filter.ALL)) {
+              this.step("Committing data (may take a while)").start();
+            }
           });
-      this.getSteps().get(this.getSteps().size() - 1).setDescription("Committed data").complete();
+      if (filter.equals(Filter.ALL)) {
+        this.getSteps().get(this.getSteps().size() - 1).setDescription("Committed data").complete();
+      }
     } catch (Exception e) {
-      this.getSteps().get(this.getSteps().size() - 1).error("Commit failed: " + e.getMessage());
+      if (filter.equals(Filter.ALL)) {
+        this.getSteps().get(this.getSteps().size() - 1).error("Commit failed: " + e.getMessage());
+      }
       this.rollback(this);
       this.error("Import failed: " + e.getMessage());
       throw e;

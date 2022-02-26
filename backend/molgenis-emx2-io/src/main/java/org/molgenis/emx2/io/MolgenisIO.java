@@ -8,6 +8,7 @@ import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
@@ -87,5 +88,10 @@ public class MolgenisIO {
 
   public static void fromStore(TableStore store, Schema schema, boolean strict) {
     new ImportSchemaTask(store, schema, strict).run();
+  }
+
+  public static void fromSchemaList(
+      Database database, List<SchemaDeclaration> schemas, boolean strict) {
+    new ImportSchemaListTask(database, schemas, strict).run();
   }
 }

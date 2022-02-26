@@ -234,6 +234,13 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public void dropSchemaIfExists(String name) {
+    if (getSchema(name) != null) {
+      this.dropSchema(name);
+    }
+  }
+
+  @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
     tx(

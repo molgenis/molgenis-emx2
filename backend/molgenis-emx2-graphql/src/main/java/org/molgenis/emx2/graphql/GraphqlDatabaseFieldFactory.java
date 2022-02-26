@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlConstants.NAME;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
@@ -25,8 +26,7 @@ public class GraphqlDatabaseFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
         .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument("name");
@@ -35,12 +35,45 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
+  private GraphQLInputObjectType schemaInput =
+      GraphQLInputObjectType.newInputObject()
+          .name("SchemaInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.SOURCE_URL)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .build();
+
+  public GraphQLFieldDefinition.Builder create(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("create")
+        .type(typeForMutationResult)
+        .description("generalized create method to create one or more schemas in one transaction")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SCHEMAS)
+                .type(GraphQLList.list(schemaInput)))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              List<Map<String, Object>> schemaList =
+                  dataFetchingEnvironment.getArgument(GraphqlConstants.SCHEMAS);
+              return null;
+            });
+  }
+
+  @Deprecated
   public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
         .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .deprecate("to be replaced by more generic 'create' mutation")
+        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .argument(
@@ -49,7 +82,7 @@ public class GraphqlDatabaseFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument(GraphqlConstants.NAME);
+              String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
               List<String> sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URL);
               database.tx(
@@ -76,8 +109,7 @@ public class GraphqlDatabaseFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("updateSchema")
         .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .dataFetcher(
@@ -155,7 +187,7 @@ public class GraphqlDatabaseFieldFactory {
                     .name("Schema")
                     .field(
                         GraphQLFieldDefinition.newFieldDefinition()
-                            .name(GraphqlConstants.NAME)
+                            .name(NAME)
                             .type(Scalars.GraphQLString)
                             .build())
                     .field(

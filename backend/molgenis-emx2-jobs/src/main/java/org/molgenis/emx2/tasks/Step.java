@@ -101,10 +101,11 @@ public class Step {
     complete();
   }
 
-  public void complete() {
+  public Step complete() {
     this.status = COMPLETED;
     this.end = System.currentTimeMillis();
     this.logger.info(getDescription());
+    return this;
   }
 
   public void completeWithError(String message) {
