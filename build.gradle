@@ -107,8 +107,8 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 docker {
     name ssrImageName
     tags 'latest', ssrTagName
-    dockerfile file('apps/Dockerfile')
-    files 'apps/nuxt-ssr'
+    dockerfile file('Dockerfile')
+    files 'apps'
 }
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null

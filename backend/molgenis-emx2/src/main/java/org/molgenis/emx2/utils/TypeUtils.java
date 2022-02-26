@@ -2,7 +2,6 @@ package org.molgenis.emx2.utils;
 
 import static org.jooq.impl.DSL.cast;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -25,8 +24,6 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 
 public class TypeUtils {
-  private static ObjectMapper json = new ObjectMapper();
-
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -37,8 +34,12 @@ public class TypeUtils {
   public static UUID toUuid(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) throw new MolgenisException("Cannot cast \"\" to UUID");
-      return java.util.UUID.fromString((String) v);
+      String value = toString(v);
+      if (value != null) {
+        return java.util.UUID.fromString(value);
+      } else {
+        return null;
+      }
     }
     return (UUID) v;
   }
@@ -48,31 +49,33 @@ public class TypeUtils {
   }
 
   public static String[] toStringArray(Object v) {
-    String[] result = (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
+    String[] result = toTextArray(v);
     if (result != null) {
-      result = Arrays.stream(result).map(s -> s != null ? s.trim() : s).toArray(String[]::new);
+      return Arrays.stream(toTextArray(v))
+          // we trim string values, but not text values
+          .map(s -> s != null ? s.trim() : null)
+          .toArray(String[]::new);
+    } else {
+      return result;
     }
-    return result;
   }
 
   public static String toString(Object v) {
-    if (v == null) return null;
-    if (v instanceof String) {
-      if (((String) v).trim().equals("")) {
-        return null;
-      }
-      return (String) v;
-    }
-    if (v instanceof Object[]) return joinCsvString((Object[]) v);
-    if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
-    return v.toString();
+    String value = toText(v);
+    // we trim string values, but not text values
+    // empty string is treated as null
+    return value != null && !value.trim().equals("") ? value.trim() : null;
   }
 
   public static Integer toInt(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null;
-      return Integer.parseInt(((String) v).trim());
+      String value = toString(v);
+      if (value != null) {
+        return Integer.parseInt(value);
+      } else {
+        return null;
+      }
     }
     if (v instanceof Long) {
       return ((Long) v).intValue();
@@ -91,8 +94,12 @@ public class TypeUtils {
     else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass()))
       return (Object[]) v;
     else if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null; // NOSONAR
-      v = splitCsvString((String) v);
+      String value = toString(v);
+      if (value != null) {
+        v = splitCsvString(value);
+      } else {
+        return null;
+      }
     } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
     if (v instanceof List) {
       return ((List<Object>) v).stream().map(f).toArray(m);
@@ -110,10 +117,16 @@ public class TypeUtils {
   public static Boolean toBool(Object v) {
     if (v == null) return null; // NOSONAR
     if (v instanceof String) {
-      if ("true".equalsIgnoreCase(((String) v).trim())
-          || "yes".equalsIgnoreCase(((String) v).trim())) return true;
-      if ("false".equalsIgnoreCase(((String) v).trim())
-          || "no".equalsIgnoreCase(((String) v).trim())) return false;
+      String value = toString(v);
+      if (value == null) {
+        return null;
+      }
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+        return true;
+      }
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+        return false;
+      }
     }
     try {
       return (Boolean) v;
@@ -127,7 +140,14 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v instanceof String) return Double.parseDouble((String) v);
+    if (v instanceof String) {
+      String value = toString(v);
+      if (value != null) {
+        return Double.parseDouble(value);
+      } else {
+        return null;
+      }
+    }
     if (v instanceof BigDecimal) return ((BigDecimal) v).doubleValue();
     return (Double) v;
   }
@@ -140,7 +160,12 @@ public class TypeUtils {
     if (v == null) return null;
     if (v instanceof LocalDate) return (LocalDate) v;
     if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDate();
-    return LocalDate.parse(v.toString());
+    // otherwise try to use string value
+    String value = toString(v);
+    if (value != null) {
+      return LocalDate.parse(v.toString());
+    }
+    return null;
   }
 
   public static LocalDate[] toDateArray(Object v) {
@@ -152,15 +177,21 @@ public class TypeUtils {
     if (v instanceof LocalDateTime) return (LocalDateTime) v;
     if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
     if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
-    // add 'T' because loose users of iso8601 (postgres!) use space instead of T
-    String str = v.toString().replace(" ", "T");
-    TemporalAccessor temporalAccessor =
-        DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
-            .parseBest(str, ZonedDateTime::from, LocalDate::from);
-    if (temporalAccessor instanceof ZonedDateTime) {
-      return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
+    // try string
+    String value = toString(v);
+    if (value != null) {
+      // add 'T' because loose users of iso8601 (postgres!) use space instead of T
+      value = value.replace(" ", "T");
+      TemporalAccessor temporalAccessor =
+          DateTimeFormatter.ofPattern(LOOSE_PARSER_FORMAT)
+              .parseBest(value, ZonedDateTime::from, LocalDate::from);
+      if (temporalAccessor instanceof ZonedDateTime) {
+        return ((ZonedDateTime) temporalAccessor).toLocalDateTime();
+      }
+      return LocalDateTime.parse(value);
+    } else {
+      return null;
     }
-    return LocalDateTime.parse(str);
   }
 
   public static LocalDateTime[] toDateTimeArray(Object v) {
@@ -170,7 +201,14 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
-    if (v instanceof String) return org.jooq.JSONB.valueOf((String) v);
+    if (v instanceof String) {
+      String value = toString(v);
+      if (value != null) {
+        return org.jooq.JSONB.valueOf(value);
+      } else {
+        return null;
+      }
+    }
     return (JSONB) v;
   }
 
@@ -178,11 +216,15 @@ public class TypeUtils {
     // non standard so not using the generic function
     if (v == null) return null; // NOSONAR
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) return null; // NOSONAR
-      v = List.of(JSONB.valueOf((String) v));
+      String value = toString(v);
+      if (value != null) {
+        v = List.of(JSONB.valueOf(value));
+      } else {
+        return null;
+      }
     }
     if (v instanceof String[]) {
-      v = List.of((String[]) v);
+      v = toStringArray(v);
     }
     if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
     if (v instanceof Object[]) v = List.of((Object[]) v);
@@ -193,11 +235,21 @@ public class TypeUtils {
   }
 
   public static String toText(Object v) {
-    return toString(v);
+    if (v == null) return null;
+    if (v instanceof String) {
+      if (((String) v).trim().equals("")) {
+        return null;
+      }
+      // we trim string values, but not text values
+      return (String) v;
+    }
+    if (v instanceof Object[]) return joinCsvString((Object[]) v);
+    if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
+    return v.toString();
   }
 
   public static String[] toTextArray(Object v) {
-    return toStringArray(v);
+    return (String[]) processArray(v, TypeUtils::toString, String[]::new, String.class);
   }
 
   public static ColumnType typeOf(Class<?> klazz) {
@@ -207,29 +259,6 @@ public class TypeUtils {
     throw new MolgenisException(
         "Unknown type: Can not determine typeOf(Class). No MOLGENIS type is defined to match "
             + klazz.getCanonicalName());
-  }
-
-  public static ColumnType getNonArrayType(ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case UUID_ARRAY:
-        return ColumnType.UUID;
-      case STRING_ARRAY:
-        return ColumnType.STRING;
-      case BOOL_ARRAY:
-        return ColumnType.BOOL;
-      case INT_ARRAY:
-        return ColumnType.INT;
-      case DECIMAL_ARRAY:
-        return ColumnType.DECIMAL;
-      case TEXT_ARRAY:
-        return ColumnType.TEXT;
-      case DATE_ARRAY:
-        return ColumnType.DATE;
-      case DATETIME_ARRAY:
-        return ColumnType.DATETIME;
-      default:
-        throw new UnsupportedOperationException("Unsupported array columnType found:" + columnType);
-    }
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
@@ -365,9 +394,19 @@ public class TypeUtils {
       case DECIMAL_ARRAY:
         return TypeUtils.toDecimalArray(v);
       case TEXT:
-        return cast(TypeUtils.toText(v), SQLDataType.VARCHAR);
+        String text = TypeUtils.toText(v);
+        if (text != null) {
+          return cast(text, SQLDataType.VARCHAR);
+        } else {
+          return null;
+        }
       case TEXT_ARRAY:
-        return cast(TypeUtils.toTextArray(v), SQLDataType.VARCHAR.getArrayDataType());
+        String[] textArray = TypeUtils.toTextArray(v);
+        if (textArray != null) {
+          return cast(textArray, SQLDataType.VARCHAR.getArrayDataType());
+        } else {
+          return null;
+        }
       case DATE:
         return TypeUtils.toDate(v);
       case DATE_ARRAY:
