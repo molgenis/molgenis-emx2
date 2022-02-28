@@ -45,7 +45,9 @@ export default {
     graphqlFilter() {
       if (this.filter) {
         return this.filter;
-      } else return {};
+      } else {
+        return {};
+      }
     },
     graphql() {
       if (this.tableMetadata == undefined) {
@@ -88,7 +90,7 @@ export default {
   },
   methods: {
     reload() {
-      if (this.tableMetadata != undefined) {
+      if (this.tableMetadata) {
         this.loading = true;
         this.graphqlError = null;
         request(this.graphqlURL, this.graphql, {
@@ -98,7 +100,6 @@ export default {
           .then((data) => {
             this.data = data[this.tableId];
             this.count = data[this.tableId + '_agg']['count'];
-            this.loading = false;
           })
           .catch((error) => {
             if (Array.isArray(error.response.errors)) {
@@ -106,6 +107,8 @@ export default {
             } else {
               this.graphqlError = error;
             }
+          })
+          .finally(() => {
             this.loading = false;
           });
       }

@@ -13,7 +13,6 @@
             :columnType="column.columnType"
             :description="column.description"
             :errorMessage="errorPerColumn[column.name]"
-            :filter="refLinkFilters[column.name]"
             :graphqlURL="graphqlURL"
             :label="column.name"
             :pkey="getPkey(value)"
@@ -238,33 +237,6 @@ export default {
       return this.tableMetadata.columns.filter(
         (c) => !c.name.startsWith('mg_')
       );
-    },
-    refLinkFilters() {
-      let filter = {};
-      if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((column1) => {
-          if (column1.refLink) {
-            //get the overlap, should be a key column of [refLink][refTable]
-            this.tableMetadata.columns.forEach((column2) => {
-              if (column2.name === column1.refLink) {
-                this.schema.tables.forEach((table) => {
-                  if (table.name === column1.refTable) {
-                    table.columns.forEach((tableColumn) => {
-                      if (tableColumn.refTable === column2.refTable) {
-                        filter[column1.name] = {}; //JJ: Should this overwrite if it already exists? Refactor into .find()
-                        filter[column1.name][tableColumn.name] = {
-                          equals: this.value[column1.refLink]
-                        };
-                      }
-                    });
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
-      return filter;
     },
     //@overide
     graphqlFilter() {
