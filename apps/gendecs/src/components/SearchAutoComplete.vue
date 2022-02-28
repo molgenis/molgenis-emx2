@@ -6,12 +6,16 @@
            @keydown.up="onArrowUp"
            @keydown.enter="onEnter"
            type="text"/>
+<!--    <Info>Hier komt wat info over de HPO zoektocht</Info>-->
     <ul v-show="isOpen" class="autocomplete-results">
       <li
         v-if="isLoading"
         class="loading"
         >
         Loading results...
+      </li>
+      <li
+        v-else-if="HpoTerm.length < 4" >
       </li>
       <li v-else
           v-for="(result, i) in results" :key="i"
@@ -27,13 +31,19 @@
 
 <script>
 
-import {InputSearch} from "@mswertz/emx2-styleguide";
+import {
+  InputSearch,
+  Info,
+  Spinner
+} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "SearchAutoComplete",
   emits: "selectedHpoTerm",
   components: {
-    InputSearch
+    InputSearch,
+    Info,
+    Spinner
   },
   props: {
     items: {
