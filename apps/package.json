@@ -10,7 +10,10 @@
     "updownload",
     "pages",
     "graphql-playground",
-    "nuxt-ssr"
+    "nuxt-ssr",
+    "molgenis-components",
+    "helloworld",
+    "gendecs"
   ],
   "resolutions": {
     "nuxt-ssr/**/css-loader": "4.3.0",

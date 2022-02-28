@@ -23,13 +23,14 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the password"
+          @enterPressed="signup"
         />
         <InputPassword
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
           description="Please enter the password again"
-          @keyup.enter="signup"
+          @enterPressed="signup"
         />
       </LayoutForm>
     </template>

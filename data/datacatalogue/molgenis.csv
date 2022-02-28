@@ -247,7 +247,7 @@ Subcohorts,,inclusionStart,int,,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,CatalogueOntologies,,,,,Age groups within this subcohort
 Subcohorts,,mainMedicalCondition,ontology_array,,,Diseases,CatalogueOntologies,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications"
-Subcohorts,,comorbitdity,ontology_array,,,Diseases,CatalogueOntologies,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
+Subcohorts,,comorbidity,ontology_array,,,Diseases,CatalogueOntologies,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
 Subcohorts,,countries,ontology_array,,,Countries,CatalogueOntologies,,,,,Countries where data from this subcohort largely originate from
 Subcohorts,,regions,ontology_array,,,Regions,CatalogueOntologies,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
