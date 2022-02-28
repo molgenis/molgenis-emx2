@@ -30,23 +30,6 @@
 }
 </style>
 
-<docs>
-Empty slots
-
-```
-<template>
-<div class="row">
-  <div class="col-3">
-    <person-details></person-details>
-  </div>
-</div>
-
-</template>
-```  
-
-
-</docs>
-
 <script>
 export default {
   name: "PersonDetails",
@@ -890,3 +873,20 @@ DYvp+p/wAaNi+n6n/GiigA2L6fqf8AGjYvp+p/xoooANi+n6n/ABo2L6fqf8aKKADYvp+p/wAaNi
   },
 };
 </script>
+
+<docs>
+Empty slots
+
+```
+<template>
+<div class="row">
+  <div class="col-3">
+    <person-details></person-details>
+  </div>
+</div>
+
+</template>
+```  
+
+
+</docs>

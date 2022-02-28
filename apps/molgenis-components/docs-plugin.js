@@ -1,13 +1,43 @@
+const fs = require("fs");
 module.exports = function () {
-
-const transform = (code, id) => {
+  const transform = (code, id) => {
     if (/<docs>/.test(code)) {
-      console.log('remove docs from: ' + id);
-      // console.log(code.replace(/<docs>[\s\S.]*<\/docs>/g, ""));
-      return code.replace(/<docs>[\s\S.]*<\/docs>/g, "");
+      // console.log("remove docs from: " + id);
+
+      // regex for custom docs tag
+      const re = /<docs>[\s\S.]*<\/docs>/;
+
+      // Save the docs in memory
+      const docs = code.match(re)[0];
+
+      // Build a path to store the docs
+      const pathSections = id.split("/");
+      const componentsPathIndex = pathSections.findIndex((section) => {
+        return section == "components";
+      });
+      const componentsPathSections = pathSections.splice(componentsPathIndex);
+      const componentFileName = componentsPathSections.pop();
+      const docPath = "./gen/docs/" + componentsPathSections.join("/");
+
+      // Construct the folder tree for the docs components
+      fs.mkdir(docPath, { recursive: true }, (err) => {
+        if (err) throw err;
+
+        const docTemplate = docs.replace(/(<docs>|<\/docs>)/g, "");
+
+        // write out the docs to .vue files (needs to be done after folder was created)
+        fs.writeFile(docPath + "/" + componentFileName, docTemplate, (err) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+        });
+      });
+
+      // Strip the docs from the original vue sfc
+      return code.replace(re, "");
     }
-}
+  };
 
   return { name: "docs-plugin", transform };
-
 };

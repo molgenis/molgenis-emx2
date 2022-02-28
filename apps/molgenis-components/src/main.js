@@ -7,6 +7,7 @@ import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 const components = import.meta.globEager("./components/**/*.vue");
 const docs = import.meta.globEager("./docs/**/*.vue");
+const genDocs = import.meta.globEager("./gen/docs/**/*.vue");
 
 Object.entries(components).forEach(([path, definition]) => {
   // Get name of component, based on filename
@@ -39,6 +40,18 @@ Object.entries(docs).forEach(([path, definition]) => {
   routes[0].components[componentName] = definition.default; // for listing
   routes.push({ path: "/component/" + componentName, component: definition.default }) // for detail view
   docNames.push(componentName)
+});
+
+// create routes for generated docs
+Object.entries(docs).forEach(([path, definition]) => {
+  const componentName = path
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
+
+  // routes[0].components[componentName] = definition.default; // for listing
+  routes.push({ path: "/docs/" + componentName, component: definition.default }) // for detail view
+  // docNames.push(componentName)
 });
 
 // global variable
