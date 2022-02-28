@@ -34,7 +34,9 @@ export default {
       "/" + this.$route.params.schema + "/graphql"
     );
     const metaData = await client.fetchMetaData();
-    this.tableData = (await client.fetchTableData(tableName)).Networks;
+    const dataResponse = await client.fetchTableData(tableName);
+    this.tableData = dataResponse[tableName]
+
     this.columns = metaData.tables
       .find((t) => t.name === tableName)
       .columns.filter((c) => !c.name.startsWith("mg_"));
