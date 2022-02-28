@@ -24,15 +24,6 @@ public class TestJavascriptValidations {
 
   @Test
   public void testValidation() {
-    //    try {
-    //      schema
-    //          .getTable(PetStoreExample.USER)
-    //          .insert(new Row().set("username", "test").set(PetStoreExample.EMAIL, "not an
-    // email"));
-    //      fail("should have failed on email validation");
-    //    } catch (MolgenisException e) {
-    //      System.out.println("Correct error: " + e);
-    //    }
 
     try {
       schema.getTable(PetStoreExample.ORDER).insert(new Row().set(PetStoreExample.QUANTITY, 0));
