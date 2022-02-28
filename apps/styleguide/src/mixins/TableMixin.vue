@@ -74,15 +74,7 @@ export default {
       let result = '';
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
-          if (
-            [
-              'REF',
-              'REF_ARRAY',
-              'REFBACK',
-              'ONTOLOGY',
-              'ONTOLOGY_ARRAY'
-            ].includes(col.columnType) > 0
-          ) {
+          if (isReferentialColumn(col.columnType)) {
             result = result + ' ' + col.id + '{' + this.refGraphql(col) + '}';
           } else if (col.columnType == 'FILE') {
             result = result + ' ' + col.id + '{id,size,extension,url}';
@@ -123,15 +115,7 @@ export default {
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
           graphqlString += c.id + ' ';
-          if (
-            [
-              'REF',
-              'REF_ARRAY',
-              'REFBACK',
-              'ONTOLOGY',
-              'ONTOLOGY_ARRAY'
-            ].includes(c.columnType) > 0
-          ) {
+          if (isReferentialColumn(c.columnType)) {
             graphqlString += '{' + this.refGraphql(c) + '}';
           }
         }
@@ -190,6 +174,12 @@ export default {
     limit: 'reload'
   }
 };
+
+function isReferentialColumn(columnType) {
+  return ['REF', 'REF_ARRAY', 'REFBACK', 'ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(
+    columnType
+  );
+}
 </script>
 
 <docs>
