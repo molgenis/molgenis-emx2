@@ -10,71 +10,45 @@
     </p>
     <div id="app">
       <h2>Select HPO root term</h2>
-      <SearchAutoComplete :items="[
-        'Abnormal cellular phenotype',
-        'Abnormality of blood and blood-forming tissues',
-        'Abnormality of head or neck',
-        'Abnormality of limbs',
-        'Abnormality of metabolism/homeostasis',
-        'Abnormality of prenatal development or birth',
-        'Abnormality of the breast',
-        'Abnormality of the cardiovascular system',
-        'Abnormality of the digestive system',
-        'Abnormality of the ear',
-        'Abnormality of the endocrine system',
-        'Abnormality of the eye',
-        'Abnormality of the genitourinary system',
-        'Abnormality of the immune system',
-        'Abnormality of the integument',
-        'Abnormality of the musculoskeletal system',
-        'Abnormality of the nervous system',
-        'Abnormality of the respiratory system',
-        'Abnormality of the thoracic cavity',
-        'Abnormality of the voice',
-        'Constitutional symptom',
-        'Growth abnormality',
-        'Neoplasm'
-      ]"
+      <SearchAutoComplete :items= "allHpoTerms"
       @selectedHpoTerm="apiCall"
       >
       </SearchAutoComplete>
 
-    </div>
-<!--    <div>-->
-<!--      <br/>-->
-<!--      <h2>Enter gene</h2>-->
-<!--      <form>-->
-<!--      <input v-model="geneEntered" type="text">-->
-<!--      <input type="submit" @click="geneToHpo">-->
-<!--      </form>-->
-<!--        {{ geneEntered }}-->
-<!--    </div>-->
-
-    <div>
       <br/>
       <PatientSearch @geneOfPatient="geneToHpo">
       </PatientSearch>
+
     </div>
     <br/> <br/>
     <h3 v-if="loadingHpo">here are results from the HPO api call</h3>
     {{ hpoResults }}
     <br/> <br/>
-<!--    <h3>here are results from the Gene api call</h3>-->
-<!--    {{ geneAssociates }}-->
+    <h3 v-if="loadingHpo">here are results from the Gene api call</h3>
+    {{ geneAssociates }}
 
   </div>
 </template>
 
 <script>
-import { ButtonAction } from "@mswertz/emx2-styleguide";
+import {
+  ButtonAction,
+  MessageError,
+  MessageSuccess,
+  Spinner
+} from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
+import hpoData from '../js/autoSearchData.js';
 
 export default {
   components: {
     ButtonAction,
     SearchAutoComplete,
-    PatientSearch
+    PatientSearch,
+    MessageError,
+    MessageSuccess,
+    Spinner
   },
   data() {
     return {
@@ -83,7 +57,8 @@ export default {
       hpoResults: null,
       geneEntered: '',
       geneAssociates: null,
-      loadingHpo: false
+      loadingHpo: false,
+      allHpoTerms: hpoData
     };
   },
   methods: {
