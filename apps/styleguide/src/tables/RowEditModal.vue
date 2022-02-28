@@ -6,7 +6,6 @@
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
-        DEBUG: {{ tableMetadata }}
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
             v-if="showColumn(column)"
@@ -193,10 +192,9 @@ export default {
         if (this.value[column.id] !== undefined && column.validation) {
           this.evaluateValidationExpression(column);
         } else if (this.isRefLinkWithoutOverlap(column)) {
-          this.errorPerColumn[column.id] =
-            "value should match your selection in column '" +
-            column.refLink +
-            "' ";
+          this.errorPerColumn[
+            column.id
+          ] = `value should match your selection in column '${column.refLink}' `;
         }
       }
     },
