@@ -1,12 +1,12 @@
 package org.molgenis.emx2.examples;
 
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
-import static org.molgenis.emx2.TableMetadata.table;
-
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.table;
 
 public class PetStoreExample {
 
@@ -56,14 +56,8 @@ public class PetStoreExample {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(
-                column(QUANTITY)
-                    .setType(INT)
-                    .setValidation("{quantity} >= 1"))
-            .add(
-                column(PRICE)
-                    .setType(DECIMAL)
-                    .setValidation("{price} >= 1"))
+            .add(column(QUANTITY).setType(INT).setValidation("{quantity} >= 1"))
+            .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
