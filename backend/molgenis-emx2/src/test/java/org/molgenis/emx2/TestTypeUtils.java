@@ -1,15 +1,16 @@
 package org.molgenis.emx2;
 
-import static org.junit.Assert.*;
+import org.jooq.JSONB;
+import org.junit.Test;
+import org.molgenis.emx2.utils.TypeUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import org.jooq.JSONB;
-import org.junit.Test;
-import org.molgenis.emx2.utils.TypeUtils;
+
+import static org.junit.Assert.*;
 
 public class TestTypeUtils {
 
@@ -37,7 +38,7 @@ public class TestTypeUtils {
     }
 
     // check that spaces are trimmed around string
-    assertEquals(TypeUtils.toString(" blaat "), "blaat");
+    assertEquals("blaat", TypeUtils.toString(" blaat "));
   }
 
   private void executeTest(ColumnType type, Object[] b) {

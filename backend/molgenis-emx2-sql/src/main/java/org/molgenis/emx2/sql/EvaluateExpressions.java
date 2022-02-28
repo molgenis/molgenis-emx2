@@ -1,10 +1,5 @@
 package org.molgenis.emx2.sql;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
@@ -12,34 +7,37 @@ import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.expression.Expressions;
 import scala.util.Try;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class EvaluateExpressions {
 
-  private static Expressions evaluator = new Expressions(10000);
+  private static final Expressions evaluator = new Expressions(10000);
 
   /**
-   * validate if the expression is valid, given the metadata. Typically done at beginning of a batch
-   * transaction
+   * validate if the expression is valid, given the metadata. Typically, done at beginning of a
+   * batch transaction
    */
   public static void checkValidationColumns(Collection<Column> columns) {
-    // get all expressions
-    List<String> expressionList =
-        columns.stream()
-            .filter(c -> c.getValidation() != null)
-            .map(c -> c.getValidation())
-            .collect(Collectors.toList());
-
-    // get all variables
+    List<String> expressionList = getExpressionList(columns);
     Set<String> variableNames = evaluator.getAllVariableNames(expressionList);
-
-    // get all column names
-    Set<String> columnNames = columns.stream().map(c -> c.getName()).collect(Collectors.toSet());
+    Set<String> columnNames = getColumnNames(columns);
 
     // check if any variable is missing in column list
-    Set<String> missing =
+    Set<String> missingVariables =
         variableNames.stream().filter(v -> !columnNames.contains(v)).collect(Collectors.toSet());
-    if (missing.size() > 0) {
-      throw new MolgenisException("Validation failed: columns " + missing + " not provided");
+    if (!missingVariables.isEmpty()) {
+      throw new MolgenisException(
+          "Validation failed: columns " + missingVariables + " not provided");
     }
+  }
+
+  private static Set<String> getColumnNames(Collection<Column> columns) {
+    return columns.stream().map(Column::getName).collect(Collectors.toSet());
+  }
+
+  private static List<String> getExpressionList(Collection<Column> columns) {
+    return columns.stream().map(Column::getValidation).filter(Objects::nonNull).toList();
   }
 
   /** validate an expression given a row. True means it is valid. */
@@ -57,8 +55,6 @@ public class EvaluateExpressions {
   }
 
   public static void checkValidation(Map<String, Object> values, Collection<Column> columns) {
-
-    // apply
     for (Column c : columns) {
       if (c.getValidation() != null) {
         Try<Object> result = evaluator.parseAndEvaluate(List.of(c.getValidation()), values).get(0);

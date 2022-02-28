@@ -219,14 +219,13 @@ export default {
         const value = this.value[column.id];
         const refValue = this.value[refLinkId];
 
-        // TODO: find out if this should check for equality instead of overlap
         if (typeof value === 'string' && typeof refValue === 'string') {
-          return value && refValue && !value.includes(refValue);
+          return value && refValue && value !== refValue;
         } else {
           return (
             value &&
             refValue &&
-            !JSON.stringify(value).includes(JSON.stringify(refValue))
+            JSON.stringify(value) !== JSON.stringify(refValue)
           );
         }
       }
