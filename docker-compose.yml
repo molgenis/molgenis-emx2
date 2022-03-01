@@ -28,3 +28,21 @@ services:
     depends_on:
       - postgres
     restart: on-failure
+#  ssr-catalogue:
+#    image: molgenis/ssr-catalogue-snapshot
+#    environment:
+#      - PROXY_API=emx2:8080/
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - emx2
+#    restart: on-failure
+#  proxy:
+#    build:
+#      context: ./ssr-proxy-config
+#    depends_on:
+#      - emx2
+#    ports:
+#      - "80:80"
+
+
