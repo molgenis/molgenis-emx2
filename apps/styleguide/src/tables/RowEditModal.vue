@@ -53,12 +53,11 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonOutline from "../forms/ButtonOutline";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
-import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
+import requestMultipart from "./utils/GraphqlRequestUtil";
 
 export default {
   extends: TableMixin,
-  mixins: [GraphqlRequestMixin],
   data: function () {
     return {
       showLogin: false,
@@ -132,7 +131,7 @@ export default {
       if (this.pkey && !this.clone) {
         query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
       }
-      this.requestMultipart(this.graphqlURL, query, variables)
+      requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
           if (data.insert) {
             this.success = data.insert.message;
@@ -155,7 +154,7 @@ export default {
 
     eval(expression) {
       try {
-        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
+        return eval('(function (row) { ' + expression + '})')(this.value) // eslint-disable-line
       } catch (e) {
         return "Script error contact admin: " + e.message;
       }
