@@ -46,7 +46,6 @@ export default {
   computed: {
     valueArray() {
       let result = this.value;
-      if (!result) result = null;
       if (!Array.isArray(result)) {
         result = [result];
       }
@@ -67,7 +66,7 @@ export default {
     },
     //emit update with new item on list
     emitValue(event, index) {
-      let value = event ? (event.target ? event.target.value : event) : null;
+      const value = event ? (event.target ? event.target.value : event) : null;
       if (this.list) {
         this.$emit(
           'input',
