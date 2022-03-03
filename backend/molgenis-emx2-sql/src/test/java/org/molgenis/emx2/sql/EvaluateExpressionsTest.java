@@ -1,22 +1,18 @@
 package org.molgenis.emx2.sql;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.molgenis.emx2.sql.EvaluateExpressions.*;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.molgenis.emx2.sql.EvaluateExpressions.*;
+
 public class EvaluateExpressionsTest extends TestCase {
 
   @Test
@@ -29,7 +25,7 @@ public class EvaluateExpressionsTest extends TestCase {
     columns.add(column1);
     columns.add(column2);
 
-    checkValidationColumns(columns);
+    checkForMissingVariablesColumns(columns);
   }
 
   @Test
@@ -39,7 +35,7 @@ public class EvaluateExpressionsTest extends TestCase {
     column1.setValidation("{columnName2}");
     columns.add(column1);
     try {
-      checkValidationColumns(columns);
+      checkForMissingVariablesColumns(columns);
     } catch (MolgenisException exception) {
       String expectedError = "Validation failed: columns [columnName2] not provided";
       assertEquals(expectedError, exception.getMessage());
@@ -47,10 +43,31 @@ public class EvaluateExpressionsTest extends TestCase {
   }
 
   @Test
-  public void evaluateValidationExpressionTest() {
-    String expression = "false || true";
+  public void evaluateValidationExpressionTestSuccessLogical() {
+    String expression = "false && true";
     Row row = new Row();
     assertTrue(evaluateValidationExpression(expression, row));
+  }
+
+  @Test
+  public void evaluateValidationExpressionTestSuccessNumerical() {
+    String expression = "5 + 37";
+    Row row = new Row();
+    assertTrue(evaluateValidationExpression(expression, row));
+  }
+
+  @Test
+  public void evaluateValidationExpressionTestSuccessFunctionCall() {
+    String expression = "today()";
+    Row row = new Row();
+    assertTrue(evaluateValidationExpression(expression, row));
+  }
+
+  @Test
+  public void evaluateValidationExpressionTestFailure() {
+    String expression = "invalid input";
+    Row row = new Row();
+    assertFalse(evaluateValidationExpression(expression, row));
   }
 
   @Test
@@ -67,7 +84,6 @@ public class EvaluateExpressionsTest extends TestCase {
     Row row = new Row();
     try {
       calculateComputedExpression(expression, row);
-
     } catch (MolgenisException exception) {
       assertEquals("Failed to execute expression: " + expression, exception.getMessage());
     }
@@ -77,9 +93,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationSuccess() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "true && true";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     checkValidation(values, columns);
   }
@@ -88,9 +104,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationInvalidExpression() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "this is very invalid";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     try {
       checkValidation(values, columns);
@@ -103,9 +119,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationTurnToBoolIsFalse() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "false";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     try {
       checkValidation(values, columns);

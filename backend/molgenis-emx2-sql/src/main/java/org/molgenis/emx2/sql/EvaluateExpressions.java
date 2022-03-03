@@ -17,16 +17,19 @@ public class EvaluateExpressions {
    * validate if the expression is valid, given the metadata. Typically, done at beginning of a
    * batch transaction
    */
-  public static void checkValidationColumns(Collection<Column> columns) {
-    List<String> expressionList = getExpressionList(columns);
-    Set<String> variableNames = evaluator.getAllVariableNames(expressionList);
-    Set<String> columnNames = getColumnNames(columns);
-
-    Set<String> missingVariables = getMissingVariableList(variableNames, columnNames);
+  public static void checkForMissingVariablesColumns(Collection<Column> columns) {
+    Set<String> missingVariables = getMissingVariables(columns);
     if (!missingVariables.isEmpty()) {
       throw new MolgenisException(
           "Validation failed: columns " + missingVariables + " not provided");
     }
+  }
+
+  private static Set<String> getMissingVariables(Collection<Column> columns) {
+    List<String> expressionList = getExpressionList(columns);
+    Set<String> variableNames = evaluator.getAllVariableNames(expressionList);
+    Set<String> columnNames = getColumnNames(columns);
+    return getMissingVariableList(variableNames, columnNames);
   }
 
   private static List<String> getExpressionList(Collection<Column> columns) {
@@ -44,12 +47,14 @@ public class EvaluateExpressions {
         .collect(Collectors.toSet());
   }
 
-  /**
-   * validate an expression given a row. True means it is valid. Why is this needed?
-   * calculateComputedExpression can already return booleans
-   */
+  /** validate an expression given a row. True means it is valid. */
   public static boolean evaluateValidationExpression(String expression, Row row) {
-    return TypeUtils.toBool(calculateComputedExpression(expression, row));
+    try {
+      calculateComputedExpression(expression, row);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   /** use expression to compute value and return value of the expression, not used yet */
