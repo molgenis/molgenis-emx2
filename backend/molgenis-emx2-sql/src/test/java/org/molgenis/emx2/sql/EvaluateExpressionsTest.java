@@ -11,8 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.sql.EvaluateExpressions.*;
 
 public class EvaluateExpressionsTest extends TestCase {
@@ -86,7 +84,6 @@ public class EvaluateExpressionsTest extends TestCase {
     Row row = new Row();
     try {
       calculateComputedExpression(expression, row);
-
     } catch (MolgenisException exception) {
       assertEquals("Failed to execute expression: " + expression, exception.getMessage());
     }
@@ -96,9 +93,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationSuccess() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "true && true";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     checkValidation(values, columns);
   }
@@ -107,9 +104,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationInvalidExpression() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "this is very invalid";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     try {
       checkValidation(values, columns);
@@ -122,9 +119,9 @@ public class EvaluateExpressionsTest extends TestCase {
   public void testCheckValidationTurnToBoolIsFalse() {
     Map<String, Object> values = new HashMap<>();
     Collection<Column> columns = new ArrayList<>();
-    Column column = mock(Column.class);
     String validation = "false";
-    when(column.getValidation()).thenReturn(validation);
+    Column column = new Column("name");
+    column.setValidation(validation);
     columns.add(column);
     try {
       checkValidation(values, columns);
