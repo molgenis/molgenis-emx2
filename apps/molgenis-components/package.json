@@ -14,7 +14,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "cross-env SHOW_CASE=off vite build",
+    "build-showcase": "cross-env SHOW_CASE=on vite build ",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "2.2.4",
     "axios": "0.26.0",
+    "cross-env": "7.0.3",
     "vite": "2.8.6",
     "vue-router": "3.5.3"
   }
