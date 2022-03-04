@@ -77,6 +77,7 @@ export default {
 <style scoped>
 .is-invalid {
   background-image: none;
+  padding-right: 0.75rem;
 }
 
 span:hover .hoverIcon {
