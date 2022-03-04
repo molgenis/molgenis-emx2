@@ -23,6 +23,7 @@
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
+          @keypress="keyhandler"
           @input="emitValue($event, idx)"
           @blur="toggleFocus"
         />
@@ -41,6 +42,7 @@
 import BaseInput from './_baseInput.vue';
 import InputAppend from './_inputAppend';
 import IconAction from './IconAction';
+import {CODE_0, CODE_9, CODE_BACKSPACE} from '../constants';
 
 export default {
   extends: BaseInput,
@@ -54,6 +56,20 @@ export default {
       default() {
         return parseInt;
       }
+    }
+  },
+  methods: {
+    keyhandler(event) {
+      if (!this.isInt(event)) event.preventDefault();
+    },
+    isInt(e) {
+      let specialKeys = [];
+      specialKeys.push(CODE_BACKSPACE);
+      const keyCode = e.which ? e.which : e.keyCode;
+      return (
+        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
+        specialKeys.indexOf(keyCode) !== -1
+      );
     }
   }
 };
