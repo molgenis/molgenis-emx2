@@ -20,6 +20,7 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestCohortCatalogue {
 
   static Database database;
+  static Schema ontologySchema;
   static Schema cohortsSchema;
   static Schema conceptionSchema;
   static Schema rweSchema;
@@ -27,6 +28,7 @@ public class TestCohortCatalogue {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    ontologySchema = database.dropCreateSchema("CatalogueOntologies");
     conceptionSchema = database.dropCreateSchema("Conception");
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
     rweSchema = database.dropCreateSchema("RWENetwork");
@@ -41,20 +43,20 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     cohortsSchema.migrate(schema);
 
-    ImportDirectoryTask task2 =
-        new ImportDirectoryTask(
-            new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema, false);
-    task2.run();
+    // load ontologies
+    MolgenisIO.fromDirectory(
+        new File("../../data/datacatalogue/CatalogueOntologies").toPath(), ontologySchema, false);
 
-    ImportExcelTask task3 =
-        new ImportExcelTask(
-            new File("../../data/datacatalogue/Cohorts_CoreVariables.xlsx").toPath(),
-            cohortsSchema,
-            // todo fix data so we can put strict=true
-            false);
-    task3.run();
+    MolgenisIO.fromDirectory(
+        new File("../../data/datacatalogue/Cohorts").toPath(), cohortsSchema, false);
 
-    assertEquals(76, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    MolgenisIO.importFromExcelFile(
+        new File("../../data/datacatalogue/Cohorts_CoreVariables.xlsx").toPath(),
+        cohortsSchema,
+        // todo fix data so we can put strict=true
+        false);
+
+    assertEquals(36, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
@@ -74,31 +76,25 @@ public class TestCohortCatalogue {
         Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     rweSchema.migrate(schema);
 
-    ImportDirectoryTask task2 =
-        new ImportDirectoryTask(
-            new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
-    task2.run();
+    // load ontologies
+    MolgenisIO.fromDirectory(
+        new File("../../data/datacatalogue/CatalogueOntologies").toPath(), ontologySchema, false);
 
-    assertEquals(76, TestCohortCatalogue.rweSchema.getTableNames().size());
+    MolgenisIO.fromDirectory(
+        new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
+
+    assertEquals(36, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
 
   @Test
   public void importStagingSchemas() {
-    // import ontologies
-    Schema ontologiesSchema = database.dropCreateSchema("CatalogueOntologies");
-    new ImportDirectoryTask(
-            new File("../../data/datacatalogue/CatalogueOntologies").toPath(),
-            ontologiesSchema,
-            true)
-        .run();
 
     // import cdm that uses schemaRef to ontologies
     Schema cdmSchema = database.dropCreateSchema("Catalogue_cdm");
-    new ImportDirectoryTask(
-            new File("../../data/datacatalogue/Catalogue_cdm").toPath(), cdmSchema, true)
-        .run();
+    MolgenisIO.fromDirectory(
+        new File("../../data/datacatalogue/Catalogue_cdm").toPath(), cdmSchema, true);
 
     // export cdm and then import again, to validate it works
     List<Row> metadata = Emx2.toRowList(cdmSchema.getMetadata());

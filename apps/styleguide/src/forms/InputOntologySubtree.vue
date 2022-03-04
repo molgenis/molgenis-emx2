@@ -1,35 +1,40 @@
 <template>
   <ul style="list-style-type: none">
-    <li v-for="term in terms" :key="term.name">
-      <div class="d-flex">
-        <i
-          class="fa-fw pl-2 pt-1"
-          role="button"
-          :class="expandState(term)"
-          @click="toggleExpand(term)"
-        />
-        <i
-          class="fa-fw text-primary pl-2 pt-1"
-          :class="selectState(term)"
-          @click="toggleSelect(term)"
-          role="button"
-        />
-        <span
-          @click="toggleExpandOrSelect(term)"
-          class="flex-grow-1 pl-2"
-          role="button"
+    <li
+      v-for="term in terms.filter((t) => t.visible)"
+      :key="term.name + term.selected + term.expanded"
+    >
+      <!--show if selected or search-->
+      <i
+        class="fa-fw pl-2 pt-1 ml-3"
+        role="button"
+        :class="getExpandState(term)"
+        @click="toggleExpand(term)"
+      />
+      <i
+        class="fa-fw text-primary pl-2 pt-1"
+        :class="getSelectState(term)"
+        @click.stop="toggleSelect(term)"
+        role="button"
+      />
+      <span
+        @click="toggleExpandOrSelect(term)"
+        class="flex-grow-1 pl-2"
+        role="button"
+      >
+        {{ term.name }}
+        <small v-if="term.definition" class="text-muted">
+          <i> - {{ term.definition }}</i></small
         >
-          {{ term.name }}
-          <span v-if="term.children">({{ term.children.length }})</span></span
-        >
-      </div>
+        <span v-if="term.visibleChildren"
+          >({{ countVisibleChildren(term) }})</span
+        ></span
+      >
       <InputOntologySubtree
-        v-if="expanded.indexOf(term.name) >= 0"
-        :expanded="expanded"
-        :selection="selection"
+        v-if="term.expanded"
         :terms="term.children"
         :list="list"
-        @select="select(term, $event)"
+        @select="$emit('select', $event)"
         @deselect="$emit('deselect', $event)"
         @toggleExpand="$emit('toggleExpand', $event)"
       />
@@ -42,58 +47,44 @@ export default {
   name: "InputOntologySubtree",
   props: {
     terms: Array,
-    selection: Array,
-    expanded: Array,
     list: { type: Boolean, default: false },
   },
-  computed: {
-    hasChildren() {
-      return this.terms.filter((t) => t.children).length > 0;
-    },
-  },
   methods: {
-    select(self, items) {
-      //if all children selected then also select 'self'
-      if (self.children) {
-        let allSelected = [].concat(this.selection, items);
-        let allChildren = self.children.map((c) => c.name);
-        if (allChildren.every((elem) => allSelected.indexOf(elem) > -1)) {
-          items.push(self.name);
-        }
+    countVisibleChildren(term) {
+      if (term.children) {
+        return term.children.filter((t) => t.visible).length;
+      } else {
+        return 0;
       }
-      this.$emit("select", items);
     },
-    expandState(item) {
-      if (!item.children) {
+    getExpandState(term) {
+      if (this.countVisibleChildren(term) == 0) {
         return "fas fa-angle-right invisible";
-      } else if (this.expanded.includes(item.name)) {
+      } else if (term.expanded) {
         return "fas fa-angle-down";
       } else {
         return "fas fa-angle-right";
       }
     },
-    selectState(item) {
-      if (this.selection.includes(item.name)) {
+    //expensive?
+    getAllChildNames(term) {
+      let childNames = [];
+      if (term.children) {
+        term.children.forEach((childTerm) => {
+          childNames.push(childTerm.name);
+          childNames = childNames.concat(this.getAllChildNames(childTerm));
+        });
+      }
+      return childNames;
+    },
+    getSelectState(term) {
+      if (term.selected == "complete") {
         return this.list ? "fas fa-check-square" : "fas fa-check-circle";
-      } else if (
-        item.children &&
-        item.children
-          .map((c) => c.name)
-          .some((c) => this.selection.indexOf(c) != -1)
-      ) {
+      } else if (term.selected == "partial") {
         return this.list ? "far fa-check-square" : "far fa-circle";
       } else {
         return this.list ? "far fa-square" : "far fa-circle";
       }
-    },
-    getAllChildNames(term) {
-      let result = [term.name];
-      if (term.children) {
-        term.children.forEach((t) => {
-          result.push(...this.getAllChildNames(t));
-        });
-      }
-      return result;
     },
     toggleExpandOrSelect(term) {
       //if node  expand,
@@ -108,18 +99,10 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (this.selection.indexOf(term.name) === -1) {
-        if (this.expanded.indexOf(term.name) === -1) {
-          this.$emit("toggleExpand", term.name);
-        }
-        //select children, recursively in case of list
-        if (this.list) {
-          this.$emit("select", this.getAllChildNames(term));
-        } else {
-          this.$emit("select", [term.name]);
-        }
+      if (term.selected) {
+        this.$emit("deselect", term.name);
       } else {
-        this.$emit("deselect", this.getAllChildNames(term));
+        this.$emit("select", term.name);
       }
     },
     toggleExpand(term) {

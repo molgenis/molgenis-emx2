@@ -78,18 +78,39 @@ export default {
         ];
       } else if (this.tableName == "Affiliations") {
         return ["name", "homepage", "pid"];
-      } else if (this.tableName == "Tables") {
+      } else if (this.tableName == "SourceTables") {
         return [
-          "release",
+          "dataDictionary",
           "name",
           "label",
           "unitOfObservation",
           "topics",
           "description",
         ];
-      } else if (this.tableName == "Variables") {
+      } else if (this.tableName == "TargetTables") {
         return [
-          "release",
+          "model",
+          "name",
+          "label",
+          "unitOfObservation",
+          "topics",
+          "description",
+        ];
+      } else if (this.tableName == "SourceVariables") {
+        return [
+          "dataDictionary",
+          "table",
+          "name",
+          "label",
+          "format",
+          "unit",
+          "topics",
+          "description",
+          "mandatory",
+        ];
+      } else if (this.tableName == "TargetVariables") {
+        return [
+          "model",
           "table",
           "name",
           "label",
@@ -138,38 +159,78 @@ export default {
     },
     openDetailView(row) {
       // in case of table
-      if (this.tableName == "Tables") {
+      if (this.tableName == "SourceTables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            pid: row.release.resource.pid,
-            version: row.release.version,
+            pid: row.dataDictionary.resource.pid,
+            version: row.dataDictionary.version,
             name: row.name,
           },
         });
-      } else if (
-        this.tableName == "TableMappings" ||
-        this.tableName == "VariableMappings"
-      ) {
+      } else if (this.tableName == "TargetTables") {
+        this.$router.push({
+          name: this.detailRouteName,
+          params: {
+            pid: row.dataDictionary.resource.pid,
+            version: row.dataDictionary.version,
+            name: row.name,
+          },
+        });
+      } else if (this.tableName == "TableMappings") {
         this.$router.push({
           name: "tablemapping",
           params: {
-            fromPid: row.fromRelease.resource.pid,
-            fromVersion: row.fromRelease.version,
+            fromPid: row.fromDataDictionary.resource.pid,
+            fromVersion: row.fromDataDictionary.version,
             fromTable: row.fromTable.name,
-            toPid: row.toRelease.resource.pid,
-            toVersion: row.toRelease.version,
+            toPid: row.toDataDictionary.resource.pid,
+            toVersion: row.toDataDictionary.version,
             toTable: row.toTable.name,
           },
         });
-      } else if (this.tableName == "Variables") {
+      } else if (this.tableName == "SourceVariables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            pid: row.release.resource.pid,
-            version: row.release.version,
+            pid: row.dataDictionary.resource.pid,
+            version: row.dataDictionary.version,
             table: row.table.name,
             name: row.name,
+          },
+        });
+      } else if (this.tableName == "TargetVariables") {
+        this.$router.push({
+          name: this.detailRouteName,
+          params: {
+            pid: row.dataDictionary.resource.pid,
+            version: row.dataDictionary.version,
+            table: row.table.name,
+            name: row.name,
+          },
+        });
+      } else if (this.tableName == "VariableMappings") {
+        this.$router.push({
+          name: this.detailRouteName,
+          params: {
+            toResource: row.toDataDictionary.resource.pid,
+            toVersion: row.toDataDictionary.version,
+            toTable: row.toTable.name,
+            toVariable: row.toVariable.name,
+            fromResource: row.fromDataDictionary.resource.pid,
+            fromVersion: row.fromDataDictionary.version,
+            fromTable: row.fromTable.name,
+          },
+        });
+      } else if (
+        this.tableName == "SourceDataDictionaries" ||
+        this.tableName == "TargetDataDictionaries"
+      ) {
+        this.$router.push({
+          name: this.detailRouteName,
+          params: {
+            resource: row.resource.pid,
+            version: row.version,
           },
         });
       } else if (row.version) {

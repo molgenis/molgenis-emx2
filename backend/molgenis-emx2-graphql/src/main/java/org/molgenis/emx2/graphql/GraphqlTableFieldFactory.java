@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 
 public class GraphqlTableFieldFactory {
+  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
 
   // static types
   private static final GraphQLEnumType orderByEnum =
@@ -200,39 +201,44 @@ public class GraphqlTableFieldFactory {
     GraphQLObjectType.Builder builder = GraphQLObjectType.newObject().name(tableName + "Aggregate");
     builder.field(
         GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
-    for (Column col : table.getMetadata().getColumns()) {
-      // aggregate options
-      ColumnType type = col.getColumnType();
-      String columnName = escape(col.getName());
-      if (ColumnType.INT.equals(type) || ColumnType.DECIMAL.equals(type)) {
-        builder.field(
+    List<Column> aggCols =
+        table.getMetadata().getColumns().stream()
+            .filter(
+                c ->
+                    ColumnType.INT.equals(c.getColumnType())
+                        || ColumnType.DECIMAL.equals(c.getColumnType()))
+            .toList();
+
+    if (aggCols.size() > 0) {
+      GraphQLObjectType.Builder max = GraphQLObjectType.newObject().name(tableName + "_max");
+      GraphQLObjectType.Builder min = GraphQLObjectType.newObject().name(tableName + "_min");
+      GraphQLObjectType.Builder sum = GraphQLObjectType.newObject().name(tableName + "_sum");
+      GraphQLObjectType.Builder avg = GraphQLObjectType.newObject().name(tableName + "_avg");
+      for (Column col : aggCols) {
+        max.field(
             GraphQLFieldDefinition.newFieldDefinition()
-                .name(columnName)
-                .type(
-                    GraphQLObjectType.newObject()
-                        .name(tableName + "AggregatorFor" + columnName)
-                        .field(
-                            GraphQLFieldDefinition.newFieldDefinition()
-                                .name(MAX_FIELD)
-                                .type(graphQLTypeOf(col)))
-                        .field(
-                            GraphQLFieldDefinition.newFieldDefinition()
-                                .name(MIN_FIELD)
-                                .type(graphQLTypeOf(col)))
-                        .field(
-                            GraphQLFieldDefinition.newFieldDefinition()
-                                .name(AVG_FIELD)
-                                .type(Scalars.GraphQLFloat))
-                        .field(
-                            GraphQLFieldDefinition.newFieldDefinition()
-                                .name(SUM_FIELD)
-                                .type(graphQLTypeOf(col)))));
-      } else {
-        // group by options
-        // TODO LATER
-        // builder.field(newFieldDefinition().name(col.getName()).type(graphQLTypeOf(col)));
+                .name(escape(col.getName()))
+                .type(graphQLTypeOf(col)));
+        min.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(escape(col.getName()))
+                .type(graphQLTypeOf(col)));
+        avg.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(escape(col.getName()))
+                .type(Scalars.GraphQLFloat));
+        sum.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(escape(col.getName()))
+                .type(graphQLTypeOf(col)));
       }
+      builder
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(MAX_FIELD).type(max))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(MIN_FIELD).type(min))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
     }
+    // todo group by options
     return builder.build();
   }
 
@@ -292,12 +298,10 @@ public class GraphqlTableFieldFactory {
         GraphQLInputObjectType.newInputObject()
             .name(escape(table.getName()) + GraphqlConstants.ORDERBY);
     for (Column col : table.getMetadata().getColumns()) {
-      if (!(col.isRefArray() || col.isRefback())) {
-        orderByBuilder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(escape(col.getName()))
-                .type(orderByEnum));
-      }
+      orderByBuilder.field(
+          GraphQLInputObjectField.newInputObjectField()
+              .name(escape(col.getName()))
+              .type(orderByEnum));
     }
     return orderByBuilder.build();
   }
@@ -470,6 +474,9 @@ public class GraphqlTableFieldFactory {
               sc.setOrderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
             }
             result.add(sc);
+          } else if (agg_fields.contains(s.getName())) {
+            result.add(
+                new SelectColumn(s.getName(), convertMapSelection(aTable, s.getSelectionSet())));
           }
         }
       }

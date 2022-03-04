@@ -12,6 +12,8 @@ import org.jooq.impl.DSL;
 
 public class TableMetadata implements Comparable {
 
+  public static final String TABLE_NAME_MESSAGE =
+      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
   // if a table extends another table (optional)
   public String inherit = null;
   // to allow indicate that a table should be dropped
@@ -30,6 +32,8 @@ public class TableMetadata implements Comparable {
   protected String tableName;
   // old name, useful for alter table
   private String oldName;
+  // use to classify the table, influences display, import, export, etc
+  private TableType tableType = TableType.DATA;
 
   public String[] getSemantics() {
     return semantics;
@@ -43,17 +47,24 @@ public class TableMetadata implements Comparable {
   private String[] semantics = null;
 
   public TableMetadata(String tableName) {
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*") || tableName.length() > 341) {
+    this.tableName = validateName(tableName);
+  }
+
+  private String validateName(String tableName) {
+    // max length 31 because of Excel
+    // we allow only graphql compatible names PLUS spaces
+    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+      throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
+    }
+    if (tableName.length() > 31) {
       throw new MolgenisException(
-          "Invalid table name '"
-              + tableName
-              + "': Table name must start with a letter , followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)");
+          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
     }
     if (tableName.contains("_ ") || tableName.contains(" _")) {
       throw new MolgenisException(
           "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
     }
-    this.tableName = tableName.trim();
+    return tableName.trim();
   }
 
   public TableMetadata(SchemaMetadata schema, String tableName) {
@@ -87,7 +98,7 @@ public class TableMetadata implements Comparable {
       this.description = metadata.getDescription();
       this.oldName = metadata.getOldName();
       for (Setting setting : metadata.getSettings()) {
-        this.settings.put(setting.getKey(), setting);
+        this.settings.put(setting.key(), setting);
       }
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
@@ -95,6 +106,7 @@ public class TableMetadata implements Comparable {
       this.inherit = metadata.getInherit();
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
+      this.tableType = metadata.getTableType();
     }
   }
 
@@ -492,7 +504,7 @@ public class TableMetadata implements Comparable {
   public TableMetadata setSettings(List<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.getKey(), setting);
+      this.settings.put(setting.key(), setting);
     }
     return this;
   }
@@ -533,7 +545,7 @@ public class TableMetadata implements Comparable {
   }
 
   public TableMetadata alterName(String name) {
-    this.tableName = name;
+    this.tableName = validateName(tableName);
     return this;
   }
 
@@ -553,5 +565,14 @@ public class TableMetadata implements Comparable {
     return getColumns().stream()
         .filter(c -> !c.getName().startsWith("mg_"))
         .collect(Collectors.toList());
+  }
+
+  public TableType getTableType() {
+    return tableType;
+  }
+
+  public TableMetadata setTableType(TableType tableType) {
+    this.tableType = tableType;
+    return this;
   }
 }

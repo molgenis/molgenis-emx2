@@ -32,6 +32,14 @@ public class GraphqlApiFactory {
             // REFBACK, REF_ARRAY
             convertRefArrayToRow(
                 (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
+          } else if (column.isFile()) {
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
+            if (bfw == null || !bfw.isSkip()) {
+              // also necessary in case of 'null' to ensure all file metadata fields are made empty
+              // skip is used when use submitted only metadata (that they received in query)
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
+            }
           } else {
             row.set(column.getName(), object.get(escape(column.getName())));
           }
@@ -172,6 +180,10 @@ public class GraphqlApiFactory {
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
+    if (database.isAdmin()) {
+      mutationBuilder.field(db.createSettingsMutation(database));
+      mutationBuilder.field(db.deleteSettingsMutation(database));
+    }
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(

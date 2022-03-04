@@ -10,12 +10,16 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 
 public class Emx2Settings {
 
+  private Emx2Settings() {
+    // prevent
+  }
+
   public static void outputSettings(TableStore store, Schema schema) {
     List<Row> settings = new ArrayList<>();
 
     // schema settings
     for (Setting setting : schema.getMetadata().getSettings()) {
-      settings.add(row(SETTINGS_NAME, setting.getKey(), SETTINGS_VALUE, setting.getValue()));
+      settings.add(row(SETTINGS_NAME, setting.key(), SETTINGS_VALUE, setting.value()));
     }
 
     // table settings
@@ -26,13 +30,13 @@ public class Emx2Settings {
                 TABLE,
                 table.getTableName(),
                 SETTINGS_NAME,
-                setting.getKey(),
+                setting.key(),
                 SETTINGS_VALUE,
-                setting.getValue()));
+                setting.value()));
       }
     }
 
-    if (settings.size() > 0) {
+    if (!settings.isEmpty()) {
       store.writeTable(
           Constants.SETTINGS_TABLE, List.of(TABLE, SETTINGS_NAME, SETTINGS_VALUE), settings);
     }

@@ -78,7 +78,8 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) => h.sourceRelease.resource.pid + ":" + h.sourceTable.name
+            (h) =>
+              h.sourceDataDictionary.resource.pid + ":" + h.sourceTable.name
           )
         ),
       ].sort();
@@ -110,7 +111,7 @@ export default {
       let filter = {};
       //filter:{targetVariable:{table:{name:{equals:"table1"},resource:{pid:{equals:"LifeCycle"}}}}}
       if (this.resourcePid) {
-        filter.targetRelease = {
+        filter.targetDataDictionary = {
           resource: { pid: { equals: this.resourcePid } },
         };
       }
@@ -120,7 +121,7 @@ export default {
       request(
         "graphql",
         `query VariableHarmonisations($filter:VariableHarmonisationsFilter,$offset:Int,$limit:Int){VariableHarmonisations(offset:$offset,limit:$limit,filter:$filter)
-          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{release{resource{pid}}name}match{name}}
+          {targetVariable{name,table{harmonisations{sourceTable{name}description}}}sourceTable{dataDictionary{resource{pid}}name}match{name}}
         ,VariableHarmonisations_agg(filter:$filter){count}}`,
         {
           filter: filter,

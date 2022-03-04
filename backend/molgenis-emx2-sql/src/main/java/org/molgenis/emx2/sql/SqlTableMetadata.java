@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
@@ -24,11 +25,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata add(Column... column) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(addTransaction(db, getSchemaName(), getTableName(), column));
-            });
+    getDatabase().tx(db -> sync(addTransaction(db, getSchemaName(), getTableName(), column)));
     return this;
   }
 
@@ -90,10 +87,7 @@ class SqlTableMetadata extends TableMetadata {
     String oldName = getTableName();
     if (!getTableName().equals(newName)) {
       getDatabase()
-          .tx(
-              db -> {
-                sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName));
-              });
+          .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
       getDatabase().getListener().schemaChanged(getSchemaName());
       log(start, "altered table from '" + oldName + "' to  " + getTableName());
     }
@@ -166,9 +160,12 @@ class SqlTableMetadata extends TableMetadata {
     }
     getDatabase()
         .tx(
-            db -> {
-              sync(alterColumnTransaction(getSchemaName(), getTableName(), columnName, column, db));
-            });
+            db ->
+                sync(
+                    alterColumnTransaction(
+                        getSchemaName(), getTableName(), columnName, column, db)));
+    // reload the state
+    ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
     return this;
   }
 
@@ -214,6 +211,11 @@ class SqlTableMetadata extends TableMetadata {
 
     // remove refBacks if exist
     executeRemoveRefback(oldColumn, newColumn);
+
+    // add ontology table if needed
+    if (newColumn.isOntology()) {
+      createOntologyTable(newColumn);
+    }
 
     // rename and retype if needed
     executeAlterType(tm.getJooq(), oldColumn, newColumn);
@@ -282,11 +284,7 @@ class SqlTableMetadata extends TableMetadata {
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
-    getDatabase()
-        .tx(
-            db -> {
-              sync(dropColumnTransaction(db, getSchemaName(), getTableName(), name));
-            });
+    getDatabase().tx(db -> sync(dropColumnTransaction(db, getSchemaName(), getTableName(), name)));
     log(start, "removed column '" + name + "' from ");
   }
 
@@ -303,6 +301,9 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setInherit(String otherTable) {
     long start = System.currentTimeMillis();
+    if (getInherit() != null && getInherit().equals(otherTable)) {
+      return this; // nothing to do
+    }
     if (getImportSchema() != null && getSchema().getTableMetadata(otherTable) != null) {
       throw new MolgenisException(
           "Inheritance failed: cannot extend schema.table '"
@@ -314,18 +315,14 @@ class SqlTableMetadata extends TableMetadata {
               + ')');
     }
     if (getInherit() != null) {
-      if (getInherit().equals(otherTable)) {
-        return this; // nothing to do
-      } else {
-        throw new MolgenisException(
-            "Table '"
-                + getTableName()
-                + "'can only extend one table. Therefore it cannot extend '"
-                + otherTable
-                + "' because it already extends other table '"
-                + getInherit()
-                + "'");
-      }
+      throw new MolgenisException(
+          "Table '"
+              + getTableName()
+              + "'can only extend one table. Therefore it cannot extend '"
+              + otherTable
+              + "' because it already extends other table '"
+              + getInherit()
+              + "'");
     }
     TableMetadata other;
     if (getImportSchema() != null) {
@@ -353,18 +350,18 @@ class SqlTableMetadata extends TableMetadata {
               + "' it must have primary key set");
     getDatabase()
         .tx(
-            tdb -> {
-              // extends means we copy primary key column from parent to child, make it foreign key
-              // to
-              // parent, and make it primary key of this table also.
-              sync(
-                  setInheritTransaction(
-                      tdb,
-                      getSchemaName(),
-                      getTableName(),
-                      getImportSchema() != null ? getImportSchema() : getSchemaName(),
-                      otherTable));
-            });
+            tdb ->
+                // extends means we copy primary key column from parent to child, make it foreign
+                // key
+                // to
+                // parent, and make it primary key of this table also.
+                sync(
+                    setInheritTransaction(
+                        tdb,
+                        getSchemaName(),
+                        getTableName(),
+                        getImportSchema() != null ? getImportSchema() : getSchemaName(),
+                        otherTable)));
     log(start, "set inherit on ");
     super.setInherit(otherTable);
     return this;
@@ -389,20 +386,29 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("removeInherit not yet implemented");
+    throw new MolgenisException("remove tableExtends not yet implemented");
   }
 
   @Override
   public SqlTableMetadata setSettings(List<Setting> settings) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(
-                  setSettingTransaction(
-                      (SqlDatabase) db, getSchemaName(), getTableName(), settings));
-            });
-    getDatabase().getListener().schemaChanged(getSchemaName());
-    return this;
+    if (getDatabase().isAdmin()
+        || ((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
+      getDatabase()
+          .tx(
+              db ->
+                  sync(
+                      setSettingTransaction(
+                          (SqlDatabase) db, getSchemaName(), getTableName(), settings)));
+      getDatabase().getListener().schemaChanged(getSchemaName());
+      return this;
+    } else {
+      throw new MolgenisException(
+          "Permission denied for user "
+              + getDatabase().getActiveUser()
+              + " to change setting on table "
+              + getTableName()
+              + ". You need at least EDITOR permission for table settings.");
+    }
   }
 
   private static SqlTableMetadata setSettingTransaction(
@@ -411,7 +417,7 @@ class SqlTableMetadata extends TableMetadata {
     SqlTableMetadata tm = schema.getTableMetadata(tableName);
     for (Setting setting : settings) {
       MetadataUtils.saveSetting(db.getJooq(), schema, tm, setting);
-      tm.settings.put(setting.getKey(), setting);
+      tm.settings.put(setting.key(), setting);
     }
     return tm;
   }
@@ -502,11 +508,7 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public void drop() {
     long start = System.currentTimeMillis();
-    getDatabase()
-        .tx(
-            db -> {
-              dropTransaction(db, getSchemaName(), getTableName());
-            });
+    getDatabase().tx(db -> dropTransaction(db, getSchemaName(), getTableName()));
     getDatabase().getListener().schemaChanged(getSchemaName());
     log(start, "dropped");
   }

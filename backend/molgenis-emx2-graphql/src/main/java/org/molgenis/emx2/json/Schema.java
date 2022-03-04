@@ -50,6 +50,7 @@ public class Schema {
           tm.add(cm);
         }
       }
+      tm.setTableType(t.getTableType());
     }
     return s;
   }

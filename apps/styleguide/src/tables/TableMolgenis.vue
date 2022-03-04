@@ -18,8 +18,8 @@
               #
               <!--@slot Use this to add values or actions buttons header -->
             </h6>
-            <span style="text-align: left; font-weight: normal"
-              ><slot name="colheader" />
+            <span style="text-align: left; font-weight: normal">
+              <slot name="colheader" />
             </span>
           </th>
           <th
@@ -29,7 +29,13 @@
             class="column-drag-header"
             :style="col.showColumn ? '' : 'display: none'"
           >
-            <h6 class="mb-0">{{ col.name }}</h6>
+            <h6
+              class="mb-0 align-text-bottom text-nowrap"
+              @click="onColumnClick(col)"
+            >
+              {{ col.name }}
+              <slot name="colheader" :col="col" />
+            </h6>
           </th>
         </Draggable>
       </thead>
@@ -189,6 +195,9 @@ export default {
     },
     isObject(object) {
       return object != null && typeof object === "object";
+    },
+    onColumnClick(column) {
+      this.$emit("column-click", column);
     },
     onRowClick(row) {
       if (this.showSelect) {

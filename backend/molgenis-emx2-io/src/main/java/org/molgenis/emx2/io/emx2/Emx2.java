@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -126,18 +125,20 @@ public class Emx2 {
   /** Outputs tables + columns. */
   public static List<Row> toRowList(SchemaMetadata schema) {
 
-    // get the metadata in right order
-    List<TableMetadata> tables = schema.getTables();
-    List<Column> columns =
+    // get the metadata in right order; exclude ontologies
+    List<TableMetadata> tables =
         schema.getTables().stream()
+            .filter(t -> !TableType.ONTOLOGIES.equals(t.getTableType()))
+            .toList();
+    List<Column> columns =
+        tables.stream()
             .map(t -> t.getNonInheritedColumns())
             .flatMap(List::stream)
-            .collect(Collectors.toList());
-    // sort on position
-    Collections.sort(columns);
+            .sorted()
+            .toList(); // NOSONAR cannot use toList because immutable
 
     List<Row> result = new ArrayList<>();
-    for (TableMetadata t : schema.getTables()) {
+    for (TableMetadata t : tables) {
 
       Row row = new Row();
       // set null columns to ensure sensible order

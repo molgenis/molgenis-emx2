@@ -43,6 +43,7 @@
       :value="conditions"
       @input="$emit('update:conditions', $event)"
       :limit="7"
+      :show-expanded="true"
       :graphqlURL="graphqlURL"
     />
     <InputRef

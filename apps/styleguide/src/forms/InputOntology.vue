@@ -2,20 +2,95 @@
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <div v-else class="p-0 m-0">
-      <InputOntologySubtree
-        class="pl-0"
-        :terms="terms"
-        :selection="selection"
-        :expanded="expanded"
-        :list="list"
-        @toggleExpand="toggleExpand"
-        @select="select"
-        @deselect="deselect"
-      />
+    <div
+      class="p-0 m-0"
+      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
+      v-else
+    >
+      <div
+        class="border-0 text-left form-control"
+        style="height: auto"
+        @click="toggleFocus"
+      >
+        <span
+          class="btn btn-sm btn-primary mb-2 text-white mr-1"
+          v-for="v in selectionWithoutChildren"
+          :key="v"
+          @click.stop="deselect(v)"
+        >
+          {{ v }}
+          <span class="fa fa-times"></span>
+        </span>
+        <i
+          class="p-2 fa fa-times"
+          style="vertical-align: middle"
+          @click.stop="deselect(selection)"
+          v-if="showExpanded && selectionWithoutChildren.length > 0"
+        />
+        <span :class="{ 'input-group': showExpanded }">
+          <div v-if="showExpanded" class="input-group-prepend">
+            <button
+              class="btn border-right-0 border btn-outline-primary"
+              type="button"
+            >
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+          <input
+            type="text"
+            ref="search"
+            :placeholder="focus || showExpanded ? 'Type to search' : ''"
+            :class="{
+              'form-control': showExpanded,
+              'border-0': !showExpanded,
+            }"
+            v-model="search"
+            @click.stop
+            @focus="focus = true"
+          />
+        </span>
+        <span class="d-inline-block float-right">
+          <i
+            class="p-2 fa fa-times"
+            style="vertical-align: middle"
+            @click.stop="deselect(selection)"
+            v-if="!showExpanded && selectionWithoutChildren.length > 0"
+          />
+          <i
+            class="p-2 fa fa-caret-down"
+            style="vertical-align: middle"
+            v-if="!showExpanded"
+          />
+        </span>
+      </div>
+      <div
+        class="w-100 show p-0 overflow-auto"
+        :class="{ 'dropdown-menu': !showExpanded }"
+        v-if="focus || showExpanded"
+        v-click-outside="loseFocusWhenClickedOutside"
+      >
+        <InputOntologySubtree
+          :key="key"
+          v-if="rootTerms.length > 0"
+          style="max-height: 100vh"
+          class="pt-2 pl-0 dropdown-item"
+          :terms="rootTerms"
+          :list="list"
+          @select="select"
+          @deselect="deselect"
+          @toggleExpand="toggleExpand"
+        />
+        <div v-else>No results found</div>
+      </div>
     </div>
   </FormGroup>
 </template>
+
+<style>
+input:focus {
+  outline: none;
+}
+</style>
 
 <script>
 import _baseInput from "./_baseInput";
@@ -25,6 +100,7 @@ import FormGroup from "./_formGroup";
 import InputOntologySubtree from "./InputOntologySubtree";
 import MessageError from "./MessageError";
 import Spinner from "../layout/Spinner";
+import vClickOutside from "v-click-outside";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -38,6 +114,9 @@ import Spinner from "../layout/Spinner";
 export default {
   extends: _baseInput,
   mixins: [TableMixin],
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   components: {
     FormGroup,
     InputOntologySubtree,
@@ -51,15 +130,33 @@ export default {
       type: Array,
       default: null,
     },
+    /** show as pulldown. When false, shows always expanded*/
+    showExpanded: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
-      terms: [],
-      selection: [],
-      expanded: [],
+      //huge object with all the terms, flattened
+      //includes also its children
+      terms: {},
+      search: null,
+      //we use key to force updates
+      key: 1,
     };
   },
   computed: {
+    rootTerms() {
+      if (this.terms) {
+        let result = Object.values(this.terms).filter(
+          (t) => !t.parent && t.visible
+        );
+        return result;
+      } else {
+        return [];
+      }
+    },
     //Override tableMixin
     orderByObject() {
       if (
@@ -71,65 +168,137 @@ export default {
         return {};
       }
     },
+    selectionWithoutChildren() {
+      //include key so it triggers on it
+      if (this.key) {
+        //navigate the tree, recurse into children if parent is not selected
+        let result = [];
+        Object.values(this.rootTerms).forEach((term) => {
+          result.push(...this.getSelectedChildNodes(term));
+        });
+        return result;
+      }
+      return [];
+    },
   },
   methods: {
-    getChildren(name) {
-      return this.data.filter((o) => o.parent && o.parent.name === name);
+    toggleExpand(term) {
+      this.terms[term].expanded = !this.terms[term].expanded;
+      this.key++;
     },
-    toggleExpand(name) {
-      if (this.expanded.indexOf(name) === -1) {
-        this.expanded.push(name);
-      } else {
-        this.expanded = this.expanded.filter((s) => s !== name);
-      }
-    },
-    select(items) {
-      //if not a list you can only select one
-      if (!this.list) {
-        this.selection = [];
-      }
-      //add items not yet selected
-      items.forEach((i) => {
-        if (this.selection.indexOf(i) === -1) {
-          this.selection.push(i);
-        }
-      });
-      //if all children are selected for a node then also select the parent (query expansion)
-
-      //alert("selectArray: " + JSON.stringify(this.selection));
-      this.emitValue();
-    },
-    getParents(items) {
-      let result = this.data
-        .filter((t) => t.parent && items.indexOf(t.name) != -1)
-        .map((t) => t.parent.name);
-      //get parents of the parents
-      if (result.length > 0) {
-        result.push(...this.getParents(result));
+    getSelectedChildNodes(term) {
+      let result = [];
+      if (term.selected == "complete") {
+        result.push(term.name);
+      } else if (term.children) {
+        term.children.forEach((childTerm) =>
+          result.push(...this.getSelectedChildNodes(childTerm))
+        );
       }
       return result;
     },
-    deselect(items) {
+    loseFocusWhenClickedOutside() {
+      if (this.focus && !this.showExpanded) {
+        this.focus = false;
+      }
+    },
+    toggleFocus() {
+      if (!this.showExpanded) {
+        this.focus = !this.focus;
+        if (this.focus) {
+          this.$refs.search.focus();
+        }
+      }
+    },
+    getParents(term) {
+      let result = [];
+      let parent = term.parent;
+      while (parent) {
+        result.push(this.terms[parent.name]);
+        if (
+          this.terms[parent.name].parent &&
+          //check for parent that are indirect parent of themselves
+          !result.includes(this.terms[parent.name].parent.name)
+        ) {
+          parent = this.terms[parent.name].parent;
+        } else {
+          parent = null;
+        }
+      }
+      return result;
+    },
+    getChildren(name) {
+      return this.data.filter((o) => o.parent && o.parent.name === name);
+    },
+    getAllChildren(term) {
+      let result = [];
+      if (term.children) {
+        result = term.children;
+        term.children.forEach(
+          (childTerm) =>
+            (result = result.concat(this.getAllChildren(childTerm)))
+        );
+      }
+      return result;
+    },
+    select(item) {
+      if (!this.list) {
+        this.terms.forEach((term) => (term.selected = "complete"));
+      }
+      let term = this.terms[item];
+      term.selected = "complete";
       if (this.list) {
-        //add parents
-        items.push(...this.getParents(items));
-        //should also deselect any (indirect) parents
-        this.selection = this.selection.filter((name) => !items.includes(name));
-      } else {
-        this.selection = [];
+        //if list also select also its children
+        this.getAllChildren(term).forEach(
+          (childTerm) => (childTerm.selected = "complete")
+        );
+        //select parent(s) if all siblings are selected
+        this.getParents(term).forEach((parent) => {
+          if (parent.children.every((childTerm) => childTerm.selected)) {
+            parent.selected = "complete";
+          } else {
+            parent.selected = "partial";
+          }
+        });
       }
       this.emitValue();
+      this.$refs.search.focus();
+      this.key++;
+    },
+    deselect(item) {
+      if (this.list) {
+        let term = this.terms[item];
+        term.selected = false;
+        //also deselect all its children
+        this.getAllChildren(this.terms[item]).forEach(
+          (childTerm) => (childTerm.selected = false)
+        );
+        //also its deselect its parents, might be partial
+        this.getParents(term).forEach((parent) => {
+          if (parent.children.some((child) => child.selected)) {
+            parent.selected = "partial";
+          } else {
+            parent.selected = false;
+          }
+        });
+      } else {
+        //non-list, deselect all
+        this.terms.forEach((term) => (term.selected = false));
+      }
+      this.emitValue();
+      this.$refs.search.focus();
+      this.key++;
     },
     emitValue() {
+      let selectedTerms = Object.values(this.terms)
+        .filter((term) => term.selected)
+        .map((term) => {
+          return { name: term.name };
+        });
       if (this.list) {
-        this.$emit(
-          "input",
-          this.selection.map((s) => {
-            return { name: s };
-          })
-        );
+        this.$emit("input", selectedTerms);
       } else {
-        this.$emit("input", { name: this.selection[0] });
+        this.$emit("input", { name: selectedTerms[0] });
       }
     },
     reloadMetadata() {
@@ -149,6 +318,34 @@ export default {
     options() {
       this.data = this.options;
     },
+    search() {
+      //first show/hide depending on filter
+      Object.values(this.terms).forEach(
+        (t) => (t.visible = this.search == "" || !this.search)
+      );
+      if (this.search && this.search.length > 0) {
+        let searchTerms = this.search.split(" ").map((s) => s.toLowerCase());
+        Object.values(this.terms).forEach((term) => {
+          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+            //items are visible when matching search, or when a child matches search
+            term.visible = true;
+            this.getParents(term).forEach((parent) => {
+              parent.visible = true;
+            });
+          }
+        });
+      }
+      //collapse all first
+      Object.values(this.terms).forEach((t) => (t.expanded = false));
+      //auto expand visible automatically if total visible <50
+      if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
+        //then expand visible
+        Object.values(this.terms)
+          .filter((t) => t.visible && t.children)
+          .forEach((t) => (t.expanded = true));
+      }
+      this.key++;
+    },
     value() {
       if (this.list) {
         this.selection = this.value ? this.value.map((term) => term.name) : [];
@@ -158,15 +355,39 @@ export default {
     },
     data() {
       if (this.data) {
-        this.terms = this.data
-          .filter((o) => !o.parent)
-          .map((o) => {
-            let children = this.getChildren(o.name);
-            if (children.length > 0) {
-              o.children = children;
+        //convert to tree of terms
+        //list all terms, incl subtrees
+        let terms = {};
+        this.data.forEach((e) => {
+          // did we see it maybe as parent before?
+          if (terms[e.name]) {
+            //then copy properties, currently only definition
+            terms[e.name].definition = e.definition;
+          } else {
+            //else simply add the record
+            terms[e.name] = e;
+            e.visible = true;
+            e.selected = false;
+          }
+          if (e.parent) {
+            //did we see this parent before?
+            if (!terms[e.parent.name]) {
+              //otherwise add it
+              terms[e.parent.name] = {
+                name: e.parent.name,
+                visible: true,
+                selected: false,
+              };
             }
-            return o;
-          });
+            // if first child then add children array
+            if (!terms[e.parent.name].children) {
+              terms[e.parent.name].children = [];
+            }
+            // add the child
+            terms[e.parent.name].children.push(e);
+          }
+        });
+        this.terms = terms;
       }
     },
   },
@@ -175,7 +396,7 @@ export default {
       this.data = this.options;
     } else {
       //override default
-      this.limit = 10000;
+      this.limit = 100000;
     }
     this.loading = false;
   },
@@ -188,6 +409,27 @@ Example with hardcoded options, can select multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
+                   :list="true"/>
+    myvalue = {{ myvalue }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myvalue: []
+      };
+    }
+  }
+</script>
+```
+Example 'expanded' with hardcoded options, can select multiple
+```
+<template>
+  <div>
+    <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   :showExpanded="true"
                    :options="[{name:'pet'},{name:'cat',parent:{name:'pet'}},{name:'dog',parent:{name:'pet'}},{name:'cattle'},{name:'cow',parent:{name:'cattle'}}]"
                    :list="true"/>
     myvalue = {{ myvalue }}
@@ -230,7 +472,7 @@ Example with loading contents from table on backend (requires sign-in), multiple
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Tag" :list="true"  graphqlURL="/pet store/graphql"/>
+                   table="Tag" :list="true" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
@@ -250,7 +492,7 @@ Example with loading contents from table on backend (requires sign-in)
 <template>
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
-                   table="Tag"  graphqlURL="/pet store/graphql"/>
+                   table="Tag" graphqlURL="/pet store/graphql"/>
     myvalue = {{ myvalue }}
   </div>
 </template>

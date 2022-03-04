@@ -11,13 +11,9 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Short hands for running the tasks */
 public class MolgenisIO {
-
-  private static final Logger logger = LoggerFactory.getLogger(MolgenisIO.class.getName());
 
   private MolgenisIO() {
     // hide constructor

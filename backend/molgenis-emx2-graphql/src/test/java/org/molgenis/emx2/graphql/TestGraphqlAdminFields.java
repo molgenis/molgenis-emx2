@@ -30,38 +30,33 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
-  public void testUsers() throws IOException {
-    try {
-      database.becomeAdmin();
+  public void testUsers() {
+    // put in transaction so user count is not affected by other operations
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(schemaName);
+          grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-      // put in transaction so user count is not affected by other operations
-      database.tx(
-          tdb -> {
-            Schema schema = database.dropCreateSchema(schemaName);
-            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+          try {
+            JsonNode result = execute("{_admin{users{username} userCount}}");
+            TestCase.assertEquals(
+                result.at("/_admin/users").size(), result.at("/_admin/userCount").intValue());
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          // test that only admin can do this
+          tdb.setActiveUser(ANONYMOUS);
+          grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-            int count = database.countUsers();
-            try {
-              TestCase.assertEquals(
-                  count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-            // test that only admin can do this
-            database.setActiveUser(ANONYMOUS);
-            grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-
-            try {
-              TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
-              fail("should fail");
-            } catch (Exception e) {
-              TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
-            }
-          });
-
-    } finally {
-      database.clearActiveUser();
-    }
+          try {
+            TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
+            fail("should fail");
+          } catch (Exception e) {
+            TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
+          }
+          tdb.clearActiveUser();
+        });
   }
 
   private JsonNode execute(String query) throws IOException {

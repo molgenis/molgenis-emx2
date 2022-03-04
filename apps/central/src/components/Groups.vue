@@ -32,9 +32,9 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                    v-if="session && session.email == 'admin'"
-                    icon="edit"
-                    @click="openEditSchema(schema.name, schema.description)"
+                  v-if="session && session.email == 'admin'"
+                  icon="edit"
+                  @click="openEditSchema(schema.name, schema.description)"
                 />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
@@ -44,9 +44,7 @@
               </div>
             </td>
             <td>
-              <a href="#" @click.prevent="openGroup(schema.name)">{{
-                schema.name
-              }}</a>
+              <a :href="'/' + schema.name">{{ schema.name }}</a>
             </td>
             <td>
               {{ schema.description }}
@@ -61,10 +59,10 @@
         :schemaName="showDeleteSchema"
       />
       <SchemaEditModal
-          v-if="showEditSchema"
-          @close="closeEditSchema"
-          :schemaName="showEditSchema"
-          :schemaDescription="editDescription"
+        v-if="showEditSchema"
+        @close="closeEditSchema"
+        :schemaName="showEditSchema"
+        :schemaDescription="editDescription"
       />
     </div>
   </div>
@@ -134,9 +132,6 @@ export default {
     this.getSchemaList();
   },
   methods: {
-    openGroup(name) {
-      window.open("/" + name + "/tables/", "_self");
-    },
     openCreateSchema() {
       this.showCreateSchema = true;
     },
@@ -153,7 +148,7 @@ export default {
     },
     openEditSchema(schemaName, schemaDescription) {
       this.showEditSchema = schemaName;
-      this.editDescription = schemaDescription
+      this.editDescription = schemaDescription;
     },
     closeEditSchema() {
       this.showEditSchema = null;

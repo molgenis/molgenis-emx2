@@ -4,7 +4,7 @@
       v-if="show"
       class="modal fade show"
       role="dialog"
-      style="display: block"
+      style="display: block; overflow: scroll"
       tabindex="-1"
       aria-modal="true"
     >

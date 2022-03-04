@@ -5,12 +5,13 @@
     type="button"
     title="Clear"
     @click="$emit('clear')"
-    style="margin-left: -40px; z-index: 100"
+    style="margin-left: -38px; z-index: 100"
     :class="{
       'text-primary': !error,
       'text-danger': error,
     }"
     data-clear
+    tabindex="-1"
   >
     <i class="fa fa-times">
       <span aria-hidden="true" class="sr-only">Clear</span>

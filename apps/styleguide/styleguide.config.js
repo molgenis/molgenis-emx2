@@ -1,6 +1,3 @@
-const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet%20store";
-
 module.exports = {
   // set your styleguidist configuration here
   title: "MOLGENIS EMX2 Style Guide",
@@ -10,25 +7,12 @@ module.exports = {
     },
     maxWidth: "auto",
   },
+  require: ["./router-mock.js"],
   assetsDir: "public",
   webpackConfig: {
     devServer: {
       port: "9090",
-      proxy: {
-        "/graphql": {
-          target: `${HOST}/${SCHEMA}`,
-          changeOrigin: true,
-          secure: false,
-        },
-        "**/graphql": { target: `${HOST}`, changeOrigin: true, secure: false },
-        "/api": { target: `${HOST}`, changeOrigin: true, secure: false },
-        "/apps": { target: `${HOST}`, changeOrigin: true, secure: false },
-        "^/theme.css": {
-          target: `${HOST}/${SCHEMA}`,
-          changeOrigin: true,
-          secure: false,
-        },
-      },
+      proxy: require("../dev-proxy.config"),
     },
   },
   tocMode: "collapse",
@@ -68,6 +52,10 @@ module.exports = {
     {
       name: "Mixins",
       components: "src/mixins/[A-Z]*.vue",
+    },
+    {
+      name: "Display",
+      components: "src/display/[A-Z]*.vue",
     },
   ],
 };

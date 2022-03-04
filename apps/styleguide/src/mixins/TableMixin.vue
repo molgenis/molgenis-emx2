@@ -1,3 +1,15 @@
+<template>
+  <div>
+    <h3>For testing purposes</h3>
+    <p>TableMetadataMixin</p>
+    <pre>session: {{ session }}</pre>
+    <pre>schema: <ShowMore title="schema">{{ schema }}</ShowMore></pre>
+    <pre>error: {{ graphqlError }}</pre>
+    <p>TableMixin</p>
+    <pre>data: {{ count }}</pre>
+    <pre>data: <ShowMore title="data">{{ data }}</ShowMore></pre>
+  </div>
+</template>
 <script>
 import { request } from "graphql-request";
 import TableMetadataMixin from "./TableMetadataMixin";
@@ -162,6 +174,12 @@ export default {
       },
     },
     graphqlFilter: {
+      deep: true,
+      handler() {
+        this.reload();
+      },
+    },
+    orderByObject: {
       deep: true,
       handler() {
         this.reload();

@@ -1,7 +1,8 @@
 <template>
   <Molgenis id="__top" v-model="session">
-    <MessageWarning v-if="error">{{error}}</MessageWarning>
-    <router-view v-else
+    <MessageWarning v-if="error">{{ error }}</MessageWarning>
+    <router-view
+      v-else
       :session="session"
       :schema="schema"
       :key="JSON.stringify(session)"
@@ -15,7 +16,8 @@ import { request } from "graphql-request";
 
 export default {
   components: {
-    Molgenis, MessageWarning
+    Molgenis,
+    MessageWarning,
   },
   data() {
     return {
@@ -41,14 +43,18 @@ export default {
       this.error = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
+        "{_schema{name,tables{name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
       )
         .then((data) => {
           this.schema = data._schema;
         })
         .catch((error) => {
-          console.log(JSON.stringify(error))
-          if(error.response && error.response.errors[0] && error.response.errors[0].message ) {
+          console.log(JSON.stringify(error));
+          if (
+            error.response &&
+            error.response.errors[0] &&
+            error.response.errors[0].message
+          ) {
             this.error = error.response.errors[0].message;
           } else {
             this.error = error;
