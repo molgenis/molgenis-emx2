@@ -11,6 +11,7 @@
       'text-danger': error,
     }"
     data-clear
+    tabindex="-1"
   >
     <i class="fa fa-times">
       <span aria-hidden="true" class="sr-only">Clear</span>
