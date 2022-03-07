@@ -25,6 +25,48 @@ subprojects {
             with nodeSpec
         }
 
+        if (project.name == 'molgenis-components') {
+            task buildComponentsLib(type: YarnTask, dependsOn: parent.yarn_install) {
+                node {
+                    with nodeSpec
+                }
+                if (project.name == 'molgenis-components') {
+                    inputs.file('package.json')
+                    inputs.files(fileTree('src'))
+                    inputs.files(fileTree('public'))
+                    inputs.files(fileTree('lib'))
+                    inputs.file('package.json')
+                    inputs.file('vite.config.js')
+                    outputs.dir('dist')
+
+                    //first install the workspace
+                    args = ['run', 'build']
+                }
+            }
+        }
+
+        //copy styleguide or normal app
+        if (project.name == 'styleguide') {
+            task buildStyleguidist(type: YarnTask, dependsOn: subprojects.buildComponentsLib) {
+                node {
+                    with nodeSpec
+                }
+
+                inputs.files(fileTree('src'))
+                inputs.files(fileTree('public'))
+                inputs.file('package.json')
+                inputs.file('styleguide.config.js')
+                inputs.file('vue.config.js')
+                outputs.dir('build')
+
+                // tell gradle to apply the build cache
+                outputs.cacheIf { true }
+
+                //first install the workspace
+                args = ['run', 'styleguide:build']
+            }
+        }
+
         inputs.file('package.json')
         if (project.name == 'nuxt-ssr') {
             inputs.files(fileTree('molgenis-components'))
@@ -61,52 +103,15 @@ subprojects {
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
+
     //copy styleguide or normal app
-    if (project.name == 'molgenis-components') {
-        task buildComponentsLib(type: YarnTask, dependsOn: parent.yarn_install) {
-            node {
-                with nodeSpec
-            }
-            if (project.name == 'molgenis-components') {
-                inputs.file('package.json')
-                inputs.files(fileTree('src'))
-                inputs.files(fileTree('public'))
-                inputs.files(fileTree('lib'))
-                inputs.file('package.json')
-                inputs.file('vite.config.js')
-                outputs.dir('dist')
-
-                //first install the workspace
-                args = ['run', 'build']
-            }
-        }
-    }
     if (project.name == 'styleguide') {
-        task buildStyleguidist(type: YarnTask, dependsOn: parent.yarn_install) {
-            node {
-                with nodeSpec
-            }
-
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.file('package.json')
-            inputs.file('styleguide.config.js')
-            inputs.file('vue.config.js')
-            outputs.dir('build')
-
-            // tell gradle to apply the build cache
-            outputs.cacheIf { true }
-
-            //first install the workspace
-            args = ['run', 'styleguide:build']
-        }
         task copyDistFiles(type: Copy, dependsOn: buildStyleguidist) {
             from "build"
             inputs.dir("build")
             into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
             outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
             outputs.cacheIf { true }
-
         }
     } else if (project.name == 'molgenis-components') {
         task buildShowCase(type: YarnTask, dependsOn: parent.yarn_install) {
@@ -153,26 +158,7 @@ subprojects {
         }
     }
 
-    // TODO QC and test coverage on javascript parts
-//    sonarqube {
-//        properties {
-//            property 'sonar.sources', 'src'
-//        }
-//    }
 }
-
-/** skip yarn install unless changes => removed because leads to travis errors*/
-//yarn_install {
-////    inputs.file('package.json')
-////    inputs.file('yarn.lock')
-////    outputs.dir('node_modules')
-////    subprojects.each {
-////        inputs.file('package.json')
-////        outputs.dir('node_modules')
-////    }
-//
-//    //outputs.cacheIf { true }
-//}
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
