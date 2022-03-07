@@ -20,13 +20,13 @@ subprojects {
     apply plugin: "com.github.node-gradle.node"
 
     //all depends on styleguide, so that needs build first
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task build(type: YarnTask, dependsOn: subprojects.buildStyleguidist) {
         node {
             with nodeSpec
         }
 
         inputs.file('package.json')
-        if(project.name == 'nuxt-ssr') {
+        if (project.name == 'nuxt-ssr') {
             inputs.files(fileTree('molgenis-components'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('pages'))
@@ -34,14 +34,6 @@ subprojects {
             inputs.files(fileTree('store'))
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
-
-        } else if(project.name == 'molgenis-components') {
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('lib'))
-            inputs.file('package.json')
-            inputs.file('vite.config.js')
-            outputs.dir('dist')
         } else {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -70,6 +62,25 @@ subprojects {
     }
 
     //copy styleguide or normal app
+    if (project.name == 'molgenis-components') {
+        task buildComponentsLib(type: YarnTask, dependsOn: parent.yarn_install) {
+            node {
+                with nodeSpec
+            }
+            if (project.name == 'molgenis-components') {
+                inputs.file('package.json')
+                inputs.files(fileTree('src'))
+                inputs.files(fileTree('public'))
+                inputs.files(fileTree('lib'))
+                inputs.file('package.json')
+                inputs.file('vite.config.js')
+                outputs.dir('dist')
+
+                //first install the workspace
+                args = ['run', 'build']
+            }
+        }
+    }
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: parent.yarn_install) {
             node {
@@ -97,7 +108,7 @@ subprojects {
             outputs.cacheIf { true }
 
         }
-    }else if (project.name == 'molgenis-components') {
+    } else if (project.name == 'molgenis-components') {
         task buildShowCase(type: YarnTask, dependsOn: parent.yarn_install) {
             node {
                 with nodeSpec
