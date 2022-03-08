@@ -202,7 +202,7 @@ export default {
         if (!Expressions.evaluate(column.validation, this.value)) {
           this.errorPerColumn[
             column.id
-          ] = `Error evaluating template: ${column.validation}`;
+          ] = `Applying validation rule returned error: ${column.validation}`;
         }
       } catch (error) {
         this.errorPerColumn[column.id] = `Invalid validation expression`;
