@@ -3,28 +3,33 @@
     <h2>Enter patient number</h2>
 
     <InputInt v-model="patientId" placeholder="patient number" type="number"/>
+<!--    <Info>Hier komt wat info over de patient zoektocht</Info>-->
     <ButtonOutline @click="fetchPatient">Submit</ButtonOutline>
-<!--    <p>Patient number is: {{patientId}}</p>-->
+
     <br/>
     <h3 v-if="dataLoaded">Here is the patient Data:</h3>
     <div v-if="loading">loading...</div>
     <div v-else-if="graphqlError">Error: {{ graphqlError }}</div>
     <div v-else>{{ rows }}</div>
-
   </div>
 
 </template>
 
 <script>
 import {request} from "graphql-request";
-import {InputInt, ButtonOutline} from "@mswertz/emx2-styleguide";
+import {
+  InputInt,
+  ButtonOutline,
+  Info
+} from "@mswertz/emx2-styleguide";
 
 export default {
   name: "PatientSearch",
   emits: "geneOfPatient",
   components: {
     InputInt,
-    ButtonOutline
+    ButtonOutline,
+    Info
   },
   props: {
     id: Number
@@ -67,10 +72,9 @@ export default {
         if(patients[i].id === parseInt(this.patientId)) {
           let geneOfPatient = patients[i].genesymbol;
           this.$emit('geneOfPatient', geneOfPatient);
-          console.log(geneOfPatient);
         }
       }
-      }
+    }
   }
 }
 </script>

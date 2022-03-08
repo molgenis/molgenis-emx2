@@ -1,12 +1,14 @@
 <template>
   <div class="autocomplete">
+    <Info>Enter some information about the hpo search</Info>
+    <h2>Select HPO root term</h2>
     <InputSearch v-model="HpoTerm"
            @input="onChange"
            @keydown.down="onArrowDown"
            @keydown.up="onArrowUp"
            @keydown.enter="onEnter"
            type="text"/>
-<!--    <Info>Hier komt wat info over de HPO zoektocht</Info>-->
+
     <ul v-show="isOpen" class="autocomplete-results">
       <li
         v-if="isLoading"
@@ -32,9 +34,8 @@
 <script>
 
 import {
-  InputSearch,
   Info,
-  Spinner
+  InputSearch,
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -42,8 +43,7 @@ export default {
   emits: "selectedHpoTerm",
   components: {
     InputSearch,
-    Info,
-    Spinner
+    Info
   },
   props: {
     items: {

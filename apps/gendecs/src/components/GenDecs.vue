@@ -12,8 +12,7 @@
 
     <SearchAutoComplete :items= "allHpoTerms"
       @selectedHpoTerm="apiCall" class="inputForm"
-    >
-    </SearchAutoComplete>
+    ></SearchAutoComplete>
 
     <br/>
     <PatientSearch @geneOfPatient="geneToHpo" class="inputForm">
@@ -34,7 +33,6 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-  Spinner
 } from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
@@ -47,7 +45,6 @@ export default {
     PatientSearch,
     MessageError,
     MessageSuccess,
-    Spinner
   },
   data() {
     return {
