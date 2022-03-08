@@ -93,6 +93,18 @@ export default {
       this.$emit("close");
     },
   },
+  created() {
+    const escapeHandler = (event) => {
+      if (event.key === "Escape") {
+        this.close();
+      }
+    };
+
+    document.addEventListener("keydown", escapeHandler);
+    this.$once("hook:destroyed", () => {
+      document.removeEventListener("keydown", escapeHandler);
+    });
+  },
 };
 </script>
 
