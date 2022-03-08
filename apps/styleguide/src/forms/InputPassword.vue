@@ -13,6 +13,7 @@
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @input="emitValue"
+      @keyup.enter.stop="$emit('enterPressed')"
     />
   </form-group>
 </template>
@@ -29,7 +30,7 @@ export default {
 </script>
 
 <docs>
-Examlple
+Example
 ```
 <template>
   <div>
@@ -37,7 +38,7 @@ Examlple
       <InputPassword
           v-model="value"
           label="My password label"
-          placholder="type here your password"
+          placeholder="type here your password"
           description="Some help needed?"
       />
     </LayoutForm>

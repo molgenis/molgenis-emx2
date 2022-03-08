@@ -2,7 +2,7 @@
 
 plugins {
     id "base"
-    id "com.github.node-gradle.node" version "3.2.0"
+    id "com.github.node-gradle.node" version "3.2.1"
 }
 
 def nodeSpec = {
@@ -27,7 +27,7 @@ subprojects {
 
         inputs.file('package.json')
         if(project.name == 'nuxt-ssr') {
-            inputs.files(fileTree('components'))
+            inputs.files(fileTree('molgenis-components'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
@@ -35,13 +35,21 @@ subprojects {
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
 
+        } else if(project.name == 'molgenis-components') {
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('lib'))
+            inputs.file('package.json')
+            inputs.file('vite.config.js')
+            outputs.dir('dist')
         } else {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
         }
 
-        if (project.name != 'docs' && project.name != 'nuxt-ssr' ) {
+        if (project.name != 'docs' && project.name != 'nuxt-ssr' && project.name != 'molgenis-components' ) {
             inputs.files(fileTree('../styleguide/src'))
+            inputs.files(fileTree('../molgenis-components/src'))
             inputs.file('vue.config.js')
             outputs.dir('dist')
         }

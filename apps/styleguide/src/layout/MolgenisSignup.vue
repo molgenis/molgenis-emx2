@@ -8,7 +8,7 @@
       <ButtonAlt @click="close">Close</ButtonAlt>
     </template>
   </LayoutModal>
-  <LayoutModal v-else title="Sign up" :show="true">
+  <LayoutModal v-else title="Sign up" :show="true" @close="close">
     <template v-slot:body>
       <LayoutForm>
         <MessageError v-if="error">{{ error }}</MessageError>
@@ -23,13 +23,14 @@
           label="Password"
           placeholder="Enter password"
           description="Please enter the password"
+          @enterPressed="signup"
         />
         <InputPassword
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
           description="Please enter the password again"
-          @keyup.enter="signup"
+          @enterPressed="signup"
         />
       </LayoutForm>
     </template>

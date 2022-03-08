@@ -9,7 +9,7 @@
         <Logger name="org.pac4j" level="debug" additivity="false">
             <Appender-ref ref="Console" level="debug" />
         </Logger>
-        <Root level="error">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
