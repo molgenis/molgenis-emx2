@@ -48,7 +48,11 @@
     </LayoutModal>
   </FormGroup>
 </template>
-
+<style scoped>
+::v-deep .input-append {
+  margin-left: -3rem;
+}
+</style>
 <script>
 import _baseInput from './_baseInput';
 import TableSearch from '../tables/TableSearch';
@@ -97,7 +101,6 @@ export default {
     },
     closeSelect() {
       this.showSelect = false;
-      this.reload();
     },
     openSelect(idx) {
       this.showSelect = true;
