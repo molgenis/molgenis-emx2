@@ -154,6 +154,8 @@ is automatically created, using refTable as the name.
 You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression syntax you can have a look at the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
 Expressions refer to the id property of columns.
 
+*Note: expressions will currently only let you check basic types and string arrays.*
+
 ### computedValue (NOT YET IMPLEMENTED)
 
 Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn
