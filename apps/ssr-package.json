@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "workspaces": [
+    "nuxt-ssr",
+    "molgenis-components"
+  ],
+  "resolutions": {
+    "nuxt-ssr/**/css-loader": "4.3.0",
+    "**/@vue/cli-service/css-loader": "3.6.0"
+  }
+}

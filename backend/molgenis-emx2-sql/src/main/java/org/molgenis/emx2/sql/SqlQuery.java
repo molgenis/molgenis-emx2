@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.*;
-import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.conf.ParamType;
 import org.jooq.exception.DataAccessException;
@@ -228,7 +227,8 @@ public class SqlQuery extends QueryBean {
   @Override
   public String retrieveJSON() {
     SelectColumn select = getSelect();
-    List<JSONEntry> fields = new ArrayList<>();
+    List<Field<?>> fields = new ArrayList<>();
+    DSLContext sql = schema.getJooq();
 
     // get the table from root select
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
@@ -245,10 +245,8 @@ public class SqlQuery extends QueryBean {
     }
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
-          key(select.getColumn())
-              .value(
-                  jsonAggregateSelect(
-                      table, null, table.getTableName(), select, getFilter(), getSearchTerms())));
+          jsonAggregateSelect(
+              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
@@ -259,15 +257,14 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          key(select.getColumn())
-              .value(
-                  jsonSubselect(
-                      table, null, table.getTableName(), select, getFilter(), getSearchTerms())));
+          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     }
 
+    // asemble final query
+    SelectJoinStep<Record1<Object>> query =
+        sql.select(field(ROW_TO_JSON_SQL)).from(table(sql.select(fields)).as(ITEM));
+
     long start = System.currentTimeMillis();
-    SelectSelectStep<Record1<JSON>> query =
-        table.getJooq().select(jsonObject(fields.toArray(new JSONEntry[fields.size()])));
     String result = query.fetchOne().get(0, String.class);
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -276,7 +273,7 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private SelectJoinStep<Record> jsonSubselect(
+  private Field jsonSubselect(
       SqlTableMetadata table,
       Column parentColumn,
       String tableAlias,
@@ -284,16 +281,12 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms) {
     String subAlias = tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
-    Field selection = jsonSubselectFields(table, subAlias, select);
-    // null means root, otherwise check parent column if it expects array or single value
-    if (parentColumn == null || parentColumn.isArray()) {
-      selection = jsonArrayAgg(selection);
-    }
+    Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
         table, parentColumn, tableAlias, select, filters, searchTerms, subAlias, selection);
   }
 
-  private SelectJoinStep<Record> jsonField(
+  private Field jsonField(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -301,12 +294,13 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms,
       String subAlias,
-      Field selection) {
-    SelectJoinStep<Record> from =
-        table.getJooq().select().from(tableWithInheritanceJoin(table).as(alias(subAlias)));
+      Collection<Field<?>> selection) {
+    DSLContext jooq = table.getJooq();
+    SelectJoinStep<org.jooq.Record> from =
+        jooq.select(selection).from(tableWithInheritanceJoin(table).as(alias(subAlias)));
     from = limitOffsetOrderBy(table, select, from);
     List<Condition> conditions = new ArrayList<>();
-    Select<Record> filterQuery =
+    Select<org.jooq.Record> filterQuery =
         jsonFilterQuery(table, column, tableAlias, subAlias, filters, searchTerms);
     if (filters != null
         || searchTerms.length > 0
@@ -320,9 +314,15 @@ public class SqlQuery extends QueryBean {
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
     }
     if (!conditions.isEmpty()) {
-      from = (SelectJoinStep<Record>) from.where(conditions);
+      from = (SelectJoinStep<org.jooq.Record>) from.where(conditions);
     }
-    return table.getJooq().select(selection).from(from.asTable(alias(subAlias)));
+
+    String agg =
+        select.getColumn().endsWith("_agg") || column != null && column.isRef() && !column.isArray()
+            ? ROW_TO_JSON_SQL
+            : JSON_AGG_SQL;
+
+    return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
   }
 
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
@@ -479,9 +479,9 @@ public class SqlQuery extends QueryBean {
     return or(search);
   }
 
-  private Field<JSON> jsonSubselectFields(
+  private Collection<Field<?>> jsonSubselectFields(
       TableMetadata table, String tableAlias, SelectColumn selection) {
-    List<JSONEntry> fields = new ArrayList<>();
+    List<Field<?>> fields = new ArrayList<>();
 
     // if no subselect, we will select primary keys
     if (selection.getSubselect().isEmpty()) {
@@ -505,67 +505,61 @@ public class SqlQuery extends QueryBean {
       } else if (column.isReference() && select.getColumn().endsWith("_agg")) {
         // aggregation subselect
         fields.add(
-            key(select.getColumn())
-                .value(
-                    jsonAggregateSelect(
-                        (SqlTableMetadata) column.getRefTable(),
-                        column,
-                        tableAlias,
-                        select,
-                        null,
-                        new String[0])));
+            jsonAggregateSelect(
+                (SqlTableMetadata) column.getRefTable(),
+                column,
+                tableAlias,
+                select,
+                null,
+                new String[0]));
       } else if (column.isReference()) {
         // normal subselect
         fields.add(
-            key(select.getColumn())
-                .value(
-                    jsonSubselect(
-                        (SqlTableMetadata) column.getRefTable(),
-                        column,
-                        tableAlias,
-                        select,
-                        null,
-                        new String[0])));
+            jsonSubselect(
+                (SqlTableMetadata) column.getRefTable(),
+                column,
+                tableAlias,
+                select,
+                null,
+                new String[0]));
       } else {
         // primitive fields
-        fields.add(key(column.getName()).value(field(name(alias(tableAlias), column.getName()))));
+        fields.add(field(name(alias(tableAlias), column.getName())));
       }
     }
-    return jsonObject(fields.toArray(new JSONEntry[fields.size()]));
+    return fields;
   }
 
-  private JSONEntry jsonFileField(
+  private Field<Object> jsonFileField(
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
-    List<JSONEntry> subFields = new ArrayList<>();
+    List<Field> subFields = new ArrayList<>();
     for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
-          subFields.add(key(ext).value(field(name(alias(tableAlias), column.getName()))));
+          subFields.add(field(name(alias(tableAlias), column.getName())).as(ext));
         } else if (ext.equals("url")) {
           subFields.add(
-              key(ext)
-                  .value(
-                      field(
-                          "'/"
-                              + table.getSchemaName()
-                              + "/api/file/"
-                              + table.getTableName()
-                              + "/"
-                              + column.getName()
-                              + "/' || {0}",
-                          field(name(alias(tableAlias), column.getName())))));
+              field(
+                      "'/"
+                          + table.getSchemaName()
+                          + "/api/file/"
+                          + table.getTableName()
+                          + "/"
+                          + column.getName()
+                          + "/' || {0}",
+                      field(name(alias(tableAlias), column.getName())))
+                  .as(ext));
         } else {
-          subFields.add(
-              key(ext).value(field(name(alias(tableAlias), column.getName() + "_" + ext))));
+          subFields.add(field(name(alias(tableAlias), column.getName() + "_" + ext)).as(ext));
         }
       }
     }
-    return key(select.getColumn())
-        .value(jsonObject(subFields.toArray(new JSONEntry[subFields.size()])));
+    return field((jooq.select(field(ROW_TO_JSON_SQL)).from(jooq.select(subFields).asTable(ITEM))))
+        .as(select.getColumn());
   }
 
-  private SelectJoinStep<Record> jsonAggregateSelect(
+  private Field<?> jsonAggregateSelect(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -573,10 +567,10 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms) {
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
-    List<JSONEntry> fields = new ArrayList<>();
+    List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
-        fields.add(key(COUNT_FIELD).value(count()));
+        fields.add(count().as(COUNT_FIELD));
       } else if (GROUPBY_FIELD.equals(field.getColumn())) {
         // todo
         //        fields.add(
@@ -602,13 +596,10 @@ public class SqlQuery extends QueryBean {
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
           }
         }
-        fields.add(
-            key(field.getColumn()).value(jsonObject(result.toArray(new JSONEntry[result.size()]))));
+        fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
       }
     }
-    Field selection =
-        field(jsonObject(fields.toArray(new JSONEntry[fields.size()])).as(select.getColumn()));
-    return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, selection);
+    return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
   private Field jsonAggregateGroupBy(

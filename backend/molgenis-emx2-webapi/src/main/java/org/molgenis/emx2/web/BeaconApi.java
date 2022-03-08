@@ -6,10 +6,10 @@ import static spark.Spark.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.*;
-import org.molgenis.emx2.beaconv2.Configuration;
 import org.molgenis.emx2.beaconv2.EntryTypes;
 import org.molgenis.emx2.beaconv2.RootInfo;
 import org.molgenis.emx2.beaconv2.ServiceInfo;
+import org.molgenis.emx2.beaconv2.configuration.Configuration;
 import spark.Request;
 import spark.Response;
 
