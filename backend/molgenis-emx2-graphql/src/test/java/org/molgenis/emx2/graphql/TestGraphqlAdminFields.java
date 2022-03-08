@@ -30,7 +30,7 @@ public class TestGraphqlAdminFields {
   }
 
   @Test
-  public void testUsers() throws IOException {
+  public void testUsers() {
     // put in transaction so user count is not affected by other operations
     database.tx(
         tdb -> {
@@ -38,10 +38,10 @@ public class TestGraphqlAdminFields {
           Schema schema = tdb.dropCreateSchema(schemaName);
           grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
-          int count = tdb.countUsers();
           try {
+            JsonNode result = execute("{_admin{users{username} userCount}}");
             TestCase.assertEquals(
-                count, execute("{_admin{userCount}}").at("/_admin/userCount").intValue());
+                result.at("/_admin/users").size(), result.at("/_admin/userCount").intValue());
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
