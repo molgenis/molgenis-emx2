@@ -70,20 +70,6 @@ public class Column implements Comparable<Column> {
     this.columnName = validateName(columnName, skipValidation);
   }
 
-  private String validateName(String columnName, boolean skipValidation) {
-    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
-      throw new MolgenisException(
-          "Invalid column name '"
-              + columnName
-              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
-    }
-    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
-      throw new MolgenisException(
-          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
-    }
-    return columnName.trim();
-  }
-
   public Column(TableMetadata table, String columnName) {
     this(columnName);
     this.table = table;
@@ -100,6 +86,20 @@ public class Column implements Comparable<Column> {
 
   public static Column column(String name, ColumnType type) {
     return new Column(name).setType(type);
+  }
+
+  private String validateName(String columnName, boolean skipValidation) {
+    if (!skipValidation && !columnName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+      throw new MolgenisException(
+          "Invalid column name '"
+              + columnName
+              + "': Column must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*");
+    }
+    if (!skipValidation && (columnName.contains("_ ") || columnName.contains(" _"))) {
+      throw new MolgenisException(
+          "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
+    }
+    return columnName.trim();
   }
 
   public String[] getSemantics() {
@@ -150,13 +150,13 @@ public class Column implements Comparable<Column> {
     return columnName;
   }
 
-  public String getQualifiedName() {
-    return getTableName() + "." + getName();
-  }
-
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
+  }
+
+  public String getQualifiedName() {
+    return getTableName() + "." + getName();
   }
 
   public ColumnType getColumnType() {
@@ -585,15 +585,15 @@ public class Column implements Comparable<Column> {
     return refLink;
   }
 
+  public void setRefLink(String refLink) {
+    this.refLink = refLink;
+  }
+
   public Column getRefLinkColumn() {
     if (refLink != null) {
       return getTable().getColumn(refLink);
     }
     return null;
-  }
-
-  public void setRefLink(String refLink) {
-    this.refLink = refLink;
   }
 
   public boolean isPrimaryKey() {

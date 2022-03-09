@@ -1,47 +1,99 @@
-<script>
-import InputString from "./InputString";
+<template>
+  <span>
+    <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
+      <span v-if="list && value">{{ value.join(', ') }}</span>
+      <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
+    </span>
+    <FormGroup v-else v-bind="$props" v-on="$listeners">
+      <InputAppend
+        v-for="(item, idx) in valueArray"
+        :key="idx"
+        v-bind="$props"
+        :showClear="false"
+        @add="addRow"
+        :showPlus="showPlus(idx)"
+        :showMinus="showMinus(idx)"
+      >
+        <input
+          v-focus="inplace && !list"
+          type="number"
+          step="1"
+          :value="item"
+          :class="{'form-control': true, 'is-invalid': errorMessage}"
+          :aria-describedby="id + 'Help'"
+          :placeholder="placeholder"
+          :readonly="readonly"
+          @keypress="keyhandler"
+          @input="emitValue($event, idx)"
+          @blur="toggleFocus"
+        />
+      </InputAppend>
+    </FormGroup>
+    <IconAction
+      v-if="inplace && !focus"
+      class="hoverIcon"
+      icon="pencil-alt"
+      @click="toggleFocus"
+    />
+  </span>
+</template>
 
-/** Input for integer values */
+<script>
+import BaseInput from './_baseInput.vue';
+import InputAppend from './_inputAppend';
+import IconAction from './IconAction';
+import {CODE_0, CODE_9, CODE_BACKSPACE} from '../constants';
+
 export default {
-  extends: InputString,
+  extends: BaseInput,
+  components: {
+    InputAppend,
+    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
+    IconAction
+  },
   props: {
-    placeholder: {
-      default: "Enter integer (does not accept A-Za-z,.)",
-    },
     parser: {
       default() {
-        return (value) => {
-          return parseInt(value);
-        };
-      },
-    },
+        return parseInt;
+      }
+    }
   },
   methods: {
     keyhandler(event) {
       if (!this.isInt(event)) event.preventDefault();
     },
     isInt(e) {
-      var specialKeys = [];
-      specialKeys.push(8); // Backspace
-      var keyCode = e.which ? e.which : e.keyCode;
-      var ret =
-        (keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) !== -1;
-      return ret;
-    },
-  },
+      let specialKeys = [];
+      specialKeys.push(CODE_BACKSPACE);
+      const keyCode = e.which ? e.which : e.keyCode;
+      return (
+        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
+        specialKeys.indexOf(keyCode) !== -1
+      );
+    }
+  }
 };
 </script>
 
+<style scoped>
+.is-invalid {
+  background-image: none;
+  padding-right: 0.75rem;
+}
+
+span:hover .hoverIcon {
+  visibility: visible;
+}
+</style>
+
 <docs>
-Example
+Example integer input
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputInt v-model="value" label="My int input label" description="Some help needed?"/>
-    </LayoutForm>
-    <br/>
+    <InputInt v-model="value" label="My int input label" description="Some help needed?"/>
     You typed: {{ JSON.stringify(value) }}
+    You typed with type: {{ typeof value }}
   </div>
 </template>
 <script>
@@ -54,13 +106,39 @@ Example
   };
 </script>
 ```
-Example list
+Example with default value
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputInt :list="true" v-model="value" label="My int input label" description="Some help needed?"/>
-    </LayoutForm>
+    <InputInt
+        v-model="value"
+        label="My int input label"
+        description="Some help needed?"
+    />
+    <br/>
+    You typed: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: 3
+      };
+    }
+  };
+</script>
+```
+Example readonly
+```
+<InputString label="test" :readonly="true" value="can't change me" description="Should not be able to edit this"/>
+```
+Example list of integers
+```
+<template>
+  <div>
+    <InputInt v-model="value" :list="true" label="test"
+                 description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
   </div>
@@ -69,10 +147,47 @@ Example list
   export default {
     data: function () {
       return {
-        value: null
+        value: [1, 2, 3]
       };
-    }
+    },
   };
+</script>
+```
+Example in place
+```
+<template>
+  <div>
+    In place some
+    <InputInt label="test" v-model="value" :inplace="true" description="Should be able to edit in place"/>
+    text.<br/>
+    value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {value: null}
+    }
+  }
+</script>
+```
+Example list in place
+```
+<template>
+  <div>
+    In place some
+    <InputInt label="test" :list="true" v-model="value" :inplace="true"
+                 description="Should be able to edit in place"/>
+    text.<br/>
+    value: {{ value }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {value: [1, 2]}
+    }
+  }
 </script>
 ```
 </docs>
