@@ -2378,7 +2378,7 @@
   dependencies:
     "@vue/cli-shared-utils" "^4.5.15"
 
-"@vue/cli-plugin-unit-jest@~4.5.14":
+"@vue/cli-plugin-unit-jest@4.5.15":
   version "4.5.15"
   resolved "https://registry.yarnpkg.com/@vue/cli-plugin-unit-jest/-/cli-plugin-unit-jest-4.5.15.tgz#7be914ca1507ca344487eb377ed925c9db0b772a"
   integrity sha512-oE3RDMerb21P6ALg70Zh2zU+RYYjoe09/7ZXYUj03uTb2obqUbcINpFfeVwM0B/J6H1YmqWJpnNBxWURhrqQHg==
