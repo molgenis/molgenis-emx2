@@ -232,7 +232,6 @@ CollectionEvents,,ageGroups,ontology_array,,,AgeGroups,CatalogueOntologies,,,,,A
 CollectionEvents,,numberOfParticipants,int,,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,areasOfInformation,ontology_array,,,AreasOfInformation,CatalogueOntologies,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ontology_array,,,DataCategories,CatalogueOntologies,,,,,Methods of data collection used in this collection event
-CollectionEvents,,medicalRecords,ontology_array,,,MedicalRecords,CatalogueOntologies,,,,,Medical records used in this collection event
 CollectionEvents,,sampleCategories,ontology_array,,,SampleCategories,CatalogueOntologies,,,,,Samples that were collected in this collection event
 CollectionEvents,,standardizedTools,ontology_array,,,StandardizedTools,CatalogueOntologies,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
