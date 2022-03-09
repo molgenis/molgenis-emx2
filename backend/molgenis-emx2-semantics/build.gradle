@@ -6,4 +6,5 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-exampledata')
     testImplementation project(':backend:molgenis-emx2-io')
+    implementation 'org.apache.jena:apache-jena:4.4.0'
 }
