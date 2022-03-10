@@ -2,7 +2,7 @@
   <div v-if="inplace">
     <div
       class="form-check form-check-inline"
-      :class="{ 'is-invalid': errorMessage }"
+      :class="{'is-invalid': errorMessage}"
     >
       <input
         :id="id"
@@ -25,12 +25,12 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput.vue";
-import InputRadio from "./InputRadio";
+import BaseInput from './_baseInput.vue';
+import InputRadio from './InputRadio';
 
 export default {
-  components: { InputRadio },
-  extends: BaseInput,
+  components: {InputRadio},
+  extends: BaseInput
 };
 </script>
 
