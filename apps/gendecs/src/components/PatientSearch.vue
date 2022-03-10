@@ -3,14 +3,8 @@
     <h2>Enter patient number</h2>
 
     <InputInt v-model="patientId" placeholder="patient number" type="number"/>
-<!--    <Info>Hier komt wat info over de patient zoektocht</Info>-->
     <ButtonOutline @click="fetchPatient">Submit</ButtonOutline>
 
-    <br/>
-    <h3 v-if="dataLoaded">Here is the patient Data:</h3>
-    <div v-if="loading">loading...</div>
-    <div v-else-if="graphqlError">Error: {{ graphqlError }}</div>
-    <div v-else>{{ rows }}</div>
   </div>
 
 </template>
@@ -20,7 +14,6 @@ import {request} from "graphql-request";
 import {
   InputInt,
   ButtonOutline,
-  Info
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -29,7 +22,6 @@ export default {
   components: {
     InputInt,
     ButtonOutline,
-    Info
   },
   props: {
     id: Number
@@ -40,7 +32,6 @@ export default {
       loading: false,
       graphqlError: null,
       patientId: 0,
-      dataLoaded: false
     }
   },
   methods: {

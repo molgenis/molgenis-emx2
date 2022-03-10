@@ -8,7 +8,6 @@
       found terms will be checked if they match with the given root term/phenotype. This information
       is then reported back.
     </p>
-    <MessageSuccess v-if="foundMatch">Match found!</MessageSuccess>
 
     <SearchAutoComplete :items= "allHpoTerms"
                           @selectedHpoTerm="apiCall" class="inputForm"
@@ -26,16 +25,9 @@
       />
     </div>
     <br/>
-    <PatientSearch @geneOfPatient="geneToHpo" class="inputForm">
-    </PatientSearch>
+    <MessageSuccess v-if="foundMatch">Match found!</MessageSuccess>
 
-    <br/>
-    <h3 v-if="loadingHpo">here are results from the HPO api call</h3>
-    {{ hpoResults }}
-    <br/> <br/>
-    <h3 v-if="loadingGeneAssociates">here are results from the Gene api call</h3>
-    {{ geneAssociates }}
-
+    <PatientSearch @geneOfPatient="geneToHpo" class="inputForm"></PatientSearch>
   </div>
 </template>
 
@@ -68,8 +60,6 @@ export default {
       hpoResults: null,
       geneEntered: '',
       geneAssociates: null,
-      loadingHpo: false,
-      loadingGeneAssociates: false,
       allHpoTerms: hpoData,
       selectedHpoTerm: null,
       foundMatch: false,
@@ -90,7 +80,6 @@ export default {
       this.selectedHpoTerm = selectedHpoTerm;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
         .then(response => response.json());
-      this.loadingHpo = true;
       this.hpoResults = resultData['terms'];
       this.hpoId = this.hpoResults[0].id;
 
@@ -117,7 +106,6 @@ export default {
         geneTermAssoc.push(resultData2['termAssoc'][i].name);
       }
       this.geneAssociates = geneTermAssoc;
-      this.loadingGeneAssociates = true;
       this.checkIfMatch();
     },
     async getChildren(id) {
@@ -175,7 +163,6 @@ export default {
           });
     }
   },
-
 };
 </script>
 
