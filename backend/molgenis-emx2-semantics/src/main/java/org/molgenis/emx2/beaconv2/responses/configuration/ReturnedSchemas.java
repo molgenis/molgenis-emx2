@@ -6,4 +6,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 public class ReturnedSchemas {
   String entityType = "info";
   String schema = "beacon-info-v2.0.0-draft.4";
+
+  public ReturnedSchemas(String entityType) {
+    this.entityType = entityType;
+  }
 }

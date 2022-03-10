@@ -8,8 +8,8 @@ import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.BeaconConfigurationResponse;
 import org.molgenis.emx2.beacon.responses.BeaconFilteringTermsResponse;
 import org.molgenis.emx2.beaconv2.responses.Configuration;
+import org.molgenis.emx2.beaconv2.responses.EntryTypes;
 import org.molgenis.emx2.beaconv2.responses.Info;
-import org.molgenis.emx2.beaconv2_prev.EntryTypes;
 import org.molgenis.emx2.beaconv2_prev.ServiceInfo;
 import spark.Request;
 import spark.Response;
@@ -25,7 +25,7 @@ public class BeaconApi {
     get("/:schema/api/beacon/service-info", BeaconApi::getInfo);
     get("/:schema/api/beacon/configuration", BeaconApi::getConfiguration);
     //    get("/:schema/api/beacon/map", BeaconApi::getMap);
-    //    get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
+    get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
     //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
     //
     //    // datasets model
