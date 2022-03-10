@@ -25,7 +25,7 @@
     <h3 v-if="loadingGeneAssociates">here are results from the Gene api call</h3>
     {{ geneAssociates }}
 
-    <ButtonOutline @click="sendHpo">Call the backend!</ButtonOutline>
+<!--    <ButtonOutline @click="sendHpo">Call the backend!</ButtonOutline>-->
 
   </div>
 </template>
@@ -74,7 +74,7 @@ export default {
       this.loadingHpo = true;
       this.hpoResults = resultData['terms'];
       let id = this.hpoResults[0].id;
-      this.sendHpo(id);
+      this.sendHpo(id.replace(":", "_"));
       // this.getChildren(id);
     },
     async geneToHpo(geneOfPatient) {
@@ -127,6 +127,7 @@ export default {
       /*
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * */
+
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify({ hpoId: hpoId })
