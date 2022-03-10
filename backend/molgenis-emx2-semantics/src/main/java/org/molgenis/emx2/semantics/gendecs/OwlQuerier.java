@@ -159,12 +159,4 @@ public class OwlQuerier {
 
     return gson.toJson(hpoTerm);
   }
-
-  public ArrayList<String> getParents() {
-    return parents;
-  }
-
-  public ArrayList<String> getSubClasses() {
-    return subClasses;
-  }
 }
