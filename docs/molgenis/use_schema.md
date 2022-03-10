@@ -49,7 +49,7 @@ Basic type:
 - uuid
 - jsonb : validates json format
 - file
-- text_array : string that displays as text area
+- text : string that displays as text area
 
 Relationships:
 
