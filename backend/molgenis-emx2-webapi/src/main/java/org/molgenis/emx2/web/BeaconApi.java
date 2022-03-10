@@ -25,6 +25,8 @@ public class BeaconApi {
     get("/:schema/api/beacon/map", BeaconApi::getMap);
     get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
     get("/:schema/api/beacon/datasets", BeaconApi::getDatasets);
+    get("/:schema/api/beacon/g_variants", BeaconApi::getGenomicVariants);
+
     //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
     //
     //    // datasets model
@@ -72,8 +74,14 @@ public class BeaconApi {
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
+    // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
     return getWriter().writeValueAsString(new Datasets(getSchema(request)));
+  }
+
+  private static String getGenomicVariants(Request request, Response response)
+      throws JsonProcessingException {
+    return getWriter().writeValueAsString(new GenomicVariants());
   }
 
   private static String postDatasets(Request request, Response response)
