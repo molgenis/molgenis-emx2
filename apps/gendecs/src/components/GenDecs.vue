@@ -25,6 +25,8 @@
     <h3 v-if="loadingGeneAssociates">here are results from the Gene api call</h3>
     {{ geneAssociates }}
 
+    <ButtonOutline @click="sendHpo">Call the backend!</ButtonOutline>
+
   </div>
 </template>
 
@@ -33,6 +35,7 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
+  ButtonOutline
 } from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
@@ -45,6 +48,7 @@ export default {
     PatientSearch,
     MessageError,
     MessageSuccess,
+    ButtonOutline
   },
   data() {
     return {
@@ -60,14 +64,25 @@ export default {
   },
   methods: { //2 abnormality of the radius
     async apiCall(selectedHpoTerm) {
+      /*
+      * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
+      * This is then used to gather the ID of the term using a api call.
+      * */
       this.selectedHpoTerm = selectedHpoTerm;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
         .then(response => response.json());
       this.loadingHpo = true;
       this.hpoResults = resultData['terms'];
-      this.getHpoId();
+      let id = this.hpoResults[0].id;
+      this.sendHpo(id);
+      // this.getChildren(id);
     },
     async geneToHpo(geneOfPatient) {
+      /*
+      * Function that gets the gene of the patient from the patient database as geneOfPatient.
+      * geneOfPatient is used in an api call to gather the entrezGeneId. Which in turn is used
+      * to gather all HPO terms related to said gene with an api call.
+      * */
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + geneOfPatient)
         .then(response => response.json());
       let entrezId = resultData['genes'][0].entrezGeneId;
@@ -82,11 +97,11 @@ export default {
       this.loadingGeneAssociates = true;
       this.checkIfMatch();
     },
-    getHpoId() {
-      let id = this.hpoResults[0].id;
-      this.getChildren(id);
-    },
     async getChildren(id) {
+      /*
+      * Function that gets the id of an HPO term as id. This id is used in an api call to gather all
+      * children terms of said term.
+      * */
       let resultData = await fetch("https://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=" + id, {
       })
         .then(response => response.json());
@@ -96,12 +111,42 @@ export default {
       for (let i = 0; i < hpoChildren.length; i++) {
         hpoChildrenName.push(hpoChildren[i].label);
       }
-      console.log("Children of " + this.hpoResults[0].name + ": " + hpoChildrenName);
+      // console.log("Children of " + this.hpoResults[0].name + ": " + hpoChildrenName);
     },
     checkIfMatch() {
+      /*
+      * Function that checks if the HPO terms that are associated with the patient gene has a match
+      * with the entered HPO term by the user.
+      * */
+      console.log(this.geneAssociates);
       if(this.geneAssociates.includes(this.selectedHpoTerm)) {
         this.foundMatch = true;
       }
+    },
+    sendHpo(hpoId) {
+      /*
+      * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
+      * */
+      let requestOptions = {
+        method: 'POST',
+        body: JSON.stringify({ hpoId: hpoId })
+      };
+      fetch('/patients/api/gendecs', requestOptions)
+          .then(async response => {
+            let data = await response.text();
+            console.log(data);
+            // check for error response
+            if (!response.ok) {
+              // get error message from body or default to response status
+              const error = (data && data.message) || response.status;
+              return Promise.reject(error);
+            }
+            this.postId = data.id;
+          })
+          .catch(error => {
+            this.errorMessage = error;
+            console.error('There was an error!', error);
+          });
     }
   },
 };
