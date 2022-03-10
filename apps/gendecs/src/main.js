@@ -14,11 +14,6 @@ const router = new VueRouter({
       component: GenDecs,
       props: true,
     },
-    {
-      path: "/somequery",
-      component: SomeQuery,
-      props: true,
-    },
   ],
 });
 
