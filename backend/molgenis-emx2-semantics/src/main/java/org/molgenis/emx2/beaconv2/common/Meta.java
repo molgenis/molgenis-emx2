@@ -1,9 +1,8 @@
 package org.molgenis.emx2.beaconv2.common;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import org.molgenis.emx2.beaconv2.responses.configuration.ReturnedSchemas;
-
 import java.util.Arrays;
+import org.molgenis.emx2.beaconv2.responses.configuration.ReturnedSchemas;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Meta {
