@@ -23,6 +23,12 @@ public class OwlQuerier {
     hpoID = id;
   }
 
+  /**
+   * Method that queries the hp.owl for all subclasses of an HPO term.
+   * @param hpoID String with the id of the HPO term which the user has entered
+   * @return If the query is executed returns ResultSet with the results
+   * returns null if failed
+   */
   private ResultSet querySubClasses(String hpoID) {
     String queryString =
         String.format(
@@ -48,6 +54,12 @@ public class OwlQuerier {
     return null;
   }
 
+  /**
+   * Method that queries the hp.owl file for the parent class of an HPO term
+   * @param hpoID String with the id of the HPO term which the user has entered
+   * @return If the query is executed returns ResultSet with the results
+   * returns null if failed
+   */
   private ResultSet queryParentClass(String hpoID) {
     String queryString =
         String.format(
@@ -111,6 +123,10 @@ public class OwlQuerier {
     return hpoTerms;
   }
 
+  /**
+   * Method that invokes the query methods
+   * @return HpoTerm object with the results
+   */
   public HpoTerm executeQuery() {
     model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
     logger.info("Loaded hp.owl");
