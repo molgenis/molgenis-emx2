@@ -11,9 +11,20 @@
     <MessageSuccess v-if="foundMatch">Match found!</MessageSuccess>
 
     <SearchAutoComplete :items= "allHpoTerms"
-      @selectedHpoTerm="apiCall" class="inputForm"
+                          @selectedHpoTerm="apiCall" class="inputForm"
     ></SearchAutoComplete>
-
+    <div v-if="loadingOwl">
+      <Spinner/>
+    </div>
+    <div>
+      <InputCheckbox
+          label="Search for parents and children"
+          v-model="searchAssociates"
+          :options="['Search for parents and children']"
+          description="check this box if you want to search for parents and children of
+                      your HPO term"
+      />
+    </div>
     <br/>
     <PatientSearch @geneOfPatient="geneToHpo" class="inputForm">
     </PatientSearch>
@@ -25,8 +36,6 @@
     <h3 v-if="loadingGeneAssociates">here are results from the Gene api call</h3>
     {{ geneAssociates }}
 
-<!--    <ButtonOutline @click="sendHpo">Call the backend!</ButtonOutline>-->
-
   </div>
 </template>
 
@@ -35,7 +44,9 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-  ButtonOutline
+  ButtonOutline,
+  InputCheckbox,
+  Spinner
 } from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
@@ -48,7 +59,9 @@ export default {
     PatientSearch,
     MessageError,
     MessageSuccess,
-    ButtonOutline
+    ButtonOutline,
+    InputCheckbox,
+    Spinner
   },
   data() {
     return {
@@ -59,23 +72,33 @@ export default {
       loadingGeneAssociates: false,
       allHpoTerms: hpoData,
       selectedHpoTerm: null,
-      foundMatch: false
+      foundMatch: false,
+      hpoChildren: null,
+      hpoParents: null,
+      hpoId: null,
+      searchAssociates: null,
+      loadingOwl: false
     };
   },
   methods: { //2 abnormality of the radius
     async apiCall(selectedHpoTerm) {
+      this.loadingOwl = true;
       /*
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
-      * This is then used to gather the ID of the term using a api call.
+      * This is then used to gather the ID of the term using an api call.
       * */
       this.selectedHpoTerm = selectedHpoTerm;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
         .then(response => response.json());
       this.loadingHpo = true;
       this.hpoResults = resultData['terms'];
-      let id = this.hpoResults[0].id;
-      this.sendHpo(id.replace(":", "_"));
-      // this.getChildren(id);
+      this.hpoId = this.hpoResults[0].id;
+
+      if(this.searchAssociates != null) {
+        this.sendHpo(this.hpoId.replace(":", "_"));
+        // this.getChildren(id);
+      }
+      this.loadingOwl = false;
     },
     async geneToHpo(geneOfPatient) {
       /*
@@ -118,8 +141,9 @@ export default {
       * Function that checks if the HPO terms that are associated with the patient gene has a match
       * with the entered HPO term by the user.
       * */
-      console.log(this.geneAssociates);
-      if(this.geneAssociates.includes(this.selectedHpoTerm)) {
+      if(this.geneAssociates.includes(this.selectedHpoTerm) ||
+          this.hpoParents.includes(this.selectedHpoTerm) ||
+          this.hpoChildren.includes(this.selectedHpoTerm)) {
         this.foundMatch = true;
       }
     },
@@ -127,15 +151,16 @@ export default {
       /*
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * */
-
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify({ hpoId: hpoId })
       };
       fetch('/patients/api/gendecs', requestOptions)
           .then(async response => {
-            let data = await response.text();
-            console.log(data);
+            let data = await response.json();
+            this.hpoParents = data["parents"];
+            this.hpoChildren = data["children"];
+
             // check for error response
             if (!response.ok) {
               // get error message from body or default to response status
@@ -150,6 +175,7 @@ export default {
           });
     }
   },
+
 };
 </script>
 
