@@ -25,9 +25,13 @@
       />
     </div>
     <br/>
-    <MessageSuccess v-if="foundMatch">Match found!</MessageSuccess>
 
     <PatientSearch @geneOfPatient="geneToHpo" class="inputForm"></PatientSearch>
+    <br/>
+    <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
+    <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene: {{ patientGene }}.
+      Which was found in the test patient database</p>
+
   </div>
 </template>
 
@@ -58,7 +62,6 @@ export default {
   data() {
     return {
       hpoResults: null,
-      geneEntered: '',
       geneAssociates: null,
       allHpoTerms: hpoData,
       selectedHpoTerm: null,
@@ -67,7 +70,8 @@ export default {
       hpoParents: null,
       hpoId: null,
       searchAssociates: null,
-      loadingOwl: false
+      loadingOwl: false,
+      patientGene: null
     };
   },
   methods: { //2 abnormality of the radius
@@ -95,6 +99,7 @@ export default {
       * geneOfPatient is used in an api call to gather the entrezGeneId. Which in turn is used
       * to gather all HPO terms related to said gene with an api call.
       * */
+      this.patientGene = geneOfPatient;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + geneOfPatient)
         .then(response => response.json());
       let entrezId = resultData['genes'][0].entrezGeneId;
