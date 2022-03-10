@@ -5,11 +5,11 @@ import static spark.Spark.get;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
-import org.molgenis.emx2.beacon.responses.BeaconConfigurationResponse;
 import org.molgenis.emx2.beacon.responses.BeaconFilteringTermsResponse;
 import org.molgenis.emx2.beaconv2.responses.Configuration;
 import org.molgenis.emx2.beaconv2.responses.EntryTypes;
 import org.molgenis.emx2.beaconv2.responses.Info;
+import org.molgenis.emx2.beaconv2.responses.Map;
 import org.molgenis.emx2.beaconv2_prev.ServiceInfo;
 import spark.Request;
 import spark.Response;
@@ -24,7 +24,7 @@ public class BeaconApi {
     get("/:schema/api/beacon/info", BeaconApi::getInfo);
     get("/:schema/api/beacon/service-info", BeaconApi::getInfo);
     get("/:schema/api/beacon/configuration", BeaconApi::getConfiguration);
-    //    get("/:schema/api/beacon/map", BeaconApi::getMap);
+    get("/:schema/api/beacon/map", BeaconApi::getMap);
     get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
     //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
     //
@@ -52,7 +52,7 @@ public class BeaconApi {
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    return getWriter().writeValueAsString(new BeaconConfigurationResponse());
+    return getWriter().writeValueAsString(new Map());
   }
 
   private static Object getEntryTypes(Request request, Response response)

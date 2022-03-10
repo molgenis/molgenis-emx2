@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class Dataset {
+public class ConfigurationDataset {
   String id = "dataset";
   String name = "Dataset";
   String partOfSpecification = "Beacon v2.0.0-draft.4";
