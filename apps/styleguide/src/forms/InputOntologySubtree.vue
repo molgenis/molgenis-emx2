@@ -9,7 +9,7 @@
         class="fa-fw pl-2 pt-1 ml-3"
         role="button"
         :class="getExpandState(term)"
-        @click="toggleExpand(term)"
+        @click.stop="toggleExpand(term)"
       />
       <i
         class="fa-fw text-primary pl-2 pt-1"
@@ -18,7 +18,7 @@
         role="button"
       />
       <span
-        @click="toggleExpandOrSelect(term)"
+        @click.stop="toggleExpandOrSelect(term)"
         class="flex-grow-1 pl-2"
         role="button"
       >
@@ -26,7 +26,7 @@
         <small v-if="term.definition" class="text-muted">
           <i> - {{ term.definition }}</i></small
         >
-        <span v-if="term.visibleChildren"
+        <span v-if="term.children && countVisibleChildren(term) > 0"
           >({{ countVisibleChildren(term) }})</span
         ></span
       >
@@ -99,7 +99,8 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (term.selected) {
+      console.log("toggle");
+      if (term.selected == "complete") {
         this.$emit("deselect", term.name);
       } else {
         this.$emit("select", term.name);
