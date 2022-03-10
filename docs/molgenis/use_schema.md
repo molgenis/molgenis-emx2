@@ -97,7 +97,7 @@ Text value that describes the column, or when columnName is empty, the table.
 
 You can define cross-references from one table to another using columnType=ref (single reference) or
 columnType=ref_array (multiple references). In postgresql these translate to foreign keys, and array of foreign key with
-triggers protecting foreign key constraints respectively. You need to define refTable, and optionally refFrom, refTo.
+triggers protecting foreign key constraints respectively. You need to define refTable.
 
 ### refTable
 
@@ -126,25 +126,6 @@ should then refer to a column in refTable that is of columnType=ref or columnTyp
 refback column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending on whether the
 refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
-
-### refFrom, refTo
-
-When refTable has multiple primary key columns (i.e. column with key=1) then you must also define how you want to name
-the fields that are part of this column. The values in refTo must match the primary key columns of refTable. The values
-in refFrom can be chosen freely, but must be unique. Optionally, you can name them the same as an existing columnName,
-but only if the relationships overlap. See the example below:
-
-Example of complex relationships:
-
-| tableName | columnName | type    | key | refTable | refFrom         | refTo              | refBack | required | description                 |
-| --------- | ---------- | ------- | --- | -------- | --------------- | ------------------ | ------- | -------- | --------------------------- |
-| Person    |            |         |     |          |                 |                    |         |          | my person table             |
-| Person    | firstName  |         | 1   |          |                 |                    |         |          |                             |
-| Person    | lastName   |         | 1   |          |                 |                    |         |          |                             |
-| Person    | pets       | refback |     | Pet      |                 |                    | owner   |          |                             |
-| Pet       | name       |         | 1   |          |                 |                    |         |          |                             |
-| Pet       | species    |         |     |          |                 |                    |         |          |                             |
-| Pet       | owner      | ref     |     | Person   | ownerFN,ownerLN | firstName,lastName |         |          | multi-foreign key to Person |
 
 ## Ontologies
 
