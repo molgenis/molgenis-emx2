@@ -44,6 +44,8 @@ Basic type:
 - bool
 - int
 - decimal
+- date
+- datetime
 - uuid
 - jsonb : validates json format
 - file
