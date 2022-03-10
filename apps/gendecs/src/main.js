@@ -3,7 +3,6 @@ import VueRouter from "vue-router";
 
 import App from "./App";
 import GenDecs from "./components/GenDecs";
-import SomeQuery from "./components/SomeQuery";
 
 Vue.use(VueRouter);
 
