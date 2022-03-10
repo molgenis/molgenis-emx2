@@ -21,7 +21,7 @@ public class OwlQuerier {
     hpoID = id;
   }
 
-  public ResultSet querySubClasses(String hpoID) {
+  private ResultSet querySubClasses(String hpoID) {
     String queryString =
         String.format(
             """
@@ -46,7 +46,7 @@ public class OwlQuerier {
     return null;
   }
 
-  public ResultSet queryParentClass(String hpoID) {
+  private ResultSet queryParentClass(String hpoID) {
     String queryString =
         String.format(
             """
@@ -72,7 +72,7 @@ public class OwlQuerier {
     return null;
   }
 
-  public ArrayList<String> getParents(ResultSet resultSet) {
+  private ArrayList<String> getParentsClasses(ResultSet resultSet) {
     ArrayList<String> parents = new ArrayList<>();
     logger.debug("result variables: {}", resultSet.getResultVars());
     if (resultSet.hasNext()) {
@@ -93,7 +93,7 @@ public class OwlQuerier {
     return parents;
   }
 
-  public ArrayList<String> getSubClasses(ResultSet resultSet) {
+  private ArrayList<String> getSubClasses(ResultSet resultSet) {
     ArrayList<String> hpoTerms = new ArrayList<>();
     if (resultSet.hasNext()) {
       logger.debug("results found!");
@@ -116,7 +116,7 @@ public class OwlQuerier {
     ResultSet resultsSubClasses = querySubClasses(hpoID);
     logger.info("Queried hp.owl for parents and subclasses");
 
-    parents = getParents(resultsParents);
+    parents = getParentsClasses(resultsParents);
     subClasses = getSubClasses(resultsSubClasses);
 
     logger.debug("Resulting parent array: {}", parents);
