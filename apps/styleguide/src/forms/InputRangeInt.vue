@@ -4,8 +4,7 @@
       v-for="(item, idx) in valueArray"
       :key="idx + '.' + valueArray.length"
       v-bind="$props"
-      :showClear="showClear(idx)"
-      @clear="clearValue(idx)"
+      :showClear="false"
       :showMinus="showMinus(idx)"
       :showPlus="showPlus(idx)"
       @add="addRow"
@@ -30,14 +29,14 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput";
-import InputInt from "./InputInt";
-import FormGroup from "./_formGroup";
-import InputAppend from "./_inputAppend";
+import BaseInput from './_baseInput';
+import InputInt from './InputInt';
+import FormGroup from './_formGroup';
+import InputAppend from './_inputAppend';
 
 /** Input for integer values */
 export default {
-  components: { InputInt, FormGroup, InputAppend },
+  components: {InputInt, FormGroup, InputAppend},
   extends: BaseInput,
   computed: {
     //@override
@@ -59,7 +58,7 @@ export default {
         result.push([null, null]);
       }
       return result;
-    },
+    }
   },
   methods: {
     //@override
@@ -90,9 +89,9 @@ export default {
         if (result && result.length > 0) result = result[0];
         else result = null;
       }
-      this.$emit("input", result);
-    },
-  },
+      this.$emit('input', result);
+    }
+  }
 };
 </script>
 

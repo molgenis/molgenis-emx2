@@ -21,6 +21,9 @@ subprojects {
         maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
+        maven {
+            url = "https://registry.molgenis.org/repository/maven-public"
+        }
     }
 
     spotless {
