@@ -7,7 +7,7 @@ import org.molgenis.emx2.beaconv2.responses.configuration.Organization;
 public class InfoResponse {
   String id = "molgenis";
   String name = "MOLGENIS Beacon v2";
-  String apiVersion = "v2.0.0-draft.4";
+  String apiVersion = "v2.0.0-draft.4"; // TODO: from static, but not allowed?
   String environment = "prod";
   Organization organization = new Organization();
   String description = "This Beacon is based on the GA4GH Beacon v2.0";
