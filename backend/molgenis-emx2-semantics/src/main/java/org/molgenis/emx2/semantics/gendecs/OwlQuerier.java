@@ -110,7 +110,7 @@ public class OwlQuerier {
   }
 
   public void executeQuery() {
-    model = FileManager.getInternal().loadModelInternal("data/hp.owl");
+    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
     logger.info("Loaded hp.owl");
     ResultSet resultsParents = queryParentClass(hpoID);
     ResultSet resultsSubClasses = querySubClasses(hpoID);
