@@ -73,7 +73,7 @@ export default {
   methods: { //2 abnormality of the radius
     async apiCall(selectedHpoTerm) {
       this.loadingOwl = true;
-      /*
+      /**
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
       * This is then used to gather the ID of the term using an api call.
       * */
@@ -90,7 +90,7 @@ export default {
       this.loadingOwl = false;
     },
     async geneToHpo(geneOfPatient) {
-      /*
+      /**
       * Function that gets the gene of the patient from the patient database as geneOfPatient.
       * geneOfPatient is used in an api call to gather the entrezGeneId. Which in turn is used
       * to gather all HPO terms related to said gene with an api call.
@@ -109,7 +109,7 @@ export default {
       this.checkIfMatch();
     },
     async getChildren(id) {
-      /*
+      /**
       * Function that gets the id of an HPO term as id. This id is used in an api call to gather all
       * children terms of said term.
       * */
@@ -125,7 +125,7 @@ export default {
       // console.log("Children of " + this.hpoResults[0].name + ": " + hpoChildrenName);
     },
     checkIfMatch() {
-      /*
+      /**
       * Function that checks if the HPO terms that are associated with the patient gene has a match
       * with the entered HPO term by the user.
       * */
@@ -136,7 +136,7 @@ export default {
       }
     },
     sendHpo(hpoId) {
-      /*
+      /**
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * */
       let requestOptions = {

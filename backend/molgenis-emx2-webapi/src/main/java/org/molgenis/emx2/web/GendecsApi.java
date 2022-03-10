@@ -10,10 +10,8 @@ import spark.Request;
 import spark.Response;
 
 public class GendecsApi {
-  private static MolgenisSessionManager sessionManager;
 
-  public static void create(MolgenisSessionManager sm) {
-    sessionManager = sm;
+  public static void create() {
     post("/:schema/api/gendecs", GendecsApi::queryHpo);
   }
 
@@ -24,8 +22,6 @@ public class GendecsApi {
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
     HpoTerm hpoTerm = owlQuerier.executeQuery();
 
-    //    System.out.println(owlQuerier.getParents()); // returns 1 id
-    //    System.out.println(owlQuerier.getSubClasses()); // returns ALL children
     return owlQuerier.serializeHpo(hpoTerm);
   }
 }

@@ -91,7 +91,7 @@ public class MolgenisWebservice {
     FileApi.create();
     JsonYamlApi.create();
     TaskApi.create();
-    GendecsApi.create(sessionManager);
+    GendecsApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
