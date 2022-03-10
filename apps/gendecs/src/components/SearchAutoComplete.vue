@@ -14,6 +14,9 @@
         v-if="isLoading"
         class="loading"
         >
+        <div>
+          <Spinner/>
+        </div>
         Loading results...
       </li>
       <li
@@ -36,6 +39,7 @@
 import {
   Info,
   InputSearch,
+  Spinner
 } from "@mswertz/emx2-styleguide";
 
 export default {
@@ -43,7 +47,8 @@ export default {
   emits: "selectedHpoTerm",
   components: {
     InputSearch,
-    Info
+    Info,
+    Spinner
   },
   props: {
     items: {
