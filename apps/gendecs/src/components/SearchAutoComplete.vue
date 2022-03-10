@@ -1,6 +1,6 @@
 <template>
   <div class="autocomplete">
-    <Info>Enter some information about the hpo search</Info>
+<!--    <Info>Enter some information about the hpo search</Info>-->
     <h2>Select HPO root term</h2>
     <InputSearch v-model="HpoTerm"
            @input="onChange"

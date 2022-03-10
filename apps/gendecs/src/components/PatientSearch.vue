@@ -45,15 +45,15 @@ export default {
   },
   methods: {
     async fetchPatient() {
-      let query = "{Patients{id gender birthdate genesymbol}}";
+      let query = "{patients{identifier gender birthdate genesymbol}}";
       let resultPatients = [];
       this.loading = true;
       //do query
       await request("graphql", query)
           .then((data) => {
             this.dataLoaded = true;
-            this.rows = data["Patients"];
-            resultPatients = data["Patients"];
+            this.rows = data["patients"];
+            resultPatients = data["patients"];
             this.loading = false;
           })
           .catch((error) => {
@@ -69,7 +69,7 @@ export default {
     },
     getCorrectPatient(patients) {
       for (let i = 0; i < patients.length; i++) {
-        if(patients[i].id === parseInt(this.patientId)) {
+        if(patients[i].identifier === parseInt(this.patientId)) {
           let geneOfPatient = patients[i].genesymbol;
           this.$emit('geneOfPatient', geneOfPatient);
         }
