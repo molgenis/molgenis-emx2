@@ -1,5 +1,7 @@
 package org.molgenis.emx2.semantics.gendecs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -109,18 +111,36 @@ public class OwlQuerier {
     return hpoTerms;
   }
 
-  public void executeQuery() {
+  public HpoTerm executeQuery() {
     model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
     logger.info("Loaded hp.owl");
     ResultSet resultsParents = queryParentClass(hpoID);
     ResultSet resultsSubClasses = querySubClasses(hpoID);
     logger.info("Queried hp.owl for parents and subclasses");
 
+    gatherAssociates(resultsParents, resultsSubClasses);
+
+    return makeHpoTerm();
+  }
+
+  private void gatherAssociates(ResultSet resultsParents, ResultSet resultsSubClasses) {
     parents = getParentsClasses(resultsParents);
     subClasses = getSubClasses(resultsSubClasses);
-
     logger.debug("Resulting parent array: {}", parents);
     logger.debug("Resulting sub classes array: {}", subClasses);
+  }
+
+  private HpoTerm makeHpoTerm() {
+    HpoTerm hpoTerm = new HpoTerm();
+    hpoTerm.setChildren(subClasses);
+    hpoTerm.setParents(parents);
+    return hpoTerm;
+  }
+
+  public String serializeHpo(HpoTerm hpoTerm) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    return gson.toJson(hpoTerm);
   }
 
   public ArrayList<String> getParents() {
