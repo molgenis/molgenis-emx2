@@ -19,11 +19,24 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    task buildComponentsLib(type: YarnTask, dependsOn: parent.yarn_install) {
-        node {
-            with nodeSpec
+    tasks.register('build', YarnTask) {
+        // force build order: molgenis-components > styleguide > ...apps
+        if (project.name != 'styleguide' && project.name != 'molgenis-components') {
+            dependsOn ":apps:styleguide:build"
         }
-        if (project.name == 'molgenis-components') {
+        if (project.name == 'styleguide') {
+            dependsOn ":apps:molgenis-components:build"
+        }
+
+        // set input out out put for each app type
+        if (project.name == 'styleguide') {
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.file('package.json')
+            inputs.file('styleguide.config.js')
+            inputs.file('vue.config.js')
+            outputs.dir('build')
+        } else if (project.name == 'molgenis-components') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -31,40 +44,8 @@ subprojects {
             inputs.file('package.json')
             inputs.file('vite.config.js')
             outputs.dir('dist')
-
-            //first install the workspace
-            args = ['run', 'build']
-        }
-    }
-
-    //Styleguidist depends on buildComponentsLib, to insure it gets build first
-    task buildStyleguidist(type: YarnTask, dependsOn: subprojects.buildComponentsLib) {
-        node {
-            with nodeSpec
-        }
-
-        inputs.files(fileTree('src'))
-        inputs.files(fileTree('public'))
-        inputs.file('package.json')
-        inputs.file('styleguide.config.js')
-        inputs.file('vue.config.js')
-        outputs.dir('build')
-
-        // tell gradle to apply the build cache
-        outputs.cacheIf { true }
-
-        //first install the workspace
-        args = ['run', 'styleguide:build']
-    }
-
-    //all depends on styleguide, so that needs build first
-    task build(type: YarnTask, dependsOn: subprojects.buildStyleguidist) {
-        node {
-            with nodeSpec
-        }
-
-        inputs.file('package.json')
-        if (project.name == 'nuxt-ssr') {
+        } else if (project.name == 'nuxt-ssr') {
+            inputs.file('package.json')
             inputs.files(fileTree('molgenis-components'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('pages'))
@@ -73,71 +54,36 @@ subprojects {
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
         } else {
+            inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
         }
 
-        if (project.name != 'docs' && project.name != 'nuxt-ssr' && project.name != 'molgenis-components' ) {
-            inputs.files(fileTree('../styleguide/src'))
-            inputs.files(fileTree('../molgenis-components/src'))
-            inputs.file('vue.config.js')
-            outputs.dir('dist')
-        }
-
-        // tell gradle to apply the build cache
-        outputs.cacheIf { true }
-
-        //first install the workspace
         args = ['run', 'build']
 
-        //remove the target folder with copy of all build materials
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
+    task buildStyleguidist(type: YarnTask, dependsOn: build) {
+        if (project.name == 'styleguide') {
+            args = ['run', 'styleguide:build']
+        }
+    }
 
-    //copy styleguide or normal app
-    if (project.name == 'styleguide') {
-        task copyDistFiles(type: Copy, dependsOn: buildStyleguidist) {
+    task copyDistFiles(type: Copy, dependsOn: buildStyleguidist) {
+        if (project.name == 'styleguide') {
             from "build"
-            inputs.dir("build")
-            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-            outputs.cacheIf { true }
-        }
-    } else if (project.name == 'molgenis-components') {
-        task buildShowCase(type: YarnTask, dependsOn: parent.yarn_install) {
-            node {
-                with nodeSpec
-            }
-
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.file('package.json')
-            inputs.file('vite.config.js')
-            outputs.dir('showCase')
-
-            // tell gradle to apply the build cache
-            outputs.cacheIf { true }
-
-            //first install the workspace
-            args = ['run', 'build-showcase']
-        }
-        task copyDistFiles(type: Copy, dependsOn: buildShowCase) {
+        } else if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
-            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-            outputs.cacheIf { true }
-
-        }
-    }  else {
-        task copyDistFiles(type: Copy, dependsOn: build) {
+        }  else {
             from "dist"
             inputs.dir("dist")
-            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-            outputs.cacheIf { true }
         }
+
+        into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+        outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
+        outputs.cacheIf { true }
     }
 
     clean.doLast {
