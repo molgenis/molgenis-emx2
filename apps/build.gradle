@@ -19,8 +19,7 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    tasks.register('build', YarnTask) {
-        dependsOn parent.yarn_install
+    task build(type: YarnTask, dependsOn: parent.yarn_install) {
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
