@@ -124,7 +124,8 @@ public class OwlQuerier {
   }
 
   /**
-   * Method that invokes the query methods
+   * Method that invokes the query methods. Now uses locally stored hp.owl file stored in
+   * data/gendecs
    *
    * @return HpoTerm object with the results
    */
