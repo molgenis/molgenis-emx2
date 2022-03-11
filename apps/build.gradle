@@ -20,6 +20,7 @@ subprojects {
     apply plugin: "com.github.node-gradle.node"
 
     tasks.register('build', YarnTask) {
+        dependsOn parent.yarn_install
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
@@ -97,9 +98,9 @@ subprojects {
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
-    baseName 'molgenis-emx2-apps'
-    extension 'jar'
-    destinationDir file("${buildDir}/build/libs")
+    archiveBaseName = 'molgenis-emx2-apps'
+    archiveExtension = 'jar'
+    destinationDirectory = file("${buildDir}/build/libs")
     from('build/resources/main')
 }
 
