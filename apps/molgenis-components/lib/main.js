@@ -10,9 +10,11 @@ import TableDisplay from "../src/components/display/TableDisplay.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
+import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
+import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
 
@@ -41,8 +43,10 @@ export {
   TableDisplay,
   MessageError,
   ButtonAction,
+  ButtonOutline,
   ButtonAlt,
   Breadcrumb,
+  LayoutModal,
   ReadMore,
   Spinner,
   DataDisplayCell,

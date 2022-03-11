@@ -26,14 +26,14 @@ export const mutations = {
 export const getters = {
   menu(state) {
     console.log();
-    const menuSetting = state.settings.find((s) => s.key === "menu");
+    const menuSetting = state.settings.find((s) => s.key === 'menu');
     if (!menuSetting) {
-      return 
+      return;
     }
-      
+
     return JSON.parse(menuSetting.value).map((menuItem) => {
       // Strip the added ssr context from the menu.href if relative
-      const separator = menuItem.href.startsWith("/") ? "" : "/";
+      const separator = menuItem.href.startsWith('/') ? '' : '/';
       if (menuItem.href) {
         menuItem.href = state.schema
           ? `/${state.schema}${separator}${menuItem.href}`
@@ -41,8 +41,11 @@ export const getters = {
       }
       return menuItem;
     });
-      
   },
+  isOidcEnabled(state) {
+    const oidcSetting = state.settings.find((s) => s.key === 'isOidcEnabled');
+    return oidcSetting && oidcSetting.value === 'true';
+  }
 };
 
 export const actions = {

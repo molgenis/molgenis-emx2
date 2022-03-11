@@ -1,6 +1,13 @@
 <template>
   <div class="wrapper d-flex flex-column">
-    <Menu :brandHref="brandHref" :menu="menu" />
+    <Menu :brandHref="brandHref" :menu="menu">
+      <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
+        Sign in</ButtonOutline
+      >
+      <ButtonOutline v-else @click="showSigninForm" :light="true">
+        Sign in</ButtonOutline
+      >
+    </Menu>
     <Breadcrumb v-if="isBreadcrumbShown" :crumbs="crumbs" />
     <Nuxt class="flex-fill" />
     <molgenis-footer class="footer">
@@ -18,6 +25,8 @@
         >
       </span>
     </molgenis-footer>
+
+    <LayoutModal title="Sign in"></LayoutModal>
   </div>
 </template>
 
@@ -34,12 +43,12 @@ div.wrapper {
 </style>
 
 <script>
-import { Breadcrumb } from "molgenis-components";
-import { mapGetters } from "vuex";
+import {Breadcrumb, ButtonOutline, LayoutModal} from 'molgenis-components';
+import {mapGetters} from 'vuex';
 export default {
-  components: { Breadcrumb },
+  components: {Breadcrumb, ButtonOutline, LayoutModal},
   computed: {
-    ...mapGetters(["menu"]),
+    ...mapGetters(['menu', 'isOidcEnabled']),
     schema() {
       return this.$store.state.schema;
     },
@@ -50,30 +59,35 @@ export default {
       return this.$store.state.manifest;
     },
     brandHref() {
-      return "/" + this.schema;
+      return '/' + this.schema;
     },
     crumbs() {
       const sections = this.$route.path
-        .split("/")
-        .filter((section) => section !== "");
+        .split('/')
+        .filter((section) => section !== '');
 
       // given a path section walk the path (building the url) until section is found
       const buildUrl = (section) => {
         return sections.reduce((url, current) => {
-          return url.split("/").pop() !== section ? url + "/" + current : url;
+          return url.split('/').pop() !== section ? url + '/' + current : url;
         });
       };
 
       return sections.reduce((accum, section) => {
         // add "/" to make absolute path
-        const routeUrl = "/" + buildUrl(section);
+        const routeUrl = '/' + buildUrl(section);
         accum[section] = routeUrl;
         return accum;
       }, {});
     },
     isBreadcrumbShown() {
-      return this.$route.path !== "/apps/central/";
-    },
+      return this.$route.path !== '/apps/central/';
+    }
   },
+  methods: {
+    showSigninForm () {
+      console.log('show signin from')
+    }
+  }
 };
 </script>
