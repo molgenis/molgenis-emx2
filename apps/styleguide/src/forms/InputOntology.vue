@@ -387,8 +387,6 @@ export default {
           }
         });
       }
-      //collapse all first
-      //Object.values(this.terms).forEach((t) => (t.expanded = false));
       //auto expand visible automatically if total visible <50
       if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
         //then expand visible
