@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar bg-primary navbar-expand-lg navbar-dark">
-    <a :href=brandHref class="navbar-brand">
+    <a :href="brandHref" class="navbar-brand">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <button
