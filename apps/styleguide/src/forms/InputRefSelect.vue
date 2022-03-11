@@ -14,7 +14,7 @@
         :id="id"
         :disabled="readonly"
         @click="openSelect(idx)"
-        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+        :class="{'form-control': true, 'is-invalid': errorMessage}"
       >
         <option
           v-if="valueArray[idx] && !showSelect"
@@ -48,23 +48,27 @@
     </LayoutModal>
   </FormGroup>
 </template>
-
+<style scoped>
+::v-deep .input-append {
+  margin-left: -3rem;
+}
+</style>
 <script>
-import _baseInput from "./_baseInput";
-import TableSearch from "../tables/TableSearch";
-import LayoutModal from "../layout/LayoutModal";
-import FormGroup from "./_formGroup";
-import ButtonAlt from "./ButtonAlt";
-import InputAppend from "./_inputAppend";
-import ButtonAction from "./ButtonAction";
+import _baseInput from './_baseInput';
+import TableSearch from '../tables/TableSearch';
+import LayoutModal from '../layout/LayoutModal';
+import FormGroup from './_formGroup';
+import ButtonAlt from './ButtonAlt';
+import InputAppend from './_inputAppend';
+import ButtonAction from './ButtonAction';
 
 export default {
-  name: "InputRefSelect",
+  name: 'InputRefSelect',
   extends: _baseInput,
   data: function () {
     return {
       showSelect: false,
-      selectIdx: null,
+      selectIdx: null
     };
   },
   components: {
@@ -73,22 +77,22 @@ export default {
     FormGroup,
     ButtonAction,
     ButtonAlt,
-    InputAppend,
+    InputAppend
   },
   props: {
     /** change if graphql URL != 'graphql'*/
     graphqlURL: {
-      default: "graphql",
-      type: String,
+      default: 'graphql',
+      type: String
     },
     table: String,
     filter: Object,
-    refLabel: String,
+    refLabel: String
   },
   computed: {
     title() {
-      return "Select " + this.table;
-    },
+      return 'Select ' + this.table;
+    }
   },
   methods: {
     select(event) {
@@ -97,7 +101,6 @@ export default {
     },
     closeSelect() {
       this.showSelect = false;
-      this.reload();
     },
     openSelect(idx) {
       this.showSelect = true;
@@ -109,14 +112,14 @@ export default {
       this.emitValue();
     },
     flattenObject(object) {
-      let result = "";
+      let result = '';
       Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
-        } else if (typeof object[key] === "object") {
+        } else if (typeof object[key] === 'object') {
           result += this.flattenObject(object[key]);
         } else {
-          result += " " + object[key];
+          result += ' ' + object[key];
         }
       });
       return result;
@@ -125,22 +128,22 @@ export default {
       const names = Object.keys(object);
       const vals = Object.values(object);
       try {
-        return new Function(...names, "return `" + this.refLabel + "`;")(
+        return new Function(...names, 'return `' + this.refLabel + '`;')(
           ...vals
         );
       } catch (err) {
         return (
           err.message +
-          " we got keys:" +
+          ' we got keys:' +
           JSON.stringify(names) +
-          " vals:" +
+          ' vals:' +
           JSON.stringify(vals) +
-          " and template: " +
+          ' and template: ' +
           this.refLabel
         );
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -4,7 +4,7 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div
       class="p-0 m-0"
-      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
+      :class="{dropdown: !showExpanded, 'border rounded': !showExpanded}"
       v-else
     >
       <div
@@ -27,7 +27,7 @@
           @click.stop="clearSelection"
           v-if="showExpanded && selectionWithoutChildren.length > 0"
         />
-        <span :class="{ 'input-group': showExpanded }">
+        <span :class="{'input-group': showExpanded}">
           <div v-if="showExpanded" class="input-group-prepend">
             <button
               class="btn border-right-0 border btn-outline-primary"
@@ -42,7 +42,7 @@
             :placeholder="focus || showExpanded ? 'Type to search' : ''"
             :class="{
               'form-control': showExpanded,
-              'border-0': !showExpanded,
+              'border-0': !showExpanded
             }"
             v-model="search"
             @click.stop
@@ -65,7 +65,7 @@
       </div>
       <div
         class="w-100 show p-0 overflow-auto"
-        :class="{ 'dropdown-menu': !showExpanded }"
+        :class="{'dropdown-menu': !showExpanded}"
         v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
@@ -93,14 +93,14 @@ input:focus {
 </style>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableMixin from "../mixins/TableMixin";
-import TableMetadataMixin from "../mixins/TableMetadataMixin";
-import FormGroup from "./_formGroup";
-import InputOntologySubtree from "./InputOntologySubtree";
-import MessageError from "./MessageError";
-import Spinner from "../layout/Spinner";
-import vClickOutside from "v-click-outside";
+import _baseInput from './_baseInput';
+import TableMixin from '../mixins/TableMixin';
+import TableMetadataMixin from '../mixins/TableMetadataMixin';
+import FormGroup from './_formGroup';
+import InputOntologySubtree from './InputOntologySubtree';
+import MessageError from './MessageError';
+import Spinner from '../layout/Spinner';
+import vClickOutside from 'v-click-outside';
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -115,26 +115,26 @@ export default {
   extends: _baseInput,
   mixins: [TableMixin],
   directives: {
-    clickOutside: vClickOutside.directive,
+    clickOutside: vClickOutside.directive
   },
   components: {
     FormGroup,
     InputOntologySubtree,
     MessageError,
-    Spinner,
+    Spinner
   },
   props: {
     /** if you don't want to use autoload using table you can provide options via 'items'. Should be format [{name:a, parent:b},{name:b}]
      */
     options: {
       type: Array,
-      default: null,
+      default: null
     },
     /** show as pulldown. When false, shows always expanded*/
     showExpanded: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
@@ -143,7 +143,7 @@ export default {
       terms: {},
       search: null,
       //we use key to force updates
-      key: 1,
+      key: 1
     };
   },
   computed: {
@@ -161,9 +161,9 @@ export default {
     orderByObject() {
       if (
         this.tableMetadata &&
-        this.tableMetadata.columns.some((c) => c.name === "order")
+        this.tableMetadata.columns.some((c) => c.name === 'order')
       ) {
-        return { order: "ASC" };
+        return {order: 'ASC'};
       } else {
         return {};
       }
@@ -179,17 +179,16 @@ export default {
         return result;
       }
       return [];
-    },
+    }
   },
   methods: {
     toggleExpand(term) {
-      console.log("toggleExpand " + term);
       this.terms[term].expanded = !this.terms[term].expanded;
       this.key++;
     },
     getSelectedChildNodes(term) {
       let result = [];
-      if (term.selected == "complete") {
+      if (term.selected == 'complete') {
         result.push(term.name);
       } else if (term.children) {
         term.children.forEach((childTerm) =>
@@ -250,18 +249,18 @@ export default {
         );
       }
       let term = this.terms[item];
-      term.selected = "complete";
+      term.selected = 'complete';
       if (this.list) {
         //if list also select also its children
         this.getAllChildren(term).forEach(
-          (childTerm) => (childTerm.selected = "complete")
+          (childTerm) => (childTerm.selected = 'complete')
         );
         //select parent(s) if all siblings are selected
         this.getParents(term).forEach((parent) => {
           if (parent.children.every((childTerm) => childTerm.selected)) {
-            parent.selected = "complete";
+            parent.selected = 'complete';
           } else {
-            parent.selected = "partial";
+            parent.selected = 'partial';
           }
         });
       }
@@ -280,7 +279,7 @@ export default {
         //also its deselect its parents, might be partial
         this.getParents(term).forEach((parent) => {
           if (parent.children.some((child) => child.selected)) {
-            parent.selected = "partial";
+            parent.selected = 'partial';
           } else {
             parent.selected = false;
           }
@@ -307,10 +306,10 @@ export default {
       let selectedTerms = Object.values(this.terms)
         .filter((term) => term.selected == "complete")
         .map((term) => {
-          return { name: term.name };
+          return {name: term.name};
         });
       if (this.list) {
-        this.$emit("input", selectedTerms);
+        this.$emit('input', selectedTerms);
       } else {
         this.$emit("input", selectedTerms[0]);
       }
@@ -373,10 +372,10 @@ export default {
     search() {
       //first show/hide depending on filter
       Object.values(this.terms).forEach(
-        (t) => (t.visible = this.search == "" || !this.search)
+        (t) => (t.visible = this.search == '' || !this.search)
       );
       if (this.search && this.search.length > 0) {
-        let searchTerms = this.search.split(" ").map((s) => s.toLowerCase());
+        let searchTerms = this.search.split(' ').map((s) => s.toLowerCase());
         Object.values(this.terms).forEach((term) => {
           if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
             //items are visible when matching search, or when a child matches search
@@ -428,7 +427,7 @@ export default {
               terms[e.parent.name] = {
                 name: e.parent.name,
                 visible: true,
-                selected: false,
+                selected: false
               };
             }
             // if first child then add children array
@@ -442,7 +441,7 @@ export default {
         this.terms = terms;
         this.applySelection(this.value);
       }
-    },
+    }
   },
   created() {
     if (this.options) {
@@ -452,7 +451,7 @@ export default {
       this.limit = 100000;
     }
     this.loading = false;
-  },
+  }
 };
 </script>
 

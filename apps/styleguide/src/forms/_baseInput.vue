@@ -2,46 +2,36 @@
 guide */
 
 <script>
-const uuidv4 = require("uuid/v4");
+const uuidv4 = require('uuid/v4');
 
 export default {
   props: {
-    /**  value */
-    value: { type: [String, Number, Object, Array, Boolean], default: null },
-    /** wether to enable in place editing */
-    inplace: Boolean,
-    /** value to be shown as placeholder in the input (if possible) */
-    placeholder: String,
-    /** label to be shown above the input */
-    label: String,
-    /** optional description string shown below input */
-    description: String,
-    /** whether input must be required (does not validate, but show option to clear input) */
-    required: {
-      type: Boolean,
-      default: false,
-    },
-    /** whether input is readonly (default: false) */
-    readonly: {
-      type: Boolean,
-      default: false,
-    },
-    /** message when in error state */
-    errorMessage: null,
-    /** whether this is a list of values*/
-    list: {
-      type: Boolean,
-      default: false,
-    },
     /** whether to show clear buttons */
     clear: {
       type: Boolean,
-      default: true,
+      default: true
     },
-    /** parse function, such as parseInt to type value*/
-    parser: Function,
+    description: String,
     /** whether metadata can be edited */
     editMeta: Boolean,
+    errorMessage: null,
+    inplace: Boolean,
+    label: String,
+    list: {
+      type: Boolean,
+      default: false
+    },
+    parser: Function,
+    placeholder: String,
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    required: {
+      type: Boolean,
+      default: false
+    },
+    value: {type: [String, Number, Object, Array, Boolean], default: null}
   },
   data() {
     return {
@@ -50,13 +40,12 @@ export default {
       /** whether list input should show empty input */
       showNewItem: false,
       /** whether input has focus */
-      focus: false,
+      focus: false
     };
   },
   computed: {
     valueArray() {
       let result = this.value;
-      if (!result) result = null;
       if (!Array.isArray(result)) {
         result = [result];
       }
@@ -65,7 +54,7 @@ export default {
         result.push(null);
       }
       return result;
-    },
+    }
   },
   // generate automatic id
   mounted() {
@@ -76,23 +65,27 @@ export default {
       return arr.filter((v) => v === 0 || v);
     },
     //emit update with new item on list
-    emitValue(event, idx) {
-      let value = event ? (event.target ? event.target.value : event) : null;
-      let result;
+    emitValue(event, index) {
+      const value = event ? (event.target ? event.target.value : event) : null;
       if (this.list) {
-        result = this.valueArray;
-        //update value
-        result[idx] = value;
-        //update newItem if needed
-        if (this.showNewItem && result[result.length - 1] != null) {
-          this.showNewItem = false;
-        }
-        //remove nulls
-        result = this.removeNulls(result);
+        this.$emit(
+          'input',
+          this.updateValueArrayValue(this.valueArray, value, index)
+        );
       } else {
-        result = value;
+        this.$emit('input', this.useParserIfAvailable(value));
       }
-      this.$emit("input", result);
+    },
+    updateValueArrayValue(valueArray, value, index) {
+      let newValueArray = valueArray;
+      newValueArray[index] = this.useParserIfAvailable(value);
+      if (this.showNewItem && newValueArray[newValueArray.length - 1] != null) {
+        this.showNewItem = false;
+      }
+      return this.removeNulls(newValueArray);
+    },
+    useParserIfAvailable(value) {
+      return this.parser ? this.parser(value) : value;
     },
     toggleFocus() {
       this.focus = !this.focus;
@@ -107,7 +100,7 @@ export default {
       } else {
         result = null;
       }
-      this.$emit("input", result);
+      this.$emit('input', result);
     },
     showPlus(idx) {
       //always on last line
@@ -124,7 +117,7 @@ export default {
     },
     showMinus(idx) {
       return this.list && !this.showPlus(idx);
-    },
+    }
   },
   directives: {
     focus: {
@@ -132,8 +125,8 @@ export default {
         if (binding.value) {
           el.focus();
         }
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>

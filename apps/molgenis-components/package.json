@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "2.2.4",
-    "axios": "0.26.0",
+    "axios": "0.26.1",
     "vite": "2.8.6",
     "vue-router": "3.5.3"
   }
