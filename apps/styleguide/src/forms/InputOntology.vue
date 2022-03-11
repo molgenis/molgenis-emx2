@@ -183,7 +183,6 @@ export default {
   },
   methods: {
     toggleExpand(term) {
-      console.log("toggleExpand " + term);
       this.terms[term].expanded = !this.terms[term].expanded;
       this.key++;
     },
