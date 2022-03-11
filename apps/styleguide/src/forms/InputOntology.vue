@@ -24,7 +24,7 @@
         <i
           class="p-2 fa fa-times"
           style="vertical-align: middle"
-          @click.stop="deselect(selection)"
+          @click.stop="clearSelection"
           v-if="showExpanded && selectionWithoutChildren.length > 0"
         />
         <span :class="{'input-group': showExpanded}">
@@ -53,7 +53,7 @@
           <i
             class="p-2 fa fa-times"
             style="vertical-align: middle"
-            @click.stop="deselect(selection)"
+            @click.stop="clearSelection"
             v-if="!showExpanded && selectionWithoutChildren.length > 0"
           />
           <i
@@ -243,7 +243,10 @@ export default {
     },
     select(item) {
       if (!this.list) {
-        this.terms.forEach((term) => (term.selected = 'complete'));
+        //deselect other items
+        Object.keys(this.terms).forEach(
+          (key) => (this.terms[key].selected = false)
+        );
       }
       let term = this.terms[item];
       term.selected = 'complete';
@@ -283,7 +286,17 @@ export default {
         });
       } else {
         //non-list, deselect all
-        this.terms.forEach((term) => (term.selected = false));
+        Object.keys(this.terms).forEach(
+          (key) => (this.terms[key].selected = false)
+        );
+      }
+      this.emitValue();
+      this.$refs.search.focus();
+      this.key++;
+    },
+    clearSelection() {
+      if (this.terms) {
+        Object.values(this.terms).forEach((term) => (term.selected = false));
       }
       this.emitValue();
       this.$refs.search.focus();
@@ -291,14 +304,14 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected)
+        .filter((term) => term.selected == "complete")
         .map((term) => {
           return {name: term.name};
         });
       if (this.list) {
         this.$emit('input', selectedTerms);
       } else {
-        this.$emit('input', {name: selectedTerms[0]});
+        this.$emit("input", selectedTerms[0]);
       }
     },
     reloadMetadata() {
@@ -312,12 +325,50 @@ export default {
       if (!this.options) {
         TableMixin.methods.reload.call(this);
       }
-    }
+    },
+    applySelection(value) {
+      //deselect all
+      Object.keys(this.terms).forEach(
+        (key) => (this.terms[key].selected = false)
+      );
+      //apply selection to the tree
+      if (value && this.list) {
+        //clear existing selection
+        value.forEach((v) => {
+          let term = this.terms[v.name];
+          if (term) {
+            term.selected = "complete";
+            if (this.list) {
+              //if list also select its children
+              this.getAllChildren(term).forEach(
+                (childTerm) => (childTerm.selected = "complete")
+              );
+              //select parent(s) if all siblings are selected
+              this.getParents(term).forEach((parent) => {
+                if (parent.children.every((childTerm) => childTerm.selected)) {
+                  parent.selected = "complete";
+                } else {
+                  parent.selected = "partial";
+                }
+              });
+            }
+          }
+        });
+      }
+      //not a list so singular value
+      else if (value) {
+        let term = this.terms[value.name];
+        if (term) {
+          term.selected = "complete";
+          this.getParents(term).forEach((parent) => {
+            parent.selected = "partial";
+          });
+        }
+      }
+      this.key++;
+    },
   },
   watch: {
-    options() {
-      this.data = this.options;
-    },
     search() {
       //first show/hide depending on filter
       Object.values(this.terms).forEach(
@@ -335,8 +386,6 @@ export default {
           }
         });
       }
-      //collapse all first
-      Object.values(this.terms).forEach((t) => (t.expanded = false));
       //auto expand visible automatically if total visible <50
       if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
         //then expand visible
@@ -347,10 +396,8 @@ export default {
       this.key++;
     },
     value() {
-      if (this.list) {
-        this.selection = this.value ? this.value.map((term) => term.name) : [];
-      } else {
-        this.selection = this.value ? [this.value.name] : [];
+      if (this.terms.size > 0) {
+        this.applySelection(this.value);
       }
     },
     data() {
@@ -365,11 +412,15 @@ export default {
             terms[e.name].definition = e.definition;
           } else {
             //else simply add the record
-            terms[e.name] = e;
-            e.visible = true;
-            e.selected = false;
+            terms[e.name] = {
+              name: e.name,
+              visible: true,
+              selected: false,
+              definition: e.definition,
+            };
           }
           if (e.parent) {
+            terms[e.name].parent = e.parent;
             //did we see this parent before?
             if (!terms[e.parent.name]) {
               //otherwise add it
@@ -384,10 +435,11 @@ export default {
               terms[e.parent.name].children = [];
             }
             // add the child
-            terms[e.parent.name].children.push(e);
+            terms[e.parent.name].children.push(terms[e.name]);
           }
         });
         this.terms = terms;
+        this.applySelection(this.value);
       }
     }
   },
@@ -418,7 +470,7 @@ Example with hardcoded options, can select multiple
   export default {
     data() {
       return {
-        myvalue: []
+        myvalue: [{name: 'pet'}]
       };
     }
   }
@@ -460,7 +512,7 @@ Example with hardcoded options, can select only single item
   export default {
     data() {
       return {
-        myvalue: []
+        myvalue: {name: 'cat'}
       };
     }
   }
@@ -493,6 +545,25 @@ Example with loading contents from table on backend (requires sign-in)
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    table="Tag" graphqlURL="/pet store/graphql"/>
+    myvalue = {{ myvalue }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myvalue: []
+      };
+    }
+  }
+</script>
+```
+Example with loading contents from table on backend (requires sign-in)
+```
+<template>
+  <div>
+    <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   table="Diseases" graphqlURL="/CatalogueOntologies/graphql" :showExpanded="true" :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
