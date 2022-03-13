@@ -204,6 +204,9 @@ public class WebApiSmokeTests {
             .asString()
             .contains(id));
 
+    // wait a bit for task to start
+    Thread.sleep(1000);
+    
     // poll task until complete
     String poll = given().sessionId(SESSION_ID).when().get(url).asString();
     int count = 0;
