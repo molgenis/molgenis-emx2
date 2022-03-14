@@ -31,9 +31,9 @@ subprojects {
 
         // set input out out put for each app type
         if (project.name == 'styleguide') {
+            inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
-            inputs.file('package.json')
             inputs.file('styleguide.config.js')
             inputs.file('vue.config.js')
             outputs.dir('build')
@@ -42,7 +42,6 @@ subprojects {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.files(fileTree('lib'))
-            inputs.file('package.json')
             inputs.file('vite.config.js')
             outputs.dir('dist')
         } else if (project.name == 'nuxt-ssr') {
@@ -60,6 +59,8 @@ subprojects {
             inputs.files(fileTree('public'))
         }
 
+        outputs.cacheIf { true }
+
         args = ['run', 'build']
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
@@ -68,13 +69,35 @@ subprojects {
     task buildStyleguidist(type: YarnTask, dependsOn: build) {
         node { with nodeSpec }
         if (project.name == 'styleguide') {
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.file('package.json')
+            inputs.file('styleguide.config.js')
+            inputs.file('vue.config.js')
+            outputs.dir('build')
+            outputs.cacheIf { true }
             args = ['run', 'styleguide:build']
         }
     }
 
-    task copyDistFiles(type: Copy, dependsOn: buildStyleguidist) {
+    task buildComponentsShowcase(type: YarnTask, dependsOn: buildStyleguidist) {
+        node { with nodeSpec }
+        if (project.name == 'molgenis-components') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('lib'))
+            inputs.file('vite.config.js')
+            outputs.dir('showCase')
+            outputs.cacheIf { true }
+            args = ['run', 'build-showcase']
+        }
+    }
+
+    task copyDistFiles(type: Copy, dependsOn: buildComponentsShowcase) {
         if (project.name == 'styleguide') {
             from "build"
+            inputs.dir("build")
         } else if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
@@ -93,6 +116,7 @@ subprojects {
         project.delete(files("build"))
         project.delete(files("node_modules"))
         project.delete(files(".nuxt"))
+        project.delete(files("showCase"))
     }
 
 }
