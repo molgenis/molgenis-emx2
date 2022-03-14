@@ -25,7 +25,6 @@ export const mutations = {
 
 export const getters = {
   menu(state) {
-    console.log();
     const menuSetting = state.settings.find((s) => s.key === "menu");
     if (!menuSetting) {
       return 
@@ -43,6 +42,13 @@ export const getters = {
     });
       
   },
+  logo(state) {
+    const logoSetting = state.settings.find((s) => s.key === 'logoURL');
+    if (!logoSetting) {
+      return undefined;
+    }
+    return logoSetting.value
+  }
 };
 
 export const actions = {

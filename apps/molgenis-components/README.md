@@ -22,6 +22,10 @@ This module helps developers create and share vue components for use with the mo
 
 ```yarn build ```
 
+### Build component library show case app 
+
+```yarn build-showcase ```
+
 ### Adding a new component
  - start the dev server
  - Add a vue sfc to the scr/components dir

@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper d-flex flex-column">
-    <Menu :brandHref="brandHref" :menu="menu" />
+    <Menu :logo="logo" :brandHref="brandHref" :menu="menu" />
     <Breadcrumb v-if="isBreadcrumbShown" :crumbs="crumbs" />
     <Nuxt class="flex-fill" />
     <molgenis-footer class="footer">
@@ -39,7 +39,7 @@ import { mapGetters } from "vuex";
 export default {
   components: { Breadcrumb },
   computed: {
-    ...mapGetters(["menu"]),
+    ...mapGetters(["menu", "logo"]),
     schema() {
       return this.$store.state.schema;
     },
