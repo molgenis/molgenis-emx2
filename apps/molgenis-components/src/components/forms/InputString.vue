@@ -1,32 +1,29 @@
 <template>
-  <span>
-    <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="list && value">{{ value.join(", ") }}</span>
-      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
-    </span>
+  <div class="form-group">
+    <label v-if="label !== null && label !== undefined" :for="id">{{ label }}</label>
     <input
-      v-focus="inplace && !list"
-      :value="item"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
-      :placeholder="placeholder"
-      :readonly="readonly"
-      @keypress="keyhandler"
-      @input="emitValue($event, idx)"
-      @blur="toggleFocus"
+      :id="id"
+      :ref="id"
+      :name="name"
+      :value="value"
+      @input="$emit('input', $event.target.value)"
+      type="text"
+      class="form-control"
+      :aria-describedby="id"
+      :placeholder="label"
     />
-  </span>
+    <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
+      >{{ helpText }}</small
+    >
+  </div>
 </template>
 
 <script>
 import BaseInput from "./BaseInput.vue";
 
 export default {
+  name: "InputString",
   extends: BaseInput,
-  methods: {
-    keyhandler(event) {
-      return event;
-    },
-  },
 };
 </script>
 
@@ -41,8 +38,7 @@ span:hover .hoverIcon {
 </style>
 
 <docs>
-Example
-```
+
 <template>
   <div>
     <InputString v-model="value" label="My string input label" description="Some help needed?"/>
@@ -58,9 +54,7 @@ Example
     }
   };
 </script>
-```
-Example with default value
-```
+
 <template>
   <div>
     <InputString
@@ -81,13 +75,9 @@ Example with default value
     }
   };
 </script>
-```
-Example readonly
-```
+
 <InputString label="test" :readonly="true" value="can't change me" description="Should not be able to edit this"/>
-```
-Example list
-```
+
 <template>
   <div>
     <InputString v-model="value" :list="true" label="test"
@@ -105,9 +95,7 @@ Example list
     },
   };
 </script>
-```
-Example in place
-```
+
 <template>
   <div>
     In place some
@@ -123,9 +111,7 @@ Example in place
     }
   }
 </script>
-```
-Example list in place
-```
+
 <template>
   <div>
     In place some
@@ -144,8 +130,7 @@ Example list in place
 </script>
 ```
 
-Metadata edit example
-```
+
 <template>
   <div>
     <InputString :label.sync="column.label" v-model="column.value" :editMeta="true"
@@ -162,5 +147,5 @@ Metadata edit example
     }
   }
 </script>
-```
+
 </docs>

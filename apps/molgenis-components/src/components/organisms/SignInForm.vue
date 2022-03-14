@@ -1,51 +1,62 @@
 <template>
-  <LayoutModal title="Sign in" :show="true" @close="cancel">
+  <LayoutModal title="Sign in" :show="show" @close="cancel">
     <template v-slot:body>
-      <LayoutForm>
+      <LayoutForm id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
+          id="signInFormEmail"
+          ref="email"
+          name="email"
           v-model="email"
           label="Username"
           placeholder="Enter username"
-          description="Please enter username"
+          helpText="Please enter username"
+          autofocus
         />
         <InputPassword
+          id="signInFormPassword"
+          name="password"
           v-model="password"
           label="Password"
           placeholder="Enter password"
-          description="Please enter the provided password"
+          helpText="Please enter the provided password"
           @enterPressed="signin"
         />
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="signin">Sign in</ButtonAction>
+      <ButtonSubmit form="signin-form">Sign in</ButtonSubmit>
     </template>
   </LayoutModal>
 </template>
 
 <script>
-import ButtonAction from '../forms/ButtonAction';
-import ButtonAlt from '../forms/ButtonAlt';
-import InputString from '../forms/InputString';
-import InputPassword from '../forms/InputPassword';
-import MessageError from '../forms/MessageError';
-import LayoutForm from './LayoutForm';
-import LayoutModal from './LayoutModal';
+import ButtonAlt from '../forms/ButtonAlt.vue';
+import InputString from '../forms/InputString.vue';
+import InputPassword from '../forms/InputPassword.vue';
+import MessageError from '../forms/MessageError.vue';
+import LayoutForm from '../forms/FormMolgenis.vue';
+import LayoutModal from '../layout/LayoutModal.vue';
+import ButtonSubmit from '../forms/ButtonSubmit.vue';
 
 export default {
   name: 'SignInForm',
   components: {
-    ButtonAction,
     ButtonAlt,
     InputPassword,
     InputString,
     MessageError,
     LayoutForm,
-    LayoutModal
+    LayoutModal,
+    ButtonSubmit
   },
   props: {
+    show: {
+      type: Boolean,
+      required: false,
+      default: () => false
+    },
     axiosClient: {
       type: Object,
       required: false
@@ -61,13 +72,17 @@ export default {
   },
   methods: {
     async signin() {
-      if (this.email == null || this.password == null) {
+      if (!this.email || !this.password) {
         this.error = 'Email and password should be filled in';
       } else {
         this.error = null;
 
         if (!this.axiosClient) {
-          this.$emit('requestSignIn', {email: this.email, password: this.password});
+          this.$emit('requestSignIn', {
+            email: this.email,
+            password: this.password
+          });
+          return;
         }
 
         const signInResp = await this.axiosClient
@@ -80,49 +95,35 @@ export default {
           );
 
         if (signInResp.data.signin.status === 'SUCCESS') {
-          this.success = 'Signed in with ' + this.email;
-          this.$emit('signInSuccess', this.email);
-          location.reload();
+          this.onSignSuccess();
         } else {
-          this.error = signInResp.data.signin.message;
-          this.$emit('signInFailed', this.email);
+          this.onSignInFailed(signInResp.data.signin.message);
         }
       }
+    },
+    onSignSuccess() {
+      this.success = 'Signed in with ' + this.email;
+      this.$emit('signInSuccess', this.email);
+      if (location) {
+        location.reload();
+      }
+    },
+    onSignInFailed(msg) {
+      this.error = msg;
+      this.$emit('signInFailed', this.email);
     },
     cancel() {
       this.error = null;
       this.$emit('cancel');
     }
+  },
+  watch: {
+    async show(newValue) {
+      if (newValue === true)
+        await this.$nextTick()
+        // set focus on email input to enable submit action
+        this.$refs.email.$el.children[1].focus()
+    }
   }
 };
 </script>
-
-<docs>
-Example
-```
-<template>
-  <div>
-    <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-    <!-- normally you don't need graphqlURL because that is available in apps context-->
-    <MolgenisSignin v-else @login="signinTest" @cancel="display = false"/>
-  </div>
-</template>
-<script>
-  export default {
-    data: function () {
-      return {
-        display: false,
-        email: null
-      };
-    },
-    methods: {
-      signinTest(email, password) {
-        alert("login with email " + email + " and password " + password);
-        this.email = email;
-      }
-    }
-  };
-</script>
-```
-
-</docs>

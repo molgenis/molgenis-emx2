@@ -1,27 +1,17 @@
-<template>
-  <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :id="id">{{ label }}</label>
-    <input
-      type="email"
-      class="form-control"
-      :id="id"
-      :aria-describedby="id"
-      :placeholder="label"
-    />
-    <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
-      >{{ helpText }}</small
-    >
-  </div>
-</template>
-
 <script>
 export default {
-  name: "BaseInput",
+  name: 'BaseInput',
   props: {
     id: {
       type: String,
       required: true
     },
+    name: {
+      type: String,
+      required: false,
+      default: function () { return this.id }
+    },
+    value: {type: [String, Number, Object, Array, Boolean], default: null},
     label: {
       type: String,
       required: false
@@ -31,12 +21,14 @@ export default {
       required: false
     },
     type: {
-      
+      type: String,
+      required: false,
+      default: () => 'text'
     }
   },
   methods: {
     isNonEmptyString(s) {
-      return s !== null && s !== undefined && s.length
+      return s !== null && s !== undefined && s.length;
     }
   }
 };

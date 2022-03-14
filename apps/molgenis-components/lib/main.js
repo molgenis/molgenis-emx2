@@ -12,6 +12,10 @@ import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
+import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
+import InputPassword from '../src/components/forms/InputPassword.vue';
+import InputString from '../src/components/forms/InputString.vue';
 
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -29,6 +33,8 @@ import ObjectDisplay from "../src/components/tables/cellTypes/ObjectDisplay.vue"
 import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue";
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
+import SignInForm from "../src/components/organisms/SignInForm.vue"
+
 import Client from "../src/client/client.js";
 
 export {
@@ -45,6 +51,10 @@ export {
   ButtonAction,
   ButtonOutline,
   ButtonAlt,
+  ButtonSubmit,
+  FormMolgenis,
+  InputPassword,
+  InputString,
   Breadcrumb,
   LayoutModal,
   ReadMore,
@@ -58,5 +68,6 @@ export {
   ObjectDisplay,
   StringDisplay,
   TextDisplay,
+  SignInForm,
   Client,
 };
