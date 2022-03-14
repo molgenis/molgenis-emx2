@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar bg-primary navbar-expand-lg navbar-dark">
-    <a v-if="logo" :href=brandHref class="navbar-brand">
+    <a :href="brandHref" class="navbar-brand">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <button
@@ -29,6 +29,7 @@
 export default {
   name: "Menu",
   props: {
+    // Link to follow when brand is clicked
     brandHref: {
       type: String,
     },

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
@@ -222,5 +223,9 @@ public class MolgenisWebservice {
         .getSession(request)
         .getDatabase()
         .getSchema(sanitize(request.params(SCHEMA)));
+  }
+
+  public static Collection<String> getSchemaNames(Request request) {
+    return sessionManager.getSession(request).getDatabase().getSchemaNames();
   }
 }

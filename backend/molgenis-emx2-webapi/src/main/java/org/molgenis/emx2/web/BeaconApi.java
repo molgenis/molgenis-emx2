@@ -1,7 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchemaNames;
 import static spark.Spark.get;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,14 +18,15 @@ public class BeaconApi {
   public static void create() {
 
     // framework
-    get("/:schema/api/beacon", BeaconApi::getInfo);
-    get("/:schema/api/beacon/info", BeaconApi::getInfo);
-    get("/:schema/api/beacon/service-info", BeaconApi::getInfo);
-    get("/:schema/api/beacon/configuration", BeaconApi::getConfiguration);
-    get("/:schema/api/beacon/map", BeaconApi::getMap);
-    get("/:schema/api/beacon/entry_types", BeaconApi::getEntryTypes);
-    get("/:schema/api/beacon/datasets", BeaconApi::getDatasets);
-    get("/:schema/api/beacon/g_variants", BeaconApi::getGenomicVariants);
+    get("/api/beacon", BeaconApi::getInfo);
+    get("/api/beacon/", BeaconApi::getInfo);
+    get("/api/beacon/info", BeaconApi::getInfo);
+    get("/api/beacon/service-info", BeaconApi::getInfo);
+    get("/api/beacon/configuration", BeaconApi::getConfiguration);
+    get("/api/beacon/map", BeaconApi::getMap);
+    get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
+    get("/api/beacon/datasets", BeaconApi::getDatasets);
+    get("/api/beacon/g_variants", BeaconApi::getGenomicVariants);
 
     //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
     //
@@ -76,7 +77,7 @@ public class BeaconApi {
 
     // TODO pass request to response to set limits, offsets etc
     // result should be BeaconBooleanResponse, BeaconCountResponse or BeaconCollectionResponse
-    return getWriter().writeValueAsString(new Datasets(getSchema(request)));
+    return getWriter().writeValueAsString(new Datasets(request, getSchemaNames(request)));
   }
 
   private static String getGenomicVariants(Request request, Response response)
