@@ -1,17 +1,16 @@
 package org.molgenis.emx2.sql;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
+import static org.molgenis.emx2.sql.EvaluateExpressions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.molgenis.emx2.sql.EvaluateExpressions.*;
+import junit.framework.TestCase;
+import org.junit.Test;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
 
 public class EvaluateExpressionsTest extends TestCase {
 
