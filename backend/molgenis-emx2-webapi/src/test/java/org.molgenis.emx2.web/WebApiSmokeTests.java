@@ -208,7 +208,7 @@ public class WebApiSmokeTests {
     // poll task until complete
     Response poll = given().sessionId(SESSION_ID).when().get(url);
     int count = 0;
-    while (poll.getStatusCode() == 404 || poll.toString().contains("RUNNING")) {
+    while (poll.getStatusCode() == 404 || !poll.body().asString().contains("COMPLETE")) {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
