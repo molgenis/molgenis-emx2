@@ -13,6 +13,7 @@ import static org.molgenis.emx2.web.Constants.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.io.*;
 import java.util.Map;
 import org.junit.AfterClass;
@@ -204,14 +205,17 @@ public class WebApiSmokeTests {
             .asString()
             .contains(id));
 
+    // wait a bit for task to start
+    Thread.sleep(1000);
+    
     // poll task until complete
-    String poll = given().sessionId(SESSION_ID).when().get(url).asString();
+    Response poll = given().sessionId(SESSION_ID).when().get(url);
     int count = 0;
-    while (poll.contains("RUNNING")) {
+    while (poll.getStatusCode() == 404 || !poll.body().asString().contains("COMPLETE")) {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().sessionId(SESSION_ID).when().get(url).asString();
+      poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
 
