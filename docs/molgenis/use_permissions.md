@@ -46,6 +46,8 @@ MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
 ```
 
+The OIDC provider must return a valid ```email``` field ( also known as claim ) as part of the oidc profile response.
+
 ### Disabling OIDC
 
 Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
