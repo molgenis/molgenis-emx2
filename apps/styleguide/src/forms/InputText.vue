@@ -74,7 +74,7 @@ Example
       <InputText
           v-model="value"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -101,7 +101,7 @@ Example with default value
           v-model="value"
           :defaultValue="value"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -128,7 +128,7 @@ Example with list
           v-model="value"
           :list="true"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -155,7 +155,7 @@ Example with inplace
           v-model="value"
           :inplace="true"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
