@@ -273,11 +273,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         .tx(
             tdb -> {
               String current = tdb.getActiveUser();
-              tdb.clearActiveUser(); // elevate privileges
+              tdb.setActiveUser(ADMIN_USER); // elevate privileges
               result.addAll(
                   SqlSchemaMetadataExecutor.getInheritedRoleForUser(
                       ((SqlDatabase) tdb).getJooq(), getName(), username));
-              tdb.setActiveUser(current);
+              tdb.setActiveUser(current); // reset privileges
             });
     return result;
   }
