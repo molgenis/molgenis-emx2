@@ -36,10 +36,10 @@ export default {
   },
   methods: {
     async fetchPatient() {
-      let query1 = "filter: {patients: {identifier: { eq: '1' } }  " +
-          "} {patients{identifier vcfdata {url}}";
+      // let query1 = "filter: {patients: {identifier: { eq: '1' } }  " +
+      //     "} {patients{identifier vcfdata {url}}";
       // let query = "{patients (filter: {identifier: {eq :\"1\"}}) {identifier genesymbol vcfdata {url} }}";
-      let query = "{patients{identifier gender birthdate genesymbol}}
+      let query = "{patients{identifier gender birthdate genesymbol}}";
       let resultPatients = [];
       this.loading = true;
       //do query
