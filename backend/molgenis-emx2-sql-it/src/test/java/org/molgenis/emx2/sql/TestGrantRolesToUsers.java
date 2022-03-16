@@ -50,7 +50,7 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    database.clearActiveUser(); // admin
+    database.becomeAdmin(); // admin
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // test that admin has all roles
@@ -99,7 +99,7 @@ public class TestGrantRolesToUsers {
             fail("role(viewers) should not be able to createColumn tables");
             // should not happen
           });
-      database.clearActiveUser();
+      database.becomeAdmin();
     } catch (Exception e) {
     }
 
@@ -113,7 +113,7 @@ public class TestGrantRolesToUsers {
             fail("role(editors) should not be able to createColumn tables");
             // should not happen
           });
-      database.clearActiveUser();
+      database.becomeAdmin();
     } catch (Exception e) {
     }
     StopWatch.print("test editor permission success");
@@ -131,7 +131,7 @@ public class TestGrantRolesToUsers {
               throw e;
             }
           });
-      database.clearActiveUser();
+      database.becomeAdmin();
     } catch (Exception e) {
       fail("role(manager) should be able to createColumn tables"); // should not happen
       throw e;
@@ -153,7 +153,7 @@ public class TestGrantRolesToUsers {
       e.printStackTrace();
       fail("role(viewers) should  be able to query "); // should not happen
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
     StopWatch.print("test viewer query, success");
 
@@ -169,23 +169,27 @@ public class TestGrantRolesToUsers {
     } catch (Exception e) {
       // correct
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
 
     try {
+      database.addUser(
+          "user_testRolePermissions_success"); // manager cannot create users, needs elevated
+      // privilegs
       database.setActiveUser("user_testRolePermissions_manager");
       database.tx(
           db -> {
             StopWatch.print("settings permissions Table");
             db.getSchema("testRolePermissions")
                 .addMember("user_testRolePermissions_success", VIEWER.toString());
-            db.setActiveUser(ADMIN_USER);
+            db.becomeAdmin();
             db.removeUser("user_testRolePermissions_success");
           });
     } catch (Exception e) {
+      e.printStackTrace();
       fail("roles(manager) should be able to assign roles, found exception " + e);
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
   }
 
@@ -202,7 +206,7 @@ public class TestGrantRolesToUsers {
       assertFalse(database.getSchemaNames().contains("testRole"));
       assertNull(database.getSchema("testRole"));
 
-      database.clearActiveUser();
+      database.becomeAdmin();
 
       schema.addMember("testadmin", OWNER.toString());
       assertEquals(OWNER.toString(), schema.getRoleForUser("testadmin"));
@@ -212,7 +216,7 @@ public class TestGrantRolesToUsers {
 
       database.setActiveUser("testadmin");
       assertEquals(OWNER.toString(), schema.getRoleForActiveUser());
-      database.clearActiveUser();
+      database.becomeAdmin();
 
       schema.create(
           table("Person")
@@ -231,7 +235,7 @@ public class TestGrantRolesToUsers {
       } catch (MolgenisException e) {
         System.out.println("erorred correclty:\n" + e);
       }
-      database.clearActiveUser();
+      database.becomeAdmin();
 
       try {
         database.setActiveUser("testadmin");
@@ -248,7 +252,7 @@ public class TestGrantRolesToUsers {
         fail();
       }
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
   }
 
@@ -279,7 +283,7 @@ public class TestGrantRolesToUsers {
     }
 
     // proof user can drop
-    database.clearActiveUser(); // reset to default user
+    database.becomeAdmin(); // reset to admin
     database.dropSchema(s2.getName()); // clean up
     database.removeUser(USER);
   }

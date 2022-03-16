@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.sql.SQLException;
 import org.junit.BeforeClass;
@@ -87,11 +88,11 @@ public class TestRowLevelSecurity {
             assertEquals(1, db.getSchema(TEST_RLS).getTable(TEST_RLS).retrieveRows().size());
           });
 
-      database.clearActiveUser();
+      database.becomeAdmin();
       database.removeUser(TESTRLS_HAS_RLS_VIEW);
       assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
   }
 }

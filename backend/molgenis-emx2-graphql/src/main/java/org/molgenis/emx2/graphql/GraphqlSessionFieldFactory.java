@@ -4,6 +4,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -61,7 +62,7 @@ public class GraphqlSessionFieldFactory {
                   db -> {
                     // uplift permissions
                     String activeUser = db.getActiveUser();
-                    db.clearActiveUser();
+                    db.becomeAdmin();
                     db.addUser(userName);
                     db.setUserPassword(userName, passWord);
                     // and lift down again

@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.junit.BeforeClass;
@@ -44,7 +45,7 @@ public class TestUsersAndPermissions {
       assertEquals(user1, database.getActiveUser());
 
       // remove active user
-      database.clearActiveUser();
+      database.becomeAdmin();
       assertTrue(database.isAdmin());
 
       // create schema
@@ -61,7 +62,7 @@ public class TestUsersAndPermissions {
       }
 
       // retry with proper permission
-      database.clearActiveUser(); // god mode so I can edit membership
+      database.becomeAdmin(); // god mode so I can edit membership
       schema1.addMember(user1, Privileges.MANAGER.toString());
       database.setActiveUser(user1);
       try {
@@ -71,7 +72,7 @@ public class TestUsersAndPermissions {
       }
 
     } finally {
-      database.setActiveUser(null);
+      database.becomeAdmin();
     }
   }
 
@@ -89,7 +90,7 @@ public class TestUsersAndPermissions {
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
       // ensure otherwise fails
-      database.clearActiveUser();
+      database.becomeAdmin();
       database.addUser("katrien");
       database.setActiveUser("katrien");
       try {
@@ -99,7 +100,7 @@ public class TestUsersAndPermissions {
         // ok
       }
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
       database.removeUser("donald");
       database.removeUser("katrien");
     }

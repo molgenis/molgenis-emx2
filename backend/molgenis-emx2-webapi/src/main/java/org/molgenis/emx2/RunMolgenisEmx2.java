@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.ColumnType.INT;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -27,11 +28,16 @@ public class RunMolgenisEmx2 {
 
     // setup database
     Database db = new SqlDatabase(true);
+
+    // elevate privileges for init
+    db.becomeAdmin();
     if (db.getSchema("pet store") == null) {
       Schema schema = db.createSchema("pet store");
       PetStoreExample.create(schema.getMetadata());
       PetStoreExample.populate(schema);
     }
+    // remove admin
+    db.clearActiveUser();
 
     // start
     MolgenisWebservice.start(port);

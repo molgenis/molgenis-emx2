@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.fail;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,11 +51,10 @@ public class TestGraphqlAdminFields {
 
           try {
             TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());
-            fail("should fail");
           } catch (Exception e) {
             TestCase.assertTrue(e.getMessage().contains("FieldUndefined"));
           }
-          tdb.clearActiveUser();
+          tdb.becomeAdmin();
         });
   }
 

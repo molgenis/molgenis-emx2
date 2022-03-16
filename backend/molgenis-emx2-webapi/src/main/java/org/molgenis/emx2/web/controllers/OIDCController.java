@@ -68,12 +68,12 @@ public class OIDCController {
     final SparkWebContext context = new SparkWebContext(request, response, sessionStore);
 
     final HttpActionAdapter<Object, SparkWebContext> adapter =
-            FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
+        FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
     final CallbackLogic<Object, SparkWebContext> callbackLogic =
-            FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
+        FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 
     callbackLogic.perform(
-            context, securityConfig, adapter, null, false, true, true, OIDC_CLIENT_NAME);
+        context, securityConfig, adapter, null, false, true, true, OIDC_CLIENT_NAME);
 
     final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
     Optional<OidcProfile> oidcProfile = manager.get(true);

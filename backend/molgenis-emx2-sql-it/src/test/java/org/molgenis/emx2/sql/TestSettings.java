@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.junit.BeforeClass;
@@ -74,7 +75,7 @@ public class TestSettings {
               "value",
               db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 
@@ -135,7 +136,7 @@ public class TestSettings {
                   .get(0)
                   .value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 

@@ -88,7 +88,7 @@ public class SqlDatabase implements Database {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
 
     // elevate privileges for init
-    this.setActiveUser(ADMIN_USER);
+    this.becomeAdmin();
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     if (init) {
       this.init();
@@ -331,7 +331,7 @@ public class SqlDatabase implements Database {
     tx(
         db -> {
           String currentUser = db.getActiveUser();
-          db.setActiveUser(ADMIN_USER);
+          db.becomeAdmin();
           executeCreateUser(((SqlDatabase) db).getJooq(), user);
           db.setActiveUser(currentUser);
         });
