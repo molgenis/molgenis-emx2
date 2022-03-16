@@ -9,25 +9,25 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
-import ShowMore from "../layout/ShowMore";
+import {request} from 'graphql-request';
+import ShowMore from '../layout/ShowMore';
 
 export default {
   components: {
-    ShowMore,
+    ShowMore
   },
   props: {
     graphqlURL: {
-      default: "graphql",
-      type: String,
-    },
+      default: 'graphql',
+      type: String
+    }
   },
   data: function () {
     return {
       session: null,
       schema: null,
       loading: true,
-      graphqlError: null,
+      graphqlError: null
     };
   },
   methods: {
@@ -36,7 +36,16 @@ export default {
       this.graphqlError = null;
       request(
         this.graphqlURL,
-        "{_session{email,roles}_schema{name,tables{name,tableType,id,description,externalSchema,semantics,columns{name,id,columnType,key,refTable,refLink,refLabel,refBack,required,semantics,description,position}settings{key,value}}}}"
+        `{
+          _session { email,roles } _schema {
+            name, tables {
+              name, tableType, id, description, externalSchema, semantics, columns {
+                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
+                semantics, description, position, validation, visible
+              } settings { key, value }
+            }
+          }
+        }`
       )
         .then((data) => {
           this.session = data._session;
@@ -51,29 +60,29 @@ export default {
           }
           this.loading = false;
         });
-    },
+    }
   },
   computed: {
     canEdit() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
+        (this.session.email == 'admin' ||
           (this.session.roles &&
-            (this.session.roles.includes("Editor") ||
-              this.session.roles.includes("Manager"))))
+            (this.session.roles.includes('Editor') ||
+              this.session.roles.includes('Manager'))))
       );
     },
     canManage() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
-          this.session.roles.includes("Manager"))
+        (this.session.email == 'admin' ||
+          this.session.roles.includes('Manager'))
       );
-    },
+    }
   },
   created() {
     this.reloadMetadata();
-  },
+  }
 };
 </script>
 

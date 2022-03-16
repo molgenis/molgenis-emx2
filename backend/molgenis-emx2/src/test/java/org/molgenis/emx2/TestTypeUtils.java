@@ -37,7 +37,7 @@ public class TestTypeUtils {
     }
 
     // check that spaces are trimmed around string
-    assertEquals(TypeUtils.toString(" blaat "), "blaat");
+    assertEquals("blaat", TypeUtils.toString(" blaat "));
   }
 
   private void executeTest(ColumnType type, Object[] b) {

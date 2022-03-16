@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";
-import SideBar from "./Sidebar.vue";
+import Sidebar from "./Sidebar.vue";
 import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 const components = import.meta.globEager("./components/**/*.vue");
@@ -23,7 +23,7 @@ Object.entries(components).forEach(([path, definition]) => {
 Vue.component("DemoItem", DemoItem);
 
 const routes = [
-  { path: "/", components: { sidebar: SideBar } },
+  { path: "/", components: { sidebar: Sidebar } },
   { path: "/client", component: ClientView },
 ];
 

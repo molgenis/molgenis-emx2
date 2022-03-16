@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  name: "SideBar",
+  name: "Sidebar",
   props: {
     /**
      * Key value object that has a String key for each component-doc
