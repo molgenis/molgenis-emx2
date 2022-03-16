@@ -25,8 +25,7 @@ export const mutations = {
 
 export const getters = {
   menu(state) {
-    console.log();
-    const menuSetting = state.settings.find((s) => s.key === 'menu');
+    const menuSetting = state.settings.find((s) => s.key === "menu");
     if (!menuSetting) {
       return;
     }
@@ -45,6 +44,13 @@ export const getters = {
   isOidcEnabled(state) {
     const oidcSetting = state.settings.find((s) => s.key === 'isOidcEnabled');
     return oidcSetting && oidcSetting.value === 'true';
+  },
+  logo(state) {
+    const logoSetting = state.settings.find((s) => s.key === 'logoURL');
+    if (!logoSetting) {
+      return undefined;
+    }
+    return logoSetting.value
   }
 };
 

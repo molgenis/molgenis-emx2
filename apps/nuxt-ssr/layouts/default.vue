@@ -1,6 +1,7 @@
 <template>
   <div class="wrapper d-flex flex-column">
-    <Menu :brandHref="brandHref" :menu="menu" :light="true">
+
+    <Menu :logo="logo" :brandHref="brandHref" :menu="menu" :light="true">
       <template v-if="!isSignendIn">
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
           Sign in</ButtonOutline
@@ -19,6 +20,7 @@
         <ButtonOutline v-if="isSignendIn" @click="signOut" :light="true">Sign out</ButtonOutline>
       </template>
     </Menu>
+
     <Breadcrumb v-if="isBreadcrumbShown" :crumbs="crumbs" />
     <Nuxt class="flex-fill" />
     <molgenis-footer class="footer">
@@ -62,7 +64,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['menu', 'isOidcEnabled']),
+    ...mapGetters(['menu', 'logo', 'isOidcEnabled']),
     isSignendIn() {
       return (
         this.session && this.session.email && this.session.email !== 'anonymous'
