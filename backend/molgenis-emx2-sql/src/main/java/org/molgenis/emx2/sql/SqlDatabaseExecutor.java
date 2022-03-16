@@ -16,7 +16,7 @@ class SqlDatabaseExecutor {
 
   static void executeCreateUser(DSLContext jooq, String user) {
     if (user == null || user.isEmpty()) {
-      throw new MolgenisException("Can not create user with empty usr name");
+      throw new MolgenisException("Can not create user with empty user name");
     }
     try {
       String userName = MG_USER_PREFIX + user;
