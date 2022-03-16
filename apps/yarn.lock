@@ -10249,13 +10249,6 @@ mini-css-extract-plugin@^0.9.0:
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
-mini-html-webpack-plugin@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/mini-html-webpack-plugin/-/mini-html-webpack-plugin-2.2.1.tgz#49bedc63fedde1cdedd9b604bd9f729fb267ae7f"
-  integrity sha512-0OS1FieM/c2w7INXjWA1kHCJP4NzJBFN0hOWK3Bz2/j4UOKBQYj4jQiFzfOxf+DnpUNi5I3xGEz86ho3YANdZg==
-  dependencies:
-    webpack-sources "^1.3.0"
-
 mini-html-webpack-plugin@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/mini-html-webpack-plugin/-/mini-html-webpack-plugin-3.1.3.tgz#25ad501dd16ba47ef67aaa9637ce6b1e4b7a1344"
@@ -15595,12 +15588,12 @@ vscode-languageserver-types@^3.15.1:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
   integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
 
-vue-cli-plugin-styleguidist@4.44.18:
-  version "4.44.18"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.18.tgz#af8e34be637fd84df79343a441e379d811b8de48"
-  integrity sha512-HGRltORLh3bfKS/iLt366exEi9267m0fCUFlgoh/GVVaTa8JJh1QBRVKyXZkT0N2vh5dc0ID/DKSI/RRmcU/Rw==
+vue-cli-plugin-styleguidist@4.44.19:
+  version "4.44.19"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.19.tgz#88b0b584919ea5a2f649a68b5878c477ceeda643"
+  integrity sha512-rFhDiPWg7M/5zvOQIQrkMwZLif/GZv/2lhDeAkCm1ePn+Z3fwbViYoDkSoqt9rWDL+blaX+GsOuI4NSZbb4HuA==
   dependencies:
-    vue-styleguidist "^4.44.18"
+    vue-styleguidist "^4.44.19"
     webpack-merge "^4.2.2"
 
 vue-client-only@^2.0.0:
@@ -15761,10 +15754,10 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.2, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-styleguidist@^4.44.18:
-  version "4.44.18"
-  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.18.tgz#c17f462641152c50095b58cd74fef55900bc2e91"
-  integrity sha512-0urPmGRB+6xs7bAVT6Ry6N2Z1/KhLbEYdbYxrCbgcIdop9CJGTp1k5FI97kl6MM9Mdn4K+Eiq8GkhS7RzolARw==
+vue-styleguidist@^4.44.19:
+  version "4.44.19"
+  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.19.tgz#e407ba9a77490dae862b612bd9ca34f90594f8e2"
+  integrity sha512-FybnDewXBDvg6SJVJoEXbWEbx5tTAkIhcziXnCFRm9asA4VtzhF9GWh12ua60mo/MEmc+iOduaeceOaiaSrUgQ==
   dependencies:
     "@vxna/mini-html-webpack-template" "^1.0.0"
     ast-types "0.13.4"
@@ -15795,7 +15788,7 @@ vue-styleguidist@^4.44.18:
     loader-utils "^1.4.0"
     lodash "^4.17.21"
     lru-cache "^4.1.5"
-    mini-html-webpack-plugin "^2.2.1"
+    mini-html-webpack-plugin "^3.1.3"
     minimist "^1.2.5"
     prismjs "^1.23.0"
     prop-types "^15.7.2"
@@ -16086,7 +16079,7 @@ webpack-node-externals@^3.0.0:
   resolved "https://registry.yarnpkg.com/webpack-node-externals/-/webpack-node-externals-3.0.0.tgz#1a3407c158d547a9feb4229a9e3385b7b60c9917"
   integrity sha512-LnL6Z3GGDPht/AigwRh2dvL9PQPFQ8skEpVrWZXLWBYmqcaojHNN0onvHzie6rq7EWKrrBfPYqNEzTJgiwEQDQ==
 
-webpack-sources@^1.0.1, webpack-sources@^1.1.0, webpack-sources@^1.3.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-sources@^1.4.3:
+webpack-sources@^1.0.1, webpack-sources@^1.1.0, webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-sources@^1.4.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
   integrity sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==
