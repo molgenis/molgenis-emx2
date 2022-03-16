@@ -17,7 +17,7 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-router": "4.5.15"
+    "@vue/cli-plugin-router": "4.5.16"
   },
   "eslintConfig": {
     "root": true,
