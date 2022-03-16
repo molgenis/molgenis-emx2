@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.sql.SQLException;
 import org.junit.BeforeClass;

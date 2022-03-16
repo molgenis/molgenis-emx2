@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.ColumnType.INT;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.SqlDatabase;

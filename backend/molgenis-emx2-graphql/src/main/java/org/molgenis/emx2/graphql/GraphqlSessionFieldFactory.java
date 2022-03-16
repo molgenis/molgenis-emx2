@@ -4,7 +4,6 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;

@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.junit.BeforeClass;

@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.Arrays;
 import java.util.List;

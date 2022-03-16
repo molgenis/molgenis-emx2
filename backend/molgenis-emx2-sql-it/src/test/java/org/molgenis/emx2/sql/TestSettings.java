@@ -7,7 +7,6 @@ import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.junit.BeforeClass;
