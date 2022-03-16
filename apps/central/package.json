@@ -18,5 +18,9 @@
     "@vue/cli-plugin-router": "4.5.16",
     "webpack-graphql-loader": "1.0.2"
   },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],,
   "license": "LGPL-3.0"
 }

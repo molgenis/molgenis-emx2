@@ -15,5 +15,9 @@
     "vue-router": "3.5.3",
     "vue-swatches": "2.1.1",
     "vuedraggable": "2.24.3"
-  }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
 }
