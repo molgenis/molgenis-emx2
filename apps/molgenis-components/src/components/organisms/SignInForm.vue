@@ -80,7 +80,9 @@ export default {
         if (!this.axiosClient) {
           this.$emit('requestSignIn', {
             email: this.email,
-            password: this.password
+            password: this.password,
+            onSignSuccess: this.onSignSuccess,
+            onSignInFailed: this.onSignInFailed
           });
           return;
         }
@@ -88,16 +90,16 @@ export default {
         const signInResp = await this.axiosClient
           .post(
             '/api/graphql',
-            `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
+            {query: `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`}
           )
           .catch(
             (error) => (this.error = 'internal server graphqlError' + error)
           );
 
-        if (signInResp.data.signin.status === 'SUCCESS') {
+        if (signInResp.data.data.signin.status === 'SUCCESS') {
           this.onSignSuccess();
         } else {
-          this.onSignInFailed(signInResp.data.signin.message);
+          this.onSignInFailed(signInResp.data.data.signin.message);
         }
       }
     },

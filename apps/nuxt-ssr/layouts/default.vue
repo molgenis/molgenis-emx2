@@ -1,12 +1,23 @@
 <template>
   <div class="wrapper d-flex flex-column">
-    <Menu :brandHref="brandHref" :menu="menu">
-      <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
-        Sign in</ButtonOutline
-      >
-      <ButtonOutline v-else @click="showSigninForm" :light="true">
-        Sign in</ButtonOutline
-      >
+    <Menu :brandHref="brandHref" :menu="menu" :light="true">
+      <template v-if="!isSignendIn">
+        <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
+          Sign in</ButtonOutline
+        >
+        <ButtonOutline v-else @click="showSignInForm = true" :light="true">
+          Sign in</ButtonOutline
+        >
+        <SignInForm
+          :show="showSignInForm"
+          @cancel="showSignInForm = false"
+          @requestSignIn="signIn(...arguments)"
+        />
+      </template>
+      <template v-else>
+        <span>{{email}}</span>
+        <ButtonOutline v-if="isSignendIn" @click="signOut" :light="true">Sign out</ButtonOutline>
+      </template>
     </Menu>
     <Breadcrumb v-if="isBreadcrumbShown" :crumbs="crumbs" />
     <Nuxt class="flex-fill" />
@@ -25,8 +36,6 @@
         >
       </span>
     </molgenis-footer>
-
-    <LayoutModal title="Sign in"></LayoutModal>
   </div>
 </template>
 
@@ -43,12 +52,25 @@ div.wrapper {
 </style>
 
 <script>
-import {Breadcrumb, ButtonOutline, LayoutModal} from 'molgenis-components';
-import {mapGetters} from 'vuex';
+import {Breadcrumb, ButtonOutline, SignInForm} from 'molgenis-components';
+import {mapGetters, mapActions} from 'vuex';
 export default {
-  components: {Breadcrumb, ButtonOutline, LayoutModal},
+  components: {Breadcrumb, ButtonOutline, SignInForm},
+  data() {
+    return {
+      showSignInForm: false
+    };
+  },
   computed: {
     ...mapGetters(['menu', 'isOidcEnabled']),
+    isSignendIn() {
+      return (
+        this.session && this.session.email && this.session.email !== 'anonymous'
+      );
+    },
+    email() {
+      return this.session ? this.session.email : null;
+    },
     schema() {
       return this.$store.state.schema;
     },
@@ -85,9 +107,7 @@ export default {
     }
   },
   methods: {
-    showSigninForm () {
-      console.log('show signin from')
-    }
+    ...mapActions(['signIn', 'signOut']),
   }
 };
 </script>

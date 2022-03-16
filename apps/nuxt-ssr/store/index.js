@@ -2,7 +2,7 @@ export const state = () => ({
   schema: null,
   settings: [],
   session: null,
-  manifest: null,
+  manifest: null
 });
 
 export const mutations = {
@@ -20,7 +20,7 @@ export const mutations = {
   },
   setManifest(state, manifest) {
     state.manifest = manifest;
-  },
+  }
 };
 
 export const getters = {
@@ -49,13 +49,12 @@ export const getters = {
 };
 
 export const actions = {
-  async nuxtServerInit({ dispatch, commit }, context) {
+  async nuxtServerInit({dispatch, commit}, context) {
     if (process.server) {
-      const { req, res, beforeNuxtRender } = context;
       const path = context.req.url;
-      const schema = path.split("/").filter((i) => i !== "")[0];
-      commit("setSchema", schema);
-      await dispatch("fetchSession");
+      const schema = path.split('/').filter((i) => i !== '')[0];
+      commit('setSchema', schema);
+      await dispatch('fetchSession');
     }
   },
   async fetchSession(context) {
@@ -65,15 +64,44 @@ export const actions = {
         _manifest{ ImplementationVersion, SpecificationVersion, DatabaseVersion}
       }`;
     const sessionUrl = context.state.schema
-      ? context.state.schema + "/graphql"
-      : "apps/central/graphql";
+      ? context.state.schema + '/graphql'
+      : 'apps/central/graphql';
     const resp = await this.$axios({
       url: sessionUrl,
-      method: "post",
-      data: { query },
+      method: 'post',
+      data: {query}
     }).catch((e) => console.error(e));
-    context.commit("setSession", resp.data.data._session);
-    context.commit("setManifest", resp.data.data._manifest);
-    context.commit("setSettings", resp.data.data._settings);
+    context.commit('setSession', resp.data.data._session);
+    context.commit('setManifest', resp.data.data._manifest);
+    context.commit('setSettings', resp.data.data._settings);
   },
+  async signIn(context, {email, password, onSignInFailed}) {
+    const query = `mutation { signin (email: "${email}", password: "${password}") { status, message } }`;
+    const signInResp = await this.$axios
+      .post('/api/graphql', {query})
+      .catch((error) => (this.error = 'internal server graphqlError' + error));
+
+    if (signInResp.data.data.signin.status === 'SUCCESS') {
+      if (location && location.reload) {
+        location.reload();
+      }
+    } else {
+      onSignInFailed(signInResp.data.data.signin.message);
+    }
+  },
+  async signOut(context, {onSignOutFailed}) {
+    const query = 'mutation { signout { status } }';
+    const signOutResp = await this.$axios
+      .post('/api/graphql', {query})
+      .catch((error) => (this.error = 'internal server error' + error));
+    if (signOutResp.data.data.signout.status === 'SUCCESS') {
+      context.commit('setSession', {});
+      context.commit('setSettings', {});
+      if (location && location.reload) {
+        location.reload();
+      }
+    } else {
+      onSignOutFailed('sign out failed');
+    }
+  }
 };
