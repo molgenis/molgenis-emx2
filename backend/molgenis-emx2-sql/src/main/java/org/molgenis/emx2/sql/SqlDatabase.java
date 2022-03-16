@@ -417,8 +417,13 @@ public class SqlDatabase implements Database {
   @Override
   public String getActiveUser() {
     String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
-    if (user.contains(MG_USER_PREFIX)) return user.substring(MG_USER_PREFIX.length());
-    return ADMIN_USER;
+    if (user.contains(MG_USER_PREFIX)) {
+      String userName = user.substring(MG_USER_PREFIX.length());
+      if(!userName.isEmpty()) {
+        return userName;
+      }
+    }
+    return ANONYMOUS;
   }
 
   @Override

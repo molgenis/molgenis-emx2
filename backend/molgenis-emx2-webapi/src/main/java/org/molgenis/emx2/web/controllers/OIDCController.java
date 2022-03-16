@@ -68,31 +68,40 @@ public class OIDCController {
     final SparkWebContext context = new SparkWebContext(request, response, sessionStore);
 
     final HttpActionAdapter<Object, SparkWebContext> adapter =
-        FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
+            FindBest.httpActionAdapter(null, securityConfig, SparkHttpActionAdapter.INSTANCE);
     final CallbackLogic<Object, SparkWebContext> callbackLogic =
-        FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
+            FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
 
     callbackLogic.perform(
-        context, securityConfig, adapter, null, false, true, true, OIDC_CLIENT_NAME);
+            context, securityConfig, adapter, null, false, true, true, OIDC_CLIENT_NAME);
 
     final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
     Optional<OidcProfile> oidcProfile = manager.get(true);
 
-    if (oidcProfile.isPresent()) {
-      String user = oidcProfile.get().getEmail();
-      Database database = sessionManager.getSession(request).getDatabase();
-      if (!database.hasUser(user)) {
-        logger.info("Add new OIDC user({}) to database", user);
-        database.addUser(user);
-      }
-      database.setActiveUser(user);
-      logger.info("OIDC sign in for user: {}", user);
-      response.status(302);
-    } else {
+    if (oidcProfile.isEmpty()) {
       logger.error("OIDC sign in failed, no profile found");
-      response.status(404);
+      response.status(500);
+      response.redirect("/");
+      return response;
     }
 
+    String user = oidcProfile.get().getEmail();
+    if (user == null || user.isEmpty()) {
+      logger.error("OIDC sign in failed, email claim is black");
+      response.status(500);
+      response.redirect("/");
+      return response;
+    }
+
+    Database database = sessionManager.getSession(request).getDatabase();
+    if (!database.hasUser(user)) {
+      logger.info("Add new OIDC user({}) to database", user);
+      database.addUser(user);
+    }
+    database.setActiveUser(user);
+    logger.info("OIDC sign in for user: {}", user);
+
+    response.status(302);
     response.redirect("/");
     return response;
   }
