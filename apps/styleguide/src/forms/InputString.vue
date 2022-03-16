@@ -9,7 +9,7 @@
         v-for="(item, idx) in valueArray"
         :key="idx"
         v-bind="$props"
-        :showClear="showClear(idx)"
+        :showClear="(!inplace || list) && showClear(idx)"
         @clear="clearValue(idx)"
         @add="addRow"
         :showPlus="showPlus(idx)"
