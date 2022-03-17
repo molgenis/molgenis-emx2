@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class VcfParser {
   File vcfFile;
@@ -125,29 +126,45 @@ public class VcfParser {
 
   private void getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
     File file = new File("data/gendecs/clinvar_20220205.vcf");
-    File resultFile = new File("data/gendecs/result_matches.vcf");
     Scanner reader = new Scanner(file);
-    BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile));
-    writeHeader(writer);
+
+    File resultFileClinvar = new File("data/gendecs/result_matches_clinvar.vcf");
+    File resultFileResult = new File("data/gendecs/result_matches.vcf");
+    BufferedWriter writerResult = new BufferedWriter(new FileWriter(resultFileResult));
+    BufferedWriter writerClinvar = new BufferedWriter(new FileWriter(resultFileClinvar));
+
+    writeHeader(writerClinvar, "clinvar");
+    writeHeader(writerResult, "result");
 
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
       for (Pattern stringToFind : stringsToFind.values()) {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
-            writer.write(currentLine + System.getProperty("line.separator"));
+            writerResult.write(
+                    getKeyFromValue(stringsToFind, stringToFind) + System.getProperty("line.separator"));
+            writerClinvar.write(currentLine + System.getProperty("line.separator"));
             variants.addVariant(currentLine);
           }
         }
       }
     }
     reader.close();
-    writer.close();
+    writerClinvar.close();
+    writerResult.close();
   }
 
-  private void writeHeader(BufferedWriter writer) throws IOException {
-    for (String line : VcfFile.getClinvarHeader().split("\n")) {
-      writer.write(line + System.getProperty("line.separator"));
+  private void writeHeader(BufferedWriter writer, String headerType) throws IOException {
+    if (headerType.equals("clinvar")) {
+      for (String line : VcfFile.getClinvarHeader().split("\n")) {
+        writer.write(line + System.getProperty("line.separator"));
+      }
+    } else if (headerType.equals("result")) {
+      for (String line : VcfFile.getVipHeader().split("\n")) {
+        writer.write(line + System.getProperty("line.separator"));
+      }
+    } else {
+      System.out.println("invalid header argument " + headerType);
     }
   }
 
@@ -165,5 +182,19 @@ public class VcfParser {
       }
     }
     return false;
+  }
+
+  private static String getKeyFromValue(
+          Map<String, Pattern> map, Pattern value) {
+
+    return map
+            .entrySet()
+            .stream()
+            .filter(entry -> Objects.equals(entry.getValue(), value))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .map(Object::toString)
+            .orElse("");
+
   }
 }
