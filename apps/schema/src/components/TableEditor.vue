@@ -107,11 +107,7 @@
 <script>
 import {
   InputString,
-  InputSelect,
-  InputBoolean,
   ButtonAction,
-  InputText,
-  ButtonAlt,
   IconDanger,
   IconAction,
   LayoutModal
@@ -127,10 +123,6 @@ export default {
     InputString,
     ButtonAction,
     IconAction,
-    InputSelect,
-    InputBoolean,
-    InputText,
-    ButtonAlt,
     IconDanger,
     ColumnEditor,
     LayoutModal,

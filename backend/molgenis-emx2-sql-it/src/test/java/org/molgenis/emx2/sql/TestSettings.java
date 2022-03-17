@@ -74,7 +74,7 @@ public class TestSettings {
               "value",
               db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 
@@ -135,7 +135,7 @@ public class TestSettings {
                   .get(0)
                   .value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 

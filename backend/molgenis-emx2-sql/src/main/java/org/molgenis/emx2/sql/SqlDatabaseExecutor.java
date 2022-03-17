@@ -7,6 +7,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
+import org.molgenis.emx2.MolgenisException;
 
 class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
@@ -14,6 +15,9 @@ class SqlDatabaseExecutor {
   }
 
   static void executeCreateUser(DSLContext jooq, String user) {
+    if (user == null || user.isEmpty()) {
+      throw new MolgenisException("Can not create user with empty user name");
+    }
     try {
       String userName = MG_USER_PREFIX + user;
       executeCreateRole(jooq, userName);
