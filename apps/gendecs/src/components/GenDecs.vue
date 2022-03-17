@@ -34,7 +34,7 @@
       <Spinner/>
     </div>
     <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
-    <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene: {{ patientGene }}.
+    <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene(s): {{ patientGene }}.
       Which was found in the patient vcf data</p>
 
   </div>
@@ -139,14 +139,21 @@ export default {
           });
     },
     async vcfToHpo() {
-      // let genesHpo = {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+      /**
+       * Function that sends an api call to the backend to parse the vcf data.
+       * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
+       * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+       */
       this.loadingVcf = true;
       this.genesHpo = await fetch('/patients/api/gendecs/vcffile')
             .then(response => response.json());
       this.searchForMatch()
     },
     searchForMatch() {
-      // check if there is an gene:Hpo that matches with the entered Hpoterm (and its parents/children)
+      /**
+       * Function that searches for a match between this.genesHpo and the selected HPO term
+       * and its children and parents.
+       */
       let keys = Object.keys(this.genesHpo);
       let matchGene = [];
 
