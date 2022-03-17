@@ -10,7 +10,7 @@
     </p>
 
     <SearchAutoComplete :items= "allHpoTerms"
-                          @selectedHpoTerm="apiCall" class="inputForm"
+                        @selectedHpoTerm="hpoTermToId" class="inputForm"
     ></SearchAutoComplete>
     <div v-if="loadingOwl">
       <Spinner/>
@@ -28,6 +28,9 @@
 
     <PatientSearch class="inputForm"></PatientSearch>
     <br/>
+    <p>Place the downloaded vcfdata file in data/gendecs. If finished please press this button</p>
+    <ButtonOutline @click="vcfToHpo">Check</ButtonOutline>
+
     <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
     <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene: {{ patientGene }}.
       Which was found in the test patient database</p>
@@ -75,12 +78,13 @@ export default {
     };
   },
   methods: {
-    async apiCall(selectedHpoTerm) {
-      this.loadingOwl = true;
+    async hpoTermToId(selectedHpoTerm) {
       /**
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
       * This is then used to gather the ID of the term using an api call.
       * */
+      this.loadingOwl = true;
+
       this.selectedHpoTerm = selectedHpoTerm;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
         .then(response => response.json());
@@ -91,9 +95,6 @@ export default {
         this.sendHpo(this.hpoId.replace(":", "_"));
       }
       this.loadingOwl = false;
-    },
-    async geneToHpo() {
-
     },
     checkIfMatch() {
       /**
@@ -109,12 +110,13 @@ export default {
     sendHpo(hpoId) {
       /**
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
+      * The parents and children of this term are returned by the backend.
       * */
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify({ hpoId: hpoId })
       };
-      fetch('/patients/api/gendecs', requestOptions)
+      fetch('/patients/api/gendecs/queryHpo', requestOptions)
           .then(async response => {
             let data = await response.json();
             this.hpoParents = data["parents"];
@@ -132,6 +134,13 @@ export default {
             this.errorMessage = error;
             console.error('There was an error!', error);
           });
+    },
+    vcfToHpo() {
+      let genes;
+      fetch('/patients/api/gendecs/vcffile')
+        .then(async response => {
+          console.log(response.json());
+            });
     }
   },
 };
