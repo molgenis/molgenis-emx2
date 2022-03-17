@@ -35,6 +35,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
       return connection;
     } catch (DataAccessException dae) {
       super.release(connection);
+      // if invalid user we will not return a connection, not even anonymous
       throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }
