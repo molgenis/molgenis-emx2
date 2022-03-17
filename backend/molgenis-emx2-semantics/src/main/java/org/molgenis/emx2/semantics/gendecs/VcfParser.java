@@ -128,6 +128,7 @@ public class VcfParser {
     File resultFile = new File("data/gendecs/result_matches.vcf");
     Scanner reader = new Scanner(file);
     BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile));
+    writeHeader(writer);
 
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
@@ -142,6 +143,12 @@ public class VcfParser {
     }
     reader.close();
     writer.close();
+  }
+
+  private void writeHeader(BufferedWriter writer) throws IOException {
+    for (String line : VcfFile.getClinvarHeader().split("\n")) {
+      writer.write(line + System.getProperty("line.separator"));
+    }
   }
 
   private static boolean isPathogenic(String variant) {
