@@ -18,7 +18,6 @@ import {
 
 export default {
   name: "PatientSearch",
-  emits: "geneOfPatient",
   components: {
     InputInt,
     ButtonOutline,
@@ -36,10 +35,9 @@ export default {
   },
   methods: {
     async fetchPatient() {
-      // let query1 = "filter: {patients: {identifier: { eq: '1' } }  " +
-      //     "} {patients{identifier vcfdata {url}}";
       // let query = "{patients (filter: {identifier: {eq :\"1\"}}) {identifier genesymbol vcfdata {url} }}";
-      let query = "{patients{identifier gender birthdate genesymbol}}";
+      // let query = "{patients(identifier:1){identifier genesymbol}}";
+      let query = "{patients{identifier vcfdata{url}}}"
       let resultPatients = [];
       this.loading = true;
       //do query
@@ -63,22 +61,20 @@ export default {
     getCorrectPatient(patients) {
       for (let i = 0; i < patients.length; i++) {
         if(patients[i].identifier === parseInt(this.patientId)) {
-          // let geneOfPatient = patients[i].genesymbol;
-          // this.$emit('geneOfPatient', geneOfPatient);
-          // /:schema/api/file/:table/:column/:id
-          fetch('/GenDecS/api/file/patients/vcfdata/97abb0c67d884a63896d7874615012d1')
-            .then(response => response.text())
-            .then(textString => {
-              let rows = textString.split('\n');
-              console.log(rows);
-              // .then(response => response.blob())
-              // .then(blob => {
-              //   let a = document.createElement("a");
-              //   a.href = window.URL.createObjectURL(blob);
-              //   a.download = "vcfdata.vcf";
-              //   document.body.appendChild(a);
-              //   a.click();
-              //   a.remove();
+          let url = patients[i].vcfdata.url;
+
+          fetch(url)
+            // .then(response => response.text())
+            // .then(textString => {
+              // let rows = textString.split('\n');
+              .then(response => response.blob())
+              .then(blob => {
+                let a = document.createElement("a");
+                a.href = window.URL.createObjectURL(blob);
+                a.download = "vcfdata.vcf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
           });
         }
       }
