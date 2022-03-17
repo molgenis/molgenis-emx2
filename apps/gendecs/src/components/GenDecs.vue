@@ -26,7 +26,7 @@
     </div>
     <br/>
 
-    <PatientSearch @geneOfPatient="geneToHpo" class="inputForm"></PatientSearch>
+    <PatientSearch class="inputForm"></PatientSearch>
     <br/>
     <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
     <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene: {{ patientGene }}.
@@ -74,7 +74,7 @@ export default {
       patientGene: null
     };
   },
-  methods: { //2 abnormality of the radius
+  methods: {
     async apiCall(selectedHpoTerm) {
       this.loadingOwl = true;
       /**
@@ -89,45 +89,11 @@ export default {
 
       if(this.searchAssociates != null) {
         this.sendHpo(this.hpoId.replace(":", "_"));
-        // this.getChildren(id);
       }
       this.loadingOwl = false;
     },
-    async geneToHpo(geneOfPatient) {
-      /**
-      * Function that gets the gene of the patient from the patient database as geneOfPatient.
-      * geneOfPatient is used in an api call to gather the entrezGeneId. Which in turn is used
-      * to gather all HPO terms related to said gene with an api call.
-      * */
-      this.patientGene = geneOfPatient;
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + geneOfPatient)
-        .then(response => response.json());
-      let entrezId = resultData['genes'][0].entrezGeneId;
+    async geneToHpo() {
 
-      let resultData2 = await fetch("https://hpo.jax.org/api/hpo/gene/" + entrezId)
-        .then(response => response.json());
-      let geneTermAssoc = [];
-      for (let i = 0; i < resultData2['termAssoc'].length; i++) {
-        geneTermAssoc.push(resultData2['termAssoc'][i].name);
-      }
-      this.geneAssociates = geneTermAssoc;
-      this.checkIfMatch();
-    },
-    async getChildren(id) {
-      /**
-      * Function that gets the id of an HPO term as id. This id is used in an api call to gather all
-      * children terms of said term.
-      * */
-      let resultData = await fetch("https://www.ebi.ac.uk/ols/api/ontologies/hp/children?id=" + id, {
-      })
-        .then(response => response.json());
-
-      let hpoChildren = resultData['_embedded']['terms'];
-      let hpoChildrenName = [];
-      for (let i = 0; i < hpoChildren.length; i++) {
-        hpoChildrenName.push(hpoChildren[i].label);
-      }
-      // console.log("Children of " + this.hpoResults[0].name + ": " + hpoChildrenName);
     },
     checkIfMatch() {
       /**
