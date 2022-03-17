@@ -407,7 +407,7 @@ public class SqlDatabase implements Database {
 
   @Override
   public void setActiveUser(String username) {
-    if (username == null) {
+    if (username == null || username.isEmpty()) {
       throw new MolgenisException("setActiveUser failed: username cannot be null");
     }
     if (inTx) {
