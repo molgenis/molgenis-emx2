@@ -75,7 +75,7 @@
         />
         <Spinner v-if="loading" />
         <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
-        <Yuml v-else :schema="{ tables: tables }" />
+        <Yuml v-else :schema="{tables: tables}" />
 
         <div>
           {{ count }} tables found
@@ -250,26 +250,23 @@ table th:hover .hover {
 </style>
 
 <script>
-import { request } from "graphql-request";
-import Vue from "vue";
-import VScrollLock from "v-scroll-lock";
+import {request} from 'graphql-request';
+import Vue from 'vue';
+import VScrollLock from 'v-scroll-lock';
 import {
   IconAction,
   IconBar,
   IconDanger,
-  InputBoolean,
-  InputCheckbox,
   MessageError,
-  Molgenis,
-  Spinner,
-} from "@mswertz/emx2-styleguide";
-import ColumnEditModal from "./ColumnEditModal";
-import ColumnDropModal from "./ColumnDropModal";
-import TableEditModal from "./TableEditModal";
-import TableDropModal from "./TableDropModal";
-import Yuml from "./Yuml";
+  Spinner
+} from '@mswertz/emx2-styleguide';
+import ColumnEditModal from './ColumnEditModal';
+import ColumnDropModal from './ColumnDropModal';
+import TableEditModal from './TableEditModal';
+import TableDropModal from './TableDropModal';
+import Yuml from './Yuml';
 
-import VueScrollTo from "vue-scrollto";
+import VueScrollTo from 'vue-scrollto';
 
 Vue.use(VScrollLock);
 Vue.use(VueScrollTo);
@@ -281,17 +278,14 @@ export default {
     IconDanger,
     Spinner,
     MessageError,
-    InputBoolean,
-    InputCheckbox,
     TableEditModal,
     ColumnEditModal,
     ColumnDropModal,
     TableDropModal,
-    Molgenis,
-    Yuml,
+    Yuml
   },
   props: {
-    session: Object,
+    session: Object
   },
   data: function () {
     return {
@@ -309,7 +303,7 @@ export default {
       tableAdd: false,
       tableAlter: false,
       tableDrop: false,
-      imgFullscreen: false,
+      imgFullscreen: false
     };
   },
   methods: {
@@ -322,8 +316,8 @@ export default {
       this.schema = null;
       this.tables = null;
       request(
-        "graphql",
-        "{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        'graphql',
+        '{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}'
       )
         .then((data) => {
           this.schema = data._schema.name;
@@ -337,27 +331,27 @@ export default {
             )
           ) {
             this.graphqlError =
-              "Schema is unknown or permission denied (might you need to login with authorized user?)";
+              'Schema is unknown or permission denied (might you need to login with authorized user?)';
           }
         })
         .finally((this.loading = false));
-    },
+    }
   },
   computed: {
     canEdit() {
       return (
         this.session != null &&
-        (this.session.email == "admin" ||
+        (this.session.email == 'admin' ||
           (this.session.roles &&
-            (this.session.roles.includes("Editor") ||
-              this.session.roles.includes("Manager"))))
+            (this.session.roles.includes('Editor') ||
+              this.session.roles.includes('Manager'))))
       );
     },
     count() {
       if (this.tables)
         return this.tables.filter((t) => t.externalSchema == undefined).length;
       return 0;
-    },
+    }
   },
   created() {
     this.loadSchema();
@@ -369,9 +363,9 @@ export default {
       deep: true,
       handler() {
         this.loadSchema();
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>
 

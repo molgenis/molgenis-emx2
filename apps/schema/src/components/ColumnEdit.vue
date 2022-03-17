@@ -144,7 +144,7 @@ export default {
       ) {
         return 'Name should be unique';
       }
-      if (name == undefined) {
+      if (name === undefined) {
         return 'Name is required';
       }
       if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]+$/)) {
@@ -172,7 +172,7 @@ export default {
   },
   watch: {
     column() {
-      if (this.column != null) {
+      if (this.column !== null) {
         this.$emit('input', this.column);
       }
     },
