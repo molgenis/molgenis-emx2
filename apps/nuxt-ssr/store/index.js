@@ -25,9 +25,9 @@ export const mutations = {
 
 export const getters = {
   menu(state) {
-    const menuSetting = state.settings.find((s) => s.key === "menu");
+    const menuSetting = state.settings.find((s) => s.key === 'menu');
     if (!menuSetting) {
-      return;
+      return [];
     }
 
     return JSON.parse(menuSetting.value).map((menuItem) => {
@@ -50,7 +50,7 @@ export const getters = {
     if (!logoSetting) {
       return undefined;
     }
-    return logoSetting.value
+    return logoSetting.value;
   }
 };
 
@@ -85,7 +85,7 @@ export const actions = {
     const query = `mutation { signin (email: "${email}", password: "${password}") { status, message } }`;
     const signInResp = await this.$axios
       .post('/api/graphql', {query})
-      .catch((error) => (this.error = 'internal server graphqlError' + error));
+      .catch((error) => onSignInFailed('internal server graphqlError' + error));
 
     if (signInResp.data.data.signin.status === 'SUCCESS') {
       if (location && location.reload) {
@@ -99,10 +99,9 @@ export const actions = {
     const query = 'mutation { signout { status } }';
     const signOutResp = await this.$axios
       .post('/api/graphql', {query})
-      .catch((error) => (this.error = 'internal server error' + error));
+      .catch((error) => onSignOutFailed('internal server error' + error));
     if (signOutResp.data.data.signout.status === 'SUCCESS') {
       context.commit('setSession', {});
-      context.commit('setSettings', {});
       if (location && location.reload) {
         location.reload();
       }

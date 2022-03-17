@@ -16,8 +16,8 @@
         />
       </template>
       <template v-else>
-        <span>{{email}}</span>
-        <ButtonOutline v-if="isSignendIn" @click="signOut" :light="true">Sign out</ButtonOutline>
+        <span class="text-light mr-1">{{email}}</span>
+        <ButtonOutline v-if="isSignendIn" @click="signOut({onSignOutFailed})" :light="true">Sign out</ButtonOutline>
       </template>
     </Menu>
 
@@ -110,6 +110,9 @@ export default {
   },
   methods: {
     ...mapActions(['signIn', 'signOut']),
+    onSignOutFailed(msg) {
+      console.log(msg)
+    }
   }
 };
 </script>
