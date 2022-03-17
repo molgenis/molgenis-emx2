@@ -29,11 +29,13 @@
     <PatientSearch class="inputForm"></PatientSearch>
     <br/>
     <p>Place the downloaded vcfdata file in data/gendecs. If finished please press this button</p>
-    <ButtonOutline @click="vcfToHpo">Check</ButtonOutline>
-
+    <ButtonOutline @click="vcfToHpo">Parse vcf data!</ButtonOutline>
+    <div v-if="loadingVcf">
+      <Spinner/>
+    </div>
     <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
     <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene: {{ patientGene }}.
-      Which was found in the test patient database</p>
+      Which was found in the patient vcf data</p>
 
   </div>
 </template>
@@ -64,7 +66,6 @@ export default {
   },
   data() {
     return {
-      hpoResults: null,
       geneAssociates: null,
       allHpoTerms: hpoData,
       selectedHpoTerm: null,
@@ -74,7 +75,9 @@ export default {
       hpoId: null,
       searchAssociates: null,
       loadingOwl: false,
-      patientGene: null
+      patientGene: null,
+      genesHpo: null,
+      loadingVcf: false
     };
   },
   methods: {
@@ -88,8 +91,8 @@ export default {
       this.selectedHpoTerm = selectedHpoTerm;
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
         .then(response => response.json());
-      this.hpoResults = resultData['terms'];
-      this.hpoId = this.hpoResults[0].id;
+      let hpoResults = resultData['terms'];
+      this.hpoId = hpoResults[0].id;
 
       if(this.searchAssociates != null) {
         this.sendHpo(this.hpoId.replace(":", "_"));
@@ -135,12 +138,35 @@ export default {
             console.error('There was an error!', error);
           });
     },
-    vcfToHpo() {
-      let genes;
-      fetch('/patients/api/gendecs/vcffile')
-        .then(async response => {
-          console.log(response.json());
-            });
+    async vcfToHpo() {
+      // let genesHpo = {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+      this.loadingVcf = true;
+      this.genesHpo = await fetch('/patients/api/gendecs/vcffile')
+            .then(response => response.json());
+      this.searchForMatch()
+    },
+    searchForMatch() {
+      // check if there is an gene:Hpo that matches with the entered Hpoterm (and its parents/children)
+      let keys = Object.keys(this.genesHpo);
+      let matchGene = [];
+
+      console.log(this.selectedHpoTerm);
+      keys.forEach((key) => {
+        //Female infertility
+        if(this.genesHpo[key] === this.selectedHpoTerm ||
+            this.genesHpo[key] === this.hpoChildren ||
+            this.genesHpo[key] === this.hpoParents) {
+          matchGene.push(this.getKeyByValue(this.genesHpo, this.genesHpo[key]));
+        }
+      });
+      if(matchGene.length !== 0) {
+        this.foundMatch = true;
+        this.patientGene = matchGene;
+      }
+      this.loadingVcf = false;
+    },
+    getKeyByValue(object, value) {
+      return Object.keys(object).find(key => object[key] === value);
     }
   },
 };
