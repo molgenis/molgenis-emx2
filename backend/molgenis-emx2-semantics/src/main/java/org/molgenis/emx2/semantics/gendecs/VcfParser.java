@@ -61,7 +61,7 @@ public class VcfParser {
    * @return boolean true if successful, false if failed
    */
   public boolean removeStatus(String inputFile) {
-    File tempFile = new File("data/tempFile.vcf");
+    File tempFile = new File("data/gendecs/tempFile.vcf");
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
       File fileObject = new File(inputFile);
@@ -122,7 +122,7 @@ public class VcfParser {
   }
 
   private void getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
-    File file = new File("data/clinvar_20220205.vcf");
+    File file = new File("data/gendecs/clinvar_20220205.vcf");
     Scanner reader = new Scanner(file);
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();

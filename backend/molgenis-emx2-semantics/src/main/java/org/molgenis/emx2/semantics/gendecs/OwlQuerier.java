@@ -1,7 +1,5 @@
 package org.molgenis.emx2.semantics.gendecs;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -153,11 +151,5 @@ public class OwlQuerier {
     hpoTerm.setChildren(subClasses);
     hpoTerm.setParents(parents);
     return hpoTerm;
-  }
-
-  public String serializeHpo(HpoTerm hpoTerm) {
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    return gson.toJson(hpoTerm);
   }
 }

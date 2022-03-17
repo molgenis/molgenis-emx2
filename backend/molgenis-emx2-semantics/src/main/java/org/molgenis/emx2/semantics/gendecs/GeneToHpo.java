@@ -33,7 +33,7 @@ public class GeneToHpo {
 
   private static void getHpo(ArrayList<String> geneSymbols) {
     try {
-      File file = new File("data/genes_to_phenotype.txt");
+      File file = new File("data/gendecs/genes_to_phenotype.txt");
       Scanner reader = new Scanner(file);
       while (reader.hasNextLine()) {
         String currentLine = reader.nextLine();
