@@ -87,7 +87,7 @@ public class OIDCController {
 
     String user = oidcProfile.get().getEmail();
     if (user == null || user.isEmpty()) {
-      logger.error("OIDC sign in failed, email claim is black");
+      logger.error("OIDC sign in failed, email claim is empty");
       response.status(500);
       response.redirect("/");
       return response;
