@@ -2,23 +2,19 @@
   <div id="sidebar-wrapper" class="border-right">
     <div class="sidebar-heading">Components</div>
     <div class="list-group list-group-flush">
-      <li class="list-group-item"><strong>Display</strong></li>
-      <a href="#page-header" class="list-group-item">Page header</a>
-      <a href="#links-list" class="list-group-item">Links list</a>
-      <a href="#grid-block" class="list-group-item">Grid Block</a>
-      <a href="#image-display" class="list-group-item">Image Display</a>
-      <a href="#key-value-block" class="list-group-item">Key value block</a>
-      <a href="#table-display" class="list-group-item">Table display</a>
-      <li class="list-group-item"><strong>Layout</strong></li>
-      <a href="#read-more" class="list-group-item">Read more</a>
-      <a href="#breadcrumb" class="list-group-item">Breadcrumb</a>
-      <li class="list-group-item"><strong>Table</strong></li>
-      <a href="#table-display" class="list-group-item">Table display</a>
-      <a href="#pagination" class="list-group-item">Pagination</a>
-      <li class="list-group-item"><strong>Forms</strong></li>
-      <a href="#message-error" class="list-group-item">Message Error</a>
-      <li class="list-group-item"><strong>Table data Client</strong></li>
-      <router-link to="/client" class="list-group-item">Client</router-link>
+      <li
+        class="list-group-item"
+        v-for="(key, index) in Object.keys(docsTree)"
+        :key="index"
+      >
+        <strong> {{ key }}</strong>
+        <a  v-for="(item, index2) in docsTree[key]" :key="index2" :href="'#' + camel2Kebab(item.name)" class="list-group-item">{{item.name}}</a>
+      </li>
+
+      <li class="list-group-item">
+        <strong>Client</strong>
+        <router-link to="/client" class="list-group-item">Client</router-link>
+      </li>
     </div>
   </div>
 </template>
@@ -26,5 +22,44 @@
 <script>
 export default {
   name: "Sidebar",
+  props: {
+    /**
+     * Key value object that has a String key for each component-doc
+     * and value with component docs details ( name and path)
+     */
+    docsMap: Object,
+  },
+  computed: {
+    docsTree() {
+      const docTree = {};
+      const docItems = Object.values(this.docsMap);
+
+      const addToTree = (subTree, docItem) => {
+        if (!docItem.path.length) {
+          subTree[docItem.name] = docItem;
+        } else {
+          const currentPath = docItem.path[0];
+          docItem.path = docItem.path.slice(1);
+          if (!subTree[currentPath]) {
+            subTree[currentPath] = {};
+          }
+
+          addToTree(subTree[currentPath], docItem);
+        }
+      };
+
+      docItems.forEach((docItem) => {
+        addToTree(docTree, docItem);
+      });
+
+      return docTree;
+    },
+  },
+  methods: {
+    camel2Kebab(name) {
+      return name.replace(/[A-Z]/g, (letter, index) => { return index == 0 ? letter.toLowerCase() : '-'+ letter.toLowerCase();});
+    }
+  }
 };
 </script>
+

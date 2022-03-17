@@ -27,7 +27,7 @@ const routes = [
   { path: "/client", component: ClientView },
 ];
 
-const docNames = []
+const docsMap = {}
 
 // create routes for all the docs
 Object.entries(docs).forEach(([path, definition]) => {
@@ -38,11 +38,13 @@ Object.entries(docs).forEach(([path, definition]) => {
 
   routes[0].components[componentName] = definition.default; // for listing
   routes.push({ path: "/component/" + componentName, component: definition.default }) // for detail view
-  docNames.push(componentName)
+  const folderPath = path.split("/").slice(2) // remove folder root path
+  folderPath.pop() // remove component name 
+  docsMap[componentName] = { name: componentName, path: folderPath };
 });
 
 // global variable
-Vue.prototype.$docNames = docNames;
+Vue.prototype.$docsMap = docsMap;
 
 Vue.use(VueRouter);
 const router = new VueRouter({ routes });

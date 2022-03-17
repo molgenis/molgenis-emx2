@@ -3,7 +3,7 @@
   <div style="max-width: 100%" class="flex-grow-1">
     <table
       class="table table-sm bg-white table-bordered table-hover"
-      :class="{ 'table-hover': showSelect }"
+      :class="{'table-hover': showSelect}"
     >
       <thead>
         <Draggable
@@ -14,10 +14,8 @@
           @change="$emit('update:columns', $event)"
         >
           <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
-            <h6 class="mb-0 mt-2 d-inline">
-              #
-              <!--@slot Use this to add values or actions buttons header -->
-            </h6>
+            <span class="d-inline"> # </span>
+            <!--@slot Use this to add values or actions buttons header -->
             <span style="text-align: left; font-weight: normal">
               <slot name="colheader" />
             </span>
@@ -29,13 +27,10 @@
             class="column-drag-header"
             :style="col.showColumn ? '' : 'display: none'"
           >
-            <h6
-              class="mb-0 align-text-bottom text-nowrap"
-              @click="onColumnClick(col)"
-            >
+            <span class="text-nowrap" @click="onColumnClick(col)">
               {{ col.name }}
               <slot name="colheader" :col="col" />
-            </h6>
+            </span>
           </th>
         </Draggable>
       </thead>
@@ -106,11 +101,11 @@ th {
  * Table that uses MOLGENIS metadata format to configure itself. Provide 'metadata' and 'data' and your table is ready.
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
-import Draggable from "vuedraggable";
-import DataDisplayCell from "./DataDisplayCell.vue";
+import Draggable from 'vuedraggable';
+import DataDisplayCell from './DataDisplayCell.vue';
 
 export default {
-  components: { Draggable, DataDisplayCell },
+  components: {Draggable, DataDisplayCell},
   props: {
     /** selection, two-way binded*/
     selection: Array,
@@ -123,16 +118,16 @@ export default {
     /** if select show be shown */
     showSelect: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   computed: {
     countColumns() {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns.filter((c) => c.columnType != "HEADING");
-    },
+      return this.columns.filter((c) => c.columnType != 'HEADING');
+    }
   },
   created() {
     this.initShowColumn();
@@ -149,7 +144,7 @@ export default {
         for (var key in update) {
           if (update[key].showColumn == undefined) {
             update[key].showColumn = true;
-            this.$emit("update:columns", update);
+            this.$emit('update:columns', update);
           }
         }
       }
@@ -194,10 +189,10 @@ export default {
       return true;
     },
     isObject(object) {
-      return object != null && typeof object === "object";
+      return object != null && typeof object === 'object';
     },
     onColumnClick(column) {
-      this.$emit("column-click", column);
+      this.$emit('column-click', column);
     },
     onRowClick(row) {
       if (this.showSelect) {
@@ -211,18 +206,18 @@ export default {
               JSON.stringify(item, Object.keys(item).sort()) !==
               JSON.stringify(key, Object.keys(key).sort())
           );
-          this.$emit("deselect", this.getKey(row));
+          this.$emit('deselect', this.getKey(row));
         } else {
           /** when a row is selected */
           update.push(this.getKey(row));
-          this.$emit("select", this.getKey(row));
+          this.$emit('select', this.getKey(row));
         }
-        this.$emit("update:selection", update);
+        this.$emit('update:selection', update);
       } else {
-        this.$emit("click", this.getKey(row));
+        this.$emit('click', this.getKey(row));
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

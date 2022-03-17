@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="d-flex">
     <template v-if="$route.path === '/'">
-      <router-view name="sidebar"></router-view>
+      <router-view name="sidebar" :docsMap="$docsMap"></router-view>
       <div id="page-content-wrapper" class="m-3 container-fluid">
         <div v-for="name in docNames" :key="name">
           <router-link class="float-right" :to="'/component/' + name">focus</router-link>
@@ -20,7 +20,7 @@
 export default {
   computed: {
     docNames() {
-      return this.$docNames;
+      return Object.keys(this.$docsMap);
     },
   },
 };

@@ -99,15 +99,11 @@ export default {
   methods: {
     routeParams(column, value) {
       if (column.name === 'tables') {
-        //hack, I don't know yet how to do this generic
-        ///tables/:pid/:version/:name
-        //console.log(JSON.stringify(value));
         let result = {
-          pid: value.release.resource.pid,
-          version: value.release.version,
+          pid: value.dataDictionary.resource.pid,
+          version: value.dataDictionary.version,
           name: value.name
         };
-        //console.log(JSON.stringify(result));
         return result;
       } else {
         return value;
