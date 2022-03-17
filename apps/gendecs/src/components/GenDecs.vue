@@ -1,41 +1,45 @@
 <template>
-  <div>
-    <h1>Welcome to GenDecS!</h1>
-    <p>this page contains the prototype for GenDecS. Here you can enter a patient number together
-      with a HPO root-term/phenotype. When entered This prototype will gather the patient data from
-      the patient database. This data will be filtered on possible disease causing genes and
-      added to a new database. Then the filtered genes will be matched with HPO terms. The then
-      found terms will be checked if they match with the given root term/phenotype. This information
-      is then reported back.
-    </p>
-
-    <SearchAutoComplete :items= "allHpoTerms"
-                        @selectedHpoTerm="hpoTermToId" class="inputForm"
-    ></SearchAutoComplete>
-    <div v-if="loadingOwl">
-      <Spinner/>
+  <div id="wrapper">
+    <div id="titlediv">
+      <h1>Welcome to GenDecS!</h1>
+      <p>this page contains the prototype for GenDecS. Here you can enter a patient number together
+        with a HPO root-term/phenotype. When entered This prototype will gather the patient data from
+        the patient database. This data will be filtered on possible disease causing genes and
+        added to a new database. Then the filtered genes will be matched with HPO terms. The then
+        found terms will be checked if they match with the given root term/phenotype. This information
+        is then reported back.
+      </p>
     </div>
-    <div>
+    <div id="searchdiv">
+      <SearchAutoComplete :items= "allHpoTerms"
+                          @selectedHpoTerm="addHpoResult" class="inputForm"
+      ></SearchAutoComplete>
+
       <InputCheckbox
-          label="Search for parents and children"
-          v-model="searchAssociates"
-          :options="['Search for parents and children']"
-          description="check this box if you want to search for parents and children of
-                      your HPO term"
-      />
+            label="Search for parents and children"
+            v-model="searchAssociates"
+            :options="['Search for parents and children']"
+            description="check this box if you want to search for parents and children of
+                        your HPO term"
+        />
     </div>
-    <br/>
+    <div id="patientdiv">
+      <PatientSearch class="inputForm"></PatientSearch>
+    </div>
 
-    <PatientSearch class="inputForm"></PatientSearch>
-    <br/>
-    <p>Place the downloaded vcfdata file in data/gendecs. If finished please press this button</p>
-    <ButtonOutline @click="vcfToHpo">Parse vcf data!</ButtonOutline>
-    <div v-if="loadingVcf">
-      <Spinner/>
+    <div id="bottemdiv">
+      <p>Place the downloaded vcfdata file in data/gendecs. If finished please press this button</p>
+
+      <ButtonOutline @click="main">Search for matches</ButtonOutline>
+      <div class="results" v-if="loading">
+        <Spinner/>
+      </div>
+      <div class="results" v-else>
+        <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
+        <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene(s): {{ patientGenes }}.
+          Which was found in the patient vcf data</p>
+      </div>
     </div>
-    <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
-    <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene(s): {{ patientGene }}.
-      Which was found in the patient vcf data</p>
 
   </div>
 </template>
@@ -74,40 +78,28 @@ export default {
       hpoParents: null,
       hpoId: null,
       searchAssociates: null,
-      loadingOwl: false,
-      patientGene: null,
+      patientGenes: null,
       genesHpo: null,
-      loadingVcf: false
+      loading: false
     };
   },
   methods: {
-    async hpoTermToId(selectedHpoTerm) {
+    addHpoResult(selectedHpoterm) {
+      this.selectedHpoTerm = selectedHpoterm;
+    },
+    async hpoTermToId() {
       /**
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
       * This is then used to gather the ID of the term using an api call.
       * */
-      this.loadingOwl = true;
 
-      this.selectedHpoTerm = selectedHpoTerm;
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + selectedHpoTerm)
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + this.selectedHpoTerm)
         .then(response => response.json());
       let hpoResults = resultData['terms'];
       this.hpoId = hpoResults[0].id;
 
       if(this.searchAssociates != null) {
         this.sendHpo(this.hpoId.replace(":", "_"));
-      }
-      this.loadingOwl = false;
-    },
-    checkIfMatch() {
-      /**
-      * Function that checks if the HPO terms that are associated with the patient gene has a match
-      * with the entered HPO term by the user.
-      * */
-      if(this.geneAssociates.includes(this.selectedHpoTerm) ||
-          this.hpoParents.includes(this.selectedHpoTerm) ||
-          this.hpoChildren.includes(this.selectedHpoTerm)) {
-        this.foundMatch = true;
       }
     },
     sendHpo(hpoId) {
@@ -144,10 +136,9 @@ export default {
        * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
        * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
        */
-      this.loadingVcf = true;
       this.genesHpo = await fetch('/patients/api/gendecs/vcffile')
             .then(response => response.json());
-      this.searchForMatch()
+      this.searchForMatch();
     },
     searchForMatch() {
       /**
@@ -168,20 +159,51 @@ export default {
       });
       if(matchGene.length !== 0) {
         this.foundMatch = true;
-        this.patientGene = matchGene;
+        this.patientGenes = matchGene;
       }
-      this.loadingVcf = false;
     },
     getKeyByValue(object, value) {
       return Object.keys(object).find(key => object[key] === value);
+    },
+    async main() {
+      this.loading = true;
+      await this.hpoTermToId();
+      await this.vcfToHpo();
+      this.loading = false;
     }
   },
 };
 </script>
 
 <style scoped>
-/*.inputForm {*/
-/*  float: left;*/
-/*  padding: 50px;*/
-/*}*/
+#wrapper {
+  overflow: hidden; /* add this to contain floated children */
+}
+#searchdiv {
+  width: 50%;
+  float:left;
+  padding: 10px;
+}
+#patientdiv {
+  width: 50%;
+  float: left;
+  padding: 10px;
+}
+#bottemdiv {
+  width: 100%;
+  float:left;
+  padding: 10px;
+  text-align: center;
+}
+#titlediv {
+  width: 100%;
+  float: left;
+  padding: 10px;
+}
+h1{
+  text-align: center;
+}
+.results {
+  padding: 10px;
+}
 </style>
