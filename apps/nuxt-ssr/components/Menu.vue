@@ -22,25 +22,27 @@
         </li>
       </ul>
     </div>
+    <slot />
+
   </nav>
 </template>
 
 <script>
 export default {
-  name: "Menu",
+  name: 'Menu',
   props: {
     // Link to follow when brand is clicked
     brandHref: {
-      type: String,
+      type: String
     },
     menu: {
-      type: Array,
+      type: Array
     },
     logo: {
       type: String,
-      default: () => "/apps/styleguide/assets/img/molgenis_logo_white.png",
-    },
-  },
+      default: () => '/apps/styleguide/assets/img/molgenis_logo_white.png'
+    }
+  }
 };
 </script>
 
