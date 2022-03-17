@@ -53,9 +53,6 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-  MessageWarning,
-  IconAction,
-  ButtonAlt,
   Spinner
 } from '@mswertz/emx2-styleguide';
 
@@ -66,10 +63,7 @@ export default {
     ButtonAction,
     MessageError,
     MessageSuccess,
-    MessageWarning,
     SchemaToc,
-    IconAction,
-    ButtonAlt,
     Spinner
   },
   data() {
@@ -94,7 +88,7 @@ export default {
           tables: this.schema.tables
         }
       )
-        .then((data) => {
+        .then(() => {
           this.loadSchema();
           this.timestamp = Date.now();
           this.success = `Schema saved`;
