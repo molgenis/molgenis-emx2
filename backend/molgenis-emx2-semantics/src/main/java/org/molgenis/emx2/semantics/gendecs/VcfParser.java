@@ -113,7 +113,9 @@ public class VcfParser {
                 String.format("%s\\t%s\\t[0-9]+\\t%s\\t%s.+", chromosome, position, ref, alt));
         stringsToFind.put(data, pattern);
       }
+      reader.close();
       getMatchesClinvar(stringsToFind);
+
       return variants;
     } catch (IOException e) {
       e.printStackTrace();
@@ -123,17 +125,23 @@ public class VcfParser {
 
   private void getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
     File file = new File("data/gendecs/clinvar_20220205.vcf");
+    File resultFile = new File("data/gendecs/result_matches.vcf");
     Scanner reader = new Scanner(file);
+    BufferedWriter writer = new BufferedWriter(new FileWriter(resultFile));
+
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
       for (Pattern stringToFind : stringsToFind.values()) {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
+            writer.write(currentLine + System.getProperty("line.separator"));
             variants.addVariant(currentLine);
           }
         }
       }
     }
+    reader.close();
+    writer.close();
   }
 
   private static boolean isPathogenic(String variant) {
