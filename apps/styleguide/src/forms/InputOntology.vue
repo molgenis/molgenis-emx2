@@ -1,7 +1,7 @@
 <template>
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{dropdown: !showExpanded, 'border rounded': !showExpanded}"
@@ -80,6 +80,9 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
         />
+        <div v-else-if="search && search.length">
+          Type at least 3 characters to search
+        </div>
         <div v-else>No results found</div>
       </div>
     </div>
@@ -304,14 +307,14 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected == "complete")
+        .filter((term) => term.selected == 'complete')
         .map((term) => {
           return {name: term.name};
         });
       if (this.list) {
         this.$emit('input', selectedTerms);
       } else {
-        this.$emit("input", selectedTerms[0]);
+        this.$emit('input', selectedTerms[0]);
       }
     },
     reloadMetadata() {
@@ -337,18 +340,18 @@ export default {
         value.forEach((v) => {
           let term = this.terms[v.name];
           if (term) {
-            term.selected = "complete";
+            term.selected = 'complete';
             if (this.list) {
               //if list also select its children
               this.getAllChildren(term).forEach(
-                (childTerm) => (childTerm.selected = "complete")
+                (childTerm) => (childTerm.selected = 'complete')
               );
               //select parent(s) if all siblings are selected
               this.getParents(term).forEach((parent) => {
                 if (parent.children.every((childTerm) => childTerm.selected)) {
-                  parent.selected = "complete";
+                  parent.selected = 'complete';
                 } else {
-                  parent.selected = "partial";
+                  parent.selected = 'partial';
                 }
               });
             }
@@ -359,32 +362,40 @@ export default {
       else if (value) {
         let term = this.terms[value.name];
         if (term) {
-          term.selected = "complete";
+          term.selected = 'complete';
           this.getParents(term).forEach((parent) => {
-            parent.selected = "partial";
+            parent.selected = 'partial';
           });
         }
       }
       this.key++;
-    },
+    }
   },
   watch: {
     search() {
-      //first show/hide depending on filter
-      Object.values(this.terms).forEach(
-        (t) => (t.visible = this.search == '' || !this.search)
-      );
-      if (this.search && this.search.length > 0) {
-        let searchTerms = this.search.split(' ').map((s) => s.toLowerCase());
-        Object.values(this.terms).forEach((term) => {
-          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
-            //items are visible when matching search, or when a child matches search
-            term.visible = true;
-            this.getParents(term).forEach((parent) => {
-              parent.visible = true;
-            });
-          }
-        });
+      //require three letters
+      if (this.search) {
+        //first hide alle
+        Object.values(this.terms).forEach((t) => (t.visible = false));
+        if (this.search.length > 2) {
+          //find visible
+          let searchTerms = this.search.split(' ').map((s) => s.toLowerCase());
+          Object.values(this.terms).forEach((term) => {
+            if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+              //items are visible when matching search, or when a child matches search
+              term.visible = true;
+            }
+          });
+          //make parents visible
+          Object.values(this.terms)
+            .filter((t) => t.visible)
+            .forEach((term) =>
+              this.getParents(term).forEach((parent) => (parent.visible = true))
+            );
+        }
+      } else {
+        //no search  = all visible
+        Object.values(this.terms).forEach((t) => (t.visible = true));
       }
       //auto expand visible automatically if total visible <50
       if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
@@ -416,7 +427,7 @@ export default {
               name: e.name,
               visible: true,
               selected: false,
-              definition: e.definition,
+              definition: e.definition
             };
           }
           if (e.parent) {
