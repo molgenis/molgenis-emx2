@@ -6,8 +6,8 @@
 </template>
 
 <script>
-/** Button that is shown as a primary action */
 export default {
+  name: "ButtonAction",
   props: {
     href: String,
     icon: String,
@@ -26,9 +26,7 @@ export default {
 </script>
 
 <docs>
-Example
 
-```
 <template>
   <ButtonAction v-on:click="alert('hello');">Action</ButtonAction>
 </template>
@@ -41,6 +39,5 @@ Example
     }
   }
 </script>
-```
 
 </docs>

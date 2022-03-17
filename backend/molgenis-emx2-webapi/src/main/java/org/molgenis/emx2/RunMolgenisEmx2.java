@@ -27,10 +27,18 @@ public class RunMolgenisEmx2 {
 
     // setup database
     Database db = new SqlDatabase(true);
-    if (db.getSchema("pet store") == null) {
-      Schema schema = db.createSchema("pet store");
-      PetStoreExample.create(schema.getMetadata());
-      PetStoreExample.populate(schema);
+
+    // elevate privileges for init
+    try {
+      db.becomeAdmin();
+      if (db.getSchema("pet store") == null) {
+        Schema schema = db.createSchema("pet store");
+        PetStoreExample.create(schema.getMetadata());
+        PetStoreExample.populate(schema);
+      }
+    } finally {
+      // ensure to remove admin
+      db.clearActiveUser();
     }
 
     // start

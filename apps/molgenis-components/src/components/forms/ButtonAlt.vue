@@ -11,11 +11,10 @@
 </template>
 
 <script>
-/** Cancel button */
 import ButtonAction from "./ButtonAction.vue"
 
 export default {
-  name: "ButtonAction",
+  name: "ButtonAlt",
   extends: ButtonAction,
   props: {
     light: { type: Boolean, default: false },
@@ -24,9 +23,7 @@ export default {
 </script>
 
 <docs>
-Example
 
-```
 <template>
   <ButtonAlt v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
 </template>
@@ -39,6 +36,5 @@ Example
     }
   }
 </script>
-```
 
 </docs>
