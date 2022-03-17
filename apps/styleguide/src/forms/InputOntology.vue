@@ -80,8 +80,9 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
         />
-        <div v-else-if="search && search.length">
-          Type at least 3 characters to search
+        <div v-else-if="search && searchResultCount >= 200">
+          Too many search results ({{ searchResultCount }}). Please refine
+          search
         </div>
         <div v-else>No results found</div>
       </div>
@@ -146,7 +147,9 @@ export default {
       terms: {},
       search: null,
       //we use key to force updates
-      key: 1
+      key: 1,
+      //use to block to many search results
+      searchResultCount: 0
     };
   },
   computed: {
@@ -375,23 +378,32 @@ export default {
     search() {
       //require three letters
       if (this.search) {
-        //first hide alle
+        //first hide all
         Object.values(this.terms).forEach((t) => (t.visible = false));
-        if (this.search.length > 2) {
-          //find visible
-          let searchTerms = this.search.split(' ').map((s) => s.toLowerCase());
-          Object.values(this.terms).forEach((term) => {
-            if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
-              //items are visible when matching search, or when a child matches search
-              term.visible = true;
-            }
-          });
-          //make parents visible
+
+        this.searchResultCount = 0;
+        let searchTerms = this.search
+          .trim()
+          .split(' ')
+          .filter((s) => s.trim().length > 0)
+          .map((s) => s.toLowerCase());
+        Object.values(this.terms).forEach((term) => {
+          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+            //items are visible when matching search, or when a child matches search
+            term.visible = true;
+            this.searchResultCount++;
+          }
+        });
+        //if not too many make parents visible
+        if (this.searchResultCount < 200) {
           Object.values(this.terms)
             .filter((t) => t.visible)
             .forEach((term) =>
               this.getParents(term).forEach((parent) => (parent.visible = true))
             );
+        } else {
+          //to many, hide result
+          Object.values(this.terms).forEach((t) => (t.visible = false));
         }
       } else {
         //no search  = all visible
