@@ -420,8 +420,6 @@ public class SqlDatabase implements Database {
           jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
         }
       } catch (DataAccessException dae) {
-        // on failure, we assume anonymous user because this should never happen
-        this.setActiveUser(ANONYMOUS);
         throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
