@@ -87,17 +87,19 @@ public class SqlDatabase implements Database {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
 
-    // elevate privileges for init
-    this.becomeAdmin();
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
-    if (init) {
-      this.init();
+    try {
+      // elevate privileges for init
+      this.becomeAdmin();
+      this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
+      if (init) {
+        this.init();
+      }
+      // get database version if exists
+      databaseVersion = MetadataUtils.getVersion(jooq);
+    } finally {
+      // always sure to clear anonyous
+      this.clearActiveUser();
     }
-    // get database version if exists
-    databaseVersion = MetadataUtils.getVersion(jooq);
-
-    // clear user to anonymous
-    this.clearActiveUser();
 
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
@@ -332,8 +334,11 @@ public class SqlDatabase implements Database {
         db -> {
           String currentUser = db.getActiveUser();
           db.becomeAdmin();
-          executeCreateUser(((SqlDatabase) db).getJooq(), user);
-          db.setActiveUser(currentUser);
+          try {
+            executeCreateUser(((SqlDatabase) db).getJooq(), user);
+          } finally {
+            db.setActiveUser(currentUser);
+          }
         });
     log(start, "created user " + user);
   }

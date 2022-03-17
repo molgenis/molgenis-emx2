@@ -29,14 +29,17 @@ public class RunMolgenisEmx2 {
     Database db = new SqlDatabase(true);
 
     // elevate privileges for init
-    db.becomeAdmin();
-    if (db.getSchema("pet store") == null) {
-      Schema schema = db.createSchema("pet store");
-      PetStoreExample.create(schema.getMetadata());
-      PetStoreExample.populate(schema);
+    try {
+      db.becomeAdmin();
+      if (db.getSchema("pet store") == null) {
+        Schema schema = db.createSchema("pet store");
+        PetStoreExample.create(schema.getMetadata());
+        PetStoreExample.populate(schema);
+      }
+    } finally {
+      // ensure to remove admin
+      db.clearActiveUser();
     }
-    // remove admin
-    db.clearActiveUser();
 
     // start
     MolgenisWebservice.start(port);
