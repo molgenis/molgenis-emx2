@@ -63,6 +63,9 @@
           />
         </span>
       </div>
+      <span v-if="Object.keys(terms).length > 50 && searchResultCount >= 0">
+        found {{ searchResultCount }} terms.
+      </span>
       <div
         class="w-100 show p-0 overflow-auto"
         :class="{'dropdown-menu': !showExpanded}"
@@ -80,10 +83,6 @@
           @deselect="deselect"
           @toggleExpand="toggleExpand"
         />
-        <div v-else-if="search && searchResultCount >= 200">
-          Too many search results ({{ searchResultCount }}). Please refine
-          search
-        </div>
         <div v-else>No results found</div>
       </div>
     </div>
@@ -376,38 +375,40 @@ export default {
   },
   watch: {
     search() {
-      //require three letters
+      this.searchResultCount = 0;
       if (this.search) {
         //first hide all
         Object.values(this.terms).forEach((t) => (t.visible = false));
-
-        this.searchResultCount = 0;
+        //split and sanitize search terms
         let searchTerms = this.search
           .trim()
           .split(' ')
           .filter((s) => s.trim().length > 0)
           .map((s) => s.toLowerCase());
+        //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
           if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
-            //items are visible when matching search, or when a child matches search
             term.visible = true;
             this.searchResultCount++;
+
+            //also make parents visible
+            if (term.parent) {
+              let parent = this.terms[term.parent.name];
+              while (parent && !parent.visible) {
+                parent.visible = true;
+                if (parent.parent) {
+                  parent = this.terms[parent.parent.name];
+                }
+              }
+            }
           }
         });
-        //if not too many make parents visible
-        if (this.searchResultCount < 200) {
-          Object.values(this.terms)
-            .filter((t) => t.visible)
-            .forEach((term) =>
-              this.getParents(term).forEach((parent) => (parent.visible = true))
-            );
-        } else {
-          //to many, hide result
-          Object.values(this.terms).forEach((t) => (t.visible = false));
-        }
       } else {
         //no search  = all visible
-        Object.values(this.terms).forEach((t) => (t.visible = true));
+        Object.values(this.terms).forEach((t) => {
+          t.visible = true;
+          this.searchResultCount++;
+        });
       }
       //auto expand visible automatically if total visible <50
       if (Object.values(this.terms).filter((t) => t.visible).length < 50) {
@@ -425,6 +426,8 @@ export default {
     },
     data() {
       if (this.data) {
+        this.searchResultCount = 0;
+
         //convert to tree of terms
         //list all terms, incl subtrees
         let terms = {};
@@ -460,6 +463,7 @@ export default {
             // add the child
             terms[e.parent.name].children.push(terms[e.name]);
           }
+          this.searchResultCount++;
         });
         this.terms = terms;
         this.applySelection(this.value);
