@@ -15,21 +15,25 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <div class="row">
-      <div class="col-2 bg-white">
-        <div class="fixedContainer mr-n3 overflow-auto">
-          <SchemaToc :tables.sync="schema.tables" />
-        </div>
+      <div class="col-2 pr-0">
+        <Panel>
+          <div class="fixedContainer mr-n3 overflow-auto">
+            <SchemaToc :tables.sync="schema.tables" />
+          </div>
+        </Panel>
       </div>
-      <div class="bg-white col ml-2 overflow-auto">
-        <Spinner v-if="loading" />
-        <div v-else :key="timestamp">
-          <Yuml
-            :schema="schema"
-            :key="JSON.stringify(schema)"
-            v-if="showDiagram"
-          />
-          <SchemaEditor v-model="schema" />
-        </div>
+      <div class="col overflow-auto">
+        <Panel>
+          <Spinner v-if="loading" />
+          <div v-else :key="timestamp">
+            <Yuml
+              :schema="schema"
+              :key="JSON.stringify(schema)"
+              v-if="showDiagram"
+            />
+            <SchemaEditor v-model="schema" />
+          </div>
+        </Panel>
       </div>
     </div>
   </div>
@@ -53,7 +57,8 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-  Spinner
+  Spinner,
+  Panel
 } from '@mswertz/emx2-styleguide';
 
 export default {
@@ -64,7 +69,8 @@ export default {
     MessageError,
     MessageSuccess,
     SchemaToc,
-    Spinner
+    Spinner,
+    Panel
   },
   data() {
     return {

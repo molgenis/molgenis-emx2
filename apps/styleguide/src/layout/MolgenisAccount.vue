@@ -30,14 +30,15 @@
 </template>
 
 <script>
-import LayoutModal from "./LayoutModal";
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import InputPassword from "../forms/InputPassword";
-import MessageSuccess from "../forms/MessageSuccess";
-import MessageError from "../forms/MessageError";
-import Spinner from "./Spinner";
-import { request } from "graphql-request";
+import LayoutModal from './LayoutModal';
+import ButtonAction from '../forms/ButtonAction';
+import ButtonAlt from '../forms/ButtonAlt';
+import InputPassword from '../forms/InputPassword';
+import MessageSuccess from '../forms/MessageSuccess';
+import MessageError from '../forms/MessageError';
+import Spinner from './Spinner';
+import LayoutForm from './LayoutForm';
+import {request} from 'graphql-request';
 
 export default {
   components: {
@@ -48,9 +49,10 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
+    LayoutForm
   },
   props: {
-    user: String,
+    user: String
   },
   data() {
     return {
@@ -58,26 +60,26 @@ export default {
       password2: null,
       loading: false,
       graphqlError: null,
-      success: null,
+      success: null
     };
   },
   methods: {
     updatePassword() {
       if (this.password !== this.password2) {
-        this.error = "Error: Passwords entered must be the same";
+        this.error = 'Error: Passwords entered must be the same';
       } else {
         this.error = null;
         this.loading = true;
         request(
-          "graphql",
+          'graphql',
           `mutation{changePassword(password: "${this.password}"){status,message}}`
         )
           .then((data) => {
-            if (data.changePassword.status === "SUCCESS") {
-              this.success = "Success. Password changed";
+            if (data.changePassword.status === 'SUCCESS') {
+              this.success = 'Success. Password changed';
             } else {
               this.error =
-                "Password change failed: " + data.changePassword.message;
+                'Password change failed: ' + data.changePassword.message;
             }
           })
           .catch((error) => {
@@ -88,9 +90,9 @@ export default {
     },
     close() {
       this.error = null;
-      this.$emit("cancel");
-    },
-  },
+      this.$emit('cancel');
+    }
+  }
 };
 </script>
 

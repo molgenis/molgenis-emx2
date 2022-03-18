@@ -2,7 +2,7 @@
   <div class="h-100">
     <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <div class="bg-white">
+      <Panel>
         <h1 v-if="showHeader" class="pl-2">
           {{ table }}
         </h1>
@@ -10,7 +10,17 @@
           {{ tableMetadata.description }}
         </p>
         <div
-          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
+          class="
+            navbar
+            pl-0
+            ml-0
+            shadow-none
+            navbar-expand-lg
+            justify-content-between
+            mb-3
+            pt-3
+            bg-white
+          "
         >
           <div class="btn-group">
             <ShowHide
@@ -81,8 +91,8 @@
             />
           </div>
         </div>
-      </div>
-      <div class="d-flex">
+      </Panel>
+      <div class="d-flex mt-2">
         <div v-if="countFilters" class="col-3 pl-0">
           <FilterSidebar
             :filters.sync="columns"
@@ -179,29 +189,29 @@
 </template>
 
 <script>
-import TableMolgenis from "./TableMolgenis";
-import FilterSidebar from "./FilterSidebar";
-import FilterWells from "./FilterWells";
-import MessageError from "../forms/MessageError";
-import RowButtonAdd from "./RowButtonAdd";
-import RowButtonDelete from "./RowButtonDelete";
-import RowButtonEdit from "./RowButtonEdit";
-import RowButtonClone from "./RowButtonClone";
-import Spinner from "../layout/Spinner";
-import TableMixin from "../mixins/TableMixin";
-import ShowHide from "./ShowHide";
-import InputSearch from "../forms/InputSearch";
-import Pagination from "./Pagination";
-import ButtonAlt from "../forms/ButtonAlt";
-import SelectionBox from "./SelectionBox";
-import ButtonDropdown from "../forms/ButtonDropdown";
-import InputSelect from "../forms/InputSelect";
-import TableCards from "./TableCards";
-import IconAction from "../forms/IconAction";
-import RecordCard from "./RecordCard";
-import TableSettings from "./TableSettings";
-
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
+import TableMolgenis from './TableMolgenis';
+import FilterSidebar from './FilterSidebar';
+import FilterWells from './FilterWells';
+import MessageError from '../forms/MessageError';
+import RowButtonAdd from './RowButtonAdd';
+import RowButtonDelete from './RowButtonDelete';
+import RowButtonEdit from './RowButtonEdit';
+import RowButtonClone from './RowButtonClone';
+import Spinner from '../layout/Spinner';
+import TableMixin from '../mixins/TableMixin';
+import ShowHide from './ShowHide';
+import InputSearch from '../forms/InputSearch';
+import Pagination from './Pagination';
+import ButtonAlt from '../forms/ButtonAlt';
+import SelectionBox from './SelectionBox';
+import ButtonDropdown from '../forms/ButtonDropdown';
+import InputSelect from '../forms/InputSelect';
+import TableCards from './TableCards';
+import IconAction from '../forms/IconAction';
+import RecordCard from './RecordCard';
+import TableSettings from './TableSettings';
+import Panel from '../layout/Panel';
+const View = {TABLE: 'table', CARDS: 'cards', RECORD: 'record', EDIT: 'edit'};
 
 export default {
   extends: TableMixin,
@@ -226,51 +236,52 @@ export default {
     IconAction,
     RecordCard,
     TableSettings,
+    Panel
   },
   props: {
     value: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     showSelect: {
       type: Boolean,
-      default: () => false,
+      default: () => false
     },
     showHeader: {
       type: Boolean,
-      default: () => true,
+      default: () => true
     },
     showFilters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     showColumns: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     showView: {
       type: String,
-      default: View.TABLE,
+      default: View.TABLE
     },
     showPage: {
       type: Number,
-      default: 1,
+      default: 1
     },
     showLimit: {
       type: Number,
-      default: 20,
+      default: 20
     },
     conditions: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     showOrderBy: {
-      type: String,
+      type: String
     },
     showOrder: {
       type: String,
-      default: () => "ASC",
-    },
+      default: () => 'ASC'
+    }
   },
   data() {
     return {
@@ -284,7 +295,7 @@ export default {
       columns: [],
       view: View.TABLE,
       orderByColumn: null,
-      order: "ASC",
+      order: 'ASC'
     };
   },
   methods: {
@@ -293,14 +304,14 @@ export default {
       let order = this.order;
       if (orderByColumn != column.id) {
         orderByColumn = column.id;
-        order = "ASC";
-      } else if (order == "ASC") {
-        order = "DESC";
+        order = 'ASC';
+      } else if (order == 'ASC') {
+        order = 'DESC';
       } else {
-        order = "ASC";
+        order = 'ASC';
       }
-      this.$emit("update:showOrderBy", orderByColumn);
-      this.$emit("update:showOrder", order);
+      this.$emit('update:showOrderBy', orderByColumn);
+      this.$emit('update:showOrder', order);
     },
     toggleView() {
       if (this.view == View.TABLE) {
@@ -316,15 +327,15 @@ export default {
     },
     emitColumns() {
       let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType != "HEADING")
+        .filter((c) => c.showColumn && c.columnType != 'HEADING')
         .map((c) => c.name);
-      this.$emit("update:showColumns", columns);
+      this.$emit('update:showColumns', columns);
     },
     emitFilters() {
       this.$emit(
-        "update:showFilters",
+        'update:showFilters',
         this.columns
-          .filter((c) => c.showFilter && c.columnType != "HEADING")
+          .filter((c) => c.showFilter && c.columnType != 'HEADING')
           .map((c) => c.name)
       );
     },
@@ -334,20 +345,20 @@ export default {
         if (c.conditions && c.conditions.length > 0)
           result[c.id] = c.conditions;
       });
-      this.$emit("update:conditions", result);
+      this.$emit('update:conditions', result);
     },
     setlimit(limit) {
       this.limit = limit;
       this.page = 1;
-      this.$emit("update:showLimit", limit);
-    },
+      this.$emit('update:showLimit', limit);
+    }
   },
   computed: {
     viewIcon() {
       //icon should be next
-      if (this.view == View.CARDS) return "list-alt";
-      else if (this.view == View.TABLE) return "th";
-      else return "th-list";
+      if (this.view == View.CARDS) return 'list-alt';
+      else if (this.view == View.TABLE) return 'th';
+      else return 'th-list';
     },
     tableMetadataMerged() {
       let tm = this.tableMetadata;
@@ -369,7 +380,7 @@ export default {
     hasSubclass() {
       if (
         this.columns &&
-        this.columns.filter((c) => c.name == "mg_tableclass").length > 0
+        this.columns.filter((c) => c.name == 'mg_tableclass').length > 0
       ) {
         return true;
       }
@@ -391,33 +402,33 @@ export default {
       if (this.columns) {
         this.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
-            ? col.conditions.filter((f) => f !== "" && f != undefined)
+            ? col.conditions.filter((f) => f !== '' && f != undefined)
             : [];
           if (conditions.length > 0) {
             if (
-              col.columnType.startsWith("STRING") ||
-              col.columnType.startsWith("TEXT")
+              col.columnType.startsWith('STRING') ||
+              col.columnType.startsWith('TEXT')
             ) {
-              filter[col.id] = { like: col.conditions };
-            } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: col.conditions };
+              filter[col.id] = {like: col.conditions};
+            } else if (col.columnType.startsWith('BOOL')) {
+              filter[col.id] = {equals: col.conditions};
             } else if (
-              col.columnType.startsWith("REF") ||
-              col.columnType.startsWith("ONTOLOGY")
+              col.columnType.startsWith('REF') ||
+              col.columnType.startsWith('ONTOLOGY')
             ) {
-              filter[col.id] = { equals: col.conditions };
+              filter[col.id] = {equals: col.conditions};
             } else if (
               [
-                "DECIMAL",
-                "DECIMAL_ARRAY",
-                "INT",
-                "INT_ARRAY",
-                "DATE",
-                "DATE_ARRAY",
+                'DECIMAL',
+                'DECIMAL_ARRAY',
+                'INT',
+                'INT_ARRAY',
+                'DATE',
+                'DATE_ARRAY'
               ].includes(col.columnType)
             ) {
               filter[col.id] = {
-                between: conditions.flat(),
+                between: conditions.flat()
               };
             } else {
               alert(
@@ -430,22 +441,22 @@ export default {
         });
       }
       return filter;
-    },
+    }
   },
   watch: {
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
-      this.$emit("update:showPage", this.page);
+      this.$emit('update:showPage', this.page);
       this.reload();
     },
     showOrderBy() {
       this.orderByColumn = this.showOrderBy;
-      this.$emit("update:showOrderBy", this.showOrderBy);
+      this.$emit('update:showOrderBy', this.showOrderBy);
     },
     showOrder() {
       this.order = this.showOrder;
-      this.$emit("update:showOrder", this.showOrder);
+      this.$emit('update:showOrder', this.showOrder);
     },
     showPage() {
       this.page = this.showPage;
@@ -471,7 +482,7 @@ export default {
             }
           } else {
             //default we show all non mg_ columns
-            if (!c.name.startsWith("mg_")) {
+            if (!c.name.startsWith('mg_')) {
               c.showColumn = true;
             } else {
               c.showColumn = false;
@@ -494,7 +505,7 @@ export default {
         }
         this.columns.forEach((c) => {
           if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
-            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
+            this.$set(c, 'conditions', this.conditions[c.name]); //haat vue reactivity
           } else {
             delete c.conditions;
           }
@@ -502,14 +513,14 @@ export default {
         //table settings
         if (this.tableMetadata.settings) {
           this.tableMetadata.settings.forEach((s) => {
-            if (s.key == "cardTemplate") this.cardTemplate = s.value;
-            if (s.key == "recordTemplate") this.recordTemplate = s.value;
+            if (s.key == 'cardTemplate') this.cardTemplate = s.value;
+            if (s.key == 'recordTemplate') this.recordTemplate = s.value;
           });
         }
       }
       this.reload();
-    },
-  },
+    }
+  }
 };
 </script>
 
