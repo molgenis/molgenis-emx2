@@ -18,6 +18,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.controllers.SiteMapController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -54,6 +55,8 @@ public class MolgenisWebservice {
         (request, response) -> oidcController.handleLoginCallback(request, response));
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
     get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
+
+    get("/:schema/sitemap.xml", SiteMapController::getSiteMapForSchema);
 
     // root
     get(
@@ -101,6 +104,7 @@ public class MolgenisWebservice {
         (req, res) -> {
           if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
               && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())
+              && !("/:schema/sitemap.xml").equals(req.pathInfo())
               && !("/" + ROBOTS_TXT).equals(req.pathInfo())) {
             res.redirect("/" + req.params(SCHEMA) + "/");
           }
@@ -108,7 +112,9 @@ public class MolgenisWebservice {
     before(
         "/:schema/:app",
         (req, res) -> {
-          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
+          if (!req.params("app").equals("graphql")
+              && !req.params("app").equals("theme.css")
+              && !req.params("app").equals("sitemap.xml")) {
             res.redirect("/" + req.params(SCHEMA) + "/" + req.params("app") + "/");
           }
         });
