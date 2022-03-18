@@ -211,6 +211,7 @@ import IconAction from '../forms/IconAction';
 import RecordCard from './RecordCard';
 import TableSettings from './TableSettings';
 import Panel from '../layout/Panel';
+
 const View = {TABLE: 'table', CARDS: 'cards', RECORD: 'record', EDIT: 'edit'};
 
 export default {
