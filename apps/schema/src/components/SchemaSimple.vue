@@ -16,11 +16,11 @@
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <div class="row">
       <div class="col-2 bg-white">
-        <div class="fixedContainer">
+        <div class="fixedContainer mr-n3 overflow-auto">
           <SchemaToc :tables.sync="schema.tables" />
         </div>
       </div>
-      <div class="bg-white col ml-2" style="overflow-y: scroll">
+      <div class="bg-white col ml-2 overflow-auto">
         <Spinner v-if="loading" />
         <div v-else :key="timestamp">
           <Yuml
@@ -39,7 +39,6 @@
 .fixedContainer {
   position: -webkit-sticky; /* Safari */
   position: sticky;
-  overflow-y: scroll;
   max-height: 100vh;
   top: 0;
 }
