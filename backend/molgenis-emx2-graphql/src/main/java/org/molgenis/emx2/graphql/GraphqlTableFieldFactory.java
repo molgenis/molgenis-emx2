@@ -151,6 +151,7 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLInt)));
+          break;
         case LONG:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBigInteger));
