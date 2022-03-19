@@ -54,6 +54,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setString("Test string", "test");
     row.setBool("Test bool", true);
     row.setInt("Test int", 1);
+    row.setLong("Test long", 1l);
     row.setDecimal("Test decimal", 1.1);
     row.setText("Test text", "testtext");
     row.setDate("Test date", LocalDate.of(2018, 12, 13));

@@ -22,6 +22,8 @@ public enum ColumnType {
   // NUMERIC
   INT(Integer.class, "xsd:int", ORDINAL_OPERATORS),
   INT_ARRAY(Integer[].class, "xsd:list", ORDINAL_OPERATORS),
+  LONG(Long.class, "xsd:long", ORDINAL_OPERATORS),
+  LONG_ARRAY(Long[].class, "xsd:list", ORDINAL_OPERATORS),
   DECIMAL(Double.class, "xsd:double", ORDINAL_OPERATORS),
   DECIMAL_ARRAY(Double[].class, "xsd:list", ORDINAL_OPERATORS),
   DATE(LocalDate.class, "xsd:date", ORDINAL_OPERATORS),

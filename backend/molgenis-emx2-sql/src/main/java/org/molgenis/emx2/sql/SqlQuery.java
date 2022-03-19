@@ -910,6 +910,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionEquals(name, operator, toJsonbArray(values));
       case INT:
         return whereConditionOrdinal(name, operator, toIntArray(values));
+      case LONG:
+        return whereConditionOrdinal(name, operator, toLongArray(values));
       case DECIMAL:
         return whereConditionOrdinal(name, operator, toDecimalArray(values));
       case DATE:
@@ -924,6 +926,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY:
         return whereConditionArrayEquals(name, operator, toIntArray(values));
+      case LONG_ARRAY:
+        return whereConditionArrayEquals(name, operator, toLongArray(values));
       case DECIMAL_ARRAY:
         return whereConditionArrayEquals(name, operator, toDecimalArray(values));
       case DATE_ARRAY:

@@ -151,6 +151,15 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLInt)));
+        case LONG:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBigInteger));
+          break;
+        case LONG_ARRAY:
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(GraphQLList.list(Scalars.GraphQLBigInteger)));
           break;
         case REF:
           tableBuilder.field(
@@ -206,7 +215,8 @@ public class GraphqlTableFieldFactory {
             .filter(
                 c ->
                     ColumnType.INT.equals(c.getColumnType())
-                        || ColumnType.DECIMAL.equals(c.getColumnType()))
+                        || ColumnType.DECIMAL.equals(c.getColumnType())
+                        || ColumnType.LONG.equals(c.getColumnType()))
             .toList();
 
     if (aggCols.size() > 0) {
@@ -336,6 +346,9 @@ public class GraphqlTableFieldFactory {
       case INT:
       case INT_ARRAY:
         return Scalars.GraphQLInt;
+      case LONG:
+      case LONG_ARRAY:
+        return Scalars.GraphQLBigInteger;
       case DECIMAL:
       case DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
@@ -686,6 +699,8 @@ public class GraphqlTableFieldFactory {
         return Scalars.GraphQLBoolean;
       case INT:
         return Scalars.GraphQLInt;
+      case LONG:
+        return Scalars.GraphQLBigInteger;
       case DECIMAL:
         return Scalars.GraphQLFloat;
       case UUID:
@@ -698,6 +713,8 @@ public class GraphqlTableFieldFactory {
         return GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY:
         return GraphQLList.list(Scalars.GraphQLInt);
+      case LONG_ARRAY:
+        return GraphQLList.list(Scalars.GraphQLBigInteger);
       case DECIMAL_ARRAY:
         return GraphQLList.list(Scalars.GraphQLFloat);
       case STRING_ARRAY:

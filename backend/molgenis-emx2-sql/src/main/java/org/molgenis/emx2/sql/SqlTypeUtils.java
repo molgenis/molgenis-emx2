@@ -68,6 +68,10 @@ public class SqlTypeUtils extends TypeUtils {
         return row.getInteger(name);
       case INT_ARRAY:
         return row.getIntegerArray(name);
+      case LONG:
+        return row.getLong(name);
+      case LONG_ARRAY:
+        return row.getLongArray(name);
       case DECIMAL:
         return row.getDecimal(name);
       case DECIMAL_ARRAY:
@@ -116,6 +120,10 @@ public class SqlTypeUtils extends TypeUtils {
         return "int";
       case INT_ARRAY:
         return "int[]";
+      case LONG:
+        return "bigint";
+      case LONG_ARRAY:
+        return "bigint[]";
       case DECIMAL:
         return "decimal";
       case DECIMAL_ARRAY:

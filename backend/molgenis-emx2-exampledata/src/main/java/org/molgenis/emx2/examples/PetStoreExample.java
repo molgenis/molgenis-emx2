@@ -57,7 +57,7 @@ public class PetStoreExample {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(column(QUANTITY).setType(INT).setValidation("{quantity} >= 1"))
+            .add(column(QUANTITY).setType(LONG).setValidation("{quantity} >= 1"))
             .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
@@ -129,7 +129,7 @@ public class PetStoreExample {
             new Row()
                 .set(ORDER_ID, "1")
                 .set("pet", "pooky")
-                .set(QUANTITY, 1)
+                .set(QUANTITY, 1l)
                 .set(PRICE, 9.99)
                 .set(COMPLETE, true)
                 .set(STATUS, "delivered"),
@@ -137,7 +137,7 @@ public class PetStoreExample {
                 .set(ORDER_ID, "2")
                 .set("pet", "spike")
                 .set(PRICE, 14.99)
-                .set(QUANTITY, 7)
+                .set(QUANTITY, 7l)
                 .set(COMPLETE, false)
                 .set(STATUS, "approved"));
 

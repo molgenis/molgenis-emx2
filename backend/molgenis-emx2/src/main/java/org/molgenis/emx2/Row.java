@@ -80,6 +80,14 @@ public class Row {
     return TypeUtils.toIntArray(values.get(name));
   }
 
+  public Long getLong(String name) {
+    return TypeUtils.toLong(values.get(name));
+  }
+
+  public Long[] getLongArray(String name) {
+    return TypeUtils.toLongArray(values.get(name));
+  }
+
   public byte[] getBinary(String name) {
     return TypeUtils.toBinary(values.get(name));
   }
@@ -143,6 +151,11 @@ public class Row {
   }
 
   public Row setInt(String name, Integer value) {
+    this.values.put(name, value);
+    return this;
+  }
+
+  public Row setLong(String name, Long value) {
     this.values.put(name, value);
     return this;
   }
@@ -290,6 +303,10 @@ public class Row {
         return (T) getInteger(name);
       case "Integer[]":
         return (T) getIntegerArray(name);
+      case "Long":
+        return (T) getLong(name);
+      case "Long[]":
+        return (T) getLongArray(name);
       case "Boolean":
         return (T) getBoolean(name);
       case "Boolean[]":

@@ -5,6 +5,7 @@ import static org.jooq.impl.DSL.cast;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -84,8 +85,32 @@ public class TypeUtils {
     return (Integer) v;
   }
 
+  public static Long toLong(Object v) {
+    if (v == null) return null;
+    if (v instanceof String) {
+      String value = toString(v);
+      if (value != null) {
+        return Long.parseLong(value);
+      } else {
+        return null;
+      }
+    }
+    if (v instanceof BigInteger) {
+      return ((BigInteger) v).longValue();
+    }
+    if (v instanceof Long) {
+      return ((Long) v).longValue();
+    }
+    if (v instanceof Double) return Math.round((Double) v);
+    return (Long) v;
+  }
+
   public static Integer[] toIntArray(Object v) {
     return (Integer[]) processArray(v, TypeUtils::toInt, Integer[]::new, Integer.class);
+  }
+
+  public static Long[] toLongArray(Object v) {
+    return (Long[]) processArray(v, TypeUtils::toLong, Long[]::new, Long.class);
   }
 
   private static Object[] processArray(
@@ -341,6 +366,10 @@ public class TypeUtils {
         return SQLDataType.INTEGER;
       case INT_ARRAY:
         return SQLDataType.INTEGER.getArrayDataType();
+      case LONG:
+        return SQLDataType.BIGINT;
+      case LONG_ARRAY:
+        return SQLDataType.BIGINT.getArrayDataType();
       case BOOL:
         return SQLDataType.BOOLEAN;
       case BOOL_ARRAY:
@@ -389,6 +418,10 @@ public class TypeUtils {
         return TypeUtils.toInt(v);
       case INT_ARRAY:
         return TypeUtils.toIntArray(v);
+      case LONG:
+        return TypeUtils.toLong(v);
+      case LONG_ARRAY:
+        return TypeUtils.toLongArray(v);
       case DECIMAL:
         return TypeUtils.toDecimal(v);
       case DECIMAL_ARRAY:
