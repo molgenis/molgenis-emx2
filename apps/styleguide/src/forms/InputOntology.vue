@@ -63,15 +63,20 @@
           />
         </span>
       </div>
-      <span v-if="Object.keys(terms).length > 50 && searchResultCount >= 0">
-        found {{ searchResultCount }} terms.
-      </span>
       <div
         class="w-100 show p-0 overflow-auto"
         :class="{'dropdown-menu': !showExpanded}"
         v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
+        <span
+          class="pl-4"
+          v-if="
+            search && Object.keys(terms).length > 50 && searchResultCount >= 0
+          "
+        >
+          found {{ searchResultCount }} terms.
+        </span>
         <InputOntologySubtree
           :key="key"
           v-if="rootTerms.length > 0"
@@ -591,6 +596,26 @@ Example with loading contents from table on backend (requires sign-in)
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    table="Diseases" graphqlURL="/CatalogueOntologies/graphql" :showExpanded="true" :list="true"/>
+    myvalue = {{ myvalue }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myvalue: []
+      };
+    }
+  }
+</script>
+```
+
+Example as dropdown with loading contents from table on backend (requires sign-in)
+```
+<template>
+  <div>
+    <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   table="Diseases" graphqlURL="/CatalogueOntologies/graphql" :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
