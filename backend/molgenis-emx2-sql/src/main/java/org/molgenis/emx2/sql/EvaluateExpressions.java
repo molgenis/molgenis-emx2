@@ -13,6 +13,10 @@ public class EvaluateExpressions {
 
   private static final Expressions evaluator = new Expressions(10000);
 
+  private EvaluateExpressions() {
+    // hide constructor
+  }
+
   /**
    * validate if the expression is valid, given the metadata. Typically, done at beginning of a
    * batch transaction
@@ -79,7 +83,7 @@ public class EvaluateExpressions {
           throw new MolgenisException(
               String.format("Cannot execute expression: %s", column.getValidation()));
         }
-        if (!TypeUtils.toBool(result.get())) {
+        if (Boolean.FALSE.equals(TypeUtils.toBool(result.get()))) {
           throw new MolgenisException(
               String.format("%s. Values provided: %s", column.getValidation(), values));
         }

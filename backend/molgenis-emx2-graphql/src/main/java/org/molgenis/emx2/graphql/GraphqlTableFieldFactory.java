@@ -154,13 +154,15 @@ public class GraphqlTableFieldFactory {
           break;
         case LONG:
           tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLBigInteger));
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id)
+                  .type(Scalars.GraphQLBigInteger)); // NOSONAR
           break;
         case LONG_ARRAY:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
-                  .type(GraphQLList.list(Scalars.GraphQLBigInteger)));
+                  .type(GraphQLList.list(Scalars.GraphQLBigInteger))); // NOSONAR
           break;
         case REF:
           tableBuilder.field(
