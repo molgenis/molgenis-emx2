@@ -144,7 +144,7 @@ public class TypeUtils {
     if (v instanceof String) {
       String value = toString(v);
       if (value == null) {
-        return null;
+        return null; // NOSONAR
       }
       if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
         return true;
