@@ -20,7 +20,6 @@ public enum ColumnType {
   TEXT_ARRAY(String[].class, "xsd:list", STRING_OPERATORS),
 
   // NUMERIC
-
   INT(Integer.class, "xsd:int", ORDINAL_OPERATORS),
   INT_ARRAY(Integer[].class, "xsd:list", ORDINAL_OPERATORS),
   DECIMAL(Double.class, "xsd:double", ORDINAL_OPERATORS),
@@ -44,12 +43,30 @@ public enum ColumnType {
 
   // format flavors that extend a baseType
   ONTOLOGY(REF),
-  ONTOLOGY_ARRAY(REF_ARRAY);
-
+  ONTOLOGY_ARRAY(REF_ARRAY),
+  // RFC 5322, see http://emailregex.com/
+  EMAIL(
+      STRING,
+      "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]"
+          + "+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
+          + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
+          + "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
+          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
+          + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"),
+  // thank you to
+  // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
+  HYPERLINK(
+      STRING,
+      "((http|https)://)(www.)?"
+          + "[a-zA-Z0-9@:%._\\+~#?&//=]"
+          + "{2,256}\\.[a-z]"
+          + "{2,6}\\b([-a-zA-Z0-9@:%"
+          + "._\\+~#?&//=]*)");
   private Class javaType;
   private ColumnType baseType;
   private Operator[] operators;
   private String xsdType;
+  private String validationRegexp;
 
   ColumnType(Class javaType, String xsdType, Operator... operators) {
     this.javaType = javaType;
@@ -60,6 +77,12 @@ public enum ColumnType {
   ColumnType(ColumnType baseType) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
+  }
+
+  ColumnType(ColumnType baseType, String validationRegexp) {
+    if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
+    this.baseType = baseType; // use to extend a base type
+    this.validationRegexp = validationRegexp;
   }
 
   public ColumnType getBaseType() {
@@ -83,6 +106,16 @@ public enum ColumnType {
       return this.baseType.getOperators();
     } else {
       return this.operators;
+    }
+  }
+
+  /** throws exception when invalid */
+  public void validate(Object value) {
+    if (validationRegexp == null) return;
+    if (value != null) {
+      if (!value.toString().matches(validationRegexp)) {
+        throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
+      }
     }
   }
 

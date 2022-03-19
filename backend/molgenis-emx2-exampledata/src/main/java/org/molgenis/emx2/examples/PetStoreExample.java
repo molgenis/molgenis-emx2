@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
@@ -72,10 +73,7 @@ public class PetStoreExample {
             .add(column("firstName"))
             .add(column("lastName"))
             .add(column("picture").setType(FILE))
-            .add(column(EMAIL))
-            // future work .setValidation(
-            //  "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email},'i')")) //
-            // todo: validation email
+            .add(column(EMAIL).setType(ColumnType.EMAIL))
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))

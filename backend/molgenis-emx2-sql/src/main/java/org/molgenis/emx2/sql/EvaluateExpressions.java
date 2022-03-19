@@ -68,6 +68,10 @@ public class EvaluateExpressions {
 
   public static void checkValidation(Map<String, Object> values, Collection<Column> columns) {
     for (Column column : columns) {
+      // system based validation
+      column.getColumnType().validate(values.get(column.getName()));
+
+      // user defined validation
       if (column.getValidation() != null) {
         Try<Object> result =
             evaluator.parseAndEvaluate(List.of(column.getValidation()), values).get(0);
