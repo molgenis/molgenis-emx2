@@ -343,32 +343,32 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLScalarType graphQLTypeOf(Column col) {
     switch (col.getColumnType().getBaseType()) {
-      case BOOL:
-      case BOOL_ARRAY:
+      case BOOL,
+       BOOL_ARRAY:
         return Scalars.GraphQLBoolean;
-      case INT:
-      case INT_ARRAY:
+      case INT,
+       INT_ARRAY:
         return Scalars.GraphQLInt;
-      case LONG:
-      case LONG_ARRAY:
+      case LONG,
+       LONG_ARRAY:
         return Scalars.GraphQLBigInteger;
-      case DECIMAL:
-      case DECIMAL_ARRAY:
+      case DECIMAL,
+       DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
-      case DATE:
-      case DATETIME:
-      case STRING:
-      case TEXT:
-      case UUID:
-      case DATE_ARRAY:
-      case DATETIME_ARRAY:
-      case STRING_ARRAY:
-      case TEXT_ARRAY:
+      case DATE,
+       DATETIME,
+       STRING,
+       TEXT,
+       UUID,
+       DATE_ARRAY,
+       DATETIME_ARRAY,
+       STRING_ARRAY,
+       TEXT_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
-      case REF_ARRAY:
-      case REF:
-      case REFBACK:
+      case REF_ARRAY,
+       REF,
+       REFBACK:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }
@@ -703,28 +703,28 @@ public class GraphqlTableFieldFactory {
       case INT:
         return Scalars.GraphQLInt;
       case LONG:
-        return Scalars.GraphQLBigInteger;
+        return Scalars.GraphQLBigInteger; // NOSONAR
       case DECIMAL:
         return Scalars.GraphQLFloat;
-      case UUID:
-      case STRING:
-      case TEXT:
-      case DATE:
-      case DATETIME:
+      case UUID,
+       STRING,
+       TEXT,
+       DATE,
+       DATETIME:
         return Scalars.GraphQLString;
       case BOOL_ARRAY:
         return GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY:
         return GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY:
-        return GraphQLList.list(Scalars.GraphQLBigInteger);
+        return GraphQLList.list(Scalars.GraphQLBigInteger); // NOSONAR
       case DECIMAL_ARRAY:
         return GraphQLList.list(Scalars.GraphQLFloat);
-      case STRING_ARRAY:
-      case TEXT_ARRAY:
-      case DATE_ARRAY:
-      case DATETIME_ARRAY:
-      case UUID_ARRAY:
+      case STRING_ARRAY,
+       TEXT_ARRAY,
+       DATE_ARRAY,
+       DATETIME_ARRAY,
+       UUID_ARRAY:
         return GraphQLList.list(Scalars.GraphQLString);
       default:
         throw new MolgenisException(
