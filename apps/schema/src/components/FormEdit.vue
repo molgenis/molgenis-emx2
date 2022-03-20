@@ -22,7 +22,7 @@
               <div
                 v-if="column.name != 'mg_tableclass'"
                 class="row mt-1 pt-1 column-hover"
-                :class="{ 'border border-primary': selectedColumn == idx }"
+                :class="{'border border-primary': selectedColumn == idx}"
               >
                 <div class="col bg-white">
                   <div>
@@ -59,7 +59,7 @@
                       class="mr-2"
                       @click="
                         newcol = {
-                          name: 'new',
+                          name: 'new'
                         };
                         newcol.columnType = 'STRING';
                         table.columns.push(newcol);
@@ -93,7 +93,7 @@
           class="mr-2"
           @click="
             selectedColumn = {
-              name: 'new',
+              name: 'new'
             };
             selectedColumn.columnType = 'STRING';
             table.columns.push(selectedColumn);
@@ -123,37 +123,25 @@
 import {
   IconAction,
   RowFormInput,
-  InputSelect,
   InputString,
-  MessageSuccess,
-  MessageError,
-  ButtonAction,
-  ButtonDanger,
-  InputText,
-  ButtonAlt,
-} from "@mswertz/emx2-styleguide";
-import Draggable from "vuedraggable";
-import ColumnEdit from "./ColumnEdit";
+  InputText
+} from '@mswertz/emx2-styleguide';
+import Draggable from 'vuedraggable';
+import ColumnEdit from './ColumnEdit';
 
 export default {
   components: {
     ColumnEdit,
-    ButtonAlt,
     IconAction,
     InputString,
     RowFormInput,
-    InputSelect,
-    MessageSuccess,
-    MessageError,
-    ButtonAction,
-    ButtonDanger,
     InputText,
-    Draggable,
+    Draggable
   },
   props: {
     schema: Object,
     /** metadata of a table*/
-    value: Object,
+    value: Object
   },
   data() {
     return {
@@ -162,7 +150,7 @@ export default {
       selectedColumn: null,
       selectedColumnName: null,
       errorPerColumn: {},
-      changetime: Date.now(),
+      changetime: Date.now()
     };
   },
   computed: {
@@ -171,24 +159,24 @@ export default {
         return [];
       }
       return this.schema.tables.map((t) => t.name);
-    },
+    }
   },
   methods: {
     emit() {
       this.selectedColumn = null;
       this.validate();
-      this.$emit("input", this.table);
+      this.$emit('input', this.table);
     },
     changed() {
       this.changetime = Date.now();
     },
     eval(expression) {
       try {
-        let args = Object.keys(this.example).join(",");
+        let args = Object.keys(this.example).join(',');
         let func = `(function (${args}) { return ${expression}; })`;
         return eval(func)(Object.values(this.example)); // eslint-disable-line
       } catch (e) {
-        return "Error in validation script: " + e.message;
+        return 'Error in validation script: ' + e.message;
       }
     },
     visible(expression) {
@@ -208,45 +196,45 @@ export default {
         // when empty
         if (
           this.example[column.name] == null ||
-          (typeof this.example[column.name] === "number" &&
+          (typeof this.example[column.name] === 'number' &&
             isNaN(this.example[column.name]))
         ) {
           // when required
           if (column.required) {
-            this.errorPerColumn[column.name] = column.name + " is required ";
+            this.errorPerColumn[column.name] = column.name + ' is required ';
           }
         } else {
           // when not empty
           // when validation
           if (
-            typeof this.example[column.name] !== "undefined" &&
-            typeof column.validationExpression !== "undefined"
+            typeof this.example[column.name] !== 'undefined' &&
+            typeof column.validationExpression !== 'undefined'
           ) {
             if (!this.eval(column.validationExpression)) {
               if (column.validationMessage) {
                 this.errorPerColumn[column.name] = column.validationMessage;
               } else {
-                this.errorPerColumn[column.name] = "value invalid";
+                this.errorPerColumn[column.name] = 'value invalid';
               }
             }
           }
         }
       });
-    },
+    }
   },
   watch: {
     example: {
       deep: true,
       handler() {
         this.validate();
-      },
+      }
     },
     value() {
       this.table = this.value;
-    },
+    }
   },
   created() {
     this.table = this.value;
-  },
+  }
 };
 </script>

@@ -2,7 +2,8 @@
   <div :key="timestamp">
     <div v-if="schema.tables && schema.tables.length > 0">
       <TableEditor
-        v-for="tableIndex in schema.tables.keys()"
+        v-for="(tableIndex, index) in schema.tables.keys()"
+        :key="index"
         v-model="schema.tables[tableIndex]"
         :schema="schema"
       />
@@ -11,37 +12,21 @@
 </template>
 
 <script>
-import {
-  InputString,
-  InputSelect,
-  InputBoolean,
-  InputText,
-  ButtonAlt,
-  IconDanger,
-} from "@mswertz/emx2-styleguide";
-import columnTypes from "../columnTypes";
-import Draggable from "vuedraggable";
-import TableEditor from "./TableEditor";
+import columnTypes from '../columnTypes';
+import TableEditor from './TableEditor';
 
 export default {
   components: {
-    InputString,
-    InputSelect,
-    InputBoolean,
-    InputText,
-    ButtonAlt,
-    IconDanger,
-    TableEditor,
-    Draggable,
+    TableEditor
   },
   props: {
-    value: Object,
+    value: Object
   },
   data() {
     return {
       schema: {},
       columnTypes,
-      timestamp: Date.now(), //used for updating when sorting
+      timestamp: Date.now() //used for updating when sorting
     };
   },
   methods: {
@@ -51,21 +36,21 @@ export default {
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
-    },
+    }
   },
   watch: {
     schema: {
       deep: true,
       handler() {
-        this.$emit("input", this.schema);
-      },
+        this.$emit('input', this.schema);
+      }
     },
     value() {
       this.schema = this.value;
-    },
+    }
   },
   created() {
     this.schema = this.value;
-  },
+  }
 };
 </script>

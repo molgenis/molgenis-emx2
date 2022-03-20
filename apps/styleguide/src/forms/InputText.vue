@@ -1,6 +1,6 @@
 <template>
   <span v-if="inplace && !focus" @click="toggleFocus">
-    {{ value ? value : "" }}
+    {{ value ? value : '' }}
     <IconAction class="hoverIcon" icon="pencil-alt" />
   </span>
   <FormGroup
@@ -29,7 +29,7 @@
           v-focus="inplace && !list"
           :id="id + idx"
           v-model="valueArray[idx]"
-          :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+          :class="{'form-control': true, 'is-invalid': errorMessage}"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
@@ -42,26 +42,26 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput.vue";
-import InputAppend from "./_inputAppend";
-import IconAction from "./IconAction";
-import ResizableTextarea from "./ResizableTextarea";
+import _baseInput from './_baseInput.vue';
+import InputAppend from './_inputAppend';
+import IconAction from './IconAction';
+import ResizableTextarea from './ResizableTextarea';
 
 /** Input for text */
 export default {
   extends: _baseInput,
   components: {
     InputAppend,
-    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
+    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
     IconAction,
-    ResizableTextarea,
+    ResizableTextarea
   },
   data() {
     return {
       //used to elegantly trigger refresh the textareas on clear
-      key: 0,
+      key: 0
     };
-  },
+  }
 };
 </script>
 
@@ -74,7 +74,7 @@ Example
       <InputText
           v-model="value"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -101,7 +101,7 @@ Example with default value
           v-model="value"
           :defaultValue="value"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -128,7 +128,7 @@ Example with list
           v-model="value"
           :list="true"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>
@@ -155,7 +155,7 @@ Example with inplace
           v-model="value"
           :inplace="true"
           label="My text label"
-          placholder="type here your text"
+          placeholder="type here your text"
           description="Some help needed?"
       />
     </LayoutForm>

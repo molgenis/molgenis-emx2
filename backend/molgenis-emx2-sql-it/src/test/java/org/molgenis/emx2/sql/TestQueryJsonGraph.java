@@ -184,6 +184,7 @@ public class TestQueryJsonGraph {
     PetStoreExample.populate(schema);
 
     String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
+    assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));
   }
 
   // todo @Test

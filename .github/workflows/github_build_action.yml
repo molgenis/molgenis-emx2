@@ -19,26 +19,18 @@ jobs:
 
     steps:
       - name: Checkout out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Get postgresql, git, docker
         run: |
            apt-get update && apt-get install postgresql-client git -y
-           curl -fsSL https://get.docker.com -o get-docker.sh
-           sh get-docker.sh
 
       - name: Initialize database
         run: psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
         env:
           PGPASSWORD: postgres
-
-      - name: Sign into docker
-        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
 
       - name: dependencies
         run: ./gradlew dependencies

@@ -16,26 +16,6 @@
     "vue-swatches": "2.1.1",
     "vuedraggable": "2.24.3"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended",
-      "@vue/prettier"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "plugins": [
-      "autofix"
-    ],
-    "rules": {
-      "autofix/no-debugger": "error"
-    }
-  },
   "browserslist": [
     "> 1%",
     "last 2 versions"

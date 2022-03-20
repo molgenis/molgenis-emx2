@@ -179,7 +179,7 @@ public class TestGraphqlDatabaseFields {
     Assert.assertEquals("anonymous", database.getActiveUser());
 
     // back to superuser
-    database.clearActiveUser();
+    database.becomeAdmin();
   }
 
   @Test

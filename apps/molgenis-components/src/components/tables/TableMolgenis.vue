@@ -9,7 +9,6 @@
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">
             #
-            <!--@slot Use this to add values or actions buttons header -->
           </h6>
           <span style="text-align: left; font-weight: normal">
             <slot name="colheader" />

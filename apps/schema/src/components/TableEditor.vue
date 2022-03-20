@@ -54,6 +54,8 @@
             <th scope="col" style="width: 10em">refLink</th>
             <th scope="col" style="width: 10em">refBack</th>
             <th scope="col" style="width: 10em">semantics</th>
+            <th scope="col" style="width: 10em">validation expression</th>
+            <th scope="col" style="width: 10em">visibility expression</th>
             <th scope="col">description</th>
             <th scope="col" style="width: 3em"></th>
           </thead>
@@ -105,19 +107,15 @@
 <script>
 import {
   InputString,
-  InputSelect,
-  InputBoolean,
   ButtonAction,
-  InputText,
-  ButtonAlt,
   IconDanger,
   IconAction,
-  LayoutModal,
-} from "@mswertz/emx2-styleguide";
-import columnTypes from "../columnTypes";
-import ColumnEditor from "./ColumnEditor";
-import Draggable from "vuedraggable";
-import FormEdit from "./FormEdit";
+  LayoutModal
+} from '@mswertz/emx2-styleguide';
+import columnTypes from '../columnTypes';
+import ColumnEditor from './ColumnEditor';
+import Draggable from 'vuedraggable';
+import FormEdit from './FormEdit';
 
 export default {
   components: {
@@ -125,25 +123,21 @@ export default {
     InputString,
     ButtonAction,
     IconAction,
-    InputSelect,
-    InputBoolean,
-    InputText,
-    ButtonAlt,
     IconDanger,
     ColumnEditor,
     LayoutModal,
-    Draggable,
+    Draggable
   },
   props: {
     value: Object,
-    schema: Object,
+    schema: Object
   },
   data() {
     return {
       table: {},
       formedit: false,
       columnTypes,
-      timestamp: Date.now(), //used for updating when sorting
+      timestamp: Date.now() //used for updating when sorting
     };
   },
   methods: {
@@ -154,19 +148,19 @@ export default {
     },
     validateName() {
       if (!this.name) {
-        return "Table name is required";
+        return 'Table name is required';
       }
       if (this.schema.tables.filter((t) => t.name == this.name).length > 1) {
-        return "Table name must be unique within schema";
+        return 'Table name must be unique within schema';
       }
     },
     emitValue() {
-      this.$emit("input", this.table);
+      this.$emit('input', this.table);
     },
     createColumn() {
       this.table.columns.push({
-        name: "NewColumn",
-        columnType: "STRING",
+        name: 'NewColumn',
+        columnType: 'STRING'
       });
       this.timestamp = Date.now();
     },
@@ -184,7 +178,7 @@ export default {
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
-    },
+    }
   },
   computed: {
     tables() {
@@ -192,25 +186,25 @@ export default {
         return this.schema.tables.map((t) => t.name);
       }
       return [];
-    },
+    }
   },
   watch: {
     table: {
       deep: true,
       handler() {
         this.emitValue();
-      },
+      }
     },
     value() {
       if (this.value) {
         this.table = this.value;
       }
-    },
+    }
   },
   created() {
     if (this.value) {
       this.table = this.value;
     }
-  },
+  }
 };
 </script>
