@@ -24,7 +24,7 @@ public class GroupPathMapper {
 
   public static void create() {
     /*
-     * WARNING !! SPARK JAVA USES INSANE DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
+     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */
     // redirect graphql api in convenient ways
     get("/:schema/graphql", GraphqlApi::handleSchemaRequests);
