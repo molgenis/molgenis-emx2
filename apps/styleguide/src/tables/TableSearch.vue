@@ -6,7 +6,7 @@
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"
       >
-        <InputSearch v-if="table" v-model="searchTerms" />
+        <InputSearch hidePanel v-if="table" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
         <SelectionBox
           v-if="showSelect"
@@ -96,29 +96,29 @@ export default {
     Spinner,
     RowButtonEdit,
     RowButtonDelete,
-    RowButtonAdd,
+    RowButtonAdd
   },
   mixins: [TableMixin],
   props: {
     /** two-way binding of the selection */
-    selection: { type: Array, default: () => [] },
+    selection: {type: Array, default: () => []},
     /** enables checkbox to select rows */
     showSelect: {
       type: Boolean,
-      default: false,
+      default: false
     },
     showHeader: {
       type: Boolean,
-      default: true,
+      default: true
     },
     showColumns: {
-      type: Array,
-    },
+      type: Array
+    }
   },
   data: function () {
     return {
       page: 1,
-      loading: true,
+      loading: true
     };
   },
   computed: {
@@ -131,7 +131,7 @@ export default {
           (this.showColumns == null && !c.name.startsWith("mg_")) ||
           (this.showColumns != null && this.showColumns.includes(c.name))
       );
-    },
+    }
   },
   methods: {
     select(value) {
@@ -139,15 +139,15 @@ export default {
     },
     deselect(value) {
       this.$emit("deselect", value);
-    },
+    }
   },
   watch: {
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
       this.reload();
-    },
-  },
+    }
+  }
 };
 </script>
 
