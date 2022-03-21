@@ -1,7 +1,7 @@
 <template>
   <div
     :class="{
-      'm-n2': outsidePadding && hideStyle,
+      'm-n2': outsidePadding && !hideStyle,
       'bg-white p-2 border border-light rounded-sm': !hideStyle
     }"
   >

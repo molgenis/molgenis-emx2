@@ -1,14 +1,7 @@
 <template>
-  <Panel outside>
-    <form><slot /></form>
-  </Panel>
+  <form><slot /></form>
 </template>
 
 <script>
-import Panel from "../layout/Panel";
-export default {
-  components: {
-    Panel
-  }
-};
+export default {};
 </script>

@@ -1,7 +1,7 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <Panel class="form-group" :hideStyle="inplace">
+  <Panel :class="{'ml-n2 mr-n2 mb-2': !inplace}" :hideStyle="inplace">
     <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0 mr-2">
       <b>{{ label }}</b>
     </label>
