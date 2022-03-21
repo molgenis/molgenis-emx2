@@ -8,21 +8,21 @@
       </div>
       <div>
         <ButtonAction @click="showDiagram = !showDiagram">
-          {{ showDiagram ? 'Hide' : 'Show' }} Diagram
+          {{ showDiagram ? "Hide" : "Show" }} Diagram
         </ButtonAction>
       </div>
     </div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <div class="row">
-      <div class="col-2 pr-0">
-        <Panel>
-          <div class="fixedContainer mr-n3 overflow-auto">
+      <div class="col-2 p-0">
+        <Panel class="fixedContainer">
+          <div class="mr-n3 overflow-auto">
             <SchemaToc :tables.sync="schema.tables" />
           </div>
         </Panel>
       </div>
-      <div class="col overflow-auto">
+      <div class="col overflow-auto pl-2 pr-0">
         <Panel>
           <Spinner v-if="loading" />
           <div v-else :key="timestamp">
@@ -45,21 +45,22 @@
   position: sticky;
   max-height: 100vh;
   top: 0;
+  height: 100%;
 }
 </style>
 
 <script>
-import {request} from 'graphql-request';
-import Yuml from './Yuml';
-import SchemaEditor from './SchemaEditor';
-import SchemaToc from './SchemaToc';
+import {request} from "graphql-request";
+import Yuml from "./Yuml";
+import SchemaEditor from "./SchemaEditor";
+import SchemaToc from "./SchemaToc";
 import {
   ButtonAction,
   MessageError,
   MessageSuccess,
   Spinner,
   Panel
-} from '@mswertz/emx2-styleguide';
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
@@ -88,7 +89,7 @@ export default {
       this.graphqlError = null;
       this.loading = true;
       request(
-        'graphql',
+        "graphql",
         `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
         {
           tables: this.schema.tables
@@ -102,7 +103,7 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            this.graphqlError = 'Forbidden. Do you need to login?';
+            this.graphqlError = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
             this.graphqlError = error.response.errors[0].message;
@@ -116,8 +117,8 @@ export default {
       this.schema = {};
       this.tables = null;
       request(
-        'graphql',
-        '{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}'
+        "graphql",
+        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
           this.schema = this.addOldNamesAndRemoveMeta(data._schema);
@@ -131,7 +132,7 @@ export default {
             )
           ) {
             this.error =
-              'Schema is unknown or permission denied (might you need to login with authorized user?)';
+              "Schema is unknown or permission denied (might you need to login with authorized user?)";
           }
         })
         .finally(() => {
@@ -143,13 +144,13 @@ export default {
       if (schema) {
         if (schema.tables) {
           let tables = schema.tables.filter(
-            (table) => table.tableType != 'ONTOLOGIES'
+            (table) => table.tableType != "ONTOLOGIES"
           );
           tables.forEach((t) => {
             t.oldName = t.name;
             if (t.columns) {
               t.columns = t.columns
-                .filter((c) => !c.name.startsWith('mg_'))
+                .filter((c) => !c.name.startsWith("mg_"))
                 .map((c) => {
                   c.oldName = c.name;
                   return c;
@@ -174,7 +175,7 @@ export default {
     schema: {
       deep: true,
       handler() {
-        this.warning = 'Unsaved changes';
+        this.warning = "Unsaved changes";
       }
     }
   }

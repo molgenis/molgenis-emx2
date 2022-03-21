@@ -36,8 +36,8 @@
 </style>
 
 <script>
-import IconAction from '../forms/IconAction';
-import Panel from '../layout/Panel';
+import IconAction from "../forms/IconAction";
+import Panel from "../layout/Panel";
 
 export default {
   components: {
