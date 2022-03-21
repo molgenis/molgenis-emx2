@@ -121,7 +121,6 @@ public class BootstrapThemeService {
    * no theme available for styling the app.
    *
    * @return String containing theme CSS for styling the EMX2 app, or null if retrieval fails.
-   * @throws IOException
    */
   public static String retrieveThemeFromServer() {
     try {
