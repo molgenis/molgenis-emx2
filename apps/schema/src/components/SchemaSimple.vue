@@ -90,7 +90,11 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
+        `mutation change($tables:[MolgenisTableInput]) {
+          change(tables:$tables) {
+            message
+          }
+        }`,
         {
           tables: this.schema.tables
         }
@@ -118,7 +122,15 @@ export default {
       this.tables = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        `{
+          _schema {
+            name, tables {
+              name,tableType,inherit,externalSchema,description,semantics,columns {
+                name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible
+              }
+            }
+          }
+        }`
       )
         .then((data) => {
           this.schema = this.addOldNamesAndRemoveMeta(data._schema);

@@ -1,7 +1,7 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <Panel :class="{'ml-n2 mr-n2 mb-2': !inplace}" :hideStyle="inplace">
+  <Panel outsidePadding :hideStyle="inplace || hidePanel">
     <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0 mr-2">
       <b>{{ label }}</b>
     </label>
@@ -67,7 +67,9 @@ export default {
     /** whether inplace */
     inplace: Boolean,
     /** whether inplace metadata edit */
-    editMeta: Boolean
+    editMeta: Boolean,
+    /** Do we want to show a containing panel around the input field */
+    hidePanel: Boolean
   }
 };
 </script>

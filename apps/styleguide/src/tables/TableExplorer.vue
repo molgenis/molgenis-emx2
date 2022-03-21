@@ -65,7 +65,7 @@
               @click="toggleView"
             />
           </div>
-          <InputSearch class="navbar-nav" v-model="searchTerms" />
+          <InputSearch hidePanel class="navbar-nav" v-model="searchTerms" />
           <Pagination
             class="navbar-nav"
             v-model="page"

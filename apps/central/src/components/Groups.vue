@@ -13,7 +13,7 @@
       </MessageWarning>
     </IconBar>
     <div v-if="count > 0 || search || (session && session.email == 'admin')">
-      <InputSearch placeholder="search by name" v-model="search" />
+      <InputSearch hidePanel placeholder="search by name" v-model="search" />
       <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>

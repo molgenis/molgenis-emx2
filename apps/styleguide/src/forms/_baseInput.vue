@@ -2,7 +2,7 @@
 guide */
 
 <script>
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require("uuid/v4");
 
 export default {
   props: {
@@ -16,6 +16,8 @@ export default {
     editMeta: Boolean,
     errorMessage: null,
     inplace: Boolean,
+    /** Do we want to show a containing panel around the input field */
+    hidePanel: Boolean,
     label: String,
     list: {
       type: Boolean,
@@ -63,11 +65,11 @@ export default {
       const value = event ? (event.target ? event.target.value : event) : null;
       if (this.list) {
         this.$emit(
-          'input',
+          "input",
           this.updateValueArrayValue(this.valueArray, value, index)
         );
       } else {
-        this.$emit('input', this.useParserIfAvailable(value));
+        this.$emit("input", this.useParserIfAvailable(value));
       }
     },
     updateValueArrayValue(valueArray, value, index) {
@@ -97,7 +99,7 @@ export default {
       } else {
         result = null;
       }
-      this.$emit('input', result);
+      this.$emit("input", result);
     },
     showPlus(idx) {
       //always on last line

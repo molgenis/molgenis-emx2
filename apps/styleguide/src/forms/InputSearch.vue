@@ -1,7 +1,7 @@
 <template>
   <form-group v-bind="$props" v-on="$listeners">
     <div class="input-group">
-      <span class="input-group-prepend">
+      <span class="input-group-prepend bg-white rounded">
         <button
           class="btn border-right-0 border btn-outline-primary"
           type="button"
@@ -12,7 +12,7 @@
       <input
         :id="id"
         v-model="valueArray[0]"
-        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+        :class="{'form-control': true, 'is-invalid': errorMessage}"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"
@@ -30,7 +30,7 @@ import AppendClear from "./_appendClear";
 
 export default {
   extends: InputString,
-  components: { AppendClear },
+  components: {AppendClear}
 };
 </script>
 
