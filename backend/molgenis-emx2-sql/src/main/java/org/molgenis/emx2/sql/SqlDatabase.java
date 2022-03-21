@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlDatabase implements Database {
-  static final String ADMIN_USER = "admin";
+  public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
   public static final String ANONYMOUS = "anonymous";
@@ -43,6 +43,10 @@ public class SqlDatabase implements Database {
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
   private final Boolean isOidcEnabled =
       EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING) != null;
+  private static String postgresUser =
+      (String)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
 
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -84,10 +88,18 @@ public class SqlDatabase implements Database {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     if (init) {
-      this.init();
+      try {
+        // elevate privileges for init
+        this.becomeAdmin();
+        this.init();
+      } finally {
+        // always sure to return to anonyous
+        this.clearActiveUser();
+      }
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
+
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -99,22 +111,18 @@ public class SqlDatabase implements Database {
                   org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
                   "jdbc:postgresql:molgenis",
                   STRING);
-      String user =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
       String pass =
           (String)
               EnvironmentProperty.getParameter(
                   org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
       logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI, url);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, user);
+      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, postgresUser);
       logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
 
       // create data source
       HikariDataSource dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
-      dataSource.setUsername(user);
+      dataSource.setUsername(postgresUser);
       dataSource.setPassword(pass);
 
       source = dataSource;
@@ -324,9 +332,12 @@ public class SqlDatabase implements Database {
     tx(
         db -> {
           String currentUser = db.getActiveUser();
-          db.clearActiveUser();
-          executeCreateUser(((SqlDatabase) db).getJooq(), user);
-          db.setActiveUser(currentUser);
+          try {
+            db.becomeAdmin();
+            executeCreateUser(((SqlDatabase) db).getJooq(), user);
+          } finally {
+            db.setActiveUser(currentUser);
+          }
         });
     log(start, "created user " + user);
   }
@@ -395,15 +406,20 @@ public class SqlDatabase implements Database {
 
   @Override
   public void setActiveUser(String username) {
+    if (username == null || username.isEmpty()) {
+      throw new MolgenisException("setActiveUser failed: username cannot be null");
+    }
     if (inTx) {
-      if (username == null || username.equals(ADMIN_USER)) {
-        this.clearActiveUser();
-      } else {
-        try {
+      try {
+        if (username.equals(ADMIN_USER)) {
+          // admin user is session user, so remove role
+          jooq.execute("RESET ROLE;");
+        } else {
+          // any other user should be set
           jooq.execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + username));
-        } catch (DataAccessException dae) {
-          throw new SqlMolgenisException("Set active user failed", dae);
         }
+      } catch (DataAccessException dae) {
+        throw new SqlMolgenisException("Set active user failed", dae);
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
@@ -417,8 +433,16 @@ public class SqlDatabase implements Database {
   @Override
   public String getActiveUser() {
     String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
-    if (user.contains(MG_USER_PREFIX)) return user.substring(MG_USER_PREFIX.length());
-    return ADMIN_USER;
+    if (user.equals(postgresUser)) {
+      return ADMIN_USER;
+    } else if (user.contains(MG_USER_PREFIX)) {
+      String userName = user.substring(MG_USER_PREFIX.length());
+      if (!userName.isEmpty()) {
+        return userName;
+      }
+    }
+    // user is either valid MG_USER_* or postgresUser, otherwise error state
+    throw new MolgenisException("Unexpected user found as activeUser " + user);
   }
 
   @Override
@@ -426,7 +450,7 @@ public class SqlDatabase implements Database {
     if (inTx) {
       // then we don't use the connection provider
       try {
-        jooq.execute("RESET ROLE");
+        setActiveUser(ANONYMOUS);
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Clear active user failed", dae);
       }

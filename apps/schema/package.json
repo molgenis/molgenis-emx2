@@ -17,35 +17,7 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-router": "4.5.15"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended",
-      "@vue/prettier",
-      "prettier",
-      "prettier/@typescript-eslint",
-      "prettier/babel",
-      "prettier/flowtype",
-      "prettier/react",
-      "prettier/standard",
-      "prettier/unicorn",
-      "prettier/vue"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "plugins": [
-      "autofix"
-    ],
-    "rules": {
-      "autofix/no-debugger": "error"
-    }
+    "@vue/cli-plugin-router": "4.5.16"
   },
   "browserslist": [
     "> 1%",

@@ -7,7 +7,7 @@
     @click="$emit('clear')"
     :class="{
       'text-primary': !error,
-      'text-danger': error,
+      'text-danger': error
     }"
     data-clear
     tabindex="-1"
@@ -29,7 +29,7 @@
 export default {
   props: {
     disabled: Boolean,
-    error: String,
-  },
+    error: String
+  }
 };
 </script>
