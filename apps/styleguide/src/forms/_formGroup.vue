@@ -1,7 +1,7 @@
 /** internal component that will not be shown in style guide */
 
 <template>
-  <div class="form-group" :class="inplace ? 'm0' : 'bg-white rounded'">
+  <Panel class="form-group" :hideStyle="inplace">
     <label v-if="label && !inplace && !editMeta" :for="id" class="mb-0 mr-2">
       <b>{{ label }}</b>
     </label>
@@ -35,19 +35,20 @@
     <small v-if="errorMessage" class="text-danger form-text">{{
       errorMessage
     }}</small>
-  </div>
+  </Panel>
 </template>
 
 <script>
 import InputString from "./InputString";
 import InputText from "./InputText";
+import Panel from "../layout/Panel";
 
 export default {
-  components: { InputString, InputText },
+  components: {InputString, InputText, Panel},
   name: "FormGroup",
   data() {
     return {
-      labelEdit: null,
+      labelEdit: null
     };
   },
   props: {
@@ -66,7 +67,7 @@ export default {
     /** whether inplace */
     inplace: Boolean,
     /** whether inplace metadata edit */
-    editMeta: Boolean,
-  },
+    editMeta: Boolean
+  }
 };
 </script>

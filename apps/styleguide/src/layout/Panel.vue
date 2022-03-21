@@ -1,7 +1,9 @@
 <template>
   <div
-    class="bg-white p-2 border border-light rounded-sm"
-    :class="{'m-n2': outsidePadding}"
+    :class="{
+      'm-n2': outsidePadding && hideStyle,
+      'bg-white p-2 border border-light rounded-sm': !hideStyle
+    }"
   >
     <slot />
   </div>
@@ -10,6 +12,10 @@
 <script>
 export default {
   props: {
+    hideStyle: {
+      type: Boolean,
+      default: false
+    },
     outsidePadding: {
       type: Boolean,
       default: false
@@ -24,5 +30,6 @@ Example
 <Panel>This can wrap elements</Panel>
 <br>
 <Panel outsidePadding>This will put the padding outside of the panel</Panel>
+<Panel hideStyle>This hides the styling of the panel</Panel>
 ```
 </docs>

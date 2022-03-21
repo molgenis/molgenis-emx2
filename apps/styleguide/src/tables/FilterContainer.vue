@@ -1,5 +1,5 @@
 <template>
-  <Panel v-if="visible">
+  <div class="mb-2 pt-2 border-top bg-white" v-if="visible">
     <div
       class="filter-header d-flex flex-row justify-content-between"
       @click="
@@ -22,7 +22,7 @@
       <!-- @slot Use this slot to place the filter box content -->
       <slot />
     </div>
-  </Panel>
+  </div>
 </template>
 
 <style scoped>
@@ -37,12 +37,10 @@
 
 <script>
 import IconAction from "../forms/IconAction";
-import Panel from "../layout/Panel";
 
 export default {
   components: {
-    IconAction,
-    Panel
+    IconAction
   },
   props: {
     title: String,
