@@ -64,8 +64,12 @@ public class MolgenisWebservice {
                 + Version.getVersion()
                 + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
     redirect.get("/", "/apps/central/");
-
     redirect.get("/api", "/api/");
+    before(
+        "/:schema/:app/api/*",
+        (req, res) -> {
+          res.redirect("/" + req.params(SCHEMA) + "/api/" + req.splat()[0]);
+        });
     get(
         "/api/",
         ACCEPT_HTML,
@@ -78,8 +82,6 @@ public class MolgenisWebservice {
     // docs per schema
     get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
-
-    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     get(
         "/:schema/api",
@@ -99,24 +101,26 @@ public class MolgenisWebservice {
     before(
         "/:schema",
         (req, res) -> {
-          if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
+          if (!"api".equals(req.params(SCHEMA))
+              && !("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
               && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())
               && !("/" + ROBOTS_TXT).equals(req.pathInfo())) {
             res.redirect("/" + req.params(SCHEMA) + "/");
           }
         });
+    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     before(
         "/:schema/:app",
         (req, res) -> {
-          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
+          if (!"api".equals(req.params(SCHEMA))
+              && !req.params("app").equals("graphql")
+              && !req.params("app").equals("theme.css")) {
             res.redirect("/" + req.params(SCHEMA) + "/" + req.params("app") + "/");
           }
         });
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
-
-    // schema members operations
 
     // handling of exceptions
     exception(

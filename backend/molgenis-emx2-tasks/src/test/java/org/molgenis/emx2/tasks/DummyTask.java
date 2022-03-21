@@ -9,7 +9,7 @@ public class DummyTask extends Task {
   public DummyTask() {
     super("dummy", false);
     for (int i = 1; i <= noTasks; i++) {
-      super.add(new Task("task" + i, false));
+      super.addStep(new Task("task" + i, false));
     }
   }
 
@@ -25,7 +25,7 @@ public class DummyTask extends Task {
         } catch (InterruptedException e) {
           throw new MolgenisException("Error", e);
         }
-        t.setIndex(item);
+        t.setProgress(item);
       }
       t.complete();
     }

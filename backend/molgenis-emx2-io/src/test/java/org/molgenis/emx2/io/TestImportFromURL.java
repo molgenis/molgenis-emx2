@@ -13,7 +13,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForURL;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Service;
 
-public class TestTableStoreForURL {
+public class TestImportFromURL {
 
   @Test
   public void testTableStoreForURL() throws MalformedURLException, InterruptedException {
@@ -31,7 +31,7 @@ public class TestTableStoreForURL {
       // test task
       Schema schema =
           TestDatabaseFactory.getTestDatabase()
-              .dropCreateSchema(TestTableStoreForURL.class.getSimpleName());
+              .dropCreateSchema(TestImportFromURL.class.getSimpleName());
 
       MolgenisIO.fromURL(new URL("http://localhost:8081"), schema, false);
 
@@ -48,19 +48,15 @@ public class TestTableStoreForURL {
   @Test
   public void testImportSchemaList() throws MalformedURLException {
     Database database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists(TestTableStoreForURL.class.getSimpleName() + 1);
-    database.dropSchemaIfExists(TestTableStoreForURL.class.getSimpleName() + 2);
+    String schema1 = TestImportFromURL.class.getSimpleName() + 1;
+    String schema2 = TestImportFromURL.class.getSimpleName() + 2;
+    database.dropSchemaIfExists(schema1);
+    database.dropSchemaIfExists(schema2);
 
     List<SchemaDeclaration> schemas =
         List.of(
-            new SchemaDeclaration(
-                TestTableStoreForURL.class.getSimpleName() + 1,
-                "",
-                List.of(new URL("http://localhost:8081"))),
-            new SchemaDeclaration(
-                TestTableStoreForURL.class.getSimpleName() + 2,
-                "",
-                List.of(new URL("http://localhost:8081"))));
+            new SchemaDeclaration(schema1, "", List.of(new URL("http://localhost:8081"))),
+            new SchemaDeclaration(schema2, "", List.of(new URL("http://localhost:8081"))));
 
     Service http = ignite().port(8081);
     try {
@@ -69,6 +65,11 @@ public class TestTableStoreForURL {
       http.awaitInitialization();
 
       MolgenisIO.fromSchemaList(TestDatabaseFactory.getTestDatabase(), schemas, false);
+
+      // verification
+      assertTrue(database.getSchemaNames().contains(schema1));
+      assertTrue(database.getSchemaNames().contains(schema2));
+      assertTrue(database.getSchema(schema2).getTableNames().contains("test"));
 
     } finally {
       http.stop();

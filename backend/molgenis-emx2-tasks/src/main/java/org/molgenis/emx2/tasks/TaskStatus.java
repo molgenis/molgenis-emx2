@@ -1,6 +1,6 @@
 package org.molgenis.emx2.tasks;
 
-public enum StepStatus {
+public enum TaskStatus {
   WAITING,
   RUNNING,
   COMPLETED,

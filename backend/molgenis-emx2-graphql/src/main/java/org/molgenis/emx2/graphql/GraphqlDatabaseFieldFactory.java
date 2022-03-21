@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.ASYNC;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.NAME;
@@ -14,7 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.ImportMultipleSchemaTask;
 import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.SchemaDeclaration;
+import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -46,11 +50,14 @@ public class GraphqlDatabaseFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(Constants.SOURCE_URL)
+                  .name(Constants.SOURCE_URLS)
+                  .description(
+                      "You can use sourceURLs to initialize schema with metadata and data from existing content from one or more URLs")
                   .type(GraphQLList.list(Scalars.GraphQLString)))
+          // todo: expand with the schema definition from
           .build();
 
-  public GraphQLFieldDefinition.Builder create(Database database) {
+  public GraphQLFieldDefinition.Builder create(Database database, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("create")
         .type(typeForMutationResult)
@@ -59,11 +66,47 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.SCHEMAS)
                 .type(GraphQLList.list(schemaInput)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(ASYNC)
+                .description(
+                    "You can set async to true to start task in background and get a job returned to enable progress monitoring ")
+                .type(Scalars.GraphQLBoolean))
         .dataFetcher(
             dataFetchingEnvironment -> {
               List<Map<String, Object>> schemaList =
                   dataFetchingEnvironment.getArgument(GraphqlConstants.SCHEMAS);
-              return null;
+
+              List<SchemaDeclaration> schemaDeclarationList = new ArrayList<>();
+              for (Map<String, Object> schemaVars : schemaList) {
+                SchemaDeclaration schemaDeclaration =
+                    new SchemaDeclaration((String) schemaVars.get(NAME));
+                if (schemaVars.containsKey(Constants.DESCRIPTION)) {
+                  schemaDeclaration.setDescription((String) schemaVars.get(Constants.DESCRIPTION));
+                }
+                if (schemaVars.containsKey(Constants.DESCRIPTION)) {
+                  schemaDeclaration.setDescription((String) schemaVars.get(Constants.DESCRIPTION));
+                }
+                if (schemaVars.containsKey(Constants.SOURCE_URLS)) {
+                  schemaDeclaration.setSourceURLsFromStrings(
+                      (List<String>) schemaVars.get(Constants.SOURCE_URLS));
+                }
+                schemaDeclarationList.add(schemaDeclaration);
+              }
+
+              // if async we will start in background and return job id immediately
+              if (Boolean.TRUE.equals(dataFetchingEnvironment.getArgument(ASYNC))) {
+                String taskId =
+                    taskService.submit(
+                        new ImportMultipleSchemaTask(database, schemaDeclarationList, true));
+                return new GraphqlApiMutationResult(SUCCESS, "create schemas successfull")
+                    .setTaskId(taskId);
+              }
+              // else we wait until complete and then return
+              else {
+                MolgenisIO.fromSchemaList(database, schemaDeclarationList, false);
+                return new GraphqlApiMutationResult(SUCCESS, "create schemas successfull");
+              }
             });
   }
 
@@ -78,13 +121,13 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument()
-                .name(Constants.SOURCE_URL)
+                .name(Constants.SOURCE_URLS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              List<String> sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URL);
+              List<String> sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URLS);
               database.tx(
                   db -> {
                     Schema schema = db.createSchema(name, description);

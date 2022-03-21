@@ -16,7 +16,7 @@ public class TestTask {
     // purge doesn't change
     Assert.assertEquals(1, taskService.getJobIds().size());
 
-    while (!StepStatus.COMPLETED.equals(taskService.getTask(id).getStatus())) {
+    while (!TaskStatus.COMPLETED.equals(taskService.getTask(id).getStatus())) {
       Thread.sleep(50);
       System.out.println(task);
     }

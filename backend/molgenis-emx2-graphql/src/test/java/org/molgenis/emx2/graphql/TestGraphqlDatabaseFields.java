@@ -19,6 +19,10 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.TaskStatus;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import spark.Service;
 
@@ -26,14 +30,16 @@ public class TestGraphqlDatabaseFields {
 
   private static GraphQL grapql;
   private static Database database;
+  private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PetStoreExample.create(schema.getMetadata());
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database);
+    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
   @Test
@@ -190,7 +196,59 @@ public class TestGraphqlDatabaseFields {
     assertTrue(Integer.valueOf(result) > 0);
   }
 
+  @Test
+  public void testCreateField() throws IOException, InterruptedException {
+    // duplicate test with test io
+    String schema1 = TestGraphqlDatabaseFields.class.getSimpleName() + 1;
+    String schema2 = TestGraphqlDatabaseFields.class.getSimpleName() + 2;
+    database.dropSchemaIfExists(schema1);
+    database.dropSchemaIfExists(schema2);
+
+    Service http = ignite().port(8082);
+    try {
+      // metadata
+      http.get(
+          "/molgenis.csv",
+          (req, res) -> "tableName,columnName,key\n" + "test,col1,1\n" + "test,col2,");
+      // data
+      http.get("/test.csv", (req, res) -> "col1,col2\ntest,some description");
+      http.awaitInitialization();
+
+      String graphql =
+          String.format(
+              "mutation{create(async:true, schemas:["
+                  + "{name:\"%s\",sourceURLs:[\"%s\"]},"
+                  + "{name:\"%s\",sourceURLs:[\"%s\"]}"
+                  + "]){message,taskId}}",
+              schema1, "http://localhost:8082", schema2, "http://localhost:8082");
+
+      String taskId = execute(graphql).at("/data/create/taskId").textValue();
+
+      // wait until complete
+      Task task = taskService.getTask(taskId);
+      int count = 0;
+      while (!TaskStatus.COMPLETED.equals(task.getStatus())) {
+        Thread.sleep(500);
+        if (count > 10)
+          throw new RuntimeException("Import took too long, something is wrong with this test");
+      }
+
+      // verification
+      assertTrue(database.getSchemaNames().contains(schema1));
+      assertTrue(database.getSchemaNames().contains(schema2));
+      assertTrue(database.getSchema(schema2).getTableNames().contains("test"));
+
+    } finally {
+      http.stop();
+    }
+  }
+
   private JsonNode execute(String query) throws IOException {
-    return new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+    JsonNode result =
+        new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+    if (result.get("errors") != null) {
+      throw new RuntimeException(result.get("errors").toString());
+    }
+    return result;
   }
 }

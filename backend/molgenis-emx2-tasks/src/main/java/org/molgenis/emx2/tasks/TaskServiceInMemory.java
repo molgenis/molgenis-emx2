@@ -1,6 +1,6 @@
 package org.molgenis.emx2.tasks;
 
-import static org.molgenis.emx2.tasks.StepStatus.RUNNING;
+import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,8 +48,8 @@ public class TaskServiceInMemory implements TaskService {
   public void removeOlderThan(long milliseconds) {
     Set<String> keys = tasks.keySet();
     for (String key : keys) {
-      if (tasks.get(key).end != 0
-          && tasks.get(key).end <= System.currentTimeMillis() - milliseconds) {
+      if (tasks.get(key).endTimeMilliseconds != 0
+          && tasks.get(key).endTimeMilliseconds <= System.currentTimeMillis() - milliseconds) {
         try {
           tasks.remove(key);
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class TaskServiceInMemory implements TaskService {
       logger.info("skipped delete task " + id + "because not found");
       throw new MolgenisException("Task with id '" + id + "' not found");
     }
-    if (task.getStatus().equals(StepStatus.RUNNING)) {
+    if (task.getStatus().equals(TaskStatus.RUNNING)) {
       logger.info("skipped delete task " + id + "because still running");
       throw new MolgenisException("Cannot yet cancel running tasks");
     }

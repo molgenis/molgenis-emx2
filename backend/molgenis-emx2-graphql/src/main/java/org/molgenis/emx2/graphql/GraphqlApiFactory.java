@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +151,7 @@ public class GraphqlApiFactory {
     return result;
   }
 
-  public GraphQL createGraphqlForDatabase(Database database) {
+  public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -164,7 +165,7 @@ public class GraphqlApiFactory {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
     }
 
-    // acount operations
+    // account operations
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
     queryBuilder.field(session.userQueryField(database, null));
     mutationBuilder.field(session.signinField(database));
@@ -180,6 +181,7 @@ public class GraphqlApiFactory {
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
+    mutationBuilder.field(db.create(database, taskService));
     if (database.isAdmin()) {
       mutationBuilder.field(db.createSettingsMutation(database));
       mutationBuilder.field(db.deleteSettingsMutation(database));

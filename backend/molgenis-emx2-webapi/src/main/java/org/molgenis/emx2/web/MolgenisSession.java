@@ -22,7 +22,8 @@ public class MolgenisSession {
 
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
-      graphqlForDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database);
+      graphqlForDatabase =
+          new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
       logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;

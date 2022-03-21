@@ -29,7 +29,10 @@ public class TestImportTableTask {
     t.run();
 
     assertTrue(
-        ((ImportTableTask) t.getSteps().get(1))
+        t.getSteps()
+            .get(1)
+            .getSteps()
+            .get(0)
             .getSteps()
             .get(0)
             .getDescription()

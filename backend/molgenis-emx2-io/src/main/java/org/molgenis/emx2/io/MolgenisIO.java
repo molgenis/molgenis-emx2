@@ -14,7 +14,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
 
-/** Short hands for running the tasks */
+/** Short hands for running most tasks */
 public class MolgenisIO {
 
   private MolgenisIO() {
@@ -92,6 +92,6 @@ public class MolgenisIO {
 
   public static void fromSchemaList(
       Database database, List<SchemaDeclaration> schemas, boolean strict) {
-    new ImportSchemaListTask(database, schemas, strict).run();
+    new ImportMultipleSchemaTask(database, schemas, strict).run();
   }
 }
