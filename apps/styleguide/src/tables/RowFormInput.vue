@@ -103,24 +103,45 @@
       v-model="input"
       v-on="$listeners"
     />
+    <InputEmail
+      v-else-if="columnType === 'EMAIL'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <!-- <InputHyperLink
+      v-else-if="columnType === 'HYPERLINK'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    /> -->
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
 </template>
 
 <script>
-import _baseInput from '../forms/_baseInput';
-import InputString from '../forms/InputString';
-import InputInt from '../forms/InputInt';
-import InputDecimal from '../forms/InputDecimal';
-import InputBoolean from '../forms/InputBoolean';
-import InputDate from '../forms/InputDate';
-import InputDateTime from '../forms/InputDateTime';
-import InputFile from '../forms/InputFile';
-import InputText from '../forms/InputText';
-import InputHeading from '../forms/InputHeading';
+import _baseInput from "../forms/_baseInput";
+import InputString from "../forms/InputString";
+import InputInt from "../forms/InputInt";
+import InputDecimal from "../forms/InputDecimal";
+import InputBoolean from "../forms/InputBoolean";
+import InputDate from "../forms/InputDate";
+import InputDateTime from "../forms/InputDateTime";
+import InputFile from "../forms/InputFile";
+import InputText from "../forms/InputText";
+import InputHeading from "../forms/InputHeading";
+import InputEmail from "../forms/InputEmail";
+// import InputHyperLink from '../forms/InputHyperLink';
+// import InputLong from '../forms/InputLong';
 
 export default {
-  name: 'RowFormInput',
+  name: "RowFormInput",
   extends: _baseInput,
   props: {
     /** enable editing of label and description*/
@@ -129,7 +150,7 @@ export default {
     editMeta: Boolean,
     filter: Object,
     graphqlURL: {
-      default: 'graphql',
+      default: "graphql",
       type: String
     },
     pkey: Object,
@@ -149,15 +170,18 @@ export default {
     InputInt,
     InputDecimal,
     InputBoolean,
-    InputRefSelect: () => import('../forms/InputRefSelect'), //because it uses itself in nested form
     InputDate,
     InputDateTime,
     InputFile,
     InputText,
     InputHeading,
-    InputOntology: () => import('../forms/InputOntology'), //because it uses itself in nested form,
-    InputRef: () => import('../forms/InputRef'), //because it uses itself in nested form,
-    InputRefback: () => import('../forms/InputRefback') //because it uses itself in nested form,
+    InputEmail,
+    // InputHyperLink,
+    // InputLong,
+    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
+    InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
+    InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
+    InputRefback: () => import("../forms/InputRefback") //because it uses itself in nested form,
   },
   created() {
     this.input = this.value;
@@ -167,7 +191,7 @@ export default {
       this.input = this.value;
     },
     input() {
-      this.$emit('input', this.input);
+      this.$emit("input", this.input);
     }
   }
 };

@@ -2,7 +2,7 @@
 guide */
 
 <script>
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require("uuid/v4");
 
 export default {
   props: {
@@ -14,7 +14,6 @@ export default {
     description: String,
     /** whether metadata can be edited */
     editMeta: Boolean,
-    errorMessage: null,
     inplace: Boolean,
     label: String,
     list: {
@@ -63,11 +62,11 @@ export default {
       const value = event ? (event.target ? event.target.value : event) : null;
       if (this.list) {
         this.$emit(
-          'input',
+          "input",
           this.updateValueArrayValue(this.valueArray, value, index)
         );
       } else {
-        this.$emit('input', this.useParserIfAvailable(value));
+        this.$emit("input", this.useParserIfAvailable(value));
       }
     },
     updateValueArrayValue(valueArray, value, index) {
@@ -97,7 +96,7 @@ export default {
       } else {
         result = null;
       }
-      this.$emit('input', result);
+      this.$emit("input", result);
     },
     showPlus(idx) {
       //always on last line

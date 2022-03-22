@@ -343,32 +343,18 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLScalarType graphQLTypeOf(Column col) {
     switch (col.getColumnType().getBaseType()) {
-      case BOOL,
-       BOOL_ARRAY:
+      case BOOL, BOOL_ARRAY:
         return Scalars.GraphQLBoolean;
-      case INT,
-       INT_ARRAY:
+      case INT, INT_ARRAY:
         return Scalars.GraphQLInt;
-      case LONG,
-       LONG_ARRAY:
+      case LONG, LONG_ARRAY:
         return Scalars.GraphQLBigInteger;
-      case DECIMAL,
-       DECIMAL_ARRAY:
+      case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
-      case DATE,
-       DATETIME,
-       STRING,
-       TEXT,
-       UUID,
-       DATE_ARRAY,
-       DATETIME_ARRAY,
-       STRING_ARRAY,
-       TEXT_ARRAY:
+      case DATE, DATETIME, STRING, TEXT, UUID, DATE_ARRAY, DATETIME_ARRAY, STRING_ARRAY, TEXT_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
-      case REF_ARRAY,
-       REF,
-       REFBACK:
+      case REF_ARRAY, REF, REFBACK:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }
@@ -706,11 +692,7 @@ public class GraphqlTableFieldFactory {
         return Scalars.GraphQLBigInteger; // NOSONAR
       case DECIMAL:
         return Scalars.GraphQLFloat;
-      case UUID,
-       STRING,
-       TEXT,
-       DATE,
-       DATETIME:
+      case UUID, STRING, TEXT, DATE, DATETIME:
         return Scalars.GraphQLString;
       case BOOL_ARRAY:
         return GraphQLList.list(Scalars.GraphQLBoolean);
@@ -720,11 +702,7 @@ public class GraphqlTableFieldFactory {
         return GraphQLList.list(Scalars.GraphQLBigInteger); // NOSONAR
       case DECIMAL_ARRAY:
         return GraphQLList.list(Scalars.GraphQLFloat);
-      case STRING_ARRAY,
-       TEXT_ARRAY,
-       DATE_ARRAY,
-       DATETIME_ARRAY,
-       UUID_ARRAY:
+      case STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, UUID_ARRAY:
         return GraphQLList.list(Scalars.GraphQLString);
       default:
         throw new MolgenisException(

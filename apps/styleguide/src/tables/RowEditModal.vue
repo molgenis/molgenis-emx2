@@ -12,7 +12,6 @@
             v-model="value[column.id]"
             :columnType="column.columnType"
             :description="column.description"
-            :errorMessage="errorPerColumn[column.name]"
             :graphqlURL="graphqlURL"
             :label="column.name"
             :pkey="getPkey(value)"
@@ -37,18 +36,18 @@
 </template>
 
 <script>
-import LayoutForm from '../layout/LayoutForm.vue';
-import LayoutModal from '../layout/LayoutModal.vue';
-import MessageError from '../forms/MessageError';
-import MessageSuccess from '../forms/MessageSuccess';
-import ButtonAction from '../forms/ButtonAction.vue';
-import ButtonAlt from '../forms/ButtonAlt.vue';
-import ButtonOutline from '../forms/ButtonOutline';
-import SigninForm from '../layout/MolgenisSignin';
-import TableMixin from '../mixins/TableMixin';
-import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin';
-import RowFormInput from './RowFormInput.vue';
-import Expressions from '@molgenis/expressions';
+import LayoutForm from "../layout/LayoutForm.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import MessageError from "../forms/MessageError";
+import MessageSuccess from "../forms/MessageSuccess";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonOutline from "../forms/ButtonOutline";
+import SigninForm from "../layout/MolgenisSignin";
+import TableMixin from "../mixins/TableMixin";
+import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
+import RowFormInput from "./RowFormInput.vue";
+import Expressions from "@molgenis/expressions";
 
 export default {
   extends: TableMixin,
@@ -84,7 +83,7 @@ export default {
   },
   methods: {
     getRefBackType(column) {
-      if (column.columnType === 'REFBACK') {
+      if (column.columnType === "REFBACK") {
         const table = this.getTable(column.refTable);
         return table.columns.find(
           (otherColumn) => otherColumn.name === column.refBack
@@ -125,7 +124,7 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.$emit('close');
+          this.$emit("close");
         })
         .catch((error) => {
           if (error.status === 403) {
@@ -139,14 +138,14 @@ export default {
     },
     setDraft(isDraft) {
       if (isDraft) {
-        this.value['mg_draft'] = true;
+        this.value["mg_draft"] = true;
       } else {
-        this.value['mg_draft'] = false;
+        this.value["mg_draft"] = false;
       }
     },
     getUpsertQuery() {
       const name = this.tableId;
-      const action = this.pkey && !this.clone ? 'update' : 'insert';
+      const action = this.pkey && !this.clone ? "update" : "insert";
       return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
     },
     showColumn(column) {
@@ -156,7 +155,7 @@ export default {
       return (
         isColumnVisible &&
         this.visible(column.visible, column.id) &&
-        column.name != 'mg_tableclass' &&
+        column.name != "mg_tableclass" &&
         hasRefValue
       );
     },
@@ -181,12 +180,12 @@ export default {
     validateColumn(column) {
       delete this.errorPerColumn[column.id];
       const isInvalidNumber =
-        typeof this.value[column.id] === 'number' &&
+        typeof this.value[column.id] === "number" &&
         isNaN(this.value[column.id]);
       const isColumnValueInvalid = // how about undefined?
         this.value[column.id] == null || isInvalidNumber;
       if (column.required && isColumnValueInvalid) {
-        this.errorPerColumn[column.id] = column.name + ' is required ';
+        this.errorPerColumn[column.id] = column.name + " is required ";
       } else {
         if (this.value[column.id] !== undefined && column.validation) {
           this.evaluateValidationExpression(column);
@@ -219,7 +218,7 @@ export default {
         const value = this.value[column.id];
         const refValue = this.value[refLinkId];
 
-        if (typeof value === 'string' && typeof refValue === 'string') {
+        if (typeof value === "string" && typeof refValue === "string") {
           return value && refValue && value !== refValue;
         } else {
           return (
@@ -234,7 +233,7 @@ export default {
   computed: {
     columnsWithoutMeta() {
       return this.tableMetadata.columns.filter(
-        (c) => !c.name.startsWith('mg_')
+        (c) => !c.name.startsWith("mg_")
       );
     },
     //@overide

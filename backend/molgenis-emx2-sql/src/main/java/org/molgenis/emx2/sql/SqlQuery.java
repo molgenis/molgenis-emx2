@@ -596,8 +596,8 @@ public class SqlQuery extends QueryBean {
             case SUM_FIELD -> result.add(
                 key(c.getName())
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
-            default -> throw new MolgenisException("Unknown aggregate type provided: "+field.getColumn());
-
+            default -> throw new MolgenisException(
+                "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -782,8 +782,9 @@ public class SqlQuery extends QueryBean {
         // simple array comparison
         foreignKeyMatch.add(
             condition(
-                    ANY_1,
-                name(alias(subAlias), ref.getRefTo()), name(alias(tableAlias), ref.getName())));
+                ANY_1,
+                name(alias(subAlias), ref.getRefTo()),
+                name(alias(tableAlias), ref.getName())));
       } else {
         // expensive 'in' query to enable join on all fields
         List<Field<Object>> to =
