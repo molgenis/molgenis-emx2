@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class VcfParser {
   File vcfFile;
@@ -142,7 +141,8 @@ public class VcfParser {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
             writerResult.write(
-                    getKeyFromValue(stringsToFind, stringToFind) + System.getProperty("line.separator"));
+                getKeyFromValue(stringsToFind, stringToFind)
+                    + System.getProperty("line.separator"));
             writerClinvar.write(currentLine + System.getProperty("line.separator"));
             variants.addVariant(currentLine);
           }
@@ -184,17 +184,13 @@ public class VcfParser {
     return false;
   }
 
-  private static String getKeyFromValue(
-          Map<String, Pattern> map, Pattern value) {
+  private static String getKeyFromValue(Map<String, Pattern> map, Pattern value) {
 
-    return map
-            .entrySet()
-            .stream()
-            .filter(entry -> Objects.equals(entry.getValue(), value))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .map(Object::toString)
-            .orElse("");
-
+    return map.entrySet().stream()
+        .filter(entry -> Objects.equals(entry.getValue(), value))
+        .map(Map.Entry::getKey)
+        .findFirst()
+        .map(Object::toString)
+        .orElse("");
   }
 }

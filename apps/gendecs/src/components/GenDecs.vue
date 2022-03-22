@@ -74,8 +74,8 @@ export default {
       allHpoTerms: hpoData,
       selectedHpoTerm: null,
       foundMatch: false,
-      hpoChildren: null,
-      hpoParents: null,
+      hpoChildren: [],
+      hpoParents: [],
       hpoId: null,
       searchAssociates: null,
       patientGenes: null,
@@ -84,25 +84,29 @@ export default {
     };
   },
   methods: {
-    addHpoResult(selectedHpoterm) {
-      this.selectedHpoTerm = selectedHpoterm;
+    addHpoResult(selectedHpoTerm) {
+      this.selectedHpoTerm = selectedHpoTerm;
     },
-    async hpoTermToId() {
+    async hpoTermToId(hpoTerm) {
       /**
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
       * This is then used to gather the ID of the term using an api call.
       * */
 
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + this.selectedHpoTerm)
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
         .then(response => response.json());
       let hpoResults = resultData['terms'];
-      this.hpoId = hpoResults[0].id;
 
-      if(this.searchAssociates != null) {
-        this.sendHpo(this.hpoId.replace(":", "_"));
-      }
+      return hpoResults[0].id;
     },
-    sendHpo(hpoId) {
+    async hpoIdToTerm(hpoId) {
+      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoId)
+          .then(response => response.json());
+      let hpoResults = resultData['terms'];
+
+      return hpoResults[0].name;
+    },
+    async sendHpo(hpoId) {
       /**
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * The parents and children of this term are returned by the backend.
@@ -111,55 +115,35 @@ export default {
         method: 'POST',
         body: JSON.stringify({ hpoId: hpoId })
       };
-      fetch('/patients/api/gendecs/queryHpo', requestOptions)
-          .then(async response => {
-            let data = await response.json();
-            this.hpoParents = data["parents"];
-            this.hpoChildren = data["children"];
+      let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
+          .then( response => response.json());
 
-            // check for error response
-            if (!response.ok) {
-              // get error message from body or default to response status
-              const error = (data && data.message) || response.status;
-              return Promise.reject(error);
-            }
-            this.postId = data.id;
-          })
-          .catch(error => {
-            this.errorMessage = error;
-            console.error('There was an error!', error);
-          });
+      for (let i = 0; i < data["parents"].length; i++) {
+        let parentId = data["parents"][i];
+        let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
+        this.hpoParents.push(parentTerm);
+      }
+      this.hpoChildren = data["children"];
     },
-    async vcfToHpo() {
+    async matchVcfWithHpo() {
       /**
        * Function that sends an api call to the backend to parse the vcf data.
        * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
        * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+       *
        */
-      this.genesHpo = await fetch('/patients/api/gendecs/vcffile')
+      let requestOptions = {
+        method: 'POST',
+        body: JSON.stringify({ hpoTerm : this.selectedHpoTerm,
+          hpoChildren : this.hpoChildren,
+          hpoParents : this.hpoParents})
+      };
+      this.genesHpo = await fetch('/patients/api/gendecs/vcffile', requestOptions)
             .then(response => response.json());
-      this.searchForMatch();
-    },
-    searchForMatch() {
-      /**
-       * Function that searches for a match between this.genesHpo and the selected HPO term
-       * and its children and parents.
-       */
-      let keys = Object.keys(this.genesHpo);
-      let matchGene = [];
 
-      console.log(this.selectedHpoTerm);
-      keys.forEach((key) => {
-        //Female infertility
-        if(this.genesHpo[key] === this.selectedHpoTerm ||
-            this.genesHpo[key] === this.hpoChildren ||
-            this.genesHpo[key] === this.hpoParents) {
-          matchGene.push(this.getKeyByValue(this.genesHpo, this.genesHpo[key]));
-        }
-      });
-      if(matchGene.length !== 0) {
+      if(this.genesHpo.length !== 0) {
         this.foundMatch = true;
-        this.patientGenes = matchGene;
+        this.patientGenes = Object.keys(this.genesHpo);
       }
     },
     getKeyByValue(object, value) {
@@ -167,8 +151,13 @@ export default {
     },
     async main() {
       this.loading = true;
-      await this.hpoTermToId();
-      await this.vcfToHpo();
+      if(this.searchAssociates != null) {
+        this.hpoId = await this.hpoTermToId(this.selectedHpoTerm);
+
+        await this.sendHpo(this.hpoId.replace(":", "_"));
+        this.searchAssociates = null;
+      }
+      await this.matchVcfWithHpo();
       this.loading = false;
     }
   },

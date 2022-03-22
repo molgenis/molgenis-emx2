@@ -1,20 +1,26 @@
 package org.molgenis.emx2.web;
 
-import static spark.Spark.get;
 import static spark.Spark.post;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.molgenis.emx2.semantics.gendecs.*;
 import spark.Request;
 import spark.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GendecsApi {
+  static String filenameClinvar = "data/gendecs/clinvar_20220205.vcf";
+  static String filenameData = "data/gendecs/vcfdata.vcf";
+  private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
 
-  public static void create() {
+  public void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
-    get("/:scheme/api/gendecs/vcffile", GendecsApi::vcfToGene);
+    post("/:scheme/api/gendecs/vcffile", GendecsApi::matchVcfWithHpo);
   }
 
   private static String queryHpo(Request request, Response response) {
@@ -27,20 +33,48 @@ public class GendecsApi {
     return Serialize.serializeHpo(hpoTerm);
   }
 
-  private static String vcfToGene(Request request, Response response) {
-    String filenameClinvar = "data/gendecs/clinvar_20220205.vcf";
-    String filenameData = "data/gendecs/vcfdata.vcf";
-    StarRating starRating = StarRating.ONESTAR;
+  private static String matchVcfWithHpo(Request request, Response response) {
+    ArrayList<String> hpoTerms = new ArrayList<>();
 
+    JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
+    hpoTerms.add(jsonObject.get("hpoTerm").getAsString());
+
+    if (jsonObject.get("hpoChildren") != null) {
+      addAssociates("hpoChildren", hpoTerms, jsonObject);
+    }
+    if (jsonObject.get("hpoParents") != null) {
+      addAssociates("hpoParents", hpoTerms, jsonObject);
+    }
+
+    StarRating starRating = StarRating.ONESTAR;
     VcfParser vcfParser = new VcfParser(filenameData, starRating);
 
     if (vcfParser.removeStatus(filenameClinvar)) {
-      System.out.println(
+      logger.info(
           "Successfully removed " + starRating + " and below from " + filenameClinvar);
     }
-    Variants variants = vcfParser.matchWithClinvar();
 
+    Variants variants = vcfParser.matchWithClinvar();
     HashMap<String, String> genesHpo = variants.getGeneHpo();
-    return Serialize.serializeMap(genesHpo);
+
+    return Serialize.serializeMap(findMatches(hpoTerms, genesHpo));
+  }
+
+  private static HashMap<String, String> findMatches(ArrayList<String> hpoTerms, HashMap<String, String> genesHpo) {
+    HashMap<String, String> matchedGenes = new HashMap<>();
+
+    for (String gene : genesHpo.keySet()) {
+      if (hpoTerms.contains(genesHpo.get(gene))) {
+        matchedGenes.put(gene, genesHpo.get(gene));
+      }
+    }
+    return matchedGenes;
+  }
+
+  private static void addAssociates(String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
+    JsonArray hpoChildren = jsonObject.get(name).getAsJsonArray();
+    for (int i = 0; i < hpoChildren.size(); i++) {
+      hpoTerms.add(hpoChildren.get(i).getAsString());
+    }
   }
 }
