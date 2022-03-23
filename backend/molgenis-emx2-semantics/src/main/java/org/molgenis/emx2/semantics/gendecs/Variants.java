@@ -8,10 +8,6 @@ public class Variants {
   private ArrayList<String> genes = new ArrayList<>();
   private HashMap<String, String> genesHpo = new HashMap<>();
 
-  public ArrayList<String> getVariants() {
-    return variants;
-  }
-
   public void addVariant(String variants) {
     this.variants.add(variants);
   }
@@ -51,5 +47,9 @@ public class Variants {
       this.genesHpo = GeneToHpo.geneToHpo(this.getGenes());
     }
     return genesHpo;
+  }
+
+  public void addGenesHpo(String gene, String hpo) {
+    this.genesHpo.put(gene, hpo);
   }
 }

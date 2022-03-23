@@ -12,8 +12,6 @@ public class VcfParser {
   StarRating starRating;
   ArrayList<String> hpoTerms;
 
-  static Variants variants = new Variants();
-
   public VcfParser(String filename, StarRating starRating, ArrayList<String> hpoTerms) {
     vcfFile = new File(filename);
     this.starRating = starRating;
@@ -116,16 +114,15 @@ public class VcfParser {
         stringsToFind.put(data, pattern);
       }
       reader.close();
-      getMatchesClinvar(stringsToFind);
 
-      return variants;
+      return getMatchesClinvar(stringsToFind);
     } catch (IOException e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  private void getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
+  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
     File file = new File("data/gendecs/clinvar_20220205.vcf");
     Scanner reader = new Scanner(file);
 
@@ -136,7 +133,9 @@ public class VcfParser {
 
     writeHeader(writerClinvar, "clinvar");
     writeHeader(writerResult, "result");
-    VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher(hpoTerms);
+
+    Variants variants = new Variants();
+    VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher(hpoTerms, variants);
 
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
@@ -157,6 +156,7 @@ public class VcfParser {
     reader.close();
     writerClinvar.close();
     writerResult.close();
+    return variants;
   }
 
   private void writeHeader(BufferedWriter writer, String headerType) throws IOException {

@@ -3,24 +3,20 @@ package org.molgenis.emx2.semantics.gendecs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class VariantHpoMatcher {
-  static HashMap<String, String> geneHpo = new HashMap<>();
-  ArrayList<String> hpoTerms;
+  private ArrayList<String> hpoTerms;
+  private Variants variants;
 
-  public VariantHpoMatcher(ArrayList<String> hpoTerms) {
+  public VariantHpoMatcher(ArrayList<String> hpoTerms, Variants variants) {
+    this.variants = variants;
     this.hpoTerms = hpoTerms;
   }
 
   public boolean matchVariantWithHpo(String variant) {
     String geneSymbol = getGenes(variant);
-    if (this.getHpo(geneSymbol)) {
-      return true;
-    }
-
-    return false;
+    return this.getHpo(geneSymbol);
   }
 
   private static String getGeneSymbol(String geneRaw) {
@@ -58,12 +54,14 @@ public class VariantHpoMatcher {
           String gene = lineSplit[1];
           String hpoId = lineSplit[2];
           String hpoTerm = lineSplit[3];
-          geneHpo.put(gene, hpoTerm);
           if (this.checkForMatch(hpoTerm)) {
+            variants.addGenesHpo(gene, hpoTerm);
+
             return true;
           }
         }
       }
+      return false;
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
@@ -71,17 +69,6 @@ public class VariantHpoMatcher {
   }
 
   private boolean checkForMatch(String hpoTerm) {
-    //        HashMap<String, String> matchedGenes = new HashMap<>();
-
-    for (String hpoTermIn : this.hpoTerms) {
-      if (hpoTermIn.equals(hpoTerm)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static HashMap<String, String> getGeneHpo() {
-    return geneHpo;
+    return this.hpoTerms.contains(hpoTerm);
   }
 }

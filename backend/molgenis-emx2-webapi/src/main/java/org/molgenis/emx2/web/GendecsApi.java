@@ -54,22 +54,10 @@ public class GendecsApi {
     }
 
     Variants variants = vcfParser.matchWithClinvar();
-    //    HashMap<String, String> genesHpo = variants.getGeneHpo();
 
-    return Serialize.serializeMap(VariantHpoMatcher.getGeneHpo());
-    //    return Serialize.serializeMap(findMatches(hpoTerms, genesHpo));
-  }
+    HashMap<String, String> genesHpo = variants.getGeneHpo();
 
-  private static HashMap<String, String> findMatches(
-      ArrayList<String> hpoTerms, HashMap<String, String> genesHpo) {
-    HashMap<String, String> matchedGenes = new HashMap<>();
-
-    for (String gene : genesHpo.keySet()) {
-      if (hpoTerms.contains(genesHpo.get(gene))) {
-        matchedGenes.put(gene, genesHpo.get(gene));
-      }
-    }
-    return matchedGenes;
+    return Serialize.serializeMap(genesHpo);
   }
 
   private static void addAssociates(
