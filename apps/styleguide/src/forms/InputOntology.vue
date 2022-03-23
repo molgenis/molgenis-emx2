@@ -1,7 +1,7 @@
 <template>
   <FormGroup v-bind="$props" v-on="$listeners">
     <Spinner v-if="loading" />
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{dropdown: !showExpanded, 'border rounded': !showExpanded}"
@@ -69,6 +69,14 @@
         v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
+        <span
+          class="pl-4"
+          v-if="
+            search && Object.keys(terms).length > 50 && searchResultCount >= 0
+          "
+        >
+          found {{ searchResultCount }} terms.
+        </span>
         <InputOntologySubtree
           :key="key"
           v-if="rootTerms.length > 0"
@@ -143,7 +151,9 @@ export default {
       terms: {},
       search: null,
       //we use key to force updates
-      key: 1
+      key: 1,
+      //use to block to many search results
+      searchResultCount: 0
     };
   },
   computed: {
@@ -304,14 +314,14 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected == "complete")
+        .filter((term) => term.selected == 'complete')
         .map((term) => {
           return {name: term.name};
         });
       if (this.list) {
         this.$emit('input', selectedTerms);
       } else {
-        this.$emit("input", selectedTerms[0]);
+        this.$emit('input', selectedTerms[0]);
       }
     },
     reloadMetadata() {
@@ -337,18 +347,18 @@ export default {
         value.forEach((v) => {
           let term = this.terms[v.name];
           if (term) {
-            term.selected = "complete";
+            term.selected = 'complete';
             if (this.list) {
               //if list also select its children
               this.getAllChildren(term).forEach(
-                (childTerm) => (childTerm.selected = "complete")
+                (childTerm) => (childTerm.selected = 'complete')
               );
               //select parent(s) if all siblings are selected
               this.getParents(term).forEach((parent) => {
                 if (parent.children.every((childTerm) => childTerm.selected)) {
-                  parent.selected = "complete";
+                  parent.selected = 'complete';
                 } else {
-                  parent.selected = "partial";
+                  parent.selected = 'partial';
                 }
               });
             }
@@ -359,31 +369,50 @@ export default {
       else if (value) {
         let term = this.terms[value.name];
         if (term) {
-          term.selected = "complete";
+          term.selected = 'complete';
           this.getParents(term).forEach((parent) => {
-            parent.selected = "partial";
+            parent.selected = 'partial';
           });
         }
       }
       this.key++;
-    },
+    }
   },
   watch: {
     search() {
-      //first show/hide depending on filter
-      Object.values(this.terms).forEach(
-        (t) => (t.visible = this.search == '' || !this.search)
-      );
-      if (this.search && this.search.length > 0) {
-        let searchTerms = this.search.split(' ').map((s) => s.toLowerCase());
+      this.searchResultCount = 0;
+      if (this.search) {
+        //first hide all
+        Object.values(this.terms).forEach((t) => (t.visible = false));
+        //split and sanitize search terms
+        let searchTerms = this.search
+          .trim()
+          .split(' ')
+          .filter((s) => s.trim().length > 0)
+          .map((s) => s.toLowerCase());
+        //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
           if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
-            //items are visible when matching search, or when a child matches search
             term.visible = true;
-            this.getParents(term).forEach((parent) => {
-              parent.visible = true;
-            });
+            this.searchResultCount++;
+
+            //also make parents visible
+            if (term.parent) {
+              let parent = this.terms[term.parent.name];
+              while (parent && !parent.visible) {
+                parent.visible = true;
+                if (parent.parent) {
+                  parent = this.terms[parent.parent.name];
+                }
+              }
+            }
           }
+        });
+      } else {
+        //no search  = all visible
+        Object.values(this.terms).forEach((t) => {
+          t.visible = true;
+          this.searchResultCount++;
         });
       }
       //auto expand visible automatically if total visible <50
@@ -402,6 +431,8 @@ export default {
     },
     data() {
       if (this.data) {
+        this.searchResultCount = 0;
+
         //convert to tree of terms
         //list all terms, incl subtrees
         let terms = {};
@@ -416,7 +447,7 @@ export default {
               name: e.name,
               visible: true,
               selected: false,
-              definition: e.definition,
+              definition: e.definition
             };
           }
           if (e.parent) {
@@ -437,6 +468,7 @@ export default {
             // add the child
             terms[e.parent.name].children.push(terms[e.name]);
           }
+          this.searchResultCount++;
         });
         this.terms = terms;
         this.applySelection(this.value);
@@ -564,6 +596,26 @@ Example with loading contents from table on backend (requires sign-in)
   <div>
     <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
                    table="Diseases" graphqlURL="/CatalogueOntologies/graphql" :showExpanded="true" :list="true"/>
+    myvalue = {{ myvalue }}
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        myvalue: []
+      };
+    }
+  }
+</script>
+```
+
+Example as dropdown with loading contents from table on backend (requires sign-in)
+```
+<template>
+  <div>
+    <InputOntology label="My ontology select" description="please choose your options in tree below" v-model="myvalue"
+                   table="Diseases" graphqlURL="/CatalogueOntologies/graphql" :list="true"/>
     myvalue = {{ myvalue }}
   </div>
 </template>
