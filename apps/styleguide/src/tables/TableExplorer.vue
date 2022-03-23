@@ -3,22 +3,20 @@
     <div v-if="columns">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <Panel>
-        <h1 v-if="showHeader" class="pl-2">
+        <h1 v-if="showHeader" class="mt-n2">
           {{ table }}
         </h1>
-        <p class="pl-2" v-if="showHeader && tableMetadata">
+        <p v-if="showHeader && tableMetadata">
           {{ tableMetadata.description }}
         </p>
         <div
           class="
             navbar
-            pl-0
-            ml-0
+            p-0
+            m-0
             shadow-none
             navbar-expand-lg
             justify-content-between
-            mb-3
-            pt-3
             bg-white
           "
         >
@@ -75,6 +73,7 @@
           <div class="btn-group m-0" v-if="view != View.RECORD">
             <span class="btn">Rows per page:</span>
             <InputSelect
+              hidePanel
               :value="limit"
               :options="[10, 20, 50, 100]"
               :clear="false"
