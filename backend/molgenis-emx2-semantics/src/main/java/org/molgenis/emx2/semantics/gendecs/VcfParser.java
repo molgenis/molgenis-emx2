@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -60,26 +62,32 @@ public class VcfParser {
    * @param inputFile clinvar file as vcf
    * @return boolean true if successful, false if failed
    */
-  public boolean removeStatus(String inputFile) {
-    File tempFile = new File("data/gendecs/tempFile.vcf");
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-      File fileObject = new File(inputFile);
-      Scanner reader = new Scanner(fileObject);
-      while (reader.hasNextLine()) {
-        String data = reader.nextLine();
-        if (stringContainsItemFromList(data, Objects.requireNonNull(getRating(this.starRating)))) {
-          continue;
+  public String removeStatus(String inputFile) {
+    String pathName = String.format("data/gendecs/Filtered_Clinvar_%s.vcf", this.starRating);
+    Path path = Paths.get("data/gendecs/Filtered_ClinVar.vcf");
+    if(path.toFile().isFile()) {
+      return pathName;
+    } else {
+      File filteredClinVar = new File(pathName);
+      try {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filteredClinVar));
+        File fileObject = new File(inputFile);
+        Scanner reader = new Scanner(fileObject);
+        while (reader.hasNextLine()) {
+          String data = reader.nextLine();
+          if (stringContainsItemFromList(data, Objects.requireNonNull(getRating(this.starRating)))) {
+            continue;
+          }
+          writer.write(data + System.getProperty("line.separator"));
         }
-        writer.write(data + System.getProperty("line.separator"));
+        reader.close();
+        writer.close();
+        return pathName;
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-      reader.close();
-      writer.close();
-      return tempFile.renameTo(fileObject);
-    } catch (IOException e) {
-      e.printStackTrace();
+      return "";
     }
-    return false;
   }
 
   private static boolean stringContainsItemFromList(String inputString, ArrayList<String> items) {
@@ -94,7 +102,7 @@ public class VcfParser {
    *
    * @return Variants class with the matched variants
    */
-  public Variants matchWithClinvar() {
+  public Variants matchWithClinvar(String pathName) {
     Map<String, Pattern> stringsToFind = new HashMap<>();
     try {
       Scanner reader = new Scanner(vcfFile);
@@ -115,15 +123,15 @@ public class VcfParser {
       }
       reader.close();
 
-      return getMatchesClinvar(stringsToFind);
+      return getMatchesClinvar(stringsToFind, pathName);
     } catch (IOException e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
-    File file = new File("data/gendecs/clinvar_20220205.vcf");
+  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind, String pathName) throws IOException {
+    File file = new File(pathName);
     Scanner reader = new Scanner(file);
 
     File resultFileClinvar = new File("data/gendecs/result_matches_clinvar.vcf");

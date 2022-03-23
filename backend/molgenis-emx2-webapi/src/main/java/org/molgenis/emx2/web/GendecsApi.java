@@ -49,11 +49,8 @@ public class GendecsApi {
     StarRating starRating = StarRating.ONESTAR;
     VcfParser vcfParser = new VcfParser(filenameData, starRating, hpoTerms);
 
-    if (vcfParser.removeStatus(filenameClinvar)) {
-      logger.info("Successfully removed " + starRating + " and below from " + filenameClinvar);
-    }
-
-    Variants variants = vcfParser.matchWithClinvar();
+    String pathName = vcfParser.removeStatus(filenameClinvar);
+    Variants variants = vcfParser.matchWithClinvar(pathName);
 
     HashMap<String, String> genesHpo = variants.getGeneHpo();
 
