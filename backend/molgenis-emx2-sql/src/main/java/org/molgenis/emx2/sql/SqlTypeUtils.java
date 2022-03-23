@@ -2,7 +2,9 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -49,53 +51,31 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static Object getTypedValue(Row row, Column c) {
     String name = c.getName();
-    switch (c.getPrimitiveColumnType()) {
-      case FILE:
-        return row.getBinary(name);
-      case UUID:
-        return row.getUuid(name);
-      case UUID_ARRAY:
-        return row.getUuidArray(name);
-      case STRING:
-        return row.getString(name);
-      case STRING_ARRAY:
-        return row.getStringArray(name);
-      case BOOL:
-        return row.getBoolean(name);
-      case BOOL_ARRAY:
-        return row.getBooleanArray(name);
-      case INT:
-        return row.getInteger(name);
-      case INT_ARRAY:
-        return row.getIntegerArray(name);
-      case LONG:
-        return row.getLong(name);
-      case LONG_ARRAY:
-        return row.getLongArray(name);
-      case DECIMAL:
-        return row.getDecimal(name);
-      case DECIMAL_ARRAY:
-        return row.getDecimalArray(name);
-      case TEXT:
-        return row.getText(name);
-      case TEXT_ARRAY:
-        return row.getTextArray(name);
-      case DATE:
-        return row.getDate(name);
-      case DATE_ARRAY:
-        return row.getDateArray(name);
-      case DATETIME:
-        return row.getDateTime(name);
-      case DATETIME_ARRAY:
-        return row.getDateTimeArray(name);
-      case JSONB:
-        return row.getJsonb(name);
-      case JSONB_ARRAY:
-        return row.getJsonbArray(name);
-      default:
-        throw new UnsupportedOperationException(
-            "Unsupported columnType found:" + c.getColumnType());
-    }
+    return switch (c.getPrimitiveColumnType()) {
+      case FILE -> row.getBinary(name);
+      case UUID -> row.getUuid(name);
+      case UUID_ARRAY -> row.getUuidArray(name);
+      case STRING -> row.getString(name);
+      case STRING_ARRAY, EMAIL_ARRAY -> row.getStringArray(name);
+      case BOOL -> row.getBoolean(name);
+      case BOOL_ARRAY -> row.getBooleanArray(name);
+      case INT -> row.getInteger(name);
+      case INT_ARRAY -> row.getIntegerArray(name);
+      case LONG -> row.getLong(name);
+      case LONG_ARRAY -> row.getLongArray(name);
+      case DECIMAL -> row.getDecimal(name);
+      case DECIMAL_ARRAY -> row.getDecimalArray(name);
+      case TEXT -> row.getText(name);
+      case TEXT_ARRAY -> row.getTextArray(name);
+      case DATE -> row.getDate(name);
+      case DATE_ARRAY -> row.getDateArray(name);
+      case DATETIME -> row.getDateTime(name);
+      case DATETIME_ARRAY -> row.getDateTimeArray(name);
+      case JSONB -> row.getJsonb(name);
+      case JSONB_ARRAY -> row.getJsonbArray(name);
+      default -> throw new UnsupportedOperationException(
+          "Unsupported columnType found:" + c.getColumnType());
+    };
   }
 
   static String getPsqlType(Column column) {

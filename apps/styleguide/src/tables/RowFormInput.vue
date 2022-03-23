@@ -88,7 +88,11 @@
       :table="table"
     />
     <InputString
-      v-else-if="columnType === 'STRING_ARRAY'"
+      v-else-if="
+        columnType === 'STRING_ARRAY' ||
+        columnType === 'EMAIL_ARRAY' ||
+        columnType === 'HYPERLINK_ARRAY'
+      "
       :list="true"
       v-bind="$props"
       v-model="input"

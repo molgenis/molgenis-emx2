@@ -204,6 +204,16 @@ export default {
       ) {
         return "Invalid email address";
       }
+
+      if (
+        column.columnType === "EMAIL_ARRAY" &&
+        this.value[column.id].find((email) => {
+          !emailRegex.test(String(email).toLowerCase());
+        })
+      ) {
+        return "Invalid email address";
+      }
+
       if (
         column.columnType === "HYPERLINK" &&
         !hyperlinkRegex.test(String(this.value[column.id]).toLowerCase())

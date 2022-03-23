@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public enum ColumnType {
   // SIMPLE
@@ -47,23 +48,11 @@ public enum ColumnType {
   ONTOLOGY(REF),
   ONTOLOGY_ARRAY(REF_ARRAY),
   // RFC 5322, see http://emailregex.com/
-  EMAIL(
-      STRING,
-      "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]"
-          + "+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
-          + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
-          + "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
-          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
-          + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"),
+  EMAIL(STRING, EMAIL_REGEX),
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
-  HYPERLINK(
-      STRING,
-      "((http|https)://)(www.)?"
-          + "[a-zA-Z0-9@:%._\\+~#?&//=]"
-          + "{2,256}\\.[a-z]"
-          + "{2,6}\\b([-a-zA-Z0-9@:%"
-          + "._\\+~#?&//=]*)");
+  EMAIL_ARRAY(EMAIL_REGEX),
+  HYPERLINK(STRING, HYPERLINK_REGEX);
   private Class javaType;
   private ColumnType baseType;
   private Operator[] operators;
@@ -87,12 +76,15 @@ public enum ColumnType {
     this.validationRegexp = validationRegexp;
   }
 
+  ColumnType(String validationRegexp) {
+    this.javaType = String[].class;
+    this.xsdType = "xsd:list";
+    this.validationRegexp = validationRegexp;
+    this.operators = STRING_OPERATORS;
+  }
+
   public ColumnType getBaseType() {
-    if (baseType != null) {
-      return baseType;
-    } else {
-      return this;
-    }
+    return Objects.requireNonNullElse(baseType, this);
   }
 
   public Class<?> getType() {
@@ -115,6 +107,19 @@ public enum ColumnType {
   public void validate(Object value) {
     if (validationRegexp == null) return;
     if (value != null) {
+      if (xsdType != null && xsdType.equals("xsd:list")) {
+        validate((Object[]) value);
+      } else {
+        if (!value.toString().matches(validationRegexp)) {
+          throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
+        }
+      }
+    }
+  }
+
+  /** throws exception when invalid */
+  public void validate(Object[] values) {
+    for (Object value : values) {
       if (!value.toString().matches(validationRegexp)) {
         throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
       }
