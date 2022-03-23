@@ -268,13 +268,8 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          // skip key in case of clone and visible
-          if (
-            data[column.id] &&
-            (!this.clone ||
-              column.key != 1 ||
-              !this.visibleColumns.includes(column.name))
-          ) {
+          // primary skip (key=1) key in case of clone
+          if (data[column.id] && (!this.clone || column.key != 1)) {
             defaultValue[column.id] = data[column.id];
           }
         });

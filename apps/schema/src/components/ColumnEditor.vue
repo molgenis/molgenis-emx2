@@ -104,7 +104,6 @@ import {
   InputSelect,
   InputBoolean,
   InputText,
-  ButtonAlt,
   IconDanger,
   IconAction
 } from '@mswertz/emx2-styleguide';
@@ -116,12 +115,15 @@ export default {
     InputSelect,
     InputBoolean,
     InputText,
-    ButtonAlt,
     IconDanger,
     IconAction
   },
   data() {
-    return {column: {}, columnTypes: columnTypes, timestamp: Date.now()};
+    return {
+      column: {},
+      columnTypes: columnTypes,
+      timestamp: Date.now()
+    };
   },
   props: {
     value: Object,
@@ -159,7 +161,7 @@ export default {
           .filter(
             (c) =>
               c.name != columnName &&
-              (c.columnType == 'REF' || c.columnType == 'REF_ARRAY')
+              (c.columnType === 'REF' || c.columnType === 'REF_ARRAY')
           )
           .map((c) => c.name);
         result.unshift(null);
@@ -172,7 +174,7 @@ export default {
       // if (this.columns.filter((c) => c.name == name).length != 1) {
       //   return "Name should be unique";
       // }
-      if (name == undefined) {
+      if (name === undefined) {
         return 'Name is required';
       }
       if (!name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
