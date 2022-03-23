@@ -351,53 +351,33 @@ public class TypeUtils {
   }
 
   public static DataType toJooqType(ColumnType type) {
-    switch (type.getBaseType()) {
-      case FILE:
-        return SQLDataType.BINARY;
-      case UUID:
-        return SQLDataType.UUID;
-      case UUID_ARRAY:
-        return SQLDataType.UUID.getArrayDataType();
-      case STRING:
-        return SQLDataType.VARCHAR(255);
-      case STRING_ARRAY:
-        return SQLDataType.VARCHAR(255).getArrayDataType();
-      case INT:
-        return SQLDataType.INTEGER;
-      case INT_ARRAY:
-        return SQLDataType.INTEGER.getArrayDataType();
-      case LONG:
-        return SQLDataType.BIGINT;
-      case LONG_ARRAY:
-        return SQLDataType.BIGINT.getArrayDataType();
-      case BOOL:
-        return SQLDataType.BOOLEAN;
-      case BOOL_ARRAY:
-        return SQLDataType.BOOLEAN.getArrayDataType();
-      case DECIMAL:
-        return SQLDataType.DOUBLE;
-      case DECIMAL_ARRAY:
-        return SQLDataType.DOUBLE.getArrayDataType();
-      case TEXT:
-        return SQLDataType.VARCHAR;
-      case TEXT_ARRAY:
-        return SQLDataType.VARCHAR.getArrayDataType();
-      case DATE:
-        return SQLDataType.DATE;
-      case DATE_ARRAY:
-        return SQLDataType.DATE.getArrayDataType();
-      case DATETIME:
-        return SQLDataType.TIMESTAMP;
-      case DATETIME_ARRAY:
-        return SQLDataType.TIMESTAMP.getArrayDataType();
-      case JSONB:
-        return SQLDataType.JSONB;
-      case JSONB_ARRAY:
-        return SQLDataType.JSONB.getArrayDataType();
-      default:
-        // should never happen
-        throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
-    }
+    return switch (type.getBaseType()) {
+      case FILE -> SQLDataType.BINARY;
+      case UUID -> SQLDataType.UUID;
+      case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
+      case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> SQLDataType.VARCHAR(255)
+          .getArrayDataType();
+      case INT -> SQLDataType.INTEGER;
+      case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
+      case LONG -> SQLDataType.BIGINT;
+      case LONG_ARRAY -> SQLDataType.BIGINT.getArrayDataType();
+      case BOOL -> SQLDataType.BOOLEAN;
+      case BOOL_ARRAY -> SQLDataType.BOOLEAN.getArrayDataType();
+      case DECIMAL -> SQLDataType.DOUBLE;
+      case DECIMAL_ARRAY -> SQLDataType.DOUBLE.getArrayDataType();
+      case TEXT -> SQLDataType.VARCHAR;
+      case TEXT_ARRAY -> SQLDataType.VARCHAR.getArrayDataType();
+      case DATE -> SQLDataType.DATE;
+      case DATE_ARRAY -> SQLDataType.DATE.getArrayDataType();
+      case DATETIME -> SQLDataType.TIMESTAMP;
+      case DATETIME_ARRAY -> SQLDataType.TIMESTAMP.getArrayDataType();
+      case JSONB -> SQLDataType.JSONB;
+      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
+      default ->
+      // should never happen
+      throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
+    };
   }
 
   public static Object getTypedValue(Object v, ColumnType columnType) {

@@ -55,8 +55,8 @@ public class SqlTypeUtils extends TypeUtils {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
       case UUID_ARRAY -> row.getUuidArray(name);
-      case STRING -> row.getString(name);
-      case STRING_ARRAY, EMAIL_ARRAY -> row.getStringArray(name);
+      case STRING, EMAIL, HYPERLINK -> row.getString(name);
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> row.getStringArray(name);
       case BOOL -> row.getBoolean(name);
       case BOOL_ARRAY -> row.getBooleanArray(name);
       case INT -> row.getInteger(name);
@@ -83,48 +83,26 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static String getPsqlType(ColumnType type) {
-    switch (type) {
-      case STRING:
-        return "character varying";
-      case STRING_ARRAY:
-        return "character varying[]";
-      case UUID:
-        return "uuid";
-      case UUID_ARRAY:
-        return "uuid[]";
-      case BOOL:
-        return "bool";
-      case BOOL_ARRAY:
-        return "bool[]";
-      case INT:
-        return "int";
-      case INT_ARRAY:
-        return "int[]";
-      case LONG:
-        return "bigint";
-      case LONG_ARRAY:
-        return "bigint[]";
-      case DECIMAL:
-        return "decimal";
-      case DECIMAL_ARRAY:
-        return "decimal[]";
-      case TEXT:
-        return "character varying";
-      case TEXT_ARRAY:
-        return "character varying[]";
-      case DATE:
-        return "date";
-      case DATE_ARRAY:
-        return "date[]";
-      case DATETIME:
-        return "timestamp without time zone";
-      case DATETIME_ARRAY:
-        return "timestamp without time zone[]";
-      case JSONB:
-        return "jsonb";
-      default:
-        throw new MolgenisException(
-            "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
-    }
+    return switch (type) {
+      case STRING, EMAIL, HYPERLINK, TEXT -> "character varying";
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY, TEXT_ARRAY -> "character varying[]";
+      case UUID -> "uuid";
+      case UUID_ARRAY -> "uuid[]";
+      case BOOL -> "bool";
+      case BOOL_ARRAY -> "bool[]";
+      case INT -> "int";
+      case INT_ARRAY -> "int[]";
+      case LONG -> "bigint";
+      case LONG_ARRAY -> "bigint[]";
+      case DECIMAL -> "decimal";
+      case DECIMAL_ARRAY -> "decimal[]";
+      case DATE -> "date";
+      case DATE_ARRAY -> "date[]";
+      case DATETIME -> "timestamp without time zone";
+      case DATETIME_ARRAY -> "timestamp without time zone[]";
+      case JSONB -> "jsonb";
+      default -> throw new MolgenisException(
+          "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
+    };
   }
 }

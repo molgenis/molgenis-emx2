@@ -204,19 +204,25 @@ export default {
       ) {
         return "Invalid email address";
       }
-
       if (
         column.columnType === "EMAIL_ARRAY" &&
-        this.value[column.id].find((email) => {
-          !emailRegex.test(String(email).toLowerCase());
-        })
+        this.value[column.id].find(
+          (email) => !emailRegex.test(String(email).toLowerCase())
+        )
       ) {
         return "Invalid email address";
       }
-
       if (
         column.columnType === "HYPERLINK" &&
         !hyperlinkRegex.test(String(this.value[column.id]).toLowerCase())
+      ) {
+        return "Invalid hyperlink";
+      }
+      if (
+        column.columnType === "HYPERLINK_ARRAY" &&
+        this.value[column.id].find(
+          (email) => !hyperlinkRegex.test(String(email).toLowerCase())
+        )
       ) {
         return "Invalid hyperlink";
       }
@@ -226,6 +232,7 @@ export default {
       if (this.isRefLinkWithoutOverlap(column)) {
         return `value should match your selection in column '${column.refLink}' `;
       }
+
       return undefined;
     },
     evaluateValidationExpression(column) {

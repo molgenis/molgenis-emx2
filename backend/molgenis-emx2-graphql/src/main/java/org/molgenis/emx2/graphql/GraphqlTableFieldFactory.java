@@ -150,10 +150,14 @@ public class GraphqlTableFieldFactory {
         case UUID:
         case DATE:
         case DATETIME:
+        case EMAIL:
+        case HYPERLINK:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
           break;
-        case STRING_ARRAY, EMAIL_ARRAY:
+        case STRING_ARRAY:
+        case EMAIL_ARRAY:
+        case HYPERLINK_ARRAY:
         case TEXT_ARRAY:
         case DATE_ARRAY:
         case DATETIME_ARRAY:
@@ -386,7 +390,8 @@ public class GraphqlTableFieldFactory {
           DATETIME_ARRAY,
           STRING_ARRAY,
           TEXT_ARRAY,
-          EMAIL_ARRAY:
+          EMAIL_ARRAY,
+          HYPERLINK_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
       case REF_ARRAY, REF, REFBACK:
@@ -728,7 +733,8 @@ public class GraphqlTableFieldFactory {
           DATE_ARRAY,
           DATETIME_ARRAY,
           UUID_ARRAY,
-          EMAIL_ARRAY -> GraphQLList.list(Scalars.GraphQLString);
+          EMAIL_ARRAY,
+          HYPERLINK_ARRAY -> GraphQLList.list(Scalars.GraphQLString);
       default -> throw new MolgenisException(
           "Internal error: Type " + columnType + " not expected at this place");
     };
