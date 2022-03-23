@@ -29,16 +29,14 @@
         </p>
       </RouterLink>
       <RouterLink
-        to="Datasources"
-        class="card card-body bg-primary text-white card-height"
+        to="Networks"
+        class="card card-body bg-danger text-white card-height"
       >
-        <span class="badge badge-light float-right">{{ datasources }}</span>
-        <h3>Data sources</h3>
-        <p class="text-left">
-          Collections of data banks covering the same population
-        </p>
+        <span class="badge badge-light float-right">{{ networks }}</span>
+        <h3>Networks</h3>
+        <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
-      <RouterLink
+        <RouterLink
         to="Databanks"
         class="card card-body bg-info text-white card-height"
       >
@@ -46,7 +44,7 @@
         <h3>Data banks</h3>
         <p class="text-left">Data collections such as registries or biobanks</p>
       </RouterLink>
-      <RouterLink
+            <RouterLink
         to="Cohorts"
         class="card card-body bg-primary text-white card-height"
         v-if="cohorts > 0"
@@ -57,13 +55,15 @@
           Systematic observations of large groups of individuals over time.
         </p>
       </RouterLink>
-      <RouterLink
-        to="Networks"
-        class="card card-body bg-danger text-white card-height"
+       <RouterLink
+        to="Datasources"
+        class="card card-body bg-primary text-white card-height"
       >
-        <span class="badge badge-light float-right">{{ networks }}</span>
-        <h3>Networks</h3>
-        <p class="text-left">Collaborations of multiple institutions</p>
+        <span class="badge badge-light float-right">{{ datasources }}</span>
+        <h3>Data sources</h3>
+        <p class="text-left">
+          Collections of data banks covering the same population
+        </p>
       </RouterLink>
       <RouterLink
         to="Studies"
