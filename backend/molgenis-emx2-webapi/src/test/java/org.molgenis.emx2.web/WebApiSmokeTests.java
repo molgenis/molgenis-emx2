@@ -24,6 +24,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.examples.CatalogueExample;
 import org.molgenis.emx2.examples.PetStoreExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -457,8 +458,10 @@ public class WebApiSmokeTests {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
   }
 
-  //  @Test
-  //  public void testSiteMapGerator
+  @Test
+  public void testCatalogueSiteMap() {
+    CatalogueExample.create(db);
+  }
 
   @AfterClass
   public static void after() {

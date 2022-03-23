@@ -13,6 +13,10 @@ public class CatalogueExample {
   private CatalogueExample() {}
 
   public static void create(Database database) {
+
+    Schema ontologySchema = database.dropCreateSchema("CatalogueOntologies");
+    Schema catalogueSchema = database.dropCreateSchema("Catalogue");
+
     // load catalogue data model
     SchemaMetadata catalogueMetadata = null;
     try {
@@ -22,8 +26,6 @@ public class CatalogueExample {
       e.printStackTrace();
     }
 
-    Schema ontologySchema = database.dropCreateSchema("CatalogueOntologies");
-    Schema catalogueSchema = database.dropCreateSchema("Catalogue");
     ontologySchema.migrate(catalogueMetadata);
 
     // load ontologies data
