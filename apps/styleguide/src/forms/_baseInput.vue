@@ -14,6 +14,7 @@ export default {
     description: String,
     /** whether metadata can be edited */
     editMeta: Boolean,
+    errorMessage: {type: String, default: null},
     inplace: Boolean,
     label: String,
     list: {

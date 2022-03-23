@@ -12,6 +12,7 @@
             v-model="value[column.id]"
             :columnType="column.columnType"
             :description="column.description"
+            :errorMessage="errorPerColumn[column.id]"
             :graphqlURL="graphqlURL"
             :label="column.name"
             :pkey="getPkey(value)"
@@ -178,33 +179,45 @@ export default {
       }
     },
     validateColumn(column) {
-      delete this.errorPerColumn[column.id];
       const isInvalidNumber =
         typeof this.value[column.id] === "number" &&
         isNaN(this.value[column.id]);
-      const isColumnValueInvalid = // how about undefined?
-        this.value[column.id] == null || isInvalidNumber;
+      const isColumnValueInvalid =
+        this.value[column.id] === undefined ||
+        this.value[column.id] === null ||
+        isInvalidNumber;
       if (column.required && isColumnValueInvalid) {
         this.errorPerColumn[column.id] = column.name + " is required ";
       } else {
-        if (this.value[column.id] !== undefined && column.validation) {
-          this.evaluateValidationExpression(column);
-        } else if (this.isRefLinkWithoutOverlap(column)) {
-          this.errorPerColumn[
-            column.id
-          ] = `value should match your selection in column '${column.refLink}' `;
-        }
+        const error = this.getColumnError(column);
+        console.log(error);
+        this.errorPerColumn[column.id] = error;
       }
+    },
+    getColumnError(column) {
+      const emailRegex =
+        /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      if (
+        column.columnType === "EMAIL" &&
+        !emailRegex.test(String(this.value[column.id]).toLowerCase())
+      ) {
+        return "Invalid email address";
+      }
+      if (column.validation) {
+        return this.evaluateValidationExpression(column);
+      }
+      if (this.isRefLinkWithoutOverlap(column)) {
+        return `value should match your selection in column '${column.refLink}' `;
+      }
+      return undefined;
     },
     evaluateValidationExpression(column) {
       try {
         if (!Expressions.evaluate(column.validation, this.value)) {
-          this.errorPerColumn[
-            column.id
-          ] = `Applying validation rule returned error: ${column.validation}`;
+          return `Applying validation rule returned error: ${column.validation}`;
         }
       } catch (error) {
-        this.errorPerColumn[column.id] = `Invalid validation expression`;
+        return "Invalid validation expression";
       }
     },
     isRefLinkWithoutOverlap(column) {

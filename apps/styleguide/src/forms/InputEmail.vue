@@ -47,31 +47,8 @@ export default {
     InputAppend,
     FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
     IconAction
-  },
-  computed: {
-    errorMessage() {
-      if (!isEmpty(this.value) && this.required) {
-        return `${this.label} is required `;
-      } else {
-        return validateEmail(this.value);
-      }
-    }
   }
 };
-
-function isEmpty(value) {
-  return value === null || value === undefined || value === "";
-}
-
-function validateEmail(email) {
-  const emailRegex =
-    /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (!emailRegex.test(String(email).toLowerCase())) {
-    return "Invalid email address";
-  } else {
-    return;
-  }
-}
 </script>
 
 <style scoped>
