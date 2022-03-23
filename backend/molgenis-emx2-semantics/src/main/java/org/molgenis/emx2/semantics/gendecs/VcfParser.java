@@ -10,12 +10,14 @@ import java.util.regex.Pattern;
 public class VcfParser {
   File vcfFile;
   StarRating starRating;
+  ArrayList<String> hpoTerms;
 
   static Variants variants = new Variants();
 
-  public VcfParser(String filename, StarRating starRating) {
+  public VcfParser(String filename, StarRating starRating, ArrayList<String> hpoTerms) {
     vcfFile = new File(filename);
     this.starRating = starRating;
+    this.hpoTerms = hpoTerms;
   }
 
   private ArrayList<String> getRating(StarRating starRating) {
@@ -134,17 +136,20 @@ public class VcfParser {
 
     writeHeader(writerClinvar, "clinvar");
     writeHeader(writerResult, "result");
+    VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher(hpoTerms);
 
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
       for (Pattern stringToFind : stringsToFind.values()) {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
-            writerResult.write(
-                getKeyFromValue(stringsToFind, stringToFind)
-                    + System.getProperty("line.separator"));
-            writerClinvar.write(currentLine + System.getProperty("line.separator"));
-            variants.addVariant(currentLine);
+            if (variantHpoMatcher.matchVariantWithHpo(currentLine)) {
+              writerResult.write(
+                  getKeyFromValue(stringsToFind, stringToFind)
+                      + System.getProperty("line.separator"));
+              writerClinvar.write(currentLine + System.getProperty("line.separator"));
+              variants.addVariant(currentLine);
+            }
           }
         }
       }

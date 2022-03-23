@@ -8,17 +8,17 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.molgenis.emx2.semantics.gendecs.*;
-import spark.Request;
-import spark.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Request;
+import spark.Response;
 
 public class GendecsApi {
   static String filenameClinvar = "data/gendecs/clinvar_20220205.vcf";
   static String filenameData = "data/gendecs/vcfdata.vcf";
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
 
-  public void create() {
+  public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
     post("/:scheme/api/gendecs/vcffile", GendecsApi::matchVcfWithHpo);
   }
@@ -47,20 +47,21 @@ public class GendecsApi {
     }
 
     StarRating starRating = StarRating.ONESTAR;
-    VcfParser vcfParser = new VcfParser(filenameData, starRating);
+    VcfParser vcfParser = new VcfParser(filenameData, starRating, hpoTerms);
 
     if (vcfParser.removeStatus(filenameClinvar)) {
-      logger.info(
-          "Successfully removed " + starRating + " and below from " + filenameClinvar);
+      logger.info("Successfully removed " + starRating + " and below from " + filenameClinvar);
     }
 
     Variants variants = vcfParser.matchWithClinvar();
-    HashMap<String, String> genesHpo = variants.getGeneHpo();
+    //    HashMap<String, String> genesHpo = variants.getGeneHpo();
 
-    return Serialize.serializeMap(findMatches(hpoTerms, genesHpo));
+    return Serialize.serializeMap(VariantHpoMatcher.getGeneHpo());
+    //    return Serialize.serializeMap(findMatches(hpoTerms, genesHpo));
   }
 
-  private static HashMap<String, String> findMatches(ArrayList<String> hpoTerms, HashMap<String, String> genesHpo) {
+  private static HashMap<String, String> findMatches(
+      ArrayList<String> hpoTerms, HashMap<String, String> genesHpo) {
     HashMap<String, String> matchedGenes = new HashMap<>();
 
     for (String gene : genesHpo.keySet()) {
@@ -71,7 +72,8 @@ public class GendecsApi {
     return matchedGenes;
   }
 
-  private static void addAssociates(String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
+  private static void addAssociates(
+      String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
     JsonArray hpoChildren = jsonObject.get(name).getAsJsonArray();
     for (int i = 0; i < hpoChildren.size(); i++) {
       hpoTerms.add(hpoChildren.get(i).getAsString());
