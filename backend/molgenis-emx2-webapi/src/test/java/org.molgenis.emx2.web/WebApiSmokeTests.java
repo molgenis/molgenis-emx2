@@ -457,6 +457,9 @@ public class WebApiSmokeTests {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
   }
 
+  //  @Test
+  //  public void testSiteMapGerator
+
   @AfterClass
   public static void after() {
     MolgenisWebservice.stop();

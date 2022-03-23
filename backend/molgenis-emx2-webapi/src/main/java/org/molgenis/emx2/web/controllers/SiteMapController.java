@@ -11,8 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import kotlin.collections.EmptyList;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -70,7 +68,7 @@ public class SiteMapController {
 
   private static List<String> getResourcePids(Schema schema, String resourceName) {
     Table table = schema.getTable(resourceName);
-    if(table == null) {
+    if (table == null) {
       return Collections.emptyList();
     }
     List<Row> rows = table.select(s("pid")).retrieveRows();
