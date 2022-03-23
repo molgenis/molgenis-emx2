@@ -17,7 +17,9 @@ This needs to be placed in data/gendecs.
 
 If a term has been entered and the file has been placed in the directory the button
 "search for matches" can be pressed. 
-The program will then filter the .vcf file using ClinVar and will match the resulting variants with the selected HPO term. 
+The program will then filter the .vcf file using ClinVar.
+It will match the variants to HPO terms using [gene_to_phenotype.txt](https://hpo.jax.org/app/download/annotation)
+And will match the resulting HPO terms with the selected HPO term. 
 
 The matched variants with ClinVar are written to two files in data/gendecs. One file with
 the variant lines from Clinvar and one with the lines from the vcfdata.vcf file.
