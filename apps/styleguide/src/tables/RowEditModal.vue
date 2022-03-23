@@ -189,19 +189,26 @@ export default {
       if (column.required && isColumnValueInvalid) {
         this.errorPerColumn[column.id] = column.name + " is required ";
       } else {
-        const error = this.getColumnError(column);
-        console.log(error);
-        this.errorPerColumn[column.id] = error;
+        this.errorPerColumn[column.id] = this.getColumnError(column);
       }
     },
     getColumnError(column) {
       const emailRegex =
         /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      const hyperlinkRegex =
+        /^(https?:\/\/)?([\da-z\\.-]+)\.([a-z\\.]{2,6})([\\/\w \\.-]*)*\/?$/;
+
       if (
         column.columnType === "EMAIL" &&
         !emailRegex.test(String(this.value[column.id]).toLowerCase())
       ) {
         return "Invalid email address";
+      }
+      if (
+        column.columnType === "HYPERLINK" &&
+        !hyperlinkRegex.test(String(this.value[column.id]).toLowerCase())
+      ) {
+        return "Invalid hyperlink";
       }
       if (column.validation) {
         return this.evaluateValidationExpression(column);

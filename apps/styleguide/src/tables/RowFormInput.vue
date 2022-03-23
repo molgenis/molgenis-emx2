@@ -6,7 +6,11 @@
       v-on="$listeners"
     />
     <InputString
-      v-else-if="columnType === 'STRING'"
+      v-else-if="
+        columnType === 'STRING' ||
+        columnType === 'EMAIL' ||
+        columnType === 'HYPERLINK'
+      "
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
@@ -103,24 +107,13 @@
       v-model="input"
       v-on="$listeners"
     />
-    <InputEmail
-      v-else-if="columnType === 'EMAIL'"
-      v-bind="$props"
-      v-model="input"
-      v-on="$listeners"
-    />
-    <!-- <InputHyperLink
-      v-else-if="columnType === 'HYPERLINK'"
-      v-bind="$props"
-      v-model="input"
-      v-on="$listeners"
-    />
-    <InputLong
+    <!-- <InputLong
       v-else-if="columnType === 'LONG'"
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
     /> -->
+    -->
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
 </template>
@@ -136,8 +129,6 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputHeading from "../forms/InputHeading";
-import InputEmail from "../forms/InputEmail";
-// import InputHyperLink from '../forms/InputHyperLink';
 // import InputLong from '../forms/InputLong';
 
 export default {
@@ -175,8 +166,6 @@ export default {
     InputFile,
     InputText,
     InputHeading,
-    InputEmail,
-    // InputHyperLink,
     // InputLong,
     InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
