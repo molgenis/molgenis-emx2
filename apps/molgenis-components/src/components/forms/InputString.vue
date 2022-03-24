@@ -10,7 +10,7 @@
       type="text"
       class="form-control"
       :aria-describedby="id"
-      :placeholder="label"
+      :placeholder="placeholderValue"
     />
     <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
       >{{ helpText }}</small

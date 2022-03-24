@@ -16,6 +16,10 @@ export default {
       type: String,
       required: false
     },
+    placeholder: {
+      type: String,
+      required: false
+    },
     helpText: {
       type: String,
       required: false
@@ -24,6 +28,11 @@ export default {
       type: String,
       required: false,
       default: () => 'text'
+    }
+  },
+  computed: {
+    placeholderValue () {
+      return this.isNonEmptyString(this.placeholder) ? this.placeholder : this.label
     }
   },
   methods: {

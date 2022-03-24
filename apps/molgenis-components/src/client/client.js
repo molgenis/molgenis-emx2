@@ -95,9 +95,9 @@ const fetchTableData = async (
 ) => {
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
-    properties && properties.hasOwnProperty('limit') ? properties.limit : 20;
+    properties && Object.prototype.hasOwnProperty.call(properties, 'limit') ? properties.limit : 20;
   const offset =
-    properties && properties.hasOwnProperty('offset') ? properties.limit : 0;
+    properties && Object.prototype.hasOwnProperty.call(properties, 'offset') ? properties.limit : 0;
 
   const search =
     properties &&
@@ -123,9 +123,9 @@ const fetchTableData = async (
         }`;
 
   const filter =
-    properties && properties.hasOwnProperty('filter') ? properties.filter : {};
+    properties && Object.prototype.hasOwnProperty.call(properties, 'filter') ? properties.filter : {};
   const orderby =
-    properties && properties.hasOwnProperty('orderby')
+    properties && Object.prototype.hasOwnProperty.call(properties, 'orderby')
       ? properties.orderby
       : {};
   const resp = await axios
