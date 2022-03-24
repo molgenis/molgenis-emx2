@@ -1,7 +1,7 @@
 <template>
   <div class="autocomplete">
 <!--    <Info>Enter some information about the hpo search</Info>-->
-    <h2>Select HPO root term</h2>
+    <h2>Select HPO term</h2>
     <InputString v-model="hpoTerms" :list="true" :readonly="readOnly"
            @input="onChange"
            @keydown.down="onArrowDown"

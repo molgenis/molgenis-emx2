@@ -3,11 +3,11 @@
     <div id="titlediv">
       <h1>Welcome to GenDecS!</h1>
       <p>this page contains the prototype for GenDecS. Here you can enter a patient number together
-        with a HPO root-term/phenotype. When entered This prototype will gather the patient data from
-        the patient database. This data will be filtered on possible disease causing genes and
-        added to a new database. Then the filtered genes will be matched with HPO terms. The then
-        found terms will be checked if they match with the given root term/phenotype. This information
-        is then reported back.
+        with a HPO root-term/phenotype. When a number is entered a vcfdata file will be downloaded.
+        This data will be filtered on possible disease causing genes. Then the filtered genes will
+        be matched with HPO terms. The then found terms will be checked if they match with the
+        given HPO term(s) or its associates if checked. The resulting found variants are reported in
+        a file. A "match found!" message will appear if a match is found.
       </p>
     </div>
     <div id="searchdiv">
@@ -20,8 +20,7 @@
             v-model="searchAssociates"
             :options="['Search for parents and children']"
             description="check this box if you want to search for parents and children of
-                        your HPO term"
-        />
+                        your HPO term"/>
     </div>
     <div id="patientdiv">
       <PatientSearch class="inputForm"></PatientSearch>
@@ -85,7 +84,6 @@ export default {
   },
   methods: {
     addHpoResult(selectedHpoTerms) {
-      console.log(selectedHpoTerms);
       this.selectedHpoTerms.push(selectedHpoTerms);
     },
     async hpoTermToId(hpoTerm) {
@@ -106,7 +104,7 @@ export default {
 
       return hpoResults[0].name;
     },
-    async sendHpo(hpoIds) {
+    async getHpoAssociates(hpoIds) {
       /**
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * The parents and children of this term are returned by the backend.
@@ -149,9 +147,6 @@ export default {
         this.patientGenes = Object.keys(this.genesHpo);
       }
     },
-    getKeyByValue(object, value) {
-      return Object.keys(object).find(key => object[key] === value);
-    },
     async main() {
       this.loading = true;
       if(this.searchAssociates != null) {
@@ -160,10 +155,9 @@ export default {
           let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
           hpoIds.push(hpoId.replace(":", "_"));
         }
-        // this.hpoId = await this.hpoTermToId(this.selectedHpoTerm);
         this.hpoIds = hpoIds
 
-        await this.sendHpo(this.hpoIds);
+        await this.getHpoAssociates(this.hpoIds);
         this.searchAssociates = null;
       }
       await this.matchVcfWithHpo();
