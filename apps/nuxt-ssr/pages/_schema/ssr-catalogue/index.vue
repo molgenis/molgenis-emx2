@@ -37,12 +37,12 @@
         </count-card>
 
         <count-card
-          class="bg-info text-white"
-          :count="counts.databanks"
-          label="Data banks"
-          :to="{ path: this.routePath + 'Databanks' }"
+          class="bg-primary text-white"
+          :count="counts.datasources"
+          label="Data sources"
+          :to="{ path: this.routePath + 'Datasources' }"
         >
-          Data collections such as registries or biobanks
+          Collections of data banks covering the same population
         </count-card>
 
         <count-card
@@ -55,12 +55,12 @@
         </count-card>
 
         <count-card
-          class="bg-primary text-white"
-          :count="counts.datasources"
-          label="Data sources"
-          :to="{ path: this.routePath + 'Datasources' }"
+          class="bg-info text-white"
+          :count="counts.databanks"
+          label="Data banks"
+          :to="{ path: this.routePath + 'Databanks' }"
         >
-          Collections of data banks covering the same population
+          Data collections such as registries or biobanks
         </count-card>
 
         <count-card
