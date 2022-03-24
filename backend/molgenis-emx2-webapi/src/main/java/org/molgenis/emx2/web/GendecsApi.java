@@ -37,7 +37,10 @@ public class GendecsApi {
     ArrayList<String> hpoTerms = new ArrayList<>();
 
     JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
-    hpoTerms.add(jsonObject.get("hpoTerm").getAsString());
+    JsonArray hpoTermsIn = jsonObject.get("hpoTerms").getAsJsonArray();
+    for (int i = 0; i < hpoTermsIn.size(); i++) {
+      hpoTerms.add(hpoTermsIn.get(i).getAsString());
+    }
 
     if (jsonObject.get("hpoChildren") != null) {
       addAssociates("hpoChildren", hpoTerms, jsonObject);

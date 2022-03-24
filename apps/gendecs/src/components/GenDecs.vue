@@ -12,7 +12,7 @@
     </div>
     <div id="searchdiv">
       <SearchAutoComplete :items= "allHpoTerms"
-                          @selectedHpoTerm="addHpoResult" class="inputForm"
+                          @selectedHpoTerms="addHpoResult" class="inputForm"
       ></SearchAutoComplete>
 
       <InputCheckbox
@@ -36,11 +36,10 @@
       </div>
       <div class="results" v-else>
         <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
-        <p v-if="foundMatch"> {{ selectedHpoTerm }} has a match with the following gene(s): {{ patientGenes }}.
+        <p v-if="foundMatch"> {{ selectedHpoTerms }} has a match with the following gene(s): {{ patientGenes }}.
           Which was found in the patient vcf data</p>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -72,27 +71,28 @@ export default {
     return {
       geneAssociates: null,
       allHpoTerms: hpoData,
-      selectedHpoTerm: null,
+      selectedHpoTerms: [],
       foundMatch: false,
       hpoChildren: [],
       hpoParents: [],
-      hpoId: null,
+      hpoIds: null,
       searchAssociates: null,
       patientGenes: null,
       genesHpo: null,
-      loading: false
+      loading: false,
+      newForm: false
     };
   },
   methods: {
-    addHpoResult(selectedHpoTerm) {
-      this.selectedHpoTerm = selectedHpoTerm;
+    addHpoResult(selectedHpoTerms) {
+      console.log(selectedHpoTerms);
+      this.selectedHpoTerms.push(selectedHpoTerms);
     },
     async hpoTermToId(hpoTerm) {
       /**
       * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
       * This is then used to gather the ID of the term using an api call.
       * */
-
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
         .then(response => response.json());
       let hpoResults = resultData['terms'];
@@ -106,24 +106,27 @@ export default {
 
       return hpoResults[0].name;
     },
-    async sendHpo(hpoId) {
+    async sendHpo(hpoIds) {
       /**
       * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
       * The parents and children of this term are returned by the backend.
       * */
-      let requestOptions = {
-        method: 'POST',
-        body: JSON.stringify({ hpoId: hpoId })
-      };
-      let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
-          .then( response => response.json());
+      for (let i = 0; i < this.hpoIds.length; i++) {
+        let requestOptions = {
+          method: 'POST',
+          body: JSON.stringify({ hpoId: hpoIds[i] })
+        };
 
-      for (let i = 0; i < data["parents"].length; i++) {
-        let parentId = data["parents"][i];
-        let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
-        this.hpoParents.push(parentTerm);
+        let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
+            .then( response => response.json());
+
+        for (let i = 0; i < data["parents"].length; i++) {
+          let parentId = data["parents"][i];
+          let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
+          this.hpoParents.push(parentTerm);
+        }
+        this.hpoChildren.push(data["children"]);
       }
-      this.hpoChildren = data["children"];
     },
     async matchVcfWithHpo() {
       /**
@@ -134,7 +137,7 @@ export default {
        */
       let requestOptions = {
         method: 'POST',
-        body: JSON.stringify({ hpoTerm : this.selectedHpoTerm,
+        body: JSON.stringify({ hpoTerms : this.selectedHpoTerms,
           hpoChildren : this.hpoChildren,
           hpoParents : this.hpoParents})
       };
@@ -152,9 +155,15 @@ export default {
     async main() {
       this.loading = true;
       if(this.searchAssociates != null) {
-        this.hpoId = await this.hpoTermToId(this.selectedHpoTerm);
+        let hpoIds = [];
+        for (let i = 0; i < this.selectedHpoTerms.length; i++) {
+          let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
+          hpoIds.push(hpoId.replace(":", "_"));
+        }
+        // this.hpoId = await this.hpoTermToId(this.selectedHpoTerm);
+        this.hpoIds = hpoIds
 
-        await this.sendHpo(this.hpoId.replace(":", "_"));
+        await this.sendHpo(this.hpoIds);
         this.searchAssociates = null;
       }
       await this.matchVcfWithHpo();

@@ -2,34 +2,36 @@
   <div class="autocomplete">
 <!--    <Info>Enter some information about the hpo search</Info>-->
     <h2>Select HPO root term</h2>
-    <InputSearch v-model="HpoTerm"
+    <InputString v-model="hpoTerms" :list="true" :readonly="readOnly"
            @input="onChange"
            @keydown.down="onArrowDown"
            @keydown.up="onArrowUp"
            @keydown.enter="onEnter"
-           type="text"/>
-
-    <ul v-show="isOpen" class="autocomplete-results">
-      <li
-        v-if="isLoading"
-        class="loading"
-        >
-        <div>
-          <Spinner/>
-        </div>
-        Loading results...
-      </li>
-      <li
-        v-else-if="HpoTerm.length < 4" >
-      </li>
-      <li v-else
-          v-for="(result, i) in results" :key="i"
-          @click="setResult(result)"
-          class="autocomplete-result"
-          :class="{ 'is-active': i === arrowCounter }">
-        {{ result }}
-      </li>
-    </ul>
+           type="text"
+            />
+      <div v-if="typeof hpoTerms[hpoTerms.length - 1] === 'undefined'">
+      </div>
+      <div v-else-if="hpoTerms[hpoTerms.length - 1].length > 4">
+        <ul v-show="isOpen" class="autocomplete-results">
+          <li
+            v-if="isLoading"
+            class="loading"
+            >
+            <div>
+              <Spinner/>
+            </div>
+            Loading results...
+          </li>
+          <li v-else
+              v-for="(result, i) in results" :key="i"
+              @click="setResult(result)"
+              class="autocomplete-result"
+              :class="{ 'is-active': i === arrowCounter }">
+            {{ result }}
+          </li>
+        </ul>
+      </div>
+    <ButtonOutline @click="emitResults">Submit HPO Terms</ButtonOutline>
   </div>
 </template>
 
@@ -39,16 +41,20 @@
 import {
   Info,
   InputSearch,
-  Spinner
+  Spinner,
+  InputString,
+  ButtonOutline
 } from "@mswertz/emx2-styleguide";
 
 export default {
   name: "SearchAutoComplete",
-  emits: "selectedHpoTerm",
+  emits: "selectedHpoTerms",
   components: {
     InputSearch,
     Info,
-    Spinner
+    Spinner,
+    InputString,
+    ButtonOutline
   },
   props: {
     items: {
@@ -61,24 +67,18 @@ export default {
       required: false,
       default: false,
     }
-  },
+  }, // TODO add watcher for automatic emitting?
   data() {
     return {
-      HpoTerm: '',
+      hpoTerms: [""],
+      hpoTerm: '',
       results: [],
       isOpen: false,
       arrowCounter: -1,
-      isLoading: false
+      isLoading: false,
+      hpoTermsResults: [],
+      readOnly: false
     };
-  },
-  watch: {
-    items: function(value, oldValue) {
-      if (value.length !== oldValue.length) {
-        this.results = value;
-        // this.isOpen = true;
-        this.isLoading= false;
-      }
-    }
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
@@ -88,22 +88,30 @@ export default {
   },
   methods: {
     setResult(result) {
-      this.HpoTerm = result;
+      if (this.hpoTermsResults.length >= 1) {
+        this.hpoTerms[this.hpoTerms.length - 1] = result;
+        this.hpoTerms.push("");
+      } else {
+        this.hpoTerms[0] = result;
+        this.hpoTerms.push("");
+      }
+
       this.isOpen = false;
-      this.$emit('selectedHpoTerm', result);
+      this.hpoTermsResults.push(result);
+    },
+    emitResults() {
+      this.$emit('selectedHpoTerms', this.hpoTermsResults);
     },
     filterResults() {
-      this.results = this.items.filter(item => item.toLowerCase().indexOf(this.HpoTerm.toLowerCase()) > -1);
+      this.results = this.items.filter(item => item.toLowerCase().indexOf(
+          this.hpoTerms[this.hpoTerms.length - 1].toLowerCase()) > -1);
     },
     onChange() {
-      // this.$emit('input', this.HpoTerm);
-
-      if (this.isAsync) {
-        this.isLoading = true
-      } else {
-        this.filterResults();
-        this.isOpen = true;
+      if(this.hpoTerms.length - 1 !== this.hpoTermsResults.length) {
+        this.hpoTermsResults = this.hpoTerms;
       }
+      this.filterResults();
+      this.isOpen = true;
     },
     handleClickOutside(event) {
       if (!this.$el.contains(event.target)) {
@@ -126,12 +134,11 @@ export default {
       }
     },
     onEnter() {
-      this.HpoTerm = this.results[this.arrowCounter];
+      this.hpoTerm = this.results[this.arrowCounter];
       this.arrowCounter = -1;
       this.isOpen = false;
     }
   }
-
 };
 </script>
 

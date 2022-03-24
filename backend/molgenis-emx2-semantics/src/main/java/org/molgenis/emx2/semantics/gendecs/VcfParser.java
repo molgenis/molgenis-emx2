@@ -64,8 +64,9 @@ public class VcfParser {
    */
   public String removeStatus(String inputFile) {
     String pathName = String.format("data/gendecs/Filtered_Clinvar_%s.vcf", this.starRating);
-    Path path = Paths.get("data/gendecs/Filtered_ClinVar.vcf");
-    if(path.toFile().isFile()) {
+    Path path = Paths.get(pathName);
+    if (path.toFile().isFile()) {
+
       return pathName;
     } else {
       File filteredClinVar = new File(pathName);
@@ -75,7 +76,8 @@ public class VcfParser {
         Scanner reader = new Scanner(fileObject);
         while (reader.hasNextLine()) {
           String data = reader.nextLine();
-          if (stringContainsItemFromList(data, Objects.requireNonNull(getRating(this.starRating)))) {
+          if (stringContainsItemFromList(
+              data, Objects.requireNonNull(getRating(this.starRating)))) {
             continue;
           }
           writer.write(data + System.getProperty("line.separator"));
@@ -130,7 +132,8 @@ public class VcfParser {
     return null;
   }
 
-  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind, String pathName) throws IOException {
+  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind, String pathName)
+      throws IOException {
     File file = new File(pathName);
     Scanner reader = new Scanner(file);
 
