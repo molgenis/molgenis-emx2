@@ -386,9 +386,9 @@ public class TypeUtils {
         return TypeUtils.toUuid(v);
       case UUID_ARRAY:
         return TypeUtils.toUuidArray(v);
-      case STRING:
+      case STRING, EMAIL, HYPERLINK:
         return TypeUtils.toString(v);
-      case STRING_ARRAY:
+      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY:
         return TypeUtils.toStringArray(v);
       case BOOL:
         return TypeUtils.toBool(v);

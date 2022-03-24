@@ -47,10 +47,7 @@ public enum ColumnType {
   // format flavors that extend a baseType
   ONTOLOGY(REF),
   ONTOLOGY_ARRAY(REF_ARRAY),
-  // RFC 5322, see http://emailregex.com/
   EMAIL(STRING, EMAIL_REGEX),
-  // thank you to
-  // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   EMAIL_ARRAY(EMAIL_REGEX),
   HYPERLINK(STRING, HYPERLINK_REGEX),
   HYPERLINK_ARRAY(HYPERLINK_REGEX);

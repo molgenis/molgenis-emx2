@@ -59,6 +59,7 @@ public class Constants {
   };
   protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
 
+  // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
       "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]"
           + "+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
@@ -66,8 +67,10 @@ public class Constants {
           + "@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
           + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
           + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+  // thank you to
+  // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
-      "((http|https)://)(www.)?"
+      "((https?)://)?(www.)?"
           + "[a-zA-Z0-9@:%._\\+~#?&//=]"
           + "{2,256}\\.[a-z]"
           + "{2,6}\\b([-a-zA-Z0-9@:%"

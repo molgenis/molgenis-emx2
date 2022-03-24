@@ -49,6 +49,7 @@ import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
 import Expressions from "@molgenis/expressions";
+import {EMAIL_REGEX, HYPERLINK_REGEX} from "../constants";
 
 export default {
   extends: TableMixin,
@@ -179,70 +180,41 @@ export default {
       }
     },
     validateColumn(column) {
-      const isInvalidNumber =
-        typeof this.value[column.id] === "number" &&
-        isNaN(this.value[column.id]);
-      const isColumnValueInvalid =
-        this.value[column.id] === undefined ||
-        this.value[column.id] === null ||
-        isInvalidNumber;
-      if (column.required && isColumnValueInvalid) {
+      const value = this.value[column.id];
+      const isInvalidNumber = typeof value === "number" && isNaN(value);
+      const missesValue = value === undefined || value === null || value === "";
+      if (column.required && (missesValue || isInvalidNumber)) {
         this.errorPerColumn[column.id] = column.name + " is required ";
+      } else if (missesValue) {
+        this.errorPerColumn[column.id] = undefined;
       } else {
         this.errorPerColumn[column.id] = this.getColumnError(column);
       }
     },
     getColumnError(column) {
-      const emailRegex =
-        /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      const hyperlinkRegex =
-        /^(https?:\/\/)?([\da-z\\.-]+)\.([a-z\\.]{2,6})([\\/\w \\.-]*)*\/?$/;
+      const value = this.value[column.id];
+      const type = column.columnType;
 
-      if (
-        column.columnType === "EMAIL" &&
-        !emailRegex.test(String(this.value[column.id]).toLowerCase())
-      ) {
+      if (type === "EMAIL" && !isValidEmail(value)) {
         return "Invalid email address";
       }
-      if (
-        column.columnType === "EMAIL_ARRAY" &&
-        this.value[column.id].find(
-          (email) => !emailRegex.test(String(email).toLowerCase())
-        )
-      ) {
+      if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
         return "Invalid email address";
       }
-      if (
-        column.columnType === "HYPERLINK" &&
-        !hyperlinkRegex.test(String(this.value[column.id]).toLowerCase())
-      ) {
+      if (type === "HYPERLINK" && !isValidHyperlink(value)) {
         return "Invalid hyperlink";
       }
-      if (
-        column.columnType === "HYPERLINK_ARRAY" &&
-        this.value[column.id].find(
-          (email) => !hyperlinkRegex.test(String(email).toLowerCase())
-        )
-      ) {
+      if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
         return "Invalid hyperlink";
       }
       if (column.validation) {
-        return this.evaluateValidationExpression(column);
+        return evaluateValidationExpression(column, this.value);
       }
       if (this.isRefLinkWithoutOverlap(column)) {
         return `value should match your selection in column '${column.refLink}' `;
       }
 
       return undefined;
-    },
-    evaluateValidationExpression(column) {
-      try {
-        if (!Expressions.evaluate(column.validation, this.value)) {
-          return `Applying validation rule returned error: ${column.validation}`;
-        }
-      } catch (error) {
-        return "Invalid validation expression";
-      }
     },
     isRefLinkWithoutOverlap(column) {
       if (!column.refLink) {
@@ -334,6 +306,32 @@ export default {
     this.validate();
   }
 };
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !isValidEmail(email));
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    }
+  } catch (error) {
+    return "Invalid validation expression";
+  }
+}
 
 function getRefLinkColumnByName(tableMetadata, refLink) {
   return tableMetadata.columns.find((column) => column.name === refLink);
