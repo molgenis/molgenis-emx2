@@ -23,7 +23,9 @@ public class GroupPathMapper {
   }
 
   public static void create() {
-
+    /*
+     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
+     */
     // redirect graphql api in convenient ways
     get("/:schema/graphql", GraphqlApi::handleSchemaRequests);
     post("/:schema/graphql", GraphqlApi::handleSchemaRequests);
@@ -31,8 +33,14 @@ public class GroupPathMapper {
     get("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
     post("/:schema/:appname/graphql", GraphqlApi::handleSchemaRequests);
 
-    // redirect theme
     get("/:schema/:appname/theme.css", BootstrapThemeService::getCss);
+
+    get(
+        "/:schema/:app",
+        (req, res) -> {
+          res.redirect("/" + req.params(MolgenisWebservice.SCHEMA) + "/" + req.params("app") + "/");
+          return "";
+        });
 
     // return index.html file when in root
     get("/*/:appname/", GroupPathMapper::returnIndexFile);
