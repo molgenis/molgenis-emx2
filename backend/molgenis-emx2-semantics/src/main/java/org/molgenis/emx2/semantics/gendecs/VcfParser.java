@@ -1,5 +1,8 @@
 package org.molgenis.emx2.semantics.gendecs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -13,6 +16,7 @@ public class VcfParser {
   File vcfFile;
   StarRating starRating;
   ArrayList<String> hpoTerms;
+  private static final Logger logger = LoggerFactory.getLogger(VcfParser.class);
 
   public VcfParser(String filename, StarRating starRating, ArrayList<String> hpoTerms) {
     vcfFile = new File(filename);
@@ -66,7 +70,6 @@ public class VcfParser {
     String pathName = String.format("data/gendecs/Filtered_Clinvar_%s.vcf", this.starRating);
     Path path = Paths.get(pathName);
     if (path.toFile().isFile()) {
-
       return pathName;
     } else {
       File filteredClinVar = new File(pathName);
@@ -154,6 +157,7 @@ public class VcfParser {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
             if (variantHpoMatcher.matchVariantWithHpo(currentLine)) {
+              logger.debug("The following line is pathogenic and matched with the HPO term: " + currentLine);
               writerResult.write(
                   getKeyFromValue(stringsToFind, stringToFind)
                       + System.getProperty("line.separator"));
@@ -180,7 +184,7 @@ public class VcfParser {
         writer.write(line + System.getProperty("line.separator"));
       }
     } else {
-      System.out.println("invalid header argument " + headerType);
+      logger.info("invalid header argument " + headerType);
     }
   }
 

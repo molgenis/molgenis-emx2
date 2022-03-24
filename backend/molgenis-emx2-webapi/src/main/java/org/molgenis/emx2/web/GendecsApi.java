@@ -28,6 +28,7 @@ public class GendecsApi {
     String hpoId = jsonObject.get("hpoId").getAsString();
 
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
+    logger.info("Started querying for parents and children of: " + hpoId);
     HpoTerm hpoTerm = owlQuerier.executeQuery();
 
     return Serialize.serializeHpo(hpoTerm);
@@ -49,19 +50,25 @@ public class GendecsApi {
       addAssociates("hpoParents", hpoTerms, jsonObject);
     }
 
-    StarRating starRating = StarRating.ONESTAR;
-    VcfParser vcfParser = new VcfParser(filenameData, starRating, hpoTerms);
-
-    String pathName = vcfParser.removeStatus(filenameClinvar);
-    Variants variants = vcfParser.matchWithClinvar(pathName);
-
-    HashMap<String, String> genesHpo = variants.getGeneHpo();
+    HashMap<String, String> genesHpo = getGenesHpo(hpoTerms);
 
     return Serialize.serializeMap(genesHpo);
   }
 
-  private static void addAssociates(
-      String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
+  private static HashMap<String, String> getGenesHpo(ArrayList<String> hpoTerms) {
+    StarRating starRating = StarRating.ONESTAR;
+    VcfParser vcfParser = new VcfParser(filenameData, starRating, hpoTerms);
+
+    String pathName = vcfParser.removeStatus(filenameClinvar);
+    logger.info("Removed " + starRating + " and lower from " + filenameClinvar);
+    logger.info("Matching variants with the entered HPO terms");
+    logger.debug("Matching variants with the following HPO terms: " + hpoTerms);
+
+    Variants variants = vcfParser.matchWithClinvar(pathName);
+    return variants.getGeneHpo();
+  }
+
+  private static void addAssociates(String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
     JsonArray hpoChildren = jsonObject.get(name).getAsJsonArray();
     for (int i = 0; i < hpoChildren.size(); i++) {
       hpoTerms.add(hpoChildren.get(i).getAsString());
