@@ -78,6 +78,8 @@ import StringDisplay from "./tables/cellTypes/StringDisplay";
 import ObjectDisplay from "./tables/cellTypes/ObjectDisplay";
 import TextDisplay from "./tables/cellTypes/TextDisplay";
 import FileDisplay from "./tables/cellTypes/FileDisplay";
+import EmailDisplay from "./tables/cellTypes/EmailDisplay";
+import HyperlinkDisplay from "./tables/cellTypes/HyperlinkDisplay";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
@@ -165,6 +167,8 @@ export {
   ObjectDisplay,
   TextDisplay,
   FileDisplay,
+  EmailDisplay,
+  HyperlinkDisplay,
   MolgenisSignin,
   PageHeader,
   GridBlock,
@@ -173,5 +177,5 @@ export {
   PersonDetails,
   ContactDisplay,
   LinksList,
-  TableDisplay,
+  TableDisplay
 };
