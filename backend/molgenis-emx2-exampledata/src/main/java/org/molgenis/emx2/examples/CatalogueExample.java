@@ -3,11 +3,14 @@ package org.molgenis.emx2.examples;
 import java.io.File;
 import java.io.IOException;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CatalogueExample {
   private CatalogueExample() {}
@@ -23,7 +26,7 @@ public class CatalogueExample {
       catalogueMetadata =
           Emx2.fromRowList(CsvTableReader.read(new File("../../data/datacatalogue/molgenis.csv")));
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new MolgenisException("Failed to load molgenis.csv sample data", e);
     }
 
     ontologySchema.migrate(catalogueMetadata);
