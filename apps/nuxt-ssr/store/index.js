@@ -30,7 +30,7 @@ export const getters = {
       return [];
     }
 
-    return JSON.parse(menuSetting.value).map((menuItem) => {
+    const menuItems =  JSON.parse(menuSetting.value).map((menuItem) => {
       // Strip the added ssr context from the menu.href if relative
       const separator = menuItem.href.startsWith('/') ? '' : '/';
       if (menuItem.href) {
@@ -40,6 +40,12 @@ export const getters = {
       }
       return menuItem;
     });
+
+    const menuItemsForUser = menuItems.filter(menuItem => {
+      return state.session.roles.includes(menuItem.role)
+    })
+
+    return menuItemsForUser;
   },
   isOidcEnabled(state) {
     const oidcSetting = state.settings.find((s) => s.key === 'isOidcEnabled');
