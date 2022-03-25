@@ -15464,12 +15464,12 @@ vscode-languageserver-types@^3.15.1:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
   integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
 
-vue-cli-plugin-styleguidist@4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.22.tgz#d0909a7296d4cd7260e093741563f50d9700cde1"
-  integrity sha512-xuqM+gXgjvAt90p4e/stXnw1uqPxy89lQF59HwkZUUFEwfqugoi/+BS8iqPSAyGrDhhfVKZkRRe3vWq627mW2g==
+vue-cli-plugin-styleguidist@4.44.26:
+  version "4.44.26"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.26.tgz#a506e85c5c257ad71ecd32c1472a0bb1ee9e1c50"
+  integrity sha512-S06dGLSKfmCv/mkUfXaS6qmkgjg6PIyqCyG3xODtGKaMQecc51xkKzoe7vCFlO4n+IczC2rxlFDNsF/XL89RHQ==
   dependencies:
-    vue-styleguidist "^4.44.22"
+    vue-styleguidist "^4.44.26"
     webpack-merge "^4.2.2"
 
 vue-client-only@^2.0.0:
@@ -15477,10 +15477,10 @@ vue-client-only@^2.0.0:
   resolved "https://registry.yarnpkg.com/vue-client-only/-/vue-client-only-2.1.0.tgz#1a67a47b8ecacfa86d75830173fffee3bf8a4ee3"
   integrity sha512-vKl1skEKn8EK9f8P2ZzhRnuaRHLHrlt1sbRmazlvsx6EiC3A8oWF8YCBrMJzoN+W3OnElwIGbVjsx6/xelY1AA==
 
-vue-docgen-api@^4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-docgen-api/-/vue-docgen-api-4.44.22.tgz#21e42e26924d5e758d899348b35e145265c20621"
-  integrity sha512-r99SeIZRqVsu1MJ49sgSmONFbqWXN9HnPxS1W1hfhOGKVqgfBWzXpJsexBuLN7XIerQM8Y1908S7AAV6GJVbRQ==
+vue-docgen-api@^4.44.23:
+  version "4.44.23"
+  resolved "https://registry.yarnpkg.com/vue-docgen-api/-/vue-docgen-api-4.44.23.tgz#e6763b43b6a4083fb871c6ecc8e8cb4538b3846f"
+  integrity sha512-6l/k+g+XS35ccCDNw8bGtbSqcDKh2kA6kSohAIY7EGihK1nrWWr3w8cLfLZn1dg/lI+sou+DQZwuHFLjFiiqhA==
   dependencies:
     "@babel/parser" "^7.13.12"
     "@babel/types" "^7.13.12"
@@ -15492,7 +15492,7 @@ vue-docgen-api@^4.44.22:
     pug "^3.0.2"
     recast "0.20.5"
     ts-map "^1.0.3"
-    vue-inbrowser-compiler-utils "^4.44.22"
+    vue-inbrowser-compiler-utils "^4.44.23"
 
 vue-eslint-parser@^7.10.0:
   version "7.11.0"
@@ -15519,30 +15519,30 @@ vue-hot-reload-api@^2.3.0:
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
 
-vue-inbrowser-compiler-demi@^4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-demi/-/vue-inbrowser-compiler-demi-4.44.22.tgz#ed6272adfa4153db4f0055aabc8cf71adfa649d8"
-  integrity sha512-J+VcduUx6iwj3cfz+huB2yhwrhL8Gk4cmXe4gspURfmDMc9uukgiDWJEEDUHQCxFT+R/zA4uQgBjKexWcHZKUw==
+vue-inbrowser-compiler-demi@^4.44.23:
+  version "4.44.23"
+  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-demi/-/vue-inbrowser-compiler-demi-4.44.23.tgz#7410e160db0e0639aa0ba5c3af6a0c02606d4242"
+  integrity sha512-/gZxAana4VTJWACNTi4RL5Zs5bVDIUDJ9XlaibzmY3Nf32WK43tvmjrUe+f5uGYLysCHE9SFjFvRKaAhXnzXgA==
 
-vue-inbrowser-compiler-utils@^4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-utils/-/vue-inbrowser-compiler-utils-4.44.22.tgz#f4d95f2bfb811e41f6f7c4e9e34b976eea922fd4"
-  integrity sha512-wOW6JSG+YXzrYMglP6AVkERM+1Yp371UT88eTkkZe4z/LFRuTGhZZFUKV1u9SuUEwIzd0nC+seEVzLdEwGGZvA==
+vue-inbrowser-compiler-utils@^4.44.23:
+  version "4.44.23"
+  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler-utils/-/vue-inbrowser-compiler-utils-4.44.23.tgz#fcbe942ce87a846d1b9250561844085a6ead3e09"
+  integrity sha512-M2U6TPTU1QCiKFYUxgHy47xdZcKLPSbeTpeamHBtfIut1sjKOMtYmAOQ3IrX3W/v8A7j7jGadY4ieA1j3zQICw==
   dependencies:
     camelcase "^5.3.1"
-    vue-inbrowser-compiler-demi "^4.44.22"
+    vue-inbrowser-compiler-demi "^4.44.23"
 
-vue-inbrowser-compiler@^4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler/-/vue-inbrowser-compiler-4.44.22.tgz#5fd9c734e7443c4bb8899562f69f41c1745de75d"
-  integrity sha512-xWIS75tWjLeWc+GsOKx/tgpWJ5kGn45+aFV26L0ChPVShef4kfUWc3MrwRNzI18bQqvJNaJ13LflQcElHyICZA==
+vue-inbrowser-compiler@^4.44.23:
+  version "4.44.23"
+  resolved "https://registry.yarnpkg.com/vue-inbrowser-compiler/-/vue-inbrowser-compiler-4.44.23.tgz#d6657f21c8b7cb740048323d497c8bd0dca6e787"
+  integrity sha512-w8qyP0bUDbS25gsGqHwFmzvmO6ZzbERBcg5/+FGMVhnuHqVB47owFN42NAFeO41PDA4oKMISDNLpO4dpyI0GxA==
   dependencies:
     acorn "^6.4.2"
     acorn-jsx "^5.3.1"
     buble "^0.20.0"
     camelcase "^5.3.1"
     detect-browser "^5.2.0"
-    vue-inbrowser-compiler-utils "^4.44.22"
+    vue-inbrowser-compiler-utils "^4.44.23"
     walkes "^0.2.1"
 
 vue-jest@^3.0.5:
@@ -15636,10 +15636,10 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.2, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-styleguidist@^4.44.22:
-  version "4.44.22"
-  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.22.tgz#d52529379d880a3f02d980b6d84ed9bd0f573934"
-  integrity sha512-lbr7NmqYS3lzHgQmeirzThjQLmLYNkyOhSLL6rBBy9wrUMR0Tt2YHD/CI15YniS6+rbpFHwA6FUXffLUdzgZhw==
+vue-styleguidist@^4.44.26:
+  version "4.44.26"
+  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.26.tgz#bfd1b727ff16a9e2032c190c7b9e8307063e686b"
+  integrity sha512-Kce1tnc2ViWEqiLrQTdtXp20N0lB10EYc382XMD+nzXdxM5HFAbPBV6njkeTel4oMFuBRyBKfkE4wErTRyNViA==
   dependencies:
     "@vxna/mini-html-webpack-template" "^1.0.0"
     ast-types "0.13.4"
@@ -15690,9 +15690,9 @@ vue-styleguidist@^4.44.22:
     style-loader "^1.3.0"
     terser-webpack-plugin "^2.3.8"
     to-ast "^1.0.0"
-    vue-docgen-api "^4.44.22"
-    vue-inbrowser-compiler "^4.44.22"
-    vue-inbrowser-compiler-utils "^4.44.22"
+    vue-docgen-api "^4.44.23"
+    vue-inbrowser-compiler "^4.44.23"
+    vue-inbrowser-compiler-utils "^4.44.23"
     webpack-dev-server "^3.11.2"
     webpack-merge "^4.2.2"
 
