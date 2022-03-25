@@ -28,21 +28,21 @@
         </count-card>
 
         <count-card
+          class="bg-danger text-white"
+          :count="counts.networks"
+          label="Networks"
+          :to="{ path: this.routePath + 'Networks' }"
+        >
+          Collaborations of multiple institutions
+        </count-card>
+
+        <count-card
           class="bg-primary text-white"
           :count="counts.datasources"
           label="Data sources"
           :to="{ path: this.routePath + 'Datasources' }"
         >
           Collections of data banks covering the same population
-        </count-card>
-
-        <count-card
-          class="bg-info text-white"
-          :count="counts.databanks"
-          label="Data banks"
-          :to="{ path: this.routePath + 'Databanks' }"
-        >
-          Data collections such as registries or biobanks
         </count-card>
 
         <count-card
@@ -55,12 +55,12 @@
         </count-card>
 
         <count-card
-          class="bg-danger text-white"
-          :count="counts.networks"
-          label="Networks"
-          :to="{ path: this.routePath + 'Networks' }"
+          class="bg-info text-white"
+          :count="counts.databanks"
+          label="Data banks"
+          :to="{ path: this.routePath + 'Databanks' }"
         >
-          Collaborations of multiple institutions
+          Data collections such as registries or biobanks
         </count-card>
 
         <count-card
