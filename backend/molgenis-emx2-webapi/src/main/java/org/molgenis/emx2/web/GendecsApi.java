@@ -39,6 +39,7 @@ public class GendecsApi {
 
     JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
     JsonArray hpoTermsIn = jsonObject.get("hpoTerms").getAsJsonArray();
+
     for (int i = 0; i < hpoTermsIn.size(); i++) {
       hpoTerms.add(hpoTermsIn.get(i).getAsString());
     }
@@ -68,7 +69,8 @@ public class GendecsApi {
     return variants.getGeneHpo();
   }
 
-  private static void addAssociates(String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
+  private static void addAssociates(
+      String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
     JsonArray hpoChildren = jsonObject.get(name).getAsJsonArray();
     for (int i = 0; i < hpoChildren.size(); i++) {
       hpoTerms.add(hpoChildren.get(i).getAsString());

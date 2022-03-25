@@ -84,7 +84,9 @@ export default {
   },
   methods: {
     addHpoResult(selectedHpoTerms) {
-      this.selectedHpoTerms.push(selectedHpoTerms);
+      for (let i = 0; i < selectedHpoTerms.length; i++) {
+        this.selectedHpoTerms.push(selectedHpoTerms[i])
+      }
     },
     async hpoTermToId(hpoTerm) {
       /**
@@ -92,14 +94,30 @@ export default {
       * This is then used to gather the ID of the term using an api call.
       * */
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
-        .then(response => response.json());
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error("Something went wrong");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       let hpoResults = resultData['terms'];
 
       return hpoResults[0].id;
     },
     async hpoIdToTerm(hpoId) {
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoId)
-          .then(response => response.json());
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error("Something went wrong");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       let hpoResults = resultData['terms'];
 
       return hpoResults[0].name;
@@ -116,7 +134,15 @@ export default {
         };
 
         let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
-            .then( response => response.json());
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error("Something went wrong");
+            })
+            .catch((error) => {
+              console.log(error);
+            });
 
         for (let i = 0; i < data["parents"].length; i++) {
           let parentId = data["parents"][i];
@@ -140,7 +166,15 @@ export default {
           hpoParents : this.hpoParents})
       };
       this.genesHpo = await fetch('/patients/api/gendecs/vcffile', requestOptions)
-            .then(response => response.json());
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error("Something went wrong");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
 
       if(this.genesHpo.length !== 0) {
         this.foundMatch = true;

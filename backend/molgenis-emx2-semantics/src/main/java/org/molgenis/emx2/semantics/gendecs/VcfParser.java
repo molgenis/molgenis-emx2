@@ -1,8 +1,5 @@
 package org.molgenis.emx2.semantics.gendecs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VcfParser {
   File vcfFile;
@@ -157,7 +156,8 @@ public class VcfParser {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
             if (variantHpoMatcher.matchVariantWithHpo(currentLine)) {
-              logger.debug("The following line is pathogenic and matched with the HPO term: " + currentLine);
+              logger.debug(
+                  "The following line is pathogenic and matched with the HPO term: " + currentLine);
               writerResult.write(
                   getKeyFromValue(stringsToFind, stringToFind)
                       + System.getProperty("line.separator"));

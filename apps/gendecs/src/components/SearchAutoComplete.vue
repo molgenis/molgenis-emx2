@@ -1,6 +1,8 @@
 <template>
   <div class="autocomplete">
+<!--    <div>-->
 <!--    <Info>Enter some information about the hpo search</Info>-->
+<!--    </div>-->
     <h2>Select HPO term</h2>
     <InputString v-model="hpoTerms" :list="true" :readonly="readOnly"
            @input="onChange"
@@ -110,9 +112,17 @@ export default {
       if(this.hpoTerms.length - 1 !== this.hpoTermsResults.length) {
         this.hpoTermsResults = this.hpoTerms;
       }
+      if (typeof this.hpoTerms[this.hpoTerms.length - 1] === 'undefined') {
+        this.hpoTerms[this.hpoTerms.length - 1] = "";
+      }
+      if (this.hpoTerms[this.hpoTerms.length - 1].length === 0 && this.hpoTerms.length > 1) {
+        this.hpoTerms[this.hpoTerms.length - 1] = "";
+
+      }
       this.filterResults();
       this.isOpen = true;
     },
+
     handleClickOutside(event) {
       if (!this.$el.contains(event.target)) {
         this.arrowCounter = -1;
