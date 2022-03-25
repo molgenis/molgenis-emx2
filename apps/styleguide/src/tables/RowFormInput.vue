@@ -82,7 +82,7 @@
       :graphqlURL="graphqlURL"
       v-on="$listeners"
     />
-    <inputRefback
+    <InputRefback
       v-else-if="refBackType == 'REF'"
       v-bind="$props"
       :table="table"
@@ -117,7 +117,6 @@
       v-model="input"
       v-on="$listeners"
     /> -->
-    -->
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
 </template>
