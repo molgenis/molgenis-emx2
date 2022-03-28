@@ -242,6 +242,7 @@ Subcohorts,,resource,ref,1,TRUE,Resources,,,,,,Resource this subcohort is part o
 Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,,Subcohort description
 Subcohorts,,numberOfParticipants,int,,,,,,,,,Number of participants in this subcohort
+Subcohorts,,counts,refback,,,SubcohortCounts,,,subcohort,,,"Total number of unique individuals per age(group), gender and year"
 Subcohorts,,inclusionStart,int,,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,AgeGroups,CatalogueOntologies,,,,,Age groups within this subcohort
@@ -379,6 +380,11 @@ Counts,,year,int,1,TRUE,,,,,,,
 Counts,,ageband,,1,TRUE,,,,,,,
 Counts,,gender,,1,TRUE,,,,,,,
 Counts,,N,int,,TRUE,,,,,,,
+SubcohortCounts,,subcohort,ref,1,TRUE,Subcohorts,,,,,,
+SubcohortCounts,,year,int,1,TRUE,,,,,,,
+SubcohortCounts,,ageband,,1,TRUE,,,,,,,
+SubcohortCounts,,gender,,1,TRUE,,,,,,,
+SubcohortCounts,,N,int,,TRUE,,,,,,,
 PopulationSizes,,,,,,,,,,,,"Population size captured and population active, stratified by age (most recent counts)"
 PopulationSizes,,databank,ref,1,TRUE,Databanks,,,,,,Databank to which population size applies
 PopulationSizes,,ageband,,1,TRUE,,,,,,,Age band to which the counts apply
