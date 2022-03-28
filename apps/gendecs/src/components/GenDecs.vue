@@ -149,7 +149,10 @@ export default {
           let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
           this.hpoParents.push(parentTerm);
         }
-        this.hpoChildren.push(data["children"]);
+        console.log("data children" + data["children"]);
+        for (let j = 0; j < data["children"].length; j++) {
+          this.hpoChildren.push(data["children"][i]);
+        }
       }
     },
     async matchVcfWithHpo() {
