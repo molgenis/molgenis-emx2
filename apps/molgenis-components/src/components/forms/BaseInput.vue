@@ -32,12 +32,7 @@ export default {
   },
   computed: {
     placeholderValue () {
-      return this.isNonEmptyString(this.placeholder) ? this.placeholder : this.label
-    }
-  },
-  methods: {
-    isNonEmptyString(s) {
-      return s !== null && s !== undefined && s.length;
+      return this.placeholder !== null && this.placeholder !== undefined && this.placeholder.length ? this.placeholder : this.label
     }
   }
 };

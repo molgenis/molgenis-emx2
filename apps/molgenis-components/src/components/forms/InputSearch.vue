@@ -1,32 +1,25 @@
 <template>
-  <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :for="id">{{
-      label
-    }}</label>
+  <FormGroup :id="id" :label="label" :helpText="helpText">
     <input
       :id="id"
       :ref="id"
-      v-model="input" 
+      v-model="input"
       type="text"
       class="form-control"
       :aria-describedby="id"
       placeholder="Search"
     />
-    <small
-      v-if="isNonEmptyString(helpText)"
-      :id="id + '-help-text'"
-      class="form-text text-muted"
-      >{{ helpText }}</small
-    >
-  </div>
+  </FormGroup>
 </template>
 
 <script>
 import BaseInput from './BaseInput.vue';
+import FormGroup from './FormGroup.vue';
 
 export default {
   name: 'InputSearch',
   extends: BaseInput,
+  components: {FormGroup},
   props: {
     debounceTime: {
       type: Number,
@@ -34,7 +27,7 @@ export default {
       default: () => 300
     }
   },
-  data () {
+  data() {
     return {
       timeout: null,
       debouncedInput: this.value
@@ -49,7 +42,7 @@ export default {
         if (this.timeout) clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
           this.debouncedInput = val;
-          this.$emit('input', this.debouncedInput)
+          this.$emit('input', this.debouncedInput);
         }, this.debounceTime);
       }
     }
