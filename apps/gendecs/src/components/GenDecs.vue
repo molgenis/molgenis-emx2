@@ -11,7 +11,7 @@
       </p>
     </div>
     <div id="searchdiv">
-      <SearchAutoComplete :items= "allHpoTerms"
+      <SearchAutoComplete :items= "allHpoTerms" :readOnly="this.readOnly"
                           @selectedHpoTerms="addHpoResult" class="inputForm"
       ></SearchAutoComplete>
 
@@ -38,7 +38,10 @@
         <p v-if="foundMatch"> {{ selectedHpoTerms }} has a match with the following gene(s): {{ patientGenes }}.
           Which was found in the patient vcf data</p>
       </div>
+      <ButtonOutline @click="clearData">Click this for new search</ButtonOutline>
+
     </div>
+
   </div>
 </template>
 
@@ -79,7 +82,7 @@ export default {
       patientGenes: null,
       genesHpo: null,
       loading: false,
-      newForm: false
+      readOnly: false,
     };
   },
   methods: {
@@ -186,6 +189,8 @@ export default {
     },
     async main() {
       this.loading = true;
+      this.foundMatch = false;
+
       if(this.searchAssociates != null) {
         let hpoIds = [];
         for (let i = 0; i < this.selectedHpoTerms.length; i++) {
@@ -199,6 +204,20 @@ export default {
       }
       await this.matchVcfWithHpo();
       this.loading = false;
+      this.readOnly = true;
+    },
+    clearData() {
+      this.geneAssociates = null;
+      this.selectedHpoTerms = [];
+      this.hpoChildren = [];
+      this.hpoParents = [];
+      this.hpoIds = null;
+      this.searchAssociates = null;
+      this.patientGenes = null;
+      this.genesHpo = null;
+      this.loading = false;
+      this.readOnly = false;
+      this.foundMatch = false;
     }
   },
 };

@@ -4,7 +4,7 @@
 <!--    <Info>Enter some information about the hpo search</Info>-->
 <!--    </div>-->
     <h2>Select HPO term</h2>
-    <InputString v-model="hpoTerms" :list="true" :readonly="readOnly"
+    <InputString v-model="hpoTerms" :list="true" :readonly="this.readOnly"
            @input="onChange"
            @keydown.down="onArrowDown"
            @keydown.up="onArrowUp"
@@ -68,7 +68,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
-    }
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
   }, // TODO add watcher for automatic emitting?
   data() {
     return {
@@ -79,7 +83,6 @@ export default {
       arrowCounter: -1,
       isLoading: false,
       hpoTermsResults: [],
-      readOnly: false
     };
   },
   mounted() {
