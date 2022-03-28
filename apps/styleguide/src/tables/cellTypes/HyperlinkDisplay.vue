@@ -8,8 +8,8 @@ export default {
   props: {
     data: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 };
 </script>

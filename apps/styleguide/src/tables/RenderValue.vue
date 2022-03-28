@@ -13,12 +13,11 @@
     </span>
   </span>
   <span v-else-if="row[col.id]">
-    <a v-if="col.columnType == 'HYPERLINK'" :href="row[col.id]" target="_blank">
-      {{ row[col.id] }}
-    </a>
-    <a v-else-if="col.columnType == 'EMAIL'" :href="`mailto:${row[col.id]}`">
-      {{ row[col.id] }}
-    </a>
+    <HyperlinkDisplay
+      v-if="col.columnType === 'HYPERLINK'"
+      :data="row[col.id]"
+    />
+    <EmailDisplay v-else-if="col.columnType === 'EMAIL'" :data="row[col.id]" />
     <span v-else>
       {{
         col.refLabel ? applyJsTemplate(col.refLabel, row[col.id]) : row[col.id]
@@ -28,10 +27,17 @@
 </template>
 
 <script>
+import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
+import EmailDisplay from "./cellTypes/EmailDisplay.vue";
+
 export default {
   props: {
     row: Object,
-    col: Object
+    col: Object,
+  },
+  components: {
+    HyperlinkDisplay,
+    EmailDisplay,
   },
   methods: {
     applyJsTemplate(template, object) {
@@ -50,7 +56,7 @@ export default {
           template
         );
       }
-    }
-  }
+    },
+  },
 };
 </script>
