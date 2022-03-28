@@ -29,6 +29,14 @@
         </p>
       </RouterLink>
       <RouterLink
+        to="Networks"
+        class="card card-body bg-danger text-white card-height"
+      >
+        <span class="badge badge-light float-right">{{ networks }}</span>
+        <h3>Networks</h3>
+        <p class="text-left">Collaborations of multiple institutions</p>
+      </RouterLink>
+             <RouterLink
         to="Datasources"
         class="card card-body bg-primary text-white card-height"
       >
@@ -38,6 +46,19 @@
           Collections of data banks covering the same population
         </p>
       </RouterLink>
+       
+      <RouterLink
+        to="Cohorts"
+        class="card card-body bg-primary text-white card-height"
+        v-if="cohorts > 0"
+       >
+        <span class="badge badge-light float-right">{{ cohorts }}</span>
+        <h3>Cohorts</h3>
+        <p class="text-left">
+          Systematic observations of large groups of individuals over time.
+        </p>
+      </RouterLink>
+      
       <RouterLink
         to="Databanks"
         class="card card-body bg-info text-white card-height"
@@ -45,25 +66,6 @@
         <span class="badge badge-light float-right">{{ databanks }}</span>
         <h3>Data banks</h3>
         <p class="text-left">Data collections such as registries or biobanks</p>
-      </RouterLink>
-      <RouterLink
-        to="Cohorts"
-        class="card card-body bg-primary text-white card-height"
-        v-if="cohorts > 0"
-      >
-        <span class="badge badge-light float-right">{{ cohorts }}</span>
-        <h3>Cohorts</h3>
-        <p class="text-left">
-          Systematic observations of large groups of individuals over time.
-        </p>
-      </RouterLink>
-      <RouterLink
-        to="Networks"
-        class="card card-body bg-danger text-white card-height"
-      >
-        <span class="badge badge-light float-right">{{ networks }}</span>
-        <h3>Networks</h3>
-        <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
       <RouterLink
         to="Studies"
