@@ -12,8 +12,8 @@
       :aria-describedby="id"
       :placeholder="label"
     />
-    <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
-      >{{ helpText }}</small
+    <small v-if="isNonEmptyString(description)" :id="id + '-help-text'" class="form-text text-muted"
+      >{{ description }}</small
     >
   </div>
 </template>

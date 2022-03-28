@@ -4,7 +4,7 @@ export default {
   props: {
     /**
      * Unique identifier https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id
-     * Has no direct emx2 implementenation but can be constructend by concatinating the table name with the field name
+     * Has no direct EMX2 implementation but can be constructed by concatenating the table name with the field name
      */
     id: {
       type: String,
@@ -12,7 +12,7 @@ export default {
     },
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
-     * relates to emx 2 columnName
+     * relates to EMX2 columnName
      */
     name: {
       type: String,
@@ -22,17 +22,16 @@ export default {
     value: {type: [String, Number, Object, Array, Boolean], default: null},
     /**
      * Caption for an item in a user interface.
-     * relates to emx 2 columnName
+     * relates to EMX2 columnName
      */
     label: {
       type: String,
       required: false
     },
     /**
-     * Additional information describing the field 
-     * relates to emx 2 description
+     * EMX2 description
      */
-    helpText: {
+    description: {
       type: String,
       required: false
     },
