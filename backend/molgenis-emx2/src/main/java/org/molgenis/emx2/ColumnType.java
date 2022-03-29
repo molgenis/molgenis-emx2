@@ -75,13 +75,6 @@ public enum ColumnType {
     this.validationRegexp = validationRegexp;
   }
 
-  ColumnType(String validationRegexp) {
-    this.javaType = String[].class;
-    this.xsdType = "xsd:list";
-    this.validationRegexp = validationRegexp;
-    this.operators = STRING_OPERATORS;
-  }
-
   public ColumnType getBaseType() {
     return Objects.requireNonNullElse(baseType, this);
   }
@@ -106,7 +99,7 @@ public enum ColumnType {
   public void validate(Object value) {
     if (validationRegexp == null) return;
     if (value != null) {
-      if (xsdType != null && xsdType.equals("xsd:list")) {
+      if (isArray()) {
         validate((Object[]) value);
       } else {
         if (!value.toString().matches(validationRegexp)) {
