@@ -34,9 +34,16 @@
         <Spinner/>
       </div>
       <div class="results" v-else>
-        <MessageSuccess v-if="foundMatch">Match found! </MessageSuccess>
-        <p v-if="foundMatch"> {{ selectedHpoTerms }} has a match with the following gene(s): {{ patientGenes }}.
-          Which was found in the patient vcf data</p>
+        <div v-if="foundMatch">
+          <MessageSuccess>Match found! </MessageSuccess>
+          <p> {{ selectedHpoTerms }} has a match with the following gene(s): {{ patientGenes }}.
+            Which was found in the patient vcf data</p>
+        </div>
+        <div v-if="noMatch">
+          <MessageError>No match Found</MessageError>
+          <p>{{ selectedHpoTerms }} resulted in zero matches</p>
+        </div>
+
       </div>
       <ButtonOutline @click="clearData">Click this for new search</ButtonOutline>
 
@@ -83,6 +90,7 @@ export default {
       genesHpo: null,
       loading: false,
       readOnly: false,
+      noMatch: false,
     };
   },
   methods: {
@@ -152,7 +160,6 @@ export default {
           let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
           this.hpoParents.push(parentTerm);
         }
-        console.log("data children" + data["children"]);
         for (let j = 0; j < data["children"].length; j++) {
           this.hpoChildren.push(data["children"][i]);
         }
@@ -176,13 +183,15 @@ export default {
             if (response.ok) {
               return response.json();
             }
-            throw new Error("Something went wrong");
+            throw new Error("Something went wrong with vcf api");
           })
           .catch((error) => {
             console.log(error);
           });
 
-      if(this.genesHpo.length !== 0) {
+      if (typeof this.genesHpo === 'undefined') {
+        this.noMatch = true;
+      } else if(this.genesHpo.length !== 0) {
         this.foundMatch = true;
         this.patientGenes = Object.keys(this.genesHpo);
       }
