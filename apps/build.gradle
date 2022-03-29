@@ -53,10 +53,13 @@ subprojects {
             inputs.files(fileTree('store'))
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
-        } else {
+        }
+        //all other apps are simply
+        else {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
+            outputs.dir('dist')
         }
 
         outputs.cacheIf { true }
@@ -101,7 +104,7 @@ subprojects {
         } else if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
-        }  else {
+        } else {
             from "dist"
             inputs.dir("dist")
         }

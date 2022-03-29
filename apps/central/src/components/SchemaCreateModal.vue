@@ -49,7 +49,7 @@
             />
             <InputString
               v-if="option == 'from source URL'"
-              v-model="sourceURL"
+              v-model="sourceURLs"
               label="source URL"
               description="You can automatically populate your database from one or more url that has contents equal as when you download a zip."
               :list="true"
@@ -106,7 +106,7 @@ export default {
       success: null,
       schemaName: null,
       schemaDescription: null,
-      sourceURL: null,
+      sourceURLs: [],
       option: "none",
       options: {
         none: [],
@@ -138,11 +138,11 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String, $sourceURL: [String]){createSchema(name:$name, description:$description, sourceURL: $sourceURL){message}}`,
+        `mutation createSchema($name:String, $description:String, $sourceURLs: [String]){createSchema(name:$name, description:$description, sourceURLs: $sourceURLs){message}}`,
         {
           name: this.schemaName,
           description: this.schemaDescription,
-          sourceURL: this.sourceURL,
+          sourceURsL: this.sourceURLs,
         }
       )
         .then((data) => {

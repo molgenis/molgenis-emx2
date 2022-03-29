@@ -73,7 +73,7 @@ public class TestGraphqlDatabaseFields {
       execute(
           "mutation{createSchema(name:\""
               + schemaName
-              + "C\", sourceURL:\"http://localhost:8082/\"){message}}");
+              + "C\", sourceURLs:\"http://localhost:8082/\"){message}}");
       assertNotNull(database.getSchema(schemaName + "C"));
       assertEquals(
           "a",
