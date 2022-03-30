@@ -14,7 +14,7 @@ public class VariantHpoMatcher {
     this.hpoTerms = hpoTerms;
   }
 
-  public boolean matchVariantWithHpo(String variant) {
+  public String matchVariantWithHpo(String variant) {
     String geneSymbol = getGenes(variant);
     return this.getHpo(geneSymbol);
   }
@@ -43,7 +43,7 @@ public class VariantHpoMatcher {
     return null;
   }
 
-  private boolean getHpo(String geneSymbol) {
+  private String getHpo(String geneSymbol) {
     try {
       File file = new File("data/gendecs/genes_to_phenotype.txt");
       Scanner reader = new Scanner(file);
@@ -54,18 +54,22 @@ public class VariantHpoMatcher {
           String gene = lineSplit[1];
           String hpoId = lineSplit[2];
           String hpoTerm = lineSplit[3];
-          if (this.checkForMatch(hpoTerm)) {
-            variants.addGenesHpo(gene, hpoTerm);
-
-            return true;
-          }
+          String diseaseId = lineSplit[8];
+          return hpoTerm;
+          // return hpo and add hpo to result file
+          //          if (this.checkForMatch(hpoTerm)) {
+          //            variants.addGenesHpo(gene, hpoTerm);
+          //
+          //            return true;
         }
       }
-      return false;
-    } catch (FileNotFoundException e) {
+      return "";
+    }
+    //      return false;
+    catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    return false;
+    return "";
   }
 
   private boolean checkForMatch(String hpoTerm) {

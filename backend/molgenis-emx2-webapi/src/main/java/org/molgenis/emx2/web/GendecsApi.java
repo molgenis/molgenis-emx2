@@ -8,14 +8,13 @@ import com.google.gson.JsonParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.molgenis.emx2.semantics.gendecs.*;
+import org.molgenis.emx2.semantics.gendecs.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
 public class GendecsApi {
-  static String filenameClinvar = "data/gendecs/clinvar_20220205.vcf";
-  static String filenameData = "data/gendecs/vcfdata.vcf";
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
 
   public static void create() {
@@ -69,17 +68,17 @@ public class GendecsApi {
   private static HashMap<String, String> getGenesHpo(ArrayList<String> hpoTerms) {
     StarRating starRating = StarRating.ONESTAR;
     ClinvarFilter clinvarFilter = new ClinvarFilter(starRating);
-    String filteredClinvar = clinvarFilter.removeStatus(filenameClinvar);
+    String filteredClinvar = clinvarFilter.removeStatus();
 
-    ClinvarMatcher clinvarMatcher = new ClinvarMatcher(filenameData, hpoTerms, filteredClinvar);
+    //    ClinvarMatcher clinvarMatcher = new ClinvarMatcher(hpoTerms, filteredClinvar);
 
-    //    String pathName = vcfParser.removeStatus(filenameClinvar);
-    logger.info("Removed " + starRating + " and lower from " + filenameClinvar);
+    logger.info("Removed " + starRating + " and lower from " + Constants.FILENAMECLINVAR);
     logger.info("Matching variants with the entered HPO terms");
     logger.debug("Matching variants with the following HPO terms: " + hpoTerms);
-    Variants variants = clinvarMatcher.matchWithClinvar();
+    //    Variants variants = clinvarMatcher.matchWithClinvar();
+    HpoMatcher hpoMatcher = new HpoMatcher(hpoTerms, filteredClinvar);
+    Variants variants = hpoMatcher.getHpoMatches();
 
-    //    Variants variants = vcfParser.matchWithClinvar(pathName);
     return variants.getGeneHpo();
   }
 

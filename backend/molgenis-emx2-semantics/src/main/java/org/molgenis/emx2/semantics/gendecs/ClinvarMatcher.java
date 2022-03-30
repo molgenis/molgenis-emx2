@@ -16,8 +16,8 @@ public class ClinvarMatcher {
 
   private static final Logger logger = LoggerFactory.getLogger(ClinvarMatcher.class);
 
-  public ClinvarMatcher(String filename, ArrayList<String> hpoTerms, String clinvarLocation) {
-    vcfFile = new File(filename);
+  public ClinvarMatcher(ArrayList<String> hpoTerms, String clinvarLocation) {
+    vcfFile = new File(Constants.FILENAMEVCFDATA);
     this.hpoTerms = hpoTerms;
     clinvarFile = new File(clinvarLocation);
   }
@@ -66,8 +66,8 @@ public class ClinvarMatcher {
     BufferedWriter writerResult = new BufferedWriter(new FileWriter(resultFileResult));
     BufferedWriter writerClinvar = new BufferedWriter(new FileWriter(resultFileClinvar));
 
-    writeHeader(writerClinvar, "clinvar");
-    writeHeader(writerResult, "result");
+    VcfFile.writeHeader(writerClinvar, "clinvar");
+    VcfFile.writeHeader(writerResult, "result");
 
     Variants variants = new Variants();
     VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher(hpoTerms, variants);
@@ -77,15 +77,17 @@ public class ClinvarMatcher {
       for (Pattern stringToFind : stringsToFind.values()) {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
-            if (variantHpoMatcher.matchVariantWithHpo(currentLine)) {
-              logger.debug(
-                  "The following line is pathogenic and matched with the HPO term: " + currentLine);
-              writerResult.write(
-                  getKeyFromValue(stringsToFind, stringToFind)
-                      + System.getProperty("line.separator"));
-              writerClinvar.write(currentLine + System.getProperty("line.separator"));
-              variants.addVariant(currentLine);
-            }
+            logger.debug(
+                "The following line is pathogenic and matched with the HPO term: " + currentLine);
+            String hpoTerm = variantHpoMatcher.matchVariantWithHpo(currentLine);
+            writerResult.write(
+                getKeyFromValue(stringsToFind, stringToFind)
+                    + '\t'
+                    + hpoTerm
+                    + System.getProperty("line.separator"));
+            writerClinvar.write(
+                currentLine + '\t' + hpoTerm + System.getProperty("line.separator"));
+            //            variants.addVariant(currentLine);
           }
         }
       }
@@ -94,20 +96,6 @@ public class ClinvarMatcher {
     writerClinvar.close();
     writerResult.close();
     return variants;
-  }
-
-  private void writeHeader(BufferedWriter writer, String headerType) throws IOException {
-    if (headerType.equals("clinvar")) {
-      for (String line : VcfFile.getClinvarHeader().split("\n")) {
-        writer.write(line + System.getProperty("line.separator"));
-      }
-    } else if (headerType.equals("result")) {
-      for (String line : VcfFile.getVipHeader().split("\n")) {
-        writer.write(line + System.getProperty("line.separator"));
-      }
-    } else {
-      logger.info("invalid header argument " + headerType);
-    }
   }
 
   private static String getKeyFromValue(Map<String, Pattern> map, Pattern value) {

@@ -101,9 +101,9 @@ public class OwlQuerier {
           }
         }
       } else {
-      logger.debug("No results found");
+        logger.debug("No results found");
       }
-    } else{
+    } else {
       logger.debug("result variables are null");
     }
     return parents;

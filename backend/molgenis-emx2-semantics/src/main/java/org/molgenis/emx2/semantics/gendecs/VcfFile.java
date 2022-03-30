@@ -1,6 +1,13 @@
 package org.molgenis.emx2.semantics.gendecs;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class VcfFile {
+  private static final Logger logger = LoggerFactory.getLogger(VcfFile.class);
+
   public static String getClinvarHeader() {
     return """
                     ##fileformat=VCFv4.1
@@ -90,5 +97,19 @@ public class VcfFile {
             ##contig=<ID=MT,assembly=b37,length=16569>
             #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
             """;
+  }
+
+  public static void writeHeader(BufferedWriter writer, String headerType) throws IOException {
+    if (headerType.equals("clinvar")) {
+      for (String line : VcfFile.getClinvarHeader().split("\n")) {
+        writer.write(line + System.getProperty("line.separator"));
+      }
+    } else if (headerType.equals("result")) {
+      for (String line : VcfFile.getVipHeader().split("\n")) {
+        writer.write(line + System.getProperty("line.separator"));
+      }
+    } else {
+      logger.info("invalid header argument " + headerType);
+    }
   }
 }

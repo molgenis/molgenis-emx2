@@ -57,10 +57,9 @@ public class ClinvarFilter {
   /**
    * Method removeStatus removes given starRating from input clinvar file.
    *
-   * @param inputFile clinvar file as vcf
    * @return boolean true if successful, false if failed
    */
-  public String removeStatus(String inputFile) {
+  public String removeStatus() {
     String pathName = String.format("data/gendecs/Filtered_Clinvar_%s.vcf", this.starRating);
     Path path = Paths.get(pathName);
     if (path.toFile().isFile()) {
@@ -69,7 +68,7 @@ public class ClinvarFilter {
       File filteredClinVar = new File(pathName);
       try {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filteredClinVar));
-        File fileObject = new File(inputFile);
+        File fileObject = new File(Constants.FILENAMECLINVAR);
         Scanner reader = new Scanner(fileObject);
         while (reader.hasNextLine()) {
           String data = reader.nextLine();
