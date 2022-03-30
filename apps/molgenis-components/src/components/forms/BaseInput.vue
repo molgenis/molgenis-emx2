@@ -32,7 +32,6 @@ export default {
       type: String,
       required: false
     },
-    helpText: {
     /**
      * EMX2 description
      */
