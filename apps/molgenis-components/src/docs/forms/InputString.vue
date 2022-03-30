@@ -5,7 +5,7 @@
         id="input-string-1"
         v-model="value"
         label="My string input label"
-        helpText="Some help needed?"
+        description="Some help needed?"
       />
       <div>You typed: {{value}}</div>
     </div>

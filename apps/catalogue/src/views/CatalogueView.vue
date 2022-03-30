@@ -149,7 +149,7 @@
     </div>
     <p>
       This catalogue software has been made possible by contributions from H2020
-      EUCAN-connect, LifeCycle, Longitools and ATHLETE as well as IMI Conception
+      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of European Human Exposome Network, BBMRI-ERIC, IMI Conception
       and EMA Minerva.
     </p>
   </div>

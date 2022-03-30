@@ -15464,12 +15464,12 @@ vscode-languageserver-types@^3.15.1:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
   integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
 
-vue-cli-plugin-styleguidist@4.44.26:
-  version "4.44.26"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.26.tgz#a506e85c5c257ad71ecd32c1472a0bb1ee9e1c50"
-  integrity sha512-S06dGLSKfmCv/mkUfXaS6qmkgjg6PIyqCyG3xODtGKaMQecc51xkKzoe7vCFlO4n+IczC2rxlFDNsF/XL89RHQ==
+vue-cli-plugin-styleguidist@4.44.27:
+  version "4.44.27"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.27.tgz#1a382f9e4925d041f9ecef740503b04e76b43d7b"
+  integrity sha512-KkxI2OjgnE0PRQePtH1nyA5/LZZeqPnmwQQRdrgvdYwZSgDVs7tm3xvbIYLLJCEdsrS8G/DCtzNgWf+kwn3/rg==
   dependencies:
-    vue-styleguidist "^4.44.26"
+    vue-styleguidist "^4.44.27"
     webpack-merge "^4.2.2"
 
 vue-client-only@^2.0.0:
@@ -15636,10 +15636,10 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.2, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-styleguidist@^4.44.26:
-  version "4.44.26"
-  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.26.tgz#bfd1b727ff16a9e2032c190c7b9e8307063e686b"
-  integrity sha512-Kce1tnc2ViWEqiLrQTdtXp20N0lB10EYc382XMD+nzXdxM5HFAbPBV6njkeTel4oMFuBRyBKfkE4wErTRyNViA==
+vue-styleguidist@^4.44.27:
+  version "4.44.27"
+  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.27.tgz#6b6ec6bcf57f5fecaf5e2048409756e3d39bf3a5"
+  integrity sha512-OmyVClq6z/xMkEl98OXJDtj5BlFk2VJgxBrfr76gUisMhLjZHY4jyVSeDXu/nmCAOWZsvQh70R+RyMC9ZgeIzg==
   dependencies:
     "@vxna/mini-html-webpack-template" "^1.0.0"
     ast-types "0.13.4"
