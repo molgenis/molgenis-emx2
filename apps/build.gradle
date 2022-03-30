@@ -57,6 +57,7 @@ subprojects {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
+            outputs.dir('dist')
         }
 
         outputs.cacheIf { true }
