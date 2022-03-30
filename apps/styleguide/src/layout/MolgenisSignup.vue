@@ -8,7 +8,7 @@
       <ButtonAlt @click="close">Close</ButtonAlt>
     </template>
   </LayoutModal>
-  <LayoutModal v-else title="Sign up" :show="true">
+  <LayoutModal v-else title="Sign up" :show="true" @close="close">
     <template v-slot:body>
       <LayoutForm>
         <MessageError v-if="error">{{ error }}</MessageError>

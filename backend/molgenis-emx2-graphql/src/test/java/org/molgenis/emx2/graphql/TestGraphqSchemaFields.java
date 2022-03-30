@@ -49,7 +49,7 @@ public class TestGraphqSchemaFields {
       grapql = new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName));
       TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
   }
 

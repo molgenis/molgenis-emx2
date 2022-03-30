@@ -1,5 +1,5 @@
 <template>
-  <tr :class="{ 'table-danger': column.drop }" :key="timestamp">
+  <tr :class="{'table-danger': column.drop}" :key="timestamp">
     <td>
       <IconAction class="hoverIcon moveHandle" icon="ellipsis-v" />
     </td>
@@ -73,6 +73,12 @@
       <InputString v-model="column.semantics" :list="true" :inplace="true" />
     </td>
     <td>
+      <InputText v-model="column.validation" :inplace="true" />
+    </td>
+    <td>
+      <InputText v-model="column.visible" :inplace="true" />
+    </td>
+    <td>
       <InputText v-model="column.description" :inplace="true" />
     </td>
     <td>
@@ -98,11 +104,10 @@ import {
   InputSelect,
   InputBoolean,
   InputText,
-  ButtonAlt,
   IconDanger,
-  IconAction,
-} from "@mswertz/emx2-styleguide";
-import columnTypes from "../columnTypes";
+  IconAction
+} from '@mswertz/emx2-styleguide';
+import columnTypes from '../columnTypes';
 
 export default {
   components: {
@@ -110,19 +115,22 @@ export default {
     InputSelect,
     InputBoolean,
     InputText,
-    ButtonAlt,
     IconDanger,
-    IconAction,
+    IconAction
   },
   data() {
-    return { column: {}, columnTypes: columnTypes, timestamp: Date.now() };
+    return {
+      column: {},
+      columnTypes: columnTypes,
+      timestamp: Date.now()
+    };
   },
   props: {
     value: Object,
     tableName: String,
     columnIndex: Number,
     schema: Object,
-    needsRefBackColumn: Boolean,
+    needsRefBackColumn: Boolean
   },
   methods: {
     tableNames() {
@@ -153,7 +161,7 @@ export default {
           .filter(
             (c) =>
               c.name != columnName &&
-              (c.columnType == "REF" || c.columnType == "REF_ARRAY")
+              (c.columnType === 'REF' || c.columnType === 'REF_ARRAY')
           )
           .map((c) => c.name);
         result.unshift(null);
@@ -166,19 +174,19 @@ export default {
       // if (this.columns.filter((c) => c.name == name).length != 1) {
       //   return "Name should be unique";
       // }
-      if (name == undefined) {
-        return "Name is required";
+      if (name === undefined) {
+        return 'Name is required';
       }
       if (!name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
+        return 'Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)';
       }
-    },
+    }
   },
   created() {
     this.column = this.value;
     if (this.column) {
       this.column.oldName = this.column.name;
     }
-  },
+  }
 };
 </script>

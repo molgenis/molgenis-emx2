@@ -49,6 +49,10 @@ public class MolgenisWebservice {
 
     staticFiles.location("/public_html");
 
+    /*
+     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
+     */
+
     get(
         ("/" + OIDC_CALLBACK_PATH),
         (request, response) -> oidcController.handleLoginCallback(request, response));
@@ -63,28 +67,26 @@ public class MolgenisWebservice {
             "Welcome to MOLGENIS EMX2 "
                 + Version.getVersion()
                 + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
+
     redirect.get("/", "/apps/central/");
 
     redirect.get("/api", "/api/");
+
     get(
         "/api/",
         ACCEPT_HTML,
         (request, response) ->
             "Welcome to MOLGENIS EMX2 POC <br/>" + listSchemas(request, response));
-
     // documentation operations
     get("/api/openapi", ACCEPT_JSON, MolgenisWebservice::listSchemas);
-
     // docs per schema
     get("/:schema/api/openapi", OpenApiUiFactory::getOpenApiUserInterface);
     get("/:schema/api/openapi.yaml", MolgenisWebservice::openApiYaml);
-
-    before("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
-
     get(
         "/:schema/api",
         (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
 
+    SiteMapService.create();
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();
@@ -95,23 +97,18 @@ public class MolgenisWebservice {
     LinkedDataFragmentsApi.create(sessionManager);
     BootstrapThemeService.create();
 
-    // add trailing /
-    before(
+    get(
         "/:schema",
         (req, res) -> {
-          if (!("/" + OIDC_LOGIN_PATH).equals(req.pathInfo())
-              && !("/" + OIDC_CALLBACK_PATH).equals(req.pathInfo())
-              && !("/" + ROBOTS_TXT).equals(req.pathInfo())) {
-            res.redirect("/" + req.params(SCHEMA) + "/");
-          }
+          final String redirectLocation = "/" + req.params(SCHEMA) + "/";
+          logger.debug(
+              String.format(
+                  "handle '/:schema' redirect: from: %s to: %s", req.pathInfo(), redirectLocation));
+          res.redirect(redirectLocation);
+          return "";
         });
-    before(
-        "/:schema/:app",
-        (req, res) -> {
-          if (!req.params("app").equals("graphql") && !req.params("app").equals("theme.css")) {
-            res.redirect("/" + req.params(SCHEMA) + "/" + req.params("app") + "/");
-          }
-        });
+
+    get("/:schema/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
     GroupPathMapper.create();
@@ -134,7 +131,7 @@ public class MolgenisWebservice {
     return USER_AGENT_ALLOW;
   }
 
-  private static void redirectSchemaToFirstMenuItem(Request request, Response response) {
+  private static String redirectSchemaToFirstMenuItem(Request request, Response response) {
     try {
       Schema schema = getSchema(request);
       String role = schema.getRoleForActiveUser();
@@ -162,6 +159,7 @@ public class MolgenisWebservice {
       logger.debug(e.getMessage());
     }
     response.redirect("/" + request.params(SCHEMA) + "/tables");
+    return "";
   }
 
   public static void stop() {

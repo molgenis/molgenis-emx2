@@ -79,23 +79,16 @@
     <div class="d-flex align-content-around flex-wrap">
       <div class="col-4" v-if="column.columnType != 'CONSTANT'">
         <InputText
-          v-model="column.validationExpression"
-          label="validationExpression (NOT FUNCTIONAL YET!)"
-          description="Example: name == 'John'"
-        />
-      </div>
-      <div class="col-4" v-if="column.columnType != 'CONSTANT'">
-        <InputText
-          v-model="column.validationMessage"
-          label="validationMessage  (NOT FUNCTIONAL YET!)"
-          description="Example: name must be John'"
+          v-model="column.validation"
+          label="validationExpression"
+          description="Example: {name} == 'John'"
         />
       </div>
       <div class="col-4">
         <InputText
-          v-model="column.visibleIf"
-          label="visibleIf (NOT FUNCTIONAL YET!)"
-          description="other > ''"
+          v-model="column.visible"
+          label="visibleIf"
+          description="{other} > 5"
         />
       </div>
       <div class="col-4">
@@ -115,9 +108,9 @@ import {
   InputText,
   InputString,
   InputBoolean,
-  InputSelect,
-} from "@mswertz/emx2-styleguide";
-import columnTypes from "../columnTypes";
+  InputSelect
+} from '@mswertz/emx2-styleguide';
+import columnTypes from '../columnTypes';
 
 export default {
   components: {
@@ -125,7 +118,7 @@ export default {
     InputText,
     InputString,
     InputBoolean,
-    InputSelect,
+    InputSelect
   },
   props: {
     /** Column metadata object entered as v-model */
@@ -135,13 +128,13 @@ export default {
     /** schema */
     schema: Object,
     /** hide name and description */
-    hideNameDescription: Boolean,
+    hideNameDescription: Boolean
   },
   computed: {
     tableNames() {
       let result = this.schema.tables.map((t) => t.name);
       return result;
-    },
+    }
   },
   methods: {
     validateName(name) {
@@ -149,13 +142,13 @@ export default {
         Array.isArray(this.table.columns) &&
         this.table.columns.filter((c) => c.name == name).length != 1
       ) {
-        return "Name should be unique";
+        return 'Name should be unique';
       }
-      if (name == undefined) {
-        return "Name is required";
+      if (name === undefined) {
+        return 'Name is required';
       }
       if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]+$/)) {
-        return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
+        return 'Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)';
       }
     },
     refBackCandidates(fromTable, toTable) {
@@ -164,14 +157,14 @@ export default {
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
-    },
+    }
   },
   data() {
     return {
       // of type 'column metadata'
       column: null,
       //the options
-      columnTypes,
+      columnTypes
     };
   },
   created() {
@@ -179,13 +172,13 @@ export default {
   },
   watch: {
     column() {
-      if (this.column != null) {
-        this.$emit("input", this.column);
+      if (this.column !== null) {
+        this.$emit('input', this.column);
       }
     },
     value() {
       this.column = this.value;
-    },
-  },
+    }
+  }
 };
 </script>

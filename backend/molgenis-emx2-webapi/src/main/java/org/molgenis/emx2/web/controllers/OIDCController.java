@@ -78,21 +78,30 @@ public class OIDCController {
     final ProfileManager<OidcProfile> manager = new ProfileManager<>(context);
     Optional<OidcProfile> oidcProfile = manager.get(true);
 
-    if (oidcProfile.isPresent()) {
-      String user = oidcProfile.get().getEmail();
-      Database database = sessionManager.getSession(request).getDatabase();
-      if (!database.hasUser(user)) {
-        logger.info("Add new OIDC user({}) to database", user);
-        database.addUser(user);
-      }
-      database.setActiveUser(user);
-      logger.info("OIDC sign in for user: {}", user);
-      response.status(302);
-    } else {
+    if (oidcProfile.isEmpty()) {
       logger.error("OIDC sign in failed, no profile found");
-      response.status(404);
+      response.status(500);
+      response.redirect("/");
+      return response;
     }
 
+    String user = oidcProfile.get().getEmail();
+    if (user == null || user.isEmpty()) {
+      logger.error("OIDC sign in failed, email claim is empty");
+      response.status(500);
+      response.redirect("/");
+      return response;
+    }
+
+    Database database = sessionManager.getSession(request).getDatabase();
+    if (!database.hasUser(user)) {
+      logger.info("Add new OIDC user({}) to database", user);
+      database.addUser(user);
+    }
+    database.setActiveUser(user);
+    logger.info("OIDC sign in for user: {}", user);
+
+    response.status(302);
     response.redirect("/");
     return response;
   }

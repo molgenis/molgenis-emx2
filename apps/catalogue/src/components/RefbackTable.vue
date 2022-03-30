@@ -33,7 +33,7 @@
                 v-if="row[col.name]"
                 :to="{
                   name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
+                  params: routeParams(col, row[col.name])
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -50,7 +50,7 @@
                   v-if="val"
                   :to="{
                     name: col.refTable + '-details',
-                    params: routeParams(col, val),
+                    params: routeParams(col, val)
                   }"
                 >
                   {{ renderValue(row, col)[idx] }} </RouterLink
@@ -82,51 +82,47 @@
 </template>
 
 <script>
-import { TableMixin, Spinner, ReadMore } from "@mswertz/emx2-styleguide";
+import {TableMixin, Spinner, ReadMore} from '@mswertz/emx2-styleguide';
 
 export default {
   mixins: [TableMixin],
   components: {
     Spinner,
-    ReadMore,
+    ReadMore
   },
   props: {
     /** name of the column in the other table */
     refBack: String,
     /** pkey of the current table that refback should point to */
-    pkey: Object,
+    pkey: Object
   },
   methods: {
     routeParams(column, value) {
-      if (column.name === "tables") {
-        //hack, I don't know yet how to do this generic
-        ///tables/:pid/:version/:name
-        //console.log(JSON.stringify(value));
+      if (column.name === 'tables') {
         let result = {
-          pid: value.release.resource.pid,
-          version: value.release.version,
-          name: value.name,
+          pid: value.dataDictionary.resource.pid,
+          version: value.dataDictionary.version,
+          name: value.name
         };
-        //console.log(JSON.stringify(result));
         return result;
       } else {
         return value;
       }
     },
     click(value) {
-      this.$emit("click", value);
+      this.$emit('click', value);
     },
     renderValue(row, col) {
       if (row[col.name] === undefined) {
         return [];
       }
       if (
-        col.columnType == "REF_ARRAY" ||
-        col.columnType == "REFBACK" ||
-        col.columnType == "ONTOLOGY_ARRAY"
+        col.columnType == 'REF_ARRAY' ||
+        col.columnType == 'REFBACK' ||
+        col.columnType == 'ONTOLOGY_ARRAY'
       ) {
         return row[col.name].map((v) => {
-          if (col.name === "tables") {
+          if (col.name === 'tables') {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
           } else if (col.refLabel) {
@@ -135,13 +131,13 @@ export default {
             return this.flattenObject(v);
           }
         });
-      } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
+      } else if (col.columnType == 'REF' || col.columnType == 'ONTOLOGY') {
         if (col.refLabel) {
           return [this.applyJsTemplate(col.refLabel, row[col.name])];
         } else {
           return [this.flattenObject(row[col.name])];
         }
-      } else if (col.columnType.includes("ARRAY") > 0) {
+      } else if (col.columnType.includes('ARRAY')) {
         return row[col.name];
       } else {
         return [row[col.name]];
@@ -151,38 +147,38 @@ export default {
       const names = Object.keys(object);
       const vals = Object.values(object);
       try {
-        return new Function(...names, "return `" + template + "`;")(...vals);
+        return new Function(...names, 'return `' + template + '`;')(...vals);
       } catch (err) {
         return (
           err.message +
-          " we got keys:" +
+          ' we got keys:' +
           JSON.stringify(names) +
-          " vals:" +
+          ' vals:' +
           JSON.stringify(vals) +
-          " and template: " +
+          ' and template: ' +
           template
         );
       }
     },
     flattenObject(object) {
-      let result = "";
+      let result = '';
       Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
-        } else if (typeof object[key] === "object") {
+        } else if (typeof object[key] === 'object') {
           result += this.flattenObject(object[key]);
         } else {
-          result += "." + object[key];
+          result += '.' + object[key];
         }
       });
-      return result.replace(/^\./, "");
-    },
+      return result.replace(/^\./, '');
+    }
   },
   computed: {
     graphqlFilter() {
       var result = new Object();
       result[this.refBack] = {
-        equals: this.pkey,
+        equals: this.pkey
       };
       return result;
     },
@@ -193,11 +189,11 @@ export default {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.name != this.refBack && !c.name.startsWith('mg_')
         );
       }
       return [];
-    },
-  },
+    }
+  }
 };
 </script>

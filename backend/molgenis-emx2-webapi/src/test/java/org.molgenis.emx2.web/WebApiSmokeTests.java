@@ -6,13 +6,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.io.*;
 import java.util.Map;
 import org.junit.AfterClass;
@@ -204,14 +204,17 @@ public class WebApiSmokeTests {
             .asString()
             .contains(id));
 
+    // wait a bit for task to start
+    Thread.sleep(1000);
+
     // poll task until complete
-    String poll = given().sessionId(SESSION_ID).when().get(url).asString();
+    Response poll = given().sessionId(SESSION_ID).when().get(url);
     int count = 0;
-    while (poll.contains("RUNNING")) {
+    while (poll.getStatusCode() == 404 || !poll.body().asString().contains("COMPLETE")) {
       if (count++ > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
-      poll = given().sessionId(SESSION_ID).when().get(url).asString();
+      poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
 
@@ -446,7 +449,7 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.clearActiveUser();
+    db.becomeAdmin();
   }
 
   @Test

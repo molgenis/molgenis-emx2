@@ -4,8 +4,7 @@
       v-for="(item, idx) in valueArray"
       :key="idx"
       v-bind="$props"
-      :showClear="showClear(idx)"
-      @clear="clearValue(idx)"
+      :showClear="false"
       :showPlus="showPlus(idx)"
       @add="addRow"
       class="form-group"
@@ -29,15 +28,15 @@
 </template>
 
 <script>
-import InputRangeInt from "./InputRangeInt";
-import InputDecimal from "./InputDecimal";
-import FormGroup from "./_formGroup";
-import InputAppend from "./_inputAppend";
+import InputRangeInt from './InputRangeInt';
+import InputDecimal from './InputDecimal';
+import FormGroup from './_formGroup';
+import InputAppend from './_inputAppend';
 
 /** Input for integer values */
 export default {
   extends: InputRangeInt,
-  components: { InputDecimal, FormGroup, InputAppend },
+  components: {InputDecimal, FormGroup, InputAppend}
 };
 </script>
 

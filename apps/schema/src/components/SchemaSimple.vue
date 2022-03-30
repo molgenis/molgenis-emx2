@@ -8,7 +8,7 @@
       </div>
       <div>
         <ButtonAction @click="showDiagram = !showDiagram">
-          {{ showDiagram ? "Hide" : "Show" }} Diagram
+          {{ showDiagram ? 'Hide' : 'Show' }} Diagram
         </ButtonAction>
       </div>
     </div>
@@ -16,11 +16,11 @@
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <div class="row">
       <div class="col-2 bg-white">
-        <div class="fixedContainer">
+        <div class="fixedContainer mr-n3 overflow-auto">
           <SchemaToc :tables.sync="schema.tables" />
         </div>
       </div>
-      <div class="bg-white col ml-2" style="overflow-y: scroll">
+      <div class="bg-white col ml-2 overflow-auto">
         <Spinner v-if="loading" />
         <div v-else :key="timestamp">
           <Yuml
@@ -39,26 +39,22 @@
 .fixedContainer {
   position: -webkit-sticky; /* Safari */
   position: sticky;
-  overflow-y: scroll;
   max-height: 100vh;
   top: 0;
 }
 </style>
 
 <script>
-import { request } from "graphql-request";
-import Yuml from "./Yuml";
-import SchemaEditor from "./SchemaEditor";
-import SchemaToc from "./SchemaToc";
+import {request} from 'graphql-request';
+import Yuml from './Yuml';
+import SchemaEditor from './SchemaEditor';
+import SchemaToc from './SchemaToc';
 import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-  MessageWarning,
-  IconAction,
-  ButtonAlt,
-  Spinner,
-} from "@mswertz/emx2-styleguide";
+  Spinner
+} from '@mswertz/emx2-styleguide';
 
 export default {
   components: {
@@ -67,11 +63,8 @@ export default {
     ButtonAction,
     MessageError,
     MessageSuccess,
-    MessageWarning,
     SchemaToc,
-    IconAction,
-    ButtonAlt,
-    Spinner,
+    Spinner
   },
   data() {
     return {
@@ -81,7 +74,7 @@ export default {
       warning: null,
       success: null,
       timestamp: Date.now(),
-      showDiagram: false,
+      showDiagram: false
     };
   },
   methods: {
@@ -89,13 +82,13 @@ export default {
       this.graphqlError = null;
       this.loading = true;
       request(
-        "graphql",
+        'graphql',
         `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
         {
-          tables: this.schema.tables,
+          tables: this.schema.tables
         }
       )
-        .then((data) => {
+        .then(() => {
           this.loadSchema();
           this.timestamp = Date.now();
           this.success = `Schema saved`;
@@ -103,7 +96,7 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            this.graphqlError = "Forbidden. Do you need to login?";
+            this.graphqlError = 'Forbidden. Do you need to login?';
             this.showLogin = true;
           } else {
             this.graphqlError = error.response.errors[0].message;
@@ -117,8 +110,8 @@ export default {
       this.schema = {};
       this.tables = null;
       request(
-        "graphql",
-        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        'graphql',
+        '{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}'
       )
         .then((data) => {
           this.schema = this.addOldNamesAndRemoveMeta(data._schema);
@@ -132,7 +125,7 @@ export default {
             )
           ) {
             this.error =
-              "Schema is unknown or permission denied (might you need to login with authorized user?)";
+              'Schema is unknown or permission denied (might you need to login with authorized user?)';
           }
         })
         .finally(() => {
@@ -144,13 +137,13 @@ export default {
       if (schema) {
         if (schema.tables) {
           let tables = schema.tables.filter(
-            (table) => table.tableType != "ONTOLOGIES"
+            (table) => table.tableType != 'ONTOLOGIES'
           );
           tables.forEach((t) => {
             t.oldName = t.name;
             if (t.columns) {
               t.columns = t.columns
-                .filter((c) => !c.name.startsWith("mg_"))
+                .filter((c) => !c.name.startsWith('mg_'))
                 .map((c) => {
                   c.oldName = c.name;
                   return c;
@@ -166,7 +159,7 @@ export default {
         }
       }
       return schema;
-    },
+    }
   },
   created() {
     this.loadSchema();
@@ -175,9 +168,9 @@ export default {
     schema: {
       deep: true,
       handler() {
-        this.warning = "Unsaved changes";
-      },
-    },
-  },
+        this.warning = 'Unsaved changes';
+      }
+    }
+  }
 };
 </script>

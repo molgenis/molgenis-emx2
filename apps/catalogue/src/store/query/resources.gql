@@ -1,6 +1,7 @@
 query Resources {
-  Resources {
-    pid
-    name
-  }
+    Resources {
+        pid
+        name
+        mg_tableclass
+    }
 }

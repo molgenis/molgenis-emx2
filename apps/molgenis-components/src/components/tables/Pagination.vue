@@ -90,8 +90,7 @@ export default {
 </script>
 
 <docs>
-Example
-```
+
 <template>
   <div>
     <Pagination v-model="page" :count="29"/>
@@ -107,9 +106,7 @@ Example
     }
   }
 </script>
-```
-Example with default and limit
-```
+
 <template>
   <div>
     <Pagination v-model="page" :count="29" :limit="5" :defaultValue="page"/>
@@ -125,5 +122,5 @@ Example with default and limit
     }
   }
 </script>
-```
+
 </docs>

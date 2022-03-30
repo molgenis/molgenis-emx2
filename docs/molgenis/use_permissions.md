@@ -36,7 +36,7 @@ route (```[service-location]/apps/central/#/admin```)
 
 ### Enabling OIDC
 
-To enable OIDC the following environment variables need to be set:
+##### To enable OIDC the following environment variables need to be set:
 
 ```
 MOLGENIS_OIDC_CLIENT_ID // the id for the molgenis instance as set in the authentication provider
@@ -45,6 +45,9 @@ MOLGENIS_OIDC_CLIENT_NAME // the client name as set in the  authentication provi
 MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to relevant service)
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
 ```
+
+##### The OIDC provider must return a valid ```email``` field ( also known as claim ) as part of the oidc profile response.
+If a user with the given email is already known in the emx system the the oidc user will be logged in as this user. If the email is not know a new user is created in the emx system ( with email provided oidc profile ) and the user is signed in.
 
 ### Disabling OIDC
 

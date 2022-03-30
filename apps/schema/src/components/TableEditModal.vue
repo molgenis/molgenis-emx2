@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import {request} from 'graphql-request';
 
 import {
   ButtonAction,
@@ -57,8 +57,8 @@ import {
   MessageError,
   MessageSuccess,
   SigninForm,
-  Spinner,
-} from "@mswertz/emx2-styleguide";
+  Spinner
+} from '@mswertz/emx2-styleguide';
 
 export default {
   components: {
@@ -71,11 +71,11 @@ export default {
     InputText,
     LayoutForm,
     Spinner,
-    SigninForm,
+    SigninForm
   },
   props: {
     schema: String,
-    table: { type: Object, default: {} },
+    table: {type: Object, default: () => {}}
   },
   data: function () {
     return {
@@ -83,21 +83,21 @@ export default {
       graphqlError: null,
       success: null,
       showLogin: false,
-      tableDraft: {},
+      tableDraft: {}
     };
   },
   computed: {
     title() {
-      if ((this.tableDraft.command = "CREATE")) {
+      if (this.tableDraft.command === 'CREATE') {
         return `Create table`;
       } else {
         return `Alter table '${this.table.name}'`;
       }
     },
     action() {
-      if ((this.tableDraft.command = "CREATE")) return `Create table`;
+      if (this.tableDraft.command === 'CREATE') return `Create table`;
       else return `Alter table ${this.table.name}`;
-    },
+    }
   },
   methods: {
     executeCommand() {
@@ -105,27 +105,27 @@ export default {
       this.graphqlError = null;
       this.success = null;
       request(
-        "graphql",
+        'graphql',
         `mutation change($table:MolgenisTableInput){change(tables:[$table]){message}}`,
         {
           table: {
             name: this.table.name,
             description: this.table.description,
-            semantics: this.table.semantics,
-          },
+            semantics: this.table.semantics
+          }
         }
       )
-        .then((data) => {
+        .then(() => {
           if (this.table) {
             this.success = `Table ${this.table.name} altered`;
           } else {
             this.success = `Table ${this.table.name} created`;
           }
-          this.$emit("close");
+          this.$emit('close');
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            this.graphqlError = "Forbidden. Do you need to login?";
+            this.graphqlError = 'Forbidden. Do you need to login?';
             this.showLogin = true;
           } else {
             this.graphqlError = error.response.errors[0].message;
@@ -133,24 +133,24 @@ export default {
           }
         });
       this.loading = false;
-    },
+    }
   },
   watch: {
     table: {
       deep: true,
       handler() {
         this.created();
-      },
-    },
+      }
+    }
   },
   created() {
     this.tableDraft = this.table;
-    if (this.tableDraft.name == null) {
-      this.tableDraft.command = "CREATE";
+    if (this.tableDraft.name === null) {
+      this.tableDraft.command = 'CREATE';
     } else {
-      this.tableDraft.command = "ALTER";
+      this.tableDraft.command = 'ALTER';
       this.tableDraft.oldName = this.tableDraft.name;
     }
-  },
+  }
 };
 </script>

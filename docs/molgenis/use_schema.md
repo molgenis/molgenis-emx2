@@ -10,12 +10,12 @@ part of a zip file. Note: you can upload the data in the same file as well. For 
 
 ## Example of a 'molgenis' schema
 
-| tableName | columName  | type | key | required | description               |
-|-----------|------------|------|-----|----------|---------------------------|
-| Person    |            |      |     |          | my person table           |
-| Person    | id         | int  | 1   |          | id is part of primary key |
-| Person    | firstName  |      | 2   |          |                           |
-| Person    | lastName   |      | 2   |          |                           |
+| tableName | columName | type | key | required | description               |
+| --------- | --------- | ---- | --- | -------- | ------------------------- |
+| Person    |           |      |     |          | my person table           |
+| Person    | id        | int  | 1   |          | id is part of primary key |
+| Person    | firstName |      | 2   |          |                           |
+| Person    | lastName  |      | 2   |          |                           |
 
 Note: combination of Person.firstName + Person.lastName is unique in table Person.
 
@@ -25,12 +25,12 @@ You can describe basic columns using:
 
 ### tableName
 
-Will be the name of the table. Must start with one of a-zAZ followed by zero or more of _a-zAZ1-3. Maximum length 31
+Will be the name of the table. Must start with one of a-zAZ followed by zero or more of \_a-zAZ1-3. Maximum length 31
 characters. If you leave columnName empty then all other settings will apply to the table instead of the column.
 
 ### columnName
 
-Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of _
+Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of \_
 a-zAZ1-3. Maximum length 31 characters. Default value: empty
 
 ### columnType
@@ -40,40 +40,42 @@ MOLGENIS supports the following types (type names are case insensitive):
 
 Basic type:
 
-* string : default when no type is provided
-* bool
-* int
-* decimal
-* uuid
-* jsonb : validates json format
-* file
-* text_array : string that displays as text area
+- string : default when no type is provided
+- bool
+- int
+- decimal
+- date
+- datetime
+- uuid
+- jsonb : validates json format
+- file
+- text : string that displays as text area
 
 Relationships:
 
-* ref : foreign key (aka many to one)
-    * ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
-      is automatically generated.
-* ref_array : multiple foreign key (aka many to many).
-    * ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
-      the refTable is automatically generated.
-* refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
+- ref : foreign key (aka many to one)
+  - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
+    is automatically generated.
+- ref_array : multiple foreign key (aka many to many).
+  - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
+    the refTable is automatically generated.
+- refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
 
-* string_array
-* bool_array
-* int_array
-* decimal_array
-* date_array
-* datetime_array
-* jsonb_array
-* uuid_array
-* text_array
+- string_array
+- bool_array
+- int_array
+- decimal_array
+- date_array
+- datetime_array
+- jsonb_array
+- uuid_array
+- text_array
 
 Layout (static content, not an input):
 
-* heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition
+- heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition
   your forms/reports.
 
 ### key
@@ -95,7 +97,7 @@ Text value that describes the column, or when columnName is empty, the table.
 
 You can define cross-references from one table to another using columnType=ref (single reference) or
 columnType=ref_array (multiple references). In postgresql these translate to foreign keys, and array of foreign key with
-triggers protecting foreign key constraints respectively. You need to define refTable, and optionally refFrom, refTo.
+triggers protecting foreign key constraints respectively. You need to define refTable.
 
 ### refTable
 
@@ -105,15 +107,15 @@ value: empty
 
 A simple reference:
 
-| tableName | columName  | type | key | refTable | required | description               |
-|-----------|------------|------|-----|----------|----------|---------------------------|
-| Person    |            |      |     |          |          | my person table           |
-| Person    | id         | int  | 1   |          |          | id is part of primary key |
-| Person    | firstName  |      | 2   |          | TRUE     |                           |
-| Person    | lastName   |      | 2   |          | TRUE     |                           |
-| Pet       | name       |      | 1   |          |          |                           |   
-| Pet       | species    |      |     |          | TRUE     |                           |
-| Pet       | owner      | ref  |     | Person   | TRUE     | foreign key to Person     |
+| tableName | columName | type | key | refTable | required | description               |
+| --------- | --------- | ---- | --- | -------- | -------- | ------------------------- |
+| Person    |           |      |     |          |          | my person table           |
+| Person    | id        | int  | 1   |          |          | id is part of primary key |
+| Person    | firstName |      | 2   |          | TRUE     |                           |
+| Person    | lastName  |      | 2   |          | TRUE     |                           |
+| Pet       | name      |      | 1   |          |          |                           |
+| Pet       | species   |      |     |          | TRUE     |                           |
+| Pet       | owner     | ref  |     | Person   | TRUE     | foreign key to Person     |
 
 Note: when key=1 then automatically required=TRUE
 
@@ -125,35 +127,19 @@ refback column behaves as a ref_array, but is in fact either many_to_many or man
 refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
 
-### refFrom, refTo
-
-When refTable has multiple primary key columns (i.e. column with key=1) then you must also define how you want to name
-the fields that are part of this column. The values in refTo must match the primary key columns of refTable. The values
-in refFrom can be chosen freely, but must be unique. Optionally, you can name them the same as an existing columnName,
-but only if the relationships overlap. See the example below:
-
-Example of complex relationships:
-
-| tableName | columnName  | type    | key | refTable | refFrom         | refTo              | refBack | required | description                 |
-|-----------|------------|---------|-----|----------|-----------------|--------------------|----------|----------|-----------------------------|
-| Person    |            |         |     |          |                 |                    |          |          | my person table             |      
-| Person    | firstName  |         | 1   |          |                 |                    |          |          |                             |
-| Person    | lastName   |         | 1   |          |                 |                    |          |          |                             |
-| Person    | pets       | refback |     | Pet      |                 |                    | owner    |          |                             |
-| Pet       | name       |         | 1   |          |                 |                    |          |          |                             |   
-| Pet       | species    |         |     |          |                 |                    |          |          |                             |
-| Pet       | owner      | ref     |     | Person   | ownerFN,ownerLN | firstName,lastName |          |          | multi-foreign key to Person |
-
 ## Ontologies
 
-Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the refered table
+Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the referred table
 is automatically created, using refTable as the name.
 
-## Expressions (alpha/planned)
+## Expressions
 
-You can further finetune the behaviour of tables using javascript expressions. NOT YET FULLY IMPLEMENTED
+You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression syntax you can have a look at the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
+Expressions refer to the id property of columns.
 
-### computedValue
+*Note: expressions will currently only let you check basic types and string arrays.*
+
+### computedValue (NOT YET IMPLEMENTED)
 
 Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn
 must contain valid javascript returning the value. All columns of the table are available as variable. Computed values
@@ -161,30 +147,30 @@ are read-only in the user interface.
 
 For example:
 
-| tableName | columnName | key | computedValue            |
-|-----------|------------|-----|--------------------------|
-| parts     | id         | 1   | productNo + "_" + partNo |
-| parts     | productNo  | 2   |                          |
-| parts     | partNo     | 2   |                          |
+| tableName | columnName | key | computedValue             |
+| --------- | ---------- | --- | ------------------------- |
+| parts     | id         | 1   | productNo + "\_" + partNo |
+| parts     | productNo  | 2   |                           |
+| parts     | partNo     | 2   |                           |
 
 ### validation expression, visible expression
 
-Validation expressions and visible expressions are used to finetune forms. Validation expressions must be valid
+Validation expressions and visible expressions are used to fine tune forms. Validation expressions must be valid
 javascript. Validation expressions must return null, otherwise they will show an error message and prevent
 insert/update. Visible expressions must return true, otherwise the column stays hidden in the user interface. In the
 event that javascript throws an exception, this is shown in user interface/error message.
 
 Example:
 
-| tableName | columnName | type | key | validation                                       | visible            |
-|-----------|------------|------|-----|--------------------------------------------------|--------------------|
-| person    | id         |      | 1   |                                                  |                    |
-| person    | birth      | date |     | if(birth > death) 'birth should be before death' |                    |
-| death     | death      | date |     | if(birth > death) 'death should be after death'  | birth != undefined |
+| tableName | columnName | type | key | validation        | visible                |
+| --------- | ---------- | ---- | --- | ----------------- | ---------------------- |
+| person    | id         |      | 1   |                   |                        |
+| person    | birth      | date |     | {birth} > {death} |                        |
+| death     | death      | date |     | {birth} > {death} | {birth} != {undefined} |
 
 ## Table inheritance
 
-You can reuse table definitions, and make more specialised tables using 'tableExtends'.
+You can reuse table definitions, and make more specialized tables using 'tableExtends'.
 
 ### tableExtends
 
@@ -198,7 +184,7 @@ table, will also be visible in the table that is extended.
 
 Usually it is good practice to keep all tables you work with in one schema, so you can upload/download them as a unit.
 However, there might be cases where you want to refer to data in other schemas. For example, large reference sets, or a
-situation in which you have multiple organisations contributing data. For these cases you can use 'refSchema'.
+situation in which you have multiple organizations contributing data. For these cases you can use 'refSchema'.
 
 ### refSchema
 
@@ -209,9 +195,8 @@ practice, the table from the other schema will be imported into the current sche
 
 ## FAQ
 
-Q: Do you support automatic values, such as autoincrement identifiers or dates?
+Q: Do you support automatic values, such as auto-increment identifiers or dates?
 
 A: No. We believe scientific data must be reproducible. Therefore we want to make sure that when you upload+download
 data twice, the contents are exactly the same. This would break in the event of automatic values. If you really want it,
 you can use computedValue.
-

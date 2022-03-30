@@ -56,15 +56,8 @@ public class PetStoreExample {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(
-                column(QUANTITY)
-                    .setType(INT)
-                    .setValidation("if(value<1)'Must be larger than 1'")) // todo: validation >=1
-            .add(
-                column(PRICE)
-                    .setType(DECIMAL)
-                    .setValidation(
-                        "if(value<1.0)'Must be larger than 1.0'")) // todo: validation >=1
+            .add(column(QUANTITY).setType(INT).setValidation("{quantity} >= 1"))
+            .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
@@ -79,10 +72,10 @@ public class PetStoreExample {
             .add(column("firstName"))
             .add(column("lastName"))
             .add(column("picture").setType(FILE))
-            .add(
-                column(EMAIL)
-                    .setValidation(
-                        "if(!/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/.test(value)) 'Should be valid email address'")) // todo: validation email
+            .add(column(EMAIL))
+            // future work .setValidation(
+            //  "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email},'i')")) //
+            // todo: validation email
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))

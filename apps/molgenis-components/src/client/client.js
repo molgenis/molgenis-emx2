@@ -26,7 +26,7 @@ _schema {
 }}`;
 
 /**
- * 
+ *
  * @param {String} tableName
  * @param {Object} metaData - object that contains all schema meta data
  * @returns String of fields for use in gql query
@@ -95,9 +95,9 @@ const fetchTableData = async (
 ) => {
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
-    properties && properties.hasOwnProperty(limit) ? properties.limit : 20;
+    properties && Object.prototype.hasOwnProperty.call(properties, 'limit') ? properties.limit : 20;
   const offset =
-    properties && properties.hasOwnProperty(offset) ? properties.limit : 0;
+    properties && Object.prototype.hasOwnProperty.call(properties, 'offset') ? properties.limit : 0;
 
   const search =
     properties &&
@@ -109,20 +109,27 @@ const fetchTableData = async (
   const cNames = columnNames(tableId, metaData);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
-          filter:$filter,limit:${limit}, 
+          filter:$filter,
+          limit:${limit}, 
           offset:${offset}${search},
           orderby:$orderby
-        )
-        {
-          ${cNames}
-        }
-        ${tableId}_agg( filter:$filter${search} ) {
-          count
-        }
-    }`;
+          )
+          {
+            ${cNames}
+          }
+          ${tableId}_agg( filter:$filter${search} ) {
+            count
+          }
+        }`;
 
+  const filter =
+    properties && Object.prototype.hasOwnProperty.call(properties, 'filter') ? properties.filter : {};
+  const orderby =
+    properties && Object.prototype.hasOwnProperty.call(properties, 'orderby')
+      ? properties.orderby
+      : {};
   const resp = await axios
-    .post(url, { query: tableDataQuery })
+    .post(url, { query: tableDataQuery, variables: { filter, orderby} })
     .catch((error) => {
       console.log(error);
       if (typeof onError === "function") {

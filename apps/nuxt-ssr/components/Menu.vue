@@ -1,6 +1,6 @@
 <template>
   <nav class="navbar bg-primary navbar-expand-lg navbar-dark">
-    <a v-if="logo" :href=brandHref class="navbar-brand">
+    <a :href="brandHref" class="navbar-brand">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <button
@@ -22,24 +22,27 @@
         </li>
       </ul>
     </div>
+    <slot />
+
   </nav>
 </template>
 
 <script>
 export default {
-  name: "Menu",
+  name: 'Menu',
   props: {
+    // Link to follow when brand is clicked
     brandHref: {
-      type: String,
+      type: String
     },
     menu: {
-      type: Array,
+      type: Array
     },
     logo: {
       type: String,
-      default: () => "/apps/styleguide/assets/img/molgenis_logo_white.png",
-    },
-  },
+      default: () => '/apps/styleguide/assets/img/molgenis_logo_white.png'
+    }
+  }
 };
 </script>
 

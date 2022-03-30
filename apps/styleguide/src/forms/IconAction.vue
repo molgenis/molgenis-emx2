@@ -1,6 +1,6 @@
 <template>
   <button
-    class="btn pl-1 pr-1 btn-outline-primary border-0"
+    class="btn p-1 mt-n1 mb-n1 btn-outline-primary border-0"
     @click.prevent="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
@@ -9,15 +9,15 @@
 </template>
 
 <script>
-import ButtonAction from "./ButtonAction";
+import ButtonAction from './ButtonAction';
 
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
   extends: ButtonAction,
   props: {
     label: String,
-    icon: String,
-  },
+    icon: String
+  }
 };
 </script>
 

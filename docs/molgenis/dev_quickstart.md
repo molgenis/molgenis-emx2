@@ -99,11 +99,11 @@ Requires only [docker compose](https://docs.docker.com/compose/) and [yarn 1.x](
 
 ## Tips
 
-last updated 15 nov 2020
+last updated 24 nov 2022
 
 ### IntelliJ plugins
 
-* We use IntelliJ 2020.2 with
+* We use IntelliJ 2021.3.1 with
     * vue plugin
     * google-java-format plugin
     * prettier plugin, set run for files to include '.vue' and 'on save'
@@ -121,6 +121,14 @@ if[$RESULTS -ne 0]; then
 fi
 exit 0
 ```
+
+### Running tests in intellij
+
+To enable gradle to run tests you must set the test runner to gradle.
+
+Go to IntelliJ Preferences -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
+
+See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/ 
 
 ### Reset gradle cache/deamon
 

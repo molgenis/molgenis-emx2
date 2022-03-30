@@ -14,14 +14,14 @@
         v-if="readonly"
         readonly
         v-model="valueArray[idx]"
-        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+        :class="{'form-control': true, 'is-invalid': errorMessage}"
       />
       <FlatPickr
         v-else
         v-model="valueArray[idx]"
         style="background: white"
         class="form-control active"
-        :class="{ 'is-invalid': errorMessage }"
+        :class="{'is-invalid': errorMessage}"
         :config="config"
         :placeholder="placeholder"
         :disabled="readonly"
@@ -32,11 +32,11 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput.vue";
-import FormGroup from "./_formGroup";
-import FlatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
-import InputAppend from "./_inputAppend";
+import _baseInput from './_baseInput.vue';
+import FormGroup from './_formGroup';
+import FlatPickr from 'vue-flatpickr-component';
+import 'flatpickr/dist/flatpickr.css';
+import InputAppend from './_inputAppend';
 
 /** Show a data input */
 export default {
@@ -44,18 +44,18 @@ export default {
   components: {
     FlatPickr,
     InputAppend,
-    FormGroup,
+    FormGroup
   },
   computed: {
     config() {
       return {
         wrap: true, // set wrap to true only when using 'input-group'
-        dateFormat: "Y-m-d",
+        dateFormat: 'Y-m-d',
         allowInput: false,
-        clickOpens: !this.readonly,
+        clickOpens: !this.readonly
       };
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -41,6 +41,9 @@ repositories {
     maven {
         url = 'https://repo.maven.apache.org/maven2'
     }
+    maven {
+        url = "https://registry.molgenis.org/repository/maven-public"
+    }
 }
 
 dependencies {
@@ -160,7 +163,7 @@ ext {
 }
 
 application {
-    mainClassName = javaMainClass
+    mainClass.set(javaMainClass)
 }
 
 jar {
