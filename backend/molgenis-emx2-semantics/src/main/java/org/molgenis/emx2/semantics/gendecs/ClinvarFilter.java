@@ -10,7 +10,7 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClinvarFilter implements VcfParser {
+public class ClinvarFilter {
   StarRating starRating;
   private static final Logger logger = LoggerFactory.getLogger(ClinvarFilter.class);
 
