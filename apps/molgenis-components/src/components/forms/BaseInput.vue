@@ -28,6 +28,10 @@ export default {
       type: String,
       required: false
     },
+    placeholder: {
+      type: String,
+      required: false
+    },
     /**
      * EMX2 description
      */
@@ -45,9 +49,9 @@ export default {
       default: () => 'text'
     }
   },
-  methods: {
-    isNonEmptyString(s) {
-      return s !== null && s !== undefined && s.length;
+  computed: {
+    placeholderValue () {
+      return this.placeholder !== null && this.placeholder !== undefined && this.placeholder.length ? this.placeholder : this.label
     }
   }
 };

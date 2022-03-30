@@ -16,6 +16,7 @@ import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
 import InputString from '../src/components/forms/InputString.vue';
+import InputSearch from '../src/components/forms/InputSearch.vue';
 
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -55,6 +56,7 @@ export {
   FormMolgenis,
   InputPassword,
   InputString,
+  InputSearch,
   Breadcrumb,
   LayoutModal,
   ReadMore,
