@@ -83,7 +83,7 @@ public class TestCohortCatalogue {
     MolgenisIO.fromDirectory(
         new File("../../data/datacatalogue/RWEcatalogue").toPath(), rweSchema, false);
 
-    assertEquals(36, TestCohortCatalogue.rweSchema.getTableNames().size());
+    assertEquals(37, TestCohortCatalogue.rweSchema.getTableNames().size());
 
     // export import schema to compare
   }
