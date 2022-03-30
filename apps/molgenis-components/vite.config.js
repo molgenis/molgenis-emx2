@@ -54,6 +54,9 @@ if (process.env.SHOW_CASE !== 'on') {
 } else {
   console.log('prod build in show case mode');
   conf.build = {
+    rollupOptions: {
+      external: ['/apps/central/theme.css']
+    },
     outDir: './showCase'
   };
 
