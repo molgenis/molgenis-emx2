@@ -68,14 +68,18 @@ public class GendecsApi {
 
   private static HashMap<String, String> getGenesHpo(ArrayList<String> hpoTerms) {
     StarRating starRating = StarRating.ONESTAR;
-    VcfParser vcfParser = new VcfParser(filenameData, starRating, hpoTerms);
+    ClinvarFilter clinvarFilter = new ClinvarFilter(starRating);
+    String filteredClinvar = clinvarFilter.removeStatus(filenameClinvar);
 
-    String pathName = vcfParser.removeStatus(filenameClinvar);
+    ClinvarMatcher clinvarMatcher = new ClinvarMatcher(filenameData, hpoTerms, filteredClinvar);
+
+    //    String pathName = vcfParser.removeStatus(filenameClinvar);
     logger.info("Removed " + starRating + " and lower from " + filenameClinvar);
     logger.info("Matching variants with the entered HPO terms");
     logger.debug("Matching variants with the following HPO terms: " + hpoTerms);
+    Variants variants = clinvarMatcher.matchWithClinvar();
 
-    Variants variants = vcfParser.matchWithClinvar(pathName);
+    //    Variants variants = vcfParser.matchWithClinvar(pathName);
     return variants.getGeneHpo();
   }
 
