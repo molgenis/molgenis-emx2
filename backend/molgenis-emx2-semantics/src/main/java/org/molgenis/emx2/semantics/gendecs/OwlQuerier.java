@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 public class OwlQuerier {
   private static final Logger logger = LoggerFactory.getLogger(OwlQuerier.class);
   Model model;
-
   String hpoID;
-  ArrayList<String> parents;
-  ArrayList<String> subClasses;
 
   public OwlQuerier(String id) {
     hpoID = id;
@@ -104,13 +101,12 @@ public class OwlQuerier {
           }
         }
       } else {
-        logger.debug("No results found");
+      logger.debug("No results found");
       }
-    } else {
+    } else{
       logger.debug("result variables are null");
     }
     return parents;
-    //    return makeHpoTerm(parents, "parents");
   }
 
   public ArrayList<String> getSubClasses() {
@@ -133,34 +129,5 @@ public class OwlQuerier {
       logger.debug("resultSet is null");
     }
     return hpoTerms;
-    //    return makeHpoTerm(hpoTerms, "children");
-  }
-
-  /**
-   * Method that invokes the query methods. Now uses locally stored hp.owl file stored in
-   * data/gendecs
-   *
-   * @return HpoTerm object with the results
-   */
-  public void executeQuery() {
-
-    logger.info("Loaded hp.owl");
-    logger.info("Queried hp.owl for parents and subclasses");
-  }
-
-  private void gatherAssociates(ResultSet resultsParents, ResultSet resultsSubClasses) {
-    logger.debug("Resulting parent array: {}", parents);
-    logger.debug("Resulting sub classes array: {}", subClasses);
-  }
-
-  private HpoTerm makeHpoTerm(ArrayList<String> terms, String type) {
-    HpoTerm hpoTerm = new HpoTerm();
-    if (type.equals("parents")) {
-      hpoTerm.setParents(terms);
-    }
-    if (type.equals("children")) {
-      hpoTerm.setChildren(terms);
-    }
-    return hpoTerm;
   }
 }
