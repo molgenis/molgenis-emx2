@@ -26,10 +26,20 @@ public class GendecsApi {
   private static String queryHpo(Request request, Response response) {
     JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
     String hpoId = jsonObject.get("hpoId").getAsString();
+    JsonArray searchAssociates = jsonObject.get("searchAssociates").getAsJsonArray();
 
+    HpoTerm hpoTerm = new HpoTerm();
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
+
     logger.info("Started querying for parents and children of: " + hpoId);
-    HpoTerm hpoTerm = owlQuerier.executeQuery();
+    if (searchAssociates.toString().contains("parents")) {
+      ArrayList<String> hpoTermsParent = owlQuerier.getParentClasses();
+      hpoTerm.setParents(hpoTermsParent);
+    }
+    if (searchAssociates.toString().contains("children")) {
+      ArrayList<String> hpoTermChildren = owlQuerier.getSubClasses();
+      hpoTerm.setChildren(hpoTermChildren);
+    }
 
     return Serialize.serializeHpo(hpoTerm);
   }

@@ -84,41 +84,56 @@ public class OwlQuerier {
     return null;
   }
 
-  private ArrayList<String> getParentsClasses(ResultSet resultSet) {
+  public ArrayList<String> getParentClasses() {
+    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    ResultSet resultSet = queryParentClass(hpoID);
     ArrayList<String> parents = new ArrayList<>();
-    logger.debug("result variables: {}", resultSet.getResultVars());
-    if (resultSet.hasNext()) {
-      logger.debug("results found!");
-      while (resultSet.hasNext()) {
-        QuerySolution querySolution = resultSet.nextSolution();
 
-        Resource resource = querySolution.getResource("predicate");
-        if (resource.getLocalName().equals("subClassOf")) {
+    if (resultSet != null) {
+      logger.debug("result variables: {}", resultSet.getResultVars());
+      if (resultSet.hasNext()) {
+        logger.debug("results found!");
+        while (resultSet.hasNext()) {
+          QuerySolution querySolution = resultSet.nextSolution();
 
-          Resource literal = querySolution.getResource("label");
-          parents.add(literal.getLocalName());
+          Resource resource = querySolution.getResource("predicate");
+          if (resource.getLocalName().equals("subClassOf")) {
+
+            Resource literal = querySolution.getResource("label");
+            parents.add(literal.getLocalName());
+          }
         }
+      } else {
+        logger.debug("No results found");
       }
     } else {
-      logger.debug("No results found");
+      logger.debug("result variables are null");
     }
     return parents;
+    //    return makeHpoTerm(parents, "parents");
   }
 
-  private ArrayList<String> getSubClasses(ResultSet resultSet) {
+  public ArrayList<String> getSubClasses() {
+    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    ResultSet resultSet = querySubClasses(hpoID);
     ArrayList<String> hpoTerms = new ArrayList<>();
-    if (resultSet.hasNext()) {
-      logger.debug("results found!");
-      while (resultSet.hasNext()) {
-        QuerySolution querySolution = resultSet.nextSolution();
+    if (resultSet != null) {
+      if (resultSet.hasNext()) {
+        logger.debug("results found!");
+        while (resultSet.hasNext()) {
+          QuerySolution querySolution = resultSet.nextSolution();
 
-        Literal literal = querySolution.getLiteral("label");
-        hpoTerms.add(literal.getString());
+          Literal literal = querySolution.getLiteral("label");
+          hpoTerms.add(literal.getString());
+        }
+      } else {
+        logger.debug("No results found");
       }
     } else {
-      logger.debug("No results found");
+      logger.debug("resultSet is null");
     }
     return hpoTerms;
+    //    return makeHpoTerm(hpoTerms, "children");
   }
 
   /**
@@ -127,29 +142,25 @@ public class OwlQuerier {
    *
    * @return HpoTerm object with the results
    */
-  public HpoTerm executeQuery() {
-    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+  public void executeQuery() {
+
     logger.info("Loaded hp.owl");
-    ResultSet resultsParents = queryParentClass(hpoID);
-    ResultSet resultsSubClasses = querySubClasses(hpoID);
     logger.info("Queried hp.owl for parents and subclasses");
-
-    gatherAssociates(resultsParents, resultsSubClasses);
-
-    return makeHpoTerm();
   }
 
   private void gatherAssociates(ResultSet resultsParents, ResultSet resultsSubClasses) {
-    parents = getParentsClasses(resultsParents);
-    subClasses = getSubClasses(resultsSubClasses);
     logger.debug("Resulting parent array: {}", parents);
     logger.debug("Resulting sub classes array: {}", subClasses);
   }
 
-  private HpoTerm makeHpoTerm() {
+  private HpoTerm makeHpoTerm(ArrayList<String> terms, String type) {
     HpoTerm hpoTerm = new HpoTerm();
-    hpoTerm.setChildren(subClasses);
-    hpoTerm.setParents(parents);
+    if (type.equals("parents")) {
+      hpoTerm.setParents(terms);
+    }
+    if (type.equals("children")) {
+      hpoTerm.setChildren(terms);
+    }
     return hpoTerm;
   }
 }

@@ -18,7 +18,7 @@
       <InputCheckbox
             label="Search for parents and children"
             v-model="searchAssociates"
-            :options="['Search for parents and children']"
+            :options="['Search for parents', 'Search for children']"
             description="check this box if you want to search for parents and children of
                         your HPO term"/>
     </div>
@@ -143,7 +143,8 @@ export default {
       for (let i = 0; i < this.hpoIds.length; i++) {
         let requestOptions = {
           method: 'POST',
-          body: JSON.stringify({ hpoId: hpoIds[i] })
+          body: JSON.stringify({ hpoId: hpoIds[i],
+          searchAssociates: this.searchAssociates})
         };
 
         let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
