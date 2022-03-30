@@ -92,6 +92,11 @@ export default {
     document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
+    /**
+     * Function invoked if an HPO term is clicked. It adds the result
+     * to this.hpoTerms and this.hpoTermsResults.
+     * @param result
+     */
     setResult(result) {
       if (this.hpoTermsResults.length >= 1) {
         this.hpoTerms[this.hpoTerms.length - 1] = result;
@@ -111,6 +116,11 @@ export default {
       this.results = this.items.filter(item => item.toLowerCase().indexOf(
           this.hpoTerms[this.hpoTerms.length - 1].toLowerCase()) > -1);
     },
+    /**
+     * Function that is invoked when a letter is typed in the form and
+     * performs some checks to make sure the value is correct when deleting/backspacing.
+     * It invokes this.filterResults.
+     */
     onChange() {
       if(this.hpoTerms.length - 1 !== this.hpoTermsResults.length) {
         this.hpoTermsResults = this.hpoTerms;

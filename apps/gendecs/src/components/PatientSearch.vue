@@ -35,12 +35,9 @@ export default {
   },
   methods: {
     async fetchPatient() {
-      // let query = "{patients (filter: {identifier: {eq :\"1\"}}) {identifier genesymbol vcfdata {url} }}";
-      // let query = "{patients(identifier:1){identifier genesymbol}}";
       let query = "{patients{identifier vcfdata{url}}}"
       let resultPatients = [];
       this.loading = true;
-      //do query
       await request("graphql", query)
           .then((data) => {
             this.dataLoaded = true;
@@ -64,9 +61,6 @@ export default {
           let url = patients[i].vcfdata.url;
 
           fetch(url)
-            // .then(response => response.text())
-            // .then(textString => {
-              // let rows = textString.split('\n');
               .then(response => response.blob())
               .then(blob => {
                 let a = document.createElement("a");

@@ -54,7 +54,6 @@
 
 <script>
 import {
-  ButtonAction,
   MessageError,
   MessageSuccess,
   ButtonOutline,
@@ -67,7 +66,6 @@ import hpoData from "../js/autoSearchData.js";
 
 export default {
   components: {
-    ButtonAction,
     SearchAutoComplete,
     PatientSearch,
     MessageError,
@@ -99,11 +97,11 @@ export default {
         this.selectedHpoTerms.push(selectedHpoTerms[i])
       }
     },
+    /**
+     * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
+     * This is then used to gather the ID of the term using an api call.
+     * */
     async hpoTermToId(hpoTerm) {
-      /**
-      * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
-      * This is then used to gather the ID of the term using an api call.
-      * */
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
           .then((response) => {
             if (response.ok) {
@@ -118,6 +116,10 @@ export default {
 
       return hpoResults[0].id;
     },
+    /**
+     * Function gets the Hpo id that is selected by the user as hpoId.
+     * This is then used to gather the HPO term of the id using an api call.
+     * */
     async hpoIdToTerm(hpoId) {
       let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoId)
           .then((response) => {
@@ -133,11 +135,11 @@ export default {
 
       return hpoResults[0].name;
     },
+    /**
+     * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
+     * The parents and children of this term are returned by the backend.
+     * */
     async getHpoAssociates(hpoIds) {
-      /**
-      * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
-      * The parents and children of this term are returned by the backend.
-      * */
       for (let i = 0; i < this.hpoIds.length; i++) {
         let requestOptions = {
           method: 'POST',
@@ -165,13 +167,12 @@ export default {
         }
       }
     },
+    /**
+     * Function that sends an api call to the backend to parse the vcf data.
+     * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
+     * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+     */
     async matchVcfWithHpo() {
-      /**
-       * Function that sends an api call to the backend to parse the vcf data.
-       * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
-       * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
-       *
-       */
       let requestOptions = {
         method: 'POST',
         body: JSON.stringify({ hpoTerms : this.selectedHpoTerms,
@@ -227,6 +228,7 @@ export default {
       this.loading = false;
       this.readOnly = false;
       this.foundMatch = false;
+      this.noMatch = false;
     }
   },
 };
