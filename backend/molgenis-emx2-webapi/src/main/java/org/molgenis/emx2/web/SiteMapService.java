@@ -1,15 +1,22 @@
-package org.molgenis.emx2.web.controllers;
+package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static spark.Spark.get;
 
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.web.service.CatalogueSiteMap;
 import spark.Request;
 import spark.Response;
 
-public class SiteMapController {
+public class SiteMapService {
 
-  private SiteMapController() {}
+  private SiteMapService() {
+    // hide constructor
+  }
+
+  public static void create() {
+    get("/:schema/sitemap.xml", SiteMapService::getSiteMapForSchema);
+  }
 
   public static String getSiteMapForSchema(Request request, Response response) {
     response.type("text/xml, application/xml");

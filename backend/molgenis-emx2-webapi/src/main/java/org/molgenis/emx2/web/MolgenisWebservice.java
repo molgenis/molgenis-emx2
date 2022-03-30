@@ -18,7 +18,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.Version;
 import org.molgenis.emx2.web.controllers.OIDCController;
-import org.molgenis.emx2.web.controllers.SiteMapController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -60,8 +59,6 @@ public class MolgenisWebservice {
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
     get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    get("/:schema/sitemap.xml", SiteMapController::getSiteMapForSchema);
-
     // root
     get(
         "/",
@@ -89,6 +86,7 @@ public class MolgenisWebservice {
         "/:schema/api",
         (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
 
+    SiteMapService.create();
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();
