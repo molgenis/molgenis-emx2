@@ -5,10 +5,10 @@
     }}</label>
     <slot></slot>
     <small
-      v-if="isNonEmptyString(helpText)"
+      v-if="isNonEmptyString(description)"
       :id="id + '-help-text'"
       class="form-text text-muted"
-      >{{ helpText }}</small
+      >{{ description }}</small
     >
   </div>
 </template>
@@ -25,7 +25,7 @@ export default {
       type: String,
       required: false
     },
-    helpText: {
+    description: {
       type: String,
       required: false
     },
