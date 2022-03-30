@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <div id="titlediv">
-      <h1>Welcome to GenDecS!</h1>
+      <h1>Welcome to the Genomics viewer of GenDecS</h1>
       <p>this page contains the prototype for GenDecS. Here you can enter a patient number together
         with a HPO root-term/phenotype. When a number is entered a vcfdata file will be downloaded.
         This data will be filtered on possible disease causing genes. Then the filtered genes will
@@ -36,7 +36,7 @@
       <div class="results" v-else>
         <div v-if="foundMatch">
           <MessageSuccess>Match found! </MessageSuccess>
-          <p> {{ selectedHpoTerms }} has a match with the following gene(s): {{ patientGenes }}.
+          <p>The {{ selectedHpoTerms }} is associated with the following gene(s): {{ patientGenes }}.
             Which was found in the patient vcf data</p>
         </div>
         <div v-if="noMatch">
