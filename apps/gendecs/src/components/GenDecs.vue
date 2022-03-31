@@ -157,14 +157,17 @@ export default {
             .catch((error) => {
               console.log(error);
             });
-
-        for (let i = 0; i < data["parents"].length; i++) {
-          let parentId = data["parents"][i];
-          let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
-          this.hpoParents.push(parentTerm);
+        if(this.searchAssociates.includes("parents")) {
+          for (let i = 0; i < data["parents"].length; i++) {
+            let parentId = data["parents"][i];
+            let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
+            this.hpoParents.push(parentTerm);
+          }
         }
-        for (let j = 0; j < data["children"].length; j++) {
-          this.hpoChildren.push(data["children"][i]);
+        if(this.searchAssociates.includes("children")) {
+          for (let j = 0; j < data["children"].length; j++) {
+            this.hpoChildren.push(data["children"][i]);
+          }
         }
       }
     },
@@ -215,6 +218,7 @@ export default {
         await this.getHpoAssociates(this.hpoIds);
         this.searchAssociates = null;
       }
+      console.log(this.hpoParents);
       await this.matchVcfWithHpo();
       this.loading = false;
       this.readOnly = true;
