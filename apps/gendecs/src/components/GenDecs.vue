@@ -30,12 +30,17 @@
       <p>Place the downloaded vcfdata file in data/gendecs. If finished please press this button</p>
 
       <ButtonOutline @click="main">Search for matches</ButtonOutline>
+
       <div class="results" v-if="loading">
+        <p v-if="parentSearch" >Searching for matches with parents: {{ hpoParents }}
+          and the entered term(s): {{ selectedHpoTerms }}
+        </p>
         <Spinner/>
       </div>
+
       <div class="results" v-else>
         <div v-if="foundMatch">
-          <MessageSuccess>Match found! </MessageSuccess>
+          <MessageSuccess>Match found!</MessageSuccess>
           <p>The {{ selectedHpoTerms }} is associated with the following gene(s): {{ patientGenes }}.
             Which was found in the patient vcf data</p>
         </div>
@@ -89,6 +94,7 @@ export default {
       loading: false,
       readOnly: false,
       noMatch: false,
+      parentSearch: false,
     };
   },
   methods: {
@@ -157,17 +163,21 @@ export default {
             .catch((error) => {
               console.log(error);
             });
-        if(this.searchAssociates.includes("parents")) {
-          for (let i = 0; i < data["parents"].length; i++) {
-            let parentId = data["parents"][i];
-            let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
-            this.hpoParents.push(parentTerm);
-          }
+        await this.addAssociates(data);
+      }
+    },
+    async addAssociates(data) {
+      if(this.searchAssociates.includes("Search for parents")) {
+        for (let i = 0; i < data["parents"].length; i++) {
+          this.parentSearch = true;
+          let parentId = data["parents"][i];
+          let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
+          this.hpoParents.push(parentTerm);
         }
-        if(this.searchAssociates.includes("children")) {
-          for (let j = 0; j < data["children"].length; j++) {
-            this.hpoChildren.push(data["children"][i]);
-          }
+      }
+      if(this.searchAssociates.includes("Search for children")) {
+        for (let j = 0; j < data["children"].length; j++) {
+          this.hpoChildren.push(data["children"][i]);
         }
       }
     },
@@ -198,6 +208,7 @@ export default {
         this.noMatch = true;
       } else if(Object.keys(this.genesHpo).length !== 0) {
         this.foundMatch = true;
+
         this.patientGenes = Object.keys(this.genesHpo);
       } else if(Object.keys(this.genesHpo).length === 0) {
         this.noMatch = true;
@@ -213,12 +224,11 @@ export default {
           let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
           hpoIds.push(hpoId.replace(":", "_"));
         }
-        this.hpoIds = hpoIds
+        this.hpoIds = hpoIds;
 
         await this.getHpoAssociates(this.hpoIds);
         this.searchAssociates = null;
       }
-      console.log(this.hpoParents);
       await this.matchVcfWithHpo();
       this.loading = false;
       this.readOnly = true;
