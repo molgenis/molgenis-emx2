@@ -1,5 +1,5 @@
 <template>
-  <FormGroup :id="id" :label="label" :helpText="helpText">
+  <FormGroup :id="id" :label="label" :description="description">
     <input
       :id="id"
       :name="name"
