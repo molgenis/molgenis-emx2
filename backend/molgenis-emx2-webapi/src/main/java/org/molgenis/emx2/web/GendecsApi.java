@@ -70,12 +70,9 @@ public class GendecsApi {
     ClinvarFilter clinvarFilter = new ClinvarFilter(starRating);
     String filteredClinvar = clinvarFilter.removeStatus();
 
-    //    ClinvarMatcher clinvarMatcher = new ClinvarMatcher(hpoTerms, filteredClinvar);
-
     logger.info("Removed " + starRating + " and lower from " + Constants.FILENAMECLINVAR);
     logger.info("Matching variants with the entered HPO terms");
     logger.debug("Matching variants with the following HPO terms: " + hpoTerms);
-    //    Variants variants = clinvarMatcher.matchWithClinvar();
     HpoMatcher hpoMatcher = new HpoMatcher(hpoTerms, filteredClinvar);
     Variants variants = hpoMatcher.getHpoMatches();
 

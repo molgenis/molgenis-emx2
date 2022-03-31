@@ -2,17 +2,9 @@ package org.molgenis.emx2.semantics.gendecs;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class VariantHpoMatcher {
-  private ArrayList<String> hpoTerms;
-  private Variants variants;
-
-  public VariantHpoMatcher(ArrayList<String> hpoTerms, Variants variants) {
-    this.variants = variants;
-    this.hpoTerms = hpoTerms;
-  }
 
   public String matchVariantWithHpo(String variant) {
     String geneSymbol = getGenes(variant);
@@ -56,23 +48,12 @@ public class VariantHpoMatcher {
           String hpoTerm = lineSplit[3];
           String diseaseId = lineSplit[8];
           return hpoTerm;
-          // return hpo and add hpo to result file
-          //          if (this.checkForMatch(hpoTerm)) {
-          //            variants.addGenesHpo(gene, hpoTerm);
-          //
-          //            return true;
         }
       }
       return "";
-    }
-    //      return false;
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
     return "";
-  }
-
-  private boolean checkForMatch(String hpoTerm) {
-    return this.hpoTerms.contains(hpoTerm);
   }
 }

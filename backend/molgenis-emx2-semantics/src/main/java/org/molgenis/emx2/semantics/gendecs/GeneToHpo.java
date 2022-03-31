@@ -27,6 +27,7 @@ public class GeneToHpo {
         //                geneSymbols.add(geneSplit[0]);
       } else {
         geneSymbols.add(geneSplit[0]);
+        //        geneHpo.put(genesplit[0], )
       }
     }
   }

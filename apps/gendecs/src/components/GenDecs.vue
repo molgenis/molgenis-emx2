@@ -193,9 +193,11 @@ export default {
 
       if (typeof this.genesHpo === 'undefined') {
         this.noMatch = true;
-      } else if(this.genesHpo.length !== 0) {
+      } else if(Object.keys(this.genesHpo).length !== 0) {
         this.foundMatch = true;
         this.patientGenes = Object.keys(this.genesHpo);
+      } else if(Object.keys(this.genesHpo).length === 0) {
+        this.noMatch = true;
       }
     },
     async main() {

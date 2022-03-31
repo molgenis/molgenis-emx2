@@ -70,7 +70,7 @@ public class ClinvarMatcher {
     VcfFile.writeHeader(writerResult, "result");
 
     Variants variants = new Variants();
-    VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher(hpoTerms, variants);
+    VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher();
 
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
@@ -87,7 +87,6 @@ public class ClinvarMatcher {
                     + System.getProperty("line.separator"));
             writerClinvar.write(
                 currentLine + '\t' + hpoTerm + System.getProperty("line.separator"));
-            //            variants.addVariant(currentLine);
           }
         }
       }
