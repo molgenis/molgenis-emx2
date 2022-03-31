@@ -1,3 +1,5 @@
+import IconAction from "../src/components/atoms/IconAction.vue"
+
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
 import GridBlock from "../src/components/display/GridBlock.vue";
 import ImageCard from "../src/components/display/ImageCard.vue";
@@ -39,6 +41,7 @@ import SignInForm from "../src/components/organisms/SignInForm.vue"
 import Client from "../src/client/client.js";
 
 export {
+  IconAction,
   ContactDisplay,
   GridBlock,
   ImageCard,
