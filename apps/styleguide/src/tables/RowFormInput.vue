@@ -1,5 +1,7 @@
 <template>
   <div>
+    {{ columnType }}
+    {{ $props }}
     <InputHeading
       v-if="columnType === 'HEADING'"
       v-bind="$props"
@@ -17,6 +19,12 @@
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG'"
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
@@ -111,12 +119,6 @@
       v-model="input"
       v-on="$listeners"
     />
-    <!-- <InputLong
-      v-else-if="columnType === 'LONG'"
-      v-bind="$props"
-      v-model="input"
-      v-on="$listeners"
-    /> -->
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </div>
 </template>
@@ -145,18 +147,18 @@ export default {
     filter: Object,
     graphqlURL: {
       default: "graphql",
-      type: String
+      type: String,
     },
     pkey: Object,
     refBack: String,
     refBackType: String,
     refLabel: String,
     schema: String,
-    table: String
+    table: String,
   },
   data() {
     return {
-      input: null
+      input: null,
     };
   },
   components: {
@@ -173,7 +175,7 @@ export default {
     InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
-    InputRefback: () => import("../forms/InputRefback") //because it uses itself in nested form,
+    InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },
   created() {
     this.input = this.value;
@@ -184,8 +186,8 @@ export default {
     },
     input() {
       this.$emit("input", this.input);
-    }
-  }
+    },
+  },
 };
 </script>
 
