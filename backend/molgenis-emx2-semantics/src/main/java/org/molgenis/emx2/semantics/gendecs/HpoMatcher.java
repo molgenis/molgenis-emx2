@@ -47,12 +47,12 @@ public class HpoMatcher {
       String hpoTerm = splittedLine[splittedLine.length - 1];
       if (hpoTerms.contains(hpoTerm)) {
         String gene = splittedLine[7].split("\\|")[3];
-        System.out.println(gene);
         writer.write(currentLine + System.getProperty("line.separator"));
         variants.addVariant(currentLine);
         variants.addGenesHpo(gene, hpoTerm);
       }
     }
+    reader.close();
     writer.close();
     return variants;
   }

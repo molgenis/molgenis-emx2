@@ -30,7 +30,7 @@ public class ClinvarMatcher {
    *
    * @return Variants class with the matched variants
    */
-  public Variants matchWithClinvar() {
+  public void matchWithClinvar() {
     Map<String, Pattern> stringsToFind = new HashMap<>();
     try {
       Scanner reader = new Scanner(vcfFile);
@@ -51,14 +51,13 @@ public class ClinvarMatcher {
       }
       reader.close();
 
-      return getMatchesClinvar(stringsToFind);
+      getMatchesClinvar(stringsToFind);
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return null;
   }
 
-  private Variants getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
+  private void getMatchesClinvar(Map<String, Pattern> stringsToFind) throws IOException {
     Scanner reader = new Scanner(clinvarFile);
 
     File resultFileClinvar = new File("data/gendecs/result_matches_clinvar.vcf");
@@ -69,7 +68,6 @@ public class ClinvarMatcher {
     VcfFile.writeHeader(writerClinvar, "clinvar");
     VcfFile.writeHeader(writerResult, "result");
 
-    Variants variants = new Variants();
     VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher();
 
     while (reader.hasNextLine()) {
@@ -94,7 +92,6 @@ public class ClinvarMatcher {
     reader.close();
     writerClinvar.close();
     writerResult.close();
-    return variants;
   }
 
   private static String getKeyFromValue(Map<String, Pattern> map, Pattern value) {

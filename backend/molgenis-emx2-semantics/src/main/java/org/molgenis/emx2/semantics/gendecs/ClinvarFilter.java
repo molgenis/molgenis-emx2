@@ -57,7 +57,7 @@ public class ClinvarFilter {
   /**
    * Method removeStatus removes given starRating from input clinvar file.
    *
-   * @return boolean true if successful, false if failed
+   * @return String with the location of the filtered file.
    */
   public String removeStatus() {
     String pathName = String.format("data/gendecs/Filtered_Clinvar_%s.vcf", this.starRating);

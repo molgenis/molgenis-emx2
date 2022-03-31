@@ -52,7 +52,6 @@ public class GendecsApi {
     for (int i = 0; i < hpoTermsIn.size(); i++) {
       hpoTerms.add(hpoTermsIn.get(i).getAsString());
     }
-
     if (jsonObject.get("hpoChildren") != null) {
       addAssociates("hpoChildren", hpoTerms, jsonObject);
     }
