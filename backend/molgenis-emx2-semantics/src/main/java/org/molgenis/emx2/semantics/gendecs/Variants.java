@@ -35,17 +35,8 @@ public class Variants {
   private void addGene(String genes) {
     this.genes.add(genes);
   }
-
-  /**
-   * Method that will fill a hashmap with gene symbols and HPO terms if it is empty. Using
-   * GenToHpo.geneToHpo. Else returns the hashmap
-   *
-   * @return hashmap with gene symbol and HPO term
-   */
+  
   public HashMap<String, String> getGeneHpo() {
-    if (this.genesHpo.size() == 0) {
-      this.genesHpo = GeneToHpo.geneToHpo(this.getGenes());
-    }
     return genesHpo;
   }
 
