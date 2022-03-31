@@ -86,6 +86,7 @@ public class MolgenisWebservice {
         "/:schema/api",
         (request, response) -> "Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>");
 
+    SiteMapService.create();
     CsvApi.create();
     ZipApi.create();
     ExcelApi.create();

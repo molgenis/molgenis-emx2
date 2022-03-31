@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.4.0" apply false
+    id "com.diffplug.spotless" version "6.4.1" apply false
 }
 
 repositories {
@@ -54,6 +54,7 @@ subprojects {
 
         //also used outside test
         implementation 'junit:junit:4.13.2'
+        testImplementation 'org.mockito:mockito-core:4.4.0'
     }
 
     jacocoTestReport {
