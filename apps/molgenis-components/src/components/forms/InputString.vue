@@ -1,6 +1,5 @@
 <template>
-  <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :for="id">{{ label }}</label>
+  <FormGroup :id="id" :label="label" :helpText="helpText">
     <input
       :id="id"
       :ref="id"
@@ -10,20 +9,19 @@
       type="text"
       class="form-control"
       :aria-describedby="id"
-      :placeholder="label"
+      :placeholder="placeholderValue"
     />
-    <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
-      >{{ helpText }}</small
-    >
-  </div>
+  </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from './BaseInput.vue';
+import FormGroup from './FormGroup.vue';
 
 export default {
-  name: "InputString",
-  extends: BaseInput,
+  name: 'InputString',
+  components: {FormGroup},
+  extends: BaseInput
 };
 </script>
 
