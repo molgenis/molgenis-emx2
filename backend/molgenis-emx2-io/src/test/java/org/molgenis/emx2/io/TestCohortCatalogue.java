@@ -56,7 +56,7 @@ public class TestCohortCatalogue {
         // todo fix data so we can put strict=true
         false);
 
-    assertEquals(36, TestCohortCatalogue.cohortsSchema.getTableNames().size());
+    assertEquals(37, TestCohortCatalogue.cohortsSchema.getTableNames().size());
 
     // export import schema to compare
   }
