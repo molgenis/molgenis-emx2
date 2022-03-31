@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClinvarMatcher {
-  File vcfFile;
-  ArrayList<String> hpoTerms;
-  File clinvarFile;
+  private File vcfFile;
+  private ArrayList<String> hpoTerms;
+  private File clinvarFile;
 
   private static final Logger logger = LoggerFactory.getLogger(ClinvarMatcher.class);
 
@@ -27,8 +27,6 @@ public class ClinvarMatcher {
    * Which is then used to match this with variants in the clinvar vcf file. The found matches are
    * filtered on the variant being pathogenic or not. The remaining variants are added to the
    * Variants class.
-   *
-   * @return Variants class with the matched variants
    */
   public void matchWithClinvar() {
     Map<String, Pattern> stringsToFind = new HashMap<>();
@@ -76,7 +74,7 @@ public class ClinvarMatcher {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
             logger.debug(
-                "The following line is pathogenic and matched with the HPO term: " + currentLine);
+                "The following line is pathogenic: " + currentLine);
             String hpoTerm = variantHpoMatcher.matchVariantWithHpo(currentLine);
             writerResult.write(
                 getKeyFromValue(stringsToFind, stringToFind)

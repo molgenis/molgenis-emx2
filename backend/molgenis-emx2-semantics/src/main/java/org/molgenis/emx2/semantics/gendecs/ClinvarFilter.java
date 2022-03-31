@@ -65,11 +65,13 @@ public class ClinvarFilter {
     if (path.toFile().isFile()) {
       return pathName;
     } else {
+      logger.debug("Creating file: " + pathName);
       File filteredClinVar = new File(pathName);
       try {
         BufferedWriter writer = new BufferedWriter(new FileWriter(filteredClinVar));
         File fileObject = new File(Constants.FILENAMECLINVAR);
         Scanner reader = new Scanner(fileObject);
+        logger.debug("Removing " + this.starRating + "from: " + Constants.FILENAMECLINVAR);
         while (reader.hasNextLine()) {
           String data = reader.nextLine();
           if (stringContainsItemFromList(
