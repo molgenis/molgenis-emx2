@@ -65,7 +65,6 @@ public class ClinvarMatcher {
 
     VcfFile.writeHeader(writerClinvar, "clinvar");
     VcfFile.writeHeader(writerResult, "result");
-
     VariantHpoMatcher variantHpoMatcher = new VariantHpoMatcher();
 
     while (reader.hasNextLine()) {
@@ -73,16 +72,16 @@ public class ClinvarMatcher {
       for (Pattern stringToFind : stringsToFind.values()) {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
-            logger.debug(
-                "The following line is pathogenic: " + currentLine);
-            String hpoTerm = variantHpoMatcher.matchVariantWithHpo(currentLine);
+            logger.debug("The following line is pathogenic: " + currentLine);
+            ArrayList<String> hpoTerms = variantHpoMatcher.matchVariantWithHpo(currentLine);
+
             writerResult.write(
                 getKeyFromValue(stringsToFind, stringToFind)
                     + '\t'
-                    + hpoTerm
+                    + hpoTerms
                     + System.getProperty("line.separator"));
             writerClinvar.write(
-                currentLine + '\t' + hpoTerm + System.getProperty("line.separator"));
+                currentLine + '\t' + hpoTerms + System.getProperty("line.separator"));
           }
         }
       }

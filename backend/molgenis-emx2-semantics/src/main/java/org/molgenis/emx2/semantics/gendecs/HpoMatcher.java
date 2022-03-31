@@ -1,13 +1,12 @@
 package org.molgenis.emx2.semantics.gendecs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HpoMatcher {
   private static final Logger logger = LoggerFactory.getLogger(HpoMatcher.class);
@@ -42,20 +41,27 @@ public class HpoMatcher {
     VcfFile.writeHeader(writer, "result");
     File file = new File(pathName);
     Scanner reader = new Scanner(file);
+
     while (reader.hasNextLine()) {
       String currentLine = reader.nextLine();
       if (currentLine.startsWith("#")) {
         continue;
       }
       String[] splittedLine = currentLine.split("\t");
-      String hpoTerm = splittedLine[splittedLine.length - 1];
-      logger.debug("Current hpoTerm: " + hpoTerm);
-      if (hpoTerms.contains(hpoTerm)) {
-        logger.debug(hpoTerm + "has match with entered HPO term(s)" + hpoTerms);
-        String gene = splittedLine[7].split("\\|")[3];
-        writer.write(currentLine + System.getProperty("line.separator"));
-        variants.addVariant(currentLine);
-        variants.addGenesHpo(gene, hpoTerm);
+      String hpoTermToMatch = splittedLine[splittedLine.length - 1].replace("[", "");
+      hpoTermToMatch = hpoTermToMatch.replace("]", "");
+      logger.debug("Current hpoTerm: " + hpoTermToMatch);
+      String[] hpoTermsToMatch = hpoTermToMatch.split(",");
+      for (String hpoTerm : hpoTermsToMatch) {
+
+        if (hpoTerms.contains(hpoTerm.trim())) {
+
+          logger.debug(hpoTerm + "has match with entered HPO term(s)" + hpoTerms);
+          String gene = splittedLine[7].split("\\|")[3];
+          writer.write(currentLine + System.getProperty("line.separator"));
+          variants.addVariant(currentLine);
+          variants.addGenesHpo(gene, hpoTerm.trim());
+        }
       }
     }
     reader.close();
