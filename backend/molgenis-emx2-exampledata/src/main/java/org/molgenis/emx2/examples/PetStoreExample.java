@@ -4,11 +4,9 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class PetStoreExample {
 
@@ -146,7 +144,5 @@ public class PetStoreExample {
                 .set(STATUS, "approved"));
 
     schema.getTable(USER).insert(new Row().set("username", "bofke").set("pets", "spike,pooky"));
-
-    schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
   }
 }
