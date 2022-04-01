@@ -22,6 +22,7 @@ import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
+import InputLong from "./forms/InputLong";
 import InputOntology from "./forms/InputOntology";
 import InputOntologySubtree from "./forms/InputOntologySubtree";
 import InputPassword from "./forms/InputPassword";
@@ -119,6 +120,7 @@ export {
   InputDecimal,
   InputFile,
   InputInt,
+  InputLong,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
@@ -177,5 +179,5 @@ export {
   PersonDetails,
   ContactDisplay,
   LinksList,
-  TableDisplay
+  TableDisplay,
 };

@@ -1,7 +1,5 @@
 <template>
   <div>
-    {{ columnType }}
-    {{ $props }}
     <InputHeading
       v-if="columnType === 'HEADING'"
       v-bind="$props"
@@ -127,6 +125,7 @@
 import _baseInput from "../forms/_baseInput";
 import InputString from "../forms/InputString";
 import InputInt from "../forms/InputInt";
+import InputLong from "../forms/InputLong";
 import InputDecimal from "../forms/InputDecimal";
 import InputBoolean from "../forms/InputBoolean";
 import InputDate from "../forms/InputDate";
@@ -134,7 +133,6 @@ import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
 import InputHeading from "../forms/InputHeading";
-// import InputLong from '../forms/InputLong';
 
 export default {
   name: "RowFormInput",
@@ -164,6 +162,7 @@ export default {
   components: {
     InputString,
     InputInt,
+    InputLong,
     InputDecimal,
     InputBoolean,
     InputDate,
@@ -171,7 +170,6 @@ export default {
     InputFile,
     InputText,
     InputHeading,
-    // InputLong,
     InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
