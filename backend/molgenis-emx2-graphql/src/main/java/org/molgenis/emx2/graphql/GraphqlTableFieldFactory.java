@@ -147,6 +147,7 @@ public class GraphqlTableFieldFactory {
           break;
         case STRING:
         case TEXT:
+        case LONG:
         case UUID:
         case DATE:
         case DATETIME:
@@ -159,6 +160,7 @@ public class GraphqlTableFieldFactory {
         case EMAIL_ARRAY:
         case HYPERLINK_ARRAY:
         case TEXT_ARRAY:
+        case LONG_ARRAY:
         case DATE_ARRAY:
         case DATETIME_ARRAY:
         case UUID_ARRAY:
@@ -187,18 +189,6 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
                   .type(GraphQLList.list(Scalars.GraphQLInt)));
-          break;
-        case LONG:
-          tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(id)
-                  .type(Scalars.GraphQLBigInteger)); // NOSONAR
-          break;
-        case LONG_ARRAY:
-          tableBuilder.field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(id)
-                  .type(GraphQLList.list(Scalars.GraphQLBigInteger))); // NOSONAR
           break;
         case REF:
           tableBuilder.field(

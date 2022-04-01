@@ -101,7 +101,7 @@ span:hover .hoverIcon {
 ```
 <template>
   <div>
-    <InputLong v-model="value" label="My string input label" description="Some help needed?"/>
+    <InputLong v-model="value" label="My long input label" description="Some help needed?"/>
     You typed: {{ JSON.stringify(value) }}
   </div>
 </template>
@@ -119,7 +119,7 @@ span:hover .hoverIcon {
 ```
 <template>
   <div>
-    <InputLong v-model="value" :list="true" label="My string input label" description="Some help needed?"/>
+    <InputLong v-model="value" :list="true" label="My long input label list" description="Some help needed?"/>
     You typed: {{ JSON.stringify(value) }}
   </div>
 </template>
