@@ -150,6 +150,7 @@ export default {
         let requestOptions = {
           method: 'POST',
           body: JSON.stringify({ hpoId: hpoIds[i],
+          hpoTerm: this.selectedHpoTerms[i],
           searchAssociates: this.searchAssociates})
         };
 
@@ -176,7 +177,7 @@ export default {
         }
       }
       if(this.searchAssociates.includes("Search for children")) {
-        for (let j = 0; j < data["children"].length; j++) {
+        for (let i = 0; i < data["children"].length; i++) {
           this.hpoChildren.push(data["children"][i]);
         }
       }

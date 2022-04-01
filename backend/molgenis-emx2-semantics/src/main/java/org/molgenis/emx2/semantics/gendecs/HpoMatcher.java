@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 public class HpoMatcher {
   private static final Logger logger = LoggerFactory.getLogger(HpoMatcher.class);
-  private ArrayList<String> hpoTerms;
-  private String filteredClinvar;
+  private final ArrayList<HpoTerm> hpoTerms;
+  private final String filteredClinvar;
   private final String pathName = "data/gendecs/result_matches.vcf";
 
-  public HpoMatcher(ArrayList<String> hpoTerms, String filteredClinvar) {
+  public HpoMatcher(ArrayList<HpoTerm> hpoTerms, String filteredClinvar) {
     this.hpoTerms = hpoTerms;
     this.filteredClinvar = filteredClinvar;
   }
@@ -23,17 +23,17 @@ public class HpoMatcher {
     try {
       Path path = Paths.get(pathName);
       if (!path.toFile().isFile()) {
-        ClinvarMatcher clinvarMatcher = new ClinvarMatcher(hpoTerms, filteredClinvar);
+        ClinvarMatcher clinvarMatcher = new ClinvarMatcher(filteredClinvar);
         clinvarMatcher.matchWithClinvar();
       }
-      return this.matchHpo();
+      return this.matchVariants();
     } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  private Variants matchHpo() throws IOException {
+  private Variants matchVariants() throws IOException {
     Variants variants = new Variants();
     logger.info("Matching the HPO terms");
     File matchedLinesFile = new File("data/gendecs/result_hpo_matches.vcf");
@@ -48,24 +48,84 @@ public class HpoMatcher {
         continue;
       }
       String[] splittedLine = currentLine.split("\t");
-      String hpoTermToMatch = splittedLine[splittedLine.length - 1].replace("[", "");
-      hpoTermToMatch = hpoTermToMatch.replace("]", "");
-      logger.debug("Current hpoTerm: " + hpoTermToMatch);
-      String[] hpoTermsToMatch = hpoTermToMatch.split(",");
-      for (String hpoTerm : hpoTermsToMatch) {
+      String[] hpoTermsToMatch = getTermsToMatch(splittedLine);
 
-        if (hpoTerms.contains(hpoTerm.trim())) {
-
-          logger.debug(hpoTerm + "has match with entered HPO term(s)" + hpoTerms);
-          String gene = splittedLine[7].split("\\|")[3];
-          writer.write(currentLine + System.getProperty("line.separator"));
-          variants.addVariant(currentLine);
-          variants.addGenesHpo(gene, hpoTerm.trim());
+      if (hpoTerms.size() > 1) {
+        matchHpoObjects(variants, writer, currentLine, splittedLine, hpoTermsToMatch);
+      } else {
+        for (String hpoTerm : hpoTermsToMatch) {
+          String currentTerm = hpoTerm.trim();
+          if (enterName(currentTerm, hpoTerms.get(0))) {
+            addMatchedVariant(hpoTerm, splittedLine, writer, currentLine, variants);
+          }
         }
       }
     }
     reader.close();
     writer.close();
     return variants;
+  }
+
+  private void matchHpoObjects(
+      Variants variants,
+      BufferedWriter writer,
+      String currentLine,
+      String[] splittedLine,
+      String[] hpoTermsToMatch)
+      throws IOException {
+    ArrayList<String> matchedTerms = new ArrayList<>();
+    int itemsToMatch = hpoTerms.size();
+    int itemsMatched = 0;
+    for (HpoTerm hpoTermObject : hpoTerms) {
+      for (String hpoTerm : hpoTermsToMatch) {
+        String currentTerm = hpoTerm.trim();
+
+        if (enterName(currentTerm, hpoTermObject)) {
+          matchedTerms.add(currentTerm);
+          itemsMatched++;
+        }
+      }
+    }
+    if (itemsMatched == itemsToMatch) {
+      for (String hpoTerm : matchedTerms) {
+        addMatchedVariant(hpoTerm, splittedLine, writer, currentLine, variants);
+      }
+    }
+  }
+
+  private void addMatchedVariant(
+      String hpoTerm,
+      String[] splittedLine,
+      BufferedWriter writer,
+      String currentLine,
+      Variants variants)
+      throws IOException {
+    logger.debug(hpoTerm + "has match with entered HPO term(s)" + hpoTerms);
+    String gene = splittedLine[7].split("\\|")[3];
+    writer.write(currentLine + System.getProperty("line.separator"));
+    variants.addVariant(currentLine);
+    variants.addGenesHpo(gene, hpoTerm.trim());
+  }
+
+  private String[] getTermsToMatch(String[] splittedLine) {
+    String hpoTermToMatch = splittedLine[splittedLine.length - 1].replace("[", "");
+    hpoTermToMatch = hpoTermToMatch.replace("]", "");
+    logger.debug("Current hpoTerm: " + hpoTermToMatch);
+    return hpoTermToMatch.split(",");
+  }
+
+  private boolean enterName(String hpoTerm, HpoTerm hpoTermObject) throws IOException {
+    String currentTerm = hpoTerm.trim();
+    ArrayList<String> children = new ArrayList<>();
+    ArrayList<String> parents = new ArrayList<>();
+    if (hpoTermObject.getChildren() != null) {
+      children = hpoTermObject.getChildren();
+    }
+    if (hpoTermObject.getParents() != null) {
+      parents = hpoTermObject.getParents();
+    }
+    return hpoTermObject.getHpoTerm().equals(currentTerm)
+        || children.contains(currentTerm)
+        || parents.contains(currentTerm);
   }
 }

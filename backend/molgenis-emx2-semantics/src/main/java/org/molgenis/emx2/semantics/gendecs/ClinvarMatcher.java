@@ -11,14 +11,12 @@ import org.slf4j.LoggerFactory;
 
 public class ClinvarMatcher {
   private File vcfFile;
-  private ArrayList<String> hpoTerms;
   private File clinvarFile;
 
   private static final Logger logger = LoggerFactory.getLogger(ClinvarMatcher.class);
 
-  public ClinvarMatcher(ArrayList<String> hpoTerms, String clinvarLocation) {
+  public ClinvarMatcher(String clinvarLocation) {
     vcfFile = new File(Constants.FILENAMEVCFDATA);
-    this.hpoTerms = hpoTerms;
     clinvarFile = new File(clinvarLocation);
   }
 

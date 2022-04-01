@@ -9,6 +9,15 @@ import java.util.ArrayList;
 public class HpoTerm {
   private ArrayList<String> parents;
   private ArrayList<String> children;
+  private String hpoTerm;
+
+  public HpoTerm(String hpoTerm) {
+    this.hpoTerm = hpoTerm;
+  }
+
+  public String getHpoTerm() {
+    return hpoTerm;
+  }
 
   public ArrayList<String> getParents() {
     return parents;

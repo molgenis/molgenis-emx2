@@ -16,6 +16,7 @@ import spark.Response;
 
 public class GendecsApi {
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
+  private static final ArrayList<HpoTerm> hpoTermsObjects = new ArrayList<>();
 
   public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
@@ -25,9 +26,10 @@ public class GendecsApi {
   private static String queryHpo(Request request, Response response) {
     JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
     String hpoId = jsonObject.get("hpoId").getAsString();
+    String hpoTermIn = jsonObject.get("hpoTerm").getAsString();
     JsonArray searchAssociates = jsonObject.get("searchAssociates").getAsJsonArray();
 
-    HpoTerm hpoTerm = new HpoTerm();
+    HpoTerm hpoTerm = new HpoTerm(hpoTermIn);
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
 
     logger.info("Started querying for parents and children of: " + hpoId);
@@ -39,50 +41,37 @@ public class GendecsApi {
       ArrayList<String> hpoTermChildren = owlQuerier.getSubClasses();
       hpoTerm.setChildren(hpoTermChildren);
     }
-
+    hpoTermsObjects.add(hpoTerm);
     return Serialize.serializeHpo(hpoTerm);
   }
 
   private static String matchVcfWithHpo(Request request, Response response) {
-    ArrayList<String> hpoTerms = new ArrayList<>();
-
     JsonObject jsonObject = JsonParser.parseString(request.body()).getAsJsonObject();
     JsonArray hpoTermsIn = jsonObject.get("hpoTerms").getAsJsonArray();
 
-    for (int i = 0; i < hpoTermsIn.size(); i++) {
-      hpoTerms.add(hpoTermsIn.get(i).getAsString());
+    if (hpoTermsObjects.size() == 0) {
+      for (int i = 0; i < hpoTermsIn.size(); i++) {
+        HpoTerm hpoTerm = new HpoTerm(hpoTermsIn.get(i).getAsString());
+        hpoTermsObjects.add(hpoTerm);
+      }
     }
-    if (jsonObject.get("hpoChildren") != null) {
-      addAssociates("hpoChildren", hpoTerms, jsonObject);
-    }
-    if (jsonObject.get("hpoParents") != null) {
-      addAssociates("hpoParents", hpoTerms, jsonObject);
-    }
+    HashMap<String, String> genesHpo = getGenesHpo();
 
-    HashMap<String, String> genesHpo = getGenesHpo(hpoTerms);
-
+    hpoTermsObjects.clear();
     return Serialize.serializeMap(genesHpo);
   }
 
-  private static HashMap<String, String> getGenesHpo(ArrayList<String> hpoTerms) {
+  private static HashMap<String, String> getGenesHpo() {
     StarRating starRating = StarRating.ONESTAR;
     ClinvarFilter clinvarFilter = new ClinvarFilter(starRating);
     String filteredClinvar = clinvarFilter.removeStatus();
 
     logger.info("Removed " + starRating + " and lower from " + Constants.FILENAMECLINVAR);
     logger.info("Matching variants with the entered HPO terms");
-    logger.debug("Matching variants with the following HPO terms: " + hpoTerms);
-    HpoMatcher hpoMatcher = new HpoMatcher(hpoTerms, filteredClinvar);
+    logger.debug("Matching variants with the following HPO terms: " + hpoTermsObjects);
+    HpoMatcher hpoMatcher = new HpoMatcher(hpoTermsObjects, filteredClinvar);
     Variants variants = hpoMatcher.getHpoMatches();
 
     return variants.getGeneHpo();
-  }
-
-  private static void addAssociates(
-      String name, ArrayList<String> hpoTerms, JsonObject jsonObject) {
-    JsonArray hpoChildren = jsonObject.get(name).getAsJsonArray();
-    for (int i = 0; i < hpoChildren.size(); i++) {
-      hpoTerms.add(hpoChildren.get(i).getAsString());
-    }
   }
 }
