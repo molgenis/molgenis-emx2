@@ -55,7 +55,7 @@ public class HpoMatcher {
       } else {
         for (String hpoTerm : hpoTermsToMatch) {
           String currentTerm = hpoTerm.trim();
-          if (enterName(currentTerm, hpoTerms.get(0))) {
+          if (matchHpoTerms(currentTerm, hpoTerms.get(0))) {
             addMatchedVariant(hpoTerm, splittedLine, writer, currentLine, variants);
           }
         }
@@ -80,7 +80,7 @@ public class HpoMatcher {
       for (String hpoTerm : hpoTermsToMatch) {
         String currentTerm = hpoTerm.trim();
 
-        if (enterName(currentTerm, hpoTermObject)) {
+        if (matchHpoTerms(currentTerm, hpoTermObject)) {
           matchedTerms.add(currentTerm);
           itemsMatched++;
         }
@@ -114,7 +114,7 @@ public class HpoMatcher {
     return hpoTermToMatch.split(",");
   }
 
-  private boolean enterName(String hpoTerm, HpoTerm hpoTermObject) throws IOException {
+  private boolean matchHpoTerms(String hpoTerm, HpoTerm hpoTermObject) throws IOException {
     String currentTerm = hpoTerm.trim();
     ArrayList<String> children = new ArrayList<>();
     ArrayList<String> parents = new ArrayList<>();
