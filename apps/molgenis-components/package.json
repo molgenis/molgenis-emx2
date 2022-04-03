@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "vite-plugin-vue2": "^1.9.3",
-    "vue": "2"
+    "vue": "3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "2.3.1",
