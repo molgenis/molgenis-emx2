@@ -77,8 +77,7 @@ public class CatalogueSiteMap {
   private WebSitemapUrl urlForResource(
       String resourceBasePath, String resourceName, String resourceId)
       throws MalformedURLException {
-    return new WebSitemapUrl.Options(
-            resourceBasePath + "/" + resourceName + "/" + resourceId)
+    return new WebSitemapUrl.Options(resourceBasePath + "/" + resourceName + "/" + resourceId)
         .build();
   }
 }
