@@ -18,6 +18,7 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.molgenis.emx2.Database;
@@ -156,7 +157,8 @@ public class WebApiSmokeTests {
     assertEquals(schemaYaml, schemaYaml2);
   }
 
-  @Ignore("Unstalbe in CI env") @Test
+
+  @Ignore("Unstable in CI env") @Test
   public void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
