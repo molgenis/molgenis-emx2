@@ -156,7 +156,7 @@ public class WebApiSmokeTests {
     assertEquals(schemaYaml, schemaYaml2);
   }
 
-  @Test
+  //disable test @Test
   public void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
