@@ -156,7 +156,7 @@ public class WebApiSmokeTests {
     assertEquals(schemaYaml, schemaYaml2);
   }
 
-  //disable test @Test
+  @Ignore("Unstalbe in CI env") @Test
   public void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
