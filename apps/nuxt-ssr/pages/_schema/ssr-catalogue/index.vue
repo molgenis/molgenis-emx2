@@ -28,21 +28,21 @@
         </count-card>
 
         <count-card
+          class="bg-danger text-white"
+          :count="counts.networks"
+          label="Networks"
+          :to="{ path: this.routePath + 'Networks' }"
+        >
+          Collaborations of multiple institutions
+        </count-card>
+
+        <count-card
           class="bg-primary text-white"
           :count="counts.datasources"
           label="Data sources"
           :to="{ path: this.routePath + 'Datasources' }"
         >
           Collections of data banks covering the same population
-        </count-card>
-
-        <count-card
-          class="bg-info text-white"
-          :count="counts.databanks"
-          label="Data banks"
-          :to="{ path: this.routePath + 'Databanks' }"
-        >
-          Data collections such as registries or biobanks
         </count-card>
 
         <count-card
@@ -55,12 +55,12 @@
         </count-card>
 
         <count-card
-          class="bg-danger text-white"
-          :count="counts.networks"
-          label="Networks"
-          :to="{ path: this.routePath + 'Networks' }"
+          class="bg-info text-white"
+          :count="counts.databanks"
+          label="Data banks"
+          :to="{ path: this.routePath + 'Databanks' }"
         >
-          Collaborations of multiple institutions
+          Data collections such as registries or biobanks
         </count-card>
 
         <count-card
@@ -82,15 +82,15 @@
             Data dictionaries of collected data in databanks and/or cohorts.
             <ul>
               <li>
-                <RouterLink to="source-data-dictionaries">
+                <RouterLink :to="{ path: this.routePath + 'SourceDataDictionaries' }">
                   Source Data dictionaries ({{ counts.sourceDataDictionaries }})
                 </RouterLink>
               </li>
               <li>
-                <RouterLink to="source-tables"> Source Tables ({{ counts.sourceTables }}) </RouterLink>
+                <RouterLink :to="{ path: this.routePath + 'SourceTables' }"> Source Tables ({{ counts.sourceTables }}) </RouterLink>
               </li>
               <li>
-                <RouterLink to="source-variables">
+                <RouterLink :to="{ path: this.routePath + 'SourceVariables' }">
                   Source Variables ({{ counts.sourceVariables }})
                 </RouterLink>
               </li>
@@ -104,15 +104,15 @@
             Data dictionaries of standards for integrated analysis
             <ul>
               <li>
-                <RouterLink to="target-data-dictionaries">
+                <RouterLink :to="{ path: this.routePath + 'TargetDataDictionaries'}">
                   Target Data dictionaries ({{counts.targetDataDictionaries}})
                 </RouterLink>
               </li>
               <li>
-                <RouterLink to="target-tables"> Target Tables ({{counts.targetTables}}) </RouterLink>
+                <RouterLink :to="{ path: this.routePath + 'TargetTables'}"> Target Tables ({{counts.targetTables}}) </RouterLink>
               </li>
               <li>
-                <RouterLink to="target-variables">
+                <RouterLink :to="{ path: this.routePath + 'TargetVariables'}" >
                   Target Variables ({{counts.targetVariables}})
                 </RouterLink>
               </li>
@@ -126,12 +126,12 @@
             Mappings between collected data dictionaries and standard models
             <ul>
               <li>
-                <RouterLink to="variable-mappings">
+                <RouterLink :to="{ path: this.routePath + 'VariableMappings'}">
                   Variable mappings ({{ counts.variableMappings }})
                 </RouterLink>
               </li>
               <li>
-                <RouterLink to="table-mappings"> Table mappings ({{ counts.tableMappings }}) </RouterLink>
+                <RouterLink :to="{ path: this.routePath + 'TableMappings'}"> Table mappings ({{ counts.tableMappings }}) </RouterLink>
               </li>
             </ul>
           </div>

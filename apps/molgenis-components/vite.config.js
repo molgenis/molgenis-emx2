@@ -15,6 +15,16 @@ let conf = {
         changeOrigin: true,
         secure: false,
       },
+      "/apps/central/theme.css": {
+        target: `${BACKEND_LOCATION}`,
+        changeOrigin: true,
+        secure: false,
+      },
+      "^/apps/resources/webfonts/.*": {
+        target: `${BACKEND_LOCATION}`,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 };

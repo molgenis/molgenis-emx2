@@ -36,7 +36,7 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-    extend(config, ctx) {
+    extend(config) {
       // GraphQL Loader, allows import of .gql files
       config.module.rules.push({
         test: /\.(graphql|gql)$/,

@@ -10,7 +10,7 @@
           v-model="email"
           label="Username"
           placeholder="Enter username"
-          helpText="Please enter username"
+          description="Please enter username"
           autofocus
         />
         <InputPassword
@@ -19,7 +19,7 @@
           v-model="password"
           label="Password"
           placeholder="Enter password"
-          helpText="Please enter the provided password"
+          description="Please enter the provided password"
           @enterPressed="signin"
         />
       </LayoutForm>

@@ -1,3 +1,5 @@
+import IconAction from "../src/components/atoms/IconAction.vue"
+
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
 import GridBlock from "../src/components/display/GridBlock.vue";
 import ImageCard from "../src/components/display/ImageCard.vue";
@@ -16,6 +18,7 @@ import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
 import InputString from '../src/components/forms/InputString.vue';
+import InputSearch from '../src/components/forms/InputSearch.vue';
 
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -38,6 +41,7 @@ import SignInForm from "../src/components/organisms/SignInForm.vue"
 import Client from "../src/client/client.js";
 
 export {
+  IconAction,
   ContactDisplay,
   GridBlock,
   ImageCard,
@@ -55,6 +59,7 @@ export {
   FormMolgenis,
   InputPassword,
   InputString,
+  InputSearch,
   Breadcrumb,
   LayoutModal,
   ReadMore,
