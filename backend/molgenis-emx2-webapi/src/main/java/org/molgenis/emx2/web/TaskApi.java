@@ -5,9 +5,7 @@ import static spark.Spark.delete;
 import static spark.Spark.get;
 
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.tasks.Task;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.*;
 import spark.Request;
 import spark.Response;
 
@@ -68,7 +66,11 @@ public class TaskApi {
 
   private static String getTask(Request request, Response response) {
     if (getSchema(request) != null) {
-      return taskService.getTask(request.params("id")).toString();
+      Step step = taskService.getTask(request.params("id"));
+      if (step == null) {
+        step = new Step("Task unknown").setStatus(StepStatus.UNKNOWN);
+      }
+      return step.toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
