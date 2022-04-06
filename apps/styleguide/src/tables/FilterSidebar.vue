@@ -109,7 +109,7 @@ examples
   export default {
     data: function () {
       return {
-        table: {
+
           filters: [{
             "name": "orderId",
             "pkey": true,
@@ -147,7 +147,7 @@ examples
               "columnType": "ONTOLOGY_ARRAY",
               "showFilter": true
             }]
-        }
+
       }
     }
   }
