@@ -1,12 +1,11 @@
 <template>
   <span v-if="row[col.id] && Array.isArray(row[col.id])">
     <span v-for="(val, idx) in row[col.id]" :key="idx">
-      <a v-if="col.columnType == 'HYPERLINK_ARRAY'" :href="val" target="_blank">
-        {{ val }}
-      </a>
-      <a v-else-if="col.columnType == 'EMAIL_ARRAY'" :href="`mailto:${val}`">
-        {{ val }}
-      </a>
+      <HyperlinkDisplay
+        v-if="col.columnType === 'HYPERLINK_ARRAY'"
+        :data="val"
+      />
+      <EmailDisplay v-else-if="col.columnType === 'EMAIL_ARRAY'" :data="val" />
       <span v-else>
         {{ col.refLabel ? applyJsTemplate(col.refLabel, val) : val }}
       </span>
