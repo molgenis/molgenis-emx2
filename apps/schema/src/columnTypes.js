@@ -16,6 +16,7 @@ export default [
   "INT",
   "INT_ARRAY",
   "LONG",
+  "LONG_ARRAY",
   "ONTOLOGY",
   "ONTOLOGY_ARRAY",
   "REF",
