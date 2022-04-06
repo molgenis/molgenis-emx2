@@ -1,30 +1,47 @@
 <template>
   <div class="container-fluid mt-3">
     <h1 class="text-capitalize">{{ $route.params.resource }}</h1>
-    <div class="d-flex" style="overflow-x: scroll">
-      <div class="flex-grow-1 pr-0 pl-0 col-12">
-        <table-molgenis
-          v-if="tableData"
-          :columns="visibleColumns"
-          :data="tableData"
-          @click="onRowClicked"
-        >
-        </table-molgenis>
+    <div class="row">
+      <div class="col-3">
+        <FilterSidebar
+          :filters="filters"
+          @updateFilters="updateFilters"
+        ></FilterSidebar>
+      </div>
+      <div class="col-9">
+        <div><FilterWells :filters="filters" @updateFilters="updateFilters" /></div>
+        <div class="d-flex" style="overflow-x: scroll">
+          <div class="flex-grow-1 pr-0 pl-0 col-12">
+            <table-molgenis
+              v-if="tableData"
+              :columns="visibleColumns"
+              :data="tableData"
+              @click="onRowClicked"
+            >
+            </table-molgenis>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { Client, TableMolgenis } from "molgenis-components";
+import {
+  Client,
+  TableMolgenis,
+  FilterSidebar,
+  FilterWells,
+} from "molgenis-components";
 export default {
   name: "ResourceList",
-  components: { TableMolgenis },
+  components: { TableMolgenis, FilterSidebar, FilterWells },
   data() {
     return {
       tableName: null,
-      columns: [],
       tableData: null,
+      columns: [],
+      filters: [],
     };
   },
   async fetch() {
@@ -40,6 +57,12 @@ export default {
     this.columns = metaData.tables
       .find((t) => t.name === this.tableName)
       .columns.filter((c) => !c.name.startsWith("mg_"));
+
+    this.filters = this.visibleColumns.map((column) => {
+      column.conditions = [];
+      column.showFilter = true;
+      return column;
+    });
   },
   computed: {
     visibleColumns() {
@@ -110,6 +133,10 @@ export default {
           path: `${this.tableName}/${row.pid}`,
         });
       }
+    },
+    updateFilters(update) {
+      console.log("on filter update");
+      this.filters = update;
     },
   },
   watch: {
