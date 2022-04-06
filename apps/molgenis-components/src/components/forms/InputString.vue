@@ -1,9 +1,8 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
     <InputGroup>
-     
-      <template v-slot:prepend></template>
-     
+      <template v-slot:prepend><slot name="prepend"></slot></template>
+
       <input
         :id="id"
         :ref="id"
@@ -16,7 +15,7 @@
         :placeholder="placeholderValue"
       />
 
-      <template v-slot:append></template>
+      <template v-slot:append><slot name="append"></slot></template>
     </InputGroup>
   </FormGroup>
 </template>
