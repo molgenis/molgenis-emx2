@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.4.1" apply false
+    id "com.diffplug.spotless" version "6.4.2" apply false
 }
 
 repositories {
