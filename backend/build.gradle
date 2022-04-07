@@ -48,7 +48,7 @@ subprojects {
         implementation 'com.sparkjava:spark-core:2.9.3'
         implementation 'org.pac4j:pac4j-core:4.5.5'
         implementation 'org.pac4j:pac4j-oidc:4.5.5'
-        implementation 'org.pac4j:pac4j-http:4.5.5'
+        implementation 'org.pac4j:pac4j-http:4.5.6'
         implementation 'org.pac4j:spark-pac4j:4.0.0'
         implementation 'org.javers:javers-core:6.6.3'
 
