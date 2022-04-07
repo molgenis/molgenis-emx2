@@ -12,7 +12,7 @@
     <div class="mt-3">
        <label class="font-italic">Pre filled search value</label>
       <InputSearch
-        id="input-search-1"
+        id="input-search-2"
         v-model="value2"
       />
       <div>You search: {{value2}}</div>
