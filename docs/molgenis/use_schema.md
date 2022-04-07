@@ -30,8 +30,8 @@ characters. If you leave columnName empty then all other settings will apply to 
 
 ### columnName
 
-Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of \_
-a-zAZ1-3. Maximum length 31 characters. Default value: empty
+Will be the name of the column. Must be unique per tableName. Must start with one of a-zAZ followed by zero or more of
+\_ a-zAZ1-3. Maximum length 31 characters. Default value: empty
 
 ### columnType
 
@@ -43,6 +43,7 @@ Basic type:
 - string : default when no type is provided
 - bool
 - int
+- bigint
 - decimal
 - date
 - datetime
@@ -50,15 +51,17 @@ Basic type:
 - jsonb : validates json format
 - file
 - text : string that displays as text area
+- email: string that displays as email link
+- hyperlink: string that displays as url link
 
 Relationships:
 
 - ref : foreign key (aka many to one)
-  - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
-    is automatically generated.
+    - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
+      is automatically generated.
 - ref_array : multiple foreign key (aka many to many).
-  - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
-    the refTable is automatically generated.
+    - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
+      the refTable is automatically generated.
 - refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
@@ -66,12 +69,15 @@ Arrays (i.e. list of values)
 - string_array
 - bool_array
 - int_array
+- bigint_array
 - decimal_array
 - date_array
 - datetime_array
 - jsonb_array
 - uuid_array
 - text_array
+- email_array
+- hyperlink_array
 
 Layout (static content, not an input):
 
@@ -134,7 +140,9 @@ is automatically created, using refTable as the name.
 
 ## Expressions
 
-You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression syntax you can have a look at the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
+You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression
+syntax you can have a look at
+the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
 Expressions refer to the id property of columns.
 
 *Note: expressions will currently only let you check basic types and string arrays.*
