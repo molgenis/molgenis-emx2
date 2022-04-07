@@ -41,7 +41,8 @@
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
 import IconAction from "./IconAction";
-import { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS } from "../constants";
+import { CODE_MINUS } from "../constants";
+import { isNumericKey } from "./utils/InputUtils";
 
 export default {
   extends: BaseInput,
@@ -52,35 +53,21 @@ export default {
   },
   methods: {
     keyhandler(event, index) {
-      var keyCode = event.which ? event.which : event.keyCode;
+      const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) this.flipSign(index);
-      if (!this.isInt(event, keyCode)) event.preventDefault();
+      if (!isNumericKey(event)) event.preventDefault();
     },
     flipSign(index) {
       if (this.value && this.value.length > 0) {
-        if (Array.isArray(this.value)) {
-          if (this.value[index][0] === "-") {
-            this.emitValue(this.value[index].substring(1), index);
-          } else {
-            this.emitValue("-" + this.value[index], index);
-          }
+        const value = Array.isArray(this.value)
+          ? this.value[index]
+          : this.value;
+        if (value.charAt(0) === "-") {
+          this.emitValue(value.substring(1), index);
         } else {
-          if (this.value[0] === "-") {
-            this.emitValue(this.value.substring(1), index);
-          } else {
-            this.emitValue("-" + this.value, index);
-          }
+          this.emitValue("-" + value, index);
         }
       }
-    },
-    isInt(e) {
-      let specialKeys = [];
-      specialKeys.push(CODE_BACKSPACE);
-      const keyCode = e.which ? e.which : e.keyCode;
-      return (
-        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-        specialKeys.indexOf(keyCode) !== -1
-      );
     },
   },
 };
@@ -97,7 +84,7 @@ span:hover .hoverIcon {
 </style>
 
 <docs>
-   Example
+Example long input
 ```
 <template>
   <div>
@@ -109,13 +96,13 @@ span:hover .hoverIcon {
   export default {
     data: function () {
       return {
-        value: "123"
+        value: "9223372036854775807"
       };
     }
   };
 </script>
 ```
-   Example list
+Example long list
 ```
 <template>
   <div>
@@ -127,7 +114,7 @@ span:hover .hoverIcon {
   export default {
     data: function () {
       return {
-        value: ["123","-456"]
+        value: ["9223372036854775807","-9223372036854775807"]
       };
     }
   };

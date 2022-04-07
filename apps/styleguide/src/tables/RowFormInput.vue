@@ -111,6 +111,13 @@
       v-model="input"
       v-on="$listeners"
     />
+    <InputLong
+      v-else-if="columnType === 'LONG_ARRAY'"
+      :list="true"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
     <InputFile
       v-else-if="columnType === 'FILE'"
       v-bind="$props"

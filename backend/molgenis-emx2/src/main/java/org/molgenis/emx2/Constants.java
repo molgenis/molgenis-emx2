@@ -70,7 +70,7 @@ public class Constants {
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
-      "((https?)://)?(www.)?"
+      "((https?)://)(www.)?"
           + "[a-zA-Z0-9@:%._\\+~#?&//=]"
           + "{2,256}\\.[a-z]"
           + "{2,6}\\b([-a-zA-Z0-9@:%"
