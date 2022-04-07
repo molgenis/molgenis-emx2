@@ -368,7 +368,7 @@ public class GraphqlTableFieldFactory {
       case INT, INT_ARRAY:
         return Scalars.GraphQLInt;
       case LONG, LONG_ARRAY:
-        return Scalars.GraphQLBigInteger;
+        return Scalars.GraphQLLong;
       case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
       case DATE,
@@ -711,12 +711,12 @@ public class GraphqlTableFieldFactory {
       case FILE -> GraphqlCustomTypes.GraphQLFileUpload;
       case BOOL -> Scalars.GraphQLBoolean;
       case INT -> Scalars.GraphQLInt;
-      case LONG -> Scalars.GraphQLBigInteger; // NOSONAR
+      case LONG -> Scalars.GraphQLLong; // NOSONAR
       case DECIMAL -> Scalars.GraphQLFloat;
       case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
-      case LONG_ARRAY -> GraphQLList.list(Scalars.GraphQLBigInteger); // NOSONAR
+      case LONG_ARRAY -> GraphQLList.list(Scalars.GraphQLLong); // NOSONAR
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case STRING_ARRAY,
           TEXT_ARRAY,

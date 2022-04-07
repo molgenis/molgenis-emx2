@@ -14,10 +14,6 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Collection<Object> getValuesAsCollection(Row row, Collection<Column> columns) {
-    return getValuesAsMap(row, columns).values();
-  }
-
   static Map<String, Object> getValuesAsMap(Row row, Collection<Column> columns) {
     try {
       Map<String, Object> values = new LinkedHashMap<>();

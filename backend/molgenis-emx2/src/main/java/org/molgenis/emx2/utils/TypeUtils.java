@@ -5,7 +5,6 @@ import static org.jooq.impl.DSL.cast;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -94,9 +93,6 @@ public class TypeUtils {
       } else {
         return null;
       }
-    }
-    if (v instanceof BigInteger) {
-      return ((BigInteger) v).longValue();
     }
     if (v instanceof Long) {
       return ((Long) v).longValue();
