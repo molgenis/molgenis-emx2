@@ -102,7 +102,7 @@ export default {
     remove(facetIndex, conditionIndex) {
       let update = this.filters;
       update[facetIndex].conditions.splice(conditionIndex, 1);
-      this.$emit("update:filters", update);
+      this.$emit("updateFilters", update);
     },
     removeAll() {
       let update = this.filters;
@@ -111,7 +111,7 @@ export default {
           update[idx].conditions.splice(0); // use splice to avoid removing vue reactivity
         }
       }
-      this.$emit("update:filters", update);
+      this.$emit("updateFilters", update);
     },
   },
 };

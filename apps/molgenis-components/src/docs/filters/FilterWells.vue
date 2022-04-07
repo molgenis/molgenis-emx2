@@ -1,6 +1,6 @@
 <template>
   <demo-item id="filter-wells" label="Filter wells">
-    <FilterWells :filters.sync="filters" />
+    <FilterWells :filters="filters" @updateFilters="onUpdate" />
     value: {{ JSON.stringify(filters) }}
   </demo-item>
 </template>
@@ -47,6 +47,9 @@ export default {
     showAlert() {
       alert("clicked");
     },
+     onUpdate(update) {
+      this.filters = update
+    }
   },
 };
 </script>
