@@ -1,20 +1,25 @@
 <template>
   <span>
     <div v-if="countFilters > 0">
-      {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (<a
-        href="#"
-        @click.prevent="removeAll"
-      >
+      <div class="d-flex align-items-center">
+         {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (
+      <button type="button" @click="removeAll" class="btn btn-link pl-0 pr-0">
         remove all filters
-      </a>
-      ) :<br />
+      </button>
+      ) :
+      </div>
       <span v-for="(facet, facetIndex) in filters" :key="facet.name">
-        <span v-for="(condition, conditionIndex) in facet.conditions" :key="conditionIndex">
+        <span
+          v-for="(condition, conditionIndex) in facet.conditions"
+          :key="conditionIndex"
+        >
           <span v-if="Array.isArray(condition)">
             <FilterWell
               v-if="condition[0] !== null && condition[1] !== null"
               @click="remove(facetIndex, conditionIndex)"
-              :label="condition[0] + ' &lt; ' + facet.name + ' &lt; ' + condition[1]"
+              :label="
+                condition[0] + ' &lt; ' + facet.name + ' &lt; ' + condition[1]
+              "
             />
             <FilterWell
               v-else-if="condition[0] !== null"
