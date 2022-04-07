@@ -27,5 +27,5 @@ export default [
   "TEXT",
   "TEXT_ARRAY",
   "UUID",
-  "UUID_ARRAY"
+  "UUID_ARRAY",
 ];
