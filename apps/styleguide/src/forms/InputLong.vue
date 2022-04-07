@@ -4,7 +4,7 @@
       <span v-if="list && value">{{ value.join(", ") }}</span>
       <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
     </span>
-    <FormGroup v-else v-bind="$props" v-on="$listeners">
+    <FormGroup v-else v-bind="{ ...$props, ...longError }" v-on="$listeners">
       <InputAppend
         v-for="(item, idx) in valueArray"
         :key="idx"
@@ -50,6 +50,21 @@ export default {
     InputAppend,
     FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
     IconAction,
+  },
+  computed: {
+    longError() {
+      if (
+        this.value != null &&
+        (BigInt(this.value) > BigInt("9223372036854775807") ||
+          BigInt(this.value) < BigInt("-9223372036854775807"))
+      ) {
+        return {
+          errorMessage:
+            "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+        };
+      }
+      return {};
+    },
   },
   methods: {
     keyhandler(event, index) {
@@ -114,7 +129,7 @@ Example long list
   export default {
     data: function () {
       return {
-        value: ["9223372036854775807","-9223372036854775807"]
+        value: ["9223372036854775807", "-9223372036854775807"]
       };
     }
   };
