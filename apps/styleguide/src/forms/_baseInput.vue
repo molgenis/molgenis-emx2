@@ -9,36 +9,36 @@ export default {
     /** whether to show clear buttons */
     clear: {
       type: Boolean,
-      default: true
+      default: true,
     },
     description: String,
     /** whether metadata can be edited */
     editMeta: Boolean,
-    errorMessage: {type: String, default: null},
+    errorMessage: { type: String, default: null },
     inplace: Boolean,
     label: String,
     list: {
       type: Boolean,
-      default: false
+      default: false,
     },
     parser: Function,
     placeholder: String,
     readonly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    value: {type: [String, Number, Object, Array, Boolean], default: null}
+    value: { type: [String, Number, Object, Array, Boolean], default: null },
   },
   data() {
     return {
       id: uuidv4(),
       /** whether list input should show empty input */
       showNewItem: false,
-      focus: false
+      focus: false,
     };
   },
   computed: {
@@ -52,7 +52,7 @@ export default {
         result.push(null);
       }
       return result;
-    }
+    },
   },
   methods: {
     removeNulls(arr) {
@@ -114,7 +114,7 @@ export default {
     },
     showMinus(idx) {
       return this.list && !this.showPlus(idx);
-    }
+    },
   },
   directives: {
     focus: {
@@ -122,8 +122,8 @@ export default {
         if (binding.value) {
           el.focus();
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>

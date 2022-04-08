@@ -41,7 +41,7 @@
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
 import IconAction from "./IconAction";
-import { CODE_MINUS } from "../constants";
+import { CODE_MINUS, MIN_LONG, MAX_LONG } from "../constants";
 import { isNumericKey } from "./utils/InputUtils";
 
 export default {
@@ -53,17 +53,11 @@ export default {
   },
   computed: {
     longError() {
-      if (
-        this.value != null &&
-        (BigInt(this.value) > BigInt("9223372036854775807") ||
-          BigInt(this.value) < BigInt("-9223372036854775807"))
-      ) {
-        return {
-          errorMessage:
-            "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
-        };
+      if (this.value.length) {
+        return getBigIntError(this.value);
+      } else {
+        return {};
       }
-      return {};
     },
   },
   methods: {
@@ -86,6 +80,31 @@ export default {
     },
   },
 };
+
+const BIG_INT_ERROR = {
+  errorMessage: `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`,
+};
+
+function getBigIntError(value) {
+  if (Array.isArray(value)) {
+    if (value.find(isInvalidBigInt)) {
+      return BIG_INT_ERROR;
+    }
+  } else {
+    if (isInvalidBigInt(value)) {
+      return BIG_INT_ERROR;
+    }
+  }
+  return {};
+}
+
+function isInvalidBigInt(value) {
+  return (
+    value === null ||
+    BigInt(value) > BigInt(MAX_LONG) ||
+    BigInt(value) < BigInt(MIN_LONG)
+  );
+}
 </script>
 
 <style scoped>
@@ -121,8 +140,13 @@ Example long list
 ```
 <template>
   <div>
-    <InputLong v-model="value" :list="true" label="My long input label list" description="Some help needed?"/>
-    You typed: {{ JSON.stringify(value) }}
+    <InputLong 
+        v-model="value" 
+        :list="true" 
+        label="My long input label list" 
+        description="Some help needed?"
+    />
+    You typed: {{ JSON.stringify(value, null, 2) }}
   </div>
 </template>
 <script>
