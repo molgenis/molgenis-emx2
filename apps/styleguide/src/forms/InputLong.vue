@@ -53,7 +53,7 @@ export default {
   },
   computed: {
     longError() {
-      if (this.value.length) {
+      if (this.value !== null && this.value.length) {
         return getBigIntError(this.value);
       } else {
         return {};
@@ -99,11 +99,7 @@ function getBigIntError(value) {
 }
 
 function isInvalidBigInt(value) {
-  return (
-    value === null ||
-    BigInt(value) > BigInt(MAX_LONG) ||
-    BigInt(value) < BigInt(MIN_LONG)
-  );
+  return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
 }
 </script>
 
