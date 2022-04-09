@@ -1,4 +1,4 @@
-package org.molgenis.emx2.examples;
+package org.molgenis.emx2.datamodels.test;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.DATE;

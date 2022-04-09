@@ -1,4 +1,4 @@
-package org.molgenis.emx2.examples;
+package org.molgenis.emx2.datamodels.util;
 
 import static junit.framework.TestCase.fail;
 

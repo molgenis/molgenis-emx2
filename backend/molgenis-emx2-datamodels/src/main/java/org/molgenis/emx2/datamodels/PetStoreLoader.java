@@ -1,4 +1,4 @@
-package org.molgenis.emx2.examples;
+package org.molgenis.emx2.datamodels;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -7,10 +7,9 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreExample {
+public class PetStoreLoader implements AvailableLoadersEnum.DataModelLoader {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";
@@ -31,11 +30,8 @@ public class PetStoreExample {
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
 
-  private PetStoreExample() {
-    // hide public constructor
-  }
-
-  public static void create(SchemaMetadata schema) {
+  @Override
+  public void loadMetadata(Schema schema) {
 
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
@@ -65,6 +61,7 @@ public class PetStoreExample {
 
     // refBack
     schema
+        .getMetadata()
         .getTableMetadata(PET)
         .add(column("orders").setType(REFBACK).setRefTable(ORDER).setRefBack("pet"));
 
@@ -84,7 +81,7 @@ public class PetStoreExample {
             .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
   }
 
-  public static void populate(Schema schema) {
+  public void loadExampleData(Schema schema) {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";

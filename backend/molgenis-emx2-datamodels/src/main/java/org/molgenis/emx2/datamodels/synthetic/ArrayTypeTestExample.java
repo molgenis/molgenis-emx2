@@ -1,4 +1,4 @@
-package org.molgenis.emx2.examples.synthetic;
+package org.molgenis.emx2.datamodels.synthetic;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;

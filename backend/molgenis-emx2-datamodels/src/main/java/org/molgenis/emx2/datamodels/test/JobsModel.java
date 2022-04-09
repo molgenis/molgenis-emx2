@@ -1,4 +1,4 @@
-package org.molgenis.emx2.examples;
+package org.molgenis.emx2.datamodels.test;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -12,7 +12,7 @@ public class JobsModel {
     // hide constructor
   }
 
-  public static void create(SchemaMetadata schema) {
+  public void create(SchemaMetadata schema) {
 
     schema.create(table("Jobs", column("id").setPkey(), column("owner"), column("group")));
 
