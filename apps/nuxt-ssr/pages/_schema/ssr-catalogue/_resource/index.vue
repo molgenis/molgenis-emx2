@@ -47,7 +47,6 @@ export default {
     },
     defaultColumns() {
       return {
-        Institutions: ["name", "pid", "type", "country"],
         Datasources: ["name", "pid", "type", "recordPrompt", "institution"],
         Databanks: ["name", "pid", "type", "recordPrompt", "institution"],
         Networks: ["name", "pid", "type", "recordPrompt", "institution"],

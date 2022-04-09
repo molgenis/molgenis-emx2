@@ -6,5 +6,6 @@ public enum TaskStatus {
   COMPLETED,
   SKIPPED,
   WARNING,
-  ERROR
+  ERROR,
+  UNKNOWN
 }

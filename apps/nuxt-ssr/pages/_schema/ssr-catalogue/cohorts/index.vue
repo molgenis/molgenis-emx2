@@ -2,6 +2,7 @@
   <div class="container mt-3">
     <h1>Cohorts</h1>
     <div class="pb-1">
+      <input-search id="search" v-model="search"></input-search>
       <pagination
         v-if="count > limit"
         v-model="page"
@@ -17,7 +18,7 @@
     </ul>
     <div class="p-3">
       <pagination
-        v-if="count > limit"
+        v-if="count > limit && limit > 20"
         v-model="page"
         :count="count"
         :limit="limit"
@@ -28,24 +29,30 @@
 </template>
 
 <script>
-import cohortsQuery from "../../../../store/gql/cohorts.gql";
-import { Pagination } from "molgenis-components";
+import cohortsQuery from '../../../../store/gql/cohorts.gql';
+import {Pagination, InputSearch} from 'molgenis-components';
 export default {
-  name: "Cohorts",
-  components: { Pagination },
+  name: 'Cohorts',
+  components: {Pagination, InputSearch},
   data() {
     return {
       cohorts: [],
+      search:
+        this.$route.query.search === undefined ? '' : this.$route.query.search,
       count: 0,
       page: 1,
-      limit: 20,
+      limit: 20
     };
   },
   async fetch() {
     const resp = await this.$axios
-      .post(this.$route.params.schema + "/graphql", {
+      .post(this.$route.params.schema + '/graphql', {
         query: cohortsQuery,
-        variables: { offset: this.pagingOffset, limit: this.limit },
+        variables: {
+          offset: this.pagingOffset,
+          limit: this.limit,
+          search: this.search
+        }
       })
       .catch((e) => console.error(e));
 
@@ -55,8 +62,10 @@ export default {
     this.count = resp.data.data.Cohorts_agg.count;
   },
   computed: {
-    pagingOffset () {
-      return this.$route.query.offset === undefined ? 0 : parseInt(this.$route.query.offset);
+    pagingOffset() {
+      return this.$route.query.offset === undefined
+        ? 0
+        : parseInt(this.$route.query.offset);
     }
   },
   watch: {
@@ -64,13 +73,22 @@ export default {
       if (newVal !== oldVal) {
         this.$router.push({
           path: this.$route.path,
-          query: { offset: (newVal - 1) * this.limit },
+          query: {...this.$route.query, offset: (newVal - 1) * this.limit}
         });
+      }
+    },
+    search(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        let query = {...this.$route.query, search: newVal};
+        if (newVal === '') {
+          delete query.search
+        }
+        this.$router.push({path: this.$route.path, query});
       }
     },
     $route() {
       this.$nuxt.refresh();
-    },
-  },
+    }
+  }
 };
 </script>
