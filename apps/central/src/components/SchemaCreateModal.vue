@@ -35,24 +35,23 @@
               :defaultValue="schemaName"
               :required="true"
             />
+            <InputSelect
+              label="template"
+              description="Load existing database template"
+              v-model="template"
+              :options="templates"
+              :required="true"
+            />
+            <InputBoolean
+              v-if="template"
+              label="load example data"
+              description="Include example data in the template"
+              v-model="includeDemoData"
+            />
             <InputText
               v-model="schemaDescription"
               label="description (optional)"
               :defaultValue="schemaDescription"
-            />
-            <InputRadio
-              label="load data (optional)"
-              description="Choose options below to load pre-existing schema and/or contents into your newly created database"
-              v-model="option"
-              :options="Object.keys(options)"
-              :required="true"
-            />
-            <InputString
-              v-if="option == 'from source URL'"
-              v-model="sourceURLs"
-              label="source URL"
-              description="You can automatically populate your database from one or more url that has contents equal as when you download a zip."
-              :list="true"
             />
           </LayoutForm>
         </div>
@@ -76,7 +75,8 @@ import {
   IconAction,
   InputString,
   InputText,
-  InputRadio,
+  InputBoolean,
+  InputSelect,
   LayoutForm,
   LayoutModal,
   MessageError,
@@ -90,10 +90,11 @@ export default {
     MessageError,
     ButtonAction,
     ButtonAlt,
+    InputBoolean,
     LayoutModal,
     InputString,
     InputText,
-    InputRadio,
+    InputSelect,
     LayoutForm,
     Spinner,
     IconAction,
@@ -106,16 +107,9 @@ export default {
       success: null,
       schemaName: null,
       schemaDescription: null,
-      sourceURLs: [],
-      option: "none",
-      options: {
-        none: [],
-        "cohort catalogue": [
-          "/public_html/apps/data/datacatalogue",
-          "/public_html/apps/data/datacatalogue/Cohorts",
-        ],
-        "from source URL": [],
-      },
+      template: null,
+      templates: [null, "PET_STORE", "DATA_CATALOGUE"],
+      includeDemoData: false,
     };
   },
   computed: {
@@ -138,11 +132,12 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String, $sourceURLs: [String]){createSchema(name:$name, description:$description, sourceURLs: $sourceURLs){message}}`,
+        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
         {
           name: this.schemaName,
           description: this.schemaDescription,
-          sourceURsL: this.sourceURLs,
+          template: this.template,
+          includeDemoData: this.includeDemoData,
         }
       )
         .then((data) => {
@@ -158,11 +153,6 @@ export default {
           }
           this.loading = false;
         });
-    },
-  },
-  watch: {
-    option() {
-      this.sourceURL = this.options[this.option];
     },
   },
 };
