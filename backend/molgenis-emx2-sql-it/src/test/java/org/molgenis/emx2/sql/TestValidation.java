@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestValidation {
 
@@ -23,8 +23,8 @@ public class TestValidation {
 
   @Test
   public void testValidation() {
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema); // has some validations
+    new PetStoreLoader().loadMetadata(schema);
+    new PetStoreLoader().loadExampleData(schema); // has some validations
 
     // now with some error
 

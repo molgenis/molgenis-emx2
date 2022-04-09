@@ -94,4 +94,8 @@ public class MolgenisIO {
       Database database, List<SchemaDeclaration> schemas, boolean strict) {
     new ImportMultipleSchemaTask(database, schemas, strict).run();
   }
+
+  public static void fromClasspathDirectory(String path, Schema schema, boolean strict) {
+    fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict);
+  }
 }

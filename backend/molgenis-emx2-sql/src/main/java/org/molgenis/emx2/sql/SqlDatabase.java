@@ -582,4 +582,9 @@ public class SqlDatabase implements Database {
   public boolean isOidcEnabled() {
     return this.isOidcEnabled;
   }
+
+  @Override
+  public boolean hasSchema(String name) {
+    return getSchemaNames().contains(name);
+  }
 }

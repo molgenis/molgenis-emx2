@@ -24,7 +24,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -44,8 +44,8 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema("pet store");
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().loadMetadata(schema);
+    new PetStoreLoader().loadExampleData(schema);
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());

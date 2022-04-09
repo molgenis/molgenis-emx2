@@ -5,12 +5,11 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.examples.PetStoreExample;
-import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.examples.synthetic.ArrayTypeTestExample;
-import org.molgenis.emx2.examples.synthetic.RefAndRefArrayTestExample;
-import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.synthetic.ArrayTypeTestExample;
+import org.molgenis.emx2.datamodels.synthetic.RefAndRefArrayTestExample;
+import org.molgenis.emx2.datamodels.synthetic.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
+import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -48,13 +47,6 @@ public class TestImportExportAllExamples {
   public void testProductComponentPartsExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
-    executeCompare(schema1);
-  }
-
-  @Test
-  public void testPetStore() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata("7");
-    PetStoreExample.create(schema1);
     executeCompare(schema1);
   }
 

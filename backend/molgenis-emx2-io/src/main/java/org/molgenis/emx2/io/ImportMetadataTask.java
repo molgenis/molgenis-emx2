@@ -73,5 +73,6 @@ public class ImportMetadataTask extends Task {
       this.completeWithError(e.getMessage());
       throw e;
     }
+    this.complete();
   }
 }

@@ -85,4 +85,6 @@ public interface Database {
   void becomeAdmin();
 
   boolean isOidcEnabled();
+
+  boolean hasSchema(String catalogueOntologies);
 }

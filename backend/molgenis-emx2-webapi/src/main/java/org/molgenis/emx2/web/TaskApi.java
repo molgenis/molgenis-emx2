@@ -84,9 +84,9 @@ public class TaskApi {
 
   private static String getTask(Request request, Response response) {
     if (getSchema(request) != null) {
-      Step step = taskService.getTask(request.params("id"));
+      Task step = taskService.getTask(request.params("id"));
       if (step == null) {
-        step = new Step("Task unknown").setStatus(StepStatus.UNKNOWN);
+        step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
       }
       return step.toString();
     }

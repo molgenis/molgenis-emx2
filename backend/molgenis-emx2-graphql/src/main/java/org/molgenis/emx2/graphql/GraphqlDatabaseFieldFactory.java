@@ -1,6 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.Constants.ASYNC;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.NAME;
@@ -8,17 +7,13 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 
 import graphql.Scalars;
 import graphql.schema.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.ImportMultipleSchemaTask;
-import org.molgenis.emx2.io.MolgenisIO;
-import org.molgenis.emx2.io.SchemaDeclaration;
-import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.datamodels.AvailableLoadersEnum;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -39,111 +34,36 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
-  private GraphQLInputObjectType schemaInput =
-      GraphQLInputObjectType.newInputObject()
-          .name("SchemaInput")
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(NAME).type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(Constants.DESCRIPTION)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(Constants.SOURCE_URLS)
-                  .description(
-                      "You can use sourceURLs to initialize schema with metadata and data from existing content from one or more URLs")
-                  .type(GraphQLList.list(Scalars.GraphQLString)))
-          // todo: expand with the schema definition from
-          .build();
-
-  public GraphQLFieldDefinition.Builder create(Database database, TaskService taskService) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("create")
-        .type(typeForMutationResult)
-        .description("generalized create method to create one or more schemas in one transaction")
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SCHEMAS)
-                .type(GraphQLList.list(schemaInput)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(ASYNC)
-                .description(
-                    "You can set async to true to start task in background and get a job returned to enable progress monitoring ")
-                .type(Scalars.GraphQLBoolean))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              List<Map<String, Object>> schemaList =
-                  dataFetchingEnvironment.getArgument(GraphqlConstants.SCHEMAS);
-
-              List<SchemaDeclaration> schemaDeclarationList = new ArrayList<>();
-              for (Map<String, Object> schemaVars : schemaList) {
-                SchemaDeclaration schemaDeclaration =
-                    new SchemaDeclaration((String) schemaVars.get(NAME));
-                if (schemaVars.containsKey(Constants.DESCRIPTION)) {
-                  schemaDeclaration.setDescription((String) schemaVars.get(Constants.DESCRIPTION));
-                }
-                if (schemaVars.containsKey(Constants.DESCRIPTION)) {
-                  schemaDeclaration.setDescription((String) schemaVars.get(Constants.DESCRIPTION));
-                }
-                if (schemaVars.containsKey(Constants.SOURCE_URLS)) {
-                  schemaDeclaration.setSourceURLsFromStrings(
-                      (List<String>) schemaVars.get(Constants.SOURCE_URLS));
-                }
-                schemaDeclarationList.add(schemaDeclaration);
-              }
-
-              // if async we will start in background and return job id immediately
-              if (Boolean.TRUE.equals(dataFetchingEnvironment.getArgument(ASYNC))) {
-                String taskId =
-                    taskService.submit(
-                        new ImportMultipleSchemaTask(database, schemaDeclarationList, true));
-                return new GraphqlApiMutationResult(SUCCESS, "create schemas successfull")
-                    .setTaskId(taskId);
-              }
-              // else we wait until complete and then return
-              else {
-                MolgenisIO.fromSchemaList(database, schemaDeclarationList, false);
-                return new GraphqlApiMutationResult(SUCCESS, "create schemas successfull");
-              }
-            });
-  }
-
-  @Deprecated
   public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
         .type(typeForMutationResult)
-        .deprecate("to be replaced by more generic 'create' mutation")
-        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .argument(
+            GraphQLArgument.newArgument().name(Constants.TEMPLATE).type(Scalars.GraphQLString))
+        .argument(
             GraphQLArgument.newArgument()
-                .name(Constants.SOURCE_URLS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
+                .name(Constants.INCLUDE_DEMO_DATA)
+                .type(Scalars.GraphQLBoolean))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              List<String> sourceUrl = dataFetchingEnvironment.getArgument(Constants.SOURCE_URLS);
+              String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
+              Boolean includeDemoData =
+                  dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
+
               database.tx(
                   db -> {
                     Schema schema = db.createSchema(name, description);
-                    if (sourceUrl != null) {
-                      for (String url : sourceUrl) {
-                        try {
-                          MolgenisIO.fromURL(new URL(url), schema, false);
-                          // todo enable async running with link to progress via TaskApi (holds for
-                          // all long running api calls)
-                        } catch (Exception e) {
-                          throw new MolgenisException(e.getMessage());
-                        }
-                      }
+                    if (template != null) {
+                      AvailableLoadersEnum.valueOf(template)
+                          .install(schema, Boolean.TRUE.equals(includeDemoData));
                     }
                   });
-
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
             });
   }

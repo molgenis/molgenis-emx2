@@ -3,7 +3,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-io')
     implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2')
-    implementation project(':backend:molgenis-emx2-exampledata')
+    implementation project(':backend:molgenis-emx2-datamodels')
     implementation project(':backend:molgenis-emx2-semantics')
     implementation project(':backend:molgenis-emx2-tasks')
     implementation 'com.sparkjava:spark-core:2.9.3'

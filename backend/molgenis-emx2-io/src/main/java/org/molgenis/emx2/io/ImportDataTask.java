@@ -65,5 +65,6 @@ public class ImportDataTask extends Task {
     if (skipped) {
       this.addStep("Import data skipped: No data sheet included").skipped();
     }
+    this.complete();
   }
 }

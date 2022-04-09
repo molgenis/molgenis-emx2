@@ -181,7 +181,6 @@ public class GraphqlApiFactory {
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
-    mutationBuilder.field(db.create(database, taskService));
     if (database.isAdmin()) {
       mutationBuilder.field(db.createSettingsMutation(database));
       mutationBuilder.field(db.deleteSettingsMutation(database));
