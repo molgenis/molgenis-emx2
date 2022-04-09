@@ -5,10 +5,8 @@ import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
@@ -74,10 +72,6 @@ public class MolgenisIO {
     new ImportDirectoryTask(directory, schema, strict).run();
   }
 
-  public static void fromURL(URL url, Schema schema, boolean strict) {
-    new ImportURLTask(url, schema, strict).run();
-  }
-
   public static void fromZipFile(Path zipFile, Schema schema, boolean strict) {
     new ImportCsvZipTask(zipFile, schema, strict).run();
   }
@@ -88,11 +82,6 @@ public class MolgenisIO {
 
   public static void fromStore(TableStore store, Schema schema, boolean strict) {
     new ImportSchemaTask(store, schema, strict).run();
-  }
-
-  public static void fromSchemaList(
-      Database database, List<SchemaDeclaration> schemas, boolean strict) {
-    new ImportMultipleSchemaTask(database, schemas, strict).run();
   }
 
   public static void fromClasspathDirectory(String path, Schema schema, boolean strict) {

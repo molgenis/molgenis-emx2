@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
-import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
+import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 
 public class TestMetaDataIsStoredForNextSessions {
