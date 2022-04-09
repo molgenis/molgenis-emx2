@@ -12,7 +12,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
 
-/** Short hands for running most tasks */
+/** Short hands for running the tasks */
 public class MolgenisIO {
 
   private MolgenisIO() {

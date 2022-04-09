@@ -7,10 +7,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
-/**
- * Task to import schema from a table store, i.e., will run ImportMetadataTask and for each table a
- * ImportTableTask.
- */
 public class ImportSchemaTask extends Task {
   private TableStore tableStore;
   private Schema schema;

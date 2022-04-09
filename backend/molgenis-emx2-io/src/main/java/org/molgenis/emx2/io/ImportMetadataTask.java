@@ -9,10 +9,6 @@ import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
-/**
- * Will import metadata from tableStore, i.e., create the tables (but not load their contents). If
- * no emx2 'molgenis.csv' is available it will attempt emx1 attributes, entities.
- */
 public class ImportMetadataTask extends Task {
   public static final String MOLGENIS = "molgenis";
   private TableStore tableStore;

@@ -10,7 +10,6 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskStatus;
 
-/** Task to import one table from a table store */
 public class ImportTableTask extends Task {
   private Table table;
   private TableStore tableStore;
