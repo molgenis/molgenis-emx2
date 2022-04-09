@@ -5,7 +5,6 @@ import Groups from "./components/Groups";
 import Admin from "./components/admin/Admin";
 import ManageSettings from "./components/admin/ManageSettings";
 import ManageUsers from "./components/admin/ManageUsers";
-import TaskManager from "./components/tasks/TaskManager";
 
 Vue.config.productionTip = false;
 
@@ -14,7 +13,6 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "central", path: "/", component: Groups },
-    { name: "tasks", path: "/tasks", component: TaskManager },
     {
       name: "admin",
       path: "/admin",
