@@ -17,23 +17,29 @@ public class DataCatalogueLoader implements AvailableLoadersEnum.DataModelLoader
 
     // depends on CatalogueOntologies schema, so we create that if missing
     Database db = schema.getDatabase();
+    intitOntologies(db);
+    createSchema(schema, "datacatalogue/molgenis.csv");
+    loadOntologies(db);
+  }
+
+  public static void loadOntologies(Database db) {
+    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
+    MolgenisIO.fromClasspathDirectory("datacatalogue/CatalogueOntologies", ontologySchema, false);
+  }
+
+  public static void intitOntologies(Database db) {
     if (!db.hasSchema(CATALOGUE_ONTOLOGIES)) {
       db.createSchema(CATALOGUE_ONTOLOGIES);
     }
+  }
 
-    // create the schema
+  public static void createSchema(Schema schema, String path) {
     SchemaMetadata metadata =
         Emx2.fromRowList(
             CsvTableReader.read(
                 new InputStreamReader(
-                    this.getClass()
-                        .getClassLoader()
-                        .getResourceAsStream("datacatalogue/molgenis.csv"))));
+                    DataCatalogueLoader.class.getClassLoader().getResourceAsStream(path))));
     schema.migrate(metadata);
-
-    // load ontologies
-    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
-    MolgenisIO.fromClasspathDirectory("datacatalogue/CatalogueOntologies", ontologySchema, false);
   }
 
   @Override
