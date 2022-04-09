@@ -11,15 +11,15 @@ import org.molgenis.emx2.tasks.Task;
 
 public class ImportMetadataTask extends Task {
   public static final String MOLGENIS = "molgenis";
-  private TableStore tableStore;
+  private TableStore store;
   private Schema schema;
 
-  public ImportMetadataTask(Schema schema, TableStore tableStore, boolean strict) {
+  public ImportMetadataTask(Schema schema, TableStore store, boolean strict) {
     super("Import metadata", strict);
     Objects.requireNonNull(schema, "schema cannot be null");
-    Objects.requireNonNull(tableStore, "tableStore cannot be null");
+    Objects.requireNonNull(store, "tableStore cannot be null");
     this.schema = schema;
-    this.tableStore = tableStore;
+    this.store = store;
   }
 
   @Override
@@ -27,27 +27,27 @@ public class ImportMetadataTask extends Task {
     this.start();
     try {
       // attempt emx2
-      if (tableStore.containsTable(MOLGENIS)
-          || tableStore.containsTable("molgenis_settings")
-          || tableStore.containsTable("molgenis_members")) {
+      if (store.containsTable(MOLGENIS)
+          || store.containsTable("molgenis_settings")
+          || store.containsTable("molgenis_members")) {
 
-        if (tableStore.containsTable(MOLGENIS)) {
-          schema.migrate(Emx2.fromRowList(tableStore.readTable(MOLGENIS)));
+        if (store.containsTable(MOLGENIS)) {
+          schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
           this.addStep("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
           this.addStep("Metadata loading skipped: 'molgenis' sheet not included in the file")
               .skipped();
         }
 
-        if (tableStore.containsTable("molgenis_members")) {
-          int count = Emx2Members.inputRoles(tableStore, schema);
+        if (store.containsTable("molgenis_members")) {
+          int count = Emx2Members.inputRoles(store, schema);
           this.addStep("Loaded " + count + " members from 'molgenis_members' sheet").complete();
         } else {
           this.addStep("Members loading skipped: 'molgenis_members' sheet not included in the file")
               .skipped();
         }
-        if (tableStore.containsTable("molgenis_settings")) {
-          Emx2Settings.inputSettings(tableStore, schema);
+        if (store.containsTable("molgenis_settings")) {
+          Emx2Settings.inputSettings(store, schema);
           this.addStep("Loaded settings from 'molgenis_settings' sheet").complete();
         } else {
           this.addStep(
@@ -57,8 +57,8 @@ public class ImportMetadataTask extends Task {
         this.complete();
       } else
       // attempt emx1
-      if (tableStore.containsTable("attributes")) {
-        Emx1.uploadFromStoreToSchema(tableStore, schema);
+      if (store.containsTable("attributes")) {
+        Emx1.uploadFromStoreToSchema(store, schema);
         this.complete("Imported emx1 metadata");
       }
       // otherwise give warning that metadata has been skipped
