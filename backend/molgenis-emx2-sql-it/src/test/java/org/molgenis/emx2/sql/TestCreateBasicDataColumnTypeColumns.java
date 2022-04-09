@@ -15,7 +15,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.synthetic.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestCreateBasicDataColumnTypeColumns {
