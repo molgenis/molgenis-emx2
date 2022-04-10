@@ -35,8 +35,7 @@ public class TestQueryJsonGraph {
 
     schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
 
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema);
+    new PetStoreLoader().load(schema, true);
 
     schema.create(
         table("Person")
@@ -180,8 +179,7 @@ public class TestQueryJsonGraph {
   @Test
   public void testAgg() {
     Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testAgg");
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema);
+    new PetStoreLoader().load(schema, true);
 
     String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));

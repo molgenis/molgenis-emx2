@@ -8,7 +8,7 @@ import org.molgenis.emx2.Schema;
 public class DataCatalogueStagingLoader implements AvailableLoadersEnum.DataModelLoader {
 
   @Override
-  public void loadMetadata(Schema schema) {
+  public void load(Schema schema, boolean includeDemoData) {
 
     // depends on CatalogueOntologies schema, so we create that if missing
     Database db = schema.getDatabase();
@@ -18,10 +18,5 @@ public class DataCatalogueStagingLoader implements AvailableLoadersEnum.DataMode
     createSchema(schema, "datacatalogue/Catalogue_cdm/molgenis.csv");
 
     loadOntologies(db);
-  }
-
-  @Override
-  public void loadExampleData(Schema schema) {
-    // nothingyet?
   }
 }

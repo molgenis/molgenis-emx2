@@ -44,8 +44,7 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema("pet store");
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema);
+    new PetStoreLoader().load(schema, true);
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());

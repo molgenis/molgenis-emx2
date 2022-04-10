@@ -23,8 +23,7 @@ public class TestValidation {
 
   @Test
   public void testValidation() {
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema); // has some validations
+    new PetStoreLoader().load(schema, true);
 
     // now with some error
 

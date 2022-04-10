@@ -22,8 +22,7 @@ public class RunWebApi {
     // setup
     Database db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema("pet store");
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema);
+    new PetStoreLoader().load(schema, true);
 
     MolgenisWebservice.start(8080);
   }

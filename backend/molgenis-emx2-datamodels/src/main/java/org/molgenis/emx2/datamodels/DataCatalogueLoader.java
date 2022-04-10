@@ -13,12 +13,15 @@ public class DataCatalogueLoader implements AvailableLoadersEnum.DataModelLoader
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 
   @Override
-  public void loadMetadata(Schema schema) {
+  public void load(Schema schema, boolean includeDemoData) {
 
     // depends on CatalogueOntologies schema, so we create that if missing
     Database db = schema.getDatabase();
     intitOntologies(db);
     createSchema(schema, "datacatalogue/molgenis.csv");
+    if (includeDemoData) {
+      MolgenisIO.fromClasspathDirectory("datacatalogue/Cohorts", schema, false);
+    }
     loadOntologies(db);
   }
 
@@ -40,11 +43,5 @@ public class DataCatalogueLoader implements AvailableLoadersEnum.DataModelLoader
                 new InputStreamReader(
                     DataCatalogueLoader.class.getClassLoader().getResourceAsStream(path))));
     schema.migrate(metadata);
-  }
-
-  @Override
-  public void loadExampleData(Schema schema) {
-    // load example data
-    MolgenisIO.fromClasspathDirectory("datacatalogue/Cohorts", schema, false);
   }
 }

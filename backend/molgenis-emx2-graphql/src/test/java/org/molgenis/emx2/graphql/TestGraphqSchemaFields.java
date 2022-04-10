@@ -39,8 +39,7 @@ public class TestGraphqSchemaFields {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().loadMetadata(schema);
-    new PetStoreLoader().loadExampleData(schema);
+    new PetStoreLoader().load(schema, true);
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }

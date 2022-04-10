@@ -28,7 +28,7 @@ public class TestColumnTypeIsFile {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    new PetStoreLoader().loadMetadata(schema);
+    new PetStoreLoader().load(schema, false);
 
     schema
         .getTable("User")

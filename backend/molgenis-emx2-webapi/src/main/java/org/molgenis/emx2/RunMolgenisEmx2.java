@@ -33,8 +33,7 @@ public class RunMolgenisEmx2 {
       db.becomeAdmin();
       if (db.getSchema("pet store") == null) {
         Schema schema = db.createSchema("pet store");
-        new PetStoreLoader().loadMetadata(schema);
-        new PetStoreLoader().loadExampleData(schema);
+        new PetStoreLoader().load(schema, true);
       }
     } finally {
       // ensure to remove admin

@@ -31,8 +31,7 @@ public class PetStoreLoader implements AvailableLoadersEnum.DataModelLoader {
   public static final String MAMMALS = "mammals";
 
   @Override
-  public void loadMetadata(Schema schema) {
-
+  public void load(Schema schema, boolean includeDemoData) {
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
     schema.create(
@@ -79,9 +78,13 @@ public class PetStoreLoader implements AvailableLoadersEnum.DataModelLoader {
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))
             .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
+
+    if (includeDemoData) {
+      loadExampleData(schema);
+    }
   }
 
-  public void loadExampleData(Schema schema) {
+  private void loadExampleData(Schema schema) {
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";

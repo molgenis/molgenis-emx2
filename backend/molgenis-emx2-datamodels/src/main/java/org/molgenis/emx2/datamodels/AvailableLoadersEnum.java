@@ -19,10 +19,7 @@ public enum AvailableLoadersEnum {
     schema.tx(
         db -> {
           try {
-            installer.loadMetadata(schema);
-            if (includeExampleData) {
-              installer.loadExampleData(schema);
-            }
+            installer.load(schema, includeExampleData);
           } catch (Exception e) {
             throw new MolgenisException(e.getMessage());
           }
@@ -30,9 +27,6 @@ public enum AvailableLoadersEnum {
   }
 
   public interface DataModelLoader {
-
-    void loadMetadata(Schema schema) throws IOException;
-
-    void loadExampleData(Schema schema);
+    void load(Schema schema, boolean includeExampleData) throws IOException;
   }
 }
