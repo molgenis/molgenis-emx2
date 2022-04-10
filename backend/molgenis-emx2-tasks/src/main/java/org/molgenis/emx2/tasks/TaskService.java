@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import java.util.Collection;
 import java.util.Set;
 
 public interface TaskService {
@@ -8,6 +9,8 @@ public interface TaskService {
   Set<String> getJobIds();
 
   Task getTask(String id);
+
+  Collection<Task> listTasks();
 
   void removeOlderThan(long milliseconds);
 

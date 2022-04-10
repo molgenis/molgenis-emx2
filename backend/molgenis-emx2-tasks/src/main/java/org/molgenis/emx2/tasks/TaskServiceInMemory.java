@@ -2,10 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -26,10 +23,9 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public String submit(Task task) {
-    String id = UUID.randomUUID().toString();
-    tasks.put(id, task);
+    tasks.put(task.getId(), task);
     executorService.submit(task);
-    return id;
+    return task.getId();
   }
 
   @Override
@@ -42,6 +38,11 @@ public class TaskServiceInMemory implements TaskService {
     // delete older than a day
     removeOlderThan(24L * 60 * 60 * 1000);
     return tasks.get(id);
+  }
+
+  @Override
+  public Collection<Task> listTasks() {
+    return tasks.values();
   }
 
   @Override

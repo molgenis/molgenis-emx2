@@ -40,6 +40,10 @@ public class GraphqlConstants {
   public static final String LABEL = "label";
   public static final String COUNT = "count";
   public static final String SCHEMAS = "schemas";
+  public static final String TASK_ID = "id";
+  public static final String TASK_STATUS = "status";
+  public static final String TASK_DESCRIPTION = "description";
+  public static final String TASK_SUBTASKS = "subTasks";
 
   private GraphqlConstants() {
     // hide constructor

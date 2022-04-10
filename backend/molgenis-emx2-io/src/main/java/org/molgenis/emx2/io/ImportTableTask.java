@@ -82,7 +82,7 @@ public class ImportTableTask extends Task {
                       + " in sheet "
                       + metadata.getTableName());
             } else {
-              task.addStep(
+              task.addSubTask(
                   "Found unknown columns "
                       + warningColumns
                       + " in sheet "
@@ -103,7 +103,7 @@ public class ImportTableTask extends Task {
               metadata.getPrimaryKeyFields().stream()
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
-          task.addStep("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
+          task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
         } else {
           keys.add(keyValue);
         }

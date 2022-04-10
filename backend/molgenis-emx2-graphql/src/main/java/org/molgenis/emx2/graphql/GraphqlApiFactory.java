@@ -177,6 +177,7 @@ public class GraphqlApiFactory {
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.schemasQuery(database));
+    queryBuilder.field(db.tasksQueryField(taskService));
 
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
@@ -193,7 +194,7 @@ public class GraphqlApiFactory {
         .build();
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema) {
+  public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());
 
@@ -215,6 +216,10 @@ public class GraphqlApiFactory {
     mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
+
+    // database level
+    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
+    queryBuilder.field(db.tasksQueryField(taskService));
 
     // schema
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();

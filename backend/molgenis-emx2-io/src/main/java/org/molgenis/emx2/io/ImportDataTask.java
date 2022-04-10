@@ -38,7 +38,7 @@ public class ImportDataTask extends Task {
     for (Table table : schema.getTablesSorted()) {
       if (tableStore.containsTable(table.getName())) {
         ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
-        this.addStep(importTableTask);
+        this.addSubTask(importTableTask);
         importTableTask.run();
         skipped = false;
       }
@@ -53,7 +53,8 @@ public class ImportDataTask extends Task {
             && !"molgenis_settings".equals(sheet)
             && !"molgenis_members".equals(sheet)
             && !tableNames.contains(sheet)) {
-          this.addStep("Sheet with name '" + sheet + "' was skipped: no table with that name found")
+          this.addSubTask(
+                  "Sheet with name '" + sheet + "' was skipped: no table with that name found")
               .skipped();
         }
       }
@@ -63,7 +64,7 @@ public class ImportDataTask extends Task {
 
     // execute the import tasks
     if (skipped) {
-      this.addStep("Import data skipped: No data sheet included").skipped();
+      this.addSubTask("Import data skipped: No data sheet included").skipped();
     }
     this.complete();
   }

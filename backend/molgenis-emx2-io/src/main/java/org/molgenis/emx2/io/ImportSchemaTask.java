@@ -1,7 +1,5 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.tasks.TaskStatus.*;
-
 import java.util.Objects;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -48,18 +46,18 @@ public class ImportSchemaTask extends Task {
 
             if (!filter.equals(Filter.DATA_ONLY)) {
               Task metadataTask = new ImportMetadataTask(s, tableStore, isStrict());
-              this.addStep(metadataTask);
+              this.addSubTask(metadataTask);
               metadataTask.run();
             }
 
             if (!filter.equals(Filter.METADATA_ONLY)) {
               Task dataTask = new ImportDataTask(s, tableStore, isStrict());
-              this.addStep(dataTask);
+              this.addSubTask(dataTask);
               dataTask.run();
             }
 
             // committing
-            this.addStep(commit.start());
+            this.addSubTask(commit.start());
           });
     } catch (Exception e) {
       this.error("Import failed: " + e.getMessage());

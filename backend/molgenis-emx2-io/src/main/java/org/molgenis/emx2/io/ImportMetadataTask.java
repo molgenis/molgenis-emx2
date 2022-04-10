@@ -33,24 +33,25 @@ public class ImportMetadataTask extends Task {
 
         if (store.containsTable(MOLGENIS)) {
           schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
-          this.addStep("Loaded tables and columns from 'molgenis' sheet").complete();
+          this.addSubTask("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
-          this.addStep("Metadata loading skipped: 'molgenis' sheet not included in the file")
+          this.addSubTask("Metadata loading skipped: 'molgenis' sheet not included in the file")
               .skipped();
         }
 
         if (store.containsTable("molgenis_members")) {
           int count = Emx2Members.inputRoles(store, schema);
-          this.addStep("Loaded " + count + " members from 'molgenis_members' sheet").complete();
+          this.addSubTask("Loaded " + count + " members from 'molgenis_members' sheet").complete();
         } else {
-          this.addStep("Members loading skipped: 'molgenis_members' sheet not included in the file")
+          this.addSubTask(
+                  "Members loading skipped: 'molgenis_members' sheet not included in the file")
               .skipped();
         }
         if (store.containsTable("molgenis_settings")) {
           Emx2Settings.inputSettings(store, schema);
-          this.addStep("Loaded settings from 'molgenis_settings' sheet").complete();
+          this.addSubTask("Loaded settings from 'molgenis_settings' sheet").complete();
         } else {
-          this.addStep(
+          this.addSubTask(
                   "Loading settings skipped: 'molgenis_settings' sheet not included in the file")
               .skipped();
         }

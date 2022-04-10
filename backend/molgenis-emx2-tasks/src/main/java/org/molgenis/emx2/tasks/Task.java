@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
  * insert/upload tasks.
  */
 public class Task implements Runnable, Iterable<Task> {
+  // some unique id
+  private String id = UUID.randomUUID().toString();
   // for the toString method
   private static ObjectMapper mapper =
       new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -32,7 +34,7 @@ public class Task implements Runnable, Iterable<Task> {
   // end time to calculate run time
   long endTimeMilliseconds;
   // subtasks/steps in this task
-  private List<Task> steps = new ArrayList<>();
+  private List<Task> subTasks = new ArrayList<>();
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
   private boolean strict = false;
@@ -53,25 +55,25 @@ public class Task implements Runnable, Iterable<Task> {
     this.strict = strict;
   }
 
-  public Task addStep(String message) {
+  public Task addSubTask(String message) {
     Task step = new Task(message);
-    this.steps.add(step);
+    this.subTasks.add(step);
     return step;
   }
 
-  public Task addStep(String message, TaskStatus status) {
+  public Task addSubTask(String message, TaskStatus status) {
     Task step = new Task(message, status);
-    this.steps.add(step);
+    this.subTasks.add(step);
     return step;
   }
 
-  public void addStep(Task task) {
+  public void addSubTask(Task task) {
     Objects.requireNonNull(task, "task cannot be null");
-    this.steps.add(task);
+    this.subTasks.add(task);
   }
 
-  public List<Task> getSteps() {
-    return steps;
+  public List<Task> getSubTasks() {
+    return subTasks;
   }
 
   public Integer getProgress() {
@@ -200,17 +202,17 @@ public class Task implements Runnable, Iterable<Task> {
 
   @Override
   public Iterator iterator() {
-    return this.steps.iterator();
+    return this.subTasks.iterator();
   }
 
   @Override
   public void forEach(Consumer action) {
-    this.steps.forEach(action);
+    this.subTasks.forEach(action);
   }
 
   @Override
   public Spliterator spliterator() {
-    return this.steps.spliterator();
+    return this.subTasks.spliterator();
   }
 
   public boolean isStrict() {
@@ -224,5 +226,9 @@ public class Task implements Runnable, Iterable<Task> {
       // should never happen
       throw new MolgenisException("internal error", e);
     }
+  }
+
+  public String getId() {
+    return id;
   }
 }

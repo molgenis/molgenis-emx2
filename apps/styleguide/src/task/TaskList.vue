@@ -7,8 +7,16 @@
         <th>Task Status</th>
       </thead>
       <tbody>
-        <tr v-for="task in taskList" :key="task.id">
-          <td>{{ task.description }}</td>
+        <tr v-for="task in tasks" :key="task.id">
+          <td>
+            <button
+              @click.prevent.stop="$emit('select', task.id)"
+              type="button"
+              class="btn btn-link"
+            >
+              {{ task.description }}
+            </button>
+          </td>
           <td>{{ task.status }}</td>
         </tr>
       </tbody>
@@ -17,36 +25,42 @@
 </template>
 
 <script>
+import { request } from "graphql-request";
+import MessageError from "../forms/MessageError";
+
 export default {
+  components: {
+    MessageError,
+  },
   data() {
     return {
-      taskList: [],
-      error: null
+      loading: false,
+      tasks: [],
+      error: null,
     };
   },
   methods: {
     retrieveTasks() {
-      fetch('api/tasks')
-        .then((response) => {
-          if (response.ok) {
-            response.json().then((taskList) => {
-              console.log(JSON.stringify(taskList));
-              this.taskList = taskList.tasks;
-            });
-          } else {
-            response.text().then((error) => {
-              this.error = error;
-            });
-          }
+      this.loading = true;
+      this.graphqlError = null;
+      request("graphql", `{_tasks{id,description,status}}`)
+        .then((data) => {
+          this.tasks = data._tasks;
+          this.loading = false;
         })
         .catch((error) => {
-          this.error = error;
+          if (Array.isArray(error.response.errors)) {
+            this.graphqlError = error.response.errors[0].message;
+          } else {
+            this.error = error;
+          }
+          this.loading = false;
         });
-    }
+    },
   },
   created() {
     this.retrieveTasks();
-  }
+  },
 };
 </script>
 

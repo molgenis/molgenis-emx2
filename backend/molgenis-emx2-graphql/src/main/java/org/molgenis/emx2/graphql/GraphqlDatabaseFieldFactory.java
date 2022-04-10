@@ -2,7 +2,8 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.NAME;
+import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.AvailableLoadersEnum;
+import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
@@ -159,5 +161,40 @@ public class GraphqlDatabaseFieldFactory {
                             .type(Scalars.GraphQLString)
                             .build())
                     .build()));
+  }
+
+  final GraphQLObjectType taskObject =
+      GraphQLObjectType.newObject()
+          .name("MolgenisTasks")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(TASK_ID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TASK_STATUS)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TASK_DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TASK_SUBTASKS)
+                  .type(GraphQLList.list(GraphQLTypeReference.typeRef("MolgenisTasks"))))
+          .build();
+
+  public GraphQLFieldDefinition tasksQueryField(TaskService taskService) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_tasks")
+        .type(GraphQLList.list(taskObject))
+        .argument(GraphQLArgument.newArgument().name(TASK_ID).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String id = dataFetchingEnvironment.getArgument(TASK_ID);
+              if (id != null) {
+                return List.of(taskService.getTask(id));
+              }
+              return taskService.listTasks();
+            })
+        .build();
   }
 }
