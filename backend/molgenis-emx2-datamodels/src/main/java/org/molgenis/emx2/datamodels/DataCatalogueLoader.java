@@ -8,7 +8,7 @@ import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 
-public class DataCatalogueLoader implements AvailableLoadersEnum.DataModelLoader {
+public class DataCatalogueLoader implements AvailableDataModels.DataModelLoader {
 
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
 

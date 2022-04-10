@@ -5,7 +5,7 @@ import static org.molgenis.emx2.datamodels.DataCatalogueLoader.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
-public class DataCatalogueStagingLoader implements AvailableLoadersEnum.DataModelLoader {
+public class DataCatalogueStagingLoader implements AvailableDataModels.DataModelLoader {
 
   @Override
   public void load(Schema schema, boolean includeDemoData) {

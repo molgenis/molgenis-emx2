@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.AvailableLoadersEnum;
+import org.molgenis.emx2.datamodels.AvailableDataModels;
 import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
@@ -62,7 +62,7 @@ public class GraphqlDatabaseFieldFactory {
                   db -> {
                     Schema schema = db.createSchema(name, description);
                     if (template != null) {
-                      AvailableLoadersEnum.valueOf(template)
+                      AvailableDataModels.valueOf(template)
                           .install(schema, Boolean.TRUE.equals(includeDemoData));
                     }
                   });

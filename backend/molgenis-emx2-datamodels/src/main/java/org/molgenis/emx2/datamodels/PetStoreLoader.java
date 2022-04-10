@@ -9,7 +9,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class PetStoreLoader implements AvailableLoadersEnum.DataModelLoader {
+public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
 
   public static final String CATEGORY = "Category";
   public static final String TAG = "Tag";

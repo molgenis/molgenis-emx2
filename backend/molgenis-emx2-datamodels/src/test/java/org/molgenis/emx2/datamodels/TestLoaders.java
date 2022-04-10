@@ -22,13 +22,13 @@ public class TestLoaders {
 
   @Test
   public void testDataCatalogueLoader() {
-    AvailableLoadersEnum.DATA_CATALOGUE.install(cohortsSchema, true);
+    AvailableDataModels.DATA_CATALOGUE.install(cohortsSchema, true);
     assertEquals(36, cohortsSchema.getTableNames().size());
   }
 
   @Test
   public void testDataCatalogueStagingLoader() {
-    AvailableLoadersEnum.DATA_CATALOGUE_STAGING.install(stagingSchema, true);
+    AvailableDataModels.DATA_CATALOGUE_STAGING.install(stagingSchema, true);
     assertEquals(7, stagingSchema.getTableNames().size());
   }
 }
