@@ -1,5 +1,5 @@
 <template>
-  <demo-item id="input-string" label="Signin form">
+  <demo-item id="sign-in-form" label="Signin form">
     <div>
       <SignInForm
         :show="isShown"
