@@ -23,7 +23,7 @@
           :placeholder="placeholder"
           :readonly="readonly"
           @keypress="keyhandler($event, idx)"
-          @input="emitValue($event, idx)"
+          @input="inputHandler($event, idx)"
           @blur="toggleFocus"
         />
       </InputAppend>
@@ -76,6 +76,14 @@ export default {
         } else {
           this.emitValue("-" + value, index);
         }
+      }
+    },
+    inputHandler(event, index) {
+      const value = event.target.value;
+      if (value.length > 0) {
+        this.emitValue(event, index);
+      } else {
+        this.emitValue(null, index);
       }
     },
   },
