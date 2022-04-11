@@ -7,9 +7,7 @@
         class="container-fluid overflow-auto vh-100"
       >
         <div v-for="name in docNames" :key="name">
-          <router-link class="float-right" :to="'/component/' + name"
-            >focus</router-link
-          >
+          <router-link class="float-right" :to="'/component/' + name">focus</router-link>
           <router-view :name="name"></router-view>
         </div>
       </div>
