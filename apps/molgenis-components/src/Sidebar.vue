@@ -1,5 +1,5 @@
 <template>
-  <div id="sidebar-wrapper" class="border-right">
+  <div id="sidebar-wrapper" class="border-right overflow-auto vh-100">
     <div class="sidebar-heading">Components</div>
     <div class="list-group list-group-flush">
       <li
@@ -64,9 +64,12 @@ export default {
   },
   methods: {
     camel2Kebab(name) {
-      return '#' + name.replace(/[A-Z]/g, (letter, index) => {
-        return index == 0 ? letter.toLowerCase() : "-" + letter.toLowerCase();
-      });
+      return (
+        "#" +
+        name.replace(/[A-Z]/g, (letter, index) => {
+          return index == 0 ? letter.toLowerCase() : "-" + letter.toLowerCase();
+        })
+      );
     },
   },
 };
