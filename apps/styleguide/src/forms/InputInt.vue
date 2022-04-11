@@ -1,8 +1,8 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="list && value">{{ value.join(', ') }}</span>
-      <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
+      <span v-if="list && value">{{ value.join(", ") }}</span>
+      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
     </span>
     <FormGroup v-else v-bind="$props" v-on="$listeners">
       <InputAppend
@@ -19,7 +19,7 @@
           type="number"
           step="1"
           :value="item"
-          :class="{'form-control': true, 'is-invalid': errorMessage}"
+          :class="{ 'form-control': true, 'is-invalid': errorMessage }"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
@@ -39,39 +39,30 @@
 </template>
 
 <script>
-import BaseInput from './_baseInput.vue';
-import InputAppend from './_inputAppend';
-import IconAction from './IconAction';
-import {CODE_0, CODE_9, CODE_BACKSPACE} from '../constants';
+import BaseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import IconAction from "./IconAction";
+import { isNumericKey } from "./utils/InputUtils";
 
 export default {
   extends: BaseInput,
   components: {
     InputAppend,
-    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
-    IconAction
+    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
+    IconAction,
   },
   props: {
     parser: {
       default() {
         return parseInt;
-      }
-    }
+      },
+    },
   },
   methods: {
     keyhandler(event) {
-      if (!this.isInt(event)) event.preventDefault();
+      if (!isNumericKey(event)) event.preventDefault();
     },
-    isInt(e) {
-      let specialKeys = [];
-      specialKeys.push(CODE_BACKSPACE);
-      const keyCode = e.which ? e.which : e.keyCode;
-      return (
-        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-        specialKeys.indexOf(keyCode) !== -1
-      );
-    }
-  }
+  },
 };
 </script>
 
