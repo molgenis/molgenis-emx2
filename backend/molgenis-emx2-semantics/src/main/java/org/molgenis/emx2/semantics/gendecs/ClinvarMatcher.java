@@ -71,15 +71,23 @@ public class ClinvarMatcher {
         if (currentLine.matches(String.valueOf(stringToFind))) {
           if (isPathogenic(currentLine)) {
             logger.debug("The following line is pathogenic: " + currentLine);
-            ArrayList<String> hpoTerms = variantHpoMatcher.matchVariantWithHpo(currentLine);
+            HashMap<String, ArrayList<String>> hpoTermsAndDiseaseIds =
+                variantHpoMatcher.matchVariantWithHpo(currentLine);
 
             writerResult.write(
                 getKeyFromValue(stringsToFind, stringToFind)
                     + '\t'
-                    + hpoTerms
+                    + hpoTermsAndDiseaseIds.get("hpoTerms")
+                    + '\t'
+                    + hpoTermsAndDiseaseIds.get("diseaseIds")
                     + System.getProperty("line.separator"));
             writerClinvar.write(
-                currentLine + '\t' + hpoTerms + System.getProperty("line.separator"));
+                currentLine
+                    + '\t'
+                    + hpoTermsAndDiseaseIds.get("hpoTerms")
+                    + '\t'
+                    + hpoTermsAndDiseaseIds.get("diseaseIds")
+                    + System.getProperty("line.separator"));
           }
         }
       }

@@ -6,7 +6,7 @@
         with a HPO root-term/phenotype. When a number is entered a vcfdata file will be downloaded.
         This data will be filtered on possible disease causing genes. Then the filtered genes will
         be matched with HPO terms. The then found terms will be checked if they match with the
-        given HPO term(s) or its associates if checked. The resulting found variants are reported in
+        given HPO term(s) or its associates if checked. The resulting found variant are reported in
         a file. A "match found!" message will appear if a match is found.
       </p>
     </div>
@@ -43,6 +43,7 @@
           <MessageSuccess>Match found!</MessageSuccess>
           <p>The {{ selectedHpoTerms }} is associated with the following gene(s): {{ patientGenes }}.
             Which was found in the patient vcf data</p>
+          <Table :vcfData="this.tableData"></Table>
         </div>
         <div v-if="noMatch">
           <MessageError>No match Found</MessageError>
@@ -53,7 +54,6 @@
       <ButtonOutline @click="clearData">Click this for new search</ButtonOutline>
 
     </div>
-
   </div>
 </template>
 
@@ -67,6 +67,7 @@ import {
 } from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
+import Table from "./Table"
 import hpoData from "../js/autoSearchData.js";
 
 export default {
@@ -77,7 +78,8 @@ export default {
     MessageSuccess,
     ButtonOutline,
     InputCheckbox,
-    Spinner
+    Spinner,
+    Table
   },
   data() {
     return {
@@ -89,12 +91,13 @@ export default {
       hpoParents: [],
       hpoIds: null,
       searchAssociates: null,
-      patientGenes: null,
+      patientGenes: [],
       genesHpo: null,
       loading: false,
       readOnly: false,
       noMatch: false,
       parentSearch: false,
+      tableData: []
     };
   },
   methods: {
@@ -194,7 +197,7 @@ export default {
           hpoChildren : this.hpoChildren,
           hpoParents : this.hpoParents})
       };
-      this.genesHpo = await fetch('/patients/api/gendecs/vcffile', requestOptions)
+      let variantData = await fetch('/patients/api/gendecs/vcffile', requestOptions)
           .then((response) => {
             if (response.ok) {
               return response.json();
@@ -204,14 +207,15 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-
-      if (typeof this.genesHpo === 'undefined') {
+      this.tableData = variantData;
+      for (let i = 0; i < variantData.length; i++) {
+        this.patientGenes.push(variantData[i].gene);
+      }
+      if (this.patientGenes.length === 0) {
         this.noMatch = true;
-      } else if(Object.keys(this.genesHpo).length !== 0) {
+      } else if(this.patientGenes.length !== 0) {
         this.foundMatch = true;
-
-        this.patientGenes = Object.keys(this.genesHpo);
-      } else if(Object.keys(this.genesHpo).length === 0) {
+      } else if (this.patientGenes === 'undefined') {
         this.noMatch = true;
       }
     },

@@ -2,7 +2,7 @@ package org.molgenis.emx2.semantics.gendecs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Serialize {
   public static String serializeHpo(HpoTerm hpoTerm) {
@@ -11,9 +11,8 @@ public class Serialize {
     return gson.toJson(hpoTerm);
   }
 
-  public static String serializeMap(HashMap<String, String> map) {
+  public static String serialzeVariants(ArrayList<Variant> variants) {
     Gson gson = new Gson();
-
-    return gson.toJson(map);
+    return gson.toJson(variants);
   }
 }

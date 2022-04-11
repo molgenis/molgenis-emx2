@@ -6,7 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import org.molgenis.emx2.semantics.gendecs.*;
 import org.molgenis.emx2.semantics.gendecs.Constants;
 import org.slf4j.Logger;
@@ -17,6 +17,7 @@ import spark.Response;
 public class GendecsApi {
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
   private static final ArrayList<HpoTerm> hpoTermsObjects = new ArrayList<>();
+  private static ArrayList<Variant> variantsList = new ArrayList<>();
 
   public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
@@ -55,13 +56,13 @@ public class GendecsApi {
         hpoTermsObjects.add(hpoTerm);
       }
     }
-    HashMap<String, String> genesHpo = getGenesHpo();
+    String variants = getVariants();
 
     hpoTermsObjects.clear();
-    return Serialize.serializeMap(genesHpo);
+    return variants;
   }
 
-  private static HashMap<String, String> getGenesHpo() {
+  private static String getVariants() {
     StarRating starRating = StarRating.ONESTAR;
     ClinvarFilter clinvarFilter = new ClinvarFilter(starRating);
     String filteredClinvar = clinvarFilter.removeStatus();
@@ -70,8 +71,7 @@ public class GendecsApi {
     logger.info("Matching variants with the entered HPO terms");
     logger.debug("Matching variants with the following HPO terms: " + hpoTermsObjects);
     HpoMatcher hpoMatcher = new HpoMatcher(hpoTermsObjects, filteredClinvar);
-    Variants variants = hpoMatcher.getHpoMatches();
-
-    return variants.getGeneHpo();
+    variantsList = hpoMatcher.getHpoMatches();
+    return Serialize.serialzeVariants(variantsList);
   }
 }

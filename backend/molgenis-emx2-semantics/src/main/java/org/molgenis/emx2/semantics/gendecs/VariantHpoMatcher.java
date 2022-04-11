@@ -3,11 +3,12 @@ package org.molgenis.emx2.semantics.gendecs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class VariantHpoMatcher {
 
-  public ArrayList<String> matchVariantWithHpo(String variant) {
+  public HashMap<String, ArrayList<String>> matchVariantWithHpo(String variant) {
     String geneSymbol = getGenes(variant);
     return this.getHpo(geneSymbol);
   }
@@ -29,7 +30,6 @@ public class VariantHpoMatcher {
   private static String getGenes(String variant) {
     String[] splittedLine = variant.split("\t");
     String[] infoString = splittedLine[7].split(";");
-    //    System.out.println("infoString" + Arrays.toString(infoString));
     for (String i : infoString) {
       if (i.contains("GENEINFO")) {
         return (getGeneSymbol(i.split("=")[1]));
@@ -38,8 +38,10 @@ public class VariantHpoMatcher {
     return null;
   }
 
-  private ArrayList<String> getHpo(String geneSymbol) {
+  private HashMap<String, ArrayList<String>> getHpo(String geneSymbol) {
+    HashMap<String, ArrayList<String>> termsAndDiseases = new HashMap<>();
     ArrayList<String> hpoTerms = new ArrayList<>();
+    ArrayList<String> diseases = new ArrayList<>();
     try {
       File file = new File("data/gendecs/genes_to_phenotype.txt");
       Scanner reader = new Scanner(file);
@@ -51,13 +53,16 @@ public class VariantHpoMatcher {
           String hpoId = lineSplit[2];
           String hpoTerm = lineSplit[3];
           String diseaseId = lineSplit[8];
+          diseases.add(diseaseId);
           hpoTerms.add(hpoTerm);
         }
       }
-      return hpoTerms;
+      termsAndDiseases.put("hpoTerms", hpoTerms);
+      termsAndDiseases.put("diseaseIds", diseases);
+      return termsAndDiseases;
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    return hpoTerms;
+    return termsAndDiseases;
   }
 }
