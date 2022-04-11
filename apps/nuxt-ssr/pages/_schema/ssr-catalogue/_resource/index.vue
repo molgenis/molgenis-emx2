@@ -9,7 +9,9 @@
         ></FilterSidebar>
       </div>
       <div class="col-9">
-        <div><FilterWells :filters="filters" @updateFilters="updateFilters" /></div>
+        <div>
+          <FilterWells :filters="filters" @updateFilters="updateFilters" />
+        </div>
         <div class="d-flex" style="overflow-x: scroll">
           <div class="flex-grow-1 pr-0 pl-0 col-12">
             <table-molgenis
@@ -58,11 +60,13 @@ export default {
       .find((t) => t.name === this.tableName)
       .columns.filter((c) => !c.name.startsWith("mg_"));
 
-    this.filters = this.visibleColumns.map((column) => {
-      column.conditions = [];
-      column.showFilter = true;
-      return column;
-    });
+    this.filters = this.visibleColumns
+      .filter((column) => column.columnType === "STRING")
+      .map((column) => {
+        column.conditions = [];
+        column.showFilter = true;
+        return column;
+      });
   },
   computed: {
     visibleColumns() {
@@ -135,8 +139,28 @@ export default {
       }
     },
     updateFilters(update) {
-      console.log("on filter update");
+      console.log('updateFilters')
       this.filters = update;
+      this.fetchFiltered();
+    },
+    async fetchFiltered() {
+      const filterQuery = this.filters.reduce((accum, filter) => {
+        if (filter.conditions.length) {
+          accum[filter.id] = { like: filter.conditions };
+        }
+        return accum;
+      }, {});
+
+      console.log(filterQuery);
+
+      this.client = Client.newClient(
+        this.$axios,
+        "/" + this.$route.params.schema + "/graphql"
+      );
+      const dataResponse = await this.client.fetchTableData(this.tableName, {
+        filter: filterQuery,
+      });
+      this.tableData = dataResponse[this.tableName];
     },
   },
   watch: {
