@@ -15473,12 +15473,12 @@ vscode-languageserver-types@^3.15.1:
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
   integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
 
-vue-cli-plugin-styleguidist@4.44.27:
-  version "4.44.27"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.27.tgz#1a382f9e4925d041f9ecef740503b04e76b43d7b"
-  integrity sha512-KkxI2OjgnE0PRQePtH1nyA5/LZZeqPnmwQQRdrgvdYwZSgDVs7tm3xvbIYLLJCEdsrS8G/DCtzNgWf+kwn3/rg==
+vue-cli-plugin-styleguidist@4.44.28:
+  version "4.44.28"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-styleguidist/-/vue-cli-plugin-styleguidist-4.44.28.tgz#6e9b12b94ebf7aba9ecd3b813ed35e9e29370cc0"
+  integrity sha512-1+/D6T1WzrkJyJXKoXnn2/jP8OnOmYA6a3lMMlofyTdgHuDTQlN6QIi2mx0M7X4TxxP8Y5rL1T8csHoOvlwsvg==
   dependencies:
-    vue-styleguidist "^4.44.27"
+    vue-styleguidist "^4.44.28"
     webpack-merge "^4.2.2"
 
 vue-client-only@^2.0.0:
@@ -15645,10 +15645,10 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.2, vue-style-loader@^4.1.3:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-styleguidist@^4.44.27:
-  version "4.44.27"
-  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.27.tgz#6b6ec6bcf57f5fecaf5e2048409756e3d39bf3a5"
-  integrity sha512-OmyVClq6z/xMkEl98OXJDtj5BlFk2VJgxBrfr76gUisMhLjZHY4jyVSeDXu/nmCAOWZsvQh70R+RyMC9ZgeIzg==
+vue-styleguidist@^4.44.28:
+  version "4.44.28"
+  resolved "https://registry.yarnpkg.com/vue-styleguidist/-/vue-styleguidist-4.44.28.tgz#be8869a528f15cf9e4784591a5c463a907b1caf3"
+  integrity sha512-0uuFXsnCHyy5Z+YF1cLWq+bPmGDcp//wn4x+rEgn+GlL87qTDZBJOLaky3XLWdGjiVuBV/8U1CplEsz3oY+TtA==
   dependencies:
     "@vxna/mini-html-webpack-template" "^1.0.0"
     ast-types "0.13.4"
@@ -15682,6 +15682,7 @@ vue-styleguidist@^4.44.27:
     mini-html-webpack-plugin "^3.1.3"
     minimist "^1.2.5"
     prismjs "^1.23.0"
+    process "^0.11.10"
     prop-types "^15.7.2"
     q-i "2.0.1"
     qss "^2.0.3"
