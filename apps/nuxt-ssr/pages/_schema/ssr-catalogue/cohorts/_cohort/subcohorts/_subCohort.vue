@@ -1,33 +1,51 @@
 <template>
+  <div >
     <key-value-block
-        v-if="subcohort"
-        :heading="'Subpopulations: ' + subcohort.name"
-        :items="details"
+      v-if="subcohort"
+      :heading="'Subpopulations: ' + subcohort.name"
+      :items="details"
     ></key-value-block>
+
+    <grid-block heading="Quantitative information" v-if="subcohort.counts">
+      <table-display
+        :isClickable="false"
+        :columns="[
+          { name: 'year', label: 'Year' },
+          { name: 'ageband', label: 'Age band' },
+          { name: 'gender', label: 'Gender' },
+          { name: 'N', label: 'N' },
+        ]"
+        :rows="subcohort.counts"
+      ></table-display>
+    </grid-block>
+  </div>
 </template>
 
 <script>
-import { PageHeader, GridBlock, KeyValueBlock } from "molgenis-components";
-import { startEndYear } from "../../../../../../store/filters"
+import { KeyValueBlock, GridBlock, TableDisplay } from "molgenis-components";
+import { startEndYear } from "../../../../../../store/filters";
 import query from "../../../../../../store/gql/subcohortDetails.gql";
 export default {
   name: "SubCohort",
-  components: { PageHeader, GridBlock, KeyValueBlock },
-  async asyncData({ params, $axios, store, redirect  }) {
-    if(!params.subCohort) {
-      redirect({to: "cohorts/" + params.cohort})
-      return
+  components: { KeyValueBlock, GridBlock, TableDisplay },
+  async asyncData({ params, $axios, store, redirect }) {
+    if (!params.subCohort) {
+      redirect({ to: "cohorts/" + params.cohort });
+      return;
     }
 
     const resp = await $axios({
       url: store.state.schema + "/graphql",
       method: "post",
-      data: { query, variables: { pid: params.cohort, name: params.subCohort } },
-    }).catch((e) =>  console.log(e));
+      data: {
+        query,
+        variables: { pid: params.cohort, name: params.subCohort },
+      },
+    }).catch((e) => console.log(e));
 
-    if(!resp) return
+    if (!resp) return;
 
-    return { subcohort: resp.data.data.Subcohorts[0]  };
+    return { subcohort: resp.data.data.Subcohorts[0] };
   },
   computed: {
     details() {
@@ -70,6 +88,12 @@ export default {
         {
           label: "Other inclusion criteria",
           value: this.subcohort.inclusionCriteria,
+        },
+        {
+          label: "Comorbidity",
+          value: this.subcohort.comorbidity
+            ? this.subcohort.comorbidity.map((c) => c.name)
+            : [],
         },
       ];
     },

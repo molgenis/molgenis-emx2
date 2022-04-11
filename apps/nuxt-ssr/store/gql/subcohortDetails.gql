@@ -38,5 +38,14 @@ query Subcohorts($pid: String, $name: String) {
     }
     inclusionCriteria
     supplementaryInformation
+    comorbidity {
+      name
+    }
+    counts {
+      year
+      ageband
+      gender
+      N
+    }
   }
 }
