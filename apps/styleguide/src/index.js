@@ -22,6 +22,7 @@ import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
+import InputLong from "./forms/InputLong";
 import InputOntology from "./forms/InputOntology";
 import InputOntologySubtree from "./forms/InputOntologySubtree";
 import InputPassword from "./forms/InputPassword";
@@ -78,6 +79,8 @@ import StringDisplay from "./tables/cellTypes/StringDisplay";
 import ObjectDisplay from "./tables/cellTypes/ObjectDisplay";
 import TextDisplay from "./tables/cellTypes/TextDisplay";
 import FileDisplay from "./tables/cellTypes/FileDisplay";
+import EmailDisplay from "./tables/cellTypes/EmailDisplay";
+import HyperlinkDisplay from "./tables/cellTypes/HyperlinkDisplay";
 
 import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 
@@ -117,6 +120,7 @@ export {
   InputDecimal,
   InputFile,
   InputInt,
+  InputLong,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
@@ -165,6 +169,8 @@ export {
   ObjectDisplay,
   TextDisplay,
   FileDisplay,
+  EmailDisplay,
+  HyperlinkDisplay,
   MolgenisSignin,
   PageHeader,
   GridBlock,

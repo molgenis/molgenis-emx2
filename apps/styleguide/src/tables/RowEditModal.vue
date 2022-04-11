@@ -12,7 +12,7 @@
             v-model="value[column.id]"
             :columnType="column.columnType"
             :description="column.description"
-            :errorMessage="errorPerColumn[column.name]"
+            :errorMessage="errorPerColumn[column.id]"
             :graphqlURL="graphqlURL"
             :label="column.name"
             :pkey="getPkey(value)"
@@ -37,18 +37,19 @@
 </template>
 
 <script>
-import LayoutForm from '../layout/LayoutForm.vue';
-import LayoutModal from '../layout/LayoutModal.vue';
-import MessageError from '../forms/MessageError';
-import MessageSuccess from '../forms/MessageSuccess';
-import ButtonAction from '../forms/ButtonAction.vue';
-import ButtonAlt from '../forms/ButtonAlt.vue';
-import ButtonOutline from '../forms/ButtonOutline';
-import SigninForm from '../layout/MolgenisSignin';
-import TableMixin from '../mixins/TableMixin';
-import GraphqlRequestMixin from '../mixins/GraphqlRequestMixin';
-import RowFormInput from './RowFormInput.vue';
-import Expressions from '@molgenis/expressions';
+import LayoutForm from "../layout/LayoutForm.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import MessageError from "../forms/MessageError";
+import MessageSuccess from "../forms/MessageSuccess";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonOutline from "../forms/ButtonOutline";
+import SigninForm from "../layout/MolgenisSignin";
+import TableMixin from "../mixins/TableMixin";
+import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
+import RowFormInput from "./RowFormInput.vue";
+import Expressions from "@molgenis/expressions";
+import {EMAIL_REGEX, HYPERLINK_REGEX} from "../constants";
 
 export default {
   extends: TableMixin,
@@ -84,7 +85,7 @@ export default {
   },
   methods: {
     getRefBackType(column) {
-      if (column.columnType === 'REFBACK') {
+      if (column.columnType === "REFBACK") {
         const table = this.getTable(column.refTable);
         return table.columns.find(
           (otherColumn) => otherColumn.name === column.refBack
@@ -125,7 +126,7 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.$emit('close');
+          this.$emit("close");
         })
         .catch((error) => {
           if (error.status === 403) {
@@ -139,14 +140,14 @@ export default {
     },
     setDraft(isDraft) {
       if (isDraft) {
-        this.value['mg_draft'] = true;
+        this.value["mg_draft"] = true;
       } else {
-        this.value['mg_draft'] = false;
+        this.value["mg_draft"] = false;
       }
     },
     getUpsertQuery() {
       const name = this.tableId;
-      const action = this.pkey && !this.clone ? 'update' : 'insert';
+      const action = this.pkey && !this.clone ? "update" : "insert";
       return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
     },
     showColumn(column) {
@@ -156,7 +157,7 @@ export default {
       return (
         isColumnVisible &&
         this.visible(column.visible, column.id) &&
-        column.name != 'mg_tableclass' &&
+        column.name != "mg_tableclass" &&
         hasRefValue
       );
     },
@@ -179,34 +180,41 @@ export default {
       }
     },
     validateColumn(column) {
-      delete this.errorPerColumn[column.id];
-      const isInvalidNumber =
-        typeof this.value[column.id] === 'number' &&
-        isNaN(this.value[column.id]);
-      const isColumnValueInvalid = // how about undefined?
-        this.value[column.id] == null || isInvalidNumber;
-      if (column.required && isColumnValueInvalid) {
-        this.errorPerColumn[column.id] = column.name + ' is required ';
+      const value = this.value[column.id];
+      const isInvalidNumber = typeof value === "number" && isNaN(value);
+      const missesValue = value === undefined || value === null || value === "";
+      if (column.required && (missesValue || isInvalidNumber)) {
+        this.errorPerColumn[column.id] = column.name + " is required ";
+      } else if (missesValue) {
+        this.errorPerColumn[column.id] = undefined;
       } else {
-        if (this.value[column.id] !== undefined && column.validation) {
-          this.evaluateValidationExpression(column);
-        } else if (this.isRefLinkWithoutOverlap(column)) {
-          this.errorPerColumn[
-            column.id
-          ] = `value should match your selection in column '${column.refLink}' `;
-        }
+        this.errorPerColumn[column.id] = this.getColumnError(column);
       }
     },
-    evaluateValidationExpression(column) {
-      try {
-        if (!Expressions.evaluate(column.validation, this.value)) {
-          this.errorPerColumn[
-            column.id
-          ] = `Applying validation rule returned error: ${column.validation}`;
-        }
-      } catch (error) {
-        this.errorPerColumn[column.id] = `Invalid validation expression`;
+    getColumnError(column) {
+      const value = this.value[column.id];
+      const type = column.columnType;
+
+      if (type === "EMAIL" && !isValidEmail(value)) {
+        return "Invalid email address";
       }
+      if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+        return "Invalid email address";
+      }
+      if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (column.validation) {
+        return evaluateValidationExpression(column, this.value);
+      }
+      if (this.isRefLinkWithoutOverlap(column)) {
+        return `value should match your selection in column '${column.refLink}' `;
+      }
+
+      return undefined;
     },
     isRefLinkWithoutOverlap(column) {
       if (!column.refLink) {
@@ -219,7 +227,7 @@ export default {
         const value = this.value[column.id];
         const refValue = this.value[refLinkId];
 
-        if (typeof value === 'string' && typeof refValue === 'string') {
+        if (typeof value === "string" && typeof refValue === "string") {
           return value && refValue && value !== refValue;
         } else {
           return (
@@ -234,7 +242,7 @@ export default {
   computed: {
     columnsWithoutMeta() {
       return this.tableMetadata.columns.filter(
-        (c) => !c.name.startsWith('mg_')
+        (c) => !c.name.startsWith("mg_")
       );
     },
     //@overide
@@ -298,6 +306,32 @@ export default {
     this.validate();
   }
 };
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !isValidEmail(email));
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    }
+  } catch (error) {
+    return "Invalid validation expression";
+  }
+}
 
 function getRefLinkColumnByName(tableMetadata, refLink) {
   return tableMetadata.columns.find((column) => column.name === refLink);
