@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -58,7 +59,7 @@ public class PetStoreExample {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(column(QUANTITY).setType(INT).setValidation("{quantity} >= 1"))
+            .add(column(QUANTITY).setType(LONG).setValidation("{quantity} >= 1"))
             .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
@@ -74,10 +75,7 @@ public class PetStoreExample {
             .add(column("firstName"))
             .add(column("lastName"))
             .add(column("picture").setType(FILE))
-            .add(column(EMAIL))
-            // future work .setValidation(
-            //  "regex('^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$',{email},'i')")) //
-            // todo: validation email
+            .add(column(EMAIL).setType(ColumnType.EMAIL))
             .add(column("password")) // todo: password type
             .add(column("phone")) // todo: validation phone
             .add(column("userStatus").setType(INT))
@@ -133,7 +131,7 @@ public class PetStoreExample {
             new Row()
                 .set(ORDER_ID, "1")
                 .set("pet", "pooky")
-                .set(QUANTITY, 1)
+                .set(QUANTITY, 1l)
                 .set(PRICE, 9.99)
                 .set(COMPLETE, true)
                 .set(STATUS, "delivered"),
@@ -141,7 +139,7 @@ public class PetStoreExample {
                 .set(ORDER_ID, "2")
                 .set("pet", "spike")
                 .set(PRICE, 14.99)
-                .set(QUANTITY, 7)
+                .set(QUANTITY, 7l)
                 .set(COMPLETE, false)
                 .set(STATUS, "approved"));
 

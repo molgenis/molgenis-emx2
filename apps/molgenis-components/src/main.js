@@ -5,6 +5,8 @@ import ClientView from "./ClientView.vue";
 import Sidebar from "./Sidebar.vue";
 import DemoItem from "./DemoItem.vue";
 import axios from "axios";
+import VueScrollTo from "vue-scrollto";
+
 const components = import.meta.globEager("./components/**/*.vue");
 const docs = import.meta.globEager("./docs/**/*.vue");
 
@@ -27,7 +29,7 @@ const routes = [
   { path: "/client", component: ClientView },
 ];
 
-const docsMap = {}
+const docsMap = {};
 
 // create routes for all the docs
 Object.entries(docs).forEach(([path, definition]) => {
@@ -37,9 +39,12 @@ Object.entries(docs).forEach(([path, definition]) => {
     .replace(/\.\w+$/, "");
 
   routes[0].components[componentName] = definition.default; // for listing
-  routes.push({ path: "/component/" + componentName, component: definition.default }) // for detail view
-  const folderPath = path.split("/").slice(2) // remove folder root path
-  folderPath.pop() // remove component name 
+  routes.push({
+    path: "/component/" + componentName,
+    component: definition.default,
+  }); // for detail view
+  const folderPath = path.split("/").slice(2); // remove folder root path
+  folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
 
@@ -48,6 +53,11 @@ Vue.prototype.$docsMap = docsMap;
 
 Vue.use(VueRouter);
 const router = new VueRouter({ routes });
+
+// use for in page routing
+Vue.use(VueScrollTo, {
+  container: "#page-content-wrapper",
+});
 
 // Add axios to demo app global vue as plugin, will not be part of exposed library
 Vue.use({

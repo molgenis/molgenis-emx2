@@ -25,7 +25,7 @@
               v-if="col.showColumn && row[col.id] && col.id != 'mg_tableclass'"
               class="pr-3"
             >
-              {{ col.id }}
+              {{ col.name }}
             </dt>
             <dd
               class="pl-3"
@@ -72,14 +72,14 @@ export default {
     RenderValue,
     RowButtonEdit,
     RowButtonDelete,
-    VueTemplate,
+    VueTemplate
   },
   props: {
     columns: Array,
     tableName: String,
     row: Object,
     template: String,
-    canEdit: Boolean,
+    canEdit: Boolean
   },
   methods: {
     getKey(row) {
@@ -88,7 +88,7 @@ export default {
         .filter((c) => c.key == 1)
         .map((c) => (result[c.name] = row[c.name]));
       return result;
-    },
-  },
+    }
+  }
 };
 </script>

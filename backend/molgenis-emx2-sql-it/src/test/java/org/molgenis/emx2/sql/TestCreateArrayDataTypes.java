@@ -45,6 +45,11 @@ public class TestCreateArrayDataTypes {
   }
 
   @Test
+  public void testLongArray() {
+    executeTest(LONG_ARRAY, new Long[] {5l, 6l});
+  }
+
+  @Test
   public void testDateArray() {
     executeTest(DATE_ARRAY, new String[] {"2013-01-01", "2013-01-02", "2013-01-03"});
   }

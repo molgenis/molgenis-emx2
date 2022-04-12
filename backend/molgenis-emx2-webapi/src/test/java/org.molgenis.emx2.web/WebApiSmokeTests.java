@@ -194,16 +194,6 @@ public class WebApiSmokeTests {
     String url = val.get("url");
     String id = val.get("id");
 
-    // check if in tasks list
-    assertTrue(
-        given()
-            .sessionId(SESSION_ID)
-            .multiPart(excelFile)
-            .when()
-            .get("/pet store/api/tasks")
-            .asString()
-            .contains(id));
-
     // poll task until complete
     Response poll = given().sessionId(SESSION_ID).when().get(url);
     int count = 0;
@@ -217,6 +207,16 @@ public class WebApiSmokeTests {
       poll = given().sessionId(SESSION_ID).when().get(url);
       Thread.sleep(500);
     }
+
+    // check if id in tasks list 
+    assertTrue(
+        given()
+            .sessionId(SESSION_ID)
+            .multiPart(excelFile)
+            .when()
+            .get("/pet store/api/tasks")
+            .asString()
+            .contains(id));
 
     // check if schema equal using json representation
     String schemaCSV2 =

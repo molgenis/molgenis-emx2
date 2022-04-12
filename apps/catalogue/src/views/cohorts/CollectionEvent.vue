@@ -21,6 +21,7 @@
 import { fetchById } from "../../store/repository/repository";
 import { PageHeader, GridBlock, KeyValueBlock } from "@mswertz/emx2-styleguide";
 import { startEndYear } from "../../filters";
+
 export default {
   name: "CollectionEvent",
   components: { PageHeader, GridBlock, KeyValueBlock },
@@ -91,6 +92,12 @@ export default {
           label: "Sample categories",
           value: this.collectionEvent.sampleCategories
             ? this.collectionEvent.sampleCategories.map((item) => item.name)
+            : [],
+        },
+        {
+          label: "Core variables",
+          value: this.collectionEvent.coreVariables
+            ? this.collectionEvent.coreVariables.map((item) => item.name)
             : [],
         },
       ];

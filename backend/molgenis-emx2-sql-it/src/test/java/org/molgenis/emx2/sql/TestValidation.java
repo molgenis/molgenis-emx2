@@ -26,6 +26,16 @@ public class TestValidation {
     PetStoreExample.create(schema.getMetadata());
     PetStoreExample.populate(schema); // has some validations
 
+    // system level validation using email data type (will also test hyperlink indirectly)
+    Table users = schema.getTable("User");
+    try {
+      users.insert(row("username", "john", "email", "wrong"));
+      fail("email should validate");
+    } catch (Exception e) {
+      // correct
+    }
+    users.insert(row("username", "john", "email", "correct@home.nl"));
+
     // now with some error
 
     // price can be null
