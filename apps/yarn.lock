@@ -15420,7 +15420,7 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite-plugin-vue2@^1.9.3:
+vite-plugin-vue2@1.9.3:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/vite-plugin-vue2/-/vite-plugin-vue2-1.9.3.tgz#a73363e70d7fe6e420a52890ca650d3d270245f5"
   integrity sha512-0KhHSEeht0VHJtt4Z2cJ9bWBq4dP3HoXpapqAHV+f+cUa6KywYdOd+z6sSGLpuGjN8F9YinrFIo8dfVmMOpc8Q==
