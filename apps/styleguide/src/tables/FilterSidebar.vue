@@ -148,7 +148,6 @@ examples
               "showFilter": true
             }]
         }
-
       }
     }
   }
