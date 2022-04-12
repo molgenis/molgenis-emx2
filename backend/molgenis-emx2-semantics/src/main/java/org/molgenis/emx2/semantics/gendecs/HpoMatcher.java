@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,8 @@ public class HpoMatcher {
         for (int i = 0; i < hpoTermsToMatch.length; i++) {
           String currentTerm = hpoTermsToMatch[i].trim();
           if (matchHpoTerms(currentTerm, hpoTerms.get(0))) {
-            addMatchedVariant(hpoTermsToMatch[i].trim(), splittedLine, writer, currentLine, variantList, i);
+            addMatchedVariant(
+                hpoTermsToMatch[i].trim(), splittedLine, writer, currentLine, variantList, i);
           }
         }
       }
@@ -107,9 +109,12 @@ public class HpoMatcher {
     String diseaseId = splittedLine[splittedLine.length - 1].split(",")[i];
     writer.write(currentLine + System.getProperty("line.separator"));
 
-    variant.setVariant(currentLine);
-    variant.setGene(gene);
-    variant.setDisease(diseaseId);
+    String[] variantLine = currentLine.split("\t");
+    String variantString =
+        Arrays.toString(Arrays.copyOfRange(variantLine, 0, variantLine.length - 2));
+    variant.setVariant(variantString.trim());
+    variant.setGene(gene.trim());
+    variant.setDisease(diseaseId.trim());
     variant.setHpoTerm(hpoTerm.trim());
     variantList.add(variant);
   }
