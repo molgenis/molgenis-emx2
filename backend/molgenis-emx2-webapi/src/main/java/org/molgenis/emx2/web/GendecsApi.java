@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.ArrayList;
-
 import org.molgenis.emx2.semantics.gendecs.*;
 import org.molgenis.emx2.semantics.gendecs.Constants;
 import org.slf4j.Logger;

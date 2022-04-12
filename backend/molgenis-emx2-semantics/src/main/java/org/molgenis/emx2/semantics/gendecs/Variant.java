@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics.gendecs;
 
-
 public class Variant {
   private String variant;
   private String gene;
