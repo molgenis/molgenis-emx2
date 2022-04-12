@@ -17,6 +17,7 @@ import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
+import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
 import InputSearch from '../src/components/forms/InputSearch.vue';
 
@@ -58,6 +59,7 @@ export {
   ButtonSubmit,
   FormMolgenis,
   InputPassword,
+  InputRadio,
   InputString,
   InputSearch,
   Breadcrumb,
