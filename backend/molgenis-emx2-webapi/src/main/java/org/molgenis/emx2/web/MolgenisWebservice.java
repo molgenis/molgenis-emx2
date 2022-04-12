@@ -88,6 +88,7 @@ public class MolgenisWebservice {
 
     SiteMapService.create();
     CsvApi.create();
+    VcfApi.create();
     ZipApi.create();
     ExcelApi.create();
     FileApi.create();
