@@ -49,16 +49,17 @@ public class HpoMatcher {
         continue;
       }
       String[] splittedLine = currentLine.split("\t");
-      String[] hpoTermsToMatch = getTermsToMatch(splittedLine);
+      String[] hpoTermsToMatch = getTermsToMatch(splittedLine[7]);
 
       if (hpoTerms.size() > 1) {
-        matchHpoObjects(variantList, writer, currentLine, splittedLine, hpoTermsToMatch);
+        matchHpoObjects(variantList, splittedLine, hpoTermsToMatch);
+        writer.write(currentLine + System.getProperty("line.separator"));
       } else {
         for (int i = 0; i < hpoTermsToMatch.length; i++) {
           String currentTerm = hpoTermsToMatch[i].trim();
           if (matchHpoTerms(currentTerm, hpoTerms.get(0))) {
-            addMatchedVariant(
-                hpoTermsToMatch[i].trim(), splittedLine, writer, currentLine, variantList, i);
+            addMatchedVariant(hpoTermsToMatch[i].trim(), splittedLine, variantList, i);
+            writer.write(currentLine + System.getProperty("line.separator"));
           }
         }
       }
@@ -69,12 +70,7 @@ public class HpoMatcher {
   }
 
   private void matchHpoObjects(
-      ArrayList<Variant> variantList,
-      BufferedWriter writer,
-      String currentLine,
-      String[] splittedLine,
-      String[] hpoTermsToMatch)
-      throws IOException {
+      ArrayList<Variant> variantList, String[] splittedLine, String[] hpoTermsToMatch) {
     ArrayList<String> matchedTerms = new ArrayList<>();
     int itemsToMatch = hpoTerms.size();
     int itemsMatched = 0;
@@ -90,28 +86,32 @@ public class HpoMatcher {
     }
     if (itemsMatched == itemsToMatch) {
       for (int i = 0; i < matchedTerms.size(); i++) {
-        addMatchedVariant(matchedTerms.get(i), splittedLine, writer, currentLine, variantList, i);
+        addMatchedVariant(matchedTerms.get(i), splittedLine, variantList, i);
       }
     }
   }
 
   private void addMatchedVariant(
-      String hpoTerm,
-      String[] splittedLine,
-      BufferedWriter writer,
-      String currentLine,
-      ArrayList<Variant> variantList,
-      int i)
-      throws IOException {
+      String hpoTerm, String[] splittedLine, ArrayList<Variant> variantList, int i) {
     Variant variant = new Variant();
     logger.debug(hpoTerm + "has match with entered HPO term(s)" + hpoTerms);
-    String gene = splittedLine[7].split("\\|")[3];
-    String diseaseId = splittedLine[splittedLine.length - 1].split(",")[i];
-    writer.write(currentLine + System.getProperty("line.separator"));
+    String infoString = splittedLine[7];
+    String[] infoStringSplit = infoString.split("\\|");
 
-    String[] variantLine = currentLine.split("\t");
+    String gene = infoStringSplit[3];
+    String diseaseId =
+        infoStringSplit[infoStringSplit.length - 1].split(",")[i].replace("]", "").replace("[", "");
+
     String variantString =
-        Arrays.toString(Arrays.copyOfRange(variantLine, 0, variantLine.length - 2));
+        Arrays.toString(Arrays.copyOfRange(splittedLine, 0, 6))
+                .replace(",", "|")
+                .replace("[", "")
+                .replace("]", "")
+            + Arrays.toString(Arrays.copyOfRange(infoStringSplit, 0, infoStringSplit.length - 2))
+                .replace(",", "|")
+                .replace("[", "")
+                .replace("]", "");
+
     variant.setVariant(variantString.trim());
     variant.setGene(gene.trim());
     variant.setDisease(diseaseId.trim());
@@ -119,9 +119,11 @@ public class HpoMatcher {
     variantList.add(variant);
   }
 
-  private String[] getTermsToMatch(String[] splittedLine) {
-    String hpoTermToMatch = splittedLine[splittedLine.length - 2].replace("[", "");
-    hpoTermToMatch = hpoTermToMatch.replace("]", "");
+  private String[] getTermsToMatch(String infoLine) {
+    String[] infoStringSplit = infoLine.split("\\|");
+    String hpoTermToMatch =
+        infoStringSplit[infoStringSplit.length - 2].replace("[", "").replace("]", "");
+
     logger.debug("Current hpoTerm: " + hpoTermToMatch);
     return hpoTermToMatch.split(",");
   }

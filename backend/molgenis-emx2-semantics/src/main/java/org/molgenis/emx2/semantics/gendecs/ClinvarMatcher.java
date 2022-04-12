@@ -76,16 +76,16 @@ public class ClinvarMatcher {
 
             writerResult.write(
                 getKeyFromValue(stringsToFind, stringToFind)
-                    + '\t'
+                    + '|'
                     + hpoTermsAndDiseaseIds.get("hpoTerms")
-                    + '\t'
+                    + '|'
                     + hpoTermsAndDiseaseIds.get("diseaseIds")
                     + System.getProperty("line.separator"));
             writerClinvar.write(
                 currentLine
-                    + '\t'
+                    + ';'
                     + hpoTermsAndDiseaseIds.get("hpoTerms")
-                    + '\t'
+                    + ';'
                     + hpoTermsAndDiseaseIds.get("diseaseIds")
                     + System.getProperty("line.separator"));
           }
