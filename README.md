@@ -5,11 +5,11 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 ![Docker Pulls](https://img.shields.io/docker/pulls/molgenis/molgenis-emx2)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social) 
+![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social)
 
 # MOLGENIS EMX2 scientific data platform
 
-The world's most customizable platform for (scientific) data and FAIR principles (findability, accessbility,
+The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility,
 interoperability and reusability).
 
 ## Introduction
@@ -19,7 +19,7 @@ Then [MOLGENIS](http://molgenis.org)
 auto generates a complete database application with advanced data entry forms, powerful data up/download options and
 flexible query tools to help you collect, analyse and share your data. If you want to program, you can use PostgreSQL,
 GraphQL api, batch web services or linked data RDF/TTL interface to query/update the data, and use VueJS to create your
-own 'apps'.
+own 'apps'. 
 
 ## Guides
 

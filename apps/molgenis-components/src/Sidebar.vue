@@ -1,5 +1,5 @@
 <template>
-  <div id="sidebar-wrapper" class="border-right">
+  <div id="sidebar-wrapper" class="border-right overflow-auto vh-100">
     <div class="sidebar-heading">Components</div>
     <div class="list-group list-group-flush">
       <li
@@ -8,7 +8,14 @@
         :key="index"
       >
         <strong> {{ key }}</strong>
-        <a  v-for="(item, index2) in docsTree[key]" :key="index2" :href="'#' + camel2Kebab(item.name)" class="list-group-item">{{item.name}}</a>
+        <a
+          v-for="(item, index2) in docsTree[key]"
+          :key="index2"
+          href="#"
+          v-scroll-to="camel2Kebab(item.name)"
+          class="list-group-item"
+          >{{ item.name }}</a
+        >
       </li>
 
       <li class="list-group-item">
@@ -57,9 +64,14 @@ export default {
   },
   methods: {
     camel2Kebab(name) {
-      return name.replace(/[A-Z]/g, (letter, index) => { return index == 0 ? letter.toLowerCase() : '-'+ letter.toLowerCase();});
-    }
-  }
+      return (
+        "#" +
+        name.replace(/[A-Z]/g, (letter, index) => {
+          return index == 0 ? letter.toLowerCase() : "-" + letter.toLowerCase();
+        })
+      );
+    },
+  },
 };
 </script>
 

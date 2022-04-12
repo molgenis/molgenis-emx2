@@ -1,40 +1,49 @@
 query Subcohorts($pid: String, $name: String) {
-  Subcohorts(filter: { resource: { pid: { equals: [$pid] } }, name: { equals: [$name] } }) {
-    resource {
-      name
-    } 
-    name 
-    description
-    numberOfParticipants
-    inclusionStart
-    inclusionEnd
-    ageGroups {
-      name
-      code
-      order
-      parent {
+    Subcohorts(filter: { resource: { pid: { equals: [$pid] } }, name: { equals: [$name] } }) {
+        resource {
+            name
+        }
         name
-        code
-        parent {
-          name
-          code
+        description
+        numberOfParticipants
+        inclusionStart
+        inclusionEnd
+        ageGroups {
+            name
+            code
+            order
+            parent {
+                name
+                code
+                parent {
+                    name
+                    code
+                }
+                parent {
+                    name
+                    code
+                }
+            }
         }
-        parent {
-          name
-          code
+        mainMedicalCondition {
+            name
         }
-      }
+        countries {
+            name
+        }
+        regions {
+            name
+        }
+        inclusionCriteria
+        supplementaryInformation
+        comorbidity {
+            name
+        }
+        counts {
+            year
+            ageband
+            gender
+            N
+        }
     }
-    mainMedicalCondition {
-      name
-    }
-    countries {
-      name
-    }
-    regions {
-      name
-    }
-    inclusionCriteria
-    supplementaryInformation
-  }
 }

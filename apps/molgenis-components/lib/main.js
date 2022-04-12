@@ -25,6 +25,7 @@ import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue"
 import InputPassword from '../src/components/forms/InputPassword.vue';
+import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
 import InputSearch from '../src/components/forms/InputSearch.vue';
 
@@ -73,6 +74,7 @@ export {
   FormMolgenis,
   InputGroup,
   InputPassword,
+  InputRadio,
   InputString,
   InputSearch,
   Breadcrumb,
