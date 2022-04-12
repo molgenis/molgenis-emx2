@@ -12,6 +12,18 @@
       :heading="'Subpopulations: ' + subcohort.name"
       :items="details"
     ></key-value-block>
+    <grid-block heading="Quantitative information" v-if="subcohort.counts">
+      <table-display
+        :isClickable="false"
+        :columns="[
+          { name: 'year', label: 'Year' },
+          { name: 'ageband', label: 'Age band' },
+          { name: 'gender', label: 'Gender' },
+          { name: 'N', label: 'N' },
+        ]"
+        :rows="subcohort.counts"
+      ></table-display>
+    </grid-block>
   </div>
 </template>
 
@@ -19,11 +31,17 @@
 
 <script>
 import { fetchById } from "../../store/repository/repository";
-import { PageHeader, GridBlock, KeyValueBlock } from "@mswertz/emx2-styleguide";
+import {
+  PageHeader,
+  GridBlock,
+  KeyValueBlock,
+  TableDisplay,
+} from "@mswertz/emx2-styleguide";
 import { startEndYear } from "../../filters";
+
 export default {
   name: "SubCohort",
-  components: { PageHeader, GridBlock, KeyValueBlock },
+  components: { PageHeader, GridBlock, KeyValueBlock, TableDisplay },
   props: {
     cohort: {
       type: String,
@@ -81,6 +99,12 @@ export default {
         {
           label: "Other inclusion criteria",
           value: this.subcohort.inclusionCriteria,
+        },
+        {
+          label: "Comorbidity",
+          value: this.subcohort.comorbidity
+            ? this.subcohort.comorbidity.map((c) => c.name)
+            : [],
         },
       ];
     },

@@ -2,7 +2,10 @@
   <div id="app" class="d-flex">
     <template v-if="$route.path === '/'">
       <router-view name="sidebar" :docsMap="$docsMap"></router-view>
-      <div id="page-content-wrapper" class="m-3 container-fluid">
+      <div
+        id="page-content-wrapper"
+        class="container-fluid overflow-auto vh-100"
+      >
         <div v-for="name in docNames" :key="name">
           <router-link class="float-right" :to="'/component/' + name">focus</router-link>
           <router-view :name="name"></router-view>

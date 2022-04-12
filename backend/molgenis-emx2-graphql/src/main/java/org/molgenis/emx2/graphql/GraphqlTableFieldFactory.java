@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 
 public class GraphqlTableFieldFactory {
-  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
-
   // static types
   private static final GraphQLEnumType orderByEnum =
       GraphQLEnumType.newEnum()
@@ -23,7 +21,6 @@ public class GraphqlTableFieldFactory {
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
           .build();
-
   private static GraphQLObjectType fileDownload =
       GraphQLObjectType.newObject()
           .name("MolgenisFileDownload")
@@ -36,6 +33,41 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
+  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
+  // cache so we can reuse filter input types between tables
+  private Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
+  // cache so we can reuse filter input types between tables
+  private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
+  private Map<String, GraphQLInputObjectType> rowInputTypes = new LinkedHashMap<>();
+  private Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
+
+  public static String escape(String value) {
+    if (value != null) {
+      String result =
+          value
+              // make sure there are now leading/trailing spaces
+              .trim()
+              // replace all _ with __
+              .replaceAll("_", "__")
+              // replace multiple spaces with 1 space
+              .replaceAll(" +", " ")
+              // replace all spaces with _
+              .replaceAll(" ", "_");
+      if (result.endsWith("__agg")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("__agg", "_agg");
+      }
+      if (result.contains("mg__")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("mg__", "mg_");
+      }
+      return result;
+    } else {
+      return null;
+    }
+  }
 
   // schema specific types
   public GraphQLFieldDefinition tableQueryField(Table table) {
@@ -115,14 +147,20 @@ public class GraphqlTableFieldFactory {
           break;
         case STRING:
         case TEXT:
+        case LONG:
         case UUID:
         case DATE:
         case DATETIME:
+        case EMAIL:
+        case HYPERLINK:
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
           break;
         case STRING_ARRAY:
+        case EMAIL_ARRAY:
+        case HYPERLINK_ARRAY:
         case TEXT_ARRAY:
+        case LONG_ARRAY:
         case DATE_ARRAY:
         case DATETIME_ARRAY:
         case UUID_ARRAY:
@@ -206,7 +244,8 @@ public class GraphqlTableFieldFactory {
             .filter(
                 c ->
                     ColumnType.INT.equals(c.getColumnType())
-                        || ColumnType.DECIMAL.equals(c.getColumnType()))
+                        || ColumnType.DECIMAL.equals(c.getColumnType())
+                        || ColumnType.LONG.equals(c.getColumnType()))
             .toList();
 
     if (aggCols.size() > 0) {
@@ -241,9 +280,6 @@ public class GraphqlTableFieldFactory {
     // todo group by options
     return builder.build();
   }
-
-  // cache so we can reuse filter input types between tables
-  private Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
 
   private GraphQLInputObjectType getTableFilterInputObjectType(TableMetadata table) {
     String tableName = escape(table.getTableName());
@@ -306,9 +342,6 @@ public class GraphqlTableFieldFactory {
     return orderByBuilder.build();
   }
 
-  // cache so we can reuse filter input types between tables
-  private Map<ColumnType, GraphQLInputObjectType> columnFilterInputTypes = new LinkedHashMap<>();
-
   private GraphQLInputObjectType getColumnFilterInputObjectType(Column column) {
     ColumnType type = column.getColumnType();
     // singleton
@@ -330,29 +363,28 @@ public class GraphqlTableFieldFactory {
 
   private GraphQLScalarType graphQLTypeOf(Column col) {
     switch (col.getColumnType().getBaseType()) {
-      case BOOL:
-      case BOOL_ARRAY:
+      case BOOL, BOOL_ARRAY:
         return Scalars.GraphQLBoolean;
-      case INT:
-      case INT_ARRAY:
+      case INT, INT_ARRAY:
         return Scalars.GraphQLInt;
-      case DECIMAL:
-      case DECIMAL_ARRAY:
+      case LONG, LONG_ARRAY:
+        return Scalars.GraphQLLong;
+      case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
-      case DATE:
-      case DATETIME:
-      case STRING:
-      case TEXT:
-      case UUID:
-      case DATE_ARRAY:
-      case DATETIME_ARRAY:
-      case STRING_ARRAY:
-      case TEXT_ARRAY:
+      case DATE,
+          DATETIME,
+          STRING,
+          TEXT,
+          UUID,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          STRING_ARRAY,
+          TEXT_ARRAY,
+          EMAIL_ARRAY,
+          HYPERLINK_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
-      case REF_ARRAY:
-      case REF:
-      case REFBACK:
+      case REF_ARRAY, REF, REFBACK:
       default:
         throw new UnsupportedOperationException("Type not supported yet: " + col.getColumnType());
     }
@@ -628,8 +660,6 @@ public class GraphqlTableFieldFactory {
     };
   }
 
-  private Map<String, GraphQLInputObjectType> rowInputTypes = new LinkedHashMap<>();
-
   private GraphQLInputObjectType rowInputType(Table table) {
     String tableName = escape(table.getName());
     if (rowInputTypes.get(tableName) == null) {
@@ -655,8 +685,6 @@ public class GraphqlTableFieldFactory {
     return rowInputTypes.get(tableName);
   }
 
-  private Map<String, GraphQLInputObjectType> refTypes = new LinkedHashMap<>();
-
   public GraphQLInputObjectType getPrimaryKeyInput(TableMetadata table) {
     GraphQLInputType type;
     String name = escape(table.getTableName()) + "PkeyInput";
@@ -679,64 +707,26 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLInputType getGraphQLInputType(ColumnType columnType) {
-    switch (columnType.getBaseType()) {
-      case FILE:
-        return GraphqlCustomTypes.GraphQLFileUpload;
-      case BOOL:
-        return Scalars.GraphQLBoolean;
-      case INT:
-        return Scalars.GraphQLInt;
-      case DECIMAL:
-        return Scalars.GraphQLFloat;
-      case UUID:
-      case STRING:
-      case TEXT:
-      case DATE:
-      case DATETIME:
-        return Scalars.GraphQLString;
-      case BOOL_ARRAY:
-        return GraphQLList.list(Scalars.GraphQLBoolean);
-      case INT_ARRAY:
-        return GraphQLList.list(Scalars.GraphQLInt);
-      case DECIMAL_ARRAY:
-        return GraphQLList.list(Scalars.GraphQLFloat);
-      case STRING_ARRAY:
-      case TEXT_ARRAY:
-      case DATE_ARRAY:
-      case DATETIME_ARRAY:
-      case UUID_ARRAY:
-        return GraphQLList.list(Scalars.GraphQLString);
-      default:
-        throw new MolgenisException(
-            "Internal error: Type " + columnType + " not expected at this place");
-    }
-  }
-
-  public static String escape(String value) {
-    if (value != null) {
-      String result =
-          value
-              // make sure there are now leading/trailing spaces
-              .trim()
-              // replace all _ with __
-              .replaceAll("_", "__")
-              // replace multiple spaces with 1 space
-              .replaceAll(" +", " ")
-              // replace all spaces with _
-              .replaceAll(" ", "_");
-      if (result.endsWith("__agg")) {
-        result =
-            // fix pitfall of unneeded escape
-            result.replaceAll("__agg", "_agg");
-      }
-      if (result.contains("mg__")) {
-        result =
-            // fix pitfall of unneeded escape
-            result.replaceAll("mg__", "mg_");
-      }
-      return result;
-    } else {
-      return null;
-    }
+    return switch (columnType.getBaseType()) {
+      case FILE -> GraphqlCustomTypes.GraphQLFileUpload;
+      case BOOL -> Scalars.GraphQLBoolean;
+      case INT -> Scalars.GraphQLInt;
+      case LONG -> Scalars.GraphQLLong; // NOSONAR
+      case DECIMAL -> Scalars.GraphQLFloat;
+      case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
+      case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
+      case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
+      case LONG_ARRAY -> GraphQLList.list(Scalars.GraphQLLong); // NOSONAR
+      case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
+      case STRING_ARRAY,
+          TEXT_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          UUID_ARRAY,
+          EMAIL_ARRAY,
+          HYPERLINK_ARRAY -> GraphQLList.list(Scalars.GraphQLString);
+      default -> throw new MolgenisException(
+          "Internal error: Type " + columnType + " not expected at this place");
+    };
   }
 }

@@ -35,5 +35,8 @@ query CollectionEvents($pid: String, $name: String) {
     subcohorts {
       name
     }
+    coreVariables {
+      name
+    }
   }
 }

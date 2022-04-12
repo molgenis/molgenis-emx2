@@ -31,6 +31,7 @@ public class SqlQuery extends QueryBean {
   public static final String MIN_FIELD = "min";
   public static final String AVG_FIELD = "avg";
   public static final String SUM_FIELD = "sum";
+  public static final String UNNEST_0 = "UNNEST({0})";
 
   private static final String QUERY_FAILED = "Query failed: ";
   private static final String ANY_SQL = "{0} = ANY ({1})";
@@ -43,6 +44,7 @@ public class SqlQuery extends QueryBean {
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
 
   private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
+  public static final String ANY_1 = "{0} = ANY({1})";
 
   private final SqlSchemaMetadata schema;
   private final List<String> tableAliasList = new LinkedList<>();
@@ -273,7 +275,7 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private Field jsonSubselect(
+  private Field<?> jsonSubselect(
       SqlTableMetadata table,
       Column parentColumn,
       String tableAlias,
@@ -286,7 +288,7 @@ public class SqlQuery extends QueryBean {
         table, parentColumn, tableAlias, select, filters, searchTerms, subAlias, selection);
   }
 
-  private Field jsonField(
+  private Field<?> jsonField(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -306,7 +308,7 @@ public class SqlQuery extends QueryBean {
         || searchTerms.length > 0
         || select.getLimit() > 0
         || select.getOffset() > 0) {
-      List<Field> pkeyFields = table.getPrimaryKeyFields();
+      List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
       if (pkeyFields.isEmpty()) throw new MolgenisException("primary key not set");
       conditions.add(row(pkeyFields).in(filterQuery));
     }
@@ -390,13 +392,13 @@ public class SqlQuery extends QueryBean {
                   conditions.add(condition("{0} && ARRAY({1})", name(c.getName()), subQuery));
                 } else {
                   // otherwise exists(unnest(ref_array) natural join (filterQuery))
-                  List<Field> unnest =
+                  List<Field<?>> unnest =
                       c.getReferences().stream()
                           .map(
                               ref ->
                                   ref.isOverlappingRef()
                                       ? field(name(ref.getName())).as(name(ref.getRefTo()))
-                                      : field("UNNEST({0})", name(ref.getName()))
+                                      : field(UNNEST_0, name(ref.getName()))
                                           .as(name(ref.getRefTo())))
                           .collect(Collectors.toCollection(ArrayList::new));
 
@@ -405,12 +407,12 @@ public class SqlQuery extends QueryBean {
                 }
               } else if (c.isRefback()) {
                 Column refBack = c.getRefBackColumn();
-                List<Field> pkey = c.getTable().getPrimaryKeyFields().stream().toList();
+                List<Field<?>> pkey = c.getTable().getPrimaryKeyFields().stream().toList();
                 List<Field> backRef =
                     c.getRefBackColumn().getReferences().stream()
                         .map(Reference::getJooqField)
                         .toList();
-                List<Field> backRefKey =
+                List<Field<?>> backRefKey =
                     c.getRefBackColumn().getTable().getPrimaryKeyFields().stream().toList();
                 // can be ref, ref_array (mref is checked above)
                 if (refBack.isRef()) {
@@ -433,7 +435,7 @@ public class SqlQuery extends QueryBean {
                                               bref ->
                                                   bref.isOverlappingRef()
                                                       ? field(name(bref.getName()))
-                                                      : field("UNNEST({0})", name(bref.getName()))
+                                                      : field(UNNEST_0, name(bref.getName()))
                                                           .as(name(bref.getName())))
                                           .toList())
                                   .from(c.getRefTable().getJooqTable())
@@ -533,7 +535,7 @@ public class SqlQuery extends QueryBean {
   private Field<Object> jsonFileField(
       SqlTableMetadata table, String tableAlias, SelectColumn select, Column column) {
     DSLContext jooq = table.getJooq();
-    List<Field> subFields = new ArrayList<>();
+    List<Field<?>> subFields = new ArrayList<>();
     for (String ext : new String[] {"id", "contents", "size", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
         if (ext.equals("id")) {
@@ -580,7 +582,7 @@ public class SqlQuery extends QueryBean {
         //                        table, column, field, tableAlias, subAlias, filters,
         // searchTerms)));
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
-        List<JSONEntry> result = new ArrayList();
+        List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
           Column c = isValidColumn(table, sub.getColumn());
           switch (field.getColumn()) {
@@ -594,6 +596,8 @@ public class SqlQuery extends QueryBean {
             case SUM_FIELD -> result.add(
                 key(c.getName())
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+            default -> throw new MolgenisException(
+                "Unknown aggregate type provided: " + field.getColumn());
           }
         }
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
@@ -668,7 +672,7 @@ public class SqlQuery extends QueryBean {
     // root and intermediate levels have mg_tableclass column
     Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
     while (inheritedTable != null) {
-      List<Field> using = inheritedTable.getPrimaryKeyFields();
+      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
       if (mg_tableclass != null) {
         using.add(mg_tableclass.getJooqField());
       }
@@ -778,8 +782,9 @@ public class SqlQuery extends QueryBean {
         // simple array comparison
         foreignKeyMatch.add(
             condition(
-                "{0} = ANY({1})",
-                name(alias(subAlias), ref.getRefTo()), name(alias(tableAlias), ref.getName())));
+                ANY_1,
+                name(alias(subAlias), ref.getRefTo()),
+                name(alias(tableAlias), ref.getName())));
       } else {
         // expensive 'in' query to enable join on all fields
         List<Field<Object>> to =
@@ -793,7 +798,7 @@ public class SqlQuery extends QueryBean {
                     r ->
                         r.isOverlappingRef()
                             ? field(name(alias(tableAlias), r.getName()))
-                            : field("UNNEST({0})", name(alias(tableAlias), r.getName())))
+                            : field(UNNEST_0, name(alias(tableAlias), r.getName())))
                 .toList();
         foreignKeyMatch.add(row(to).in(DSL.select(unnest)));
       }
@@ -910,6 +915,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionEquals(name, operator, toJsonbArray(values));
       case INT:
         return whereConditionOrdinal(name, operator, toIntArray(values));
+      case LONG:
+        return whereConditionOrdinal(name, operator, toLongArray(values));
       case DECIMAL:
         return whereConditionOrdinal(name, operator, toDecimalArray(values));
       case DATE:
@@ -924,6 +931,8 @@ public class SqlQuery extends QueryBean {
         return whereConditionArrayEquals(name, operator, toUuidArray(values));
       case INT_ARRAY:
         return whereConditionArrayEquals(name, operator, toIntArray(values));
+      case LONG_ARRAY:
+        return whereConditionArrayEquals(name, operator, toLongArray(values));
       case DECIMAL_ARRAY:
         return whereConditionArrayEquals(name, operator, toDecimalArray(values));
       case DATE_ARRAY:
@@ -985,11 +994,11 @@ public class SqlQuery extends QueryBean {
     for (String value : values) {
       switch (operator) {
         case EQUALS:
-          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          conditions.add(condition(ANY_1, value, field(columnName)));
           break;
         case NOT_EQUALS:
           not = true;
-          conditions.add(condition("{0} = ANY({1})", value, field(columnName)));
+          conditions.add(condition(ANY_1, value, field(columnName)));
           break;
         case NOT_LIKE:
           not = true;

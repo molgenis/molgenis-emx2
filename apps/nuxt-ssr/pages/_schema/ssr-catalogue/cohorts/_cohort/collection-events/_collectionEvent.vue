@@ -86,6 +86,12 @@ export default {
             ? this.collectionEvent.sampleCategories.map((item) => item.name)
             : [],
         },
+        {
+          label: "Core variables",
+          value: this.collectionEvent.coreVariables
+            ? this.collectionEvent.coreVariables.map((item) => item.name)
+            : [],
+        },
       ];
     },
   },
