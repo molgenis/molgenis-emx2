@@ -19,7 +19,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vite-plugin-vue2": "^1.9.3",
+    "vite-plugin-vue2": "1.9.3",
     "vue": "2"
   },
   "devDependencies": {
