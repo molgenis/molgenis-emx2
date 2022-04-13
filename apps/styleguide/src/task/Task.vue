@@ -42,7 +42,7 @@ export default {
     monitorTask() {
       request(
         "graphql",
-        `{_tasks(id:\"${this.taskId}\"){id,description,status,subTasks{id,description,status,subTasks{id,description,status,subTasks{id,description,status}}}}}`
+        `{_tasks(id:"${this.taskId}"){id,description,status,subTasks{id,description,status,subTasks{id,description,status,subTasks{id,description,status}}}}}`
       )
         .then((data) => {
           this.task = data._tasks[0];
