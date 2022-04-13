@@ -207,7 +207,7 @@ public class WebApiSmokeTests {
       Thread.sleep(500);
     }
 
-    // check if id in tasks list 
+    // check if id in tasks list
     assertTrue(
         given()
             .sessionId(SESSION_ID)

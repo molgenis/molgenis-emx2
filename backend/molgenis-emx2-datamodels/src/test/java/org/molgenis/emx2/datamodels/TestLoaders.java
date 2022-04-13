@@ -23,7 +23,7 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueLoader() {
     AvailableDataModels.DATA_CATALOGUE.install(cohortsSchema, true);
-    assertEquals(36, cohortsSchema.getTableNames().size());
+    assertEquals(37, cohortsSchema.getTableNames().size());
   }
 
   @Test

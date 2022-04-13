@@ -3,3 +3,14 @@ dependencies {
     implementation project(':backend:molgenis-emx2-io')
     implementation project(':backend:molgenis-emx2-sql')
 }
+
+//we use data models from data folder
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    "$rootDir/data"
+            ]
+        }
+    }
+}
