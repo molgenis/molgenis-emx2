@@ -30,7 +30,8 @@ export default {
   async fetch() {
     this.tableName = this.$route.params.resource;
     const client = Client.newClient(
-      "/" + this.$route.params.schema + "/graphql", this.$axios
+      "/" + this.$route.params.schema + "/graphql",
+      this.$axios
     );
     const metaData = await client.fetchMetaData();
     const dataResponse = await client.fetchTableData(this.tableName);
@@ -109,26 +110,6 @@ export default {
           path: `${this.tableName}/${row.pid}`,
         });
       }
-    },
-    async updateFilters(update) {
-      this.filters = update;
-      const filterQuery = this.filters.reduce((accum, filter) => {
-        if (filter.conditions.length) {
-          accum[filter.id] = { like: filter.conditions };
-        }
-        return accum;
-      }, {});
-
-      console.log(filterQuery);
-
-      this.client = Client.newClient(
-        "/" + this.$route.params.schema + "/graphql",
-        this.$axios
-      );
-      const dataResponse = await this.client.fetchTableData(this.tableName, {
-        filter: filterQuery,
-      });
-      this.tableData = dataResponse[this.tableName];
     },
   },
   watch: {
