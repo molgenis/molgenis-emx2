@@ -30,8 +30,8 @@ export default {
   async fetch() {
     this.tableName = this.$route.params.resource;
     const client = Client.newClient(
-      this.$axios,
-      "/" + this.$route.params.schema + "/graphql"
+      "/" + this.$route.params.schema + "/graphql",
+      this.$axios
     );
     const metaData = await client.fetchMetaData();
     const dataResponse = await client.fetchTableData(this.tableName);
