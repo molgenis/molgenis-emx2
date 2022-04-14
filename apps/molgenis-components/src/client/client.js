@@ -1,3 +1,4 @@
+import axios from "axios";
 const metaDataQuery = `{
 _schema {
   name,
@@ -95,9 +96,13 @@ const fetchTableData = async (
 ) => {
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
-    properties && Object.prototype.hasOwnProperty.call(properties, 'limit') ? properties.limit : 20;
+    properties && Object.prototype.hasOwnProperty.call(properties, "limit")
+      ? properties.limit
+      : 20;
   const offset =
-    properties && Object.prototype.hasOwnProperty.call(properties, 'offset') ? properties.limit : 0;
+    properties && Object.prototype.hasOwnProperty.call(properties, "offset")
+      ? properties.limit
+      : 0;
 
   const search =
     properties &&
@@ -123,13 +128,15 @@ const fetchTableData = async (
         }`;
 
   const filter =
-    properties && Object.prototype.hasOwnProperty.call(properties, 'filter') ? properties.filter : {};
+    properties && Object.prototype.hasOwnProperty.call(properties, "filter")
+      ? properties.filter
+      : {};
   const orderby =
-    properties && Object.prototype.hasOwnProperty.call(properties, 'orderby')
+    properties && Object.prototype.hasOwnProperty.call(properties, "orderby")
       ? properties.orderby
       : {};
   const resp = await axios
-    .post(url, { query: tableDataQuery, variables: { filter, orderby} })
+    .post(url, { query: tableDataQuery, variables: { filter, orderby } })
     .catch((error) => {
       console.log(error);
       if (typeof onError === "function") {
@@ -140,12 +147,13 @@ const fetchTableData = async (
 };
 
 export default {
-  newClient: (axios, graphqlURL) => {
+  newClient: (graphqlURL, externalAxios) => {
+    const myAxios = externalAxios || axios;
     // use closure to have metaData cache private to client
     let metaData = null;
     return {
       fetchMetaData: () => {
-        return fetchMetaData(axios, graphqlURL).then((schema) => {
+        return fetchMetaData(myAxios, graphqlURL).then((schema) => {
           metaData = schema;
           // node js may not have structuredClone function, then fallback to deep clone via JSON
           return typeof structuredClone === "function"
@@ -155,9 +163,15 @@ export default {
       },
       fetchTableData: async (tableId, properties) => {
         if (metaData === null) {
-          metaData = await fetchMetaData(axios, graphqlURL);
+          metaData = await fetchMetaData(myAxios, graphqlURL);
         }
-        return fetchTableData(tableId, properties, metaData, axios, graphqlURL);
+        return fetchTableData(
+          tableId,
+          properties,
+          metaData,
+          myAxios,
+          graphqlURL
+        );
       },
     };
   },
