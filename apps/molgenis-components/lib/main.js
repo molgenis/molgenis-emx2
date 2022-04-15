@@ -22,6 +22,8 @@ import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
+import InputOntology from "../src/components/forms/InputOntology.vue"
+import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue"
 import InputPassword from '../src/components/forms/InputPassword.vue';
@@ -73,6 +75,8 @@ export {
   FormGroup,
   FormMolgenis,
   InputGroup,
+  InputOntology,
+  InputOntologySubtree,
   InputPassword,
   InputRadio,
   InputString,

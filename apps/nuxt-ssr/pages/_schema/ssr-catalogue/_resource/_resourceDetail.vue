@@ -46,8 +46,7 @@ export default {
   async asyncData({ params, $axios }) {
     const tableName = params.resource;
     const client = Client.newClient(
-      $axios,
-      "/" + params.schema + "/graphql"
+      "/" + params.schema + "/graphql", $axios,
     );
     const metaData = await client.fetchMetaData();
     const filter = {pid: { equals: params.resourceDetail}}
