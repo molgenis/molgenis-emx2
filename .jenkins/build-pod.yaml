@@ -23,7 +23,7 @@ spec:
       tty: true
       resources:
         requests:
-          cpu: 500m
+          cpu: 2
           memory: 2Gi
     - name: postgres
       image: postgres:13-alpine
@@ -32,7 +32,7 @@ spec:
       tty: true
       resources:
         requests:
-          cpu: 500m
+          cpu: 1
           memory: 1Gi
       env:
         - name: POSTGRES_USER
