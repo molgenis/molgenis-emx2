@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import App from "./App";
+import GenomicsViewer from "./components/GenomicsViewer";
 import GenDecs from "./components/GenDecs";
 
 Vue.use(VueRouter);
@@ -13,6 +14,11 @@ const router = new VueRouter({
       path: "/",
       component: GenDecs,
       props: true,
+    },
+    {
+      path: "/:id/genomicsViewer",
+      component: GenomicsViewer,
+      props: true
     },
   ],
 });
