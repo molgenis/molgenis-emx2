@@ -71,7 +71,7 @@ export default {
     },
   },
   async mounted () {
-    const client = Client.newClient(this.$axios, "/pet store/graphql");
+    const client = Client.newClient("/pet store/graphql", this.$axios);
     const remoteMetaData = await client.fetchMetaData();
     const petColumns = remoteMetaData.tables.find(t => t.name === "Pet").columns
     this.remoteColumns = petColumns.filter(c => !c.name.startsWith("mg_"))

@@ -47,6 +47,7 @@ brew services restart postgresql
 * to completely wipe postgresql:
 
 ```
+brew services stop postgresql
 rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 
