@@ -5,7 +5,7 @@ Steps:
 * Install [Postgresql](https://www.postgresql.org/download/) (we use 13)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
-    sudo -u postgres psql
+    psql postgres
     create database molgenis;
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
@@ -47,6 +47,7 @@ brew services restart postgresql
 * to completely wipe postgresql:
 
 ```
+brew services stop postgresql
 rm -R /opt/homebrew/var/postgres
 initdb -d  /opt/homebrew/var/postgres
 brew services restart postgresql 

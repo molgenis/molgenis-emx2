@@ -106,8 +106,7 @@ export default {
   },
   async fetch() {
     const client = Client.newClient(
-      this.$axios,
-      "/" + this.$route.params.schema + "/graphql"
+      "/" + this.$route.params.schema + "/graphql", this.$axios,
     );
     const metaData = await client.fetchMetaData();
     const filter = {[this.refBack]: { equals: { pid: this.pkey.pid}}}
