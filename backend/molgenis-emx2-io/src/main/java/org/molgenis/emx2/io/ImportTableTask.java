@@ -40,7 +40,7 @@ public class ImportTableTask extends Task {
     if (getProgress() > 0) {
       this.complete(String.format("Imported %s %s", getProgress(), table.getName()));
     } else {
-      this.skipped(String.format("Skipped table %s : sheet was empty", table.getName()));
+      this.setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
   }
 
@@ -103,7 +103,7 @@ public class ImportTableTask extends Task {
               metadata.getPrimaryKeyFields().stream()
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
-          task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
+          task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
         } else {
           keys.add(keyValue);
         }

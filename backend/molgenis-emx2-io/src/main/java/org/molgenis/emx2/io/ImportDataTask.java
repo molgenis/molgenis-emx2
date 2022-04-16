@@ -55,7 +55,7 @@ public class ImportDataTask extends Task {
             && !tableNames.contains(sheet)) {
           this.addSubTask(
                   "Sheet with name '" + sheet + "' was skipped: no table with that name found")
-              .skipped();
+              .setSkipped();
         }
       }
     } catch (UnsupportedOperationException e) {
@@ -64,7 +64,7 @@ public class ImportDataTask extends Task {
 
     // execute the import tasks
     if (skipped) {
-      this.addSubTask("Import data skipped: No data sheet included").skipped();
+      this.addSubTask("Import data skipped: No data sheet included").setSkipped();
     }
     this.complete();
   }

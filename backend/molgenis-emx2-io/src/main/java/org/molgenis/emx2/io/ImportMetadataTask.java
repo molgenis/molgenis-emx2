@@ -36,7 +36,7 @@ public class ImportMetadataTask extends Task {
           this.addSubTask("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
           this.addSubTask("Metadata loading skipped: 'molgenis' sheet not included in the file")
-              .skipped();
+              .setSkipped();
         }
 
         if (store.containsTable("molgenis_members")) {
@@ -45,7 +45,7 @@ public class ImportMetadataTask extends Task {
         } else {
           this.addSubTask(
                   "Members loading skipped: 'molgenis_members' sheet not included in the file")
-              .skipped();
+              .setSkipped();
         }
         if (store.containsTable("molgenis_settings")) {
           Emx2Settings.inputSettings(store, schema);
@@ -53,7 +53,7 @@ public class ImportMetadataTask extends Task {
         } else {
           this.addSubTask(
                   "Loading settings skipped: 'molgenis_settings' sheet not included in the file")
-              .skipped();
+              .setSkipped();
         }
         this.complete();
       } else
@@ -64,7 +64,7 @@ public class ImportMetadataTask extends Task {
       }
       // otherwise give warning that metadata has been skipped
       else {
-        this.skipped("Metadata loading skipped: no metadata included in the file");
+        this.setSkipped("Metadata loading skipped: no metadata included in the file");
       }
     } catch (Exception e) {
       this.completeWithError(e.getMessage());

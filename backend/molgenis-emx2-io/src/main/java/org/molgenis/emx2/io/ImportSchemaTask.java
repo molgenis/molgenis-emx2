@@ -60,7 +60,7 @@ public class ImportSchemaTask extends Task {
             this.addSubTask(commit.start());
           });
     } catch (Exception e) {
-      this.error("Import failed: " + e.getMessage());
+      this.setError("Import failed: " + e.getMessage());
       throw e;
     }
     commit.complete();

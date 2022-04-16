@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.function.Consumer;
+
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,11 @@ import org.slf4j.LoggerFactory;
  */
 public class Task implements Runnable, Iterable<Task> {
   // some unique id
-  private String id = UUID.randomUUID().toString();
+  private final String id = UUID.randomUUID().toString();
   // for the toString method
-  private static ObjectMapper mapper =
+  private static final ObjectMapper mapper =
       new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
-  private Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+  private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   // human readable description
   private String description;
   // status of the tas
@@ -73,7 +74,7 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public List<Task> getSubTasks() {
-    return subTasks;
+    return Collections.unmodifiableList(subTasks);
   }
 
   public Integer getProgress() {
@@ -177,23 +178,23 @@ public class Task implements Runnable, Iterable<Task> {
     return this;
   }
 
-  public void skipped(String description) {
-    this.skipped();
+  public void setSkipped(String description) {
+    this.setSkipped();
     this.setDescription(description);
   }
 
-  public void skipped() {
+  public void setSkipped() {
     this.complete();
     this.setStatus(SKIPPED);
   }
 
-  public void error() {
+  public void setError() {
     this.complete();
     this.setStatus(ERROR);
   }
 
-  public void error(String description) {
-    this.error();
+  public void setError(String description) {
+    this.setError();
     this.setDescription(description);
   }
 
@@ -223,12 +224,41 @@ public class Task implements Runnable, Iterable<Task> {
     try {
       return mapper.writeValueAsString(this);
     } catch (Exception e) {
-      // should never happen
       throw new MolgenisException("internal error", e);
     }
   }
 
   public String getId() {
     return id;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Task)) return false;
+    Task task = (Task) o;
+    return startTimeMilliseconds == task.startTimeMilliseconds
+        && endTimeMilliseconds == task.endTimeMilliseconds
+        && strict == task.strict
+        && id.equals(task.id)
+        && Objects.equals(description, task.description)
+        && status == task.status
+        && Objects.equals(total, task.total)
+        && Objects.equals(progress, task.progress)
+        && Objects.equals(subTasks, task.subTasks);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        id,
+        description,
+        status,
+        total,
+        progress,
+        startTimeMilliseconds,
+        endTimeMilliseconds,
+        subTasks,
+        strict);
   }
 }
