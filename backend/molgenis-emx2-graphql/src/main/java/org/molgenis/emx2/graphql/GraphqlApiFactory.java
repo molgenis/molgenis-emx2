@@ -194,6 +194,10 @@ public class GraphqlApiFactory {
         .build();
   }
 
+  public GraphQL createGraphqlForSchema(Schema schema) {
+    return createGraphqlForSchema(schema, null);
+  }
+
   public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());

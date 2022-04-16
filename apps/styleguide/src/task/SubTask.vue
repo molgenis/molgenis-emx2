@@ -19,24 +19,34 @@ export default {
   },
   computed: {
     color() {
-      if (this.task) {
-        if (this.task.status == "COMPLETED") return "text-success";
-        if (this.task.status == "ERROR") return "text-danger";
-        if (this.task.status == "WARNING") return "text-warning";
-        if (this.task.status == "SKIPPED") return "text-muted";
-        return "text-primary";
+      switch (this.task.status) {
+        case "COMPLETED":
+          return "text-success";
+        case "ERROR":
+          return "text-danger";
+        case "WARNING":
+          return "text-warning";
+        case "SKIPPED":
+          return "text-muted";
+        default:
+          return "text-primary";
       }
-      return "";
     },
     icon() {
-      if (this.task) {
-        if (this.task.status == "COMPLETED") return "fa-check";
-        if (this.task.status == "ERROR") return "fa-times";
-        if (this.task.status == "WARNING") return "fa-exclamation-circle";
-        if (this.task.status == "SKIPPED") return "fa-check";
-        if (this.task.status == "RUNNING") return "fa-spinner fa-spin";
+      switch (this.task) {
+        case "COMPLETED":
+          return "fa-check";
+        case "ERROR":
+          return "fa-times";
+        case "WARNING":
+          return "fa-exclamation-circle";
+        case "SKIPPED":
+          return "fa-check";
+        case "RUNNING":
+          return "fa-spinner fa-spin";
+        default:
+          return "fa-question";
       }
-      return "fa-question";
     },
   },
 };
