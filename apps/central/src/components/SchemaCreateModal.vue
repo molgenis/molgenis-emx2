@@ -119,11 +119,6 @@ export default {
     endpoint() {
       return "/api/graphql";
     },
-    host() {
-      if (window) {
-        return window.location.origin;
-      }
-    },
   },
   methods: {
     executeCreateSchema() {
