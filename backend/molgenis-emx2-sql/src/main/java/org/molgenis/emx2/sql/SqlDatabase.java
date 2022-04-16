@@ -585,6 +585,6 @@ public class SqlDatabase implements Database {
 
   @Override
   public boolean hasSchema(String name) {
-    return getSchemaNames().contains(name);
+    return getSchema(name) != null;
   }
 }

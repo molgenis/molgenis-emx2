@@ -14,25 +14,22 @@ public class DataCatalogueLoader implements AvailableDataModels.DataModelLoader 
 
   @Override
   public void load(Schema schema, boolean includeDemoData) {
-
-    // depends on CatalogueOntologies schema, so we create that if missing
+    // create ontology schema
     Database db = schema.getDatabase();
-    intitOntologies(db);
+    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
+    if (ontologySchema == null) {
+      ontologySchema = db.createSchema(CATALOGUE_ONTOLOGIES);
+    }
+
+    // create catalogue schema (which will create tables in ontology schema)
     createSchema(schema, "datacatalogue/molgenis.csv");
+
+    // load data into ontology schema
+    MolgenisIO.fromClasspathDirectory("datacatalogue/CatalogueOntologies", ontologySchema, false);
+
+    // optionally, load demo data
     if (includeDemoData) {
       MolgenisIO.fromClasspathDirectory("datacatalogue/Cohorts", schema, false);
-    }
-    loadOntologies(db);
-  }
-
-  public static void loadOntologies(Database db) {
-    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
-    MolgenisIO.fromClasspathDirectory("datacatalogue/CatalogueOntologies", ontologySchema, false);
-  }
-
-  public static void intitOntologies(Database db) {
-    if (!db.hasSchema(CATALOGUE_ONTOLOGIES)) {
-      db.createSchema(CATALOGUE_ONTOLOGIES);
     }
   }
 

@@ -19,7 +19,8 @@ public enum AvailableDataModels {
     schema.tx(
         db -> {
           try {
-            installer.load(schema, includeExampleData);
+            // make sure not to use schema but db because in a transaction!
+            installer.load(db.getSchema(schema.getName()), includeExampleData);
           } catch (Exception e) {
             throw new MolgenisException(e.getMessage());
           }
