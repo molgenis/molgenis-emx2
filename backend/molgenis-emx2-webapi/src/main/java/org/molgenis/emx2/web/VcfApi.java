@@ -7,19 +7,23 @@ import org.molgenis.emx2.io.readers.vcf.VcfRow;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
+import javax.servlet.http.Part;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.UUID;
 
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
 /**
+ * USAGE: curl -v -F upload=@vcf_data_gendecs/vcftest1.vcf http://localhost:8080/gendecs/api/vcf
  * todo: use HTSJDK "VCFFileReader" for reading, parsing, validating etc todo: add to
  * molgenis-emx2-webapi build.grade "implementation 'com.github.samtools:htsjdk:2.24.1'"
  */
@@ -37,7 +41,7 @@ public class VcfApi {
   public static void create() {
     final String tablePath = "/:schema/api/vcf";
     get(tablePath, VcfApi::tableRetrieve);
-    post(tablePath, VcfApi::tableUpdate);
+    post(tablePath, ACCEPT_FORMDATA, VcfApi::tableUpdate);
     delete(tablePath, VcfApi::tableDelete);
   }
 
@@ -71,6 +75,9 @@ public class VcfApi {
    */
   private static String tableUpdate(Request request, Response response)
       throws ServletException, IOException {
+    // needed for multipart request so we can retrieve the filename etc.
+    MultipartConfigElement multipartConfigElement = new MultipartConfigElement("/tmp");
+    request.raw().setAttribute("org.eclipse.jetty.multipartConfig", multipartConfigElement);
     Schema schema = getSchema(request);
 
     // todo: create separate File table for file metadata/header
@@ -116,11 +123,18 @@ public class VcfApi {
   }
 
   private static Iterable<Row> getRowList(Request request) throws ServletException, IOException {
+    String fileName = getFileName(request.raw().getPart("upload"));
+    InputStream fileContent = request.raw().getPart("upload").getInputStream();
+    return VcfReader.read(new InputStreamReader(fileContent), fileName); // old: request.body()
+  }
 
-    // todo: somehow get the actual file name....
-    String fileName = UUID.randomUUID().toString();
-
-    return VcfReader.read(new StringReader(request.body()), fileName);
+  private static String getFileName(Part part) {
+    for (String cd : part.getHeader("content-disposition").split(";")) {
+      if (cd.trim().startsWith("filename")) {
+        return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+      }
+    }
+    return null;
   }
 
   private static String tableDelete(Request request, Response response)
