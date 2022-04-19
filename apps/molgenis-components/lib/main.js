@@ -12,13 +12,14 @@ import TableDisplay from "../src/components/display/TableDisplay.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
-import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue"
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
+import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
 import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
@@ -62,6 +63,7 @@ export {
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InputGroup,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
