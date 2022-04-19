@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     addItem(index) {
-      this.values.splice(index + 1, 0, null)
+      this.values.splice(index + 1, 0, null);
       this.$emit("input", this.values);
     },
     clearInput(index) {

@@ -6,11 +6,7 @@
         <template v-slot:prepend>
           <button class="btn btn-outline-primary" type="button">Button</button>
         </template>
-        <input
-          id="prepend-input"
-          type="text"
-          class="form-control"
-        />
+        <input id="prepend-input" type="text" class="form-control" />
       </InputGroup>
     </div>
 
@@ -20,11 +16,7 @@
         <template v-slot:append>
           <button class="btn btn-outline-primary" type="button">Button</button>
         </template>
-        <input
-          id="append-input"
-          type="text"
-          class="form-control"
-        />
+        <input id="append-input" type="text" class="form-control" />
       </InputGroup>
     </div>
   </demo-item>
@@ -37,4 +29,4 @@ export default {
     };
   },
 };
-</script>
+</script> 

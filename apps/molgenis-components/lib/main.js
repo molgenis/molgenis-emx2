@@ -19,7 +19,7 @@ import FilterWells from "../src/components/filters/FilterWells.vue";
 import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
-import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
+import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue"

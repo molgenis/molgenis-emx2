@@ -36,7 +36,6 @@ export default {
 .is-invalid {
   background-image: none;
 }
-
 span:hover .hoverIcon {
   visibility: visible;
 }

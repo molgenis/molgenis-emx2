@@ -18,7 +18,7 @@ export default {
   name: "FormInput",
   extends: BaseInput,
   props: {
-    /* to pass options hardcode*/
+    /* to pass options hardcode */
     options: Array,
   },
   computed: {
@@ -36,3 +36,4 @@ export default {
   },
 };
 </script>
+
