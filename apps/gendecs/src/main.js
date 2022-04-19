@@ -4,6 +4,7 @@ import VueRouter from "vue-router";
 import App from "./App";
 import GenomicsViewer from "./components/GenomicsViewer";
 import GenDecs from "./components/GenDecs";
+import PatientView from "./components/PatientView";
 
 Vue.use(VueRouter);
 
@@ -16,10 +17,15 @@ const router = new VueRouter({
       props: true,
     },
     {
-      path: "/:id/genomicsViewer",
+      path: "/:id/patientView/genomicsViewer",
       component: GenomicsViewer,
       props: true
     },
+    {
+      path: "/:id/patientView",
+      component: PatientView,
+      props: true
+    }
   ],
 });
 

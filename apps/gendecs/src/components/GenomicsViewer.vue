@@ -257,13 +257,6 @@ export default {
   overflow: hidden; /* add this to contain floated children */
 }
 #searchdiv {
-  width: 50%;
-  float:left;
-  padding: 10px;
-}
-#patientdiv {
-  width: 50%;
-  float: left;
   padding: 10px;
 }
 #bottemdiv {

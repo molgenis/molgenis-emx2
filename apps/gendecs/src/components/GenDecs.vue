@@ -1,10 +1,10 @@
 <template>
  <div>
-   <router-link to="/genomicsViewer">go to gendecs</router-link>
+   <router-link to="/1/patientView">go to gendecs</router-link>
    <div>
      <TableExplorer
-         table="patients"
-         graphqlURL="/GenDecS/graphql"
+         table="Patients"
+         graphqlURL="/gendecs/graphql"
          :showSelect="false" @click="click" :showColumns.sync="showColumns" :showFilters.sync="showFilters"
          :showPage.sync="page" :showLimit.sync="limit"
          :showOrderBy.sync="showOrderBy" :showOrder.sync="showOrder"/>
@@ -18,13 +18,13 @@ import {
 } from "@mswertz/emx2-styleguide";
 
 export default {
-  name: "GenDecsDatabase",
+  name: "GenDecs",
   components : {
     TableExplorer
   },
   data() {
     return {
-      showColumns: ['identifier', "gender", "birthdate", "genesymbol", "vcfdata"],
+      showColumns: ['identifier', "gender", "birthdate", "vcfdata"],
       showFilters: ['identifier'],
       page: 1,
       limit: 10,
@@ -35,7 +35,7 @@ export default {
     click(event) {
       console.log(event);
       console.log(event.identifier);
-      let routData2 = this.$router.resolve({path: "/" + event.identifier + "/genomicsViewer"});
+      let routData2 = this.$router.resolve({path: "/" + event.identifier + "/patientView"});
       window.open(routData2.href, "_blank");
     }
   }
