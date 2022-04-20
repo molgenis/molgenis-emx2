@@ -67,7 +67,7 @@ public class GraphqlApi {
     String schemaName = sanitize(request.params(SCHEMA));
 
     // apps and api is not a schema but a resource
-    if ("apps".equals(schemaName)) {
+    if ("apps".equals(schemaName) || "api".equals(schemaName)) {
       return handleDatabaseRequests(request, response);
     }
 

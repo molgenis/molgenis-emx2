@@ -16,7 +16,14 @@
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
-        Go to <a :href="'/' + schemaName">schema</a><br />
+        <div v-if="template">
+          Go to <a :href="'/' + schemaName">{{ schemaName }}</a
+          ><br />
+        </div>
+        <div v-else>
+          Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
+          Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
+        </div>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
@@ -40,7 +47,6 @@
               description="Load existing database template"
               v-model="template"
               :options="templates"
-              :required="true"
             />
             <InputBoolean
               v-if="template"
