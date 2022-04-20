@@ -7,17 +7,17 @@ import org.molgenis.emx2.Row;
 public class VcfRow extends Row {
 
   public static String DBID = "Identifier";
-  public static String SRCFILE = "VCF source file";
+  public static String SRCFILE = "VCFSourceFile";
   public static String CHROM = "Chromosome";
   public static String POS = "Position";
-  public static String RSID = "RefSNP number";
+  public static String RSID = "RefSNPNumber";
   public static String REF = "Reference";
   public static String ALT = "Alternative";
   public static String FILTER = "Filter";
   public static String QUAL = "Quality";
   public static String INFO = "Information";
   public static String FORMAT = "Format";
-  public static String SAMPLES = "Sample genotypes";
+  public static String SAMPLES = "SampleGenotypes";
 
   public VcfRow(Map<String, ?> values, String srcFile) {
     super();

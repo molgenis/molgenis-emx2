@@ -1,26 +1,25 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
+import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
+import static spark.Spark.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.List;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.readers.vcf.VcfReader;
 import org.molgenis.emx2.io.readers.vcf.VcfRow;
 import spark.Request;
 import spark.Response;
-
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
-import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.List;
-
-import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
-import static org.molgenis.emx2.web.Constants.ACCEPT_FORMDATA;
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static spark.Spark.*;
 
 /**
  * USAGE: curl -v -F upload=@vcf_data_gendecs/vcftest1.vcf http://localhost:8080/gendecs/api/vcf
@@ -32,7 +31,7 @@ public class VcfApi {
   // todo: This is not correct. Variant definitions, observations and annotations should be in
   // separate tables according to the 'unified model'. For now however, this is a practical
   // and simple solution to store VCF data
-  public static final String VCF_VARIANTS_TABLE = "vcf_variants";
+  public static final String VCF_VARIANTS_TABLE = "vcfVariants";
 
   private VcfApi() {
     // hide constructor
