@@ -195,7 +195,7 @@ public class GraphqlApiFactory {
   }
 
   public GraphQL createGraphqlForSchema(Schema schema) {
-    return createGraphqlForSchema(schema);
+    return createGraphqlForSchema(schema, null);
   }
 
   public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
