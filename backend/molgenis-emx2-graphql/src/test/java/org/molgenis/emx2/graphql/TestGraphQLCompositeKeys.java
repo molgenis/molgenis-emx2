@@ -66,7 +66,7 @@ public class TestGraphQLCompositeKeys {
     grapql =
         new GraphqlApiFactory()
             .createGraphqlForSchema(
-                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()), null);
+                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()));
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(
