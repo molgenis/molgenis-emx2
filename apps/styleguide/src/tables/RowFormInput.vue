@@ -6,13 +6,23 @@
       v-on="$listeners"
     />
     <InputString
-      v-else-if="columnType === 'STRING'"
+      v-else-if="
+        columnType === 'STRING' ||
+        columnType === 'EMAIL' ||
+        columnType === 'HYPERLINK'
+      "
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG'"
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
@@ -78,13 +88,17 @@
       :graphqlURL="graphqlURL"
       v-on="$listeners"
     />
-    <inputRefback
+    <InputRefback
       v-else-if="refBackType == 'REF'"
       v-bind="$props"
       :table="table"
     />
     <InputString
-      v-else-if="columnType === 'STRING_ARRAY'"
+      v-else-if="
+        columnType === 'STRING_ARRAY' ||
+        columnType === 'EMAIL_ARRAY' ||
+        columnType === 'HYPERLINK_ARRAY'
+      "
       :list="true"
       v-bind="$props"
       v-model="input"
@@ -92,6 +106,13 @@
     />
     <InputText
       v-else-if="columnType === 'TEXT_ARRAY'"
+      :list="true"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="input"
@@ -108,19 +129,20 @@
 </template>
 
 <script>
-import _baseInput from '../forms/_baseInput';
-import InputString from '../forms/InputString';
-import InputInt from '../forms/InputInt';
-import InputDecimal from '../forms/InputDecimal';
-import InputBoolean from '../forms/InputBoolean';
-import InputDate from '../forms/InputDate';
-import InputDateTime from '../forms/InputDateTime';
-import InputFile from '../forms/InputFile';
-import InputText from '../forms/InputText';
-import InputHeading from '../forms/InputHeading';
+import _baseInput from "../forms/_baseInput";
+import InputString from "../forms/InputString";
+import InputInt from "../forms/InputInt";
+import InputLong from "../forms/InputLong";
+import InputDecimal from "../forms/InputDecimal";
+import InputBoolean from "../forms/InputBoolean";
+import InputDate from "../forms/InputDate";
+import InputDateTime from "../forms/InputDateTime";
+import InputFile from "../forms/InputFile";
+import InputText from "../forms/InputText";
+import InputHeading from "../forms/InputHeading";
 
 export default {
-  name: 'RowFormInput',
+  name: "RowFormInput",
   extends: _baseInput,
   props: {
     /** enable editing of label and description*/
@@ -129,35 +151,36 @@ export default {
     editMeta: Boolean,
     filter: Object,
     graphqlURL: {
-      default: 'graphql',
-      type: String
+      default: "graphql",
+      type: String,
     },
     pkey: Object,
     refBack: String,
     refBackType: String,
     refLabel: String,
     schema: String,
-    table: String
+    table: String,
   },
   data() {
     return {
-      input: null
+      input: null,
     };
   },
   components: {
     InputString,
     InputInt,
+    InputLong,
     InputDecimal,
     InputBoolean,
-    InputRefSelect: () => import('../forms/InputRefSelect'), //because it uses itself in nested form
     InputDate,
     InputDateTime,
     InputFile,
     InputText,
     InputHeading,
-    InputOntology: () => import('../forms/InputOntology'), //because it uses itself in nested form,
-    InputRef: () => import('../forms/InputRef'), //because it uses itself in nested form,
-    InputRefback: () => import('../forms/InputRefback') //because it uses itself in nested form,
+    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
+    InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
+    InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
+    InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,
   },
   created() {
     this.input = this.value;
@@ -167,9 +190,9 @@ export default {
       this.input = this.value;
     },
     input() {
-      this.$emit('input', this.input);
-    }
-  }
+      this.$emit("input", this.input);
+    },
+  },
 };
 </script>
 

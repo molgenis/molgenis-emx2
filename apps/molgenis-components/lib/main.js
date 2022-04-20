@@ -1,3 +1,5 @@
+import IconAction from "../src/components/atoms/IconAction.vue"
+
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
 import GridBlock from "../src/components/display/GridBlock.vue";
 import ImageCard from "../src/components/display/ImageCard.vue";
@@ -10,12 +12,18 @@ import TableDisplay from "../src/components/display/TableDisplay.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
-import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
+import FormGroup from "../src/components/forms/FormGroup.vue";
+import InputOntology from "../src/components/forms/InputOntology.vue"
+import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
+import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
+import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
+import InputSearch from '../src/components/forms/InputSearch.vue';
 
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
@@ -38,6 +46,7 @@ import SignInForm from "../src/components/organisms/SignInForm.vue"
 import Client from "../src/client/client.js";
 
 export {
+  IconAction,
   ContactDisplay,
   GridBlock,
   ImageCard,
@@ -52,9 +61,15 @@ export {
   ButtonOutline,
   ButtonAlt,
   ButtonSubmit,
+  FormGroup,
   FormMolgenis,
+  InputGroup,
+  InputOntology,
+  InputOntologySubtree,
   InputPassword,
+  InputRadio,
   InputString,
+  InputSearch,
   Breadcrumb,
   LayoutModal,
   ReadMore,

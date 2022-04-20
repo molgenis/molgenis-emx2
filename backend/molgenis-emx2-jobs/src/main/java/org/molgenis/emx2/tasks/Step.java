@@ -123,8 +123,9 @@ public class Step {
     }
   }
 
-  public void setStatus(StepStatus status) {
+  public Step setStatus(StepStatus status) {
     this.status = status;
+    return this;
   }
 
   public String toString() {

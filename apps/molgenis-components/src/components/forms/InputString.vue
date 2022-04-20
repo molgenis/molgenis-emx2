@@ -1,28 +1,32 @@
 <template>
-  <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :for="id">{{ label }}</label>
-    <input
-      :id="id"
-      :ref="id"
-      :name="name"
-      :value="value"
-      @input="$emit('input', $event.target.value)"
-      type="text"
-      class="form-control"
-      :aria-describedby="id"
-      :placeholder="label"
-    />
-    <small v-if="isNonEmptyString(helpText)" :id="id + '-help-text'" class="form-text text-muted"
-      >{{ helpText }}</small
-    >
-  </div>
+  <FormGroup :id="id" :label="label" :description="description">
+    <InputGroup>
+      <template v-slot:prepend><slot name="prepend"></slot></template>
+
+      <input
+        :id="id"
+        :ref="id"
+        :name="name"
+        :value="value"
+        @input="$emit('input', $event.target.value)"
+        type="text"
+        class="form-control"
+        :aria-describedby="id"
+        :placeholder="placeholderValue"
+      />
+
+      <template v-slot:append><slot name="append"></slot></template>
+    </InputGroup>
+  </FormGroup>
 </template>
 
 <script>
 import BaseInput from "./BaseInput.vue";
-
+import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
 export default {
   name: "InputString",
+  components: { FormGroup, InputGroup },
   extends: BaseInput,
 };
 </script>
@@ -31,7 +35,6 @@ export default {
 .is-invalid {
   background-image: none;
 }
-
 span:hover .hoverIcon {
   visibility: visible;
 }

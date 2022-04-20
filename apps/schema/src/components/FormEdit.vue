@@ -125,9 +125,11 @@ import {
   RowFormInput,
   InputString,
   InputText
-} from '@mswertz/emx2-styleguide';
-import Draggable from 'vuedraggable';
-import ColumnEdit from './ColumnEdit';
+} from "@mswertz/emx2-styleguide";
+import Draggable from "vuedraggable";
+import ColumnEdit from "./ColumnEdit";
+import {EMAIL_REGEX, HYPERLINK_REGEX} from "../../../styleguide/src/constants";
+import Expressions from "@molgenis/expressions";
 
 export default {
   components: {
@@ -165,18 +167,18 @@ export default {
     emit() {
       this.selectedColumn = null;
       this.validate();
-      this.$emit('input', this.table);
+      this.$emit("input", this.table);
     },
     changed() {
       this.changetime = Date.now();
     },
     eval(expression) {
       try {
-        let args = Object.keys(this.example).join(',');
+        let args = Object.keys(this.example).join(",");
         let func = `(function (${args}) { return ${expression}; })`;
         return eval(func)(Object.values(this.example)); // eslint-disable-line
       } catch (e) {
-        return 'Error in validation script: ' + e.message;
+        return "Error in validation script: " + e.message;
       }
     },
     visible(expression) {
@@ -188,38 +190,42 @@ export default {
     },
     validate() {
       this.table.columns.forEach((column) => {
-        // make really empty if empty
-        if (/^\s*$/.test(this.example[column.name])) {
-          //this.value[column.name] = null;
-        }
-        delete this.errorPerColumn[column.name];
-        // when empty
-        if (
-          this.example[column.name] == null ||
-          (typeof this.example[column.name] === 'number' &&
-            isNaN(this.example[column.name]))
-        ) {
-          // when required
-          if (column.required) {
-            this.errorPerColumn[column.name] = column.name + ' is required ';
-          }
-        } else {
-          // when not empty
-          // when validation
-          if (
-            typeof this.example[column.name] !== 'undefined' &&
-            typeof column.validationExpression !== 'undefined'
-          ) {
-            if (!this.eval(column.validationExpression)) {
-              if (column.validationMessage) {
-                this.errorPerColumn[column.name] = column.validationMessage;
-              } else {
-                this.errorPerColumn[column.name] = 'value invalid';
-              }
-            }
-          }
-        }
+        this.validateColumn(column);
       });
+    },
+    validateColumn(column) {
+      const value = this.example[column.name];
+      const isInvalidNumber = typeof value === "number" && isNaN(value);
+      const missesValue = value === undefined || value === null || value === "";
+      if (column.required && (missesValue || isInvalidNumber)) {
+        this.errorPerColumn[column.name] = column.name + " is required ";
+      } else if (missesValue) {
+        this.errorPerColumn[column.name] = undefined;
+      } else {
+        this.errorPerColumn[column.name] = this.getColumnError(column);
+      }
+    },
+    getColumnError(column) {
+      const type = column.columnType;
+      const value = this.example[column.name];
+
+      if (type === "EMAIL" && !isValidEmail(value)) {
+        return "Invalid email address";
+      }
+      if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+        return "Invalid email address";
+      }
+      if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (column.validation) {
+        return evaluateValidationExpression(column, this.example);
+      }
+
+      return undefined;
     }
   },
   watch: {
@@ -237,4 +243,30 @@ export default {
     this.table = this.value;
   }
 };
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !isValidEmail(email));
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    }
+  } catch (error) {
+    return "Invalid validation expression " + error;
+  }
+}
 </script>

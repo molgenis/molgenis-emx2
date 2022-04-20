@@ -5,7 +5,7 @@
         id="password"
         v-model="value"
         label="Password"
-        helpText="keep it secret"
+        description="keep it secret"
       />
       <div>password = {{value}}</div>
     </div>

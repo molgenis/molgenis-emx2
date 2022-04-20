@@ -1,5 +1,5 @@
 <template>
-  <div id="sidebar-wrapper" class="border-right">
+  <div id="sidebar-wrapper" class="border-right overflow-auto vh-100">
     <div class="sidebar-heading">Components</div>
     <div class="list-group list-group-flush">
       <li
@@ -7,17 +7,33 @@
         v-for="(key, index) in Object.keys(docsTree)"
         :key="index"
       >
-        <strong> {{ key }}</strong>
-        <a  v-for="(item, index2) in docsTree[key]" :key="index2" :href="'#' + camel2Kebab(item.name)" class="list-group-item">{{item.name}}</a>
+        <strong @click="toggleMenuItem(key)">
+          <a href="#">{{ key }} </a></strong
+        >
+        <div v-if="expandedMenuKeys.includes(key)">
+          <a
+            v-for="(item, index2) in docsTree[key]"
+            :key="index2"
+            href="#"
+            v-scroll-to="camel2Kebab(item.name)"
+            class="list-group-item"
+            >{{ item.name }}</a
+          >
+        </div>
       </li>
 
       <li class="list-group-item">
-        <strong>Client</strong>
-        <router-link to="/client" class="list-group-item">Client</router-link>
+        <strong> <router-link to="/client">Client</router-link></strong>
       </li>
     </div>
   </div>
 </template>
+
+<style scoped>
+.list-group-item {
+  border: 0;
+}
+</style>
 
 <script>
 export default {
@@ -28,6 +44,11 @@ export default {
      * and value with component docs details ( name and path)
      */
     docsMap: Object,
+  },
+  data() {
+    return {
+      expandedMenuKeys: [],
+    };
   },
   computed: {
     docsTree() {
@@ -57,9 +78,21 @@ export default {
   },
   methods: {
     camel2Kebab(name) {
-      return name.replace(/[A-Z]/g, (letter, index) => { return index == 0 ? letter.toLowerCase() : '-'+ letter.toLowerCase();});
-    }
-  }
+      return (
+        "#" +
+        name.replace(/[A-Z]/g, (letter, index) => {
+          return index == 0 ? letter.toLowerCase() : "-" + letter.toLowerCase();
+        })
+      );
+    },
+    toggleMenuItem(key) {
+      if (this.expandedMenuKeys.includes(key)) {
+        this.expandedMenuKeys.splice(this.expandedMenuKeys.indexOf(key), 1);
+      } else {
+        this.expandedMenuKeys.push(key);
+      }
+    },
+  },
 };
 </script>
 

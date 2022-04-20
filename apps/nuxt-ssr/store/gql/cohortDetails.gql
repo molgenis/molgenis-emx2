@@ -157,6 +157,9 @@ query Cohorts($pid: String) {
       subcohorts {
         name
       }
+      coreVariables {
+        name
+      }
     }
     subcohorts {
       name
