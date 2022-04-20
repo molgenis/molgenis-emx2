@@ -47,17 +47,18 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void removeOlderThan(long milliseconds) {
-    Set<String> keys = tasks.keySet();
-    for (String key : keys) {
-      if (tasks.get(key).endTimeMilliseconds != 0
-          && tasks.get(key).endTimeMilliseconds <= System.currentTimeMillis() - milliseconds) {
-        try {
+    List<String> toBeDeleted = new ArrayList<>(); // to prevent ConcurrentModificationException
+    tasks.forEach(
+        (key, task) -> {
+          if (task.endTimeMilliseconds != 0
+              && task.endTimeMilliseconds <= System.currentTimeMillis() - milliseconds) {
+            toBeDeleted.add(key);
+          }
+        });
+    toBeDeleted.forEach(
+        key -> {
           tasks.remove(key);
-        } catch (Exception e) {
-          // no problem, we only delete what we can
-        }
-      }
-    }
+        });
   }
 
   @Override

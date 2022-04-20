@@ -4,6 +4,7 @@
     <LayoutModal v-if="loading" :title="title" :show="true">
       <template v-slot:body>
         <Spinner />
+        creating schema, may take a while ...
       </template>
     </LayoutModal>
     <!-- when update succesfull show result before close -->
@@ -15,8 +16,7 @@
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
-        Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-        Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
+        Go to <a :href="'/' + schemaName">schema</a><br />
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
