@@ -1,6 +1,5 @@
 <template>
  <div>
-   <router-link to="/1/patientView">go to gendecs</router-link>
    <div>
      <TableExplorer
          table="Patients"
@@ -33,8 +32,6 @@ export default {
   },
   methods: {
     click(event) {
-      console.log(event);
-      console.log(event.identifier);
       let routData2 = this.$router.resolve({path: "/" + event.identifier + "/patientView"});
       window.open(routData2.href, "_blank");
     }

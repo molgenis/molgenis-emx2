@@ -17,7 +17,7 @@ const router = new VueRouter({
       props: true,
     },
     {
-      path: "/:id/patientView/genomicsViewer",
+      path: "/:vcf/patientView/genomicsViewer",
       component: GenomicsViewer,
       props: true
     },

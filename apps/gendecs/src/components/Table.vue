@@ -1,10 +1,21 @@
 <template>
   <div>
+<!--    <TableSimple-->
+<!--        :defaultValue="['Duck']"-->
+<!--        :columns="['firstName','lastName','tags']"-->
+<!--        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"-->
+<!--    >-->
+<!--    </TableSimple>-->
       <TableSimple
-          :columns="['gene','variant','disease']"
-          :rows="vcfData"
-          style="overflow-x:auto"
-      />
+          :columns="['VCFSourceFile', 'Identifier','Chromosome','Position', 'RefSNPNumber', 'Reference', 'Alternative', 'Quality', 'Filter', 'Information']"
+          :rows="vcfData">
+    </TableSimple>
+<!--    <TableMolgenis :selection.sync="selected" :columns.sync="columns" :data="vcfData" @select="click"-->
+<!--                   @deselect="click" @click="click"-->
+<!--                   :showSelect="true">-->
+<!--      <template v-slot:header>columns</template>-->
+<!--    </TableMolgenis>-->
+<!--    selected: {{ JSON.stringify(selected) }}-->
   </div>
 
 </template>
@@ -12,14 +23,14 @@
 <script>
 import {
   TableSimple,
-  TableDisplay
+  TableMolgenis
 } from "@mswertz/emx2-styleguide";
 
 export default {
   name: "Table",
   components: {
     TableSimple,
-    TableDisplay
+    TableMolgenis
   },
   props: {
     vcfData : {
@@ -29,7 +40,9 @@ export default {
   data() {
     return {
       selectedItems: null,
-    };
+      selected: null,
+      columns: ['VCFSourceFile', 'Identifier','Chromosome','Position', 'RefSNPNumber', 'Reference', 'Alternative', 'Quality', 'Filter', 'Information']
+    }
   }
 }
 </script>

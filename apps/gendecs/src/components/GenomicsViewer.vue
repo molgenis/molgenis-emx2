@@ -36,9 +36,8 @@
       <div class="results" v-else>
         <div v-if="foundMatch">
           <MessageSuccess>Match found!</MessageSuccess>
-          <p>The {{ selectedHpoTerms }} is associated with the following gene(s): {{ patientGenes }}.
-            Which was found in the patient vcf data</p>
-          <Table :vcfData="this.tableData"></Table>
+          <p>The {{ selectedHpoTerms }} is associated with the following variants:</p>
+<!--          <Table :vcfData="this.matchedVariants"></Table>-->
         </div>
         <div v-if="noMatch">
           <MessageError>No match Found</MessageError>
@@ -53,17 +52,12 @@
 </template>
 
 <script>
-import {
-  MessageError,
-  MessageSuccess,
-  ButtonOutline,
-  InputCheckbox,
-  Spinner
-} from "@mswertz/emx2-styleguide";
+import {ButtonOutline, InputCheckbox, MessageError, MessageSuccess, Spinner} from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
 import PatientSearch from "./PatientSearch";
 import Table from "./Table"
 import hpoData from "../js/autoSearchData.js";
+import request from "graphql-request";
 
 export default {
   components: {
@@ -86,14 +80,22 @@ export default {
       hpoParents: [],
       hpoIds: null,
       searchAssociates: null,
-      patientGenes: [],
       genesHpo: null,
       loading: false,
       readOnly: false,
       noMatch: false,
       parentSearch: false,
-      tableData: []
+      tableData: [],
+      vcffile: "",
+      fileData: null,
+      matchedVariants: []
     };
+  },
+  async created() {
+    this.vcffile = this.$route.params.vcf.toString();
+
+    console.log(this.vcffile);
+    this.fileData = await this.getVariantData();
   },
   methods: {
     addHpoResult(selectedHpoTerms) {
@@ -181,41 +183,64 @@ export default {
       }
     },
     /**
-     * Function that sends an api call to the backend to parse the vcf data.
-     * Respsonse: genes with their hpo term. Adds the response to this.genesHpo
-     * example: {"ODAD2":"Female infertility","HPSE2":"Urinary incontinence"}
+     *
      */
     async matchVcfWithHpo() {
-      let requestOptions = {
-        method: 'POST',
-        body: JSON.stringify({ hpoTerms : this.selectedHpoTerms,
-          hpoChildren : this.hpoChildren,
-          hpoParents : this.hpoParents})
-      };
-      let variantData = await fetch('/patients/api/gendecs/vcffile', requestOptions)
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            }
-            throw new Error("Something went wrong with vcf api");
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      this.tableData = variantData;
-      for (let i = 0; i < variantData.length; i++) {
-        this.patientGenes.push(variantData[i].gene);
-      }
-      if (this.patientGenes.length === 0) {
-        this.noMatch = true;
-      } else if(this.patientGenes.length !== 0) {
-        this.foundMatch = true;
-      } else if (this.patientGenes === 'undefined') {
-        this.noMatch = true;
+      for (const property in this.fileData) {
+        let currentLine = this.fileData[property].Information;
+        let splittedLine = currentLine.split("|");
+        let hpoTermsToMatch = splittedLine[splittedLine.length - 2].replace("[", "").replace("]","").split(",");
+        for (let j = 0; j < hpoTermsToMatch.length; j++) {
+          let currentHpoTerm = hpoTermsToMatch[j].trim();
+
+          if(this.selectedHpoTerms.includes(currentHpoTerm) ||
+            this.hpoParents.includes(currentHpoTerm) ||
+            this.hpoChildren.includes(currentHpoTerm)) {
+              this.foundMatch = true;
+              this.matchedVariants.push(this.fileData[property]);
+          }
+        }
       }
     },
+    async getVariantData() {
+      let query = "{vcfVariants{VCFSourceFile Chromosome Position RefSNPNumber Reference Alternative Quality Filter Information }}"
+      // let newQuery = `{
+      //     Patients(gender: "male") {
+      //       identifier
+      //       gender
+      //       birthdate
+      //       vcfdata
+      //       }
+      //     }`
+      let vcfData = await request("graphql", query)
+          .then((data) => {
+            return data["vcfVariants"];
+          })
+          .catch((error) => {
+            if (Array.isArray(error.response.errors)) {
+              this.graphqlError = error.response.errors[0].message;
+            } else {
+              this.graphqlError = error;
+            }
+          });
+
+      return this.getCorrectFileData(vcfData);
+    },
+    getCorrectFileData(fileData) {
+      for (const property in this.fileData) {
+        // todo add check if source file is not found.
+        if (fileData[property].VCFSourceFile === this.vcffile) {
+        } else {
+          delete fileData[property];
+        }
+      }
+      // return this.removeEmpty(fileData);
+      return fileData;
+    },
+    removeEmpty(obj) {
+      return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+    },
     async main() {
-      console.log(this.$route.params.id.toString());
       this.loading = true;
       this.foundMatch = false;
 
@@ -231,6 +256,8 @@ export default {
         this.searchAssociates = null;
       }
       await this.matchVcfWithHpo();
+      console.log(JSON.stringify(this.matchedVariants));
+      console.log(this.matchedVariants.length);
       this.loading = false;
       this.readOnly = true;
     },
