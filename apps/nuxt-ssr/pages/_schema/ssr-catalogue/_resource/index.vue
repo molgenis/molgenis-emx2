@@ -1,49 +1,30 @@
 <template>
   <div class="container-fluid mt-3">
     <h1 class="text-capitalize">{{ $route.params.resource }}</h1>
-    <div class="row">
-      <div class="col-3">
-        <FilterSidebar
-          :filters="filters"
-          @updateFilters="updateFilters"
-        ></FilterSidebar>
-      </div>
-      <div class="col-9">
-        <div>
-          <FilterWells :filters="filters" @updateFilters="updateFilters" />
-        </div>
-        <div class="d-flex" style="overflow-x: scroll">
-          <div class="flex-grow-1 pr-0 pl-0 col-12">
-            <table-molgenis
-              v-if="tableData"
-              :columns="visibleColumns"
-              :data="tableData"
-              @click="onRowClicked"
-            >
-            </table-molgenis>
-          </div>
-        </div>
+    <div class="d-flex" style="overflow-x: scroll">
+      <div class="flex-grow-1 pr-0 pl-0 col-12">
+        <table-molgenis
+          v-if="tableData"
+          :columns="visibleColumns"
+          :data="tableData"
+          @click="onRowClicked"
+        >
+        </table-molgenis>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {
-  Client,
-  TableMolgenis,
-  FilterSidebar,
-  FilterWells,
-} from "molgenis-components";
+import { Client, TableMolgenis } from "molgenis-components";
 export default {
   name: "ResourceList",
-  components: { TableMolgenis, FilterSidebar, FilterWells },
+  components: { TableMolgenis },
   data() {
     return {
       tableName: null,
-      tableData: null,
       columns: [],
-      filters: [],
+      tableData: null,
     };
   },
   async fetch() {
@@ -59,14 +40,6 @@ export default {
     this.columns = metaData.tables
       .find((t) => t.name === this.tableName)
       .columns.filter((c) => !c.name.startsWith("mg_"));
-
-    this.filters = this.visibleColumns
-      .filter((column) => column.columnType === "STRING")
-      .map((column) => {
-        column.conditions = [];
-        column.showFilter = true;
-        return column;
-      });
   },
   computed: {
     visibleColumns() {
@@ -137,30 +110,6 @@ export default {
           path: `${this.tableName}/${row.pid}`,
         });
       }
-    },
-    updateFilters(update) {
-      console.log('updateFilters')
-      this.filters = update;
-      this.fetchFiltered();
-    },
-    async fetchFiltered() {
-      const filterQuery = this.filters.reduce((accum, filter) => {
-        if (filter.conditions.length) {
-          accum[filter.id] = { like: filter.conditions };
-        }
-        return accum;
-      }, {});
-
-      console.log(filterQuery);
-
-      this.client = Client.newClient(
-        this.$axios,
-        "/" + this.$route.params.schema + "/graphql"
-      );
-      const dataResponse = await this.client.fetchTableData(this.tableName, {
-        filter: filterQuery,
-      });
-      this.tableData = dataResponse[this.tableName];
     },
   },
   watch: {
