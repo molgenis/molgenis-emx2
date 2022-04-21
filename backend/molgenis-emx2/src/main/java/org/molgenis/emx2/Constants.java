@@ -20,6 +20,8 @@ public class Constants {
   public static final String FORM = "form";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
+  public static final String TEMPLATE = "template";
+  public static final String INCLUDE_DEMO_DATA = "includeDemoData";
   public static final String SEMANTICS = "semantics";
   public static final String ROLE = "role";
   public static final String KEY = "key";
@@ -51,6 +53,7 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
+  public static final String ASYNC = "async";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};

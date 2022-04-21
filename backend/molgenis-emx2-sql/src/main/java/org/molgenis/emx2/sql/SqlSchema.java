@@ -149,6 +149,8 @@ public class SqlSchema implements Schema {
   @Override
   public void tx(Transaction transaction) {
     db.tx(transaction);
+    // copy state in case changed
+    this.metadata.sync(db.getSchema(getName()).getMetadata());
   }
 
   @Override

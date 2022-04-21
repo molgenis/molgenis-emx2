@@ -102,7 +102,7 @@ subprojects {
         } else if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
-        }  else {
+        } else {
             from "dist"
             inputs.dir("dist")
         }

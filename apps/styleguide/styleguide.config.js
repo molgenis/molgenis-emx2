@@ -57,5 +57,9 @@ module.exports = {
       name: "Display",
       components: "src/display/[A-Z]*.vue",
     },
+    {
+      name: "Task",
+      components: "src/task/[A-Z]*.vue",
+    },
   ],
 };
