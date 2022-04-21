@@ -25,7 +25,7 @@ import FormGroup from "../src/components/forms/FormGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue"
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
-import InputGroup from "../src/components/forms/InputGroup.vue"
+import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
 import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
