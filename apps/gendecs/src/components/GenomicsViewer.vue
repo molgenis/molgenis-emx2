@@ -186,29 +186,36 @@ export default {
      */
     async matchVariantWithHpo() {
       for (const property in this.fileData) {
-        this.fileData[property].Information = this.addMatchedVariants(property);
+        this.addMatchedVariants(property);
       }
       if (this.matchedVariants.length >= 1) {
         this.foundMatch = true;
       } else {
         this.noMatch = true;
       }
-      // add GENE instead of VCFSourceFile as first column
-      // add disease ids to table
     },
     addMatchedVariants(property) {
-      let currentLine = this.fileData[property].Information;
-      let splittedLine = currentLine.split("|");
-      let hpoTermsToMatch = splittedLine[splittedLine.length - 2].replace("[", "").replace("]","").split(",");
-      for (let j = 0; j < hpoTermsToMatch.length; j++) {
-        let currentHpoTerm = hpoTermsToMatch[j].trim();
+      let InfoLine = this.fileData[property].Information;
+      let splitInfoLine = InfoLine.split("|");
+      let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
+      let termIndex = [];
+      for (let i = 0; i < hpoTermsToMatch.length; i++) {
+        let currentHpoTerm = hpoTermsToMatch[i].trim();
         if(this.selectedHpoTerms.includes(currentHpoTerm) ||
             this.hpoParents.includes(currentHpoTerm) ||
             this.hpoChildren.includes(currentHpoTerm)) {
           this.matchedVariants.push(this.fileData[property]);
+          termIndex.push(i);
         }
       }
-      return splittedLine.slice(0, splittedLine.length - 2).toString().replaceAll(",", "|");
+      let diseaseIds = [];
+      for (let j = 0; j < termIndex.length; j++) {
+        diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[termIndex[j]].replace("[", "").replace("]", ""));
+      }
+      let gene = splitInfoLine[3];
+      this.fileData[property].Diseases = diseaseIds;
+      this.fileData[property].Gene = gene;
+      this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 2).toString().replaceAll(",", "|");
     },
     async getVariantData() {
       let query = "{vcfVariants{VCFSourceFile Chromosome Position RefSNPNumber Reference Alternative Quality Filter Information }}"
