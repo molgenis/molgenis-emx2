@@ -6,9 +6,12 @@
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"
       >
-        <InputSearch id="input-search" v-if="lookupTableName" v-model="searchTerms" />
+        <InputSearch
+          id="input-search"
+          v-if="lookupTableName"
+          v-model="searchTerms"
+        />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
-        <span>Selection box</span>
       </form>
       <Spinner v-if="loading" />
       <div v-else>
@@ -31,10 +34,9 @@
               name="colheader"
               v-bind="$props"
               :canEdit="canEdit"
-              :reload="reload"
+              :reload="loadData"
               :grapqlURL="graphqlURL"
             />
-            <span>add</span>
           </template>
           <template v-slot:rowheader="slotProps">
             <slot
@@ -43,8 +45,6 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
-            <span>edit</span>
-            <span>delete</span>
           </template>
         </TableMolgenis>
       </div>
@@ -71,11 +71,11 @@ export default {
   props: {
     lookupTableName: {
       type: String,
-      required: true
+      required: true,
     },
     graphqlURL: {
       type: String,
-      required: true
+      required: true,
     },
     /** two-way binding of the selection */
     selection: { type: Array, default: () => [] },
@@ -91,6 +91,10 @@ export default {
     showColumns: {
       type: Array,
     },
+    canEdit: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -99,7 +103,7 @@ export default {
       count: 0,
       loading: true,
       graphqlError: null,
-      searchTerms: ''
+      searchTerms: "",
     };
   },
   computed: {
@@ -108,9 +112,9 @@ export default {
     },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
-        (c) =>
-          (this.showColumns == null && !c.name.startsWith("mg_")) ||
-          (this.showColumns != null && this.showColumns.includes(c.name))
+        (column) =>
+          (this.showColumns == null && !column.name.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(column.name))
       );
     },
   },
@@ -121,21 +125,40 @@ export default {
     deselect(value) {
       this.$emit("deselect", value);
     },
+    async loadData() {
+      this.loading = true;
+      const queryOptions = {
+        limit: this.limit,
+        offset: this.limit * (this.page - 1),
+        searchTerms: this.searchTerms,
+      };
+
+      const client = Client.newClient(this.graphqlURL);
+      const remoteMetaData = await client
+        .fetchMetaData()
+        .catch(() => (this.graphqlError = "Failed to load meta data"));
+      const gqlResponse = await client
+        .fetchTableData(this.lookupTableName, queryOptions)
+        .catch(() => (this.graphqlError = "Failed to load data"));
+
+      this.tableMetadata = remoteMetaData.tables.find(
+        (table) => table.name === this.lookupTableName
+      );
+      this.data = gqlResponse[this.lookupTableName];
+      this.count = gqlResponse[`${this.lookupTableName}_agg`].count;
+      this.loading = false;
+    },
   },
   watch: {
     page() {
-      this.loading = true;
-      this.offset = this.limit * (this.page - 1);
-      this.reload();
+      this.loadData();
+    },
+    searchTerms() {
+      this.loadData();
     },
   },
-  async mounted () {
-    const client = Client.newClient(this.graphqlURL);
-    const remoteMetaData = await client.fetchMetaData();
-    this.tableMetadata = remoteMetaData.tables.find(t => t.name === this.lookupTableName)
-    const gqlResponse = await client.fetchTableData(this.lookupTableName)
-    this.data = gqlResponse[this.lookupTableName];
-    this.loading = false;
-  }
+  async mounted() {
+    this.loadData();
+  },
 };
 </script>
