@@ -242,6 +242,13 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public void dropSchemaIfExists(String name) {
+    if (getSchema(name) != null) {
+      this.dropSchema(name);
+    }
+  }
+
+  @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
     tx(
@@ -574,5 +581,10 @@ public class SqlDatabase implements Database {
   @Override
   public boolean isOidcEnabled() {
     return this.isOidcEnabled;
+  }
+
+  @Override
+  public boolean hasSchema(String name) {
+    return getSchema(name) != null;
   }
 }

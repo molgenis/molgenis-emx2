@@ -29,8 +29,11 @@ public class TestImportTableTask {
     t.run();
 
     assertTrue(
-        ((ImportTableTask) t.getSteps().get(1))
-            .getSteps()
+        t.getSubTasks()
+            .get(1)
+            .getSubTasks()
+            .get(0)
+            .getSubTasks()
             .get(0)
             .getDescription()
             .contains("colerror"));
