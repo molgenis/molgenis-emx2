@@ -68,7 +68,7 @@ export default {
     ButtonOutline,
     InputCheckbox,
     Spinner,
-    Table
+    Table,
   },
   data() {
     return {
@@ -186,13 +186,15 @@ export default {
      */
     async matchVariantWithHpo() {
       for (const property in this.fileData) {
-        this.addMatchedVariants(property);
+        this.fileData[property].Information = this.addMatchedVariants(property);
       }
       if (this.matchedVariants.length >= 1) {
         this.foundMatch = true;
       } else {
         this.noMatch = true;
       }
+      // add GENE instead of VCFSourceFile as first column
+      // add disease ids to table
     },
     addMatchedVariants(property) {
       let currentLine = this.fileData[property].Information;
@@ -206,6 +208,7 @@ export default {
           this.matchedVariants.push(this.fileData[property]);
         }
       }
+      return splittedLine.slice(0, splittedLine.length - 2).toString().replaceAll(",", "|");
     },
     async getVariantData() {
       let query = "{vcfVariants{VCFSourceFile Chromosome Position RefSNPNumber Reference Alternative Quality Filter Information }}"
