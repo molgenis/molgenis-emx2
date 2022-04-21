@@ -28,13 +28,16 @@ public class GendecsApi {
     HpoTerm hpoTerm = new HpoTerm(hpoTermIn);
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
 
-    logger.info("Started querying for parents and children of: " + hpoId);
     if (searchAssociates.toString().contains("parents")) {
+      logger.info("Started querying for the parents of: " + hpoId);
       ArrayList<String> hpoTermsParent = owlQuerier.getParentClasses();
+      logger.debug("resulting parent terms: " + hpoTermsParent);
       hpoTerm.setParents(hpoTermsParent);
     }
     if (searchAssociates.toString().contains("children")) {
+      logger.info("Started querying for the children of: " + hpoId);
       ArrayList<String> hpoTermChildren = owlQuerier.getSubClasses();
+      logger.debug("resulting children terms: " + hpoTermChildren);
       hpoTerm.setChildren(hpoTermChildren);
     }
     return Serialize.serializeHpo(hpoTerm);
