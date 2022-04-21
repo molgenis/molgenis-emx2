@@ -37,7 +37,7 @@
         <div v-if="foundMatch">
           <MessageSuccess>Match found!</MessageSuccess>
           <p>The {{ selectedHpoTerms }} is associated with the following variants:</p>
-<!--          <Table :vcfData="this.matchedVariants"></Table>-->
+          <Table :vcfData="this.matchedVariants"></Table>
         </div>
         <div v-if="noMatch">
           <MessageError>No match Found</MessageError>
@@ -85,16 +85,15 @@ export default {
       readOnly: false,
       noMatch: false,
       parentSearch: false,
-      tableData: [],
       vcffile: "",
       fileData: null,
       matchedVariants: []
     };
   },
   async created() {
+    console.log("created in GenomicsViewer");
     this.vcffile = this.$route.params.vcf.toString();
 
-    console.log(this.vcffile);
     this.fileData = await this.getVariantData();
   },
   methods: {
@@ -185,20 +184,26 @@ export default {
     /**
      *
      */
-    async matchVcfWithHpo() {
+    async matchVariantWithHpo() {
       for (const property in this.fileData) {
-        let currentLine = this.fileData[property].Information;
-        let splittedLine = currentLine.split("|");
-        let hpoTermsToMatch = splittedLine[splittedLine.length - 2].replace("[", "").replace("]","").split(",");
-        for (let j = 0; j < hpoTermsToMatch.length; j++) {
-          let currentHpoTerm = hpoTermsToMatch[j].trim();
-
-          if(this.selectedHpoTerms.includes(currentHpoTerm) ||
+        this.addMatchedVariants(property);
+      }
+      if (this.matchedVariants.length >= 1) {
+        this.foundMatch = true;
+      } else {
+        this.noMatch = true;
+      }
+    },
+    addMatchedVariants(property) {
+      let currentLine = this.fileData[property].Information;
+      let splittedLine = currentLine.split("|");
+      let hpoTermsToMatch = splittedLine[splittedLine.length - 2].replace("[", "").replace("]","").split(",");
+      for (let j = 0; j < hpoTermsToMatch.length; j++) {
+        let currentHpoTerm = hpoTermsToMatch[j].trim();
+        if(this.selectedHpoTerms.includes(currentHpoTerm) ||
             this.hpoParents.includes(currentHpoTerm) ||
             this.hpoChildren.includes(currentHpoTerm)) {
-              this.foundMatch = true;
-              this.matchedVariants.push(this.fileData[property]);
-          }
+          this.matchedVariants.push(this.fileData[property]);
         }
       }
     },
@@ -227,37 +232,38 @@ export default {
       return this.getCorrectFileData(vcfData);
     },
     getCorrectFileData(fileData) {
-      for (const property in this.fileData) {
+      for (const property in fileData) {
         // todo add check if source file is not found.
         if (fileData[property].VCFSourceFile === this.vcffile) {
+          fileData[property].Position = fileData[property].Position.toString();
         } else {
           delete fileData[property];
         }
       }
-      // return this.removeEmpty(fileData);
-      return fileData;
+      return this.removeEmpty(fileData);
     },
     removeEmpty(obj) {
       return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
+    },
+    async addHpoAssociates() {
+      let hpoIds = [];
+      for (let i = 0; i < this.selectedHpoTerms.length; i++) {
+        let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
+        hpoIds.push(hpoId.replace(":", "_"));
+      }
+      this.hpoIds = hpoIds;
+
+      await this.getHpoAssociates(this.hpoIds);
+      this.searchAssociates = null;
     },
     async main() {
       this.loading = true;
       this.foundMatch = false;
 
       if(this.searchAssociates != null) {
-        let hpoIds = [];
-        for (let i = 0; i < this.selectedHpoTerms.length; i++) {
-          let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
-          hpoIds.push(hpoId.replace(":", "_"));
-        }
-        this.hpoIds = hpoIds;
-
-        await this.getHpoAssociates(this.hpoIds);
-        this.searchAssociates = null;
+        await this.addHpoAssociates();
       }
-      await this.matchVcfWithHpo();
-      console.log(JSON.stringify(this.matchedVariants));
-      console.log(this.matchedVariants.length);
+      await this.matchVariantWithHpo();
       this.loading = false;
       this.readOnly = true;
     },
@@ -274,6 +280,7 @@ export default {
       this.readOnly = false;
       this.foundMatch = false;
       this.noMatch = false;
+      this.matchedVariants = [];
     }
   },
 };
