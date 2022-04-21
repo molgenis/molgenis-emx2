@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestFullTextSearch {
   private static Database db;
@@ -77,8 +77,7 @@ public class TestFullTextSearch {
   @Test
   public void nestedSearch() {
     Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName() + "nested");
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().load(schema, true);
 
     List<Row> result =
         schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();

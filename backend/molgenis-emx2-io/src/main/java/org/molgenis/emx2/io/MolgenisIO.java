@@ -83,4 +83,8 @@ public class MolgenisIO {
   public static void fromStore(TableStore store, Schema schema, boolean strict) {
     new ImportSchemaTask(store, schema, strict).run();
   }
+
+  public static void fromClasspathDirectory(String path, Schema schema, boolean strict) {
+    fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict);
+  }
 }

@@ -22,7 +22,8 @@ public class MolgenisSession {
 
   public GraphQL getGraphqlForDatabase() {
     if (graphqlForDatabase == null) {
-      graphqlForDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database);
+      graphqlForDatabase =
+          new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
       logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;
@@ -37,7 +38,8 @@ public class MolgenisSession {
             "Schema not found: Schema with name '"
                 + schemaName
                 + "' does not exist or permission denied");
-      graphqlPerSchema.put(schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema));
+      graphqlPerSchema.put(
+          schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
       logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
     }
     logger.info("return graphql schema '{}' for user '{}'", schemaName, getSessionUser());

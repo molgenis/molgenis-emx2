@@ -6,10 +6,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.CompareTools;
-import org.molgenis.emx2.examples.ProductComponentPartsExample;
-import org.molgenis.emx2.examples.synthetic.ArrayTypeTestExample;
-import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
+import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
+import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.util.CompareTools;
 
 public class TestMetaDataIsStoredForNextSessions {
 

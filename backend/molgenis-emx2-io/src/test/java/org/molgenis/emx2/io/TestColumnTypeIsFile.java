@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -28,7 +28,7 @@ public class TestColumnTypeIsFile {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    PetStoreExample.create(schema.getMetadata());
+    new PetStoreLoader().load(schema, false);
 
     schema
         .getTable("User")

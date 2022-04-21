@@ -7,8 +7,8 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.tasks.StepStatus;
 import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskStatus;
 
 public class ImportTableTask extends Task {
   private Table table;
@@ -16,6 +16,8 @@ public class ImportTableTask extends Task {
 
   public ImportTableTask(TableStore source, Table table, boolean strict) {
     super("Import table " + table.getName(), strict);
+    Objects.requireNonNull(source, "tableStore cannot be null");
+    Objects.requireNonNull(table, "table cannot be null");
     this.table = table;
     this.source = source;
   }
@@ -29,16 +31,16 @@ public class ImportTableTask extends Task {
         "Table " + table.getName() + ": Counting rows & checking that all key columns are unique");
     source.processTable(table.getName(), new ValidatePkeyProcessor(table.getMetadata(), this));
 
-    // execute the actual loading
-    this.setTotal(this.getIndex());
+    // execute the actual loading, we can use index to find the size
+    this.setTotal(this.getProgress());
     this.setDescription("Importing rows into " + table.getName());
     source.processTable(table.getName(), new ImportRowProcesssor(table, this));
 
     // done
-    if (getIndex() > 0) {
-      this.complete(String.format("Imported %s %s", getIndex(), table.getName()));
+    if (getProgress() > 0) {
+      this.complete(String.format("Imported %s %s", getProgress(), table.getName()));
     } else {
-      this.skipped(String.format("Skipped table %s : sheet was empty", table.getName()));
+      this.setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
   }
 
@@ -58,14 +60,14 @@ public class ImportTableTask extends Task {
     @Override
     public void process(Iterator<Row> iterator, TableStore source) {
 
-      task.setIndex(0);
+      task.setProgress(0);
       int index = 0;
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
 
         // column warning
-        if (task.getIndex() == 0) {
+        if (task.getProgress() == 0) {
           List<String> columnNames =
               metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
           warningColumns =
@@ -80,12 +82,12 @@ public class ImportTableTask extends Task {
                       + " in sheet "
                       + metadata.getTableName());
             } else {
-              task.step(
+              task.addSubTask(
                   "Found unknown columns "
                       + warningColumns
                       + " in sheet "
                       + metadata.getTableName(),
-                  StepStatus.WARNING);
+                  TaskStatus.WARNING);
             }
           }
         }
@@ -101,11 +103,11 @@ public class ImportTableTask extends Task {
               metadata.getPrimaryKeyFields().stream()
                   .map(Field::getName)
                   .collect(Collectors.joining(","));
-          task.step("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").error();
+          task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
         } else {
           keys.add(keyValue);
         }
-        task.setIndex(++index);
+        task.setProgress(++index);
       }
       if (!duplicates.isEmpty()) {
         task.completeWithError(
@@ -126,7 +128,7 @@ public class ImportTableTask extends Task {
 
     @Override
     public void process(Iterator<Row> iterator, TableStore source) {
-      task.setIndex(0);
+      task.setProgress(0); // for the progress monitoring
       int index = 0;
       List<Row> batch = new ArrayList<>();
       List<Column> columns = table.getMetadata().getColumns();
@@ -146,16 +148,16 @@ public class ImportTableTask extends Task {
         index++;
         if (batch.size() >= 1000) {
           table.save(batch);
-          task.setIndex(index);
-          task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
+          task.setProgress(index);
+          task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
           batch.clear();
         }
       }
       // remaining
       if (!batch.isEmpty()) {
         table.save(batch);
-        task.setIndex(index);
-        task.setDescription("Imported " + task.getIndex() + " rows into " + table.getName());
+        task.setProgress(index);
+        task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
       }
     }
   }
