@@ -13,6 +13,7 @@ import BaseInput from "./BaseInput.vue";
 import ArrayInput from "./ArrayInput.vue";
 import InputString from "./InputString.vue";
 import InputOntology from "./InputOntology.vue";
+
 export default {
   name: "FormInput",
   extends: BaseInput,
@@ -35,3 +36,4 @@ export default {
   },
 };
 </script>
+
