@@ -196,26 +196,48 @@ export default {
       let splitInfoLine = InfoLine.split("|");
       let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
       let termIndex = [];
+      let matchesNeeded = this.selectedHpoTerms.length;
+      let foundMatches = 0;
+
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
         let currentHpoTerm = hpoTermsToMatch[i].trim();
-        if(this.selectedHpoTerms.includes(currentHpoTerm) ||
-            this.hpoParents.includes(currentHpoTerm) ||
-            this.hpoChildren.includes(currentHpoTerm)) {
-          this.matchedVariants.push(this.fileData[property]);
-          termIndex.push(i);
+        if (this.selectedHpoTerms.length > 1) {
+          for (let j = 0; j < this.selectedHpoTerms.length; j++) {
+            // todo make objects of hpo Terms? to make multiple hpo terms + parents/children checking easier
+            if (this.selectedHpoTerms[j].includes(currentHpoTerm))  {
+              foundMatches++;
+            }
+          }
+          if (matchesNeeded === foundMatches) {
+            this.matchedVariants.push(this.fileData[property]);
+            termIndex.push(i);
+            foundMatches = 0;
+          }
+        } else {
+          if(this.selectedHpoTerms.includes(currentHpoTerm) ||
+              this.hpoParents.includes(currentHpoTerm) ||
+              this.hpoChildren.includes(currentHpoTerm)) {
+            this.matchedVariants.push(this.fileData[property]);
+            termIndex.push(i);
+          }
         }
       }
-      this.addGeneAndDisease(property, termIndex, splitInfoLine)
+      if (termIndex.length > 0) {
+        this.addGeneAndDisease(property, termIndex, splitInfoLine);
+      }
     },
     addGeneAndDisease(property, termIndex, splitInfoLine) {
       let diseaseIds = [];
+
       for (let j = 0; j < termIndex.length; j++) {
-        diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[termIndex[j]].replace("[", "").replace("]", ""));
+        let index = termIndex[j];
+        diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[index].replace("[", "").replace("]", ""));
       }
       let gene = splitInfoLine[3];
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = gene;
       this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 2).toString().replaceAll(",", "|");
+      termIndex = [];
     },
     async getVariantData() {
       let query = "{vcfVariants{VCFSourceFile Chromosome Position RefSNPNumber Reference Alternative Quality Filter Information }}"
@@ -246,7 +268,14 @@ export default {
       if(fileData.some(e => e.VCFSourceFile === this.vcffile)){
         for (const property in fileData) {
           if (fileData[property].VCFSourceFile === this.vcffile) {
-            fileData[property].Position = fileData[property].Position.toString();
+            let InfoLine = fileData[property].Information;
+            let splitInfoLine = InfoLine.split("|");
+            let hpoTermsArray = splitInfoLine[splitInfoLine.length - 2].split(",");
+            if (hpoTermsArray.length === 1) {
+              delete fileData[property];
+            } else {
+              fileData[property].Position = fileData[property].Position.toString();
+            }
           } else {
             delete fileData[property];
           }
