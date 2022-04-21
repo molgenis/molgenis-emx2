@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       // used to add new empty field when adding conditions 
-      fieldCount: !this.conditions.length ? 1 : this.conditions.length,
+      fieldCount: this.conditions.length || 1,
     };
   },
   computed: {
@@ -69,7 +69,7 @@ export default {
   },
   watch: {
     conditions (newValue) {
-      this.fieldCount = !newValue.length ? 1 : newValue.length
+      this.fieldCount = newValue.length || 1 
     }
   }
 };
