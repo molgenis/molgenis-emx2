@@ -33,7 +33,6 @@
 <script>
 import BaseInput from "./BaseInput.vue";
 import InputString from "./InputString.vue";
-
 export default {
   name: "ArrayInput",
   extends: BaseInput,
@@ -54,7 +53,7 @@ export default {
     },
     clearInput(index) {
       if (this.values.length > 1) {
-        this.values.splice(index , 1);
+        this.values.splice(index, 1);
       }
       this.$emit("input", this.values);
     },
