@@ -2,12 +2,11 @@
   <div id="wrapper">
     <div id="titlediv">
       <h1>Welcome to the Genomics viewer of GenDecS</h1>
-      <p>this page contains the prototype for GenDecS. Here you can enter a patient number together
-        with a HPO root-term/phenotype. When a number is entered a vcfdata file will be downloaded.
-        This data will be filtered on possible disease causing genes. Then the filtered genes will
-        be matched with HPO terms. The then found terms will be checked if they match with the
-        given HPO term(s) or its associates if checked. The resulting found variant are reported in
-        a file. A "match found!" message will appear if a match is found.
+      <p>This page contains the genomics viewer prototype of GenDecS. Here you can enter
+        a HPO root-term/phenotype. The entered HPO term (and it's associates) is/are matched with the
+        patient data from the file: {{ this.vcffile }}. If a result is found a "match found!" message will
+        appear together with a table containing the matched variants. If no match is found a "no match found"
+        message will show.
       </p>
     </div>
     <div id="searchdiv">
@@ -36,7 +35,7 @@
       <div class="results" v-else>
         <div v-if="foundMatch">
           <MessageSuccess>Match found!</MessageSuccess>
-          <p>The {{ selectedHpoTerms }} is associated with the following variants:</p>
+          <p>The HPO term(s) {{ selectedHpoTerms }} is/are associated with the following variants:</p>
           <Table :vcfData="this.matchedVariants"></Table>
         </div>
         <div v-if="noMatch">
@@ -91,9 +90,7 @@ export default {
     };
   },
   async created() {
-    console.log("created in GenomicsViewer");
     this.vcffile = this.$route.params.vcf.toString();
-
     this.fileData = await this.getVariantData();
   },
   methods: {
