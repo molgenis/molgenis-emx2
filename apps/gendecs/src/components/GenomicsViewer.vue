@@ -205,6 +205,9 @@ export default {
           termIndex.push(i);
         }
       }
+      this.addGeneAndDisease(property, termIndex, splitInfoLine)
+    },
+    addGeneAndDisease(property, termIndex, splitInfoLine) {
       let diseaseIds = [];
       for (let j = 0; j < termIndex.length; j++) {
         diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[termIndex[j]].replace("[", "").replace("]", ""));
@@ -239,15 +242,19 @@ export default {
       return this.getCorrectFileData(vcfData);
     },
     getCorrectFileData(fileData) {
-      for (const property in fileData) {
-        // todo add check if source file is not found.
-        if (fileData[property].VCFSourceFile === this.vcffile) {
-          fileData[property].Position = fileData[property].Position.toString();
-        } else {
-          delete fileData[property];
+      //check if the file name exists in the data
+      if(fileData.some(e => e.VCFSourceFile === this.vcffile)){
+        for (const property in fileData) {
+          if (fileData[property].VCFSourceFile === this.vcffile) {
+            fileData[property].Position = fileData[property].Position.toString();
+          } else {
+            delete fileData[property];
+          }
         }
+        return this.removeEmpty(fileData);
+      } else {
+        alert("The file: " + this.vcffile + " is not present in the database");
       }
-      return this.removeEmpty(fileData);
     },
     removeEmpty(obj) {
       return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null));
