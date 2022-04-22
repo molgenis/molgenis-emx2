@@ -39,16 +39,21 @@
       <div class="results" v-else>
         <div v-if="foundMatch">
           <MessageSuccess>Match found!</MessageSuccess>
-          <p>The HPO term(s) {{ selectedHpoTerms }} is/are associated with the following variants:</p>
+          <p>The entered term(s):
+            <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
+            is/are associated with the following variants:
+          </p>
+
           <Table :vcfData="this.matchedVariants"></Table>
         </div>
         <div v-if="noMatch">
           <MessageError>No match Found</MessageError>
-          <p>{{ selectedHpoTerms }} resulted in zero matches</p>
+          <p>
+            <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
+            resulted in zero matches.
+            Maybe try another HPO term or search with parents and or children </p>
         </div>
-
       </div>
-
     </div>
   </div>
 </template>
@@ -316,7 +321,7 @@ export default {
         await this.matchVariantWithHpo();
         this.loading = false;
         this.readOnly = true;
-        this.doneSearch = false;
+        this.doneSearch = true;
       }
     },
     clearData() {
