@@ -1,18 +1,23 @@
 <template>
-  <div>
+  <div id="wrapper">
     <h3>selected patient:</h3>
-    <TableSimple
-        v-model="selectedItems"
-        :columns="['identifier','gender','birthdate', 'vcfdata']"
-        :rows="[{'identifier':this.patientId,'gender':this.gender, 'birthdate': this.birthdate, 'vcfdata': this.vcfdata}]"
-        @click="click"
-    >
-      <template v-slot:rowheader="slotProps">
-        my row with props {{ JSON.stringify(slotProps) }}
-      </template>
-    </TableSimple>
+    <div id="left-div">
+      <TableSimple
+          v-model="selectedItems"
+          :columns="['identifier','gender','birthdate', 'vcfdata']"
+          :rows="[{'identifier':this.patientId,'gender':this.gender, 'birthdate': this.birthdate, 'vcfdata': this.vcfdata}]"
+      >
+      </TableSimple>
+    </div>
 
-    <router-link :to="{path: '/' + this.vcfdata + '/patientView/genomicsViewer'}">go to GenDecS genomics viewer</router-link>
+    <div id="right-div">
+      <p>
+        If you want to perform a search in the genetic data press this button:
+      </p>
+      <ButtonOutline @click="goToGendecs">
+        Go to Genomics viewer of GenDecS
+      </ButtonOutline>
+    </div>
 
   </div>
 
@@ -21,6 +26,7 @@
 <script>
 import {
   TableSimple,
+  ButtonOutline
 } from "@mswertz/emx2-styleguide";
 import request from "graphql-request";
 
@@ -28,6 +34,7 @@ export default {
   name: "PatientView",
   components : {
     TableSimple,
+    ButtonOutline
   },
   async created() {
     this.patientId = this.$route.params.id.toString();
@@ -44,9 +51,6 @@ export default {
     }
   },
   methods: {
-    click(value) {
-      alert("click " + JSON.stringify(value));
-    },
     async fetchPatient() {
       let query = "{Patients{identifier gender birthdate vcfdata}}"
       // let newQuery = `{
@@ -80,11 +84,28 @@ export default {
           this.vcfdata = patients[i].vcfdata;
         }
       }
+    },
+    goToGendecs() {
+      this.$router.push({path: '/' + this.vcfdata + '/patientView/genomicsViewer'})
     }
   }
 }
 </script>
 
 <style scoped>
+#wrapper {
+  width: 100%;
+  overflow: hidden;
+}
 
+#left-div {
+  width: 50%;
+  float: left;
+}
+
+#right-div {
+  width: 50%;
+  overflow: hidden;
+  padding: 10px;
+}
 </style>

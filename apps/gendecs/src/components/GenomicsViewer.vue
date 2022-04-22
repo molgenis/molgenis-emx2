@@ -23,7 +23,11 @@
     </div>
 
     <div id="bottemdiv">
-      <ButtonOutline @click="main">Search for matches</ButtonOutline>
+      <div>
+        <ButtonOutline @click="main" v-if="!doneSearch">Search for matches</ButtonOutline>
+
+        <ButtonOutline @click="clearData" v-if="doneSearch">Click this for new search</ButtonOutline>
+      </div>
 
       <div class="results" v-if="loading">
         <p v-if="parentSearch" >Searching for matches with parents: {{ this.selectedHpoTerms }}
@@ -44,7 +48,6 @@
         </div>
 
       </div>
-      <ButtonOutline @click="clearData">Click this for new search</ButtonOutline>
 
     </div>
   </div>
@@ -53,7 +56,6 @@
 <script>
 import {ButtonOutline, InputCheckbox, MessageError, MessageSuccess, Spinner} from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
-import PatientSearch from "./PatientSearch";
 import Table from "./Table"
 import hpoData from "../js/autoSearchData.js";
 import request from "graphql-request";
@@ -61,7 +63,6 @@ import request from "graphql-request";
 export default {
   components: {
     SearchAutoComplete,
-    PatientSearch,
     MessageError,
     MessageSuccess,
     ButtonOutline,
@@ -82,7 +83,8 @@ export default {
       parentSearch: false,
       vcffile: "",
       fileData: null,
-      matchedVariants: []
+      matchedVariants: [],
+      doneSearch: false
     };
   },
   async created() {
@@ -302,15 +304,20 @@ export default {
       this.searchAssociates = null;
     },
     async main() {
-      this.loading = true;
-      this.foundMatch = false;
+      if (this.selectedHpoTerms.length === 0) {
+        alert("Please make sure to enter 1 or multiple HPO terms");
+      } else {
+        this.loading = true;
+        this.foundMatch = false;
 
-      if(this.searchAssociates != null) {
-        await this.addHpoAssociates();
+        if(this.searchAssociates != null) {
+          await this.addHpoAssociates();
+        }
+        await this.matchVariantWithHpo();
+        this.loading = false;
+        this.readOnly = true;
+        this.doneSearch = false;
       }
-      await this.matchVariantWithHpo();
-      this.loading = false;
-      this.readOnly = true;
     },
     clearData() {
       this.selectedHpoTerms = [];
@@ -322,7 +329,8 @@ export default {
       this.foundMatch = false;
       this.noMatch = false;
       this.matchedVariants = [];
-    }
+      this.doneSearch = false;
+    } // maak pagina van patient mooi leuke tabel ofzo met keuzes voor door klikken enz
   },
 };
 </script>
@@ -332,6 +340,8 @@ export default {
   overflow: hidden; /* add this to contain floated children */
 }
 #searchdiv {
+  width: 70%;
+  margin: 0 auto;
   padding: 10px;
 }
 #bottemdiv {
