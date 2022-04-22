@@ -26,7 +26,7 @@
       <ButtonOutline @click="main">Search for matches</ButtonOutline>
 
       <div class="results" v-if="loading">
-        <p v-if="parentSearch" >Searching for matches with parents: {{ hpoParents }}
+        <p v-if="parentSearch" >Searching for matches with parents: {{ this.selectedHpoTerms }}
           and the entered term(s): {{ selectedHpoTerms }}
         </p>
         <Spinner/>
@@ -71,15 +71,11 @@ export default {
   },
   data() {
     return {
-      geneAssociates: null,
       allHpoTerms: hpoData,
       selectedHpoTerms: [],
       foundMatch: false,
-      hpoChildren: [],
-      hpoParents: [],
       hpoIds: null,
       searchAssociates: null,
-      genesHpo: null,
       loading: false,
       readOnly: false,
       noMatch: false,
@@ -96,7 +92,9 @@ export default {
   methods: {
     addHpoResult(selectedHpoTerms) {
       for (let i = 0; i < selectedHpoTerms.length; i++) {
-        this.selectedHpoTerms.push(selectedHpoTerms[i])
+        let hpoObject = {"term" : "", "parents" : [], "children" : []};
+        hpoObject.term = selectedHpoTerms[i];
+        this.selectedHpoTerms.push(hpoObject);
       }
     },
     /**
@@ -146,7 +144,7 @@ export default {
         let requestOptions = {
           method: 'POST',
           body: JSON.stringify({ hpoId: hpoIds[i],
-          hpoTerm: this.selectedHpoTerms[i],
+          hpoTerm: this.selectedHpoTerms[i].term,
           searchAssociates: this.searchAssociates})
         };
 
@@ -160,22 +158,24 @@ export default {
             .catch((error) => {
               console.log(error);
             });
-        await this.addAssociates(data);
+        await this.addAssociates(data, i);
       }
     },
-    async addAssociates(data) {
+    async addAssociates(data, i) {
       if(this.searchAssociates.includes("Search for parents")) {
         for (let i = 0; i < data["parents"].length; i++) {
           this.parentSearch = true;
           let parentId = data["parents"][i];
           let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
-          this.hpoParents.push(parentTerm);
+          this.selectedHpoTerms[i].parents.push(parentTerm);
         }
       }
       if(this.searchAssociates.includes("Search for children")) {
-        for (let i = 0; i < data["children"].length; i++) {
-          this.hpoChildren.push(data["children"][i]);
-        }
+        this.selectedHpoTerms[i].parents = data["children"];
+
+        // for (let i = 0; i < data["children"].length; i++) {
+        //   this.hpoChildren.push(data["children"][i]);
+        // }
       }
     },
     /**
@@ -204,7 +204,9 @@ export default {
         if (this.selectedHpoTerms.length > 1) {
           for (let j = 0; j < this.selectedHpoTerms.length; j++) {
             // todo make objects of hpo Terms? to make multiple hpo terms + parents/children checking easier
-            if (this.selectedHpoTerms[j].includes(currentHpoTerm))  {
+            if (this.selectedHpoTerms[j].term === currentHpoTerm ||
+              this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
+              this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
               foundMatches++;
             }
           }
@@ -214,9 +216,9 @@ export default {
             foundMatches = 0;
           }
         } else {
-          if(this.selectedHpoTerms.includes(currentHpoTerm) ||
-              this.hpoParents.includes(currentHpoTerm) ||
-              this.hpoChildren.includes(currentHpoTerm)) {
+          if(this.selectedHpoTerms[0].term === currentHpoTerm ||
+              this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
+              this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
             this.matchedVariants.push(this.fileData[property]);
             termIndex.push(i);
           }
@@ -291,7 +293,7 @@ export default {
     async addHpoAssociates() {
       let hpoIds = [];
       for (let i = 0; i < this.selectedHpoTerms.length; i++) {
-        let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i]);
+        let hpoId = await this.hpoTermToId(this.selectedHpoTerms[i].term);
         hpoIds.push(hpoId.replace(":", "_"));
       }
       this.hpoIds = hpoIds;
@@ -311,14 +313,10 @@ export default {
       this.readOnly = true;
     },
     clearData() {
-      this.geneAssociates = null;
       this.selectedHpoTerms = [];
-      this.hpoChildren = [];
-      this.hpoParents = [];
       this.hpoIds = null;
       this.searchAssociates = null;
       this.patientGenes = null;
-      this.genesHpo = null;
       this.loading = false;
       this.readOnly = false;
       this.foundMatch = false;
