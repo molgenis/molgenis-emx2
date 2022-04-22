@@ -18,7 +18,6 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
 export default {
   data() {
     return {
