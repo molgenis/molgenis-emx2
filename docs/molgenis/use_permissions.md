@@ -25,7 +25,7 @@ In addition there are two special users:
 Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing user name and password. Special user is
 the 'admin'. Only this user can see and create other users.
 
-## Sign-in using Open ID Connect (OIDC)
+# Sign-in using Open ID Connect (OIDC)
 
 Users can be authenticated using an existing account via Open ID Connect (OIDC). To enable users to sign-in using OIDC,
 the Molgenis instance must be configured to use OIDC. When OIDC is enabled, users are no longer presented with the
@@ -34,9 +34,9 @@ option to sign-up
 When OIDC is enabled, the admin user can bypass the oidc login by using the admin
 route (```[service-location]/apps/central/#/admin```)
 
-### Enabling OIDC
+## Enabling OIDC
 
-##### To enable OIDC the following environment variables need to be set:
+### To enable OIDC the following environment variables need to be set:
 
 ```
 MOLGENIS_OIDC_CLIENT_ID // the id for the molgenis instance as set in the authentication provider
@@ -46,9 +46,34 @@ MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
 ```
 
-##### The OIDC provider must return a valid ```email``` field ( also known as claim ) as part of the oidc profile response.
-If a user with the given email is already known in the emx system the the oidc user will be logged in as this user. If the email is not know a new user is created in the emx system ( with email provided oidc profile ) and the user is signed in.
+### The OIDC provider must return a valid ```email``` field ( also known as claim ) as part of the oidc profile response.
+
+If a user with the given email is already known in the emx system the the oidc user will be logged in as this user. If
+the email is not know a new user is created in the emx system ( with email provided oidc profile ) and the user is
+signed in.
 
 ### Disabling OIDC
 
 Remove the ```MOLGENIS_OIDC_CLIENT_ID``` environment variable and restart the server
+
+### FAQ: hints to setup keycloak
+
+We learnt the following settings helped to get all running properly:
+
+* install a 'keycloakserver'
+* within keycloak, create a realm, e.g. 'myrealm'.
+* within the realm, under 'login' set email as username
+* within the realm, under authentication in required actions check 'configure OTP'(=MFA) 'verify email' as 'Default
+  action'
+* within the realm, setup a client with 'clientID'='myclientid' and set Access Type = 'confidential'.
+* This will add a 'credentials tab' for your client containing a 'Secret' you need below
+* probably within this client you also want to set Base url (so in keycloak it is linked as application for user)
+
+See environment variables below:
+
+```
+DMOLGENIS_OIDC_CLIENT_ID="myclientid" 
+MOLGENIS_OIDC_CLIENT_SECRET="Secret"
+MOLGENIS_OIDC_DISCOVERY_URI="httpx://keycloakserver/realms/myrealm/protocol/openid-connect/auth"
+MOLGENIS_OIDC_CALLBACK_URL="https://mymolgeniserver"
+```
