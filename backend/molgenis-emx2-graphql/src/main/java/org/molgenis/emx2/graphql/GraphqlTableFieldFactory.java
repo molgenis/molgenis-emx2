@@ -8,10 +8,13 @@ import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import graphql.Scalars;
+import graphql.language.IntValue;
 import graphql.schema.*;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class GraphqlTableFieldFactory {
   // static types
@@ -178,7 +181,7 @@ public class GraphqlTableFieldFactory {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id)
-                  .type(GraphQLList.list(Scalars.GraphQLBigDecimal)));
+                  .type(GraphQLList.list(Scalars.GraphQLFloat)));
           break;
         case INT:
           tableBuilder.field(
@@ -368,7 +371,7 @@ public class GraphqlTableFieldFactory {
       case INT, INT_ARRAY:
         return Scalars.GraphQLInt;
       case LONG, LONG_ARRAY:
-        return Scalars.GraphQLLong;
+        return GraphQLLONG;
       case DECIMAL, DECIMAL_ARRAY:
         return Scalars.GraphQLFloat;
       case DATE,
@@ -706,17 +709,50 @@ public class GraphqlTableFieldFactory {
     return refTypes.get(name);
   }
 
+  public static final GraphQLScalarType GraphQLLONG =
+      GraphQLScalarType.newScalar()
+          .name("long")
+          .description("A custom scalar that handles longs")
+          .coercing(
+              new Coercing() {
+                @Override
+                public Object serialize(Object dataFetcherResult) {
+                  String possibleValue = String.valueOf(dataFetcherResult);
+                  try {
+                    return TypeUtils.toLong(possibleValue);
+                  } catch (Exception e) {
+                    throw new CoercingSerializeException(e.getMessage());
+                  }
+                }
+
+                @Override
+                public Object parseValue(Object input) {
+                  return TypeUtils.toLong(input);
+                }
+
+                @Override
+                public Object parseLiteral(Object input) {
+                  try {
+                    BigInteger possibleValue = ((IntValue) input).getValue();
+                    return TypeUtils.toLong(possibleValue);
+                  } catch (Exception e) {
+                    throw new CoercingSerializeException(e.getMessage());
+                  }
+                }
+              })
+          .build();
+
   private GraphQLInputType getGraphQLInputType(ColumnType columnType) {
     return switch (columnType.getBaseType()) {
       case FILE -> GraphqlCustomTypes.GraphQLFileUpload;
       case BOOL -> Scalars.GraphQLBoolean;
       case INT -> Scalars.GraphQLInt;
-      case LONG -> Scalars.GraphQLLong; // NOSONAR
+      case LONG -> GraphQLLONG;
       case DECIMAL -> Scalars.GraphQLFloat;
       case UUID, STRING, TEXT, DATE, DATETIME -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
-      case LONG_ARRAY -> GraphQLList.list(Scalars.GraphQLLong); // NOSONAR
+      case LONG_ARRAY -> GraphQLList.list(GraphQLLONG);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case STRING_ARRAY,
           TEXT_ARRAY,
