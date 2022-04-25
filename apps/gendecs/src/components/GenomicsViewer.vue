@@ -30,8 +30,9 @@
       </div>
 
       <div class="results" v-if="loading">
-        <p v-if="parentSearch" >Searching for matches with parents: {{ this.selectedHpoTerms }}
-          and the entered term(s): {{ selectedHpoTerms }}
+        <p v-if="parentSearch" >Searching for matches with parents:
+          <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.parents }}, </span>
+          and the entered term(s): <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
         </p>
         <Spinner/>
       </div>
@@ -170,15 +171,15 @@ export default {
     },
     async addAssociates(data, i) {
       if(this.searchAssociates.includes("Search for parents")) {
-        for (let i = 0; i < data["parents"].length; i++) {
+        for (let j = 0; j < data["parents"].length; j++) {
           this.parentSearch = true;
-          let parentId = data["parents"][i];
+          let parentId = data["parents"][j];
           let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
           this.selectedHpoTerms[i].parents.push(parentTerm);
         }
       }
       if(this.searchAssociates.includes("Search for children")) {
-        this.selectedHpoTerms[i].parents = data["children"];
+        this.selectedHpoTerms[i].children = data["children"];
 
         // for (let i = 0; i < data["children"].length; i++) {
         //   this.hpoChildren.push(data["children"][i]);
@@ -210,7 +211,6 @@ export default {
         let currentHpoTerm = hpoTermsToMatch[i].trim();
         if (this.selectedHpoTerms.length > 1) {
           for (let j = 0; j < this.selectedHpoTerms.length; j++) {
-            // todo make objects of hpo Terms? to make multiple hpo terms + parents/children checking easier
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
