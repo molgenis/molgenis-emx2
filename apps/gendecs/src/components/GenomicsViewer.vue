@@ -203,6 +203,11 @@ export default {
       let InfoLine = this.fileData[property].Information;
       let splitInfoLine = InfoLine.split("|");
       let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
+      if (splitInfoLine[splitInfoLine.length - 2].split(",").length !== splitInfoLine[splitInfoLine.length - 1].split(",").length) {
+        // console.log(splitInfoLine.toString());
+        // console.log("lengte hpo en disease " + splitInfoLine[splitInfoLine.length - 2].split(",").length);
+        // console.log( "en " + splitInfoLine[splitInfoLine.length - 1].split(",").length);
+      }
       let termIndex = [];
       let matchesNeeded = this.selectedHpoTerms.length;
       let foundMatches = 0;
@@ -218,7 +223,6 @@ export default {
             }
           }
           if (matchesNeeded === foundMatches) {
-            this.matchedVariants.push(this.fileData[property]);
             termIndex.push(i);
             foundMatches = 0;
           }
@@ -226,7 +230,6 @@ export default {
           if(this.selectedHpoTerms[0].term === currentHpoTerm ||
               this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
-            this.matchedVariants.push(this.fileData[property]);
             termIndex.push(i);
           }
         }
@@ -237,15 +240,23 @@ export default {
     },
     addGeneAndDisease(property, termIndex, splitInfoLine) {
       let diseaseIds = [];
-
       for (let j = 0; j < termIndex.length; j++) {
         let index = termIndex[j];
+        // TODO create a solution for this problems temporary work around
+        // When uploading the annotations of HPO and disease are of equal length.
+        // but here in the app there are differences for some lines. How?
+        if (index === splitInfoLine[splitInfoLine.length - 1].split(",").length ||
+          index > splitInfoLine[splitInfoLine.length - 1 ].split(",").length) {
+          index = index = 0;
+        }
         diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[index].replace("[", "").replace("]", ""));
       }
       let gene = splitInfoLine[3];
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = gene;
       this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 2).toString().replaceAll(",", "|");
+      this.matchedVariants.push(this.fileData[property]);
+
       termIndex = [];
     },
     async getVariantData() {
@@ -335,7 +346,7 @@ export default {
       this.noMatch = false;
       this.matchedVariants = [];
       this.doneSearch = false;
-    } // maak pagina van patient mooi leuke tabel ofzo met keuzes voor door klikken enz
+    }
   },
 };
 </script>
