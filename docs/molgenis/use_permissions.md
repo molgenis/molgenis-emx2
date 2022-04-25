@@ -72,7 +72,7 @@ We learnt the following settings helped to get all running properly:
 See environment variables below:
 
 ```
-DMOLGENIS_OIDC_CLIENT_ID="myclientid" 
+MOLGENIS_OIDC_CLIENT_ID="myclientid" 
 MOLGENIS_OIDC_CLIENT_SECRET="Secret"
 MOLGENIS_OIDC_DISCOVERY_URI="http://localhost:8080/realms/myrealm/.well-known/openid-configuration"
 MOLGENIS_OIDC_CALLBACK_URL="https://mymolgeniserver"
