@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RunWebApi {
@@ -22,8 +22,7 @@ public class RunWebApi {
     // setup
     Database db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema("pet store");
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().load(schema, true);
 
     MolgenisWebservice.start(8080);
   }

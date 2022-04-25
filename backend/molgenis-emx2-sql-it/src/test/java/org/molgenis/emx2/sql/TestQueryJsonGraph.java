@@ -21,7 +21,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestQueryJsonGraph {
@@ -35,8 +35,7 @@ public class TestQueryJsonGraph {
 
     schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
 
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().load(schema, true);
 
     schema.create(
         table("Person")
@@ -180,8 +179,7 @@ public class TestQueryJsonGraph {
   @Test
   public void testAgg() {
     Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testAgg");
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().load(schema, true);
 
     String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));

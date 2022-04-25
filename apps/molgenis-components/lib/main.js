@@ -10,15 +10,22 @@ import PageHeader from "../src/components/display/PageHeader.vue";
 import PersonDetails from "../src/components/display/PersonDetails.vue";
 import TableDisplay from "../src/components/display/TableDisplay.vue";
 
+import FilterContainer from "../src/components/filters/FilterContainer.vue";
+import FilterInput from "../src/components/filters/FilterInput.vue";
+import FilterSidebar from "../src/components/filters/FilterSidebar.vue";
+import FilterWell from "../src/components/filters/FilterWell.vue";
+import FilterWells from "../src/components/filters/FilterWells.vue";
+
 import MessageError from "../src/components/forms/MessageError.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
-import ButtonOutline from "../src/components/forms/ButtonOutline.vue"
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue"
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
+import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputPassword from '../src/components/forms/InputPassword.vue';
 import InputRadio from '../src/components/forms/InputRadio.vue'
 import InputString from '../src/components/forms/InputString.vue';
@@ -55,6 +62,11 @@ export {
   PageHeader,
   PersonDetails,
   TableDisplay,
+  FilterContainer,
+  FilterInput,
+  FilterSidebar,
+  FilterWell,
+  FilterWells,
   MessageError,
   ButtonAction,
   ButtonOutline,
@@ -62,6 +74,7 @@ export {
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InputGroup,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
