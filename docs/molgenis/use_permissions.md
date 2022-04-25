@@ -74,6 +74,6 @@ See environment variables below:
 ```
 MOLGENIS_OIDC_CLIENT_ID="myclientid" 
 MOLGENIS_OIDC_CLIENT_SECRET="Secret"
-MOLGENIS_OIDC_DISCOVERY_URI="http://localhost:8080/realms/myrealm/.well-known/openid-configuration"
+MOLGENIS_OIDC_DISCOVERY_URI="http://keycloakserver/realms/myrealm/.well-known/openid-configuration"
 MOLGENIS_OIDC_CALLBACK_URL="https://mymolgeniserver"
 ```
