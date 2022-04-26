@@ -197,6 +197,7 @@ export default {
     },
     addMatchedVariants(property) {
       let InfoLine = this.fileData[property].Information;
+      this.fileData[property].MatchedWith = [];
       let splitInfoLine = InfoLine.split("|");
       let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
       if (splitInfoLine[splitInfoLine.length - 2].split(",").length !== splitInfoLine[splitInfoLine.length - 1].split(",").length) {
@@ -207,26 +208,32 @@ export default {
       let termIndex = [];
       let matchesNeeded = this.selectedHpoTerms.length;
       let foundMatches = 0;
+      let matchedTerms = [];
 
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
         let currentHpoTerm = hpoTermsToMatch[i].trim();
         if (this.selectedHpoTerms.length > 1) {
+          //todo when hpoterm matched with a term add check that it doesn't match twice
           for (let j = 0; j < this.selectedHpoTerms.length; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
               foundMatches++;
+              matchedTerms.push(currentHpoTerm);
+              console.log(currentHpoTerm);
             }
           }
           if (matchesNeeded === foundMatches) {
             termIndex.push(i);
             foundMatches = 0;
+            this.fileData[property].MatchedWith = matchedTerms;
           }
         } else {
           if(this.selectedHpoTerms[0].term === currentHpoTerm ||
               this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
             termIndex.push(i);
+            this.fileData[property].MatchedWith.push(currentHpoTerm);
           }
         }
       }
