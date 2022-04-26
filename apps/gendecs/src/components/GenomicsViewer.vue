@@ -213,14 +213,14 @@ export default {
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
         let currentHpoTerm = hpoTermsToMatch[i].trim();
         if (this.selectedHpoTerms.length > 1) {
-          //todo when hpoterm matched with a term add check that it doesn't match twice
           for (let j = 0; j < this.selectedHpoTerms.length; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
-              foundMatches++;
-              matchedTerms.push(currentHpoTerm);
-              console.log(currentHpoTerm);
+              if(!matchedTerms.includes(currentHpoTerm)) {
+                foundMatches++;
+                matchedTerms.push(currentHpoTerm);
+              }
             }
           }
           if (matchesNeeded === foundMatches) {
