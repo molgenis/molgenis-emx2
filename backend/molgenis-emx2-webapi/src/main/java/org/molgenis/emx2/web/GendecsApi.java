@@ -28,13 +28,13 @@ public class GendecsApi {
     HpoTerm hpoTerm = new HpoTerm(hpoTermIn);
     OwlQuerier owlQuerier = new OwlQuerier(hpoId);
 
-    if (searchAssociates.toString().contains("parents")) {
+    if (searchAssociates.toString().contains("less")) {
       logger.info("Started querying for the parents of: " + hpoId);
       ArrayList<String> hpoTermsParent = owlQuerier.getParentClasses();
       logger.debug("resulting parent terms: " + hpoTermsParent);
       hpoTerm.setParents(hpoTermsParent);
     }
-    if (searchAssociates.toString().contains("children")) {
+    if (searchAssociates.toString().contains("more")) {
       logger.info("Started querying for the children of: " + hpoId);
       ArrayList<String> hpoTermChildren = owlQuerier.getSubClasses();
       logger.debug("resulting children terms: " + hpoTermChildren);

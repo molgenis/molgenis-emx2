@@ -15,11 +15,11 @@
       ></SearchAutoComplete>
 
       <InputCheckbox
-            label="Search for parents and children"
+            label="Search with less/more specific terms"
             v-model="searchAssociates"
-            :options="['Search for parents', 'Search for children']"
-            description="check this box if you want to search for parents and children of
-                        your HPO term"/>
+            :options="['Search less specific', 'Search more specific']"
+            description="check this box if you want to search with terms that are less/more
+        specific than the entered term. But are associtated with the HPO term"/>
     </div>
 
     <div id="bottemdiv">
@@ -170,7 +170,7 @@ export default {
       }
     },
     async addAssociates(data, i) {
-      if(this.searchAssociates.includes("Search for parents")) {
+      if(this.searchAssociates.includes("Search less specific")) {
         for (let j = 0; j < data["parents"].length; j++) {
           this.parentSearch = true;
           let parentId = data["parents"][j];
@@ -178,12 +178,8 @@ export default {
           this.selectedHpoTerms[i].parents.push(parentTerm);
         }
       }
-      if(this.searchAssociates.includes("Search for children")) {
+      if(this.searchAssociates.includes("Search more specific")) {
         this.selectedHpoTerms[i].children = data["children"];
-
-        // for (let i = 0; i < data["children"].length; i++) {
-        //   this.hpoChildren.push(data["children"][i]);
-        // }
       }
     },
     /**

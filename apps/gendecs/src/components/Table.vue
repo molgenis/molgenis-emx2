@@ -1,7 +1,7 @@
 <template>
   <div>
       <TableSimple
-          :columns="['Gene', 'Identifier','Chromosome','Position', 'RefSNPNumber', 'Reference', 'Alternative', 'Quality', 'Filter', 'Information', 'Diseases']"
+          :columns="['Gene','Chromosome','Position','Reference', 'Alternative', 'Information', 'Diseases']"
           :rows="vcfData">
     </TableSimple>
   </div>
@@ -27,7 +27,7 @@ export default {
     return {
       selectedItems: null,
       selected: null,
-      columns: ['Gene', 'Identifier','Chromosome','Position', 'RefSNPNumber', 'Reference', 'Alternative', 'Quality', 'Filter', 'Information', 'Diseases']
+      columns: ['Gene','Chromosome','Position', 'Reference', 'Alternative', 'Information', 'Diseases']
     }
   }
 }
