@@ -1,4 +1,4 @@
 dependencies {
     implementation 'org.graalvm.js:js:22.0.0.2'
-    implementation 'org.graalvm.js:js-scriptengine:22.0.0.2'
+    implementation 'org.graalvm.js:js-scriptengine:22.1.0'
 }
