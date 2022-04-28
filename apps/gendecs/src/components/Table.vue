@@ -1,7 +1,7 @@
 <template>
   <div>
       <TableSimple
-          :columns="['MatchedWith', 'Gene','Chromosome','Position','Reference', 'Alternative', 'Information', 'Diseases']"
+          :columns="['MatchedWith', 'Gene', 'Diseases', 'Chromosome','Position','Reference', 'Alternative', 'Information']"
           :rows="vcfData">
     </TableSimple>
   </div>
