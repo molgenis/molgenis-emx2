@@ -232,8 +232,13 @@ export default {
           if(this.selectedHpoTerms[0].term === currentHpoTerm ||
               this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
-            termIndex.push(i);
-            this.fileData[property].MatchedWith.push(currentHpoTerm);
+            if(!matchedTerms.includes(currentHpoTerm)) {
+              console.log(currentHpoTerm);
+              termIndex.push(i);
+              matchedTerms.push(currentHpoTerm);
+              this.fileData[property].MatchedWith.push(currentHpoTerm);
+
+            }
           }
         }
       }
