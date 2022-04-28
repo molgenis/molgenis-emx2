@@ -11,12 +11,6 @@ import org.slf4j.LoggerFactory;
 
 public class OwlQuerier {
   private static final Logger logger = LoggerFactory.getLogger(OwlQuerier.class);
-  Model model;
-  String hpoID;
-
-  public OwlQuerier(String id) {
-    hpoID = id;
-  }
 
   /**
    * Method that queries the hp.owl for all subclasses of an HPO term.
@@ -24,7 +18,7 @@ public class OwlQuerier {
    * @param hpoID String with the id of the HPO term which the user has entered
    * @return If the query is executed returns ResultSet with the results returns null if failed
    */
-  private ResultSet querySubClasses(String hpoID) {
+  private static ResultSet querySubClasses(String hpoID, Model model) {
     String queryString =
         String.format(
             """
@@ -55,7 +49,7 @@ public class OwlQuerier {
    * @param hpoID String with the id of the HPO term which the user has entered
    * @return If the query is executed returns ResultSet with the results returns null if failed
    */
-  private ResultSet queryParentClass(String hpoID) {
+  private static ResultSet queryParentClass(String hpoID, Model model) {
     String queryString =
         String.format(
             """
@@ -81,9 +75,9 @@ public class OwlQuerier {
     return null;
   }
 
-  public ArrayList<String> getParentClasses() {
-    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
-    ResultSet resultSet = queryParentClass(hpoID);
+  public static ArrayList<String> getParentClasses(String hpoID) {
+    Model model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    ResultSet resultSet = queryParentClass(hpoID, model);
     ArrayList<String> parents = new ArrayList<>();
 
     if (resultSet != null) {
@@ -95,7 +89,7 @@ public class OwlQuerier {
 
           Resource resource = querySolution.getResource("predicate");
           if (resource.getLocalName().equals("subClassOf")) {
-
+            // get the id of the term
             Resource literal = querySolution.getResource("label");
             parents.add(literal.getLocalName());
           }
@@ -109,9 +103,9 @@ public class OwlQuerier {
     return parents;
   }
 
-  public ArrayList<String> getSubClasses() {
-    model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
-    ResultSet resultSet = querySubClasses(hpoID);
+  public static ArrayList<String> getSubClasses(String hpoID) {
+    Model model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    ResultSet resultSet = querySubClasses(hpoID, model);
     ArrayList<String> hpoTerms = new ArrayList<>();
     if (resultSet != null) {
       if (resultSet.hasNext()) {

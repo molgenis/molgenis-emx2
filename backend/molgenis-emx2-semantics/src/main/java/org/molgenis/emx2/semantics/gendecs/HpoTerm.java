@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class HpoTerm {
   private ArrayList<String> parents;
-  private ArrayList<String> children;
+  private ArrayList<String> children = new ArrayList<>();
   private String hpoTerm;
 
   public HpoTerm(String hpoTerm) {
@@ -31,7 +31,7 @@ public class HpoTerm {
     return children;
   }
 
-  public void setChildren(ArrayList<String> children) {
-    this.children = children;
+  public void addChildren(ArrayList<String> children) {
+    this.children.addAll(children);
   }
 }

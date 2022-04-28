@@ -15,11 +15,11 @@
       ></SearchAutoComplete>
 
       <InputCheckbox
-            label="Search with less/more specific terms"
+            label="Search with less specific terms"
             v-model="searchAssociates"
-            :options="['Search less specific', 'Search more specific']"
-            description="check this box if you want to search with terms that are less/more
-        specific than the entered term. But are associtated with the HPO term"/>
+            :options="['Search less specific']"
+            description="check this box if you want to search with terms that are less
+        specific than the entered term. But are associated with the HPO term"/>
     </div>
 
     <div id="bottemdiv">
@@ -82,7 +82,7 @@ export default {
       selectedHpoTerms: [],
       foundMatch: false,
       hpoIds: null,
-      searchAssociates: null,
+      searchAssociates: [],
       loading: false,
       readOnly: false,
       noMatch: false,
@@ -323,15 +323,14 @@ export default {
       this.searchAssociates = null;
     },
     async main() {
+      this.searchAssociates.push("Search more specific");
       if (this.selectedHpoTerms.length === 0) {
         alert("Please make sure to enter 1 or multiple HPO terms");
       } else {
         this.loading = true;
         this.foundMatch = false;
 
-        if(this.searchAssociates != null) {
-          await this.addHpoAssociates();
-        }
+        await this.addHpoAssociates();
         await this.matchVariantWithHpo();
         this.loading = false;
         this.readOnly = true;

@@ -26,19 +26,23 @@ public class GendecsApi {
     JsonArray searchAssociates = jsonObject.get("searchAssociates").getAsJsonArray();
 
     HpoTerm hpoTerm = new HpoTerm(hpoTermIn);
-    OwlQuerier owlQuerier = new OwlQuerier(hpoId);
 
-    if (searchAssociates.toString().contains("less")) {
-      logger.info("Started querying for the parents of: " + hpoId);
-      ArrayList<String> hpoTermsParent = owlQuerier.getParentClasses();
-      logger.debug("resulting parent terms: " + hpoTermsParent);
-      hpoTerm.setParents(hpoTermsParent);
-    }
     if (searchAssociates.toString().contains("more")) {
       logger.info("Started querying for the children of: " + hpoId);
-      ArrayList<String> hpoTermChildren = owlQuerier.getSubClasses();
+      ArrayList<String> hpoTermChildren = OwlQuerier.getSubClasses(hpoId);
       logger.debug("resulting children terms: " + hpoTermChildren);
-      hpoTerm.setChildren(hpoTermChildren);
+      hpoTerm.addChildren(hpoTermChildren);
+    }
+    if (searchAssociates.toString().contains("less")) {
+      logger.info("Started querying for the parents of: " + hpoId);
+      ArrayList<String> hpoTermsParent = OwlQuerier.getParentClasses(hpoId);
+      logger.debug("resulting parent terms: " + hpoTermsParent);
+      hpoTerm.setParents(hpoTermsParent);
+      for (String parentId : hpoTermsParent) {
+        logger.info("Querying for the children of the parent with the id: " + parentId);
+        ArrayList<String> hpoParentChildren = OwlQuerier.getSubClasses(parentId);
+        hpoTerm.addChildren(hpoParentChildren);
+      }
     }
     return Serialize.serializeHpo(hpoTerm);
   }
