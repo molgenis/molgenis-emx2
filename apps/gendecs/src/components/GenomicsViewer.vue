@@ -310,6 +310,12 @@ export default {
 
       return this.getCorrectFileData(vcfData);
     },
+    /**
+     * Function that checks if the filename (fileData.VCFSourceFile) is present in the vcf_variants database.
+     * If it is present it fetches all variants and filters them on the correct data using the filename.
+     * @param fileData variants from table vcf_variants.
+     * @returns fileData filtered on correct fileName and removed nulls.
+     */
     getCorrectFileData(fileData) {
       //check if the file name exists in the data
       if(fileData.some(e => e.VCFSourceFile === this.vcffile)){
