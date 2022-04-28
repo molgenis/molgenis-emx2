@@ -183,11 +183,14 @@ export default {
       }
     },
     /**
-     *
+     * Function that loops through the properties of this.fileData and calls this.addMatchedVariants.
+     * after this.addMatchedVariants is done the function checks if matches are found.
      */
     async matchVariantWithHpo() {
+      let matchesNeeded = this.selectedHpoTerms.length;
+
       for (const property in this.fileData) {
-        this.addMatchedVariants(property);
+        this.addMatchedVariants(property, matchesNeeded);
       }
       if (this.matchedVariants.length >= 1) {
         this.foundMatch = true;
@@ -195,7 +198,18 @@ export default {
         this.noMatch = true;
       }
     },
-    addMatchedVariants(property) {
+    /**
+     * Function that gets property of this.fileData together with the number of entered hpo terms as
+     * matchedNeeded. It loops through the information line of fileData[property.Information which contains
+     * the HPO terms which are annotated to this variant. When multiple terms are entered it checks
+     * if both of these terms (or its parents/children) match to the current variant line.
+     * When one term is entered it just checks if it or its parents/children matches.
+     * When a term is matched a check is performed which checks if the current term has not matched
+     * before on this current line to prevent the resulting table from containing duplicate terms.
+     * @param property property of this.fileData
+     * @param matchesNeeded number of entered terms
+     */
+    addMatchedVariants(property, matchesNeeded) {
       let InfoLine = this.fileData[property].Information;
       this.fileData[property].MatchedWith = [];
       let splitInfoLine = InfoLine.split("|");
@@ -206,14 +220,13 @@ export default {
         // console.log( "en " + splitInfoLine[splitInfoLine.length - 1].split(",").length);
       }
       let termIndex = [];
-      let matchesNeeded = this.selectedHpoTerms.length;
-      let foundMatches = 0;
       let matchedTerms = [];
+      let foundMatches = 0;
 
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
         let currentHpoTerm = hpoTermsToMatch[i].trim();
-        if (this.selectedHpoTerms.length > 1) {
-          for (let j = 0; j < this.selectedHpoTerms.length; j++) {
+        if (matchesNeeded > 1) {
+          for (let j = 0; j < matchesNeeded; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
@@ -233,7 +246,6 @@ export default {
               this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
             if(!matchedTerms.includes(currentHpoTerm)) {
-              console.log(currentHpoTerm);
               termIndex.push(i);
               matchedTerms.push(currentHpoTerm);
               this.fileData[property].MatchedWith.push(currentHpoTerm);
@@ -246,6 +258,13 @@ export default {
         this.addGeneAndDisease(property, termIndex, splitInfoLine);
       }
     },
+    /**
+     * Function that adds the gene and disease Ids to this.fileData for the resulting table.
+     * It removes the annotated data (diseases and hpo terms) from the information line.
+     * @param property property of this.fileData
+     * @param termIndex Array containing the indexes of the matched terms
+     * @param splitInfoLine info line that is split on '|'
+     */
     addGeneAndDisease(property, termIndex, splitInfoLine) {
       let diseaseIds = [];
       for (let j = 0; j < termIndex.length; j++) {
@@ -325,7 +344,7 @@ export default {
       this.hpoIds = hpoIds;
 
       await this.getHpoAssociates(this.hpoIds);
-      this.searchAssociates = null;
+      this.searchAssociates = [];
     },
     async main() {
       this.searchAssociates.push("Search more specific");
@@ -345,7 +364,7 @@ export default {
     clearData() {
       this.selectedHpoTerms = [];
       this.hpoIds = null;
-      this.searchAssociates = null;
+      this.searchAssociates = [];
       this.patientGenes = null;
       this.loading = false;
       this.readOnly = false;
