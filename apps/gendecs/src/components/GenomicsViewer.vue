@@ -249,7 +249,6 @@ export default {
               termIndex.push(i);
               matchedTerms.push(currentHpoTerm);
               this.fileData[property].MatchedWith.push(currentHpoTerm);
-
             }
           }
         }
@@ -278,7 +277,25 @@ export default {
         }
         diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[index].replace("[", "").replace("]", ""));
       }
+      // https://www.ncbi.nlm.nih.gov/clinvar/variation/1107532/?oq=%22NM_001369.3+13758990%22
+      // creating disease links.
+      for (let i = 0; i < diseaseIds.length; i++) {
+        if(diseaseIds[i].includes("OMIM")) {
+          diseaseIds[i] = '<a href="https://www.omim.org/entry/' + diseaseIds[i].split(":")[1] + '">link to disease</a>';
+        } else if(diseaseIds[i].includes("ORPHA")) {
+          diseaseIds[i] = '<a href="https://www.orpha.net/consor/cgi-bin/Disease_Search.php?lng=NL&data_id=665&Disease_Disease_Search_diseaseGroup=' + diseaseIds[i].split(":")[1] + '">link to disease</a>';
+        }
+      }
+
+      //create clinvar link
+      // annotate with clinvar filter the ALlelID to the info line
+      // this allelID can be found in the info line of the ClinVar file
+      // fetch this from the info line and create the url with:
+      // http://www.ncbi.nlm.nih.gov/clinvar/?term='id'[alleleid]
+      let alleleid = splitInfoLine[splitInfoLine.length - 1];
+      this.fileData[property].ClinVar = '<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>';
       let gene = splitInfoLine[3];
+
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = gene;
       this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 2).toString().replaceAll(",", "|");
