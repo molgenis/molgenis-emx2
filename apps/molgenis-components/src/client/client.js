@@ -101,12 +101,12 @@ const fetchTableData = async (
       : 20;
   const offset =
     properties && Object.prototype.hasOwnProperty.call(properties, "offset")
-      ? properties.limit
+      ? properties.offset
       : 0;
 
   const search =
     properties &&
-    properties.searchTerms != null &&
+    properties.searchTerms !== null &&
     properties.searchTerms !== ""
       ? ',search:"' + properties.searchTerms.trim() + '"'
       : "";
