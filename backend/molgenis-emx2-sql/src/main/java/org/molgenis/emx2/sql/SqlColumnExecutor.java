@@ -278,6 +278,10 @@ public class SqlColumnExecutor {
                       .setPkey()
                       .setRequired(true)
                       .setDescription("User friendly name for this code"),
+                  column("codesystem")
+                      .setKey(2)
+                      .setDescription(
+                          "Abbreviation of the code system/ontology this ontology term belongs to"),
                   column("code")
                       .setKey(2)
                       .setDescription(
