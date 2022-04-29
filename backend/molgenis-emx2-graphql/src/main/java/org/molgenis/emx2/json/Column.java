@@ -52,7 +52,7 @@ public class Column {
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
-    this.refLabel = column.getRefLabel();
+    this.refLabel = escape(column.getRefLabel());
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
     this.validation = column.getValidation();
