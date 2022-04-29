@@ -21,6 +21,24 @@ public class TestOntologyTableIsGenerated {
   public void testOntologyTableIsGenerated() {
     Schema s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName());
 
+    // test error is thrown if reschema doesn't exist
+    try {
+      if (db.getSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2") != null) {
+        db.dropSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2");
+      }
+      s.create(
+          table(
+              "test",
+              column("name").setPkey(),
+              column("code")
+                  .setType(ColumnType.ONTOLOGY)
+                  .setRefSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2")
+                  .setRefTable("CodeTable")));
+      fail("should fail if refSchema doesn't exit");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("does not exist"));
+      // error correct
+    }
     // create
     s.create(
         table(

@@ -7,6 +7,8 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
 
 class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
@@ -14,14 +16,18 @@ class SqlDatabaseExecutor {
   }
 
   static void executeCreateUser(DSLContext jooq, String user) {
+    if (user == null || user.isEmpty()) {
+      throw new MolgenisException("Can not create user with empty user name");
+    }
     try {
       String userName = MG_USER_PREFIX + user;
       executeCreateRole(jooq, userName);
-      if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
+      if (!ADMIN_USER.equals(user) && !USER.equals(user) && !Constants.ANONYMOUS.equals(user)) {
         // non-system users get role 'user' as way to identify all users
         jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + USER), name(userName));
         // all users can see what anonymous can see
-        jooq.execute("GRANT {0} TO {1}", name(MG_USER_PREFIX + ANONYMOUS), name(userName));
+        jooq.execute(
+            "GRANT {0} TO {1}", name(MG_USER_PREFIX + Constants.ANONYMOUS), name(userName));
       }
       // session_user has all roles, needed for 'set role'
       jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user));

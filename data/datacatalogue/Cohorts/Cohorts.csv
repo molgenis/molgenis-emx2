@@ -1,6 +1,6 @@
 pid,name,type,institution,contact,homepage,publications,conditions,description,population,inclusionCriteria,recordPromptDescription,startYear,endYear,noParticipants,noParticipantsWithSamples,supplementaryInformation,fundingStatement,externalIdentifiers,keywords,ageCategories,publication,releaseDescription,acknowledements,design,collectionType
-TestCohort,My test cohort,cohort,UMCG,Morris Swertz,http://molgenis.org,10.1093/ije/dys064,not for profit use only,Just a test,Netherlands,"Children,Mothers,Partners",Some prompt,2021,2021,1,1,here suppl info,No funding,test:123,Test,"0y,1y",None,we release monthly,"all MOLGENIS volunteers, sponsors and coworkers",longitudinal,Prospective
-ALSPAC,Avon Longitudinal Study of Parents and Children,cohort,UOB,"ALSPAC General enquiries,ALSPAC Data enquiries,ALSPAC Lab enquiries",http://www.bristol.ac.uk/alspac/,10.1093/ije/dys064,not for profit use only,"Based at the University of Bristol, the Avon Longitudinal Study of Parents and Children (ALSPAC), also known as Children of the 90s, is a world-leading birth cohort study.
+TestCohort,My test cohort,Population cohort,UMCG,Morris Swertz,http://molgenis.org,10.1093/ije/dys064,not for profit use only,Just a test,Netherlands,"Children,Mothers,Partners",Some prompt,2021,2021,1,1,here suppl info,No funding,test:123,Test,"0y,1y",None,we release monthly,"all MOLGENIS volunteers, sponsors and coworkers",Longitudinal,Prospective
+ALSPAC,Avon Longitudinal Study of Parents and Children,Population cohort,UOB,"ALSPAC General enquiries,ALSPAC Data enquiries,ALSPAC Lab enquiries",http://www.bristol.ac.uk/alspac/,10.1093/ije/dys064,not for profit use only,"Based at the University of Bristol, the Avon Longitudinal Study of Parents and Children (ALSPAC), also known as Children of the 90s, is a world-leading birth cohort study.
 
 Between April 1991 and December 1992 we recruited more than 14,000 pregnant women into the study and these women (some of whom had two pregnancies or multiple births during the recruitment period), the children arising from the pregnancy, and their partners have been followed up intensively over two decades.
 
@@ -19,36 +19,8 @@ Ness A, Ring S, Davey Smith G. Cohort Profile: the 'children of the 90s'--the
 index offspring of the Avon Longitudinal Study of Parents and Children. Int J
 Epidemiol. 2013 Feb;42(1):111-27. doi: 10.1093/ije/dys064. Epub 2012 Apr 16.
 PMID: 22507743; PMCID: PMC3600618.",,,,
-BIB,Born in Bradford,cohort,BRI,BIB team,https://borninbradford.nhs.uk/,,,,,,,,,,,,,,,,,,,,
-GECKO,The Groningen Expert Center for Kids with Obesity Drenthe cohort,cohort,UMCG,Eva Corpeleijn,https://www.rug.nl/research/portal/datasets/gecko-drenthe-cohort(3e14f7ca-a55d-41d9-9803-19302aa4ea87).html,,,,,,,,,,,,,,,,,,,,
-Gen R,The Generation R Study,cohort,ERASMUS,Vincent Jaddoe,https://generationr.nl/,,,,,,,,,,,,,,,,,,,,
-NFBC86,The Northern Finland Birth Cohort Study 1986,cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,,,,
-MoBa,"The Norwegian Mother, Father and Child Cohort Study",cohort,NIPH,Per Minor Magnus,https://www.fhi.no/en/studies/moba/,,,,,,,,,,,,,,,,,,,,
-ELFE,"Etude Longitudinale Française depuis l'Enfance""  (French longitudinal study of children)",cohort,INSERM,Marie Aline Charles,https://www.elfe-france.fr/en/,,,,,,,,,,,,,,,,,,,,
-EDEN,Study on the pre and early postnatal determinants of child health and development,cohort,INSERM,Barbara Heude,http://eden.vjf.inserm.fr/index.php/fr/,,,,,,,,,,,,,,,,,,,,
-NFBC66,The Northern Finland Birth Cohort Study 1966,cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,,,,
-DNBC,The Danish National Birth Cohort,cohort,UCPH,Inger Kristine Meder,https://www.dnbc.dk,,,,,,,,,,,,,,,,,,,,
-HBCS,Helsinki Birth Cohort Study,cohort,THL,Tuija Mikkola,https://thl.fi/en/web/thlfi-en/research-and-expertwork/projects-and-programmes/helsinki-birth-cohort-study-hbcs-idefix,,,,,,,,,,,,,,,,,,,,
-NINFEA,Nascita ed INFanzia: gli Effetti dell'Ambiente,cohort,UNITO,Lorenzo Richiardi,https://www.progettoninfea.it/index_en,,,,,,,,,,,,,,,,,,,,
-SWS,Southampton Women’s Survey,cohort,SOTON,Hazel Inskip,https://www.mrc.soton.ac.uk/sws/,,,,,,,,,,,,,,,,,,,,
-RAINE,The West Australian Pregnancy Cohort,cohort,UWA,Raineadmin,https://rainestudy.org.au/,,,,,,,,,,,,,,,,,,,,
-RHEA,"RHEA - Mother Child Cohort in Crete, Greece",cohort,UOC,Marina Vafeiadi,http://www.rhea.gr/,,,,,,,,,,,,,,,,,,,,
-CHOP,Childhood Obesity Programme,cohort,LMU,Berthold Koletzko,http://www.metabolic-programming.org/obesity/,,,,,,,,,,,,,,,,,,,,
-INMA,INfancia y Medio Ambiente [Environment and Childhood] Project,cohort,ISGLOBAL,Mònica Guxens,https://www.proyectoinma.org/en/#,,,,,,,,,,,,,,,,,,,,
-Borealis,Borealis Biobank,biobank,UOULU,,,,,,,,,,,,,,,,,,,,,,
-CONSTANCES,Cohorte des Consultants des Centres d’Examens de Santé,cohort,INSERM,,,,,,,,,,,,,,,,,,,,,,
-DFBC,Dutch Famine Birth Cohort study,cohort,AMC,,,,,,,,,,,,,,,,,,,,,,
-ELIPA,Elintarvikkeita Painonhallintaan,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
-FEF,Fibrefects,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
-FinnGeDi,Finnish Gestational Diabetes Study,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
-FMC,Finnish Maternity Cohort,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
-FR,Finnish Register Sample,,UOULU,,,,,,,,,,,,,,,,,,,,,,
-NOMA,NOMA,,UiO,,,,,,,,,,,,,,,,,,,,,,
-OULU1935,Born in Oulu in 1935,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
-OULU1945,Born in Oulu in 1945,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
-PANIC,Physical Activity and Nutrition In Children,cohort,UEF,,,,,,,,,,,,,,,,,,,,,,
-RCGP RSC,Royal College of General Practitioners Research & Surveillance Centre,,SURREY,,,,,,,,,,,,,,,,,,,,,,
-ERGO,Rotterdam Study,cohort,ERASMUS,,,,,,,,,,,,,,,,,,,,,,
-SYSDIMET,SYSDIMET,,UEF,,,,,,,,,,,,,,,,,,,,,,
-UK Biobank,United Kingdom Biobank,biobank,SURREY,,,,,,,,,,,,,,,,,,,,,,
-NFBC66 G0,Parents of NFBC1966,cohort,UOULU,,,,,,,,,,,,,,,,,,,,,,
+BIB,Born in Bradford,Birth cohort,BRI,BIB team,https://borninbradford.nhs.uk/,,,,,,,,,,,,,,,,,,,,
+GECKO,The Groningen Expert Center for Kids with Obesity Drenthe cohort,Birth cohort,UMCG,Eva Corpeleijn,https://www.rug.nl/research/portal/datasets/gecko-drenthe-cohort(3e14f7ca-a55d-41d9-9803-19302aa4ea87).html,,,,,,,,,,,,,,,,,,,,
+Gen R,The Generation R Study,Population cohort,ERASMUS,Vincent Jaddoe,https://generationr.nl/,,,,,,,,,,,,,,,,,,,,
+NFBC86,The Northern Finland Birth Cohort Study 1986,Population cohort,UOULU,Minna Ruddock,www.oulu.fi/nfbc,,,,,,,,,,,,,,,,,,,,
+MoBa,"The Norwegian Mother, Father and Child Cohort Study",Population cohort,NIPH,Per Minor Magnus,https://www.fhi.no/en/studies/moba/,,,,,,,,,,,,,,,,,,,,

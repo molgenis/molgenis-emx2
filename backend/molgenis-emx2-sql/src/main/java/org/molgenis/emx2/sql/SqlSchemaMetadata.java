@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -273,11 +273,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         .tx(
             tdb -> {
               String current = tdb.getActiveUser();
-              tdb.clearActiveUser(); // elevate privileges
-              result.addAll(
-                  SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                      ((SqlDatabase) tdb).getJooq(), getName(), username));
-              tdb.setActiveUser(current);
+              try {
+                tdb.becomeAdmin(); // elevate privileges
+                result.addAll(
+                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                        ((SqlDatabase) tdb).getJooq(), getName(), username));
+              } finally {
+                tdb.setActiveUser(current); // reset privileges
+              }
             });
     return result;
   }

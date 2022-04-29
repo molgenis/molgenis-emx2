@@ -5,27 +5,44 @@ import static spark.Spark.delete;
 import static spark.Spark.get;
 
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.tasks.Task;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.*;
 import spark.Request;
 import spark.Response;
 
 // TODO make the tasks private to schema; then you need schema edit or manager to view them
+// TODO move into graphql api, so it is documentation and less silly
 public class TaskApi {
 
-  private static TaskService taskService = new TaskServiceInMemory();
+  // todo, make jobs private to the user?
+  public static TaskService taskService = new TaskServiceInMemory();
 
   public static void create() {
+    get("/api/tasks", TaskApi::listTasks);
+    get("/api/tasks/clear", TaskApi::clearTasks);
+    get("/api/task/:id", TaskApi::getTask);
+
+    // convenient delete
+    delete("/api/task/:id", TaskApi::deleteTask);
+    get("/api/task/:id/delete", TaskApi::deleteTask);
+
+    // also works in context schema
+    // todo: make tasks scoped?
     get("/:schema/api/tasks", TaskApi::listTasks);
     get("/:schema/api/tasks/clear", TaskApi::clearTasks);
     get("/:schema/api/task/:id", TaskApi::getTask);
 
     // convenient delete
-    delete("/:schema/api/task/:id", TaskApi::deleteTask);
+    delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
+    get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
 
-    get("/:schema/api/task/:id/delete", TaskApi::deleteTask);
-    get("/:schema/api/tasks", TaskApi::listTasks);
+    // also in app
+    get("/:schema/:app/api/tasks", TaskApi::listTasks);
+    get("/:schema/:app/api/tasks/clear", TaskApi::clearTasks);
+    get("/:schema/:app/api/task/:id", TaskApi::getTask);
+
+    // convenient delete
+    delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
+    get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
   }
 
   private static String clearTasks(Request request, Response response) {
@@ -45,10 +62,10 @@ public class TaskApi {
   }
 
   private static String listTasks(Request request, Response response) {
-    if (getSchema(request) != null) {
+    if (request.params("schema") == null || getSchema(request) != null) {
 
       String clearUrl = "/" + request.params("schema") + "/api/tasks/clear";
-      String result = String.format("{clearUrl:'%s', tasks:[", clearUrl);
+      String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
       for (String id : taskService.getJobIds()) {
         Task task = taskService.getTask(id);
@@ -56,10 +73,9 @@ public class TaskApi {
         String deleteUrl = getUrl + "/delete";
         result +=
             String.format(
-                "{\"id\":\"%s\", description:\"%s\",\"status\":\"%s\",\"url\":\"%s\",\"deleteUrl\":\"%s\"}",
+                "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
                 id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
       }
-
       result += "]}";
       return result;
     }
@@ -68,7 +84,11 @@ public class TaskApi {
 
   private static String getTask(Request request, Response response) {
     if (getSchema(request) != null) {
-      return taskService.getTask(request.params("id")).toString();
+      Task step = taskService.getTask(request.params("id"));
+      if (step == null) {
+        step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
+      }
+      return step.toString();
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }

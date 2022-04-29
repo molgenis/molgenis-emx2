@@ -9,6 +9,8 @@ public class TestDatabaseFactory {
 
     if (db == null) {
       db = new SqlDatabase(false);
+      // default to admin user for the tests
+      db.setActiveUser(db.getAdminUserName());
     }
     return db;
   }

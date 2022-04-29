@@ -9,11 +9,11 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.2.0'
+    id 'com.google.cloud.tools.jib' version '3.2.1'
     id 'org.unbroken-dome.helm' version '1.7.0'
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
-    id 'com.palantir.docker' version '0.32.0'
+    id 'com.palantir.docker' version '0.33.0'
 }
 
 
@@ -40,6 +40,9 @@ repositories {
     mavenLocal()
     maven {
         url = 'https://repo.maven.apache.org/maven2'
+    }
+    maven {
+        url = "https://registry.molgenis.org/repository/maven-public"
     }
 }
 
@@ -107,8 +110,8 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 docker {
     name ssrImageName
     tags 'latest', ssrTagName
-    dockerfile file('apps/Dockerfile')
-    files 'apps/nuxt-ssr'
+    dockerfile file('Dockerfile')
+    files 'apps'
 }
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
@@ -160,7 +163,7 @@ ext {
 }
 
 application {
-    mainClassName = javaMainClass
+    mainClass.set(javaMainClass)
 }
 
 jar {

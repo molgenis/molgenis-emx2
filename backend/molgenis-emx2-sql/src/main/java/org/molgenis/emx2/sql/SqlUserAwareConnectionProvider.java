@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import java.sql.Connection;
 import javax.sql.DataSource;
@@ -23,13 +24,18 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (activeUser != null && !activeUser.equals(ADMIN_USER)) {
+      if (getActiveUser().equals(ADMIN_USER)) {
+        // as admin you are actually session user
+        DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE;");
+      } else {
+        // as non admin you are a current user
         DSL.using(connection, SQLDialect.POSTGRES)
-            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + activeUser));
+            .execute("RESET ROLE; SET ROLE {0}", name(MG_USER_PREFIX + getActiveUser()));
       }
       return connection;
     } catch (DataAccessException dae) {
       super.release(connection);
+      // if invalid user we will not return a connection, not even anonymous
       throw new SqlMolgenisException("Set active user failed'", dae);
     }
   }
@@ -45,7 +51,8 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   }
 
   public String getActiveUser() {
-    return activeUser;
+    // default user is ANONYMOUS, not admin! (never null)
+    return activeUser == null ? ANONYMOUS : activeUser;
   }
 
   public void setActiveUser(String activeUser) {

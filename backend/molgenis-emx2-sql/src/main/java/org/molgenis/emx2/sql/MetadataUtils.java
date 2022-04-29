@@ -87,6 +87,8 @@ public class MetadataUtils {
   private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
 
   // settings
+  private static final org.jooq.Field SETTINGS_USER =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_USER), VARCHAR);
   private static final org.jooq.Field SETTINGS_NAME =
       field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
   private static final org.jooq.Field SETTINGS_TABLE_NAME =
@@ -223,8 +225,14 @@ public class MetadataUtils {
             }
 
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
-              t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-                  .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+              t.columns(
+                      TABLE_SCHEMA,
+                      SETTINGS_TABLE_NAME,
+                      SETTINGS_NAME,
+                      SETTINGS_VALUE,
+                      SETTINGS_USER)
+                  .constraint(
+                      primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_USER))
                   .execute();
             }
           });
@@ -567,11 +575,12 @@ public class MetadataUtils {
   protected static void saveSetting(
       DSLContext jooq, SchemaMetadata schema, TableMetadata table, Setting setting) {
     String tableName = table != null ? table.getTableName() : NOT_PROVIDED;
-    insertSetting(jooq, schema.getName(), tableName, setting.key(), setting.value());
+    insertSetting(
+        jooq, schema.getName(), tableName, setting.key(), setting.user(), setting.value());
   }
 
   protected static void saveSetting(DSLContext jooq, Setting setting) {
-    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.key(), setting.value());
+    insertSetting(jooq, NOT_PROVIDED, NOT_PROVIDED, setting.key(), setting.user(), setting.value());
   }
 
   private static void insertSetting(
@@ -579,12 +588,17 @@ public class MetadataUtils {
       String schemaName,
       String tableName,
       String settingKey,
+      String settingsUser,
       String settingValue) {
+    Objects.requireNonNull(schemaName);
+    Objects.requireNonNull(tableName);
+    Objects.requireNonNull(settingKey);
+    Objects.requireNonNull(settingsUser);
     try {
       jooq.insertInto(SETTINGS_METADATA)
           .columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
           .values(schemaName, tableName, settingKey, settingValue)
-          .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME)
+          .onConflict(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_USER)
           .doUpdate()
           .set(SETTINGS_VALUE, settingValue)
           .execute();

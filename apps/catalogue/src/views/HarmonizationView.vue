@@ -18,7 +18,7 @@
             <th
               class="rotated-text text-nowrap"
               scope="col"
-              v-for="resource in resources"
+              v-for="resource in resourcesWithoutModels"
               :key="resource.pid"
             >
               <div>
@@ -32,7 +32,7 @@
             <harmonization-row
               :key="variable.name"
               :variable="variable"
-              :resources="resources"
+              :resources="resourcesWithoutModels"
             />
           </template>
         </tbody>
@@ -50,45 +50,54 @@
         </button>
       </p>
     </template>
-    <div v-else><Spinner /></div>
+    <div v-else>
+      <Spinner />
+    </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import HarmonizationRow from "./HarmonizationRow.vue";
-import { Spinner } from "@mswertz/emx2-styleguide";
+import {mapGetters, mapActions} from 'vuex';
+import HarmonizationRow from './HarmonizationRow.vue';
+import {Spinner} from '@mswertz/emx2-styleguide';
 
 const INITIAL_PAGE_SIZE = 10;
 
 export default {
-  name: "HarmonizationView",
-  components: { HarmonizationRow, Spinner },
+  name: 'HarmonizationView',
+  components: {HarmonizationRow, Spinner},
   data() {
     return {
-      pageSize: INITIAL_PAGE_SIZE,
+      pageSize: INITIAL_PAGE_SIZE
     };
   },
   computed: {
-    ...mapGetters(["resources", "variables"]),
+    ...mapGetters(['resources', 'variables']),
     variablePage() {
       return this.variables.slice(0, this.pageSize);
     },
+    resourcesWithoutModels() {
+      return this.resources.filter(
+        (r) =>
+          !r.mg_tableclass.endsWith('Models') &&
+          !r.mg_tableclass.endsWith('Networks')
+      );
+    }
   },
   methods: {
-    ...mapActions(["fetchResources"]),
+    ...mapActions(['fetchResources']),
     fetchNextPage() {
       this.pageSize += 10;
-    },
+    }
   },
   watch: {
     variables() {
       this.pageSize = INITIAL_PAGE_SIZE;
-    },
+    }
   },
   async mounted() {
     await this.fetchResources();
-  },
+  }
 };
 </script>
 
@@ -101,10 +110,12 @@ th.rotated-text {
   height: 13rem;
   padding: 0;
 }
+
 th.rotated-text > div {
   transform: translate(7px, 4px) rotate(270deg);
   width: 1.4rem;
 }
+
 th.rotated-text > div > span {
   padding: 5px 10px;
 }

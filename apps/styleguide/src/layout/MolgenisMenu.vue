@@ -11,7 +11,7 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <a v-if="logo" class="navbar-brand">
+    <a v-if="logo" class="navbar-brand" href="/">
       <img :src="logo" alt="brand-logo" height="30" />
     </a>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -22,7 +22,7 @@
           class="nav-item"
           :class="{
             active: item.active,
-            dropdown: item.submenu,
+            dropdown: item.submenu
           }"
         >
           <ButtonDropdown
@@ -56,12 +56,12 @@
 </template>
 
 <script>
-import ButtonDropdown from "../forms/ButtonDropdown";
+import ButtonDropdown from '../forms/ButtonDropdown';
 
 /** You can use the slot to put a component in the right of menu, e.g. an 'Account' component */
 export default {
   components: {
-    ButtonDropdown,
+    ButtonDropdown
   },
   props: {
     /** the navbar items in format {name:'name', href:'href',role:[], submenu:[]}.
@@ -79,11 +79,11 @@ export default {
     baseURL: {
       type: String,
       default: () => {
-        let path = window.location.pathname.split("/")[1];
+        let path = window.location.pathname.split('/')[1];
         //add trailing slash if path; when in root we return only /
-        return "/" + (path ? path + "/" : "");
-      },
-    },
+        return '/' + (path ? path + '/' : '');
+      }
+    }
   },
   computed: {
     permittedItems() {
@@ -108,22 +108,22 @@ export default {
 
       //default: go home
       return firstItem ? this.addBaseUrl(firstItem.href) : this.baseURL;
-    },
+    }
   },
   methods: {
     addBaseUrl(href) {
       // fully qualified URLs or relative URL navigation supported (although we should deprecate the '../' option
       if (
         href &&
-        (href.startsWith("http://") ||
-          href.startsWith("https://") ||
-          href.startsWith("/") ||
-          href.startsWith(".."))
+        (href.startsWith('http://') ||
+          href.startsWith('https://') ||
+          href.startsWith('/') ||
+          href.startsWith('..'))
       ) {
         return href;
       } else {
         //relative paths use the baseURL
-        return this.baseURL + (href ? href : "");
+        return this.baseURL + (href ? href : '');
       }
     },
     permitted(item) {
@@ -131,26 +131,26 @@ export default {
         return true;
       }
       if (this.session && Array.isArray(this.session.roles)) {
-        if (this.session.email == "admin") {
+        if (this.session.email == 'admin') {
           return true;
         }
-        if (item.role == "Viewer") {
+        if (item.role == 'Viewer') {
           return this.session.roles.some((r) =>
-            ["Viewer", "Editor", "Manager", "Owner"].includes(r)
+            ['Viewer', 'Editor', 'Manager', 'Owner'].includes(r)
           );
-        } else if (item.role == "Editor") {
+        } else if (item.role == 'Editor') {
           return this.session.roles.some((r) =>
-            ["Editor", "Manager", "Owner"].includes(r)
+            ['Editor', 'Manager', 'Owner'].includes(r)
           );
-        } else if (item.role == "Manager") {
+        } else if (item.role == 'Manager') {
           return this.session.roles.some((r) =>
-            ["Manager", "Owner"].includes(r)
+            ['Manager', 'Owner'].includes(r)
           );
         }
       }
       return false;
-    },
-  },
+    }
+  }
 };
 </script>
 

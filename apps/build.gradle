@@ -19,121 +19,114 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    //all depends on styleguide, so that needs build first
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
-        node {
-            with nodeSpec
+        node { with nodeSpec }
+        // force build order: molgenis-components > styleguide > ...apps
+        if (project.name != 'styleguide' && project.name != 'molgenis-components') {
+            dependsOn ":apps:styleguide:build"
+        }
+        if (project.name == 'styleguide') {
+            dependsOn ":apps:molgenis-components:build"
         }
 
-        inputs.file('package.json')
-        if(project.name == 'nuxt-ssr') {
-            inputs.files(fileTree('components'))
+        // set input out out put for each app type
+        if (project.name == 'styleguide') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.file('styleguide.config.js')
+            inputs.file('vue.config.js')
+            outputs.dir('build')
+        } else if (project.name == 'molgenis-components') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('lib'))
+            inputs.file('vite.config.js')
+            outputs.dir('dist')
+        } else if (project.name == 'nuxt-ssr') {
+            inputs.file('package.json')
+            inputs.files(fileTree('molgenis-components'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
             inputs.files(fileTree('store'))
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
-
         } else {
+            inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
-        }
-
-        if (project.name != 'docs' && project.name != 'nuxt-ssr' ) {
-            inputs.files(fileTree('../styleguide/src'))
-            inputs.file('vue.config.js')
             outputs.dir('dist')
         }
 
-        // tell gradle to apply the build cache
         outputs.cacheIf { true }
 
-        //depend on styleguide to build first
-        if (project.name != 'styleguide') {
-            dependsOn ":apps:styleguide:build"
-        }
-
-        //first install the workspace
         args = ['run', 'build']
 
-        //remove the target folder with copy of all build materials
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
-    //copy styleguide or normal app
-    if (project.name == 'styleguide') {
-        task buildStyleguidist(type: YarnTask, dependsOn: parent.yarn_install) {
-            node {
-                with nodeSpec
-            }
-
+    task buildStyleguidist(type: YarnTask, dependsOn: build) {
+        node { with nodeSpec }
+        if (project.name == 'styleguide') {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
             inputs.file('styleguide.config.js')
             inputs.file('vue.config.js')
             outputs.dir('build')
-
-            // tell gradle to apply the build cache
             outputs.cacheIf { true }
-
-            //first install the workspace
             args = ['run', 'styleguide:build']
         }
-        task copyDistFiles(type: Copy, dependsOn: buildStyleguidist) {
+    }
+
+    task buildComponentsShowcase(type: YarnTask, dependsOn: buildStyleguidist) {
+        node { with nodeSpec }
+        if (project.name == 'molgenis-components') {
+            inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('lib'))
+            inputs.file('vite.config.js')
+            outputs.dir('showCase')
+            outputs.cacheIf { true }
+            args = ['run', 'build-showcase']
+        }
+    }
+
+    task copyDistFiles(type: Copy, dependsOn: buildComponentsShowcase) {
+        if (project.name == 'styleguide') {
             from "build"
             inputs.dir("build")
-            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-            outputs.cacheIf { true }
-
-        }
-    } else {
-        task copyDistFiles(type: Copy, dependsOn: build) {
+        } else if (project.name == 'molgenis-components') {
+            from "showCase"
+            inputs.dir("showCase")
+        } else {
             from "dist"
             inputs.dir("dist")
-            into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-            outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
-            outputs.cacheIf { true }
         }
+
+        into "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+        outputs.dir("${project.parent.buildDir}/resources/main/public_html/apps/${project.name}")
+        outputs.cacheIf { true }
     }
 
     clean.doLast {
         project.delete(files("dist"))
         project.delete(files("build"))
         project.delete(files("node_modules"))
-        if(project.name == 'nuxt-ssr') {
-            project.delete(files(".nuxt"))
-        }
+        project.delete(files(".nuxt"))
+        project.delete(files("showCase"))
     }
 
-    // TODO QC and test coverage on javascript parts
-//    sonarqube {
-//        properties {
-//            property 'sonar.sources', 'src'
-//        }
-//    }
 }
-
-/** skip yarn install unless changes => removed because leads to travis errors*/
-//yarn_install {
-////    inputs.file('package.json')
-////    inputs.file('yarn.lock')
-////    outputs.dir('node_modules')
-////    subprojects.each {
-////        inputs.file('package.json')
-////        outputs.dir('node_modules')
-////    }
-//
-//    //outputs.cacheIf { true }
-//}
 
 /* convert build files into one apps.jar that we can use as a dependency in the java part */
 task createJar(type: Zip, dependsOn: subprojects.copyDistFiles) {
-    baseName 'molgenis-emx2-apps'
-    extension 'jar'
-    destinationDir file("${buildDir}/build/libs")
+    archiveBaseName = 'molgenis-emx2-apps'
+    archiveExtension = 'jar'
+    destinationDirectory = file("${buildDir}/build/libs")
     from('build/resources/main')
 }
 

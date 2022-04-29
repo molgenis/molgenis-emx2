@@ -8,7 +8,7 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,35 +21,41 @@ import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
   private static Database database;
   private static final String schemaName = "TestGraphqlSchemaFields";
+  private static TaskService taskService;
   private static Schema schema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    new PetStoreLoader().load(schema, true);
+    taskService = new TaskServiceInMemory();
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
 
   @Test
   public void testSession() throws IOException {
     try {
       database.setActiveUser(ANONYMOUS);
-      TestCase.assertEquals(0, execute("{_session{email,roles}}").at("/_session/roles").size());
+      TestCase.assertEquals(1, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName));
+      grapql =
+          new GraphqlApiFactory()
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
       TestCase.assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
-      database.clearActiveUser();
+      database.becomeAdmin();
     }
   }
 
@@ -420,7 +426,7 @@ public class TestGraphqSchemaFields {
               column("person").setType(REF).setRefTable("Person details"),
               column("persons").setType(REF_ARRAY).setRefTable("Person details")));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
 
       int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
 
@@ -438,7 +444,7 @@ public class TestGraphqSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
   }
 
@@ -456,7 +462,7 @@ public class TestGraphqSchemaFields {
       myschema.create(
           table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema);
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
 
       // insert file (note: ideally here also use mutation but I don't know how to add file part to
       // request)
@@ -493,7 +499,31 @@ public class TestGraphqSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
+  }
+
+  @Test
+  public void testTasksApi() throws IOException {
+    // fake something into taskservice
+    Task task = new Task("test");
+    task.addSubTask(new Task("subtest"));
+    taskService.submit(task);
+
+    // list all tasks
+    assertTrue(
+        execute("{_tasks{id,description,status}}")
+            .at("/_tasks/0/description")
+            .textValue()
+            .startsWith("test"));
+    // load single task
+    assertTrue(
+        execute(
+                "{_tasks(id:\""
+                    + task.getId()
+                    + "\"){id,description,status,subTasks{id,description,status,subTasks{id,description,status}}}}")
+            .at("/_tasks/0/description")
+            .textValue()
+            .startsWith("test"));
   }
 }

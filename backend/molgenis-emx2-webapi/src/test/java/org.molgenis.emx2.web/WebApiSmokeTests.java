@@ -6,14 +6,14 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.io.*;
 import java.util.Map;
 import org.junit.AfterClass;
@@ -25,7 +25,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -45,12 +45,11 @@ public class WebApiSmokeTests {
     // setup test schema
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema("pet store");
-    PetStoreExample.create(schema.getMetadata());
-    PetStoreExample.populate(schema);
+    new PetStoreLoader().load(schema, true);
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    schema.addMember(org.molgenis.emx2.Constants.ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
 
     // start web service for testing
@@ -195,7 +194,21 @@ public class WebApiSmokeTests {
     String url = val.get("url");
     String id = val.get("id");
 
-    // check if in tasks list
+    // poll task until complete
+    Response poll = given().sessionId(SESSION_ID).when().get(url);
+    int count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (poll.body().asString().contains("UNKNOWN")
+        || poll.body().asString().contains("RUNNING")) {
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      poll = given().sessionId(SESSION_ID).when().get(url);
+      Thread.sleep(500);
+    }
+
+    // check if id in tasks list
     assertTrue(
         given()
             .sessionId(SESSION_ID)
@@ -204,17 +217,6 @@ public class WebApiSmokeTests {
             .get("/pet store/api/tasks")
             .asString()
             .contains(id));
-
-    // poll task until complete
-    String poll = given().sessionId(SESSION_ID).when().get(url).asString();
-    int count = 0;
-    while (poll.contains("RUNNING")) {
-      if (count++ > 100) {
-        throw new MolgenisException("failed: polling took too long");
-      }
-      poll = given().sessionId(SESSION_ID).when().get(url).asString();
-      Thread.sleep(500);
-    }
 
     // check if schema equal using json representation
     String schemaCSV2 =
@@ -447,7 +449,7 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.clearActiveUser();
+    db.becomeAdmin();
   }
 
   @Test

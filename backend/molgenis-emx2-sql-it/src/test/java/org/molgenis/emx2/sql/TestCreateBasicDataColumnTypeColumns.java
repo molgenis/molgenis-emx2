@@ -15,7 +15,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.examples.synthetic.SimpleTypeTestExample;
+import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestCreateBasicDataColumnTypeColumns {
@@ -54,6 +54,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setString("Test string", "test");
     row.setBool("Test bool", true);
     row.setInt("Test int", 1);
+    row.setLong("Test long", 1l);
     row.setDecimal("Test decimal", 1.1);
     row.setText("Test text", "testtext");
     row.setDate("Test date", LocalDate.of(2018, 12, 13));

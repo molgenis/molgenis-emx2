@@ -54,7 +54,7 @@
           <span v-else>none</span>
         </dd>
 
-        <template v-if="showMappedBy">
+        <template v-if="showMappedBy && !variableDetails.repeats">
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
             <span v-if="variableDetails.mappings">

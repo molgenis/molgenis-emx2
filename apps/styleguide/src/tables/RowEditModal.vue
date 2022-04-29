@@ -8,27 +8,20 @@
       <LayoutForm v-if="tableMetadata && (pkey == null || value)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <RowFormInput
-            v-if="
-              (visibleColumns == null || visibleColumns.includes(column.id)) &&
-              visible(column.visible) &&
-              column.name != 'mg_tableclass' &&
-              //if dependent, show only if dependent value is set
-              (!column.refLink || value[column.refLink])
-            "
+            v-if="showColumn(column)"
             v-model="value[column.id]"
-            :label="column.name"
-            :description="column.description"
             :columnType="column.columnType"
-            :table="column.refTable"
-            :filter="refLinkFilters[column.name]"
-            :refLabel="column.refLabel"
-            :refBack="column.refBack"
-            :required="column.required"
-            :errorMessage="errorPerColumn[column.name]"
-            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+            :description="column.description"
+            :errorMessage="errorPerColumn[column.id]"
             :graphqlURL="graphqlURL"
-            :refBackType="getRefBackType(column)"
+            :label="column.name"
             :pkey="getPkey(value)"
+            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+            :refBack="column.refBack"
+            :refBackType="getRefBackType(column)"
+            :refLabel="column.refLabel"
+            :required="column.required"
+            :table="column.refTable"
           />
         </span>
       </LayoutForm>
@@ -55,6 +48,8 @@ import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
+import Expressions from "@molgenis/expressions";
+import {EMAIL_REGEX, HYPERLINK_REGEX} from "../constants";
 
 export default {
   extends: TableMixin,
@@ -64,7 +59,7 @@ export default {
       showLogin: false,
       value: {},
       errorPerColumn: {},
-      success: null,
+      success: null
     };
   },
   props: {
@@ -75,7 +70,7 @@ export default {
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
-    defaultValue: Object,
+    defaultValue: Object
   },
   components: {
     LayoutForm,
@@ -86,15 +81,15 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ButtonOutline,
+    ButtonOutline
   },
   methods: {
     getRefBackType(column) {
       if (column.columnType === "REFBACK") {
-        //get the other table, find the refback column and check its type
-        return this.getTable(column.refTable)
-          .columns.filter((c) => c.name === column.refBack)
-          .map((c) => c.columnType)[0];
+        const table = this.getTable(column.refTable);
+        return table.columns.find(
+          (otherColumn) => otherColumn.name === column.refBack
+        ).columnType;
       }
     },
     reload() {
@@ -109,29 +104,20 @@ export default {
       this.showLogin = false;
     },
     saveDraft() {
-      this.executeCommand(true);
+      this.executeSaveCommand(true);
     },
     save() {
-      this.executeCommand(false);
+      this.executeSaveCommand(false);
     },
-    executeCommand(isDraft) {
+    executeSaveCommand(isDraft) {
       this.graphqlError = null;
       this.success = null;
-      // todo spinner
-      let name = this.tableId;
+      // TODO: add spinner
 
-      // indicate if draft
-      if (isDraft) {
-        this.value["mg_draft"] = true;
-      } else {
-        this.value["mg_draft"] = false;
-      }
+      this.setDraft(isDraft);
 
-      let variables = { value: [this.value] };
-      let query = `mutation insert($value:[${name}Input]){insert(${name}:$value){message}}`;
-      if (this.pkey && !this.clone) {
-        query = `mutation update($value:[${name}Input]){update(${name}:$value){message}}`;
-      }
+      const variables = {value: [this.value]};
+      const query = this.getUpsertQuery();
       this.requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
           if (data.insert) {
@@ -152,65 +138,106 @@ export default {
           }
         });
     },
-
-    eval(expression) {
-      try {
-        return eval("(function (row) { " + expression + "})")(this.value); // eslint-disable-line
-      } catch (e) {
-        return "Script error contact admin: " + e.message;
+    setDraft(isDraft) {
+      if (isDraft) {
+        this.value["mg_draft"] = true;
+      } else {
+        this.value["mg_draft"] = false;
       }
     },
-    visible(expression) {
+    getUpsertQuery() {
+      const name = this.tableId;
+      const action = this.pkey && !this.clone ? "update" : "insert";
+      return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
+    },
+    showColumn(column) {
+      const hasRefValue = !column.refLink || this.value[column.refLink];
+      const isColumnVisible =
+        !this.visibleColumns || this.visibleColumns.includes(column.id);
+      return (
+        isColumnVisible &&
+        this.visible(column.visible, column.id) &&
+        column.name != "mg_tableclass" &&
+        hasRefValue
+      );
+    },
+    visible(expression, columnId) {
       if (expression) {
-        return this.eval(expression);
+        try {
+          return Expressions.evaluate(expression, this.value);
+        } catch (error) {
+          this.errorPerColumn[columnId] = `Invalid visibility expression`;
+        }
       } else {
         return true;
       }
     },
     validate() {
       if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((column) => {
-          // make really empty if empty
-          if (/^\s*$/.test(this.value[column.id])) {
-            //this.value[column.name] = null;
-          }
-          delete this.errorPerColumn[column.id];
-          // when required
-          if (
-            column.required &&
-            (this.value[column.id] == null ||
-              (typeof this.value[column.id] === "number" &&
-                isNaN(this.value[column.id])))
-          ) {
-            this.errorPerColumn[column.id] = column.name + " is required ";
-          } else {
-            // when not empty
-            // when validation
-            if (
-              typeof this.value[column.id] !== "undefined" &&
-              typeof column.validation !== "undefined"
-            ) {
-              let value = this.value[column.id]; //used for eval, two lines below
-              this.errorPerColumn[column.id] = value; //dummy assign
-              this.errorPerColumn[column.id] = this.eval(column.validation);
-            } else if (
-              column.refLink &&
-              this.value[column.id] &&
-              this.value[column.refLink.replace(" ", "_")] &&
-              !JSON.stringify(this.value[column.id]).includes(
-                JSON.stringify(this.value[column.refLink.replace(" ", "_")])
-              )
-            ) {
-              //reflinks should overlap
-              this.errorPerColumn[column.id] =
-                "value should match your selection in column '" +
-                column.refLink +
-                "' ";
-            }
-          }
-        });
+        this.tableMetadata.columns.forEach((column) =>
+          this.validateColumn(column)
+        );
       }
     },
+    validateColumn(column) {
+      const value = this.value[column.id];
+      const isInvalidNumber = typeof value === "number" && isNaN(value);
+      const missesValue = value === undefined || value === null || value === "";
+      if (column.required && (missesValue || isInvalidNumber)) {
+        this.errorPerColumn[column.id] = column.name + " is required ";
+      } else if (missesValue) {
+        this.errorPerColumn[column.id] = undefined;
+      } else {
+        this.errorPerColumn[column.id] = this.getColumnError(column);
+      }
+    },
+    getColumnError(column) {
+      const value = this.value[column.id];
+      const type = column.columnType;
+
+      if (type === "EMAIL" && !isValidEmail(value)) {
+        return "Invalid email address";
+      }
+      if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+        return "Invalid email address";
+      }
+      if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+        return "Invalid hyperlink";
+      }
+      if (column.validation) {
+        return evaluateValidationExpression(column, this.value);
+      }
+      if (this.isRefLinkWithoutOverlap(column)) {
+        return `value should match your selection in column '${column.refLink}' `;
+      }
+
+      return undefined;
+    },
+    isRefLinkWithoutOverlap(column) {
+      if (!column.refLink) {
+        return false;
+      } else {
+        const refLinkId = getRefLinkColumnByName(
+          this.tableMetadata,
+          column.refLink
+        ).id;
+        const value = this.value[column.id];
+        const refValue = this.value[refLinkId];
+
+        if (typeof value === "string" && typeof refValue === "string") {
+          return value && refValue && value !== refValue;
+        } else {
+          return (
+            value &&
+            refValue &&
+            JSON.stringify(value) !== JSON.stringify(refValue)
+          );
+        }
+      }
+    }
   },
   computed: {
     columnsWithoutMeta() {
@@ -218,42 +245,18 @@ export default {
         (c) => !c.name.startsWith("mg_")
       );
     },
-    refLinkFilters() {
-      let filter = {};
-      if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((c) => {
-          if (c.refLink) {
-            //get the overlap, should be a key column of [refLink][refTable]
-            this.tableMetadata.columns.forEach((c2) => {
-              if (c2.name === c.refLink) {
-                this.schema.tables.forEach((t) => {
-                  if (t.name === c.refTable) {
-                    t.columns.forEach((c3) => {
-                      if (c3.refTable === c2.refTable) {
-                        filter[c.name] = {};
-                        filter[c.name][c3.name] = {
-                          equals: this.value[c.refLink],
-                        };
-                      }
-                    });
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
-      return filter;
-    },
     //@overide
     graphqlFilter() {
-      let result = {};
       if (this.tableMetadata && this.pkey) {
-        this.tableMetadata.columns
-          .filter((c) => c.key == 1)
-          .map((c) => (result[c.id] = { equals: this.pkey[c.id] }));
+        return this.tableMetadata.columns
+          .filter((column) => column.key == 1)
+          .reduce((accum, column) => {
+            accum[column.id] = {equals: this.pkey[column.id]};
+            return accum;
+          }, {});
+      } else {
+        return {};
       }
-      return result;
     },
     // override from tableMixin
     title() {
@@ -264,22 +267,17 @@ export default {
       } else {
         return `insert ${this.table}`;
       }
-    },
+    }
   },
   watch: {
     data(val) {
-      //TODO prevent loading of parent class if no pkey
+      // TODO: prevent loading of parent class if no pkey
       if (this.pkey && val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          //skip key in case of clone and visible
-          if (
-            data[column.id] &&
-            (!this.clone ||
-              column.key != 1 ||
-              !this.visibleColumns.includes(column.name))
-          ) {
+          // primary skip (key=1) key in case of clone
+          if (data[column.id] && (!this.clone || column.key != 1)) {
             defaultValue[column.id] = data[column.id];
           }
         });
@@ -291,14 +289,14 @@ export default {
       handler() {
         this.validate();
       },
-      deep: true,
+      deep: true
     },
     tableMetadata: {
       handler() {
         this.validate();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   created() {
     //pass by value
@@ -306,6 +304,36 @@ export default {
       this.value = JSON.parse(JSON.stringify(this.defaultValue));
     }
     this.validate();
-  },
+  }
 };
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !isValidEmail(email));
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    }
+  } catch (error) {
+    return "Invalid validation expression";
+  }
+}
+
+function getRefLinkColumnByName(tableMetadata, refLink) {
+  return tableMetadata.columns.find((column) => column.name === refLink);
+}
 </script>

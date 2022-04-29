@@ -19,7 +19,14 @@ public class Emx2Settings {
 
     // schema settings
     for (Setting setting : schema.getMetadata().getSettings()) {
-      settings.add(row(SETTINGS_NAME, setting.key(), SETTINGS_VALUE, setting.value()));
+      settings.add(
+          row(
+              SETTINGS_NAME,
+              setting.key(),
+              SETTINGS_VALUE,
+              setting.value(),
+              SETTINGS_USER,
+              setting.user()));
     }
 
     // table settings

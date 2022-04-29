@@ -1,5 +1,8 @@
 <template>
-  <button class="btn pl-1 pr-1 btn-outline-danger border-0" @click="onClick">
+  <button
+    class="btn p-1 mt-n1 mb-n1 btn-outline-danger border-0"
+    @click="onClick"
+  >
     <span v-if="label" class="mr-2">{{ label }}</span>
     <i :class="'fas fa-fw fa-' + icon"></i>
   </button>
@@ -7,10 +10,10 @@
 
 <script>
 /** Button that is shown as a icon */
-import IconAction from "./IconAction";
+import IconAction from './IconAction';
 
 export default {
-  extends: IconAction,
+  extends: IconAction
 };
 </script>
 

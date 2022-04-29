@@ -6,13 +6,23 @@
       v-on="$listeners"
     />
     <InputString
-      v-else-if="columnType === 'STRING'"
+      v-else-if="
+        columnType === 'STRING' ||
+        columnType === 'EMAIL' ||
+        columnType === 'HYPERLINK'
+      "
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
     />
     <InputText
       v-else-if="columnType === 'TEXT'"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG'"
       v-bind="$props"
       v-model="input"
       v-on="$listeners"
@@ -78,13 +88,17 @@
       :graphqlURL="graphqlURL"
       v-on="$listeners"
     />
-    <inputRefback
+    <InputRefback
       v-else-if="refBackType == 'REF'"
       v-bind="$props"
       :table="table"
     />
     <InputString
-      v-else-if="columnType === 'STRING_ARRAY'"
+      v-else-if="
+        columnType === 'STRING_ARRAY' ||
+        columnType === 'EMAIL_ARRAY' ||
+        columnType === 'HYPERLINK_ARRAY'
+      "
       :list="true"
       v-bind="$props"
       v-model="input"
@@ -92,6 +106,13 @@
     />
     <InputText
       v-else-if="columnType === 'TEXT_ARRAY'"
+      :list="true"
+      v-bind="$props"
+      v-model="input"
+      v-on="$listeners"
+    />
+    <InputLong
+      v-else-if="columnType === 'LONG_ARRAY'"
       :list="true"
       v-bind="$props"
       v-model="input"
@@ -111,6 +132,7 @@
 import _baseInput from "../forms/_baseInput";
 import InputString from "../forms/InputString";
 import InputInt from "../forms/InputInt";
+import InputLong from "../forms/InputLong";
 import InputDecimal from "../forms/InputDecimal";
 import InputBoolean from "../forms/InputBoolean";
 import InputDate from "../forms/InputDate";
@@ -124,20 +146,20 @@ export default {
   extends: _baseInput,
   props: {
     /** enable editing of label and description*/
-    editMeta: Boolean,
-    schema: String,
     columnType: String,
     description: String,
+    editMeta: Boolean,
     filter: Object,
-    table: String,
-    refLabel: String,
-    refBack: String,
-    refBackType: String,
-    pkey: Object,
     graphqlURL: {
       default: "graphql",
       type: String,
     },
+    pkey: Object,
+    refBack: String,
+    refBackType: String,
+    refLabel: String,
+    schema: String,
+    table: String,
   },
   data() {
     return {
@@ -147,14 +169,15 @@ export default {
   components: {
     InputString,
     InputInt,
+    InputLong,
     InputDecimal,
     InputBoolean,
-    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputDate,
     InputDateTime,
     InputFile,
     InputText,
     InputHeading,
+    InputRefSelect: () => import("../forms/InputRefSelect"), //because it uses itself in nested form
     InputOntology: () => import("../forms/InputOntology"), //because it uses itself in nested form,
     InputRef: () => import("../forms/InputRef"), //because it uses itself in nested form,
     InputRefback: () => import("../forms/InputRefback"), //because it uses itself in nested form,

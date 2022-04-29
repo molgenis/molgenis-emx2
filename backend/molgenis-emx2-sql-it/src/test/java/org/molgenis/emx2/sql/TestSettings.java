@@ -74,7 +74,7 @@ public class TestSettings {
               "value",
               db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 
@@ -135,7 +135,7 @@ public class TestSettings {
                   .get(0)
                   .value());
 
-          db.clearActiveUser();
+          db.becomeAdmin();
         });
   }
 
@@ -144,7 +144,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting("it-db-setting-key", "it-db-setting-value");
+          db.createSetting(new Setting("it-db-setting-key", "it-db-setting-value"));
           var settings = db.getSettings();
           var setting = new Setting("it-db-setting-key", "it-db-setting-value");
           assertTrue(settings.contains(setting));
@@ -156,7 +156,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("testsettingsmanager");
-          db.createSetting("it-db-setting-key", "it-db-setting-value");
+          db.createSetting(new Setting("it-db-setting-key", "it-db-setting-value"));
         });
   }
 
@@ -166,7 +166,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting("delete-me", "life is short");
+          db.createSetting(new Setting("delete-me", "life is short"));
         });
     // execute
     database.tx(

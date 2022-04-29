@@ -32,7 +32,7 @@ consists of multiple sheets. Each sheet corresponds to a table in the Data Catal
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
 columns. A column with an asterisk (\*) after its name is mandatory, i.e., it should contain values for the system to
 accept a data upload. You can download this
-[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testDCM.xlsx)
+[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testCDM.xlsx)
 as a reference for filling out the template.
 
 

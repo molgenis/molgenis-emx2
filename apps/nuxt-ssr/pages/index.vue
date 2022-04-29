@@ -1,6 +1,3 @@
 <template>
-<h1>Hallo SSR catalogue</h1>
+  <h1>SSR catalogue root</h1>
 </template>
-
-
-<script></script>

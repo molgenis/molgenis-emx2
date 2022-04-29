@@ -1,72 +1,118 @@
 export const state = () => ({
   schema: null,
-  menu: [],
-  counts: {}
+  settings: [],
+  session: null,
+  manifest: null
 });
 
 export const mutations = {
   setSchema(state, schema) {
-    state.schema = schema
+    state.schema = schema;
   },
   setMenu(state, menu) {
-    state.menu = menu
+    state.menu = menu;
   },
-  setCounts(state, counts) {
-    state.counts = counts
+  setSettings(state, settings) {
+    state.settings = settings;
+  },
+  setSession(state, session) {
+    state.session = session;
+  },
+  setManifest(state, manifest) {
+    state.manifest = manifest;
   }
-}
+};
 
-export const actions = {
-  async fetchSession(context) {
-    const query =
-      '{_session{email,roles},_settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){key,value},_manifest{ImplementationVersion,SpecificationVersion,DatabaseVersion}}';
-    const resp = await this.$axios({
-      url: context.state.schema ?  context.state.schema + "/graphql" : "apps/central/graphql",
-      method: "post",
-      data: { query }
-    }).catch(e => console.error(e));
-    const settings = resp.data.data._settings
-    const menuString = settings.find(s => s.key === 'menu').value
-    const menu = JSON.parse(menuString);
-    context.commit("setMenu", menu);
-  },
+export const getters = {
+  menu(state) {
+    const menuSetting = state.settings.find((s) => s.key === 'menu');
+    if (!menuSetting) {
+      return [];
+    }
 
-  async fetchCounts(context) {
-    const query = `query {
-      Institutions_agg{count},
-      Cohorts_agg{count},
-      Databanks_agg{count},
-      Datasources_agg{count},
-      Networks_agg{count},
-      Tables_agg{count},
-      Models_agg{count},
-      Studies_agg{count},
-      Releases_agg{count},
-      Variables_agg{count},
-      VariableMappings_agg{count},
-      TableMappings_agg{count}}
-    `
-    const url = context.state.schema + "/graphql";
-    const resp = await this.$axios({
-      url: url,
-      method: "post",
-      data: { query }
-    }).catch(e => console.error(e));
-    const counts = resp.data.data;
-    context.commit("setCounts", {
-      institutions: counts.Institutions_agg.count,
-      cohorts: counts.Cohorts_agg.count,
-      databanks: counts.Databanks_agg.count,
-      datasources: counts.Datasources_agg.count,
-      networks: counts.Networks_agg.count,
-      tables: counts.Tables_agg.count,
-      models: counts.Models_agg.count,
-      studies: counts.Studies_agg.count,
-      releases: counts.Releases_agg.count,
-      variables: counts.Variables_agg.count,
-      variableMappings: counts.VariableMappings_agg.count,
-      tableMappings: counts.TableMappings_agg.count
+    const menuItems =  JSON.parse(menuSetting.value).map((menuItem) => {
+      // Strip the added ssr context from the menu.href if relative
+      const separator = menuItem.href.startsWith('/') ? '' : '/';
+      if (menuItem.href) {
+        menuItem.href = state.schema
+          ? `/${state.schema}${separator}${menuItem.href}`
+          : `${separator}${menuItem.href}`;
+      }
+      return menuItem;
+    });
+
+    const menuItemsForUser = menuItems.filter(menuItem => {
+      return state.session.roles.includes(menuItem.role)
     })
 
+    return menuItemsForUser;
+  },
+  isOidcEnabled(state) {
+    const oidcSetting = state.settings.find((s) => s.key === 'isOidcEnabled');
+    return oidcSetting && oidcSetting.value === 'true';
+  },
+  logo(state) {
+    const logoSetting = state.settings.find((s) => s.key === 'logoURL');
+    if (!logoSetting) {
+      return undefined;
+    }
+    return logoSetting.value;
+  }
+};
+
+export const actions = {
+  async nuxtServerInit({dispatch, commit}, context) {
+    if (process.server) {
+      const path = context.req.url;
+      const schema = path.split('/').filter((i) => i !== '')[0];
+      commit('setSchema', schema);
+      await dispatch('fetchSession');
+    }
+  },
+  async fetchSession(context) {
+    const query = `{
+        _session{ email, roles},
+        _settings(keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
+        _manifest{ ImplementationVersion, SpecificationVersion, DatabaseVersion}
+      }`;
+    const sessionUrl = context.state.schema
+      ? context.state.schema + '/graphql'
+      : 'apps/central/graphql';
+    const resp = await this.$axios({
+      url: sessionUrl,
+      method: 'post',
+      data: {query}
+    }).catch((e) => console.error(e));
+    context.commit('setSession', resp.data.data._session);
+    context.commit('setManifest', resp.data.data._manifest);
+    context.commit('setSettings', resp.data.data._settings);
+  },
+  async signIn(context, {email, password, onSignInFailed}) {
+    const query = `mutation { signin (email: "${email}", password: "${password}") { status, message } }`;
+    const signInResp = await this.$axios
+      .post('/api/graphql', {query})
+      .catch((error) => onSignInFailed('internal server graphqlError' + error));
+
+    if (signInResp.data.data.signin.status === 'SUCCESS') {
+      if (location && location.reload) {
+        location.reload();
+      }
+    } else {
+      onSignInFailed(signInResp.data.data.signin.message);
+    }
+  },
+  async signOut(context, {onSignOutFailed}) {
+    const query = 'mutation { signout { status } }';
+    const signOutResp = await this.$axios
+      .post('/api/graphql', {query})
+      .catch((error) => onSignOutFailed('internal server error' + error));
+    if (signOutResp.data.data.signout.status === 'SUCCESS') {
+      context.commit('setSession', {});
+      if (location && location.reload) {
+        location.reload();
+      }
+    } else {
+      onSignOutFailed('sign out failed');
+    }
   }
 };

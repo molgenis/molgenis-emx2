@@ -2,8 +2,7 @@
 
 ## To initialize catalogue
 
-1. Import the metadata schema. It is file molgenis.csv that can be found here:
-   https://github.com/molgenis/molgenis-emx2/tree/master/data/datacatalogue
+1. Import the metadata schema. It is file molgenis.csv that can be found here: [https://github.com/molgenis/molgenis-emx2/tree/master/data/datacatalogue](https://github.com/molgenis/molgenis-emx2/tree/master/data/datacatalogue)
 1. Optionally, also import ontologies etc from the data folders there. You can create zip file of one of the folders to
    upload in batch.
    (todo: define what data folder to use in what case)
@@ -25,10 +24,10 @@ procedure is to update.
 | | In table 'Resources' change column names: 'homepage' => 'website', 'publication' => 'designPaper', 'otherPublications' => 'publications' |
 | | In table 'Cohorts' change column names: 'noParticipants' => 'numberOfParticipants', 'noParticipantsWithSamples' => 'numberOfParticipantsWithSamples' |
 | | In table 'CollectionEvents' columns 'startMonth' and 'endMonth' were added. The columnType of columns 'startYear' and 'startMonth' were changed from int to ref. Add a table that extend OntologyTerms named 'Years' including relevant years. |
-| 1.1 => 1.2 | This change adds a column 'type' of columnType ref to table 'Datasources'. Just upload molgenis.csv to update.| 
-| 1.2 => 1.3 | This change fixes a few variable descriptions. Just upload molgenis.csv to update.| 
-| 1.3 => 1.4 | This change adds Models.releases refback. Just upload molgenis.csv to update.| 
-| 1.4 => 1.5 | Added Counts table, and linked via RWEresources.counts. Just upload molgenis.csv to update.| 
+| 1.1 => 1.2 | This change adds a column 'type' of columnType ref to table 'Datasources'. Just upload molgenis.csv to update.|
+| 1.2 => 1.3 | This change fixes a few variable descriptions. Just upload molgenis.csv to update.|
+| 1.3 => 1.4 | This change adds Models.releases refback. Just upload molgenis.csv to update.|
+| 1.4 => 1.5 | Added Counts table, and linked via RWEresources.counts. Just upload molgenis.csv to update.|
 | 1.5 => 1.6 | The following data items were added: Databanks.dateEstablished, Databanks.refresh, Datasources.studies, Studies.type, Studies.dataExtractionDate, Studies.CDM, Studies.contactName
 | | Deleted Models.datasources, Models.databanks. Moved models.releases to heading 'contents'. Just upload molgenis.csv to update.|
 | 1.6 => 1.7 | Added CollectionEvents.standardizedTools, CollectionEvents.standardizedToolsOther, Cohorts.contactEmail, StandardizedTools (OntologyTerm table), Datasources.qualityOfLifeOther. Moved Datasources.studies to RWEresources.studies. Deleted RWEresources.standardVocabularies. Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema. |
@@ -38,8 +37,10 @@ procedure is to update.
 | 1.10=> 1.11 | Add VariableMappings.fromVariablesInOtherTables. Just upload molgenis.csv to update. |
 | 1.11 => 2.0 | Delete AllVariables and split tables Variables, RepeatedVariables and VariableValues in SourceVariables and TargetVariables, RepeatedSourceVariables and RepeatedTargetVariables, SourceVariableValues and TargetVariableValues. |
 | | Split table Tables in SourceTables and TargetTables. |
-| | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. | 
+| | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly. |
 | 2.0 => 2.1 | Add Cohorts.designDescription and Cohorts.designSchematic. Change ColumnType of Resources.designPaper to ref, referring to table Publications. |
 | | Split Cohorts.dataAccessConditions into dataAccessConditions and dataUseConditions, add Cohorts.dataAccessFee. |
 | 2.1 => 2.2 | ColumnType ontology and ontology_array now automatically instantiate tables of ontology type with tablename that is under refTable. These tables are not otherwise explicitly defined in the datamodel anymore. Download whole database, replace molgenis.csv and reupload in new Schema. |
 | 2.2 => 2.3 | Alter division of AllVariables, Variables and RepeatedVariables (for Sources and Targets). Download whole database, replace molgenis.csv and reupload in new Schema. |
+| 2.3 => 2.4 | Ontologies are placed in schema 'CatalogueOntologies' next to the catalogue itself. molgenis.csv is updated with an extra column 'refSchema' and 'columnType' ontology and ontology_array are refering to schema 'CatalogueOntologies'. It is important that 'refSchema' refers to CatalogueOntologies and this schema needs to exist before uploading molgenis.csv (or alter the ontology schema on the server and within molgenis.csv) |
+| 2.4 => 2.5 | CollectionEvents.coreVariables, Subcohorts.comorbidity, Subcohorts.counts. Add table SubcohortCounts. Download whole database, replace molgenis.csv and reupload in new Schema. | |

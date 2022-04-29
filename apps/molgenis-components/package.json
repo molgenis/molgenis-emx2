@@ -1,0 +1,34 @@
+{
+  "name": "molgenis-components",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/molgenis-components.umd.js",
+  "module": "",
+  "exports": {
+    ".": {
+      "import": "./dist/molgenis-components.es.js",
+      "require": "./dist/molgenis-components.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "cross-env SHOW_CASE=off vite build",
+    "build-showcase": "cross-env SHOW_CASE=on vite build ",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "0.26.1",
+    "v-click-outside": "3.1.2",
+    "vite-plugin-vue2": "1.9.3",
+    "vue": "2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "2.3.1",
+    "cross-env": "7.0.3",
+    "vite": "2.9.5",
+    "vue-router": "3.5.3",
+    "vue-scrollto": "2.20.0"
+  }
+}

@@ -16,22 +16,26 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.PetStoreExample;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
   private static GraphQL grapql;
   private static Database database;
+  private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
-    PetStoreExample.create(schema.getMetadata());
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database);
+    new PetStoreLoader().load(schema, false);
+    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 
   @Test
@@ -148,7 +152,7 @@ public class TestGraphqlDatabaseFields {
     Assert.assertEquals("anonymous", database.getActiveUser());
 
     // back to superuser
-    database.clearActiveUser();
+    database.becomeAdmin();
   }
 
   @Test
@@ -160,6 +164,11 @@ public class TestGraphqlDatabaseFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    return new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+    JsonNode result =
+        new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+    if (result.get("errors") != null) {
+      throw new RuntimeException(result.get("errors").toString());
+    }
+    return result;
   }
 }

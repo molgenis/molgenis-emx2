@@ -259,12 +259,15 @@ public class SqlColumnExecutor {
               column.getTableName(), column.getName(), column.getColumnType()));
     }
     // check table doesn't exist
-    SchemaMetadata refSchema =
-        column.getRefSchema() != null
-            ? schema.getDatabase().getSchema(column.getRefSchema()).getMetadata()
-            : schema;
+    SchemaMetadata refSchema = schema;
+    if (column.getRefSchema() != null) {
+      if (schema.getDatabase().getSchema(column.getRefSchema()) == null) {
+        throw new MolgenisException(
+            "refSchema '" + column.getRefSchema() + "' does not exist or permission denied");
+      }
+      refSchema = schema.getDatabase().getSchema(column.getRefSchema()).getMetadata();
+    }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
-
       TableMetadata tm =
           new TableMetadata(column.getRefTableName())
               .setDescription(column.getDescription())

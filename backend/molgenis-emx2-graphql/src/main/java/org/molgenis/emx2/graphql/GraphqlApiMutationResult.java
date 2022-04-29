@@ -21,10 +21,16 @@ public class GraphqlApiMutationResult {
   private Status status;
   private Map<String, String> details = new LinkedHashMap<>();
   private String code;
+  private String taskId;
 
   public GraphqlApiMutationResult(Status status, String message, Object... formatValues) {
     this.status = status;
     this.message = String.format(message, formatValues);
+  }
+
+  public GraphqlApiMutationResult setTaskId(String taskId) {
+    this.taskId = taskId;
+    return this;
   }
 
   public static final GraphQLEnumType enumMutationResultStatus =
@@ -45,6 +51,12 @@ public class GraphqlApiMutationResult {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name("message")
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("taskId")
+                  .description("Optional taskid, in case of asynchronous request")
                   .type(Scalars.GraphQLString)
                   .build())
           .build();

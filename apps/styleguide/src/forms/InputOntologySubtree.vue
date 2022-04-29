@@ -9,7 +9,7 @@
         class="fa-fw pl-2 pt-1 ml-3"
         role="button"
         :class="getExpandState(term)"
-        @click="toggleExpand(term)"
+        @click.stop="toggleExpand(term)"
       />
       <i
         class="fa-fw text-primary pl-2 pt-1"
@@ -18,7 +18,7 @@
         role="button"
       />
       <span
-        @click="toggleExpandOrSelect(term)"
+        @click.stop="toggleExpandOrSelect(term)"
         class="flex-grow-1 pl-2"
         role="button"
       >
@@ -26,7 +26,7 @@
         <small v-if="term.definition" class="text-muted">
           <i> - {{ term.definition }}</i></small
         >
-        <span v-if="term.visibleChildren"
+        <span v-if="term.children && countVisibleChildren(term) > 0"
           >({{ countVisibleChildren(term) }})</span
         ></span
       >
@@ -44,10 +44,10 @@
 
 <script>
 export default {
-  name: "InputOntologySubtree",
+  name: 'InputOntologySubtree',
   props: {
     terms: Array,
-    list: { type: Boolean, default: false },
+    list: {type: Boolean, default: false}
   },
   methods: {
     countVisibleChildren(term) {
@@ -59,11 +59,11 @@ export default {
     },
     getExpandState(term) {
       if (this.countVisibleChildren(term) == 0) {
-        return "fas fa-angle-right invisible";
+        return 'fas fa-angle-right invisible';
       } else if (term.expanded) {
-        return "fas fa-angle-down";
+        return 'fas fa-angle-down';
       } else {
-        return "fas fa-angle-right";
+        return 'fas fa-angle-right';
       }
     },
     //expensive?
@@ -78,12 +78,12 @@ export default {
       return childNames;
     },
     getSelectState(term) {
-      if (term.selected == "complete") {
-        return this.list ? "fas fa-check-square" : "fas fa-check-circle";
-      } else if (term.selected == "partial") {
-        return this.list ? "far fa-check-square" : "far fa-circle";
+      if (term.selected == 'complete') {
+        return this.list ? 'fas fa-check-square' : 'fas fa-check-circle';
+      } else if (term.selected == 'partial') {
+        return this.list ? 'far fa-check-square' : 'far fa-circle';
       } else {
-        return this.list ? "far fa-square" : "far fa-circle";
+        return this.list ? 'far fa-square' : 'far fa-circle';
       }
     },
     toggleExpandOrSelect(term) {
@@ -99,15 +99,15 @@ export default {
     toggleSelect(term) {
       //if selecting then also expand
       //if deselection we keep it open
-      if (term.selected) {
+      if (term.selected == "complete") {
         this.$emit("deselect", term.name);
       } else {
-        this.$emit("select", term.name);
+        this.$emit('select', term.name);
       }
     },
     toggleExpand(term) {
-      this.$emit("toggleExpand", term.name);
-    },
-  },
+      this.$emit('toggleExpand', term.name);
+    }
+  }
 };
 </script>

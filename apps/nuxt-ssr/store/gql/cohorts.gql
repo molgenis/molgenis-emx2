@@ -1,0 +1,9 @@
+query Cohorts($filter: CohortsFilter, $search: String, $offset: Int, $limit: Int) {
+  Cohorts(filter: $filter, search: $search, offset: $offset, limit: $limit) {
+    pid
+    name
+  }
+  Cohorts_agg(search: $search, filter: $filter) {
+    count
+  }
+}
