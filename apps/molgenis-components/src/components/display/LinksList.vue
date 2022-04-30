@@ -1,9 +1,9 @@
 <template>
   <ul class="list-group" :class="{ 'list-group-horizontal': isHorizontal }">
     <li class="list-group-item" v-for="(item, index) in items" :key="index">
-      <span v-if="item.label" class="font-weight-bold pr-1">{{
-        item.label
-      }}</span>
+      <span v-if="item.label" class="font-weight-bold pr-1">
+        {{ item.label }}
+      </span>
       <a v-if="item.text" :href="item.href">{{ item.text }}</a>
       <a v-else :href="item.href">{{ item.href }}</a>
     </li>
@@ -58,35 +58,40 @@ Display a list of links
 Display a list of links with link description
 ```
 const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org', text:'link 1' },
-    { label: 'Vue',  href: 'https://vuejs.org/', text:'link 2' } 
+{ label: 'Molgenis', href: 'https://molgenis.org', text:'link 1' },
+{ label: 'Vue', href: 'https://vuejs.org/', text:'link 2' }
 ]
 <template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links"><p>Sample content</p>
+    <links-list>
 </template>
 ```
 
 Without labels
 ```
 const links = [
-    { href: 'https://molgenis.org', text:'Molgenis' },
-    { href: 'https://vuejs.org/', text:'Vue' } 
+{ href: 'https://molgenis.org', text:'Molgenis' },
+{ href: 'https://vuejs.org/', text:'Vue' }
 ]
 <template>
-  <links-list :items="links" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links">
+    <p>Sample content</p>
+  </links-list>
 </template>
 
 ```
 Display Horizontal
 ```
 const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org' },
-    { label: 'Vue',  href: 'https://vuejs.org/' } 
+{ label: 'Molgenis', href: 'https://molgenis.org' },
+{ label: 'Vue', href: 'https://vuejs.org/' }
 ]
 
 const isHorizontal = true
 <template>
-  <links-list :items="links" :isHorizontal="isHorizontal" ><p></p>Sample content</p></<links-list>
+  <links-list :items="links" :isHorizontal="isHorizontal">
+    <p>Sample content</p>
+  </links-list>
 </template>
 
 ```

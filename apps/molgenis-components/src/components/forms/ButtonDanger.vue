@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ButtonAction from "./ButtonAction";
+import ButtonAction from "./ButtonAction.vue";
 
 /** Button that is shown as a primary action */
 export default {

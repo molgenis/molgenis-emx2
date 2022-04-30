@@ -47,9 +47,8 @@
 </template>
 
 <script>
-import ButtonAlt from "../forms/ButtonAlt";
+import { ButtonAlt, IconAction } from "molgenis-components";
 import ButtonDropdown from "../forms/ButtonDropdown";
-import IconAction from "../forms/IconAction";
 
 export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },

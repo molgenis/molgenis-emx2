@@ -31,12 +31,14 @@
 
 <script>
 import LayoutModal from "./LayoutModal";
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
+import {
+  ButtonAction,
+  ButtonAlt,
+  MessageError,
+  MessageSuccess,
+  Spinner,
+} from "molgenis-components";
 import InputPassword from "../forms/InputPassword";
-import MessageSuccess from "../forms/MessageSuccess";
-import MessageError from "../forms/MessageError";
-import Spinner from "./Spinner";
 import { request } from "graphql-request";
 
 export default {

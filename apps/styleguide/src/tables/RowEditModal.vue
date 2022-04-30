@@ -37,13 +37,15 @@
 </template>
 
 <script>
+import {
+  ButtonAction,
+  ButtonAlt,
+  ButtonOutline,
+  MessageError,
+  MessageSuccess,
+} from "molgenis-components";
 import LayoutForm from "../layout/LayoutForm.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import ButtonAction from "../forms/ButtonAction.vue";
-import ButtonAlt from "../forms/ButtonAlt.vue";
-import ButtonOutline from "../forms/ButtonOutline";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";

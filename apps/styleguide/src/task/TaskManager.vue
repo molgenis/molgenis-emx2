@@ -18,7 +18,7 @@
 <script>
 import Task from "./Task";
 import TaskList from "./TaskList";
-import IconAction from "../forms/IconAction";
+import { IconAction } from "molgenis-components";
 
 export default {
   components: { Task, TaskList, IconAction },

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import IconAction from "./IconAction";
+import IconAction from "./IconAction.vue";
 
 /**
  * This is an component that does not have an input field but instead shows an header.
@@ -66,7 +66,7 @@ export default {
 <docs>
 structured, using format as parameter
 ```
-<InputHeading label="About" description="My about section" />
+<InputHeading label="About" description="My about section"/>
 ```
 editable
 ```

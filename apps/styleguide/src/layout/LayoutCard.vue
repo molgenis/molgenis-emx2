@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import IconAction from "../forms/IconAction";
+import { IconAction } from "molgenis-components";
 import Vue from "vue";
 import VScrollLock from "v-scroll-lock";
 

@@ -9,22 +9,20 @@
 </template>
 
 <script>
-import ButtonAction from './ButtonAction';
+import ButtonAction from "./ButtonAction.vue";
 
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
   extends: ButtonAction,
   props: {
     label: String,
-    icon: String
-  }
+    icon: String,
+  },
 };
 </script>
 
 <docs>
-Example
 
-```
 <template>
   <IconAction icon="times" @click="alert('clicked')"/>
 </template>
@@ -37,6 +35,6 @@ Example
     }
   }
 </script>
-```
+
 
 </docs>

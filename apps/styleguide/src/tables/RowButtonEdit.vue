@@ -15,7 +15,7 @@
 <script>
 import RowButtonAdd from "./RowButtonAdd";
 import RowEditModal from "./RowEditModal.vue";
-import IconAction from "../forms/IconAction";
+import { IconAction } from "molgenis-components";
 
 export default {
   extends: RowButtonAdd,

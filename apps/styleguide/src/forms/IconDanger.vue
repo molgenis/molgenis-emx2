@@ -10,10 +10,10 @@
 
 <script>
 /** Button that is shown as a icon */
-import IconAction from './IconAction';
+import { IconAction } from "molgenis-components";
 
 export default {
-  extends: IconAction
+  extends: IconAction,
 };
 </script>
 

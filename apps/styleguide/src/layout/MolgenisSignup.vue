@@ -42,14 +42,16 @@
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
+import {
+  ButtonAction,
+  ButtonAlt,
+  Spinner,
+  MessageError,
+  MessageSuccess,
+} from "molgenis-components";
 import InputString from "../forms/InputString";
 import InputPassword from "../forms/InputPassword";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
 import LayoutForm from "./LayoutForm";
-import Spinner from "./Spinner";
 import LayoutModal from "./LayoutModal";
 
 import { request } from "graphql-request";

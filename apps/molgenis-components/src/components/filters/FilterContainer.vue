@@ -28,16 +28,16 @@
 </style>
 
 <script>
-import IconAction from "../atoms/IconAction.vue";
+import IconAction from "../forms/IconAction.vue";
 
 export default {
   components: {
     IconAction,
   },
-  data () {
+  data() {
     return {
-      expandedState: this.expanded
-    }
+      expandedState: this.expanded,
+    };
   },
   props: {
     title: String,

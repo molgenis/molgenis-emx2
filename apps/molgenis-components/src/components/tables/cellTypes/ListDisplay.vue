@@ -41,16 +41,11 @@
       </template>
     </button>
     <div v-for="(listItem, index) in visibleListItems" :key="index">
-      <object-display
-        v-if="useObjectDisplay"
+      <component
+        :is="cellTypeComponentName"
         :data="listItem"
         :metaData="metaData"
-      ></object-display>
-      <string-display
-        v-else
-        :data="listItem"
-        :metaData="metaData"
-      ></string-display>
+      ></component>
     </div>
   </div>
 </template>
@@ -58,10 +53,20 @@
 <script>
 import ObjectDisplay from "./ObjectDisplay.vue";
 import StringDisplay from "./StringDisplay.vue";
+import EmailDisplay from "./EmailDisplay.vue";
+import HyperlinkDisplay from "./HyperlinkDisplay.vue";
+
+const typeMap = {
+  REF_ARRAY: "ObjectDisplay",
+  ONTOLOGY_ARRAY: "ObjectDisplay",
+  REFBACK: "ObjectDisplay",
+  EMAIL_ARRAY: "EmailDisplay",
+  HYPERLINK_ARRAY: "HyperlinkDisplay",
+};
 
 export default {
   name: "ListDisplay",
-  components: { ObjectDisplay, StringDisplay },
+  components: { ObjectDisplay, StringDisplay, EmailDisplay, HyperlinkDisplay },
   data() {
     return {
       isFolded: true,
@@ -83,10 +88,8 @@ export default {
     },
   },
   computed: {
-    useObjectDisplay() {
-      return ["REF_ARRAY", "ONTOLOGY_ARRAY", "REFBACK"].includes(
-        this.metaData.columnType
-      );
+    cellTypeComponentName() {
+      return typeMap[this.metaData.columnType] || "StringDisplay";
     },
     visibleListItems() {
       return this.isFolded ? this.data.slice(0, this.foldCuttOff) : this.data;
@@ -110,10 +113,12 @@ export default {
   height: 3rem;
   text-align: right;
 }
+
 .fa-chevron-up {
   width: 0.66rem;
   height: 0.66rem;
 }
+
 .fa-chevron-down {
   width: 0.66rem;
   height: 0.66rem;

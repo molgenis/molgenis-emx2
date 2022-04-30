@@ -33,15 +33,18 @@
 </template>
 
 <script>
-import IconAction from "../forms/IconAction";
+import {
+  ButtonAction,
+  ButtonAlt,
+  MessageError,
+  MessageSuccess,
+  Spinner,
+  IconAction,
+} from "molgenis-components";
+
 import InputText from "../forms/InputText";
-import ButtonAction from "../forms/ButtonAction";
-import MessageSuccess from "../forms/MessageSuccess";
-import MessageError from "../forms/MessageError";
 import { request } from "graphql-request";
-import Spinner from "../layout/Spinner";
 import LayoutModal from "../layout/LayoutModal";
-import ButtonAlt from "../forms/ButtonAlt";
 
 export default {
   components: {
