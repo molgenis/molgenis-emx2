@@ -32,8 +32,6 @@ import InputString from "./forms/InputString";
 import InputText from "./forms/InputText";
 
 import LayoutCard from "./layout/LayoutCard";
-import LayoutForm from "molgenis-components/src/components/layout/LayoutForm";
-
 import LayoutNavTabs from "./layout/NavTabs";
 import NavTabs from "./layout/NavTabs";
 

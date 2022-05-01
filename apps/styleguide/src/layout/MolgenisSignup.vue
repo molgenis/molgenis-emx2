@@ -130,7 +130,10 @@ Example
   </div>
 </template>
 <script>
+  import {ButtonAction} from "molgenis-components";
+
   export default {
+    components: {ButtonAction},
     data: function () {
       return {
         display: false,

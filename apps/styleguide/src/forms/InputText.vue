@@ -70,14 +70,12 @@ Example
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputText
-          v-model="value"
-          label="My text label"
-          placeholder="type here your text"
-          description="Some help needed?"
-      />
-    </LayoutForm>
+    <InputText
+        v-model="value"
+        label="My text label"
+        placeholder="type here your text"
+        description="Some help needed?"
+    />
     <br/>
     You typed: {{ value }}
   </div>
@@ -96,15 +94,13 @@ Example with default value
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputText
-          v-model="value"
-          :defaultValue="value"
-          label="My text label"
-          placeholder="type here your text"
-          description="Some help needed?"
-      />
-    </LayoutForm>
+    <InputText
+        v-model="value"
+        :defaultValue="value"
+        label="My text label"
+        placeholder="type here your text"
+        description="Some help needed?"
+    />
     <br/>
     You typed: {{ value }}
   </div>
@@ -123,15 +119,13 @@ Example with list
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputText
-          v-model="value"
-          :list="true"
-          label="My text label"
-          placeholder="type here your text"
-          description="Some help needed?"
-      />
-    </LayoutForm>
+    <InputText
+        v-model="value"
+        :list="true"
+        label="My text label"
+        placeholder="type here your text"
+        description="Some help needed?"
+    />
     <br/>
     You typed: {{ value }}
   </div>
@@ -150,15 +144,13 @@ Example with inplace
 ```
 <template>
   <div>
-    <LayoutForm>
-      <InputText
-          v-model="value"
-          :inplace="true"
-          label="My text label"
-          placeholder="type here your text"
-          description="Some help needed?"
-      />
-    </LayoutForm>
+    <InputText
+        v-model="value"
+        :inplace="true"
+        label="My text label"
+        placeholder="type here your text"
+        description="Some help needed?"
+    />
     <br/>
     You typed: {{ value }}
   </div>

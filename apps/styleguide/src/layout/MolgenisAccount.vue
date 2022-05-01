@@ -106,7 +106,10 @@ Example
   </div>
 </template>
 <script>
+  import {ButtonAlt} from "molgenis-components";
+
   export default {
+    components: {ButtonAlt},
     data() {
       return {
         show: false

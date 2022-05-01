@@ -209,7 +209,10 @@ Example
   </div>
 </template>
 <script>
+  import {ShowMore} from "molgenis-components";
+
   export default {
+    components: {ShowMore},
     data() {
       return {
         session: null

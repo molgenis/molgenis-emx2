@@ -104,7 +104,6 @@ Example
 ```jsx
 <LayoutCard title="My first card">
   Hello world
-  <ButtonAction>Hello</ButtonAction>
 </LayoutCard>
 ```
 
