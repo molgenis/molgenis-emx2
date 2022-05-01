@@ -81,7 +81,7 @@ subprojects {
         }
     }
 
-    task buildComponentsShowcase(type: YarnTask, dependsOn: buildStyleguidist) {
+    task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
         node { with nodeSpec }
         if (project.name == 'molgenis-components') {
             inputs.file('package.json')
@@ -95,7 +95,7 @@ subprojects {
         }
     }
 
-    task copyDistFiles(type: Copy, dependsOn: buildComponentsShowcase) {
+    task copyDistFiles(type: Copy, dependsOn: [buildComponentsShowcase, buildStyleguidist]) {
         if (project.name == 'styleguide') {
             from "build"
             inputs.dir("build")

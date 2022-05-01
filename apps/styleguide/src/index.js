@@ -96,7 +96,6 @@ export {
   InputString,
   InputText,
   LayoutCard,
-  LayoutForm,
   LayoutNavTabs,
   Molgenis,
   NavBar,

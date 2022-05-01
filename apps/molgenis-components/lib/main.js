@@ -24,6 +24,7 @@ import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
+import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -53,11 +54,11 @@ import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue"
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
 import MolgenisSignIn from "../src/components/layout/MolgenisSignIn.vue";
-import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Client from "../src/client/client.js";
 
 export {
+  ButtonDropdown,
   IconAction,
   IconDanger,
   IconBar,

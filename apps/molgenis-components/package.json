@@ -1,6 +1,7 @@
 {
   "name": "molgenis-components",
   "version": "0.0.0",
+  "private": true,
   "files": [
     "dist"
   ],
@@ -14,7 +15,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "cross-env SHOW_CASE=off vite build",
+    "build": "vite build",
     "build-showcase": "cross-env SHOW_CASE=on vite build ",
     "preview": "vite preview"
   },
