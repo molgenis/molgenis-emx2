@@ -41,7 +41,7 @@ import {
   Spinner,
   IconAction,
   LayoutModal,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
 
 import InputText from "../forms/InputText";
 import { request } from "graphql-request";

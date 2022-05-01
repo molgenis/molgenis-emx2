@@ -40,7 +40,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import { IconAction } from "molgenis-components";
+import { IconAction } from "@molgenis/molgenis-components";
 import { CODE_MINUS, MIN_LONG, MAX_LONG } from "../constants";
 import { isNumericKey } from "./utils/InputUtils";
 

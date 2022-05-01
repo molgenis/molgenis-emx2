@@ -102,7 +102,7 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import Draggable from "vuedraggable";
-import { DataDisplayCell } from "molgenis-components";
+import { DataDisplayCell } from "@molgenis/molgenis-components";
 
 export default {
   components: { Draggable, DataDisplayCell },

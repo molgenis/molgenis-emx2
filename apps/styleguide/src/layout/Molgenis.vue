@@ -41,11 +41,14 @@
 </template>
 
 <script>
-import MolgenisMenu from "molgenis-components/src/components/layout/MolgenisMenu";
+import {
+  MolgenisMenu,
+  Breadcrumb,
+  MolgenisFooter,
+} from "@molgenis/molgenis-components";
 import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
-import { Breadcrumb, MolgenisFooter } from "molgenis-components";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.

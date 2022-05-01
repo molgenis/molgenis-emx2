@@ -1,12 +1,12 @@
 {
-  "name": "molgenis-components",
+  "name": "@molgenis/molgenis-components",
   "version": "0.0.0",
   "private": true,
   "files": [
     "dist"
   ],
   "main": "./dist/molgenis-components.umd.js",
-  "module": "",
+  "module": "./dist/molgenis-components.es.js",
   "exports": {
     ".": {
       "import": "./dist/molgenis-components.es.js",

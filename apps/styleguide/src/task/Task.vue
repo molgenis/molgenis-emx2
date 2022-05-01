@@ -9,7 +9,7 @@
 <script>
 import { request } from "graphql-request";
 import SubTask from "./SubTask.vue";
-import Spinner from "molgenis-components/src/components/layout/Spinner.vue";
+import { Spinner } from "@molgenis/molgenis-components";
 
 export default {
   components: {

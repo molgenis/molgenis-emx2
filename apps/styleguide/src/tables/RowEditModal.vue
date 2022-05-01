@@ -44,8 +44,8 @@ import {
   MessageError,
   MessageSuccess,
   LayoutModal,
-} from "molgenis-components";
-import LayoutForm from "molgenis-components/src/components/layout/LayoutForm.vue";
+  LayoutForm,
+} from "@molgenis/molgenis-components";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";

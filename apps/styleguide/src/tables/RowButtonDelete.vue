@@ -24,14 +24,14 @@
 
 <script>
 import RowButtonAdd from "./RowButtonAdd";
-import IconDanger from "molgenis-components/src/components/forms/IconDanger";
 import {
   ButtonAlt,
   ButtonAction,
   MessageError,
   MessageSuccess,
   LayoutModal,
-} from "molgenis-components";
+  IconDanger,
+} from "@molgenis/molgenis-components";
 import { request } from "graphql-request";
 
 export default {

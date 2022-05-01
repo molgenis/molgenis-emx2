@@ -57,7 +57,20 @@ import MolgenisSignIn from "../src/components/layout/MolgenisSignIn.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Client from "../src/client/client.js";
 
+import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
+import HyperlinkDisplay from "../src/components/tables/cellTypes/HyperlinkDisplay.vue";
+import InputHeading from "../src/components/forms/InputHeading.vue";
+import LayoutForm from "../src/components/layout/LayoutForm.vue";
+import MessageWarning from "../src/components/forms/MessageWarning.vue";
+import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
+
 export {
+  MolgenisMenu,
+  MessageWarning,
+  LayoutForm,
+  InputHeading,
+  EmailDisplay,
+  HyperlinkDisplay,
   ButtonDropdown,
   IconAction,
   IconDanger,

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { ButtonDropdown } from "molgenis-components";
+import { ButtonDropdown } from "@molgenis/molgenis-components";
 
 export default {
   components: {

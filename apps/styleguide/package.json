@@ -14,7 +14,7 @@
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
     "@molgenis/expressions": "0.21.1",
-    "molgenis-components": "*",
+    "@molgenis/molgenis-components": "*",
     "core-js": "3.22.3",
     "graphql": "16.4.0",
     "graphql-request": "3.7.0",
@@ -45,5 +45,21 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {
+      "no-unused-vars": "off"
+    }
+  }
 }

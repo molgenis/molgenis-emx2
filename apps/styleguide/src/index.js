@@ -1,12 +1,7 @@
-import ButtonDropdown from "molgenis-components/src/components/forms/ButtonDropdown";
-
 import FilterSidebar from "./tables/FilterSidebar";
 import FilterWells from "./tables/FilterWells";
 import FilterInput from "./tables/FilterInput";
 import FilterContainer from "./tables/FilterContainer";
-
-import IconBar from "molgenis-components/src/components/forms/IconBar";
-import IconDanger from "molgenis-components/src/components/forms/IconDanger";
 
 import InputBoolean from "./forms/InputBoolean";
 import InputDate from "./forms/InputDate";
@@ -39,7 +34,6 @@ import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
 
-import NavBar from "molgenis-components/src/components/layout/MolgenisMenu";
 import Pagination from "./tables/Pagination";
 
 import RecordCard from "./tables/RecordCard";
@@ -65,14 +59,11 @@ import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
 import MolgenisSignin from "./layout/MolgenisSignin.vue";
 
 export {
-  ButtonDropdown,
   DefaultMenuMixin,
   FilterSidebar,
   FilterWells,
   FilterInput,
   FilterContainer,
-  IconBar,
-  IconDanger,
   InputBoolean,
   InputCheckbox,
   InputDate,
@@ -98,7 +89,6 @@ export {
   LayoutCard,
   LayoutNavTabs,
   Molgenis,
-  NavBar,
   NavTabs,
   Pagination,
   RecordCard,

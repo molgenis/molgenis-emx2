@@ -26,7 +26,7 @@
 
 <script>
 import { request } from "graphql-request";
-import MessageError from "molgenis-components/src/components/forms/MessageError.vue";
+import { MessageError } from "@molgenis/molgenis-components";
 
 export default {
   components: {

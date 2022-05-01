@@ -40,8 +40,8 @@ import {
   InputPassword,
   LayoutModal,
   InputString,
-} from "molgenis-components";
-import LayoutForm from "molgenis-components/src/components/layout/LayoutForm";
+  LayoutForm,
+} from "@molgenis/molgenis-components";
 import { request } from "graphql-request";
 
 export default {
@@ -111,7 +111,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAction} from "molgenis-components";
+  import {ButtonAction} from "@molgenis/molgenis-components";
 
   export default {
     components: {ButtonAction},

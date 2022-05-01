@@ -41,7 +41,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import { IconAction } from "molgenis-components";
+import { IconAction } from "@molgenis/molgenis-components";
 import { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } from "../constants";
 
 export default {

@@ -26,8 +26,7 @@
 </template>
 
 <script>
-import HyperlinkDisplay from "molgenis-components/src/components/tables/cellTypes/HyperlinkDisplay.vue";
-import EmailDisplay from "molgenis-components/src/components/tables/cellTypes/EmailDisplay.vue";
+import { HyperlinkDisplay, EmailDisplay } from "@molgenis/molgenis-components";
 
 export default {
   props: {

@@ -14,7 +14,7 @@
     "core-js": "3.22.3",
     "nuxt": "2.15.8",
     "graphql-tag": "2.12.6",
-    "molgenis-components": "*",
+    "@molgenis/molgenis-components": "*",
     "webpack-graphql-loader": "1.0.2"
   },
   "devDependencies": {

@@ -184,7 +184,8 @@ import {
   Spinner,
   ButtonAlt,
   IconAction,
-} from "molgenis-components";
+  ButtonDropdown,
+} from "@molgenis/molgenis-components";
 
 import TableMolgenis from "./TableMolgenis";
 import FilterSidebar from "./FilterSidebar";
@@ -198,7 +199,6 @@ import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
 import SelectionBox from "./SelectionBox";
-import ButtonDropdown from "molgenis-components/src/components/forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
 import RecordCard from "./RecordCard";

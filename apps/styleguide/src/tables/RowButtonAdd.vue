@@ -14,7 +14,7 @@
 
 <script>
 import RowEditModal from "./RowEditModal.vue";
-import { IconAction } from "molgenis-components";
+import { IconAction } from "@molgenis/molgenis-components";
 
 export default {
   data: function () {

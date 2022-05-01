@@ -57,7 +57,11 @@
 import _baseInput from "./_baseInput";
 import TableSearch from "../tables/TableSearch";
 import FormGroup from "./_formGroup";
-import { ButtonAlt, ButtonAction, LayoutModal } from "molgenis-components";
+import {
+  ButtonAlt,
+  ButtonAction,
+  LayoutModal,
+} from "@molgenis/molgenis-components";
 import InputAppend from "./_inputAppend";
 
 export default {

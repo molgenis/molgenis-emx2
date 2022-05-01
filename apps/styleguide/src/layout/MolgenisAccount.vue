@@ -38,7 +38,7 @@ import {
   Spinner,
   LayoutModal,
   InputPassword,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
 import { request } from "graphql-request";
 
 export default {
@@ -106,7 +106,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAlt} from "molgenis-components";
+  import {ButtonAlt} from "@molgenis/molgenis-components";
 
   export default {
     components: {ButtonAlt},
