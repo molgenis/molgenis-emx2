@@ -17,7 +17,8 @@ import {
   StringDisplay,
   TextDisplay,
   ObjectDisplay,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
+
 export default {
   name: "SectionArrayValue",
   components: {

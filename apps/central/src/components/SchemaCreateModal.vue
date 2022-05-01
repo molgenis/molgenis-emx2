@@ -90,7 +90,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
 
 export default {
   components: {

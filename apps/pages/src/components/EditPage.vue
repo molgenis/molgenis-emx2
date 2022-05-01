@@ -20,7 +20,7 @@ import {
   ButtonAction,
   MessageError,
   MessageSuccess,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
 import { request } from "graphql-request";
 
 export default {

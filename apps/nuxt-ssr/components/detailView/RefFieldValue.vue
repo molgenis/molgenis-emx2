@@ -4,12 +4,13 @@
       name: metaData.refTable + '-details',
       params: data,
     }"
-    ><ObjectDisplay :data="data" :metaData="metaData" />
+  >
+    <ObjectDisplay :data="data" :metaData="metaData" />
   </RouterLink>
 </template>
 
 <script>
-import { ObjectDisplay } from "molgenis-components";
+import { ObjectDisplay } from "@molgenis/molgenis-components";
 
 export default {
   name: "RefFieldValue",

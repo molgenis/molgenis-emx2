@@ -3,8 +3,6 @@ const fs = require("fs");
 module.exports = function () {
   const transform = (code, id) => {
     if (/<docs>/.test(code)) {
-      console.log("remove docs from: " + id);
-
       // regex for custom docs tag
       const re = /<docs>[\s\S.]*<\/docs>/;
 
@@ -27,9 +25,6 @@ module.exports = function () {
         const docTemplate = docs.replace(/(<docs>|<\/docs>)/g, "");
 
         // write out the docs to .vue files (needs to be done after folder was created)
-        console.log("checking " + id);
-
-        console.log("writing " + id);
         fs.writeFile(docPath + "/" + componentFileName, docTemplate, (err) => {
           if (err) {
             console.error(err);

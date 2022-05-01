@@ -24,7 +24,7 @@ import {
   StringDisplay,
   FileDisplay,
   ObjectDisplay,
-} from "molgenis-components";
+} from "@molgenis/molgenis-components";
 
 export default {
   name: "SectionField",

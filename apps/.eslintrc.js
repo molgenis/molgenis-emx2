@@ -12,6 +12,7 @@ module.exports = {
 
   parserOptions: {
     ecmaVersion: 2020,
+    parser: "babel-eslint",
   },
 
   overrides: [
@@ -25,4 +26,13 @@ module.exports = {
       },
     },
   ],
+
+  globals: {
+    __VUE_SSR_CONTEXT__: "readonly",
+  },
+
+  rules: {
+    "no-unused-vars": "off",
+    "no-undef": "warn",
+  },
 };
