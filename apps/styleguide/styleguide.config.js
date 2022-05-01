@@ -53,9 +53,5 @@ module.exports = {
       name: "Mixins",
       components: "src/mixins/[A-Z]*.vue",
     },
-    {
-      name: "Task",
-      components: "src/task/[A-Z]*.vue",
-    },
   ],
 };

@@ -2,11 +2,11 @@
   <span>
     <div v-if="countFilters > 0">
       <div class="d-flex align-items-center">
-         {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (
-      <button type="button" @click="removeAll" class="btn btn-link pl-0 pr-0">
-        remove all filters
-      </button>
-      ) :
+        {{ countFilters }} filter{{ countFilters > 1 ? "s" : "" }} (
+        <button type="button" @click="removeAll" class="btn btn-link pl-0 pr-0">
+          remove all filters
+        </button>
+        ) :
       </div>
       <span v-for="(facet, facetIndex) in filters" :key="facet.name">
         <span
@@ -118,54 +118,59 @@ export default {
 </script>
 
 <docs>
-Example:
-```
 <template>
-  <div>
-    <FilterWells :filters.sync="filters"/>
+  <demo-item>
+    <FilterWells :filters="filters" @updateFilters="onUpdate"/>
     value: {{ JSON.stringify(filters) }}
-  </div>
+  </demo-item>
 </template>
 <script>
   export default {
-    data() {
+    data: function () {
       return {
-        filters:
-            [
-              {
-                name: "orderId",
-                conditions: []
-              },
-              {
-                name: "pet",
-                conditions: []
-              },
-              {
-                name: "quantity",
-                conditions: [[1, null]]
-              },
-              {
-                name: "price",
-                conditions: [[null, 25.7], [2, 11.3]]
-              },
-              {
-                name: "complete",
-                conditions: ["false"]
-              },
-              {
-                name: "status",
-                conditions: [{name: "status", second: " true"}]
-              },
-              {
-                name: "birthday",
-                conditions: [['2020-1-1', '2030-2-3']]
-              }
-            ]
+        filters: [
+          {
+            name: "orderId",
+            conditions: [123],
+          },
+          {
+            name: "pet",
+            conditions: [],
+          },
+          {
+            name: "quantity",
+            conditions: [[1, null]],
+          },
+          {
+            name: "price",
+            conditions: [
+              [null, 25.7],
+              [2, 11.3],
+            ],
+          },
+          {
+            name: "complete",
+            conditions: ["false"],
+          },
+          {
+            name: "status",
+            conditions: [{name: "status", second: " true"}],
+          },
+          {
+            name: "birthday",
+            conditions: [["2020-1-1", "2030-2-3"]],
+          },
+        ],
+      };
+    },
+    methods: {
+      showAlert() {
+        alert("clicked");
+      },
+      onUpdate(update) {
+        this.filters = update
       }
-    }
-  }
+    },
+  };
 </script>
-```
-
-
 </docs>

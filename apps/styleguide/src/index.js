@@ -1,16 +1,14 @@
-import ButtonDropdown from "./forms/ButtonDropdown";
+import ButtonDropdown from "molgenis-components/src/components/forms/ButtonDropdown";
 
-import Footer from "./layout/MolgenisFooter";
 import FilterSidebar from "./tables/FilterSidebar";
 import FilterWells from "./tables/FilterWells";
 import FilterInput from "./tables/FilterInput";
 import FilterContainer from "./tables/FilterContainer";
 
-import IconBar from "./forms/IconBar";
-import IconDanger from "./forms/IconDanger";
+import IconBar from "molgenis-components/src/components/forms/IconBar";
+import IconDanger from "molgenis-components/src/components/forms/IconDanger";
 
 import InputBoolean from "./forms/InputBoolean";
-import InputHeading from "molgenis-components/src/components/forms/InputHeading";
 import InputDate from "./forms/InputDate";
 import InputDateTime from "./forms/InputDateTime";
 import InputDecimal from "./forms/InputDecimal";
@@ -34,8 +32,8 @@ import InputString from "./forms/InputString";
 import InputText from "./forms/InputText";
 
 import LayoutCard from "./layout/LayoutCard";
-import LayoutForm from "./layout/LayoutForm";
-import LayoutModal from "./layout/LayoutModal";
+import LayoutForm from "molgenis-components/src/components/layout/LayoutForm";
+
 import LayoutNavTabs from "./layout/NavTabs";
 import NavTabs from "./layout/NavTabs";
 
@@ -43,7 +41,7 @@ import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
 
-import NavBar from "./layout/MolgenisMenu";
+import NavBar from "molgenis-components/src/components/layout/MolgenisMenu";
 import Pagination from "./tables/Pagination";
 
 import RecordCard from "./tables/RecordCard";
@@ -71,7 +69,6 @@ import MolgenisSignin from "./layout/MolgenisSignin.vue";
 export {
   ButtonDropdown,
   DefaultMenuMixin,
-  Footer,
   FilterSidebar,
   FilterWells,
   FilterInput,
@@ -80,7 +77,6 @@ export {
   IconDanger,
   InputBoolean,
   InputCheckbox,
-  InputHeading,
   InputDate,
   InputDateTime,
   InputDecimal,
@@ -103,7 +99,6 @@ export {
   InputText,
   LayoutCard,
   LayoutForm,
-  LayoutModal,
   LayoutNavTabs,
   Molgenis,
   NavBar,

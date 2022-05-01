@@ -29,16 +29,17 @@ export default {
 </script>
 
 <docs>
-Without title
-```
-<ShowMore>
-  This is a test
-</ShowMore>
-```
-With title
-```
-<ShowMore title="debug">
-  <pre>This is a test</pre>
-</ShowMore>
-```
+<template>
+  <demo-item id="show-more" label="Show more">
+    Without title
+    <ShowMore>
+      This is a test
+    </ShowMore>
+
+    With title
+    <ShowMore title="debug">
+      <pre>This is a test</pre>
+    </ShowMore>
+  </demo-item>
+</template>
 </docs>

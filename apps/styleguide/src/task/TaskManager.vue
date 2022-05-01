@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import Task from "./Task";
-import TaskList from "./TaskList";
-import { IconAction } from "molgenis-components";
+import Task from "./Task.vue";
+import TaskList from "./TaskList.vue";
+import IconAction from "molgenis-components/src/components/forms/IconAction.vue";
 
 export default {
   components: { Task, TaskList, IconAction },

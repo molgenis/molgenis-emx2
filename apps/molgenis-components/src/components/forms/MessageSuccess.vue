@@ -5,7 +5,7 @@
 </template>
 
 <docs>
-```
-<MessageSuccess>Something <strong>good</strong></MessageSuccess>
-```
+<template>
+  <MessageSuccess>Something <strong>good</strong></MessageSuccess>
+</template>
 </docs>

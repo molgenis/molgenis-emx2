@@ -32,16 +32,16 @@
 </template>
 
 <script>
-import ButtonAlt from '../forms/ButtonAlt.vue';
-import InputString from '../forms/InputString.vue';
-import InputPassword from '../forms/InputPassword.vue';
-import MessageError from '../forms/MessageError.vue';
-import LayoutForm from '../forms/FormMolgenis.vue';
-import LayoutModal from '../layout/LayoutModal.vue';
-import ButtonSubmit from '../forms/ButtonSubmit.vue';
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import InputString from "../forms/InputString.vue";
+import InputPassword from "../forms/InputPassword.vue";
+import MessageError from "../forms/MessageError.vue";
+import LayoutForm from "../forms/FormMolgenis.vue";
+import LayoutModal from "./LayoutModal.vue";
+import ButtonSubmit from "../forms/ButtonSubmit.vue";
 
 export default {
-  name: 'SignInForm',
+  name: "SignInForm",
   components: {
     ButtonAlt,
     InputPassword,
@@ -49,54 +49,53 @@ export default {
     MessageError,
     LayoutForm,
     LayoutModal,
-    ButtonSubmit
+    ButtonSubmit,
   },
   props: {
     show: {
       type: Boolean,
       required: false,
-      default: () => false
+      default: () => false,
     },
     axiosClient: {
       type: Object,
-      required: false
-    }
+      required: false,
+    },
   },
   data: function () {
     return {
       email: null,
       password: null,
       error: null,
-      success: null
+      success: null,
     };
   },
   methods: {
     async signin() {
       if (!this.email || !this.password) {
-        this.error = 'Email and password should be filled in';
+        this.error = "Email and password should be filled in";
       } else {
         this.error = null;
 
         if (!this.axiosClient) {
-          this.$emit('requestSignIn', {
+          this.$emit("requestSignIn", {
             email: this.email,
             password: this.password,
             onSignSuccess: this.onSignSuccess,
-            onSignInFailed: this.onSignInFailed
+            onSignInFailed: this.onSignInFailed,
           });
           return;
         }
 
         const signInResp = await this.axiosClient
-          .post(
-            '/api/graphql',
-            {query: `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`}
-          )
+          .post("/api/graphql", {
+            query: `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`,
+          })
           .catch(
-            (error) => (this.error = 'internal server graphqlError' + error)
+            (error) => (this.error = "internal server graphqlError" + error)
           );
 
-        if (signInResp.data.data.signin.status === 'SUCCESS') {
+        if (signInResp.data.data.signin.status === "SUCCESS") {
           this.onSignSuccess();
         } else {
           this.onSignInFailed(signInResp.data.data.signin.message);
@@ -104,28 +103,54 @@ export default {
       }
     },
     onSignSuccess() {
-      this.success = 'Signed in with ' + this.email;
-      this.$emit('signInSuccess', this.email);
+      this.success = "Signed in with " + this.email;
+      this.$emit("signInSuccess", this.email);
       if (location) {
         location.reload();
       }
     },
     onSignInFailed(msg) {
       this.error = msg;
-      this.$emit('signInFailed', this.email);
+      this.$emit("signInFailed", this.email);
     },
     cancel() {
       this.error = null;
-      this.$emit('cancel');
-    }
+      this.$emit("cancel");
+    },
   },
   watch: {
     async show(newValue) {
-      if (newValue === true)
-        await this.$nextTick()
-        // set focus on email input to enable submit action
-        this.$refs.email.$el.children[1].focus()
-    }
-  }
+      if (newValue === true) await this.$nextTick();
+      // set focus on email input to enable submit action
+      this.$refs.email.$el.children[1].focus();
+    },
+  },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <MolgenisSignIn
+        :show="isShown"
+        @cancel="isShown = false"
+        @requestSignIn="handleSignInRequest(...arguments)"
+    />
+    <button type="button" class="btn" @click="isShown = true">Show</button>
+  </demo-item>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        isShown: false,
+      };
+    },
+    methods: {
+      handleSignInRequest({email, password}) {
+        alert(`handleSignInRequest, email = ${email}, pw = ${password}`);
+      },
+    },
+  };
+</script>
+</docs>

@@ -14,19 +14,21 @@ export default {
 };
 </script>
 <docs>
-Example
-```
 <template>
-  <FilterWell label="foo = bar" @click="showAlert"/>
+  <demo-item>
+    <FilterWell label="foo = bar" @click="showAlert"/>
+  </demo-item>
 </template>
 <script>
   export default {
+    data: function () {
+      return {};
+    },
     methods: {
       showAlert() {
         alert('clicked')
       }
     }
-  }
+  };
 </script>
-```
 </docs>

@@ -53,32 +53,61 @@
 
 <script>
 export default {
-  name: 'LayoutModal',
+  name: "LayoutModal",
   props: {
     /** When true the modal will be shown */
     show: {
       type: Boolean,
-      default: true
+      default: true,
     },
     /** Shown as the title of the model */
-    title: {type: String, default: ''}
+    title: { type: String, default: "" },
   },
   methods: {
     close() {
       /** when the close x button is clicked */
-      this.$emit('close');
+      this.$emit("close");
     },
-    escapeKeyHandler (event) {
-      if (event.key === 'Escape') {
+    escapeKeyHandler(event) {
+      if (event.key === "Escape") {
         this.close();
       }
-    }
+    },
   },
-  beforeMount () {
-    document.addEventListener('keydown', this.escapeKeyHandler);
+  beforeMount() {
+    document.addEventListener("keydown", this.escapeKeyHandler);
   },
   beforeDestroy() {
-    document.removeEventListener('keydown',this.escapeKeyHandler);
-  }
+    document.removeEventListener("keydown", this.escapeKeyHandler);
+  },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <LayoutModal title="My first modal" @close="toggle" :show="show">
+      <template v-slot:body> Here is the contents</template>
+      <template v-slot:footer>
+        <ButtonAction @click="toggle">Done</ButtonAction>
+      </template>
+    </LayoutModal>
+    <button class="btn" @click="toggle">show</button>
+  </demo-item>
+</template>
+
+<script>
+  export default {
+    data: function () {
+      return {
+        show: false
+      };
+    },
+    methods: {
+      toggle() {
+        this.show = !this.show;
+      }
+    }
+  };
+</script>
+</docs>

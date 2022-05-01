@@ -1,4 +1,6 @@
 import IconAction from "../src/components/forms/IconAction.vue";
+import IconDanger from "../src/components/forms/IconDanger.vue";
+import IconBar from "../src/components/forms/IconBar.vue";
 
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
 import GridBlock from "../src/components/display/GridBlock.vue";
@@ -17,6 +19,7 @@ import FilterWell from "../src/components/filters/FilterWell.vue";
 import FilterWells from "../src/components/filters/FilterWells.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
+import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
@@ -36,6 +39,8 @@ import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
 
+import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
+
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
 import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
@@ -47,12 +52,15 @@ import ObjectDisplay from "../src/components/tables/cellTypes/ObjectDisplay.vue"
 import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue";
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
-import SignInForm from "../src/components/organisms/SignInForm.vue";
-
+import MolgenisSignIn from "../src/components/layout/MolgenisSignIn.vue";
+import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
+import ShowMore from "../src/components/layout/ShowMore.vue";
 import Client from "../src/client/client.js";
 
 export {
   IconAction,
+  IconDanger,
+  IconBar,
   ContactDisplay,
   GridBlock,
   ImageCard,
@@ -68,6 +76,7 @@ export {
   FilterWell,
   FilterWells,
   MessageError,
+  MessageSuccess,
   ButtonAction,
   ButtonOutline,
   ButtonAlt,
@@ -88,12 +97,14 @@ export {
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,
+  MolgenisFooter,
   Pagination,
   FileDisplay,
   ListDisplay,
   ObjectDisplay,
   StringDisplay,
   TextDisplay,
-  SignInForm,
+  ShowMore,
+  MolgenisSignIn,
   Client,
 };

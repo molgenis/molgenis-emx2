@@ -56,25 +56,20 @@ export default {
 </script>
 
 <docs>
-
-Example expanded
-
-```jsx
 <template>
-  <FilterContainer title="My filter" :visible="true" :expanded="true">
-    some contents of the filter box
-  </FilterContainer>
+  <div>
+    <label>Example expanded</label>
+    <demo-item>
+      <FilterContainer title="My filter" :visible="true" :expanded="true">
+        some contents of the filter box
+      </FilterContainer>
+    </demo-item>
+    <label>Example collapsed</label>
+    <demo-item>
+      <FilterContainer title="My filter" :visible="true" :expanded="false">
+        some contents of the filter box
+      </FilterContainer>
+    </demo-item>
+  </div>
 </template>
-```
-
-Example collapsed
-
-```jsx
-<template>
-  <FilterContainer title="My filter" :visible="true" :expanded="false">
-    some contents of the filter box
-  </FilterContainer>
-</template>
-```
-
 </docs>

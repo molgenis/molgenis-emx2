@@ -48,8 +48,7 @@
 </template>
 
 <script>
-import { IconAction, ButtonAlt } from "molgenis-components";
-import LayoutModal from "../layout/LayoutModal";
+import { IconAction, ButtonAlt, LayoutModal } from "molgenis-components";
 
 export default {
   components: {

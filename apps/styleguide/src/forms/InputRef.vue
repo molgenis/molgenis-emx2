@@ -103,9 +103,13 @@
 <script>
 import _baseInput from "./_baseInput";
 import TableSearch from "../tables/TableSearch";
-import LayoutModal from "../layout/LayoutModal";
 import FormGroup from "./_formGroup";
-import { ButtonAlt, Spinner, MessageError } from "molgenis-components";
+import {
+  ButtonAlt,
+  Spinner,
+  MessageError,
+  LayoutModal,
+} from "molgenis-components";
 import TableMixin from "../mixins/TableMixin";
 import FilterWell from "../tables/FilterWell";
 

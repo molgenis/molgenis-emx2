@@ -10,7 +10,7 @@
 
 <script>
 /** Button that is shown as a icon */
-import { IconAction } from "molgenis-components";
+import IconAction from "./IconAction.vue";
 
 export default {
   extends: IconAction,

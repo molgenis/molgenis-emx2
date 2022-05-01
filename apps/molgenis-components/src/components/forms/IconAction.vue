@@ -24,17 +24,33 @@ export default {
 <docs>
 
 <template>
-  <IconAction icon="times" @click="alert('clicked')"/>
+  <div>
+    <label>times</label>
+    <demo-item>
+      <icon-action icon="times" @click="alert('clicked')"></icon-action>
+    </demo-item>
+    <label>chevron-down</label>
+    <demo-item>
+      <icon-action icon="chevron-down" @click="alert('clicked')"></icon-action>
+    </demo-item>
+    <label>chevron-up</label>
+    <demo-item>
+      <icon-action icon="chevron-up" @click="alert('clicked')"></icon-action>
+    </demo-item>
+    <label>snowflake</label>
+    <demo-item>
+      <icon-action icon="snowflake" @click="alert('clicked')"></icon-action>
+    </demo-item>
+  </div>
 </template>
+
 <script>
   export default {
     methods: {
       alert(text) {
-        alert(text)
+        alert(text);
       }
     }
-  }
+  };
 </script>
-
-
 </docs>

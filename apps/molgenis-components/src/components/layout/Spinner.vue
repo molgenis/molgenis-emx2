@@ -5,8 +5,12 @@
 </template>
 
 <docs>
-Example
-```
-<Spinner/>
-```
+<template>
+  <demo-item id="explorer-table" label="Explorer table">
+    Example
+    ```
+    <Spinner/>
+    ```
+  </demo-item>
+</template>
 </docs>

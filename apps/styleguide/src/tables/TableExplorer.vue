@@ -198,7 +198,7 @@ import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
 import SelectionBox from "./SelectionBox";
-import ButtonDropdown from "../forms/ButtonDropdown";
+import ButtonDropdown from "molgenis-components/src/components/forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
 import RecordCard from "./RecordCard";

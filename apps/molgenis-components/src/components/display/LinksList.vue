@@ -50,49 +50,21 @@ export default {
 </script>
 
 <docs>
-Display a list of links
-```
-<links-list
-    :items="[{label: 'Molgenis', href: 'https://molgenis.org'}, {label: 'Google', href: 'https://google.com'}]"/>
-```
-Display a list of links with link description
-```
-const links = [
-{ label: 'Molgenis', href: 'https://molgenis.org', text:'link 1' },
-{ label: 'Vue', href: 'https://vuejs.org/', text:'link 2' }
-]
 <template>
-  <links-list :items="links"><p>Sample content</p>
-    <links-list>
+  <div>
+    Display a list of links
+    <links-list
+        :items="[{label: 'Molgenis', href: 'https://molgenis.org'}, {label: 'Google', href: 'https://google.com'}]"></links-list>
+    With texts
+    <links-list :items="[{label: 'Molgenis', href: 'https://molgenis.org', text: 'link 1'},
+          {label: 'Vue', href: 'https://vuejs.org/', text: 'link 2'}]"><p>Sample content</p>
+    </links-list>
+    Display Horizontal
+    <links-list
+        :items="[{label: 'Molgenis', href: 'https://molgenis.org'}, {label: 'Google', href: 'https://google.com'}]"
+        isHorizontal>
+      <p>Sample content</p>
+    </links-list>
+  </div>
 </template>
-```
-
-Without labels
-```
-const links = [
-{ href: 'https://molgenis.org', text:'Molgenis' },
-{ href: 'https://vuejs.org/', text:'Vue' }
-]
-<template>
-  <links-list :items="links">
-    <p>Sample content</p>
-  </links-list>
-</template>
-
-```
-Display Horizontal
-```
-const links = [
-{ label: 'Molgenis', href: 'https://molgenis.org' },
-{ label: 'Vue', href: 'https://vuejs.org/' }
-]
-
-const isHorizontal = true
-<template>
-  <links-list :items="links" :isHorizontal="isHorizontal">
-    <p>Sample content</p>
-  </links-list>
-</template>
-
-```
 </docs>

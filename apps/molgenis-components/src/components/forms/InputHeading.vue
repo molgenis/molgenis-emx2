@@ -64,14 +64,11 @@ export default {
 </script>
 
 <docs>
-structured, using format as parameter
-```
-<InputHeading label="About" description="My about section"/>
-```
-editable
-```
 <template>
   <div>
+    structured, using format as parameter
+    <InputHeading label="About" description="My about section"/>
+    editable
     <InputHeading :description.sync="description" :label.sync="label" :inplace="true"/>
     {{ description }}
   </div>
@@ -86,5 +83,4 @@ editable
     }
   }
 </script>
-```
 </docs>

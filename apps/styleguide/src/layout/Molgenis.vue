@@ -22,7 +22,7 @@
         <slot />
       </div>
     </div>
-    <Footer>
+    <MolgenisFooter>
       <span v-if="session && session.manifest">
         Software version:
         <a
@@ -36,17 +36,16 @@
           >Database version: {{ session.manifest.DatabaseVersion }}.</span
         >
       </span>
-    </Footer>
+    </MolgenisFooter>
   </div>
 </template>
 
 <script>
-import MolgenisMenu from "./MolgenisMenu";
+import MolgenisMenu from "molgenis-components/src/components/layout/MolgenisMenu";
 import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
-import Footer from "./MolgenisFooter";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
-import { Breadcrumb } from "molgenis-components";
+import { Breadcrumb, MolgenisFooter } from "molgenis-components";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -55,7 +54,7 @@ export default {
   components: {
     MolgenisSession,
     MolgenisMenu,
-    Footer,
+    MolgenisFooter,
     MolgenisTheme,
     Breadcrumb,
   },

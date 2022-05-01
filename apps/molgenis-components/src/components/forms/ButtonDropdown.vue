@@ -57,9 +57,9 @@ export default {
 </script>
 
 <docs>
-```
-<ButtonDropdown label="My pulldown">
-  <ButtonAlt>Some button</ButtonAlt>
-</ButtonDropdown>
-```
+<template>
+  <ButtonDropdown label="My pulldown">
+    <ButtonAlt>Some button</ButtonAlt>
+  </ButtonDropdown>
+</template>
 </docs>

@@ -40,11 +40,11 @@ import {
   MessageSuccess,
   Spinner,
   IconAction,
+  LayoutModal,
 } from "molgenis-components";
 
 import InputText from "../forms/InputText";
 import { request } from "graphql-request";
-import LayoutModal from "../layout/LayoutModal";
 
 export default {
   components: {

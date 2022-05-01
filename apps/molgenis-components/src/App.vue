@@ -6,13 +6,19 @@
         id="page-content-wrapper"
         class="container-fluid overflow-auto vh-100"
       >
-        <div v-for="name in docNames" :key="name">
-          <router-link class="float-right" :to="'/component/' + name">focus</router-link>
-          <router-view :name="name"></router-view>
+        <div v-for="name in docNames" :key="name" :id="name">
+          <h2>{{ name }}</h2>
+          <router-link class="float-right" :to="'/component/' + name">
+            focus
+          </router-link>
+          <div class="border-top border-primary pt-4 mb-4">
+            <router-view :name="name"></router-view>
+          </div>
         </div>
       </div>
     </template>
     <div class="container" v-else>
+      <h2>{{ currentRouteName }}</h2>
       <router-link :to="'/'">Back to listing</router-link>
       <router-view></router-view>
     </div>
@@ -25,11 +31,12 @@ export default {
     docNames() {
       return Object.keys(this.$docsMap);
     },
+    currentRouteName() {
+      return this.$route.path;
+    },
   },
 };
 </script>
-
-
 
 <style>
 #sidebar-wrapper .sidebar-heading {

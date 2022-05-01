@@ -30,15 +30,15 @@
 </template>
 
 <script>
-import LayoutModal from "./LayoutModal";
 import {
   ButtonAction,
   ButtonAlt,
   MessageError,
   MessageSuccess,
   Spinner,
+  LayoutModal,
+  InputPassword,
 } from "molgenis-components";
-import InputPassword from "../forms/InputPassword";
 import { request } from "graphql-request";
 
 export default {

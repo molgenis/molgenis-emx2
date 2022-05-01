@@ -48,11 +48,11 @@ import {
   Spinner,
   MessageError,
   MessageSuccess,
+  LayoutModal,
+  InputPassword,
+  InputString,
 } from "molgenis-components";
-import InputString from "../forms/InputString";
-import InputPassword from "../forms/InputPassword";
-import LayoutForm from "./LayoutForm";
-import LayoutModal from "./LayoutModal";
+import LayoutForm from "molgenis-components/src/components/layout/LayoutForm";
 
 import { request } from "graphql-request";
 

@@ -48,7 +48,7 @@
 
 <script>
 import { ButtonAlt, IconAction } from "molgenis-components";
-import ButtonDropdown from "../forms/ButtonDropdown";
+import ButtonDropdown from "molgenis-components/src/components/forms/ButtonDropdown";
 
 export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },
