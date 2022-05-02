@@ -45,7 +45,13 @@
             is/are associated with the following variants:
           </p>
 
-          <Table :vcfData="this.matchedVariants"></Table>
+<!--          <Table :vcfData="this.matchedVariants"></Table>-->
+          <div>
+            <GendecsTable
+                :columns="['MatchedWith', 'Gene', 'Diseases', 'ClinVar']"
+                :rows="this.matchedVariants">
+            </GendecsTable>
+          </div>
         </div>
         <div v-if="noMatch">
           <MessageError>No match Found</MessageError>
@@ -65,6 +71,7 @@ import SearchAutoComplete from "./SearchAutoComplete";
 import Table from "./Table"
 import hpoData from "../js/autoSearchData.js";
 import request from "graphql-request";
+import GendecsTable from "./GendecsTable";
 
 export default {
   components: {
@@ -75,6 +82,7 @@ export default {
     InputCheckbox,
     Spinner,
     Table,
+    GendecsTable
   },
   data() {
     return {
@@ -275,9 +283,9 @@ export default {
       // creating disease links.
       for (let i = 0; i < diseaseIds.length; i++) {
         if(diseaseIds[i].includes("OMIM")) {
-          diseaseIds[i] = '<a href="https://www.omim.org/entry/' + diseaseIds[i].split(":")[1] + '">link to disease</a>';
+          diseaseIds[i] = 'https://www.omim.org/entry/' + diseaseIds[i].split(":")[1];
         } else if(diseaseIds[i].includes("ORPHA")) {
-          diseaseIds[i] = '<a href="https://www.orpha.net/consor/cgi-bin/Disease_Search.php?lng=NL&data_id=665&Disease_Disease_Search_diseaseGroup=' + diseaseIds[i].split(":")[1] + '">link to disease</a>';
+          diseaseIds[i] = 'https://www.orpha.net/consor/cgi-bin/Disease_Search.php?lng=NL&data_id=665&Disease_Disease_Search_diseaseGroup=' + diseaseIds[i].split(":")[1];
         }
       }
 
@@ -289,12 +297,12 @@ export default {
       // let alleleid = splitInfoLine[splitInfoLine.length - 1];
       let gene = splitInfoLine[3];
       let alleleid = splitInfoLine[splitInfoLine.length - 3];
-      // this.fileData[property].ClinVar = '<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>';
-      this.fileData[property].ClinVar = alleleid;
+      // this.fileData[property].ClinVar = ['<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>'];
+      this.fileData[property].ClinVar = [alleleid];
 
       this.fileData[property].Diseases = diseaseIds;
-      this.fileData[property].Gene = gene;
-      this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 2).toString().replaceAll(",", "|");
+      this.fileData[property].Gene = [gene];
+      this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 3).toString().replaceAll(",", "|");
       this.matchedVariants.push(this.fileData[property]);
 
       termIndex = [];
