@@ -4,7 +4,7 @@
       <label>emtpy string filter</label>
       <div>
         <FilterInput
-          id="input-example"
+          id="emtpy-string-filter"
           :conditions="conditions"
           @updateConditions="conditions = $event"
         ></FilterInput>
@@ -16,7 +16,7 @@
       <label>pre-filled string filter</label>
       <div>
         <FilterInput
-          id="input-example"
+          id="pre-filled-string-filter"
           :conditions="conditions1"
           @updateConditions="conditions1 = $event"
         ></FilterInput>
