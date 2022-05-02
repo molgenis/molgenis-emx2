@@ -15,6 +15,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "ssr": "node server",
     "build": "vite build",
     "build-showcase": "cross-env SHOW_CASE=on vite build ",
     "preview": "vite preview"

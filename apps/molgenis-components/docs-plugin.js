@@ -16,7 +16,7 @@ module.exports = function () {
       });
       const componentsPathSections = pathSections.splice(componentsPathIndex);
       const componentFileName = componentsPathSections.pop();
-      const docPath = "./src/gen-docs/" + componentsPathSections.join("/");
+      const docPath = "./gen-docs/" + componentsPathSections.join("/");
 
       // Construct the folder tree for the docs components
       fs.mkdir(docPath, { recursive: true }, (err) => {

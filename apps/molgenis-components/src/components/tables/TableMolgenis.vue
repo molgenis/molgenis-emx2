@@ -243,7 +243,7 @@ export default {
 </template>
 
 <script>
-  import Client from "../../../client/client.js";
+  import Client from "../../../src/client/client.js";
 
   export default {
     data() {

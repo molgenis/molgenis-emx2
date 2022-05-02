@@ -9,7 +9,7 @@ import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
 
 const components = import.meta.globEager("./components/**/*.vue");
-const genDocs = import.meta.globEager("./gen-docs/**/*.vue");
+const genDocs = import.meta.globEager("../gen-docs/**/*.vue");
 
 Object.entries(components).forEach(([path, definition]) => {
   // Get name of component, based on filename
@@ -44,10 +44,9 @@ Object.entries(genDocs).forEach(([path, definition]) => {
   routes.push({
     path: "/component/" + componentName,
     component: definition.default,
-  }); // for detail view
-  // docNames.push(componentName)
+  });
   // for detail view
-  const folderPath = path.split("/").slice(4); // remove folder root path
+  const folderPath = path.split("/").slice(3); // remove folder root path
   folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });

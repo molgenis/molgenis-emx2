@@ -84,17 +84,14 @@ export default {
 
 <docs>
 <template>
-  <div class="row">
-    <div class="col-3">
-      <contact-display
-          :contact="contact"
-          :contributionType="contributions"
-          :contributionDescription="contributionDescription"
-      ></contact-display>
-    </div>
-  </div>
+  <demo-item>
+    <contact-display
+        :contact="contact"
+        :contributionType="contributions"
+        :contributionDescription="contributionDescription"
+    ></contact-display>
+  </demo-item>
 </template>
-
 <script>
   export default {
     data() {

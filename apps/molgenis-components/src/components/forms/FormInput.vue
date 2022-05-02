@@ -39,7 +39,7 @@ export default {
 
 <docs>
 <template>
-  <demo-item id="form-input" label="Form Input">
+  <demo-item>
     <div>
       <FormInput
           id="form-input-string"
