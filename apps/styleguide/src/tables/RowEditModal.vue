@@ -49,7 +49,7 @@ import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
 import Expressions from "@molgenis/expressions";
-import {EMAIL_REGEX, HYPERLINK_REGEX} from "../constants";
+import { EMAIL_REGEX, HYPERLINK_REGEX } from "../constants";
 
 export default {
   extends: TableMixin,
@@ -59,7 +59,7 @@ export default {
       showLogin: false,
       value: {},
       errorPerColumn: {},
-      success: null
+      success: null,
     };
   },
   props: {
@@ -70,7 +70,7 @@ export default {
     /** visible columns, useful if you only want to allow partial edit (array of strings) */
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
-    defaultValue: Object
+    defaultValue: Object,
   },
   components: {
     LayoutForm,
@@ -81,7 +81,7 @@ export default {
     MessageError,
     MessageSuccess,
     SigninForm,
-    ButtonOutline
+    ButtonOutline,
   },
   methods: {
     getRefBackType(column) {
@@ -116,7 +116,7 @@ export default {
 
       this.setDraft(isDraft);
 
-      const variables = {value: [this.value]};
+      const variables = { value: [this.value] };
       const query = this.getUpsertQuery();
       this.requestMultipart(this.graphqlURL, query, variables)
         .then((data) => {
@@ -153,7 +153,7 @@ export default {
     showColumn(column) {
       const hasRefValue = !column.refLink || this.value[column.refLink];
       const isColumnVisible =
-        !this.visibleColumns || this.visibleColumns.includes(column.id);
+        !this.visibleColumns || this.visibleColumns.includes(column.name);
       return (
         isColumnVisible &&
         this.visible(column.visible, column.id) &&
@@ -237,7 +237,7 @@ export default {
           );
         }
       }
-    }
+    },
   },
   computed: {
     columnsWithoutMeta() {
@@ -251,7 +251,7 @@ export default {
         return this.tableMetadata.columns
           .filter((column) => column.key == 1)
           .reduce((accum, column) => {
-            accum[column.id] = {equals: this.pkey[column.id]};
+            accum[column.id] = { equals: this.pkey[column.id] };
             return accum;
           }, {});
       } else {
@@ -267,7 +267,7 @@ export default {
       } else {
         return `insert ${this.table}`;
       }
-    }
+    },
   },
   watch: {
     data(val) {
@@ -289,14 +289,14 @@ export default {
       handler() {
         this.validate();
       },
-      deep: true
+      deep: true,
     },
     tableMetadata: {
       handler() {
         this.validate();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   created() {
     //pass by value
@@ -304,7 +304,7 @@ export default {
       this.value = JSON.parse(JSON.stringify(this.defaultValue));
     }
     this.validate();
-  }
+  },
 };
 
 function isValidHyperlink(value) {
