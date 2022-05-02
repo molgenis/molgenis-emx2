@@ -81,6 +81,7 @@ subprojects {
         }
     }
 
+    //can run in parallel with buildStyleGuidist
     task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
         node { with nodeSpec }
         if (project.name == 'molgenis-components') {
@@ -95,6 +96,7 @@ subprojects {
         }
     }
 
+    //depend on both buildComponents and buildStylegidst to complete
     task copyDistFiles(type: Copy, dependsOn: [buildComponentsShowcase, buildStyleguidist]) {
         if (project.name == 'styleguide') {
             from "build"
