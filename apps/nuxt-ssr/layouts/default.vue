@@ -58,11 +58,7 @@ div.wrapper {
 </style>
 
 <script>
-import {
-  Breadcrumb,
-  ButtonOutline,
-  SignInForm,
-} from "@molgenis/molgenis-components";
+import { Breadcrumb, ButtonOutline, SignInForm } from "molgenis-components";
 import { mapGetters, mapActions } from "vuex";
 
 export default {

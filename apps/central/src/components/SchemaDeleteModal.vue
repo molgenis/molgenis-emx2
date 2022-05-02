@@ -46,7 +46,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 export default {
   components: {

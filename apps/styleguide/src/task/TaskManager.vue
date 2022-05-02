@@ -18,7 +18,7 @@
 <script>
 import Task from "./Task.vue";
 import TaskList from "./TaskList.vue";
-import { IconAction } from "@molgenis/molgenis-components";
+import { IconAction } from "molgenis-components";
 
 export default {
   components: { Task, TaskList, IconAction },

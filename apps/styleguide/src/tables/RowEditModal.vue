@@ -45,7 +45,7 @@ import {
   MessageSuccess,
   LayoutModal,
   LayoutForm,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";

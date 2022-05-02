@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { Client, Spinner, ReadMore } from "@molgenis/molgenis-components";
+import { Client, Spinner, ReadMore } from "molgenis-components";
 
 export default {
   name: "RefBackTable",

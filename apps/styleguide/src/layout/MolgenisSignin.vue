@@ -41,7 +41,7 @@ import {
   LayoutModal,
   InputString,
   LayoutForm,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
@@ -111,7 +111,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAction} from "@molgenis/molgenis-components";
+  import {ButtonAction} from "molgenis-components";
 
   export default {
     components: {ButtonAction},

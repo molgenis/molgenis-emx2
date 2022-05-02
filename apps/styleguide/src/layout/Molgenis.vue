@@ -41,11 +41,7 @@
 </template>
 
 <script>
-import {
-  MolgenisMenu,
-  Breadcrumb,
-  MolgenisFooter,
-} from "@molgenis/molgenis-components";
+import { MolgenisMenu, Breadcrumb, MolgenisFooter } from "molgenis-components";
 import MolgenisSession from "./MolgenisSession";
 import MolgenisTheme from "./MolgenisTheme";
 import DefaultMenuMixin from "../mixins/DefaultMenuMixin";

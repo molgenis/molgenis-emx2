@@ -26,7 +26,7 @@
 
 <script>
 import { request } from "graphql-request";
-import { MessageError } from "@molgenis/molgenis-components";
+import { MessageError } from "molgenis-components";
 
 export default {
   components: {

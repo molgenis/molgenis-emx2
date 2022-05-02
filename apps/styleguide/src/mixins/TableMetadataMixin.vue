@@ -10,7 +10,7 @@
 
 <script>
 import { request } from "graphql-request";
-import { ShowMore } from "@molgenis/molgenis-components";
+import { ShowMore } from "molgenis-components";
 
 export default {
   components: {

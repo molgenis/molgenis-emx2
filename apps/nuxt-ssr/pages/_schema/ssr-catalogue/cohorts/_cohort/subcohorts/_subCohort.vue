@@ -22,11 +22,7 @@
 </template>
 
 <script>
-import {
-  KeyValueBlock,
-  GridBlock,
-  TableDisplay,
-} from "@molgenis/molgenis-components";
+import { KeyValueBlock, GridBlock, TableDisplay } from "molgenis-components";
 import { startEndYear } from "../../../../../../store/filters";
 import query from "../../../../../../store/gql/subcohortDetails.gql";
 

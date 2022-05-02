@@ -41,7 +41,7 @@ import {
   MessageSuccess,
   InputString,
   ButtonAction,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 export default {
   components: {

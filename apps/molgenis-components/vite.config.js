@@ -35,7 +35,7 @@ if (process.env.SHOW_CASE !== "on") {
   conf.build = {
     lib: {
       entry: path.resolve(__dirname, "lib/main.js"),
-      name: "@molgenis/molgenis-components",
+      name: "molgenis-components",
       formats: ["cjs", "es"], //styleguidist / vue-cli doesn't take umd
       fileName: (format) => `molgenis-components.${format}.js`,
     },

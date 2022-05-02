@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { HyperlinkDisplay, EmailDisplay } from "@molgenis/molgenis-components";
+import { HyperlinkDisplay, EmailDisplay } from "molgenis-components";
 
 export default {
   props: {

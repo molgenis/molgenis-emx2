@@ -11,11 +11,7 @@
 <style scoped></style>
 
 <script>
-import {
-  PageHeader,
-  GridBlock,
-  KeyValueBlock,
-} from "@molgenis/molgenis-components";
+import { PageHeader, GridBlock, KeyValueBlock } from "molgenis-components";
 import { startEndYear } from "../../../../../../store/filters";
 import query from "../../../../../../store/gql/collectionEvent.gql";
 

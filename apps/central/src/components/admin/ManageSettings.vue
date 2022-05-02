@@ -73,7 +73,7 @@ import {
   InputString,
   ButtonAlt,
   ButtonAction,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 export default {
   name: "ManageSettings",

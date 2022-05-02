@@ -81,7 +81,7 @@ import {
   Spinner,
   MessageWarning,
   InputSearch,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 export default {
   components: {

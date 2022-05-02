@@ -67,7 +67,7 @@
 import _baseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
 import FormGroup from "./_formGroup";
-import { MessageError, IconAction } from "@molgenis/molgenis-components";
+import { MessageError, IconAction } from "molgenis-components";
 import vClickOutside from "v-click-outside";
 
 export default {

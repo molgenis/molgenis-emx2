@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { Client, ButtonAlt } from "@molgenis/molgenis-components";
+import { Client, ButtonAlt } from "molgenis-components";
 
 export default {
   components: { ButtonAlt },

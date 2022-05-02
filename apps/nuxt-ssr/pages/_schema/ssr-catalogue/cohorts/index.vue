@@ -30,7 +30,7 @@
 
 <script>
 import cohortsQuery from "../../../../store/gql/cohorts.gql";
-import { Pagination, InputSearch } from "@molgenis/molgenis-components";
+import { Pagination, InputSearch } from "molgenis-components";
 
 export default {
   name: "Cohorts",

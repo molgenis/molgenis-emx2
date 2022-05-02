@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { Client, TableMolgenis } from "@molgenis/molgenis-components";
+import { Client, TableMolgenis } from "molgenis-components";
 
 export default {
   name: "ResourceList",

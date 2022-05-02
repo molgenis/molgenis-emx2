@@ -185,7 +185,7 @@ import {
   ButtonAlt,
   IconAction,
   ButtonDropdown,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 import TableMolgenis from "./TableMolgenis";
 import FilterSidebar from "./FilterSidebar";

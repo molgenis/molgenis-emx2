@@ -109,7 +109,7 @@ import {
   Spinner,
   MessageError,
   LayoutModal,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 import TableMixin from "../mixins/TableMixin";
 import FilterWell from "../tables/FilterWell";
 

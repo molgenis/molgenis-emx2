@@ -106,7 +106,7 @@ import TableMixin from "../mixins/TableMixin";
 import TableMetadataMixin from "../mixins/TableMetadataMixin";
 import FormGroup from "./_formGroup";
 import InputOntologySubtree from "./InputOntologySubtree";
-import { MessageError, Spinner } from "@molgenis/molgenis-components";
+import { MessageError, Spinner } from "molgenis-components";
 import vClickOutside from "v-click-outside";
 
 /**

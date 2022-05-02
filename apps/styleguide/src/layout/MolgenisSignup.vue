@@ -52,7 +52,7 @@ import {
   InputPassword,
   InputString,
   LayoutForm,
-} from "@molgenis/molgenis-components";
+} from "molgenis-components";
 
 import { request } from "graphql-request";
 
@@ -130,7 +130,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAction} from "@molgenis/molgenis-components";
+  import {ButtonAction} from "molgenis-components";
 
   export default {
     components: {ButtonAction},

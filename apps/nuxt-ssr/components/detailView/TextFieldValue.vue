@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { ReadMore } from "@molgenis/molgenis-components";
+import { ReadMore } from "molgenis-components";
 
 export default {
   name: "TextFieldValue",

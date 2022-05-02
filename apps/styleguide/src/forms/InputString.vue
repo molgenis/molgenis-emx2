@@ -40,7 +40,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import { IconAction } from "@molgenis/molgenis-components";
+import { IconAction } from "molgenis-components";
 
 export default {
   extends: BaseInput,
