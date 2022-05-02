@@ -43,7 +43,6 @@ export default {
   data() {
     return {
       selectedItems: null,
-      rows: null,
       patientId: null,
       birthdate: null,
       gender: null,
@@ -64,7 +63,6 @@ export default {
       let resultPatients = [];
       await request("graphql", query)
           .then((data) => {
-            this.rows = data["Patients"];
             resultPatients = data["Patients"];
           })
           .catch((error) => {

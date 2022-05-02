@@ -110,38 +110,32 @@ export default {
      * This is then used to gather the ID of the term using an api call.
      * */
     async hpoTermToId(hpoTerm) {
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoTerm)
+      return await fetch("/patients/api/gendecs/hpoToId/" + hpoTerm)
           .then((response) => {
             if (response.ok) {
-              return response.json();
+              return response.text();
             }
             throw new Error("Something went wrong");
           })
           .catch((error) => {
             console.log(error);
           });
-      let hpoResults = resultData['terms'];
-
-      return hpoResults[0].id;
     },
     /**
      * Function gets the Hpo id that is selected by the user as hpoId.
      * This is then used to gather the HPO term of the id using an api call.
      * */
     async hpoIdToTerm(hpoId) {
-      let resultData = await fetch("https://hpo.jax.org/api/hpo/search/?q=" + hpoId)
+      return await fetch("/patients/api/gendecs/idToHpo/" + hpoId)
           .then((response) => {
             if (response.ok) {
-              return response.json();
+              return response.text();
             }
             throw new Error("Something went wrong");
           })
           .catch((error) => {
             console.log(error);
           });
-      let hpoResults = resultData['terms'];
-
-      return hpoResults[0].name;
     },
     /**
      * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
@@ -292,9 +286,11 @@ export default {
       // this allelID can be found in the info line of the ClinVar file
       // fetch this from the info line and create the url with:
       // http://www.ncbi.nlm.nih.gov/clinvar/?term='id'[alleleid]
-      let alleleid = splitInfoLine[splitInfoLine.length - 1];
-      this.fileData[property].ClinVar = '<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>';
+      // let alleleid = splitInfoLine[splitInfoLine.length - 1];
       let gene = splitInfoLine[3];
+      let alleleid = splitInfoLine[splitInfoLine.length - 3];
+      // this.fileData[property].ClinVar = '<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>';
+      this.fileData[property].ClinVar = alleleid;
 
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = gene;

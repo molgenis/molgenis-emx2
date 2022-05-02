@@ -1,10 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static spark.Spark.get;
 import static spark.Spark.post;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import java.util.ArrayList;
 import org.molgenis.emx2.semantics.gendecs.*;
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ public class GendecsApi {
 
   public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
+    get("/:schema/api/gendecs/idToHpo/:id", GendecsApi::idToHpo);
+    get("/:schema/api/gendecs/hpoToId/:hpoTerm", GendecsApi::hpoToId);
   }
 
   private static String queryHpo(Request request, Response response) {
@@ -45,5 +46,18 @@ public class GendecsApi {
       }
     }
     return Serialize.serializeHpo(hpoTerm);
+  }
+
+  private static String idToHpo(Request request, Response response) {
+    String id = request.params("id");
+    return Hpo.getHpoTerm(
+        id, "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt");
+  }
+
+  private static String hpoToId(Request request, Response response) {
+    String hpoTerm = request.params("hpoterm");
+    return Hpo.getHpoId(
+        hpoTerm,
+        "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt");
   }
 }
