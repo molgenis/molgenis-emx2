@@ -4,10 +4,10 @@ module.exports = function () {
   const transform = (code, id) => {
     if (/<docs>/.test(code)) {
       // regex for custom docs tag
-      const re = /<docs>[\s\S.]*<\/docs>/;
+      const findDocsElementRegExp = /<docs>[\s\S.]*<\/docs>/;
 
       // Save the docs in memory
-      const docs = code.match(re)[0];
+      const docs = code.match(findDocsElementRegExp)[0];
 
       // Build a path to store the docs
       const pathSections = id.split("/");
