@@ -3,7 +3,6 @@ const fs = require("fs");
 module.exports = function () {
   const transform = (code, id) => {
     if (/<docs>/.test(code)) {
-      // regex for custom docs tag
       const findDocsElementRegExp = /<docs>[\s\S.]*<\/docs>/;
 
       // Save the docs in memory
