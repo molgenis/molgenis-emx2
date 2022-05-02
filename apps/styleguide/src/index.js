@@ -26,7 +26,6 @@ import InputSelect from "./forms/InputSelect";
 import InputString from "./forms/InputString";
 import InputText from "./forms/InputText";
 
-import LayoutCard from "./layout/LayoutCard";
 import LayoutNavTabs from "./layout/NavTabs";
 import NavTabs from "./layout/NavTabs";
 
@@ -86,7 +85,6 @@ export {
   InputSelect,
   InputString,
   InputText,
-  LayoutCard,
   LayoutNavTabs,
   Molgenis,
   NavTabs,

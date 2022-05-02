@@ -12,7 +12,6 @@
     </div>
     <div
       v-if="!this.collapse || !collapsed"
-      v-scroll-lock="fullscreen"
       class="card-body"
       :style="bodyheight"
     >
@@ -23,16 +22,10 @@
 </template>
 
 <script>
-import { IconAction } from "@molgenis/molgenis-components";
-import Vue from "vue";
-import VScrollLock from "v-scroll-lock";
+import IconAction from "../forms/IconAction.vue";
 
-Vue.use(VScrollLock);
-
+/* TODO: removed scroll lock on full screen for ssr */
 export default {
-  directives: {
-    VScrollLock,
-  },
   components: {
     IconAction,
   },
@@ -98,13 +91,12 @@ export default {
 </style>
 
 <docs>
-
-Example
-
-```jsx
-<LayoutCard title="My first card">
-  Hello world
-</LayoutCard>
-```
+<template>
+  <demo-item>
+    <LayoutCard title="My first card">
+      Hello world
+    </LayoutCard>
+  </demo-item>
+</template>
 
 </docs>

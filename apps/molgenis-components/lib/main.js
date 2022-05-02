@@ -64,6 +64,8 @@ import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 
+import LayoutCard from "../src/components/layout/LayoutCard.vue";
+
 export {
   MolgenisMenu,
   MessageWarning,
@@ -121,4 +123,5 @@ export {
   ShowMore,
   MolgenisSignIn,
   Client,
+  LayoutCard,
 };
