@@ -11,7 +11,7 @@ module.exports = function () {
       // Build a path to store the docs
       const pathSections = id.split("/");
       const componentsPathIndex = pathSections.findIndex((section) => {
-        return section == "components";
+        return section === "components";
       });
       const componentsPathSections = pathSections.splice(componentsPathIndex);
       const componentFileName = componentsPathSections.pop();
