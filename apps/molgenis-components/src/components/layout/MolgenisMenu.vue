@@ -131,18 +131,18 @@ export default {
         return true;
       }
       if (this.session && Array.isArray(this.session.roles)) {
-        if (this.session.email == "admin") {
+        if (this.session.email === "admin") {
           return true;
         }
-        if (item.role == "Viewer") {
+        if (item.role === "Viewer") {
           return this.session.roles.some((r) =>
             ["Viewer", "Editor", "Manager", "Owner"].includes(r)
           );
-        } else if (item.role == "Editor") {
+        } else if (item.role === "Editor") {
           return this.session.roles.some((r) =>
             ["Editor", "Manager", "Owner"].includes(r)
           );
-        } else if (item.role == "Manager") {
+        } else if (item.role === "Manager") {
           return this.session.roles.some((r) =>
             ["Manager", "Owner"].includes(r)
           );
