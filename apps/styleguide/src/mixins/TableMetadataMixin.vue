@@ -66,7 +66,7 @@ export default {
     canEdit() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
+        (this.session.email === "admin" ||
           (this.session.roles &&
             (this.session.roles.includes("Editor") ||
               this.session.roles.includes("Manager"))))
@@ -75,7 +75,7 @@ export default {
     canManage() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
+        (this.session.email === "admin" ||
           this.session.roles.includes("Manager"))
       );
     },

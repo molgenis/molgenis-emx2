@@ -174,8 +174,11 @@ export default {
       this.$emit("input", this.selection);
     },
     emitClear() {
-      if (this.list) this.$emit("input", []);
-      else this.$emit("input", null);
+      if (this.list) {
+        this.$emit("input", []);
+      } else {
+        this.$emit("input", null);
+      }
     },
     select(event) {
       if (this.list) {

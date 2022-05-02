@@ -212,7 +212,7 @@ export default {
     },
     getSelectedChildNodes(term) {
       let result = [];
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         result.push(term.name);
       } else if (term.children) {
         term.children.forEach((childTerm) =>
@@ -328,7 +328,7 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected == "complete")
+        .filter((term) => term.selected === "complete")
         .map((term) => {
           return { name: term.name };
         });

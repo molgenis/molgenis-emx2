@@ -9,7 +9,9 @@ import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
 
 const components = import.meta.globEager("./components/**/*.vue");
-const genDocs = import.meta.globEager("../gen-docs/**/*.vue");
+const generatedDocumentComponents = import.meta.globEager(
+  "../gen-docs/**/*.vue"
+);
 
 Object.entries(components).forEach(([path, definition]) => {
   // Get name of component, based on filename
@@ -34,7 +36,7 @@ const routes = [
 let docsMap = {};
 
 // create routes for generated docs
-Object.entries(genDocs).forEach(([path, definition]) => {
+Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   const componentName = path
     .split("/")
     .pop()
