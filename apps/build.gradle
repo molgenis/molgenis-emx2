@@ -81,7 +81,7 @@ subprojects {
         }
     }
 
-    //can run in parallel with buildStylegz§zuidist
+    //can run in parallel with buildStyleguidist
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
             node { with nodeSpec }
