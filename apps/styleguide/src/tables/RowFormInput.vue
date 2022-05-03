@@ -133,7 +133,7 @@ import _baseInput from "../forms/_baseInput";
 import InputString from "../forms/InputString";
 import InputInt from "../forms/InputInt";
 import InputLong from "../forms/InputLong";
-import InputDecimal from "../forms/InputDecimal";
+import { InputDecimal } from "molgenis-components";
 import InputBoolean from "../forms/InputBoolean";
 import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";

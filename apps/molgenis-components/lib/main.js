@@ -30,6 +30,7 @@ import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
+import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -101,6 +102,7 @@ export {
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InputDecimal,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
