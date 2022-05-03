@@ -96,7 +96,7 @@ subprojects {
         }
     }
 
-    //depend on both buildComponents and buildStylegidst to complete
+    //depend on both buildComponents and buildStylegist to complete
     task copyDistFiles(type: Copy) {
         if (project.name == 'styleguide') {
             dependsOn buildStyleguidist
