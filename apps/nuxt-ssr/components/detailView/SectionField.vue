@@ -20,11 +20,7 @@
 </template>
 
 <script>
-import {
-  StringDisplay,
-  FileDisplay,
-  ObjectDisplay,
-} from "molgenis-components";
+import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
   name: "SectionField",

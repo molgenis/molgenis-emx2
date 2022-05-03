@@ -8,8 +8,8 @@
 
 <script>
 import { request } from "graphql-request";
-import SubTask from "./SubTask";
-import Spinner from "../layout/Spinner";
+import SubTask from "./SubTask.vue";
+import { Spinner } from "molgenis-components";
 
 export default {
   components: {

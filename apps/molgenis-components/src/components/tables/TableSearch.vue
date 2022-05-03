@@ -162,3 +162,56 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <table-search
+        id="my-search-table"
+        :selection.sync="selected"
+        :columns.sync="columns"
+        :lookupTableName="'Pet'"
+        :showSelect="false"
+        :graphqlURL="'/pet store/graphql'"
+        :canEdit="true"
+        @select="click"
+        @deselect="click"
+        @click="click"
+    >
+    </table-search>
+  </demo-item>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+        selected: [],
+        columns: [
+          {id: "col1", name: "col1", columnType: "STRING", key: 1},
+          {
+            id: "ref1",
+            name: "ref1",
+            columnType: "REF",
+            refColumns: ["firstName", "lastName"],
+          },
+          {
+            id: "ref_arr1",
+            name: "ref_arr1",
+            columnType: "REF_ARRAY",
+            refColumns: ["firstName", "lastName"],
+          },
+        ],
+        remoteSelected: [],
+        remoteColumns: [],
+        remoteTableData: null,
+      };
+    },
+    methods: {
+      click(value) {
+        alert("click " + JSON.stringify(value));
+      },
+    },
+  };
+</script>
+</docs>

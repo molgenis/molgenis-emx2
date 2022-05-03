@@ -9,7 +9,7 @@
           <th>Edit</th>
         </tr>
       </thead>
-      <tr v-for="page in pages">
+      <tr v-for="page in pages" :key="page.id">
         <td>{{ page }}</td>
         <td>
           <router-link :to="'/' + page">view</router-link>
@@ -23,23 +23,19 @@
 </template>
 
 <script>
-import {ShowMore} from "@mswertz/emx2-styleguide";
-
 export default {
-  components: {
-    ShowMore
-  },
   props: {
-    session: Object
+    session: Object,
   },
   computed: {
     pages() {
       if (this.session && this.session.settings) {
         return Object.keys(this.session.settings)
-          .filter(key => key.startsWith("page."))
-          .map(key => key.substring(5));
+          .filter((key) => key.startsWith("page."))
+          .map((key) => key.substring(5));
       }
-    }
-  }
+      return [];
+    },
+  },
 };
 </script>

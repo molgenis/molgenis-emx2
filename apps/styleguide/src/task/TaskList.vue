@@ -26,7 +26,7 @@
 
 <script>
 import { request } from "graphql-request";
-import MessageError from "../forms/MessageError";
+import { MessageError } from "molgenis-components";
 
 export default {
   components: {

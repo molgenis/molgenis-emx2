@@ -33,6 +33,7 @@
 
 <script>
 import { Client, ButtonAlt } from "molgenis-components";
+
 export default {
   components: { ButtonAlt },
   props: {
@@ -45,27 +46,26 @@ export default {
   },
   async asyncData({ params, $axios }) {
     const tableName = params.resource;
-    const client = Client.newClient(
-      "/" + params.schema + "/graphql", $axios,
-    );
+    const client = Client.newClient("/" + params.schema + "/graphql", $axios);
     const metaData = await client.fetchMetaData();
-    const filter = {pid: { equals: params.resourceDetail}}
+    const filter = { pid: { equals: params.resourceDetail } };
     const dataResponse = await client.fetchTableData(tableName, { filter });
     const resourceData = dataResponse[tableName][0];
 
-    return {resourceData, metaData}
-      
+    return { resourceData, metaData };
   },
   computed: {
-    tableMetaData () {
-      return this.metaData.tables.find((t) => t.name ===  this.$route.params.resource)
+    tableMetaData() {
+      return this.metaData.tables.find(
+        (t) => t.name === this.$route.params.resource
+      );
     },
     sections() {
       const comparePosition = (a, b) => a.position < b.position;
       const isHeading = (meta) => meta.columnType === "HEADING";
       const isNonSystemField = (meta) => !meta.id.startsWith("mg_");
 
-      if(!this.tableMetaData) return
+      if (!this.tableMetaData) return;
 
       return this.tableMetaData.columns
         .filter(isNonSystemField)

@@ -8,6 +8,7 @@
 
 <script>
 import { ObjectDisplay } from "molgenis-components";
+
 export default {
   name: "OntologyFieldValue",
   components: { ObjectDisplay },

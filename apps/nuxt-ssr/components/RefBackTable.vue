@@ -95,7 +95,7 @@ export default {
       tableMetaData: null,
       tableData: [],
     };
-  }, 
+  },
   props: {
     /** name of the table that is referred to */
     refTable: String,
@@ -106,13 +106,14 @@ export default {
   },
   async fetch() {
     const client = Client.newClient(
-      "/" + this.$route.params.schema + "/graphql", this.$axios,
+      "/" + this.$route.params.schema + "/graphql",
+      this.$axios
     );
     const metaData = await client.fetchMetaData();
-    const filter = {[this.refBack]: { equals: { pid: this.pkey.pid}}}
-    const dataResponse = await client.fetchTableData(this.refTable, {filter});
+    const filter = { [this.refBack]: { equals: { pid: this.pkey.pid } } };
+    const dataResponse = await client.fetchTableData(this.refTable, { filter });
     this.tableData = dataResponse[this.refTable];
-    this.tableMetaData = metaData.tables.find((t) => t.name ===  this.refTable)
+    this.tableMetaData = metaData.tables.find((t) => t.name === this.refTable);
   },
   computed: {
     visibleColumnNames() {

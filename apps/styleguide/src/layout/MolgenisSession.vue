@@ -46,9 +46,7 @@
 </template>
 
 <script>
-import Spinner from "./Spinner";
-import ButtonOutline from "../forms/ButtonOutline";
-import ButtonAlt from "../forms/ButtonAlt";
+import { ButtonOutline, ButtonAlt, Spinner } from "molgenis-components";
 
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
@@ -211,7 +209,10 @@ Example
   </div>
 </template>
 <script>
+  import {ShowMore} from "molgenis-components";
+
   export default {
+    components: {ShowMore},
     data() {
       return {
         session: null
