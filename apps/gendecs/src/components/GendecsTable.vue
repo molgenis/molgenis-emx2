@@ -20,18 +20,15 @@
             style="cursor: pointer"
         >
           <ul v-if="Array.isArray(row[col])" class="list-unstyled">
-            <div v-for="(item, index3) in row[col]" :key="index3">
-              <li v-if="col === 'Diseases'">
-                <a :href="item" target="_blank">link to disease</a>
-              </li>
-              <li v-if="col === 'ClinVar'">
-                <p v-if="item === ''">No ClinVar match</p>
-                <a v-else :href="'http://www.ncbi.nlm.nih.gov/clinvar/?term=' + item + '[alleleid]' + item" target="_blank">link to ClinVar</a>
-              </li>
-              <li v-else-if="col !== 'ClinVar' && col !== 'Diseases'">
-              {{ item }}
-              </li>
-            </div>
+            <li v-for="(item, index3) in row[col]" :key="index3">
+              <a v-if="col === 'Diseases'" :href="item" target="_blank">link to disease</a>
+
+              <a v-if="col === 'ClinVar' && item !== ''"
+                    :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + item + '[alleleid]' + item" target="_blank">link to ClinVar</a>
+              <p v-if="col ==='ClinVar' && item === ''">No ClinVar match</p>
+
+              <p v-else-if="col !== 'ClinVar' && col !== 'Diseases'"> {{item}}</p>
+            </li>
           </ul>
           <span v-else-if="row[col]">{{ flattenObject(row[col]) }} 54321</span>
         </td>
