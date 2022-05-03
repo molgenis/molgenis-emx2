@@ -97,11 +97,13 @@ subprojects {
     }
 
     //depend on both buildComponents and buildStylegidst to complete
-    task copyDistFiles(type: Copy, dependsOn: project.name == 'styleguide' ? buildStyleguidist : project.name == 'molgenis-compoments' ? buildComponentsShowcase : null) {
+    task copyDistFiles(type: Copy) {
         if (project.name == 'styleguide') {
+            dependsOn buildStyleguidist
             from "build"
             inputs.dir("build")
         } else if (project.name == 'molgenis-components') {
+            dependsOn buildComponentsShowcase
             from "showCase"
             inputs.dir("showCase")
         } else {
