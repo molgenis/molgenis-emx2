@@ -18,17 +18,15 @@
 import CKEditor from "ckeditor4-vue";
 import {
   ButtonAction,
-  ButtonAlt,
   MessageError,
   MessageSuccess,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
   components: {
     ckeditor: CKEditor.component,
     ButtonAction,
-    ButtonAlt,
     MessageError,
     MessageSuccess,
   },

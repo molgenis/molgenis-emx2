@@ -15,11 +15,9 @@
     </div>
     <h3 v-if="subTitle">
       <small class="text-muted">
-        <template v-if="subTitleLink && isVueRouterLink"
-          ><router-link v-bind="subTitleLink">{{
-            subTitle
-          }}</router-link></template
-        >
+        <template v-if="subTitleLink && isVueRouterLink">
+          <router-link v-bind="subTitleLink">{{ subTitle }}</router-link>
+        </template>
         <template v-else-if="subTitleLink && !isVueRouterLink"
           ><a :href="subTitleLink">{{ subTitle }}</a></template
         >
@@ -75,5 +73,27 @@ export default {
 };
 </script>
 
+<docs>
+<template>
+  <div>
+    <label class="font-italic">basic header with a title</label>
+    <demo-item>
+      <page-header title="My title"></page-header>
+    </demo-item>
 
+    <label class="font-italic">header with title and subtitle</label>
+    <demo-item>
+      <page-header title="My title" subTitle="and subtitle"></page-header>
+    </demo-item>
 
+    <label class="font-italic">Header with subtitle and logo</label>
+    <demo-item>
+      <page-header
+          title="My title"
+          subTitle="and subtitle"
+          logoUrl="https://avatars.githubusercontent.com/u/1688158?s=200&v=4"
+      ></page-header>
+    </demo-item>
+  </div>
+</template>
+</docs>

@@ -15,7 +15,10 @@
           <td>
             <div style="display: flex">
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
-              <IconDanger icon="trash" @click="handleRowDeleteRequest(setting)" />
+              <IconDanger
+                icon="trash"
+                @click="handleRowDeleteRequest(setting)"
+              />
             </div>
           </td>
           <td>
@@ -28,7 +31,12 @@
       </tbody>
     </table>
 
-    <LayoutModal v-if="showModal" :title="modalTitle" :show="true" @close="showModal = false">
+    <LayoutModal
+      v-if="showModal"
+      :title="modalTitle"
+      :show="true"
+      @close="showModal = false"
+    >
       <template v-slot:body>
         <div>
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
@@ -58,12 +66,29 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction } from "@mswertz/emx2-styleguide";
+import { LayoutModal, LayoutForm, InputText } from "@mswertz/emx2-styleguide";
+import {
+  IconAction,
+  IconDanger,
+  InputString,
+  ButtonAlt,
+  ButtonAction,
+} from "molgenis-components";
+
 export default {
   name: "ManageSettings",
-  components: { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction },
+  components: {
+    IconAction,
+    IconDanger,
+    LayoutModal,
+    LayoutForm,
+    InputString,
+    InputText,
+    ButtonAlt,
+    ButtonAction,
+  },
   data() {
-    return { 
+    return {
       settings: null,
       showModal: false,
       modalTitle: "foo",
@@ -73,7 +98,7 @@ export default {
       isKeyReadOnly: true,
       isValueReadOnly: true,
       graphqlError: null,
-      actionFunction: null
+      actionFunction: null,
     };
   },
   methods: {
@@ -82,70 +107,78 @@ export default {
       this.settings = resp._settings;
     },
     handleRowEditRequest(setting) {
-      this.modalTitle = `Edit ${setting.key} setting`
-      this.settingActionLabel = "Edit Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-      this.isValueReadOnly = false,
-      this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = `Edit ${setting.key} setting`;
+      this.settingActionLabel = "Edit Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      (this.isKeyReadOnly = true),
+        (this.isValueReadOnly = false),
+        (this.actionFunction = this.createSetting);
+      this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
-      this.modalTitle = `Delete ${setting.key} setting`
-      this.settingActionLabel = "Delete Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-      this.isValueReadOnly = true,
-      this.actionFunction = this.deleteSetting
-      this.showModal = true
+      this.modalTitle = `Delete ${setting.key} setting`;
+      this.settingActionLabel = "Delete Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      (this.isKeyReadOnly = true),
+        (this.isValueReadOnly = true),
+        (this.actionFunction = this.deleteSetting);
+      this.showModal = true;
     },
     handleCreateRequest() {
-      this.modalTitle = "Create new setting"
-      this.settingActionLabel = "Create Setting"
-      this.settingKey = ""
-      this.settingValue = ""
-      this.isKeyReadOnly = false,
-      this.isValueReadOnly = false,
-      this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = "Create new setting";
+      this.settingActionLabel = "Create Setting";
+      this.settingKey = "";
+      this.settingValue = "";
+      (this.isKeyReadOnly = false),
+        (this.isValueReadOnly = false),
+        (this.actionFunction = this.createSetting);
+      this.showModal = true;
     },
     async createSetting() {
-      const createMutation = gql`mutation createSetting($key:String, $value:String) {
-        createSetting(key:$key, value: $value){
-          message
+      const createMutation = gql`
+        mutation createSetting($key: String, $value: String) {
+          createSetting(key: $key, value: $value) {
+            message
+          }
         }
-      }`
+      `;
 
       const variables = {
         key: this.settingKey,
-        value: this.settingValue
-      }
+        value: this.settingValue,
+      };
 
-      const resp = await request("graphql", createMutation, variables).catch((e) => {
-        console.error(e);
-      });
+      const resp = await request("graphql", createMutation, variables).catch(
+        (e) => {
+          console.error(e);
+        }
+      );
       this.fetchSettings();
-      this.showModal = false
+      this.showModal = false;
     },
     async deleteSetting() {
-      const deleteMutation = gql`mutation deleteSetting($key:String){
-        deleteSetting(key:$key){
-          message
+      const deleteMutation = gql`
+        mutation deleteSetting($key: String) {
+          deleteSetting(key: $key) {
+            message
+          }
         }
-      }`
+      `;
 
       const variables = {
         key: this.settingKey,
-      }
+      };
 
-      const resp = await request("graphql", deleteMutation, variables).catch((e) => {
-        console.error(e);
-      });
+      const resp = await request("graphql", deleteMutation, variables).catch(
+        (e) => {
+          console.error(e);
+        }
+      );
       this.fetchSettings();
-      this.showModal = false
-    }
+      this.showModal = false;
+    },
   },
   mounted() {
     this.fetchSettings();

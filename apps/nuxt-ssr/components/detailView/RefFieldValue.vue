@@ -4,7 +4,8 @@
       name: metaData.refTable + '-details',
       params: data,
     }"
-    ><ObjectDisplay :data="data" :metaData="metaData" />
+  >
+    <ObjectDisplay :data="data" :metaData="metaData" />
   </RouterLink>
 </template>
 

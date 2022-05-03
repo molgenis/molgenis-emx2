@@ -58,50 +58,46 @@ export default {
 </script>
 
 <docs>
-### Table Display
+<template>
+  <div>
+    <label>Table Display</label>
+    <p>
+      Takes a list of columns and rows
 
-Takes a list of columns and rows
-
- - Each column object has a label and name
- - Each row is a key-value-object, where the keys refers to the column.name property
-
-```
-const columns = [
+      - Each column object has a label and name
+      - Each row is a key-value-object, where the keys refers to the column.name property
+    </p>
+    <table-display :columns="[
   {name: 'firstName', label: 'First name'},
   {name: 'lastName', label: 'Sir name'},
   {name: 'occupation', label: 'Occupation'}
-]
-
-const rows = [
+]" :rows=" [
   {firstName: 'Albus', lastName: 'Dumbledore', occupation: 'Headmaster'},
   {firstName: 'Rubeus', occupation: 'Grounds keeper'},
   {lastName: 'Snape', occupation: 'Professor'}
-]
-<template>
-  <table-display :columns=columns :rows=rows></table-display>
+]">
+
+    </table-display>
+    <label>Set isClickable to make the rows actionable</label>
+    <table-display :columns="[
+    {name: 'a', label: 'A'},
+    {name: 'b', label: 'B'},
+    {name: 'c', label: 'C'}
+    ]" :rows="[
+    {a: 'Click'},
+    {b: 'On'},
+    {c: 'Me'}
+    ]" :isClickable="true"
+                   @row-click="alert(JSON.stringify($event))"></table-display>
+  </div>
 </template>
-
-```
-
-#### Set isClickable to make the rows actionable
-
-```
-const isClickable = true
-const columns = [
-  {name: 'a', label: 'A'},
-  {name: 'b', label: 'B'},
-  {name: 'c', label: 'C'}
-]
-
-const rows = [
-  {a: 'Click'},
-  {b: 'On'},
-  {c: 'Me'}
-]
-
-<template>
-  <table-display :columns=columns :rows=rows :isClickable="isClickable" @row-click="this.alert(JSON.stringify($event))"></table-display>
-</template>
-
-```
+<script>
+  export default {
+    methods: {
+      alert(string) {
+        alert(string);
+      }
+    }
+  }
+</script>
 </docs>

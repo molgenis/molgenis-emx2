@@ -82,3 +82,42 @@ export default {
   border: 0;
 }
 </style>
+
+<docs>
+<template>
+  <div>
+    <label>Basic example</label>
+    <demo-item>
+      <InputRadio
+          id="input-radio-1"
+          v-model="value1"
+          :options="['options 1', 'option 2']"
+          label="My radio input label"
+          description="Some help needed?"
+      />
+      <div>You selected: {{ value1 }}</div>
+    </demo-item>
+
+    <label>Example with defaultValue</label>
+    <demo-item>
+      <InputRadio
+          id="input-radio-2"
+          v-model="value2"
+          :options="['option 1', 'option 2']"
+          label="My radio input label"
+      />
+      <div>You selected: {{ value2 }}</div>
+    </demo-item>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value1: null,
+        value2: 'option 1',
+      };
+    },
+  };
+</script>
+</docs>

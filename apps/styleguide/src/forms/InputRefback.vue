@@ -74,8 +74,7 @@ import RowButtonAdd from "../tables/RowButtonAdd";
 import RowButtonDelete from "../tables/RowButtonDelete";
 import RowButtonEdit from "../tables/RowButtonEdit";
 import RowButtonClone from "../tables/RowButtonClone";
-import MessageWarning from "./MessageWarning";
-import Spinner from "../layout/Spinner";
+import { MessageWarning, Spinner } from "molgenis-components";
 
 export default {
   extends: _baseInput,

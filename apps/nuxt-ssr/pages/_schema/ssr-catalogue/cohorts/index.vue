@@ -29,30 +29,31 @@
 </template>
 
 <script>
-import cohortsQuery from '../../../../store/gql/cohorts.gql';
-import {Pagination, InputSearch} from 'molgenis-components';
+import cohortsQuery from "../../../../store/gql/cohorts.gql";
+import { Pagination, InputSearch } from "molgenis-components";
+
 export default {
-  name: 'Cohorts',
-  components: {Pagination, InputSearch},
+  name: "Cohorts",
+  components: { Pagination, InputSearch },
   data() {
     return {
       cohorts: [],
       search:
-        this.$route.query.search === undefined ? '' : this.$route.query.search,
+        this.$route.query.search === undefined ? "" : this.$route.query.search,
       count: 0,
       page: 1,
-      limit: 20
+      limit: 20,
     };
   },
   async fetch() {
     const resp = await this.$axios
-      .post(this.$route.params.schema + '/graphql', {
+      .post(this.$route.params.schema + "/graphql", {
         query: cohortsQuery,
         variables: {
           offset: this.pagingOffset,
           limit: this.limit,
-          search: this.search
-        }
+          search: this.search,
+        },
       })
       .catch((e) => console.error(e));
 
@@ -66,29 +67,29 @@ export default {
       return this.$route.query.offset === undefined
         ? 0
         : parseInt(this.$route.query.offset);
-    }
+    },
   },
   watch: {
     page(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.$router.push({
           path: this.$route.path,
-          query: {...this.$route.query, offset: (newVal - 1) * this.limit}
+          query: { ...this.$route.query, offset: (newVal - 1) * this.limit },
         });
       }
     },
     search(newVal, oldVal) {
       if (newVal !== oldVal) {
-        let query = {...this.$route.query, search: newVal};
-        if (newVal === '') {
-          delete query.search
+        let query = { ...this.$route.query, search: newVal };
+        if (newVal === "") {
+          delete query.search;
         }
-        this.$router.push({path: this.$route.path, query});
+        this.$router.push({ path: this.$route.path, query });
       }
     },
     $route() {
       this.$nuxt.refresh();
-    }
-  }
+    },
+  },
 };
 </script>

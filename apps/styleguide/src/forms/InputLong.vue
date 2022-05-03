@@ -40,7 +40,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import IconAction from "./IconAction";
+import { IconAction } from "molgenis-components";
 import { CODE_MINUS, MIN_LONG, MAX_LONG } from "../constants";
 import { isNumericKey } from "./utils/InputUtils";
 
@@ -144,10 +144,10 @@ Example long list
 ```
 <template>
   <div>
-    <InputLong 
-        v-model="value" 
-        :list="true" 
-        label="My long input label list" 
+    <InputLong
+        v-model="value"
+        :list="true"
+        label="My long input label list"
         description="Some help needed?"
     />
     You typed: {{ JSON.stringify(value, null, 2) }}

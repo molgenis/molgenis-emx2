@@ -17,6 +17,7 @@
 
 <script>
 import { Client, TableMolgenis } from "molgenis-components";
+
 export default {
   name: "ResourceList",
   components: { TableMolgenis },
