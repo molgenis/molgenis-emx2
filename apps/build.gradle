@@ -67,9 +67,9 @@ subprojects {
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
-    if (project.name == 'styleguide') {
-        task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
+    task buildStyleguidist(type: YarnTask, dependsOn: build) {
+        node { with nodeSpec }
+        if (project.name == 'styleguide') {
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -81,10 +81,9 @@ subprojects {
         }
     }
 
-    //can run in parallel with buildStyleguidist
-    if (project.name == 'molgenis-components') {
-        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
+    task buildComponentsShowcase(type: YarnTask, dependsOn: buildStyleguidist) {
+        node { with nodeSpec }
+        if (project.name == 'molgenis-components') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -96,14 +95,11 @@ subprojects {
         }
     }
 
-    //depend on both buildComponents and buildStylegist to complete
-    task copyDistFiles(type: Copy) {
+    task copyDistFiles(type: Copy, dependsOn: buildComponentsShowcase) {
         if (project.name == 'styleguide') {
-            dependsOn buildStyleguidist
             from "build"
             inputs.dir("build")
         } else if (project.name == 'molgenis-components') {
-            dependsOn buildComponentsShowcase
             from "showCase"
             inputs.dir("showCase")
         } else {
