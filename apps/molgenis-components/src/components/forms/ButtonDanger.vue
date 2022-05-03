@@ -13,9 +13,7 @@ export default {
 </script>
 
 <docs>
-Example
 
-```jsx
 <template>
   <ButtonDanger v-on:click="alert('danger clicked');">Dangerous actions</ButtonDanger>
 </template>
@@ -28,6 +26,5 @@ Example
     }
   }
 </script>
-```
 
 </docs>

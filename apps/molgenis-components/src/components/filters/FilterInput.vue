@@ -81,7 +81,7 @@ export default {
 <template>
   <div>
     <div>
-      <label>emtpy string filter</label>
+      <label>empty string filter</label>
       <demo-item>
         <FilterInput
             id="filter-input-example-1"
