@@ -1,7 +1,7 @@
 <template>
   <div v-if="showLogin">
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <SigninForm @login="loginSuccess" @cancel="cancel" />
+    <MolgenisSignIn @login="loginSuccess" @cancel="cancel" />
   </div>
   <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
@@ -45,8 +45,8 @@ import {
   MessageSuccess,
   LayoutModal,
   LayoutForm,
+  MolgenisSignIn,
 } from "molgenis-components";
-import SigninForm from "../layout/MolgenisSignin";
 import TableMixin from "../mixins/TableMixin";
 import GraphqlRequestMixin from "../mixins/GraphqlRequestMixin";
 import RowFormInput from "./RowFormInput.vue";
@@ -82,7 +82,7 @@ export default {
     LayoutModal,
     MessageError,
     MessageSuccess,
-    SigninForm,
+    MolgenisSignIn,
     ButtonOutline,
   },
   methods: {

@@ -10,7 +10,12 @@ let conf = {
   plugins: [docTagPlugin(), createVuePlugin()],
   server: {
     proxy: {
-      "^/.*/graphql": {
+      "^/graphql": {
+        target: `${BACKEND_LOCATION}/api`,
+        changeOrigin: true,
+        secure: false,
+      },
+      "^/.*/graphql$": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,

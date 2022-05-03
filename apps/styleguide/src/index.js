@@ -29,7 +29,6 @@ import InputText from "./forms/InputText";
 import LayoutNavTabs from "./layout/NavTabs";
 import NavTabs from "./layout/NavTabs";
 
-import Molgenis from "./layout/Molgenis";
 import TableMolgenis from "./tables/TableMolgenis";
 import TableExplorer from "./tables/TableExplorer";
 
@@ -53,12 +52,7 @@ import TableMetadataMixin from "./mixins/TableMetadataMixin";
 import TableSimple from "./tables/TableSimple";
 import TableSearch from "./tables/TableSearch";
 
-import DefaultMenuMixin from "./mixins/DefaultMenuMixin";
-
-import MolgenisSignin from "./layout/MolgenisSignin.vue";
-
 export {
-  DefaultMenuMixin,
   FilterSidebar,
   FilterWells,
   FilterInput,
@@ -86,7 +80,6 @@ export {
   InputString,
   InputText,
   LayoutNavTabs,
-  Molgenis,
   NavTabs,
   Pagination,
   RecordCard,
@@ -105,5 +98,4 @@ export {
   TableExplorer,
   TableSimple,
   TableSearch,
-  MolgenisSignin,
 };

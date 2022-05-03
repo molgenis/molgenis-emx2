@@ -7,6 +7,7 @@
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <InputPassword
+          id="account-password"
           v-model="password"
           label="Password"
           placeholder="Enter password"
@@ -14,6 +15,7 @@
           @enterPressed="updatePassword"
         />
         <InputPassword
+          id="account-password2"
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
@@ -30,15 +32,14 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  ButtonAlt,
-  MessageError,
-  MessageSuccess,
-  Spinner,
-  LayoutModal,
-  InputPassword,
-} from "molgenis-components";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import Spinner from "./Spinner.vue";
+import LayoutModal from "./LayoutModal.vue";
+import InputPassword from "../forms/InputPassword.vue";
+
 import { request } from "graphql-request";
 
 export default {
@@ -97,8 +98,6 @@ export default {
 </script>
 
 <docs>
-Example
-```
 <template>
   <div>
     <ButtonAlt @click="show = !show">toggle modal account view</ButtonAlt>
@@ -106,10 +105,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAlt} from "molgenis-components";
-
   export default {
-    components: {ButtonAlt},
     data() {
       return {
         show: false
@@ -117,5 +113,4 @@ Example
     }
   }
 </script>
-```
 </docs>

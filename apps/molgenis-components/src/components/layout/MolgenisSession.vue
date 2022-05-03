@@ -10,7 +10,7 @@
         >
           Hi {{ session.email }}</a
         >&nbsp;
-        <ChangePasswordForm
+        <MolgenisAccount
           v-if="showChangePasswordForm"
           :error="error"
           @cancel="showChangePasswordForm = false"
@@ -46,11 +46,12 @@
 </template>
 
 <script>
-import { ButtonOutline, ButtonAlt, Spinner } from "molgenis-components";
-
+import ButtonOutline from "../forms/ButtonOutline.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import Spinner from "./Spinner.vue";
 import SigninForm from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import ChangePasswordForm from "./MolgenisAccount";
+import MolgenisAccount from "./MolgenisAccount.vue";
 
 import { request } from "graphql-request";
 
@@ -66,7 +67,7 @@ export default {
     ButtonOutline,
     SigninForm,
     SignupForm,
-    ChangePasswordForm,
+    MolgenisAccount,
     Spinner,
     ButtonAlt,
   },
@@ -200,19 +201,14 @@ export default {
 </script>
 
 <docs>
-Example
-```
 <template>
   <div>
-    <MolgenisSession v-model="session" graphql="/pet store/graphql"/>
-    <ShowMore title="debug">session = {{ session }}</ShowMore>
+    <MolgenisSession class="bg-primary" v-model="session" graphql="/pet store/graphql"/>
+    <pre>session = {{ session }}</pre>
   </div>
 </template>
 <script>
-  import {ShowMore} from "molgenis-components";
-
   export default {
-    components: {ShowMore},
     data() {
       return {
         session: null
@@ -220,5 +216,4 @@ Example
     }
   }
 </script>
-```
 </docs>

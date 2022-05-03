@@ -13,12 +13,14 @@
       <LayoutForm>
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
+          id="signup-email"
           v-model="email"
           label="Email address"
           placeholder="Enter valid email address"
           description="Please enter your email address"
         />
         <InputPassword
+          id="signup-password"
           v-model="password"
           label="Password"
           placeholder="Enter password"
@@ -26,6 +28,7 @@
           @enterPressed="signup"
         />
         <InputPassword
+          id="signup-password2"
           v-model="password2"
           label="Password Repeat"
           placeholder="Enter password"
@@ -42,17 +45,15 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  ButtonAlt,
-  Spinner,
-  MessageError,
-  MessageSuccess,
-  LayoutModal,
-  InputPassword,
-  InputString,
-  LayoutForm,
-} from "molgenis-components";
+import ButtonAction from "../forms/ButtonAction.vue";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import Spinner from "./Spinner.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import MessageError from "../forms/MessageError.vue";
+import LayoutModal from "./LayoutModal.vue";
+import InputPassword from "../forms/InputPassword.vue";
+import InputString from "../forms/InputString.vue";
+import LayoutForm from "./LayoutForm.vue";
 
 import { request } from "graphql-request";
 
@@ -121,8 +122,6 @@ export default {
 </script>
 
 <docs>
-Example
-```
 <template>
   <div>
     <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
@@ -130,10 +129,7 @@ Example
   </div>
 </template>
 <script>
-  import {ButtonAction} from "molgenis-components";
-
   export default {
-    components: {ButtonAction},
     data: function () {
       return {
         display: false,
@@ -148,6 +144,4 @@ Example
     }
   };
 </script>
-```
-
 </docs>

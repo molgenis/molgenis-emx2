@@ -1,9 +1,6 @@
 <template>
   <div style="background-color: #f4f4f4">
     <div style="min-height: calc(100vh - 70px)">
-      <MolgenisTheme
-        href="https://fonts.googleapis.com/css?family=Oswald:500|Roboto|Roboto+Mono&display=swap"
-      />
       <MolgenisMenu
         :logo="logo"
         active="My search"
@@ -30,21 +27,22 @@
             'https://github.com/molgenis/molgenis-emx2/releases/tag/v' +
             session.manifest.SpecificationVersion
           "
-          >{{ session.manifest.SpecificationVersion }}</a
-        >.
-        <span v-if="session.manifest.DatabaseVersion"
-          >Database version: {{ session.manifest.DatabaseVersion }}.</span
         >
+          {{ session.manifest.SpecificationVersion }} </a
+        >.
+        <span v-if="session.manifest.DatabaseVersion">
+          Database version: {{ session.manifest.DatabaseVersion }}.
+        </span>
       </span>
     </MolgenisFooter>
   </div>
 </template>
 
 <script>
-import { MolgenisMenu, Breadcrumb, MolgenisFooter } from "molgenis-components";
-import MolgenisSession from "./MolgenisSession";
-import MolgenisTheme from "./MolgenisTheme";
-import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
+import MolgenisMenu from "./MolgenisMenu.vue";
+import Breadcrumb from "./Breadcrumb.vue";
+import MolgenisFooter from "./MolgenisFooter.vue";
+import MolgenisSession from "./MolgenisSession.vue";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -54,12 +52,40 @@ export default {
     MolgenisSession,
     MolgenisMenu,
     MolgenisFooter,
-    MolgenisTheme,
     Breadcrumb,
   },
-  mixins: [DefaultMenuMixin],
   props: {
-    menuItems: Array,
+    menuItems: {
+      type: Array,
+      default: [
+        { label: "Tables", href: "tables", role: "Viewer" },
+        {
+          label: "Schema",
+          href: "schema",
+          role: "Manager",
+        },
+        {
+          label: "Up/Download",
+          href: "updownload",
+          role: "Editor",
+        },
+        {
+          label: "Graphql",
+          href: "graphql-playground",
+          role: "Viewer",
+        },
+        {
+          label: "Settings",
+          href: "settings",
+          role: "Manager",
+        },
+        {
+          label: "Help",
+          href: "docs",
+          role: "Viewer",
+        },
+      ],
+    },
     title: String,
     showCrumbs: {
       type: Boolean,
@@ -126,10 +152,8 @@ export default {
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
         return this.session.settings.menu;
-      } else if (this.menuItems) {
-        return this.menuItems;
       } else {
-        return this.defaultMenu;
+        return this.menuItems;
       }
     },
   },
@@ -162,7 +186,6 @@ export default {
 </script>
 
 <docs>
-```
 <template>
   <Molgenis :menuItems="[
         {label:'Home',href:'/'},
@@ -183,5 +206,4 @@ export default {
     }
   }
 </script>
-```
 </docs>
