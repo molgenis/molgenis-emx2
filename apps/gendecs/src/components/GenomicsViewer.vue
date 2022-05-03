@@ -44,8 +44,6 @@
             <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
             is/are associated with the following variants:
           </p>
-
-<!--          <Table :vcfData="this.matchedVariants"></Table>-->
           <div>
             <GendecsTable
                 :columns="['MatchedWith', 'Gene', 'Diseases', 'ClinVar']"
@@ -68,7 +66,6 @@
 <script>
 import {ButtonOutline, InputCheckbox, MessageError, MessageSuccess, Spinner} from "@mswertz/emx2-styleguide";
 import SearchAutoComplete from "./SearchAutoComplete";
-import Table from "./Table"
 import hpoData from "../js/autoSearchData.js";
 import request from "graphql-request";
 import GendecsTable from "./GendecsTable";
@@ -81,7 +78,6 @@ export default {
     ButtonOutline,
     InputCheckbox,
     Spinner,
-    Table,
     GendecsTable
   },
   data() {
@@ -279,8 +275,7 @@ export default {
         }
         diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[index].replace("[", "").replace("]", ""));
       }
-      // https://www.ncbi.nlm.nih.gov/clinvar/variation/1107532/?oq=%22NM_001369.3+13758990%22
-      // creating disease links.
+
       for (let i = 0; i < diseaseIds.length; i++) {
         if(diseaseIds[i].includes("OMIM")) {
           diseaseIds[i] = 'https://www.omim.org/entry/' + diseaseIds[i].split(":")[1];
@@ -289,15 +284,8 @@ export default {
         }
       }
 
-      //create clinvar link
-      // annotate with clinvar filter the ALlelID to the info line
-      // this allelID can be found in the info line of the ClinVar file
-      // fetch this from the info line and create the url with:
-      // http://www.ncbi.nlm.nih.gov/clinvar/?term='id'[alleleid]
-      // let alleleid = splitInfoLine[splitInfoLine.length - 1];
       let gene = splitInfoLine[3];
       let alleleid = splitInfoLine[splitInfoLine.length - 3];
-      // this.fileData[property].ClinVar = ['<a href="http://www.ncbi.nlm.nih.gov/clinvar/?term=' + alleleid + '[alleleid]">link to Clinvar</a>'];
       this.fileData[property].ClinVar = [alleleid];
 
       this.fileData[property].Diseases = diseaseIds;
