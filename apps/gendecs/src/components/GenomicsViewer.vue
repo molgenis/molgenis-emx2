@@ -185,10 +185,10 @@ export default {
      * after this.addMatchedVariants is done the function checks if matches are found.
      */
     async matchVariantWithHpo() {
-      let matchesNeeded = this.selectedHpoTerms.length;
+      let termsEntered = this.selectedHpoTerms.length;
 
       for (const property in this.fileData) {
-        this.addMatchedVariants(property, matchesNeeded);
+        this.addMatchedVariants(property, termsEntered);
       }
       if (this.matchedVariants.length >= 1) {
         this.foundMatch = true;
@@ -199,15 +199,13 @@ export default {
     /**
      * Function that gets property of this.fileData together with the number of entered hpo terms as
      * matchedNeeded. It loops through the information line of fileData[property.Information which contains
-     * the HPO terms which are annotated to this variant. When multiple terms are entered it checks
-     * if both of these terms (or its parents/children) match to the current variant line.
-     * When one term is entered it just checks if it or its parents/children matches.
+     * the HPO terms which are annotated to this variant. It checks if the term or its parents/children matches.
      * When a term is matched a check is performed which checks if the current term has not matched
      * before on this current line to prevent the resulting table from containing duplicate terms.
      * @param property property of this.fileData
-     * @param matchesNeeded number of entered terms
+     * @param termsEntered number of entered terms
      */
-    addMatchedVariants(property, matchesNeeded) {
+    addMatchedVariants(property, termsEntered) {
       let InfoLine = this.fileData[property].Information;
       this.fileData[property].MatchedWith = [];
       let splitInfoLine = InfoLine.split("|");
@@ -219,37 +217,21 @@ export default {
       }
       let termIndex = [];
       let matchedTerms = [];
-      let foundMatches = 0;
 
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
+
         let currentHpoTerm = hpoTermsToMatch[i].trim();
-        if (matchesNeeded > 1) {
-          for (let j = 0; j < matchesNeeded; j++) {
+          for (let j = 0; j < termsEntered; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
               if(!matchedTerms.includes(currentHpoTerm)) {
-                foundMatches++;
+                termIndex.push(i);
                 matchedTerms.push(currentHpoTerm);
+                this.fileData[property].MatchedWith.push(currentHpoTerm)
               }
             }
           }
-          if (matchesNeeded === foundMatches) {
-            termIndex.push(i);
-            foundMatches = 0;
-            this.fileData[property].MatchedWith = matchedTerms;
-          }
-        } else {
-          if(this.selectedHpoTerms[0].term === currentHpoTerm ||
-              this.selectedHpoTerms[0].parents.includes(currentHpoTerm) ||
-              this.selectedHpoTerms[0].children.includes(currentHpoTerm)) {
-            if(!matchedTerms.includes(currentHpoTerm)) {
-              termIndex.push(i);
-              matchedTerms.push(currentHpoTerm);
-              this.fileData[property].MatchedWith.push(currentHpoTerm);
-            }
-          }
-        }
       }
       if (termIndex.length > 0) {
         this.addGeneAndDisease(property, termIndex, splitInfoLine);
