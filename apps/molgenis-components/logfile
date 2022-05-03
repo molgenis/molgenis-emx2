@@ -1,6 +1,0 @@
-2022-05-03 22:30:32.952 CEST [30493] LOG:  starting PostgreSQL 14.2 on aarch64-apple-darwin21.3.0, compiled by Apple clang version 13.0.0 (clang-1300.0.29.30), 64-bit
-2022-05-03 22:30:32.955 CEST [30493] LOG:  listening on IPv6 address "::1", port 5432
-2022-05-03 22:30:32.955 CEST [30493] LOG:  listening on IPv4 address "127.0.0.1", port 5432
-2022-05-03 22:30:32.955 CEST [30493] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
-2022-05-03 22:30:32.958 CEST [30494] LOG:  database system was shut down at 2022-05-03 22:30:26 CEST
-2022-05-03 22:30:32.961 CEST [30493] LOG:  database system is ready to accept connections
