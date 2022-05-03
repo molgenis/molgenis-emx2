@@ -42,15 +42,17 @@
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import InputString from "../forms/InputString";
-import InputPassword from "../forms/InputPassword";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import LayoutForm from "./LayoutForm";
-import Spinner from "./Spinner";
-import LayoutModal from "./LayoutModal";
+import {
+  ButtonAction,
+  ButtonAlt,
+  Spinner,
+  MessageError,
+  MessageSuccess,
+  LayoutModal,
+  InputPassword,
+  InputString,
+  LayoutForm,
+} from "molgenis-components";
 
 import { request } from "graphql-request";
 
@@ -128,7 +130,10 @@ Example
   </div>
 </template>
 <script>
+  import {ButtonAction} from "molgenis-components";
+
   export default {
+    components: {ButtonAction},
     data: function () {
       return {
         display: false,

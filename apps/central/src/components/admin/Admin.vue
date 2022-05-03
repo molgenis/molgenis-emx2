@@ -35,11 +35,8 @@
 </template>
 
 <script>
-import {
-  Spinner,
-  MessageError,
-  MolgenisSignin,
-} from "@mswertz/emx2-styleguide";
+import { MolgenisSignin } from "@mswertz/emx2-styleguide";
+import { Spinner, MessageError } from "molgenis-components";
 
 export default {
   components: {

@@ -33,6 +33,7 @@
 <script>
 import BaseInput from "./BaseInput.vue";
 import InputString from "./InputString.vue";
+
 export default {
   name: "ArrayInput",
   extends: BaseInput,
@@ -60,3 +61,34 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <div>
+      <ArrayInput
+          id="array-string-1"
+          type="STRING_ARRAY"
+          v-model="value"
+      ></ArrayInput>
+    </div>
+    <div>
+      {{ value }}
+    </div>
+  </demo-item>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      },
+    },
+    data() {
+      return {
+        value: ["blaat"],
+      };
+    },
+  };
+</script>
+</docs>

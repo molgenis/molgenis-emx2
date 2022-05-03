@@ -23,3 +23,12 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <div>
+    <label class="font-italic">example</label>
+    <grid-block heading="block heading"></grid-block>
+  </div>
+</template>
+</docs>

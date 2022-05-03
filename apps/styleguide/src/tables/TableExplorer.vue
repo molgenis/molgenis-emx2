@@ -179,25 +179,28 @@
 </template>
 
 <script>
+import {
+  MessageError,
+  Spinner,
+  ButtonAlt,
+  IconAction,
+  ButtonDropdown,
+} from "molgenis-components";
+
 import TableMolgenis from "./TableMolgenis";
 import FilterSidebar from "./FilterSidebar";
 import FilterWells from "./FilterWells";
-import MessageError from "../forms/MessageError";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonDelete from "./RowButtonDelete";
 import RowButtonEdit from "./RowButtonEdit";
 import RowButtonClone from "./RowButtonClone";
-import Spinner from "../layout/Spinner";
 import TableMixin from "../mixins/TableMixin";
 import ShowHide from "./ShowHide";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination";
-import ButtonAlt from "../forms/ButtonAlt";
 import SelectionBox from "./SelectionBox";
-import ButtonDropdown from "../forms/ButtonDropdown";
 import InputSelect from "../forms/InputSelect";
 import TableCards from "./TableCards";
-import IconAction from "../forms/IconAction";
 import RecordCard from "./RecordCard";
 import TableSettings from "./TableSettings";
 

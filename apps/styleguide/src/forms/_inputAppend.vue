@@ -24,7 +24,7 @@
 
 <script>
 import AppendClear from "./_appendClear";
-import IconAction from "./IconAction";
+import { IconAction } from "molgenis-components";
 
 export default {
   components: { IconAction, AppendClear },

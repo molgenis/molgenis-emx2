@@ -6,9 +6,12 @@ import Sidebar from "./Sidebar.vue";
 import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 import VueScrollTo from "vue-scrollto";
+import Client from "./client/client.js";
 
 const components = import.meta.globEager("./components/**/*.vue");
-const docs = import.meta.globEager("./docs/**/*.vue");
+const generatedDocumentComponents = import.meta.globEager(
+  "../gen-docs/**/*.vue"
+);
 
 Object.entries(components).forEach(([path, definition]) => {
   // Get name of component, based on filename
@@ -23,16 +26,17 @@ Object.entries(components).forEach(([path, definition]) => {
 });
 
 Vue.component("DemoItem", DemoItem);
+Vue.component("Client", Client);
 
 const routes = [
   { path: "/", components: { sidebar: Sidebar } },
   { path: "/client", component: ClientView },
 ];
 
-const docsMap = {};
+let docsMap = {};
 
-// create routes for all the docs
-Object.entries(docs).forEach(([path, definition]) => {
+// create routes for generated docs
+Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   const componentName = path
     .split("/")
     .pop()
@@ -42,12 +46,12 @@ Object.entries(docs).forEach(([path, definition]) => {
   routes.push({
     path: "/component/" + componentName,
     component: definition.default,
-  }); // for detail view
-  const folderPath = path.split("/").slice(2); // remove folder root path
+  });
+  // for detail view
+  const folderPath = path.split("/").slice(3); // remove folder root path
   folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
-
 // global variable
 Vue.prototype.$docsMap = docsMap;
 

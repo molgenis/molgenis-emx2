@@ -5,7 +5,7 @@
 </template>
 
 <docs>
-```
-<MessageError>Something bad</MessageError>
-```
+<template>
+  <MessageError>Something bad</MessageError>
+</template>
 </docs>
