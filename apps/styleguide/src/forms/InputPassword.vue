@@ -34,12 +34,14 @@ Example
 ```
 <template>
   <div>
-    <InputPassword
-        v-model="value"
-        label="My password label"
-        placeholder="type here your password"
-        description="Some help needed?"
-    />
+    <LayoutForm>
+      <InputPassword
+          v-model="value"
+          label="My password label"
+          placeholder="type here your password"
+          description="Some help needed?"
+      />
+    </LayoutForm>
     <br/>
     You typed: {{ value }}
   </div>
