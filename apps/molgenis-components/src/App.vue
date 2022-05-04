@@ -39,6 +39,12 @@ export default {
 </script>
 
 <style>
+html, body {
+  min-height: 100% !important;
+  height: 100% !important;
+  overflow: hidden;
+}
+
 #sidebar-wrapper .sidebar-heading {
   padding: 0.875rem 1.25rem;
   font-size: 1.2rem;
