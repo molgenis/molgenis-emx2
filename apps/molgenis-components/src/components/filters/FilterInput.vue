@@ -81,10 +81,10 @@ export default {
 <template>
   <div>
     <div>
-      <label>emtpy string filter</label>
+      <label>empty string filter</label>
       <demo-item>
         <FilterInput
-            id="input-example"
+            id="filter-input-example-1"
             :conditions="conditions"
             @updateConditions="conditions = $event"
         ></FilterInput>
@@ -96,7 +96,7 @@ export default {
       <label>pre-filled string filter</label>
       <demo-item>
         <FilterInput
-            id="input-example"
+            id="filter-input-example-2"
             :conditions="conditions1"
             @updateConditions="conditions1 = $event"
         ></FilterInput>

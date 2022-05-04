@@ -21,6 +21,7 @@ import FilterWells from "../src/components/filters/FilterWells.vue";
 //forms
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
@@ -75,7 +76,6 @@ export {
   InputHeading,
   EmailDisplay,
   HyperlinkDisplay,
-  ButtonDropdown,
   IconAction,
   IconDanger,
   IconBar,
@@ -96,8 +96,10 @@ export {
   MessageError,
   MessageSuccess,
   ButtonAction,
+  ButtonDropdown,
   ButtonOutline,
   ButtonAlt,
+  ButtonDanger,
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
