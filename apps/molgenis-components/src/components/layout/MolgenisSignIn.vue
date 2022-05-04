@@ -1,17 +1,21 @@
 <template>
-  <LayoutModal v-else title="Sign in" :show="true" @close="cancel">
+  <LayoutModal title="Sign in" :show="show" @close="cancel">
     <template v-slot:body>
-      <LayoutForm>
+      <LayoutForm id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
-          id="signin-email"
+          id="signInFormEmail"
+          ref="email"
+          name="email"
           v-model="email"
           label="Username"
           placeholder="Enter username"
           description="Please enter username"
+          autofocus
         />
         <InputPassword
-          id="signin-password"
+          id="signInFormPassword"
+          name="password"
           v-model="password"
           label="Password"
           placeholder="Enter password"
@@ -22,74 +26,103 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="signin">Sign in</ButtonAction>
+      <ButtonSubmit form="signin-form">Sign in</ButtonSubmit>
     </template>
   </LayoutModal>
 </template>
 
 <script>
-import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import InputString from "../forms/InputString.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import MessageError from "../forms/MessageError.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "./LayoutModal.vue";
-import Spinner from "./Spinner.vue";
-
-import { request } from "graphql-request";
+import ButtonSubmit from "../forms/ButtonSubmit.vue";
 
 export default {
-  name: "MolgenisSignInForm",
+  name: "SignInForm",
   components: {
-    ButtonAction,
     ButtonAlt,
     InputPassword,
     InputString,
     MessageError,
     LayoutForm,
     LayoutModal,
-    Spinner,
+    ButtonSubmit,
+  },
+  props: {
+    show: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
+    axiosClient: {
+      type: Object,
+      required: false,
+    },
   },
   data: function () {
     return {
       email: null,
       password: null,
-      loading: false,
       error: null,
       success: null,
     };
   },
   methods: {
-    signin() {
-      if (this.email == null || this.password == null) {
+    async signin() {
+      if (!this.email || !this.password) {
         this.error = "Email and password should be filled in";
       } else {
         this.error = null;
-        this.loading = true;
-        request(
-          "/api/graphql",
-          `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
-        )
-          .then((data) => {
-            if (data.signin.status === "SUCCESS") {
-              this.success = "Signed in with " + this.email;
-              this.$emit("signin", this.email);
-              location.reload();
-            } else this.error = data.signin.message;
+
+        if (!this.axiosClient) {
+          this.$emit("requestSignIn", {
+            email: this.email,
+            password: this.password,
+            onSignSuccess: this.onSignSuccess,
+            onSignInFailed: this.onSignInFailed,
+          });
+          return;
+        }
+
+        const signInResp = await this.axiosClient
+          .post("/api/graphql", {
+            query: `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`,
           })
           .catch(
             (error) => (this.error = "internal server graphqlError" + error)
           );
-        this.loading = false;
+
+        if (signInResp.data.data.signin.status === "SUCCESS") {
+          this.onSignSuccess();
+        } else {
+          this.onSignInFailed(signInResp.data.data.signin.message);
+        }
       }
     },
+    onSignSuccess() {
+      this.success = "Signed in with " + this.email;
+      this.$emit("signInSuccess", this.email);
+      if (location) {
+        location.reload();
+      }
+    },
+    onSignInFailed(msg) {
+      this.error = msg;
+      this.$emit("signInFailed", this.email);
+    },
     cancel() {
-      /**
-       * when cancel is pushed
-       */
       this.error = null;
       this.$emit("cancel");
+    },
+  },
+  watch: {
+    async show(newValue) {
+      if (newValue === true) await this.$nextTick();
+      // set focus on email input to enable submit action
+      this.$refs.email.$el.children[1].focus();
     },
   },
 };
@@ -97,29 +130,27 @@ export default {
 
 <docs>
 <template>
-  <div>
-    <ButtonAction v-if="display == false" @click="display=true">Show</ButtonAction>
-    <!-- normally you don't need graphqlURL because that is available in apps context-->
-    <MolgenisSignIn v-else @login="signinTest" @cancel="display = false"/>
-  </div>
+  <demo-item>
+    <MolgenisSignIn
+        :show="isShown"
+        @cancel="isShown = false"
+        @requestSignIn="handleSignInRequest(...arguments)"
+    />
+    <button type="button" class="btn" @click="isShown = true">Show</button>
+  </demo-item>
 </template>
 <script>
-  import {ButtonAction} from "molgenis-components";
-
   export default {
-    components: {ButtonAction},
     data: function () {
       return {
-        display: false,
-        email: null
+        isShown: false,
       };
     },
     methods: {
-      signinTest(email, password) {
-        alert("login with email " + email + " and password " + password);
-        this.email = email;
-      }
-    }
+      handleSignInRequest({email, password}) {
+        alert(`handleSignInRequest, email = ${email}, pw = ${password}`);
+      },
+    },
   };
 </script>
 </docs>
