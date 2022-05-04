@@ -6,6 +6,7 @@ import FilterContainer from "./tables/FilterContainer";
 import InputBoolean from "./forms/InputBoolean";
 import InputDate from "./forms/InputDate";
 import InputDateTime from "./forms/InputDateTime";
+import InputDecimal from "./forms/InputDecimal";
 import InputCheckbox from "./forms/InputCheckbox";
 import InputFile from "./forms/InputFile";
 import InputInt from "./forms/InputInt";
@@ -66,6 +67,7 @@ export {
   InputCheckbox,
   InputDate,
   InputDateTime,
+  InputDecimal,
   InputFile,
   InputInt,
   InputLong,
