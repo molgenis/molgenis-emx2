@@ -1,6 +1,8 @@
 <template>
   <div class="table-responsive">
-    <table class="table table-bordered" :class="{ 'table-hover': tableHover }">
+<!--    <p><button @click="sortTable">Sort</button></p>-->
+
+    <table class="table table-bordered" :class="{ 'table-hover': tableHover }" id="gendecs-table">
       <thead>
       <tr>
         <th scope="col" style="width: 1px" v-if="hasColheader">
@@ -68,6 +70,9 @@ export default {
       this.selectedItems.push(this.defaultValue);
     }
   },
+  mounted() {
+    this.sortTable();
+  },
   computed: {
     tableHover() {
       return this.selectColumn || (this.$listeners && this.$listeners.click);
@@ -123,6 +128,36 @@ export default {
         this.$emit("click", row);
       }
     },
+    sortTable() {
+      let table, rows, switching, i, x, y, shouldSwitch;
+      table = document.getElementById("gendecs-table");
+      switching = true;
+      while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+
+          x = rows[i].getElementsByTagName("ul")[0];
+          y = rows[i + 1].getElementsByTagName("ul")[0];
+
+          let xLength = x.getElementsByTagName("p").length;
+          let yLength = y.getElementsByTagName("p").length;
+
+          // Check if the two rows should switch place
+          if (xLength < yLength) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+        if (shouldSwitch) {
+          /* If a switch has been marked, make the switch
+          and mark that a switch has been done: */
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+        }
+      }
+    }
   },
 };
 </script>
