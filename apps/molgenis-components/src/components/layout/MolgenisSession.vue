@@ -49,7 +49,7 @@
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import Spinner from "./Spinner.vue";
-import SigninForm from "./MolgenisSignin.vue";
+import SigninForm from "./MolgenisSignIn.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 
