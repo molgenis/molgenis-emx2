@@ -131,7 +131,7 @@ export default {
 <docs>
 <template>
   <demo-item>
-    <MolgenisSignIn
+    <SignInForm
         :show="isShown"
         @cancel="isShown = false"
         @requestSignIn="handleSignInRequest(...arguments)"
