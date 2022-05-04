@@ -32,11 +32,6 @@ export default {
     FormGroup,
   },
   props: {
-    parser: {
-      default() {
-        return parseFloat;
-      },
-    },
     errorMessage: { type: String, default: null },
   },
   methods: {
