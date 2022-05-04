@@ -21,6 +21,7 @@ import FilterWells from "../src/components/filters/FilterWells.vue";
 //forms
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
+import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
@@ -30,6 +31,7 @@ import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
+import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -48,7 +50,7 @@ import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
-import MolgenisSignIn from "../src/components/layout/MolgenisSignIn.vue";
+import SignInForm from "../src/components/layout/SignInForm.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
@@ -75,7 +77,6 @@ export {
   InputHeading,
   EmailDisplay,
   HyperlinkDisplay,
-  ButtonDropdown,
   IconAction,
   IconDanger,
   IconBar,
@@ -96,11 +97,14 @@ export {
   MessageError,
   MessageSuccess,
   ButtonAction,
+  ButtonDropdown,
   ButtonOutline,
   ButtonAlt,
+  ButtonDanger,
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InputDecimal,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
@@ -123,7 +127,7 @@ export {
   StringDisplay,
   TextDisplay,
   ShowMore,
-  MolgenisSignIn,
+  SignInForm,
   Client,
   LayoutCard,
 };

@@ -32,6 +32,7 @@
 </template>
 
 <script>
+<<<<<<< HEAD:apps/molgenis-components/src/components/layout/MolgenisAccount.vue
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import MessageError from "../forms/MessageError.vue";
@@ -40,6 +41,15 @@ import Spinner from "./Spinner.vue";
 import LayoutModal from "./LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 
+=======
+import LayoutModal from "./LayoutModal";
+import ButtonAction from "../forms/ButtonAction";
+import ButtonAlt from "../forms/ButtonAlt";
+import InputPassword from "../forms/InputPassword";
+import MessageSuccess from "../forms/MessageSuccess";
+import MessageError from "../forms/MessageError";
+import Spinner from "./Spinner";
+>>>>>>> 868decfdd627347e2e45ddbf01155fcd9c004715:apps/styleguide/src/layout/MolgenisAccount.vue
 import { request } from "graphql-request";
 
 export default {
