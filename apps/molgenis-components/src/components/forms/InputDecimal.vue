@@ -13,7 +13,7 @@
       :class="{ 'form-control': true, 'is-invalid': errorMessage }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
-      @keypress="keyhandler"
+      @keypress="handleKeyValidity"
       @input="$emit('input', $event.target.value)"
     />
   </FormGroup>
@@ -40,8 +40,10 @@ export default {
     errorMessage: { type: String, default: null },
   },
   methods: {
-    keyhandler(event) {
-      if (!this.isValidKey(event)) event.preventDefault();
+    handleKeyValidity(event) {
+      if (!this.isValidKey(event)) {
+        event.preventDefault();
+      }
     },
     isValidKey(event) {
       const keyCode = event.which ? event.which : event.keyCode;
@@ -59,10 +61,6 @@ export default {
 .is-invalid {
   background-image: none;
   padding-right: 0.75rem;
-}
-
-span:hover .hoverIcon {
-  visibility: visible;
 }
 </style>
 
