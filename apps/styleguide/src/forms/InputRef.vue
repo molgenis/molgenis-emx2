@@ -64,7 +64,7 @@
           @click="showSelect = true"
         >
           {{
-            count > limit ? "view all " + count + " options." : "view as table"
+            count > limit ? 'view all ' + count + ' options.' : 'view as table'
           }}
         </ButtonAlt>
       </div>
@@ -101,17 +101,15 @@
 </template>
 
 <script>
-import _baseInput from "./_baseInput";
-import TableSearch from "../tables/TableSearch";
-import FormGroup from "./_formGroup";
-import {
-  ButtonAlt,
-  Spinner,
-  MessageError,
-  LayoutModal,
-} from "molgenis-components";
-import TableMixin from "../mixins/TableMixin";
-import FilterWell from "../tables/FilterWell";
+import _baseInput from './_baseInput';
+import TableSearch from '../tables/TableSearch';
+import LayoutModal from '../layout/LayoutModal';
+import MessageError from './MessageError';
+import FormGroup from './_formGroup';
+import ButtonAlt from './ButtonAlt';
+import TableMixin from '../mixins/TableMixin';
+import FilterWell from '../tables/FilterWell';
+import Spinner from '../layout/Spinner';
 
 export default {
   extends: _baseInput,
@@ -122,7 +120,7 @@ export default {
       selectIdx: null,
       options: [],
       id: Math.random(),
-      selection: [],
+      selection: []
     };
   },
   components: {
@@ -132,21 +130,21 @@ export default {
     LayoutModal,
     FormGroup,
     ButtonAlt,
-    FilterWell,
+    FilterWell
   },
   props: {
     /** change if graphql URL != 'graphql'*/
     graphqlURL: {
-      default: "graphql",
-      type: String,
+      default: 'graphql',
+      type: String
     },
     filter: Object,
     multipleColumns: Boolean,
-    maxNum: { type: Number, default: 11 },
+    maxNum: {type: Number, default: 11}
   },
   computed: {
     title() {
-      return "Select " + this.table;
+      return 'Select ' + this.table;
     },
     notSelectedRows() {
       if (this.data) {
@@ -166,32 +164,29 @@ export default {
     },
     showMultipleColumns() {
       return this.multipleColumns && this.count > 12;
-    },
+    }
   },
   methods: {
     deselect(key) {
       this.selection.splice(key, 1);
-      this.$emit("input", this.selection);
+      this.$emit('input', this.selection);
     },
     emitClear() {
-      if (this.list) {
-        this.$emit("input", []);
-      } else {
-        this.$emit("input", null);
-      }
+      if (this.list) this.$emit('input', []);
+      else this.$emit('input', null);
     },
     select(event) {
       if (this.list) {
-        this.$emit("input", this.selection);
+        this.$emit('input', this.selection);
       } else {
-        this.$emit("input", event);
+        this.$emit('input', event);
       }
     },
     closeSelect() {
       this.showSelect = false;
       this.reload();
       if (this.list) {
-        this.$emit("input", this.selection);
+        this.$emit('input', this.selection);
       }
     },
     openSelect(idx) {
@@ -199,31 +194,31 @@ export default {
       this.selectIdx = idx;
     },
     flattenObject(object) {
-      let result = "";
+      let result = '';
       Object.keys(object).forEach((key) => {
         if (object[key] === null) {
           //nothing
-        } else if (typeof object[key] === "object") {
+        } else if (typeof object[key] === 'object') {
           result += this.flattenObject(object[key]);
         } else {
-          result += " " + object[key];
+          result += ' ' + object[key];
         }
       });
       return result;
-    },
+    }
   },
   watch: {
     value() {
       this.selection = this.value ? this.value : [];
       //we overquery because we include all selected which might not be in query
       this.limit = this.maxNum + this.selection.length;
-    },
+    }
   },
   created() {
     this.limit = this.maxNum + this.selection.length;
     this.selection = this.value ? this.value : [];
     this.reloadMetadata();
-  },
+  }
 };
 </script>
 

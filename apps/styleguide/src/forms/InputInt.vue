@@ -41,7 +41,7 @@
 <script>
 import BaseInput from "./_baseInput.vue";
 import InputAppend from "./_inputAppend";
-import { IconAction } from "molgenis-components";
+import IconAction from "./IconAction";
 import { isNumericKey } from "./utils/InputUtils";
 
 export default {
@@ -129,7 +129,7 @@ Example list of integers
 <template>
   <div>
     <InputInt v-model="value" :list="true" label="test"
-              description="should be able to manage a list of values"/>
+                 description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
   </div>
@@ -168,7 +168,7 @@ Example list in place
   <div>
     In place some
     <InputInt label="test" :list="true" v-model="value" :inplace="true"
-              description="Should be able to edit in place"/>
+                 description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
   </div>

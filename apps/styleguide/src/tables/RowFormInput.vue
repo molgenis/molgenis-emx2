@@ -139,7 +139,7 @@ import InputDate from "../forms/InputDate";
 import InputDateTime from "../forms/InputDateTime";
 import InputFile from "../forms/InputFile";
 import InputText from "../forms/InputText";
-import { InputHeading } from "molgenis-components";
+import InputHeading from "../forms/InputHeading";
 
 export default {
   name: "RowFormInput",

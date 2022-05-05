@@ -76,21 +76,19 @@
 import { request } from "graphql-request";
 
 import {
+  ButtonAction,
+  ButtonAlt,
+  IconAction,
+  InputString,
   InputText,
   InputBoolean,
   InputSelect,
   LayoutForm,
   LayoutModal,
-} from "@mswertz/emx2-styleguide";
-import {
-  ButtonAction,
-  ButtonAlt,
-  IconAction,
-  InputString,
   MessageError,
   MessageSuccess,
   Spinner,
-} from "molgenis-components";
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {

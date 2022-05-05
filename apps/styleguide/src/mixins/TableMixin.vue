@@ -11,12 +11,10 @@
   </div>
 </template>
 <script>
-import { request } from "graphql-request";
-import TableMetadataMixin from "./TableMetadataMixin";
-import { ShowMore } from "molgenis-components";
+import {request} from 'graphql-request';
+import TableMetadataMixin from './TableMetadataMixin';
 
 export default {
-  components: { ShowMore },
   extends: TableMetadataMixin,
   props: {
     /** Name of the table within graphql endpoint */
@@ -27,8 +25,8 @@ export default {
     orderBy: {},
     initialSearchTerms: {
       type: String,
-      default: () => null,
-    },
+      default: () => null
+    }
   },
   data: function () {
     return {
@@ -36,7 +34,7 @@ export default {
       count: 0,
       offset: 0,
       limit: 20,
-      searchTerms: this.initialSearchTerms,
+      searchTerms: this.initialSearchTerms
     };
   },
   computed: {
@@ -53,12 +51,12 @@ export default {
     },
     graphql() {
       if (this.tableMetadata == undefined) {
-        return "";
+        return '';
       }
       let search =
-        this.searchTerms != null && this.searchTerms !== ""
+        this.searchTerms != null && this.searchTerms !== ''
           ? ',search:"' + this.searchTerms.trim() + '"'
-          : "";
+          : '';
       return `query ${this.tableId}($filter:${this.tableId}Filter, $orderby:${this.tableId}orderby){
               ${this.tableId}(filter:$filter,limit:${this.limit},offset:${this.offset}${search},orderby:$orderby){${this.columnNames}}
               ${this.tableId}_agg(filter:$filter${search}){count}}`;
@@ -75,20 +73,20 @@ export default {
       }
     },
     columnNames() {
-      let result = "";
+      let result = '';
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
           if (isReferentialColumn(col.columnType)) {
-            result = result + " " + col.id + "{" + this.refGraphql(col) + "}";
-          } else if (col.columnType == "FILE") {
-            result = result + " " + col.id + "{id,size,extension,url}";
-          } else if (col.columnType != "HEADING") {
-            result = result + " " + col.id;
+            result = result + ' ' + col.id + '{' + this.refGraphql(col) + '}';
+          } else if (col.columnType == 'FILE') {
+            result = result + ' ' + col.id + '{id,size,extension,url}';
+          } else if (col.columnType != 'HEADING') {
+            result = result + ' ' + col.id;
           }
         });
       }
       return result;
-    },
+    }
   },
   methods: {
     reload() {
@@ -97,11 +95,11 @@ export default {
         this.graphqlError = null;
         request(this.graphqlURL, this.graphql, {
           filter: this.graphqlFilter,
-          orderby: this.orderByObject,
+          orderby: this.orderByObject
         })
           .then((data) => {
             this.data = data[this.tableId];
-            this.count = data[this.tableId + "_agg"]["count"];
+            this.count = data[this.tableId + '_agg']['count'];
           })
           .catch((error) => {
             if (Array.isArray(error.response.errors)) {
@@ -116,12 +114,12 @@ export default {
       }
     },
     refGraphql(column) {
-      let graphqlString = "";
+      let graphqlString = '';
       this.getTable(column.refTable).columns.forEach((c) => {
         if (c.key == 1) {
-          graphqlString += c.id + " ";
+          graphqlString += c.id + ' ';
           if (isReferentialColumn(c.columnType)) {
-            graphqlString += "{" + this.refGraphql(c) + "}";
+            graphqlString += '{' + this.refGraphql(c) + '}';
           }
         }
       });
@@ -136,14 +134,14 @@ export default {
           }
         });
         if (!result) {
-          this.graphqlError = "Table " + table + " not found";
+          this.graphqlError = 'Table ' + table + ' not found';
         }
       }
       if (result) return result;
     },
     getPkey(row) {
       //we only have pkey when the record has been saved
-      if (!row["mg_insertedOn"]) return null;
+      if (!row['mg_insertedOn']) return null;
       let result = {};
       if (this.tableMetadata != null) {
         this.tableMetadata.columns.forEach((col) => {
@@ -153,35 +151,35 @@ export default {
         });
       }
       return result;
-    },
+    }
   },
   watch: {
     searchTerms: {
       handler(newValue) {
-        this.$emit("searchTerms", newValue);
+        this.$emit('searchTerms', newValue);
         this.reload();
-      },
+      }
     },
     graphqlFilter: {
       deep: true,
       handler() {
         this.reload();
-      },
+      }
     },
     orderByObject: {
       deep: true,
       handler() {
         this.reload();
-      },
+      }
     },
-    table: "reload",
-    schema: "reload",
-    limit: "reload",
-  },
+    table: 'reload',
+    schema: 'reload',
+    limit: 'reload'
+  }
 };
 
 function isReferentialColumn(columnType) {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+  return ['REF', 'REF_ARRAY', 'REFBACK', 'ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(
     columnType
   );
 }

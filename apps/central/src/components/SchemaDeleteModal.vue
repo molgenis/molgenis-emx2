@@ -38,15 +38,17 @@
 
 <script>
 import { request } from "graphql-request";
-import { LayoutForm, LayoutModal } from "@mswertz/emx2-styleguide";
+
 import {
   ButtonAction,
   ButtonAlt,
   IconAction,
+  LayoutForm,
+  LayoutModal,
   MessageError,
   MessageSuccess,
   Spinner,
-} from "molgenis-components";
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
