@@ -1,9 +1,9 @@
 <template>
-  <span @focusout="onfocusout">
-    <slot v-if="isEditing"></slot>
-    <span v-else @click="openAndFocusInput()"
-      ><slot name="display">{{ value }}</slot></span
-    >
+  <span @focusout="onfocusout" ref="inlineInput">
+    <span v-if="isEditing"><slot></slot></span>
+    <span v-else @click="openAndFocusInput()" class="editable">
+      <slot name="display">{{ value }}</slot>
+    </span>
     <IconAction
       v-if="!isEditing"
       icon="pencil-alt"
@@ -13,8 +13,8 @@
 </template>
 
 <style scoped>
-.inline >>> .form-group {
-  margin-bottom: 0px;
+.editable {
+  border-bottom: 1px dashed lightblue;
 }
 </style>
 
@@ -31,22 +31,22 @@ export default {
   data() {
     return {
       isEditing: false,
-      isOpen: false,
+      isInputFieldVisible: false,
     };
   },
   methods: {
     onfocusout() {
-      if (this.isOpen) {
+      if (this.isInputFieldVisible) {
         this.isEditing = false;
-        this.isOpen = false;
+        this.isInputFieldVisible = false;
       }
     },
     openAndFocusInput() {
       this.isEditing = true;
       Vue.nextTick(() => {
-        const input = this.$slots.default[0].elm.querySelector("input");
-        input.focus(); // FIXME: focus only seems to work the first time its triggered on an element
-        this.isOpen = true;
+        this.isInputFieldVisible = true;
+        const input = this.$refs.inlineInput.querySelector("input");
+        if (input) input.focus();
       });
     },
   },
@@ -56,7 +56,9 @@ export default {
 <docs>
 <template>
   <div>
+    <p>Inline input wil make simple input fields work inline. Note: this will need an input tag to work.</p>
     <demo-item>
+      <div>Inline string input</div>
       <InlineInput v-model="value">
         <InputString
           id="string-input"
@@ -64,29 +66,20 @@ export default {
       </InlineInput>
     </demo-item>
     <demo-item>
+      <div>Inline string input with custom display slot</div>
       <InlineInput v-model="value">
         <template v-slot:display><b>HTML Override</b></template>
         <InputString
-          id="string-input"
+          id="string-input-override"
           v-model="value"/>
       </InlineInput>
     </demo-item>
     <demo-item>
-      <InlineInput v-model="ontology">
-        <InputOntology
-          id="input-ontology-1"
-          v-model="ontology"
-          label="My ontology select"
-          description="please choose your options in tree below"
-          :options="[
-            { name: 'pet' },
-            { name: 'cat', parent: { name: 'pet' } },
-            { name: 'dog', parent: { name: 'pet' } },
-            { name: 'cattle' },
-            { name: 'cow', parent: { name: 'cattle' } },
-          ]"
-          :isMultiSelect="true"
-        />
+      <div>Inline InputDecimal</div>
+      <InlineInput v-model="decimal">
+        <InputDecimal
+          id="decimal-input"
+          v-model="decimal"/>
       </InlineInput>
     </demo-item>
   </div>
@@ -96,6 +89,7 @@ export default {
     data() {
       return {
         value: "test",
+        decimal: 3.14159265,
         ontology: null
       };
     },
