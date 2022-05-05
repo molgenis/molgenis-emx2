@@ -1,12 +1,13 @@
 <template>
-  <span @focusin="onfocusin" @focusout="onfocusout">
-    test
+  <span @focusout="onfocusout">
     <slot v-if="isEditing"></slot>
-    <span v-else>{{ value }}</span>
+    <span v-else @click="openAndFocusInput()"
+      ><slot name="display">{{ value }}</slot></span
+    >
     <IconAction
       v-if="!isEditing"
       icon="pencil-alt"
-      @click="isEditing = !isEditing"
+      @click="openAndFocusInput()"
     />
   </span>
 </template>
@@ -19,6 +20,8 @@
 
 <script>
 import IconAction from "./IconAction.vue";
+import Vue from "vue";
+
 export default {
   components: { IconAction },
   name: "InlineInput",
@@ -28,16 +31,23 @@ export default {
   data() {
     return {
       isEditing: false,
+      isOpen: false,
     };
   },
   methods: {
-    onfocusin() {
-      // this.isEditing = true;
-      console.log("in");
-    },
     onfocusout() {
-      // this.isEditing = false;
-      console.log("out");
+      if (this.isOpen) {
+        this.isEditing = false;
+        this.isOpen = false;
+      }
+    },
+    openAndFocusInput() {
+      this.isEditing = true;
+      Vue.nextTick(() => {
+        const input = this.$slots.default[0].elm.querySelector("input");
+        input.focus(); // FIXME: focus only seems to work the first time its triggered on an element
+        this.isOpen = true;
+      });
     },
   },
 };
@@ -48,6 +58,14 @@ export default {
   <div>
     <demo-item>
       <InlineInput v-model="value">
+        <InputString
+          id="string-input"
+          v-model="value"/>
+      </InlineInput>
+    </demo-item>
+    <demo-item>
+      <InlineInput v-model="value">
+        <template v-slot:display><b>HTML Override</b></template>
         <InputString
           id="string-input"
           v-model="value"/>
@@ -77,7 +95,7 @@ export default {
   export default {
     data() {
       return {
-        value: ["test"],
+        value: "test",
         ontology: null
       };
     },
