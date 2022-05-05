@@ -36,7 +36,7 @@
 </style>
 
 <script>
-import { IconAction } from "molgenis-components";
+import IconAction from "../forms/IconAction";
 
 export default {
   components: {

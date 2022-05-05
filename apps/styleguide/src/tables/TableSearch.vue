@@ -77,9 +77,10 @@
 <script>
 import TableMixin from "../mixins/TableMixin";
 import TableMolgenis from "./TableMolgenis";
+import MessageError from "../forms/MessageError";
 import InputSearch from "../forms/InputSearch";
 import Pagination from "./Pagination.vue";
-import { Spinner, MessageError } from "molgenis-components";
+import Spinner from "../layout/Spinner.vue";
 import SelectionBox from "./SelectionBox";
 import RowButtonAdd from "./RowButtonAdd";
 import RowButtonEdit from "./RowButtonEdit";

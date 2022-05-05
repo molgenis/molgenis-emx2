@@ -5,12 +5,7 @@
 </template>
 
 <script>
-import { ButtonDropdown } from "molgenis-components";
-
 export default {
-  components: {
-    ButtonDropdown,
-  },
   props: {
     title: String,
     visible: Boolean,

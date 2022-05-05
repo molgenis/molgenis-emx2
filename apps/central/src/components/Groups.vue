@@ -69,19 +69,19 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import {request} from 'graphql-request';
 
-import SchemaCreateModal from "./SchemaCreateModal";
-import SchemaDeleteModal from "./SchemaDeleteModal";
-import SchemaEditModal from "./SchemaEditModal";
+import SchemaCreateModal from './SchemaCreateModal';
+import SchemaDeleteModal from './SchemaDeleteModal';
+import SchemaEditModal from './SchemaEditModal';
 import {
   IconAction,
   IconBar,
   IconDanger,
   Spinner,
   MessageWarning,
-  InputSearch,
-} from "molgenis-components";
+  InputSearch
+} from '@mswertz/emx2-styleguide';
 
 export default {
   components: {
@@ -93,10 +93,10 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
-    InputSearch,
+    InputSearch
   },
   props: {
-    session: Object,
+    session: Object
   },
   data: function () {
     return {
@@ -107,7 +107,7 @@ export default {
       showEditSchema: false,
       editDescription: null,
       graphqlError: null,
-      search: null,
+      search: null
     };
   },
   computed: {
@@ -116,7 +116,7 @@ export default {
     },
     schemasFiltered() {
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(" ");
+        let terms = this.search.toLowerCase().split(' ');
         return this.schemas.filter((s) =>
           terms.every(
             (v) =>
@@ -126,7 +126,7 @@ export default {
         );
       }
       return this.schemas;
-    },
+    }
   },
   created() {
     this.getSchemaList();
@@ -157,16 +157,16 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name description}}")
+      request('graphql', '{Schemas{name description}}')
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
         })
         .catch(
           (error) =>
-            (this.graphqlError = "internal server graphqlError" + error)
+            (this.graphqlError = 'internal server graphqlError' + error)
         );
-    },
-  },
+    }
+  }
 };
 </script>

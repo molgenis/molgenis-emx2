@@ -1,8 +1,8 @@
 <template>
   <span>
     <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="list && value">{{ value.join(", ") }}</span>
-      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
+      <span v-if="list && value">{{ value.join(', ') }}</span>
+      <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
     </span>
     <FormGroup v-else v-bind="$props" v-on="$listeners">
       <InputAppend
@@ -19,7 +19,7 @@
           type="number"
           step="1"
           :value="item"
-          :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+          :class="{'form-control': true, 'is-invalid': errorMessage}"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
@@ -39,24 +39,24 @@
 </template>
 
 <script>
-import BaseInput from "./_baseInput.vue";
-import InputAppend from "./_inputAppend";
-import { IconAction } from "molgenis-components";
-import { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } from "../constants";
+import BaseInput from './_baseInput.vue';
+import InputAppend from './_inputAppend';
+import IconAction from './IconAction';
+import {CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE} from '../constants';
 
 export default {
   extends: BaseInput,
   components: {
     InputAppend,
-    FormGroup: () => import("./_formGroup"), //because it uses itself in nested form
-    IconAction,
+    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
+    IconAction
   },
   props: {
     parser: {
       default() {
         return parseFloat;
-      },
-    },
+      }
+    }
   },
   methods: {
     keyhandler(event) {
@@ -67,10 +67,10 @@ export default {
       return (
         (keyCode >= CODE_0 && keyCode <= CODE_9) ||
         keyCode === CODE_BACKSPACE ||
-        (keyCode === CODE_DELETE && !this.value.toString().includes("."))
+        (keyCode === CODE_DELETE && !this.value.toString().includes('.'))
       );
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -137,7 +137,7 @@ Example list of decimals
 <template>
   <div>
     <InputDecimal v-model="value" :list="true" label="test"
-                  description="should be able to manage a list of values"/>
+                 description="should be able to manage a list of values"/>
     <br/>
     You typed: {{ JSON.stringify(value) }}
   </div>
@@ -176,7 +176,7 @@ Example list in place
   <div>
     In place some
     <InputDecimal label="test" :list="true" v-model="value" :inplace="true"
-                  description="Should be able to edit in place"/>
+                 description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
   </div>

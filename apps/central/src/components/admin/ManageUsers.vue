@@ -31,17 +31,15 @@
 <script>
 import { request } from "graphql-request";
 import {
+  Spinner,
   TableSimple,
   Pagination,
-  InputPassword,
-} from "@mswertz/emx2-styleguide";
-import {
-  Spinner,
   MessageError,
   MessageSuccess,
   InputString,
+  InputPassword,
   ButtonAction,
-} from "molgenis-components";
+} from "@mswertz/emx2-styleguide";
 
 export default {
   components: {
