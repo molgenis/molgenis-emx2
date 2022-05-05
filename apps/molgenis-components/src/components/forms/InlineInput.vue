@@ -46,7 +46,7 @@ export default {
       Vue.nextTick(() => {
         this.isInputFieldVisible = true;
         const input = this.$refs.inlineInput.querySelector("input");
-        if (input) input.focus();
+        input?.focus();
       });
     },
   },
@@ -89,8 +89,7 @@ export default {
     data() {
       return {
         value: "test",
-        decimal: 3.14159265,
-        ontology: null
+        decimal: 3.14159265
       };
     },
   };
