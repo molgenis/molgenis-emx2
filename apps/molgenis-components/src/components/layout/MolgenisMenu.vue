@@ -157,14 +157,14 @@ export default {
 <docs>
 <template>
   <div>Simple example
-    <MolgenisMenu logo="assets/img/molgenis_logo.png" :items="[
+    <MolgenisMenu logo="assets/img/molgenis_logo_white.png" :items="[
         {label:'Home',href:'', active:true},
         {label:'My search',href:'http://google.com'},
         {label:'My movies',href:'http://youtube.com'}
      ]">Something in the slot
     </MolgenisMenu>
     Example with submenu
-    <MolgenisMenu logo="assets/img/molgenis_logo.png" :items="[
+    <MolgenisMenu logo="assets/img/molgenis_logo_white.png" :items="[
         {label:'Home',href:'', active:true},
         {label:'My search',href:'http://google.com', role:'Manager'},
         {label:'My sub',href:'http://youtube.com', submenu:

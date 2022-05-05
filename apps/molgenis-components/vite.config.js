@@ -33,7 +33,6 @@ let conf = {
     },
   },
 };
-
 // In case the SHOW_CASE flag is not set to 'on' build in library mode ( i.e. lib mode is the default)
 if (process.env.SHOW_CASE !== "on") {
   console.log("prod build in library mode");

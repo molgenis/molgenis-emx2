@@ -24,7 +24,7 @@
         <ButtonOutline v-else @click="showSigninForm = true" :light="true">
           Sign in</ButtonOutline
         >
-        <SigninForm
+        <MolgenisSignin
           v-if="showSigninForm"
           @signin="changed"
           @cancel="closeSigninForm"
@@ -46,22 +46,15 @@
 </template>
 
 <script>
-<<<<<<< HEAD:apps/molgenis-components/src/components/layout/MolgenisSession.vue
+import Spinner from "./Spinner.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
-import Spinner from "./Spinner.vue";
-import SigninForm from "./MolgenisSignIn.vue";
-=======
-import Spinner from "./Spinner";
-import ButtonOutline from "../forms/ButtonOutline";
-import ButtonAlt from "../forms/ButtonAlt";
 
-import SigninForm from "./MolgenisSignin.vue";
->>>>>>> 868decfdd627347e2e45ddbf01155fcd9c004715:apps/styleguide/src/layout/MolgenisSession.vue
+import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 
-import { request } from "graphql-request";
+import { request } from "../../client/graphql.js";
 
 const query = `{
   _session { email, roles, schemas },
@@ -73,7 +66,7 @@ const query = `{
 export default {
   components: {
     ButtonOutline,
-    SigninForm,
+    MolgenisSignin,
     SignupForm,
     MolgenisAccount,
     Spinner,

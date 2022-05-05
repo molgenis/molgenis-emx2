@@ -1,5 +1,9 @@
 <template>
-  <LayoutModal title="Sign in" :show="show" @close="cancel">
+  <div v-if="success">
+    <MessageSuccess>{{ success }}</MessageSuccess>
+    <ButtonAlt @click="cancel">Close</ButtonAlt>
+  </div>
+  <LayoutModal v-else title="Sign in" :show="true" @close="cancel">
     <template v-slot:body>
       <LayoutForm id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
@@ -40,8 +44,10 @@ import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "./LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
 
+import { request } from "../../client/graphql.js";
+
 export default {
-  name: "SignInForm",
+  name: "MolgenisSignin",
   components: {
     ButtonAlt,
     InputPassword,
@@ -50,17 +56,6 @@ export default {
     LayoutForm,
     LayoutModal,
     ButtonSubmit,
-  },
-  props: {
-    show: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-    axiosClient: {
-      type: Object,
-      required: false,
-    },
   },
   data: function () {
     return {
@@ -76,37 +71,22 @@ export default {
         this.error = "Email and password should be filled in";
       } else {
         this.error = null;
-
-        if (!this.axiosClient) {
-          this.$emit("requestSignIn", {
-            email: this.email,
-            password: this.password,
-            onSignSuccess: this.onSignSuccess,
-            onSignInFailed: this.onSignInFailed,
-          });
-          return;
-        }
-
-        const signInResp = await this.axiosClient
-          .post("/api/graphql", {
-            query: `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`,
+        this.loading = true;
+        request(
+          "/api/graphql",
+          `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
+        )
+          .then((data) => {
+            if (data.signin.status === "SUCCESS") {
+              this.success = "Signed in with " + this.email;
+              this.$emit("signin", this.email);
+              location.reload();
+            } else this.error = data.signin.message;
           })
           .catch(
             (error) => (this.error = "internal server graphqlError" + error)
           );
-
-        if (signInResp.data.data.signin.status === "SUCCESS") {
-          this.onSignSuccess();
-        } else {
-          this.onSignInFailed(signInResp.data.data.signin.message);
-        }
-      }
-    },
-    onSignSuccess() {
-      this.success = "Signed in with " + this.email;
-      this.$emit("signInSuccess", this.email);
-      if (location) {
-        location.reload();
+        this.loading = false;
       }
     },
     onSignInFailed(msg) {
@@ -114,6 +94,9 @@ export default {
       this.$emit("signInFailed", this.email);
     },
     cancel() {
+      /**
+       * when cancel is pushed
+       */
       this.error = null;
       this.$emit("cancel");
     },
@@ -131,8 +114,8 @@ export default {
 <docs>
 <template>
   <demo-item>
-    <SignInForm
-        :show="isShown"
+    <MolgenisSignin
+        v-if="isShown"
         @cancel="isShown = false"
         @requestSignIn="handleSignInRequest(...arguments)"
     />

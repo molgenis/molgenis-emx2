@@ -45,7 +45,6 @@
 </template>
 
 <script>
-<<<<<<< HEAD:apps/molgenis-components/src/components/layout/MolgenisSignup.vue
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import Spinner from "./Spinner.vue";
@@ -55,19 +54,8 @@ import LayoutModal from "./LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import InputString from "../forms/InputString.vue";
 import LayoutForm from "./LayoutForm.vue";
-=======
-import ButtonAction from "../forms/ButtonAction";
-import ButtonAlt from "../forms/ButtonAlt";
-import InputString from "../forms/InputString";
-import InputPassword from "../forms/InputPassword";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import LayoutForm from "./LayoutForm";
-import Spinner from "./Spinner";
-import LayoutModal from "./LayoutModal";
->>>>>>> 868decfdd627347e2e45ddbf01155fcd9c004715:apps/styleguide/src/layout/MolgenisSignup.vue
 
-import { request } from "graphql-request";
+import { request } from "../../client/graphql.js";
 
 export default {
   components: {
@@ -110,6 +98,7 @@ export default {
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
+            console.log(JSON.stringify(data));
             if (data.signup.status === "SUCCESS") {
               this.success = "Success. Signed up with email: " + this.email;
             } else {
@@ -117,6 +106,7 @@ export default {
             }
           })
           .catch((error) => {
+            console.log(JSON.stringify(error));
             this.error = "Sign up failed: " + error.response.message;
           });
         this.loading = false;

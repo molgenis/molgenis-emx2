@@ -19,7 +19,7 @@
         <slot />
       </div>
     </div>
-    <Footer>
+    <MolgenisFooter>
       <span v-if="session && session.manifest">
         Software version:
         <a
@@ -34,24 +34,15 @@
           Database version: {{ session.manifest.DatabaseVersion }}.
         </span>
       </span>
-    </Footer>
+    </MolgenisFooter>
   </div>
 </template>
 
 <script>
-<<<<<<< HEAD:apps/molgenis-components/src/components/layout/Molgenis.vue
 import MolgenisMenu from "./MolgenisMenu.vue";
-import Breadcrumb from "./Breadcrumb.vue";
-import MolgenisFooter from "./MolgenisFooter.vue";
 import MolgenisSession from "./MolgenisSession.vue";
-=======
-import MolgenisMenu from "./MolgenisMenu";
-import MolgenisSession from "./MolgenisSession";
-import MolgenisTheme from "./MolgenisTheme";
-import Footer from "./MolgenisFooter";
-import DefaultMenuMixin from "../mixins/DefaultMenuMixin";
-import Breadcrumb from "./Breadcrumb";
->>>>>>> 868decfdd627347e2e45ddbf01155fcd9c004715:apps/styleguide/src/layout/Molgenis.vue
+import MolgenisFooter from "./MolgenisFooter.vue";
+import Breadcrumb from "./Breadcrumb.vue";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -60,12 +51,7 @@ export default {
   components: {
     MolgenisSession,
     MolgenisMenu,
-<<<<<<< HEAD:apps/molgenis-components/src/components/layout/Molgenis.vue
     MolgenisFooter,
-=======
-    Footer,
-    MolgenisTheme,
->>>>>>> 868decfdd627347e2e45ddbf01155fcd9c004715:apps/styleguide/src/layout/Molgenis.vue
     Breadcrumb,
   },
   props: {
@@ -157,7 +143,8 @@ export default {
     },
     logo() {
       if (this.logoURL) return this.logoURL;
-      else return "/apps/styleguide/assets/img/molgenis_logo_white.png";
+      else
+        return "/apps/molgenis-components/assets/img/molgenis_logo_white.png";
     },
     css() {
       if (this.cssURL) return this.cssURL;
