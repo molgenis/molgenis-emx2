@@ -6,6 +6,7 @@ export default {
   },
   created () {
       this.$options.template = this.template
+      this.$options.props = this.$props
   }
 };
 </script>
