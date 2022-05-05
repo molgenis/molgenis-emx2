@@ -54,6 +54,7 @@ import SignInForm from "../src/components/layout/SignInForm.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
+import VueTemplate from "../src/components/layout/VueTemplate.vue"
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
@@ -116,6 +117,7 @@ export {
   LayoutModal,
   ReadMore,
   Spinner,
+  VueTemplate,
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,

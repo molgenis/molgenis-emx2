@@ -8,6 +8,11 @@ const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(), createVuePlugin()],
+  resolve: {
+    alias: {
+      "vue": require.resolve('vue/dist/vue.js')
+    }
+  },
   server: {
     proxy: {
       "^/.*/graphql": {
