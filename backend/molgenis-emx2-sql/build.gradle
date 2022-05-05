@@ -1,6 +1,6 @@
 dependencies {
     implementation 'org.molgenis:molgenis-expressions_2.13:0.21.1'
-    implementation 'org.postgresql:postgresql:42.3.4'
+    implementation 'org.postgresql:postgresql:42.3.5'
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
