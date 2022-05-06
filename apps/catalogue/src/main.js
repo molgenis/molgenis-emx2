@@ -5,6 +5,7 @@ import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
 import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
+import NetworkView from "./views/NetworkView";
 import ResourceListView from "./views/ResourceListView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
@@ -65,7 +66,7 @@ const router = new VueRouter({
     },
     {
       name: "Networks",
-      path: "/networksold",
+      path: "/networks",
       props: (route) => ({
         searchTerm: route.query.q,
         tableName: "Networks",
@@ -184,7 +185,7 @@ const router = new VueRouter({
     },
     {
       name: "Networks-details",
-      path: "/networksold/:pid",
+      path: "/networks/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
@@ -261,7 +262,7 @@ const router = new VueRouter({
     },
     {
       name: "network",
-      path: "/networksold/:pid",
+      path: "/networks/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
@@ -396,18 +397,18 @@ const router = new VueRouter({
     },
     {
       name: "NetworkLandingPage",
-      path: "/networks",
+      path: "/networks-new",
       component: NetworksHome,
     },
     {
       name: "NetworkVariables",
-      path: "/networks/:network",
+      path: "/networks-new/:network",
       props: true,
       component: NetworkVariables,
     },
     {
       name: "NetworkVariableDetailView",
-      path: "/networks/:network/:name",
+      path: "/networks-new/:network/:name",
       props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
       component: VariableDetailView,
     },

@@ -8,7 +8,9 @@
         harmonization details.
       </p>
     </div>
-    <VariableExplorer :network="network" class="mt-2" />
+    <div class="bg-white pt-4">
+      <VariableExplorer :network="network" />
+    </div>
   </div>
 </template>
 
