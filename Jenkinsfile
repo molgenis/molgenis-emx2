@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "8.73.1"
+        CHART_VERSION = "8.29.0"
         MOLGENIS_POSTGRES_USER = 'molgenis_admin'
         MOLGENIS_POSTGRES_PASS = 'molgenis_admin'
         MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenisdb'
