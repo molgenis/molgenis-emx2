@@ -4,7 +4,7 @@
       type="number"
       step="1"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      :class="{ 'form-control': true }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       :readonly="readonly"
@@ -48,17 +48,10 @@ export default {
 };
 </script>
 
-<style scoped>
-.is-invalid {
-  background-image: none;
-  padding-right: 0.75rem;
-}
-</style>
-
 <docs>
   <template>
     <demo-item>
-      <InputInt v-model="value" label="My int input label" description="Some help needed?"/>
+      <InputInt id="input-int" v-model="value" label="My int input label" description="Some help needed?"/>
       You typed: {{ JSON.stringify(value) }}
     </demo-item>
   </template>
