@@ -32,6 +32,7 @@ import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
+import InputLong from "../src/components/forms/InputLong.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -54,7 +55,7 @@ import SignInForm from "../src/components/layout/SignInForm.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
-import VueTemplate from "../src/components/layout/VueTemplate.vue"
+import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
@@ -106,6 +107,7 @@ export {
   FormGroup,
   FormMolgenis,
   InputDecimal,
+  InputLong,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
