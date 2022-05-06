@@ -58,11 +58,8 @@
           <dt class="col-2">mapped by</dt>
           <dd class="col-10">
             <span v-if="variableDetails.mappings">
-              <span
-                v-for="mapping in variableDetails.mappings"
-                :key="mapping.fromTable.dataDictionary.pid"
-              >
-                {{ mapping.fromTable.dataDictionary.resource.pid }}
+              <span v-for="cohort in mappedByCohorts" :key="cohort">
+                {{ cohort }}
               </span>
             </span>
             <span v-else>none</span>
@@ -88,6 +85,12 @@ export default {
       return this.variableDetails.permittedValues
         .map((pv) => pv) // clone to avoid prop mutation
         .sort((a, b) => a.order <= b.order);
+    },
+    mappedByCohorts() {
+      //order alphabetically
+      return this.variableDetails.mappings
+        .map((mapping) => mapping.fromTable.dataDictionary.resource.pid)
+        .sort();
     },
   },
 };

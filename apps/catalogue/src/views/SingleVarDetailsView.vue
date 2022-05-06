@@ -20,12 +20,6 @@
               /></span>
               = partial,
             </span>
-            <span
-              ><span class="table-light"
-                ><i class="fa fa-fw fa-question"
-              /></span>
-              = unharmonized</span
-            >
           </caption>
           <thead>
             <tr>

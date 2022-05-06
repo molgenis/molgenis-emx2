@@ -5,7 +5,6 @@ import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
 import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
-import NetworkView from "./views/NetworkView";
 import ResourceListView from "./views/ResourceListView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
@@ -18,6 +17,8 @@ import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
 import Subcohort from "./views/cohorts/Subcohort";
 import CollectionEvent from "./views/cohorts/CollectionEvent";
+import NetworksHome from "./network/NetworksHome";
+import NetworkVariables from "./network/NetworkVariables";
 
 Vue.config.productionTip = false;
 
@@ -64,7 +65,7 @@ const router = new VueRouter({
     },
     {
       name: "Networks",
-      path: "/networks",
+      path: "/networksold",
       props: (route) => ({
         searchTerm: route.query.q,
         tableName: "Networks",
@@ -183,7 +184,7 @@ const router = new VueRouter({
     },
     {
       name: "Networks-details",
-      path: "/networks/:pid",
+      path: "/networksold/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
@@ -260,7 +261,7 @@ const router = new VueRouter({
     },
     {
       name: "network",
-      path: "/networks/:pid",
+      path: "/networksold/:pid",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
@@ -392,6 +393,23 @@ const router = new VueRouter({
       // hacky redirects to solve breadcrumb issue
       path: "/cohorts/:cohort/subcohorts",
       redirect: "/cohorts/:cohort",
+    },
+    {
+      name: "NetworkLandingPage",
+      path: "/networks",
+      component: NetworksHome,
+    },
+    {
+      name: "NetworkVariables",
+      path: "/networks/:network",
+      props: true,
+      component: NetworkVariables,
+    },
+    {
+      name: "NetworkVariableDetailView",
+      path: "/networks/:network/:name",
+      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
+      component: VariableDetailView,
     },
   ],
 });
