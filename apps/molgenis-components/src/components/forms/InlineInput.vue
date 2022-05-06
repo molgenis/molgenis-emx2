@@ -41,13 +41,13 @@ export default {
         this.isInputFieldVisible = false;
       }
     },
-    openAndFocusInput() {
+    async openAndFocusInput() {
       this.isEditing = true;
-      Vue.nextTick(() => {
-        this.isInputFieldVisible = true;
-        const input = this.$refs.inlineInput.querySelector("input");
-        input?.focus();
-      });
+      this.isEditing = true;
+      await this.$nextTick();
+      this.isInputFieldVisible = true;
+      const input = this.$refs.inlineInput.querySelector("input");
+      input?.focus();
     },
   },
 };
