@@ -54,7 +54,7 @@ import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 
-import { request } from "../../client/graphql.js";
+import { request } from "../../client/client.js";
 
 const query = `{
   _session { email, roles, schemas },

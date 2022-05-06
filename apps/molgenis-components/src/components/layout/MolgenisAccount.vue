@@ -40,7 +40,7 @@ import Spinner from "./Spinner.vue";
 import LayoutModal from "./LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 
-import { request } from "../../client/graphql.js";
+import { request } from "../../client/client.js";
 
 export default {
   components: {

@@ -2,7 +2,7 @@
   <div style="background-color: #f4f4f4">
     <div style="min-height: calc(100vh - 70px)">
       <MolgenisMenu
-        :logo="logo"
+        :logo="logoURLorDefault"
         active="My search"
         :items="menu"
         :session="session"
@@ -95,9 +95,7 @@ export default {
   data: function () {
     return {
       session: null,
-      cssURL: null,
       logoURL: null,
-      cssLoaded: false,
       fullscreen: false,
       timestamp: Date.now(),
     };
@@ -115,40 +113,39 @@ export default {
       return result;
     },
     crumbs() {
-      this.$route;
-      let path = decodeURI(
-        window.location.pathname.replace(location.search, "")
-      ).split("/");
-      let url = "/";
-      let result = {};
-      if (window.location.pathname != "/apps/central/") {
-        path.forEach((el) => {
-          if (el != "") {
-            url += el + "/";
-            result[el] = url;
-          }
-        });
+      if (window && location) {
+        let path = decodeURI(
+          window.location.pathname.replace(location.search, "")
+        ).split("/");
+        let url = "/";
+        let result = {};
+        if (window.location.pathname != "/apps/central/") {
+          path.forEach((el) => {
+            if (el != "") {
+              url += el + "/";
+              result[el] = url;
+            }
+          });
+        }
+        if (this.$route) {
+          path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
+          url += "#";
+          path.forEach((el) => {
+            if (el != "") {
+              url += "/" + el;
+              result[el] = url;
+            }
+          });
+        }
+        return result;
       }
-      if (this.$route) {
-        path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
-        url += "#";
-        path.forEach((el) => {
-          if (el != "") {
-            url += "/" + el;
-            result[el] = url;
-          }
-        });
-      }
-      return result;
+      return {};
     },
-    logo() {
-      if (this.logoURL) return this.logoURL;
-      else
-        return "/apps/molgenis-components/assets/img/molgenis_logo_white.png";
-    },
-    css() {
-      if (this.cssURL) return this.cssURL;
-      else return "theme.css";
+    logoURLorDefault() {
+      return (
+        this.logoURL ||
+        "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
+      );
     },
     menu() {
       if (this.session && this.session.settings && this.session.settings.menu) {
@@ -163,17 +160,10 @@ export default {
       deep: true,
       handler() {
         if (this.session != undefined && this.session.settings) {
-          if (this.session.settings.cssURL) {
-            this.cssURL = this.session.settings.cssURL;
-          }
           if (this.session.settings.logoURL) {
             this.logoURL = this.session.settings.logoURL;
           }
         }
-        //load themeCss
-        fetch(this.css).then(() => {
-          this.cssLoaded = true;
-        });
         this.$emit("input", this.session);
       },
     },

@@ -1,9 +1,9 @@
 <template>
   <div v-if="success">
     <MessageSuccess>{{ success }}</MessageSuccess>
-    <ButtonAlt @click="cancel">Close</ButtonAlt>
+    <ButtonAlt @click="onCancel">Close</ButtonAlt>
   </div>
-  <LayoutModal v-else title="Sign in" :show="true" @close="cancel">
+  <LayoutModal v-else title="Sign in" :show="true" @close="onCancel">
     <template v-slot:body>
       <LayoutForm id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
@@ -29,7 +29,7 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <ButtonAlt @click="cancel">Cancel</ButtonAlt>
+      <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
       <ButtonSubmit form="signin-form">Sign in</ButtonSubmit>
     </template>
   </LayoutModal>
@@ -44,7 +44,7 @@ import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "./LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
 
-import { request } from "../../client/graphql.js";
+import { request } from "../../client/client.js";
 
 export default {
   name: "MolgenisSignin",
@@ -92,7 +92,7 @@ export default {
       this.error = msg;
       this.$emit("signInFailed", this.email);
     },
-    cancel() {
+    onCancel() {
       /**
        * when cancel is pushed
        */
@@ -115,7 +115,7 @@ export default {
   <demo-item>
     <MolgenisSignin
         v-if="isShown"
-        @cancel="isShown = false"
+        @onCancel="isShown = false"
         @requestSignIn="handleSignInRequest(...arguments)"
     />
     <button type="button" class="btn" @click="isShown = true">Show</button>

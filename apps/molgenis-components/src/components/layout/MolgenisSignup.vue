@@ -28,8 +28,8 @@
           @enterPressed="signup"
         />
         <InputPassword
-          id="signup-password2"
-          v-model="password2"
+          id="signup-password-repeat"
+          v-model="passwordRepeat"
           label="Password Repeat"
           placeholder="Enter password"
           description="Please enter the password again"
@@ -55,7 +55,7 @@ import InputPassword from "../forms/InputPassword.vue";
 import InputString from "../forms/InputString.vue";
 import LayoutForm from "./LayoutForm.vue";
 
-import { request } from "../../client/graphql.js";
+import { request } from "../../client/client.js";
 
 export default {
   components: {
@@ -73,7 +73,7 @@ export default {
     return {
       email: null,
       password: null,
-      password2: null,
+      passwordRepeat: null,
       loading: false,
       error: null,
       success: null,
@@ -84,11 +84,11 @@ export default {
       if (
         this.email == null ||
         this.password == null ||
-        this.password2 == null
+        this.passwordRepeat == null
       ) {
         this.error =
           "Error: valid email address and password should be filled in";
-      } else if (this.password !== this.password2) {
+      } else if (this.password !== this.passwordRepeat) {
         this.error = "Error: Passwords entered must be the same";
       } else {
         this.error = null;
@@ -98,7 +98,6 @@ export default {
           `mutation{signup(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
-            console.log(JSON.stringify(data));
             if (data.signup.status === "SUCCESS") {
               this.success = "Success. Signed up with email: " + this.email;
             } else {
@@ -106,7 +105,6 @@ export default {
             }
           })
           .catch((error) => {
-            console.log(JSON.stringify(error));
             this.error = "Sign up failed: " + error.response.message;
           });
         this.loading = false;

@@ -88,7 +88,6 @@ export const actions = {
     context.commit("setSettings", resp.data.data._settings);
   },
   async signIn() {
-    console.log("SIGNIN");
     location.reload();
   },
   async signOut(context, { onSignOutFailed }) {
