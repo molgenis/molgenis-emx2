@@ -3,7 +3,7 @@
     :id="id"
     :label="label"
     :description="description"
-    :errorMessage="validDecimal"
+    :errorMessage="errorMessage"
     v-on="$listeners"
   >
     <input
@@ -31,9 +31,7 @@ export default {
     FormGroup,
   },
   computed: {
-    validDecimal() {
-      console.log(this.value);
-      console.log(parseFloat(this.value));
+    errorMessage() {
       return !isNaN(parseFloat(this.value))
         ? undefined
         : "Invalid decimal value";

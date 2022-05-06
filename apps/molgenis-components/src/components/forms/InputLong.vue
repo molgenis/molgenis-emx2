@@ -4,7 +4,7 @@
       :id="id"
       :label="label"
       :description="description"
-      :errorMessage="longError"
+      :errorMessage="errorMessage"
       v-on="$listeners"
     >
       <input
@@ -34,7 +34,6 @@ export default {
     FormGroup,
   },
   props: {
-    errorMessage: { type: String, default: null },
     readonly: {
       type: Boolean,
       required: false,
@@ -42,7 +41,7 @@ export default {
     },
   },
   computed: {
-    longError() {
+    errorMessage() {
       return getBigIntError(this.value);
     },
   },
@@ -53,7 +52,7 @@ export default {
       if (!isNumericKey(event)) event.preventDefault();
     },
     flipSign() {
-      if (this.value && this.value.length > 0) {
+      if (this.value?.length) {
         if (this.value.charAt(0) === "-") {
           this.$emit("input", this.value.substring(1));
         } else {
@@ -63,7 +62,7 @@ export default {
     },
     inputHandler(event) {
       const value = event.target.value;
-      if (value.length > 0) {
+      if (value?.length) {
         this.$emit("input", value);
       } else {
         this.$emit("input", null);
@@ -77,8 +76,9 @@ const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LO
 function getBigIntError(value) {
   if (isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
+  } else {
+    return undefined;
   }
-  return undefined;
 }
 
 function isInvalidBigInt(value) {
