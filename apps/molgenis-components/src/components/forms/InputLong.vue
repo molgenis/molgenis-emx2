@@ -5,7 +5,6 @@
       :label="label"
       :description="description"
       :errorMessage="errorMessage"
-      v-on="$listeners"
     >
       <input
         :value="value"
