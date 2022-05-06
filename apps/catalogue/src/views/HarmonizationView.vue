@@ -8,8 +8,8 @@
             = completed,
           </span>
           <span
-            ><span class="table-light"><i class="fa fa-fw fa-question" /></span>
-            = unharmonized or partially harmonized</span
+            ><span class="table-light"><i class="fa fa-fw fa-percent" /></span>
+            = partially harmonized</span
           >
         </caption>
         <thead>
@@ -57,47 +57,47 @@
 </template>
 
 <script>
-import {mapGetters, mapActions} from 'vuex';
-import HarmonizationRow from './HarmonizationRow.vue';
-import {Spinner} from '@mswertz/emx2-styleguide';
+import { mapGetters, mapActions } from "vuex";
+import HarmonizationRow from "./HarmonizationRow.vue";
+import { Spinner } from "@mswertz/emx2-styleguide";
 
 const INITIAL_PAGE_SIZE = 10;
 
 export default {
-  name: 'HarmonizationView',
-  components: {HarmonizationRow, Spinner},
+  name: "HarmonizationView",
+  components: { HarmonizationRow, Spinner },
   data() {
     return {
-      pageSize: INITIAL_PAGE_SIZE
+      pageSize: INITIAL_PAGE_SIZE,
     };
   },
   computed: {
-    ...mapGetters(['resources', 'variables']),
+    ...mapGetters(["resources", "variables"]),
     variablePage() {
       return this.variables.slice(0, this.pageSize);
     },
     resourcesWithoutModels() {
       return this.resources.filter(
         (r) =>
-          !r.mg_tableclass.endsWith('Models') &&
-          !r.mg_tableclass.endsWith('Networks')
+          !r.mg_tableclass.endsWith("Models") &&
+          !r.mg_tableclass.endsWith("Networks")
       );
-    }
+    },
   },
   methods: {
-    ...mapActions(['fetchResources']),
+    ...mapActions(["fetchResources"]),
     fetchNextPage() {
       this.pageSize += 10;
-    }
+    },
   },
   watch: {
     variables() {
       this.pageSize = INITIAL_PAGE_SIZE;
-    }
+    },
   },
   async mounted() {
     await this.fetchResources();
-  }
+  },
 };
 </script>
 
