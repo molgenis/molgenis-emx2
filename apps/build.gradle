@@ -25,7 +25,7 @@ subprojects {
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
         }
-        if (project.name == 'styleguide') {
+        if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
         }
 
@@ -33,21 +33,28 @@ subprojects {
         if (project.name == 'styleguide') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
+            inputs.files(fileTree('tests'))
             inputs.files(fileTree('public'))
             inputs.file('styleguide.config.js')
             inputs.file('vue.config.js')
             outputs.dir('build')
+            outputs.dir('dist')
         } else if (project.name == 'molgenis-components') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.files(fileTree('lib'))
             inputs.file('vite.config.js')
+            inputs.file('docs-plugin.js')
             outputs.dir('dist')
+            outputs.dir('gen-docs')
+            outputs.dir('showCase')
         } else if (project.name == 'nuxt-ssr') {
             inputs.file('package.json')
-            inputs.files(fileTree('molgenis-components'))
+            inputs.files(fileTree('assets'))
+            inputs.files(fileTree('components'))
             inputs.files(fileTree('middleware'))
+            inputs.files(fileTree('layouts'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
             inputs.files(fileTree('store'))
@@ -55,8 +62,10 @@ subprojects {
             outputs.dir('.nuxt')
         } else {
             inputs.file('package.json')
+            inputs.file('vue.config.js')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
+            inputs.files(fileTree('tests'))
             outputs.dir('dist')
         }
 
@@ -67,9 +76,9 @@ subprojects {
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
-    task buildStyleguidist(type: YarnTask, dependsOn: build) {
-        node { with nodeSpec }
-        if (project.name == 'styleguide') {
+    if (project.name == 'styleguide') {
+        task buildStyleguidist(type: YarnTask, dependsOn: build) {
+            node { with nodeSpec }
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -81,21 +90,31 @@ subprojects {
         }
     }
 
-    task buildComponentsShowcase(type: YarnTask, dependsOn: buildStyleguidist) {
-        node { with nodeSpec }
-        if (project.name == 'molgenis-components') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('lib'))
-            inputs.file('vite.config.js')
-            outputs.dir('showCase')
-            outputs.cacheIf { true }
-            args = ['run', 'build-showcase']
+    if (project.name == 'molgenis-components') {
+        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
+            node { with nodeSpec }
+            if (project.name == 'molgenis-components') {
+                inputs.file('package.json')
+                inputs.files(fileTree('src'))
+                inputs.files(fileTree('public'))
+                inputs.files(fileTree('lib'))
+                inputs.file('vite.config.js')
+                outputs.dir('showCase')
+                outputs.cacheIf { true }
+                args = ['run', 'build-showcase']
+            }
         }
     }
 
-    task copyDistFiles(type: Copy, dependsOn: buildComponentsShowcase) {
+
+    task copyDistFiles(type: Copy) {
+        if (project.name == 'styleguide') {
+            dependsOn buildStyleguidist
+        } else if (project.name == 'molgenis-components') {
+            dependsOn buildComponentsShowcase
+        } else {
+            dependsOn build
+        }
         if (project.name == 'styleguide') {
             from "build"
             inputs.dir("build")
