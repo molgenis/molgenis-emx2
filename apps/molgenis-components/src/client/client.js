@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const metaDataQuery = `{
 _schema {
   name,
