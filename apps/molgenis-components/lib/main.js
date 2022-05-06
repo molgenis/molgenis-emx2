@@ -39,6 +39,7 @@ import InputPassword from "../src/components/forms/InputPassword.vue";
 import InputRadio from "../src/components/forms/InputRadio.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
+import InputText from "../src/components/forms/InputText.vue";
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
@@ -54,7 +55,7 @@ import SignInForm from "../src/components/layout/SignInForm.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
-import VueTemplate from "../src/components/layout/VueTemplate.vue"
+import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
@@ -113,6 +114,7 @@ export {
   InputRadio,
   InputString,
   InputSearch,
+  InputText,
   Breadcrumb,
   LayoutModal,
   ReadMore,
