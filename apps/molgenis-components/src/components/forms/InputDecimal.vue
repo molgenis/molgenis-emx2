@@ -3,7 +3,6 @@
     :id="id"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage"
     v-on="$listeners"
   >
     <input
@@ -11,7 +10,7 @@
       type="number"
       step="1"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      :class="{ 'form-control': true }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @keypress="handleKeyValidity"
@@ -30,13 +29,6 @@ export default {
   components: {
     FormGroup,
   },
-  computed: {
-    errorMessage() {
-      return !isNaN(parseFloat(this.value))
-        ? undefined
-        : "Invalid decimal value";
-    },
-  },
   methods: {
     emitIfValid(event) {
       const value = parseFloat(event.target.value);
@@ -44,7 +36,7 @@ export default {
         this.$emit("input", null);
       }
       if (!isNaN(value)) {
-        this.$emit("input", event.target.value);
+        this.$emit("input", value);
       }
     },
     handleKeyValidity(event) {
@@ -55,13 +47,6 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.is-invalid {
-  background-image: none;
-  padding-right: 0.75rem;
-}
-</style>
 
 <docs>
   <template>
