@@ -1,10 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :description="description"
-    v-on="$listeners"
-  >
+  <FormGroup :id="id" :label="label" :description="description">
     <input
       :id="id"
       type="number"
@@ -32,7 +27,11 @@ export default {
     FormGroup,
   },
   props: {
-    errorMessage: { type: String, default: null },
+    readonly: {
+      type: Boolean,
+      required: false,
+      default: () => undefined,
+    },
   },
   methods: {
     handleKeyValidity(event) {
