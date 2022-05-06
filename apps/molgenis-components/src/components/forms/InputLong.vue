@@ -4,6 +4,7 @@
       :id="id"
       :label="label"
       :description="description"
+      :errorMessage="longError"
       v-on="$listeners"
     >
       <input
@@ -42,11 +43,7 @@ export default {
   },
   computed: {
     longError() {
-      if (this.value !== null && this.value.length) {
-        return getBigIntError(this.value);
-      } else {
-        return {};
-      }
+      return getBigIntError(this.value);
     },
   },
   methods: {
@@ -75,21 +72,13 @@ export default {
   },
 };
 
-const BIG_INT_ERROR = {
-  errorMessage: `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`,
-};
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
 function getBigIntError(value) {
-  if (Array.isArray(value)) {
-    if (value.find(isInvalidBigInt)) {
-      return BIG_INT_ERROR;
-    }
-  } else {
-    if (isInvalidBigInt(value)) {
-      return BIG_INT_ERROR;
-    }
+  if (isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
   }
-  return {};
+  return undefined;
 }
 
 function isInvalidBigInt(value) {
