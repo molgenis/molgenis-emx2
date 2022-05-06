@@ -38,7 +38,6 @@ module.exports = function () {
   };
 
   const buildStart = () => {
-    fs.rmSync("./gen-docs/", { recursive: true, force: true });
   };
 
   return { name: "docs-plugin", buildStart, transform };
