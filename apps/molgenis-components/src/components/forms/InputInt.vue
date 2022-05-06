@@ -1,20 +1,17 @@
 <template>
-  <span>
-    <FormGroup :id="id" :label="label" :description="description">
-      <input
-        type="number"
-        step="1"
-        :value="value"
-        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
-        :aria-describedby="id + 'Help'"
-        :placeholder="placeholder"
-        :readonly="readonly"
-        @keypress="handleKeyValidity"
-        @input="emitIfValid"
-      />
-    </FormGroup>
-    ]
-  </span>
+  <FormGroup :id="id" :label="label" :description="description">
+    <input
+      type="number"
+      step="1"
+      :value="value"
+      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      :aria-describedby="id + 'Help'"
+      :placeholder="placeholder"
+      :readonly="readonly"
+      @keypress="handleKeyValidity"
+      @input="emitIfValid"
+    />
+  </FormGroup>
 </template>
 
 <script>
@@ -26,6 +23,13 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
+  },
+  props: {
+    readonly: {
+      type: Boolean,
+      required: false,
+      default: () => undefined,
+    },
   },
   methods: {
     emitIfValid(event) {

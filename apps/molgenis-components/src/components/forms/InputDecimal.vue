@@ -27,11 +27,7 @@ export default {
     FormGroup,
   },
   props: {
-    readonly: {
-      type: Boolean,
-      required: false,
-      default: () => undefined,
-    },
+    errorMessage: { type: String, default: null },
   },
   methods: {
     handleKeyValidity(event) {
