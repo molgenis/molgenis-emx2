@@ -18,7 +18,6 @@ import BaseInput from "./BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import ResizableTextarea from "./ResizableTextarea.vue";
 
-/** Input for text */
 export default {
   extends: BaseInput,
   components: {
