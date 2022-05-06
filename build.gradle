@@ -126,7 +126,7 @@ helm {
             nexus {
                 url = uri('https://registry.molgenis.org/')
                 repository = 'helm'
-                apiVersion = 'v3'
+                apiVersion = 'v1'
                 credentials {
                     username = "${nexusUser}"
                     password = "${nexusPassword}"
