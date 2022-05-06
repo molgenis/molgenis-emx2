@@ -80,7 +80,6 @@ export default {
   },
   data: function () {
     return {
-      /** @ignore */
       showSigninForm: false,
       showSignupForm: false,
       showChangePasswordForm: false,
@@ -109,6 +108,15 @@ export default {
     },
   },
   methods: {
+    loadSettings(settings) {
+      settings._settings.forEach(
+        (s) =>
+          (this.session.settings[s.key] =
+            s.value.startsWith("[") || s.value.startsWith("{")
+              ? this.parseJson(s.value)
+              : s.value)
+      );
+    },
     async reload() {
       this.loading = true;
 
@@ -133,24 +141,12 @@ export default {
       //convert settings to object
       this.session.settings = {};
       if (dbSettings && dbSettings._settings) {
-        dbSettings._settings.forEach(
-          (s) =>
-            (this.session.settings[s.key] =
-              s.value.startsWith("[") || s.value.startsWith("{")
-                ? this.parseJson(s.value)
-                : s.value)
-        );
+        this.loadSettings(dbSettings);
         this.session.manifest = dbSettings._manifest;
       }
       // schemaSettings override dbSettings if set
       if (schemaSettings && schemaSettings._settings) {
-        schemaSettings._settings.forEach(
-          (s) =>
-            (this.session.settings[s.key] =
-              s.value.startsWith("[") || s.value.startsWith("{")
-                ? this.parseJson(s.value)
-                : s.value)
-        );
+        this.loadSettings(schemaSettings);
         this.session.manifest = schemaSettings._manifest;
       }
 
@@ -181,21 +177,20 @@ export default {
       this.showSignupForm = false;
       this.error = null;
     },
-    signout() {
+    async signout() {
       this.loading = true;
       this.showSigninForm = false;
-      request("graphql", `mutation{signout{status}}`)
-        .then((data) => {
-          if (data.signout.status === "SUCCESS") {
-            this.session = {};
-          } else {
-            this.error = "sign out failed";
-          }
-          this.loading = false;
-          this.$emit("input", this.session);
-          this.reload();
-        })
-        .catch((error) => (this.error = "internal server error" + error));
+      const data = await request("graphql", `mutation{signout{status}}`).catch(
+        (error) => (this.error = "internal server error" + error)
+      );
+      if (data.signout.status === "SUCCESS") {
+        this.session = {};
+      } else {
+        this.error = "sign out failed";
+      }
+      this.loading = false;
+      this.$emit("input", this.session);
+      this.reload();
     },
   },
 };

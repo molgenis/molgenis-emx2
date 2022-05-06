@@ -65,27 +65,24 @@ export default {
     };
   },
   methods: {
-    updatePassword() {
+    async updatePassword() {
       if (this.password !== this.password2) {
         this.error = "Error: Passwords entered must be the same";
       } else {
         this.error = null;
         this.loading = true;
-        request(
+        const data = await request(
           "graphql",
           `mutation{changePassword(password: "${this.password}"){status,message}}`
-        )
-          .then((data) => {
-            if (data.changePassword.status === "SUCCESS") {
-              this.success = "Success. Password changed";
-            } else {
-              this.error =
-                "Password change failed: " + data.changePassword.message;
-            }
-          })
-          .catch((error) => {
-            this.graphqlError = JSON.stringify(error);
-          });
+        ).catch((error) => {
+          this.graphqlError = JSON.stringify(error);
+        });
+
+        if (data.changePassword.status === "SUCCESS") {
+          this.success = "Success. Password changed";
+        } else {
+          this.error = "Password change failed: " + data.changePassword.message;
+        }
         this.loading = false;
       }
     },
