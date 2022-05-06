@@ -10,7 +10,7 @@
 # MOLGENIS EMX2 scientific data platform
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility,
-interoperability and reusability).
+interoperability and reusability). 
 
 ## Introduction
 
