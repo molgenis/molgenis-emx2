@@ -8,10 +8,10 @@
         <ButtonOutline v-else @click="showSignInForm = true" :light="true">
           Sign in
         </ButtonOutline>
-        <MolgenisSignIn
-          :show="showSignInForm"
+        <MolgenisSignin
+          v-if="showSignInForm"
           @cancel="showSignInForm = false"
-          @requestSignIn="signIn(...arguments)"
+          @signin="signIn(...arguments)"
         />
       </template>
       <template v-else>
@@ -58,11 +58,11 @@ div.wrapper {
 </style>
 
 <script>
-import { Breadcrumb, ButtonOutline, MolgenisSignIn } from "molgenis-components";
+import { Breadcrumb, ButtonOutline, MolgenisSignin } from "molgenis-components";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-  components: { Breadcrumb, ButtonOutline, MolgenisSignIn },
+  components: { Breadcrumb, ButtonOutline, MolgenisSignin },
   data() {
     return {
       showSignInForm: false,
