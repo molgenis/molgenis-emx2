@@ -51,7 +51,7 @@ import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
-import SignInForm from "../src/components/layout/SignInForm.vue";
+import MolgenisSignin from "../src/components/layout/MolgenisSignin.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
@@ -131,7 +131,7 @@ export {
   StringDisplay,
   TextDisplay,
   ShowMore,
-  SignInForm,
+  MolgenisSignin,
   Client,
   LayoutCard,
 };
