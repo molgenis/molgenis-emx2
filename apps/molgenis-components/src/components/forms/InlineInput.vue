@@ -20,7 +20,6 @@
 
 <script>
 import IconAction from "./IconAction.vue";
-import Vue from "vue";
 
 export default {
   components: { IconAction },
