@@ -30,24 +30,35 @@ export default {
 <docs>
 <template>
   <div>
-    <LayoutForm>
+    <label>Empty input text</label>
+    <demo-item>
       <InputText
-        id="input-text"
-        v-model="value"
-        label="My text label"
-        placeholder="type here your text"
-        description="Some help needed?"
+          id="input-text"
+          v-model="value"
+          label="My text label"
+          placeholder="type here your text"
+          description="Some help needed?"
       />
-    </LayoutForm>
-    <br/>
-    You typed: {{ value }}
+      You typed: {{ value }}
+    </demo-item>
+    <label>Empty input text</label>
+    <demo-item>
+      <InputText
+          id="input-text2"
+          v-model="value2"
+          label="My text label"
+          placeholder="type here your text"
+          description="This should have default value?"
+      />
+    </demo-item>
   </div>
 </template>
 <script>
   export default {
     data: function () {
       return {
-        value: null
+        value: null,
+        value2: "this is a default value"
       };
     }
   };
