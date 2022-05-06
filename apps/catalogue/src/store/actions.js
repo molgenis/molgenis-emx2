@@ -66,8 +66,6 @@ export default {
         },
       };
     }
-    console.log(JSON.stringify(queryVariables));
-
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
         equals: getters.selectedKeywords,
