@@ -38,7 +38,7 @@ module.exports = function () {
   };
 
   const buildStart = () => {
-    if (process.env.CLEAR_GEN_FOLDERS === 'on') {
+    if (process.env.CLEAR_GEN_FOLDERS === "on") {
       console.log("CLEAR_GEN_FOLDERS is set to 'on', clearing folders");
       fs.rmSync("./showCase/", { recursive: true, force: true });
       fs.rmSync("./gen-docs/", { recursive: true, force: true });
@@ -46,5 +46,4 @@ module.exports = function () {
   };
 
   return { name: "docs-plugin", buildStart, transform };
-
 };
