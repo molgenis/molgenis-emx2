@@ -4,10 +4,9 @@
       type="number"
       step="1"
       :value="value"
-      :class="{ 'form-control': true }"
+      class="form-control"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
-      :readonly="readonly"
       @keypress="handleKeyValidity"
       @input="emitIfValid"
     />
@@ -23,13 +22,6 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
-  },
-  props: {
-    readonly: {
-      type: Boolean,
-      required: false,
-      default: () => undefined,
-    },
   },
   methods: {
     emitIfValid(event) {
