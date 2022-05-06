@@ -38,7 +38,6 @@ module.exports = function () {
   };
 
   const buildStart = () => {
-    fs.rmSync("./showCase/", { recursive: true, force: true });
     fs.rmSync("./gen-docs/", { recursive: true, force: true });
   };
 
