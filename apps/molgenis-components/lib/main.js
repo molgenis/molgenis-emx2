@@ -32,6 +32,7 @@ import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
+import InputInt from "../src/components/forms/InputInt.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -107,6 +108,7 @@ export {
   FormGroup,
   FormMolgenis,
   InputDecimal,
+  InputInt,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
