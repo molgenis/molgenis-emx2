@@ -151,7 +151,7 @@ export default {
     },
     graphqlURL: {
       type: String,
-      default: "graphql", 
+      default: "graphql",
     },
   },
   data() {
@@ -212,7 +212,7 @@ export default {
     },
     getSelectedChildNodes(term) {
       let result = [];
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         result.push(term.name);
       } else if (term.children) {
         term.children.forEach((childTerm) =>
@@ -328,7 +328,7 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected == "complete")
+        .filter((term) => term.selected === "complete")
         .map((term) => {
           return { name: term.name };
         });
@@ -509,3 +509,82 @@ export default {
 };
 </script>
 
+<docs>
+<template>
+  <div>
+    <label>ontology array</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-1"
+          v-model="value"
+          label="My ontology select"
+          description="please choose your options in tree below"
+          :options="[
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' } },
+          { name: 'dog', parent: { name: 'pet' } },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]"
+          :isMultiSelect="true"
+      />
+      <div>You selected: {{ value }}</div>
+    </demo-item>
+
+    <label>ontology array expanded</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-2"
+          v-model="value"
+          label="My ontology select expanded"
+          :showExpanded="true"
+          description="please choose your options in tree below"
+          :options="[
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' } },
+          { name: 'dog', parent: { name: 'pet' } },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]"
+          :isMultiSelect="true"
+      />
+      <div>You selected: {{ value }}</div>
+    </demo-item>
+
+    <label>ontology (single) with backend data</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-3"
+          label="Ontology select with backend data"
+          description="please choose your options in tree below"
+          v-model="value"
+          :isMultiSelect="false"
+          ontologyTableName="Tag"
+          graphqlURL="/pet store/graphql"
+      />
+    </demo-item>
+
+    <label>ontology array with backend data</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-4"
+          label="Ontology select with backend data"
+          description="please choose your options in tree below"
+          v-model="value"
+          :isMultiSelect="true"
+          ontologyTableName="Tag"
+          graphqlURL="/pet store/graphql"
+      />
+    </demo-item>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null,
+      };
+    },
+  };
+</script>
+</docs>

@@ -14,6 +14,10 @@ const state = {
       name: "networks",
       conditions: [],
     },
+    {
+      name: "cohorts",
+      conditions: [],
+    },
   ],
   resources: [],
   variableMappings: {},

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div v-for="(index) in fieldCount" :key="index">
+    <div v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
         :id="id + index"
         :condition="conditions[index - 1]"
-        @updateCondition="updateCondition(index -1 , $event)"
-        @clearCondition="clearCondition(index -1)"
+        @updateCondition="updateCondition(index - 1, $event)"
+        @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
       ></component>
@@ -39,7 +39,7 @@ export default {
   },
   data() {
     return {
-      // used to add new empty field when adding conditions 
+      // used to add new empty field when adding conditions
       fieldCount: this.conditions.length || 1,
     };
   },
@@ -60,20 +60,59 @@ export default {
     },
     clearCondition(index) {
       let updatedConditions = [...this.conditions];
-      updatedConditions.splice(index, 1); 
+      updatedConditions.splice(index, 1);
       this.$emit("updateConditions", updatedConditions);
-      if(this.fieldCount > 1) {
+      if (this.fieldCount > 1) {
         this.fieldCount--;
       }
-    }
+    },
   },
   watch: {
-    conditions (newValue) {
-      this.fieldCount = newValue.length || 1 
-    }
-  }
+    conditions(newValue) {
+      this.fieldCount = newValue.length || 1;
+    },
+  },
 };
 </script>
 
-<style>
-</style>
+<style></style>
+
+<docs>
+<template>
+  <div>
+    <div>
+      <label>empty string filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-1"
+            :conditions="conditions"
+            @updateConditions="conditions = $event"
+        ></FilterInput>
+        <div>conditions: {{ conditions }}</div>
+      </demo-item>
+    </div>
+
+    <div class="mt-3">
+      <label>pre-filled string filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-2"
+            :conditions="conditions1"
+            @updateConditions="conditions1 = $event"
+        ></FilterInput>
+        <div>conditions: {{ conditions1 }}</div>
+      </demo-item>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        conditions: [],
+        conditions1: ["tst"],
+      };
+    },
+  };
+</script>
+</docs>

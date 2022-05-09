@@ -6,7 +6,7 @@ adminPassword: admin
 image:
   repository: "molgenis/molgenis-emx2"
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 database:
   name: molgenisdb

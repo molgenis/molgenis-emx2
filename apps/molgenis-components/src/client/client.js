@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const metaDataQuery = `{
 _schema {
   name,
@@ -145,6 +146,15 @@ const fetchTableData = async (
     });
   return resp.data.data;
 };
+
+const request = async (url, graqphl) => {
+  const result = await axios.post(url, { query: graqphl }).catch((error) => {
+    return error;
+  });
+  return result.data.data;
+};
+
+export { request };
 
 export default {
   newClient: (graphqlURL, externalAxios) => {

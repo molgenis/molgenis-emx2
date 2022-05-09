@@ -1,10 +1,12 @@
 <template>
   <div class="mt-1">
+    {{ network }}
     <ul v-if="variables.length" class="list-group">
       <variable-list-item
         v-for="(variable, index) in variables"
         :key="index"
         :variable="variable"
+        :network="network"
         @request-variable-detail="handleVariableDetailsRequest(variable)"
       />
       <button
@@ -33,6 +35,9 @@ import { mapGetters, mapActions, mapState } from "vuex";
 export default {
   name: "VariableDetailsView",
   components: { Spinner, VariableListItem },
+  props: {
+    network: String,
+  },
   computed: {
     ...mapState(["isLoading"]),
     ...mapGetters(["variables", "variableCount"]),

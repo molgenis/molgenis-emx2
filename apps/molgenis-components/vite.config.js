@@ -8,9 +8,19 @@ const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(), createVuePlugin()],
+  resolve: {
+    alias: {
+      "vue": require.resolve('vue/dist/vue.js')
+    }
+  },
   server: {
     proxy: {
-      "^/.*/graphql": {
+      "^/graphql": {
+        target: `${BACKEND_LOCATION}/api`,
+        changeOrigin: true,
+        secure: false,
+      },
+      "^/.*/graphql$": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,
@@ -28,7 +38,6 @@ let conf = {
     },
   },
 };
-
 // In case the SHOW_CASE flag is not set to 'on' build in library mode ( i.e. lib mode is the default)
 if (process.env.SHOW_CASE !== "on") {
   console.log("prod build in library mode");

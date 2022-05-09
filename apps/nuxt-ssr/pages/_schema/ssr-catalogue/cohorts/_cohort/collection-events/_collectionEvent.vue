@@ -1,37 +1,41 @@
 <template>
-<div>
+  <div>
     <key-value-block
       v-if="collectionEvent"
       :heading="'Collection event: ' + collectionEvent.name"
       :items="details"
     ></key-value-block>
-</div>
+  </div>
 </template>
 
 <style scoped></style>
 
 <script>
 import { PageHeader, GridBlock, KeyValueBlock } from "molgenis-components";
-import { startEndYear } from "../../../../../../store/filters"
+import { startEndYear } from "../../../../../../store/filters";
 import query from "../../../../../../store/gql/collectionEvent.gql";
+
 export default {
   name: "CollectionEvent",
   components: { PageHeader, GridBlock, KeyValueBlock },
   scrollToTop: true,
   async asyncData({ params, $axios, store }) {
-    if(!params.collectionEvent) {
-      redirect({to: "cohorts/" + params.cohort})
-      return
+    if (!params.collectionEvent) {
+      redirect({ to: "cohorts/" + params.cohort });
+      return;
     }
     const resp = await $axios({
       url: store.state.schema + "/graphql",
       method: "post",
-      data: { query, variables: { pid: params.cohort, name: params.collectionEvent } },
-    }).catch((e) =>  console.log(e));
+      data: {
+        query,
+        variables: { pid: params.cohort, name: params.collectionEvent },
+      },
+    }).catch((e) => console.log(e));
 
-    if(!resp) return
+    if (!resp) return;
 
-    return { collectionEvent: resp.data.data.CollectionEvents[0]  };
+    return { collectionEvent: resp.data.data.CollectionEvents[0] };
   },
   computed: {
     details() {

@@ -13,6 +13,8 @@ import FileDisplay from "./cellTypes/FileDisplay.vue";
 import TextDisplay from "./cellTypes/TextDisplay.vue";
 import ListDisplay from "./cellTypes/ListDisplay.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
+import EmailDisplay from "./cellTypes/EmailDisplay.vue";
+import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
 
 const typeMap = {
   FILE: "FileDisplay",
@@ -20,6 +22,8 @@ const typeMap = {
   REFBACK: "ListDisplay",
   REF: "ObjectDisplay",
   ONTOLOGY: "ObjectDisplay",
+  EMAIL: "EmailDisplay",
+  HYPERLINK: "HyperlinkDisplay",
 };
 
 export default {
@@ -30,6 +34,8 @@ export default {
     TextDisplay,
     ListDisplay,
     ObjectDisplay,
+    EmailDisplay,
+    HyperlinkDisplay,
   },
   props: {
     data: {
