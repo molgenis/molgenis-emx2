@@ -1,22 +1,21 @@
 <template>
-  <span>
-    <FormGroup
+  <FormGroup
+    :id="id"
+    :label="label"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
+    <input
       :id="id"
-      :label="label"
-      :description="description"
-      :errorMessage="errorMessage"
-    >
-      <input
-        :value="value"
-        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
-        :aria-describedby="id + 'Help'"
-        :placeholder="placeholder"
-        :readonly="readonly"
-        @keypress="handleKeyValidity($event)"
-        @input="inputHandler($event)"
-      />
-    </FormGroup>
-  </span>
+      :value="value"
+      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      :aria-describedby="id + 'Help'"
+      :placeholder="placeholder"
+      :readonly="readonly"
+      @keypress="handleKeyValidity($event)"
+      @input="inputHandler($event)"
+    />
+  </FormGroup>
 </template>
 
 <script>
@@ -47,16 +46,11 @@ export default {
   methods: {
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
-      if (keyCode === CODE_MINUS) this.flipSign();
-      if (!isNumericKey(event)) event.preventDefault();
-    },
-    flipSign() {
-      if (this.value?.length) {
-        if (this.value.charAt(0) === "-") {
-          this.$emit("input", this.value.substring(1));
-        } else {
-          this.$emit("input", "-" + this.value);
-        }
+      if (keyCode === CODE_MINUS) {
+        this.$emit("input", flipSign(this.value));
+      }
+      if (!isNumericKey(event)) {
+        event.preventDefault();
       }
     },
     inputHandler(event) {
@@ -73,7 +67,7 @@ export default {
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
 function getBigIntError(value) {
-  if (isInvalidBigInt(value)) {
+  if (value === "-" || isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
   } else {
     return undefined;
@@ -81,7 +75,25 @@ function getBigIntError(value) {
 }
 
 function isInvalidBigInt(value) {
-  return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  return (
+    value !== null &&
+    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
+  );
+}
+
+function flipSign(value) {
+  switch (value) {
+    case "-":
+      return null;
+    case null:
+      return "-";
+    default:
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
+      } else {
+        return "-" + value;
+      }
+  }
 }
 </script>
 
