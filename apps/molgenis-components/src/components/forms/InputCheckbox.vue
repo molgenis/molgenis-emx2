@@ -24,9 +24,9 @@
         "
         :aria-describedby="`${id}-help`"
       />
-      <label class="form-check-label" :for="`${id}-${index}`">{{
-        option
-      }}</label>
+      <label class="form-check-label" :for="`${id}-${index}`">
+        {{ option }}
+      </label>
     </div>
     <button
       class="checkbox-clear-value btn-link btn m-0 p-0"
@@ -53,13 +53,16 @@
 
 <script>
 import BaseInput from "./BaseInput.vue";
+import FormGroup from "./FormGroup.vue";
 
 export default {
   extends: BaseInput,
+  components: {
+    FormGroup,
+  },
   props: {
     options: Array,
   },
-
   data() {
     return {
       result: this.value ? [...this.value] : [],
