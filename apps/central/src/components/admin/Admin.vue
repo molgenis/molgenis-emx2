@@ -39,7 +39,7 @@ import {
   Spinner,
   MessageError,
   MolgenisSignin,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {
