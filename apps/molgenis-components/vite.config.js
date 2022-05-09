@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { createVuePlugin } from "vite-plugin-vue2";
+import vue from "@vitejs/plugin-vue";
 import path from "path";
 import docTagPlugin from "./docs-plugin.js";
 
@@ -7,11 +7,11 @@ const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 
 // basic build conf fo both library and showCase builds
 let conf = {
-  plugins: [docTagPlugin(), createVuePlugin()],
+  plugins: [docTagPlugin(), vue()],
   resolve: {
     alias: {
-      "vue": require.resolve('vue/dist/vue.js')
-    }
+      vue: require.resolve("vue/dist/vue.esm-bundler.js"),
+    },
   },
   server: {
     proxy: {
@@ -71,3 +71,4 @@ if (process.env.SHOW_CASE !== "on") {
 
 // https://vitejs.dev/config/
 export default defineConfig(conf);
+

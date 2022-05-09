@@ -88,38 +88,3 @@ export default {
   },
 };
 </script>
-
-<docs>
-<template>
-  <div>
-    <Pagination v-model="page" :count="29"/>
-    page = {{ page }}
-  </div>
-</template>
-<script>
-  export default {
-    data() {
-      return {
-        page: null
-      }
-    }
-  }
-</script>
-
-<docs>
-  <template>
-    <demo-item>
-      <pagination v-model="page" :count="250"/>
-      <div>page number: {{ page }}</div>
-    </demo-item>
-  </template>
-  <script>
-    export default {
-      data() {
-        return {
-          page: 3,
-        };
-      },
-    };
-  </script>
-</docs>

@@ -1,5 +1,6 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+// import Vue from "vue";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";
 import Sidebar from "./Sidebar.vue";
@@ -8,30 +9,33 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
 
-const components = import.meta.globEager("./components/**/*.vue");
-const generatedDocumentComponents = import.meta.globEager(
-  "../gen-docs/**/*.vue"
-);
-
-Object.entries(components).forEach(([path, definition]) => {
-  // Get name of component, based on filename
-  // "./components/Fruits.vue" will become "Fruits"
-  const componentName = path
-    .split("/")
-    .pop()
-    .replace(/\.\w+$/, "");
-
-  // Register component on this Vue instance
-  Vue.component(componentName, definition.default);
-});
-
-Vue.component("DemoItem", DemoItem);
-Vue.component("Client", Client);
+const app = createApp(App);
 
 const routes = [
   { path: "/", components: { sidebar: Sidebar } },
   { path: "/client", component: ClientView },
 ];
+
+const components = import.meta.globEager("./components/**/*.vue");
+const generatedDocumentComponents = import.meta.globEager(
+  "../gen-docs/**/*.vue"
+  );
+  
+  Object.entries(components).forEach(([path, definition]) => {
+    // Get name of component, based on filename
+    // "./components/Fruits.vue" will become "Fruits"
+    const componentName = path
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
+    
+    // Register component on this Vue instance
+    app.component(componentName, definition.default);
+  });
+  
+  app.component("DemoItem", DemoItem);
+  app.component("Client", Client);
+
 
 let docsMap = {};
 
@@ -52,25 +56,36 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
-// global variable
-Vue.prototype.$docsMap = docsMap;
+// // global variable
+// Vue.prototype.$docsMap = docsMap;
+app.config.globalProperties.$docsMap = docsMap;
 
-Vue.use(VueRouter);
-const router = new VueRouter({ routes });
+// Vue.use(VueRouter);
+// const router = new VueRouter({ routes });
 
-// use for in page routing
-Vue.use(VueScrollTo, {
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+});
+
+app.use(router);
+
+app.mount("#app");
+
+// // use for in page routing
+app.use(VueScrollTo, {
   container: "#page-content-wrapper",
 });
 
-// Add axios to demo app global vue as plugin, will not be part of exposed library
-Vue.use({
+// // Add axios to demo app global vue as plugin, will not be part of exposed library
+app.use({
   install(Vue) {
-    Vue.prototype.$axios = axios;
+    app.config.globalProperties.$axios = axios;
   },
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+// new Vue({
+//   router,
+//   render: (h) => h(App),
+// }).$mount("#app");
+

@@ -32,9 +32,6 @@ export default {
     name: {
       type: String,
       required: false,
-      default: function () {
-        return this.id;
-      },
     },
   },
   data() {
