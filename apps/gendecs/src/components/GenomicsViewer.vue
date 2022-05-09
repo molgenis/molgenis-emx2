@@ -38,9 +38,9 @@
       </div>
 
       <div class="results" v-else>
-        <div v-if="foundMatch">
-          <MessageSuccess>Match found!</MessageSuccess>
-          <p>The entered term(s):
+        <div v-if="foundMatch" id="match-div">
+          <MessageSuccess id="match-message">Match found!</MessageSuccess>
+          <p id="match-message">The entered term(s):
             <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
             is/are associated with the following variants:
           </p>
@@ -51,9 +51,9 @@
             </GendecsTable>
           </div>
         </div>
-        <div v-if="noMatch">
-          <MessageError>No match Found</MessageError>
-          <p>
+        <div v-if="noMatch" id="match-div">
+          <MessageError id="match-message">No match Found</MessageError>
+          <p id="match-message">
             <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
             resulted in zero matches.
             Maybe try another HPO term or search with parents and or children </p>
@@ -380,26 +380,32 @@ export default {
 #wrapper {
   overflow: hidden; /* add this to contain floated children */
 }
-#searchdiv {
-  width: 70%;
+#titlediv {
+  width: 75%;
+  padding: 10px;
+  text-align: center;
   margin: 0 auto;
+}
+#searchdiv {
+  width: 35%;
+  float: left;
+  /*margin: 0 auto;*/
   padding: 10px;
 }
 #bottemdiv {
-  width: 100%;
+  width: 65%;
   float:left;
   padding: 10px;
   text-align: center;
-}
-#titlediv {
-  width: 100%;
-  float: left;
-  padding: 10px;
 }
 h1{
   text-align: center;
 }
 .results {
   padding: 10px;
+}
+#match-message {
+  /*width: 75%;*/
+  margin: 0 auto;
 }
 </style>

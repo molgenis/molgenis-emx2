@@ -169,4 +169,8 @@ th,
 td {
   text-align: left;
 }
+#gendecs-table {
+  /*width: 75%;*/
+  margin: 0 auto;
+}
 </style>
