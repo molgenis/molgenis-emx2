@@ -143,68 +143,76 @@ td {
 <docs>
 
 <template>
-<div>
   <div>
-    <TableSimple
+    <div>
+      <TableSimple
         v-model="selectedItems1"
         selectColumn="lastName"
         :defaultValue="selectedItems1"
-        :columns="['firstName','lastName','tags']"
-        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        :columns="['firstName', 'lastName', 'tags']"
+        :rows="[
+          { firstName: 'Donald', lastName: 'Duck' },
+          { firstName: 'Scrooge', lastName: 'McDuck', tags: ['blue', 'green'] },
+        ]"
         @select="select"
         @deselect="deselect"
-    />
-    SelectedItems: {{ selectedItems1 }}
-  </div>
+      />
+      SelectedItems: {{ selectedItems1 }}
+    </div>
 
-  <div>
-    <TableSimple
+    <div>
+      <TableSimple
         v-model="selectedItems2"
         :defaultValue="['Duck']"
-        :columns="['firstName','lastName','tags']"
-        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        :columns="['firstName', 'lastName', 'tags']"
+        :rows="[
+          { firstName: 'Donald', lastName: 'Duck' },
+          { firstName: 'Scrooge', lastName: 'McDuck', tags: ['blue', 'green'] },
+        ]"
         @click="click"
-    />
-  </div>
+      />
+    </div>
 
-  <div>
-    <TableSimple
+    <div>
+      <TableSimple
         v-model="selectedItems3"
         :defaultValue="['Duck']"
-        :columns="['firstName','lastName','tags']"
-        :rows="[{'firstName':'Donald','lastName':'Duck'},{'firstName':'Scrooge','lastName':'McDuck','tags':['blue','green']}]"
+        :columns="['firstName', 'lastName', 'tags']"
+        :rows="[
+          { firstName: 'Donald', lastName: 'Duck' },
+          { firstName: 'Scrooge', lastName: 'McDuck', tags: ['blue', 'green'] },
+        ]"
         @click="click"
-    >
-      <template v-slot:rowheader="slotProps">
-        my row header with props {{ JSON.stringify(slotProps) }}
-      </template>
-    </TableSimple>
+      >
+        <template v-slot:rowheader="slotProps">
+          my row header with props {{ JSON.stringify(slotProps) }}
+        </template>
+      </TableSimple>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        selectedItems1: ['Duck'],
-        selectedItems2: null,
-        selectedItems3: null
-      }
+export default {
+  data() {
+    return {
+      selectedItems1: ["Duck"],
+      selectedItems2: null,
+      selectedItems3: null,
+    };
+  },
+  methods: {
+    click(value) {
+      alert("click " + JSON.stringify(value));
     },
-    methods: {
-      click(value) {
-        alert("click " + JSON.stringify(value));
-      },
-      select(value) {
-        alert("select " + value);
-      },
-      deselect(value) {
-        alert("deselect " + value);
-      }
-    }
-  };
+    select(value) {
+      alert("select " + value);
+    },
+    deselect(value) {
+      alert("deselect " + value);
+    },
+  },
+};
 </script>
-
 
 </docs>
