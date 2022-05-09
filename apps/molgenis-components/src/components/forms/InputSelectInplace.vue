@@ -1,17 +1,15 @@
 <template>
   <span>
-    <div v-if="focus" class="dropdown show" v-click-outside="toggleFocus">
-      <div class="dropdown-menu show">
+    <span v-if="focus" class="dropdown show" v-click-outside="toggleFocus">
+      <span class="dropdown-menu show">
         <button
           class="btn btn-link dropdown-item"
           v-if="!required"
-          :key="option"
-          @click.prevent="select(option)"
-          :class="{ 'text-primary': value == undefined }"
+          key="empty-option"
+          @click.prevent="select(undefined)"
         >
           &nbsp;
         </button>
-
         <button
           class="btn btn-link dropdown-item"
           v-for="option in options"
@@ -21,20 +19,25 @@
         >
           {{ option }}
         </button>
-      </div>
-    </div>
+      </span>
+    </span>
     <span
       @click="toggleFocus"
       @mouseover="hover = true"
       @mouseleave="hover = false"
-      style="min-width: 1em"
-      class="d-flex flex-nowrap"
+      class="inline-select"
     >
       {{ value }}
       <IconAction icon="pencil-alt" class="hoverIcon" />
     </span>
   </span>
 </template>
+
+<style scoped>
+.inline-select {
+  min-width: 1em;
+}
+</style>
 
 <script>
 import BaseInput from "./BaseInput.vue";
@@ -49,6 +52,14 @@ export default {
   components: {
     IconAction,
   },
+  props: {
+    options: Array,
+  },
+  data() {
+    return {
+      focus: false,
+    };
+  },
   methods: {
     select(option) {
       this.toggleFocus();
@@ -58,14 +69,6 @@ export default {
       this.focus = !this.focus;
     },
   },
-  data() {
-    return {
-      focus: false,
-    };
-  },
-  props: {
-    options: Array,
-  },
 };
 </script>
 
@@ -73,32 +76,43 @@ export default {
 <template>
   <div>
     <DemoItem>
-      <div> InputSelectInplace </div>
+      <div> This selector is in place  
       <InputSelectInplace
         id="input-select-inplace"
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
       />
+       in this sentence.
+      </div>
+      <div>
+        Selected: {{ check }}
+      </div>
     </DemoItem>
     <DemoItem>
-      <div> InputSelectInplace - required </div>
-      <InputSelectInplace
-        id="input-select-inplace"
-        label="Animals"
-        required
-        v-model="check"
-        :options="['lion', 'ape', 'monkey']"
-      />
+      <div> 
+        This in place selector is required.
+        <InputSelectInplace
+          id="input-select-inplace"
+          label="Animals"
+          required
+          v-model="requiredCheck"
+          :options="['lion', 'ape', 'monkey']"
+        />
+        And can not be put back to nothing selected.
+       </div>
+      <div>
+        Selected: {{ requiredCheck }}
+      </div>
     </DemoItem>
-      Selected: {{ check }}
   </div>
 </template>
 <script>
   export default {
     data: function () {
       return {
-        check: null
+        check: null,
+        requiredCheck: "lion",
       };
     }
   };

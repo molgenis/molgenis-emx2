@@ -42,32 +42,34 @@ export default {
 <template>
   <div>
     <DemoItem>
-      <div> InputSelect </div>
       <InputSelect
+      description="Normal select input"
         id="input-select"
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
       />
+    Selected: {{ check }}
     </DemoItem>
    <DemoItem>
-      <div> InputSelect - required </div>
       <InputSelect
-        id="input-select"
-        label="Animals"
+        id="input-select-required"
+        description="Required select input"
+        label="Required Animals"
         required
-        v-model="check"
+        v-model="requiredCheck"
         :options="['lion', 'ape', 'monkey']"
       />
+    Selected: {{ requiredCheck }}
     </DemoItem>
-    Selected: {{ check }}
   </div>
 </template>
 <script>
   export default {
     data: function () {
       return {
-        check: null
+        check: null,
+        requiredCheck: null,
       };
     }
   };
