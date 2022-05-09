@@ -54,12 +54,12 @@ span:hover .hoverIcon {
     <InputString id="input-string2" label="test" :readonly="true" value="can't change me"
                  description="Should not be able to edit this"/>
     <b>In place some</b>
-    <InputString id="input-string2" label="test" v-model="value" :inplace="true"
+    <InputString id="input-string3" label="test" v-model="value" :inplace="true"
                  description="Should be able to edit in place"/>
     text.<br/>
     value: {{ value }}
     <b>column</b>
-    <InputString id="input-string2" :label.sync="column.label" v-model="column.value" :editMeta="true"
+    <InputString id="input-string4" :label.sync="column.label" v-model="column.value" :editMeta="true"
                  :description.sync="column.description"/>
     text.<br/>
     column :
