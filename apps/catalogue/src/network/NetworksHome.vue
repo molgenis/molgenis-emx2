@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid">
     {{ searchFilter }}
-    <h1>Welcome at the European Cohort Network Catalogue.</h1>
+    <h1>Welcome to the European Cohort Network Catalogue.</h1>
     <p>
       This catalogue contains metadata on cohorts/data sources, the variables
       they collect, and/or harmonization efforts to enable integrated reuse of

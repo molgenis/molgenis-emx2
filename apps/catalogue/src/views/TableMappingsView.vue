@@ -77,7 +77,7 @@
         <th><h6>Syntax</h6></th>
         <th><h6>Notes</h6></th>
       </tr>
-      <tr v-for="m in variablemappings" :key="JSON.stringify(m)">
+      <tr v-for="(m, index) in variablemappings" :key="index">
         <td v-if="m.toVariable">
           <RouterLink
             :to="{

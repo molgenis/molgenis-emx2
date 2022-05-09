@@ -6,18 +6,18 @@
     <div class="row">
       <div
         class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
-        v-for="c in data"
-        :key="c.name"
+        v-for="cohort in data"
+        :key="cohort.name"
       >
         <div class="card col-12 p-0">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0" style="min-height: 4em">
-              {{ c.pid }}: {{ c.name }}
+              {{ cohort.pid }}: {{ cohort.name }}
             </h5>
             <RouterLink
               :to="{
                 name: 'NetworkCohortDetailView',
-                params: { network: network, pid: c.pid },
+                params: { network: network, pid: cohort.pid },
               }"
               class="btn btn-outline-primary bg-white float-right"
             >
@@ -32,10 +32,10 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="d in c.design"
-                      :key="d"
+                      v-for="design in cohort.design"
+                      :key="design"
                     >
-                      {{ d }}
+                      {{ design }}
                     </span>
                   </td>
                 </tr>
@@ -44,17 +44,17 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="d in c.collectionType"
-                      :key="d.name"
+                      v-for="collectionType in cohort.collectionType"
+                      :key="collectionType.name"
                     >
-                      {{ d.name }}
+                      {{ collectionType.name }}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td><label>No Participants:</label></td>
-                  <td v-if="c.numberOfParticipants">
-                    {{ Number(c.numberOfParticipants).toLocaleString() }}
+                  <td v-if="cohort.numberOfParticipants">
+                    {{ Number(cohort.numberOfParticipants).toLocaleString() }}
                   </td>
                   <td v-else>N/A</td>
                 </tr>
@@ -63,26 +63,26 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
-                      v-for="c in c.countries"
-                      :key="c.name"
+                      v-for="country in cohort.countries"
+                      :key="cohort.name"
                     >
-                      {{ c.name }}
+                      {{ country.name }}
                     </span>
                   </td>
                 </tr>
                 <tr>
                   <td>Institution:</td>
                   <td>
-                    <div v-if="c.institution">
-                      {{ c.institution.map((i) => i.pid).join(", ") }}
+                    <div v-if="cohort.institution">
+                      {{ cohort.institution.map((i) => i.pid).join(", ") }}
                     </div>
                     <span v-else>N/A</span>
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <a :href="c.website" target="__blank">website</a>&nbsp;
-                    <a :href="'mailto:' + c.contactEmail">email</a>
+                    <a :href="cohort.website" target="__blank">website</a>&nbsp;
+                    <a :href="'mailto:' + cohort.contactEmail">email</a>
                   </td>
                 </tr>
               </table>

@@ -1,9 +1,9 @@
 <template>
   <div v-if="contributors">
-    <div v-for="(c, index) in contributors" :key="index">
-      <a v-if="c.contact.email">{{ c.contact.email }}</a>
+    <div v-for="(contributor, index) in contributors" :key="index">
+      <a v-if="contributor.contact.email">{{ contributor.contact.email }}</a>
       <OntologyTerms
-        :terms="c.contributionType"
+        :terms="contributor.contributionType"
         :inline="true"
         :color="color"
       />
