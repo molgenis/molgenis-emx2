@@ -1,6 +1,7 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
     <input
+      :id="id"
       type="number"
       step="1"
       :value="value"
