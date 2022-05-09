@@ -1,10 +1,5 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :description="description"
-    v-on="$listeners"
-  >
+  <FormGroup :id="id" :label="label" :description="description">
     <input
       :id="id"
       type="number"
