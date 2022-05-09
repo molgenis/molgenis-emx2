@@ -2,7 +2,7 @@ export const state = () => ({
   schema: null,
   settings: [],
   session: null,
-  manifest: null
+  manifest: null,
 });
 
 export const mutations = {
@@ -20,19 +20,19 @@ export const mutations = {
   },
   setManifest(state, manifest) {
     state.manifest = manifest;
-  }
+  },
 };
 
 export const getters = {
   menu(state) {
-    const menuSetting = state.settings.find((s) => s.key === 'menu');
+    const menuSetting = state.settings.find((s) => s.key === "menu");
     if (!menuSetting) {
       return [];
     }
 
-    const menuItems =  JSON.parse(menuSetting.value).map((menuItem) => {
+    const menuItems = JSON.parse(menuSetting.value).map((menuItem) => {
       // Strip the added ssr context from the menu.href if relative
-      const separator = menuItem.href.startsWith('/') ? '' : '/';
+      const separator = menuItem.href.startsWith("/") ? "" : "/";
       if (menuItem.href) {
         menuItem.href = state.schema
           ? `/${state.schema}${separator}${menuItem.href}`
@@ -41,32 +41,32 @@ export const getters = {
       return menuItem;
     });
 
-    const menuItemsForUser = menuItems.filter(menuItem => {
-      return state.session.roles.includes(menuItem.role)
-    })
+    const menuItemsForUser = menuItems.filter((menuItem) => {
+      return state.session.roles.includes(menuItem.role);
+    });
 
     return menuItemsForUser;
   },
   isOidcEnabled(state) {
-    const oidcSetting = state.settings.find((s) => s.key === 'isOidcEnabled');
-    return oidcSetting && oidcSetting.value === 'true';
+    const oidcSetting = state.settings.find((s) => s.key === "isOidcEnabled");
+    return oidcSetting && oidcSetting.value === "true";
   },
   logo(state) {
-    const logoSetting = state.settings.find((s) => s.key === 'logoURL');
+    const logoSetting = state.settings.find((s) => s.key === "logoURL");
     if (!logoSetting) {
       return undefined;
     }
     return logoSetting.value;
-  }
+  },
 };
 
 export const actions = {
-  async nuxtServerInit({dispatch, commit}, context) {
+  async nuxtServerInit({ dispatch, commit }, context) {
     if (process.server) {
       const path = context.req.url;
-      const schema = path.split('/').filter((i) => i !== '')[0];
-      commit('setSchema', schema);
-      await dispatch('fetchSession');
+      const schema = path.split("/").filter((i) => i !== "")[0];
+      commit("setSchema", schema);
+      await dispatch("fetchSession");
     }
   },
   async fetchSession(context) {
@@ -76,43 +76,32 @@ export const actions = {
         _manifest{ ImplementationVersion, SpecificationVersion, DatabaseVersion}
       }`;
     const sessionUrl = context.state.schema
-      ? context.state.schema + '/graphql'
-      : 'apps/central/graphql';
+      ? context.state.schema + "/graphql"
+      : "apps/central/graphql";
     const resp = await this.$axios({
       url: sessionUrl,
-      method: 'post',
-      data: {query}
+      method: "post",
+      data: { query },
     }).catch((e) => console.error(e));
-    context.commit('setSession', resp.data.data._session);
-    context.commit('setManifest', resp.data.data._manifest);
-    context.commit('setSettings', resp.data.data._settings);
+    context.commit("setSession", resp.data.data._session);
+    context.commit("setManifest", resp.data.data._manifest);
+    context.commit("setSettings", resp.data.data._settings);
   },
-  async signIn(context, {email, password, onSignInFailed}) {
-    const query = `mutation { signin (email: "${email}", password: "${password}") { status, message } }`;
-    const signInResp = await this.$axios
-      .post('/api/graphql', {query})
-      .catch((error) => onSignInFailed('internal server graphqlError' + error));
-
-    if (signInResp.data.data.signin.status === 'SUCCESS') {
-      if (location && location.reload) {
-        location.reload();
-      }
-    } else {
-      onSignInFailed(signInResp.data.data.signin.message);
-    }
+  async signIn() {
+    location.reload();
   },
-  async signOut(context, {onSignOutFailed}) {
-    const query = 'mutation { signout { status } }';
+  async signOut(context, { onSignOutFailed }) {
+    const query = "mutation { signout { status } }";
     const signOutResp = await this.$axios
-      .post('/api/graphql', {query})
-      .catch((error) => onSignOutFailed('internal server error' + error));
-    if (signOutResp.data.data.signout.status === 'SUCCESS') {
-      context.commit('setSession', {});
+      .post("/api/graphql", { query })
+      .catch((error) => onSignOutFailed("internal server error" + error));
+    if (signOutResp.data.data.signout.status === "SUCCESS") {
+      context.commit("setSession", {});
       if (location && location.reload) {
         location.reload();
       }
     } else {
-      onSignOutFailed('sign out failed');
+      onSignOutFailed("sign out failed");
     }
-  }
+  },
 };
