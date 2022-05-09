@@ -33,6 +33,7 @@ import IconBar from "../src/components/forms/IconBar.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
+import InputInt from "../src/components/forms/InputInt.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
@@ -52,9 +53,13 @@ import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
 import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
+import Molgenis from "../src/components/layout/Molgenis.vue";
+import MolgenisAccount from "../src/components/layout/MolgenisAccount.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
+import MolgenisSession from "../src/components/layout/MolgenisSession.vue";
 import MolgenisSignin from "../src/components/layout/MolgenisSignin.vue";
+import MolgenisSignup from "../src/components/layout/MolgenisSignup.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
@@ -110,13 +115,14 @@ export {
   FormGroup,
   FormMolgenis,
   InputDecimal,
-  InputSelect,
   InputBoolean,
+  InputInt,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
   InputRadio,
+  InputSelect,
   InputString,
   InputSearch,
   InputText,
@@ -128,7 +134,12 @@ export {
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,
+  Molgenis,
+  MolgenisAccount,
   MolgenisFooter,
+  MolgenisSession,
+  MolgenisSignin,
+  MolgenisSignup,
   Pagination,
   FileDisplay,
   ListDisplay,
@@ -136,7 +147,6 @@ export {
   StringDisplay,
   TextDisplay,
   ShowMore,
-  MolgenisSignin,
   Client,
   LayoutCard,
 };
