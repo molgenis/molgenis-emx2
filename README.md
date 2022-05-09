@@ -10,7 +10,7 @@
 # MOLGENIS EMX2 scientific data platform
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility,
-interoperability and reusability).
+interoperability and reusability). 
 
 ## Introduction
 
@@ -19,7 +19,7 @@ Then [MOLGENIS](http://molgenis.org)
 auto generates a complete database application with advanced data entry forms, powerful data up/download options and
 flexible query tools to help you collect, analyse and share your data. If you want to program, you can use PostgreSQL,
 GraphQL api, batch web services or linked data RDF/TTL interface to query/update the data, and use VueJS to create your
-own 'apps'. 
+own 'apps'.
 
 ## Guides
 

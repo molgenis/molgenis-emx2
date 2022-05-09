@@ -15,7 +15,7 @@
             v-for="(item, index2) in docsTree[key]"
             :key="index2"
             href="#"
-            v-scroll-to="camel2Kebab(item.name)"
+            v-scroll-to="anchor(item.name)"
             class="list-group-item"
             >{{ item.name }}</a
           >
@@ -23,7 +23,9 @@
       </li>
 
       <li class="list-group-item">
-        <strong> <router-link to="/client">Client</router-link></strong>
+        <strong>
+          <router-link to="/client">Client</router-link>
+        </strong>
       </li>
     </div>
   </div>
@@ -77,13 +79,8 @@ export default {
     },
   },
   methods: {
-    camel2Kebab(name) {
-      return (
-        "#" +
-        name.replace(/[A-Z]/g, (letter, index) => {
-          return index == 0 ? letter.toLowerCase() : "-" + letter.toLowerCase();
-        })
-      );
+    anchor(name) {
+      return "#" + name;
     },
     toggleMenuItem(key) {
       if (this.expandedMenuKeys.includes(key)) {
@@ -95,4 +92,3 @@ export default {
   },
 };
 </script>
-

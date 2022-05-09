@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.5
+Version,,,,,,,,,,,,2.6
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -381,10 +381,10 @@ Counts,,ageband,,1,TRUE,,,,,,,
 Counts,,gender,,1,TRUE,,,,,,,
 Counts,,N,int,,TRUE,,,,,,,
 SubcohortCounts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
-SubcohortCounts,,year,int,1,TRUE,,,,,,,
-SubcohortCounts,,ageband,,1,TRUE,,,,,,,
-SubcohortCounts,,gender,,1,TRUE,,,,,,,
-SubcohortCounts,,N,int,,TRUE,,,,,,,
+SubcohortCounts,,ageGroup,ref,1,TRUE,CatalogueOntologies,AgeGroups,,,,,
+SubcohortCounts,,N total,int,,,,,,,,,
+SubcohortCounts,,N female,int,,,,,,,,,
+SubcohortCounts,,N male,int,,,,,,,,,
 PopulationSizes,,,,,,,,,,,,"Population size captured and population active, stratified by age (most recent counts)"
 PopulationSizes,,databank,ref,1,TRUE,,Databanks,,,,,Databank to which population size applies
 PopulationSizes,,ageband,,1,TRUE,,,,,,,Age band to which the counts apply

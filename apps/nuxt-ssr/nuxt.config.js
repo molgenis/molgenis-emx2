@@ -38,6 +38,7 @@ export default {
   build: {
     extend(config) {
       // GraphQL Loader, allows import of .gql files
+      config.resolve.alias["vue$"] = "vue/dist/vue.common";
       config.module.rules.push({
         test: /\.(graphql|gql)$/,
         exclude: /node_modules/,

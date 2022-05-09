@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: 'Info',
+  name: "Info",
   data() {
     return {
       show: false,
@@ -32,8 +32,9 @@ export default {
 </script>
 
 <docs>
-Example
-```
-<Info>This is some info</Info>
-```
+<template>
+  <demo-item>
+    <Info>This is an info popover component.</Info>
+  </demo-item>
+</template>
 </docs>

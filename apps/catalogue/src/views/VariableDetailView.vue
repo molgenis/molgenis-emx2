@@ -7,7 +7,7 @@
           class="nav-link"
           :class="{ active: $route.query.tab !== 'harmonization' }"
           :to="{
-            name: 'VariableDetailView',
+            path: this.$route.path,
             query: { ...$route.query, tab: 'detail' },
           }"
         >
@@ -19,7 +19,7 @@
           class="nav-link"
           :class="{ active: $route.query.tab === 'harmonization' }"
           :to="{
-            name: 'VariableDetailView',
+            path: this.$route.path,
             query: { ...$route.query, tab: 'harmonization' },
           }"
         >

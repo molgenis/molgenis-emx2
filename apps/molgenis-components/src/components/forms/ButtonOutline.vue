@@ -22,3 +22,21 @@ export default {
 };
 </script>
 
+<docs>
+<template>
+  <demo-item>
+    <div>
+      <ButtonOutline v-on:click="alert('cancel clicked')">Cancel</ButtonOutline>
+    </div>
+  </demo-item>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      },
+    },
+  };
+</script>
+</docs>

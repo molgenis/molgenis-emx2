@@ -27,6 +27,10 @@ export default {
     state.filters.find((f) => f.name === "networks").conditions =
       selectedNetworks;
   },
+  setSelectedCohorts(state, selectedCohorts) {
+    state.filters.find((f) => f.name === "cohorts").conditions =
+      selectedCohorts;
+  },
   setSelectedKeywords(state, selectedKeywords) {
     state.filters.find((f) => f.name === "keywords").conditions =
       selectedKeywords;

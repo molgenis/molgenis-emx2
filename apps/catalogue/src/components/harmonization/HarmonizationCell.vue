@@ -14,13 +14,13 @@ export default {
     iconClass() {
       switch (this.status) {
         case "unmapped":
-          return "fa-question";
+          return "fa-none";
         case "partial":
           return "fa-percent";
         case "complete":
           return "fa-check";
         default:
-          return "fa-question";
+          return "fa-none";
       }
     },
     tableClass() {
