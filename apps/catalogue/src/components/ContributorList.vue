@@ -1,14 +1,14 @@
 <template>
-  <ul v-if="contributors">
-    <li v-for="(c, index) in contributors" :key="index">
-      {{ c.contact.firstName }} {{ c.contact.surname }}
+  <div v-if="contributors">
+    <div v-for="(c, index) in contributors" :key="index">
+      <a v-if="c.contact.email">{{ c.contact.email }}</a>
       <OntologyTerms
         :terms="c.contributionType"
         :inline="true"
         :color="color"
       />
-    </li>
-  </ul>
+    </div>
+  </div>
   <p v-else>N/A</p>
 </template>
 <script>

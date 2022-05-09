@@ -1,57 +1,151 @@
 <template>
-  <div class="container">
-    <h1>Welcome at the European cohort network catalogue.</h1>
-    <p>Choose a network below to explore.</p>
-    <div class="card-deck">
-      <div class="card p-4">
-        <img
-          src="https://lifecycle-project.eu/wp-content/uploads/2020/03/euchild_logo-e1583949892302.jpg"
-          class="card-img-top"
-          style="max-width: 300px"
-          alt="..."
-        />
-        <div class="card-body">
-          <h5 class="card-title">EUChildNetwork</h5>
-          <p>
-            A Europe-wide network of cohort studies started in early life Cohort
-            studies started from pregnancy or childhood give the unique
-            opportunity to relate early-life stressors with variation in
-            development, health and disease throughout the life course.
-          </p>
-          <a href="#" class="btn btn-primary disabled">View cohorts</a>
-          <RouterLink
-            class="btn btn-primary ml-2"
-            :to="{ name: 'NetworkVariables', params: { network: 'LifeCycle' } }"
-            >View variables
-          </RouterLink>
-        </div>
-      </div>
-      <div class="card p-4">
-        <img
-          src="https://h2020-remedia.eu/wp-content/themes/lbs/images/ehen-European-Human-Exposome-Network-medium-logo.png"
-          class="card-img-top"
-          alt="..."
-        />
-        <div class="card-body">
-          <h5 class="card-title">European Human Exposome Network</h5>
-          <p>
-            The European Human Exposome Network brings together research
-            projects studying the impact of environmental exposure on human
-            health. These projects address issues such as exposures to air
-            quality, noise, chemicals, urbanisation etc. and health impacts.
-          </p>
-          <a href="#" class="btn btn-primary disabled">View cohorts</a>
-          <a href="#" class="btn btn-primary ml-2 disabled">View variables</a>
+  <div class="container-fluid">
+    {{ searchFilter }}
+    <h1>Welcome at the European Cohort Network Catalogue.</h1>
+    <p>
+      This catalogue contains metadata on cohorts/data sources, the variables
+      they collect, and/or harmonization efforts to enable integrated reuse of
+      their rich valuable data. The contents is grouped by 'networks', such as
+      harmonization projects, EU projects or by navigating all cohorts directly
+      below.
+    </p>
+    <InputSearch v-model="searchTerms" placeholder="search cohorts" />
+    <h2>Harmonization networks</h2>
+    <div v-if="harmonizationNetworks.length > 0">
+      <p>
+        In this section you find networks that aim to enable data reuse across
+        multiple projects.
+      </p>
+      <div class="row">
+        <div
+          class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
+          v-for="network in harmonizationNetworks"
+          :key="network.pid"
+        >
+          <NetworkCard :network="network" />
         </div>
       </div>
     </div>
-    <p>
-      This catalogue was made possible by EUCAN-connect, EU-LifeCycle,
-      EU-Athlete and EU-LongITools, in collaboration with members of European
-      Human Exposome Network.
-    </p>
+    <div v-if="consortiaNetworks.length > 0">
+      <h2>EU projects</h2>
+      <p>
+        In this section you can navigate the catalogue based on consortia funded
+        by the European Union
+      </p>
+      <div class="row">
+        <div
+          class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
+          v-for="network in consortiaNetworks"
+          :key="network.pid"
+        >
+          <NetworkCard :network="network" />
+        </div>
+      </div>
+    </div>
+    <div v-if="otherNetworks.length > 0">
+      <h2>Other networks</h2>
+      <p>In this section you can navigate other networks</p>
+      <div class="row">
+        <div
+          class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
+          v-for="network in otherNetworks"
+          :key="network.pid"
+        >
+          <NetworkCard :network="network" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
+<script>
+import { request } from "graphql-request";
+
+import NetworkCard from "../components/NetworkCards";
+import { InputSearch } from "@mswertz/emx2-styleguide";
+
+export default {
+  components: {
+    NetworkCard,
+    InputSearch,
+  },
+  data() {
+    return {
+      networks: [],
+      searchTerms: null,
+    };
+  },
+  computed: {
+    harmonizationNetworks() {
+      return this.networks.filter(
+        (network) =>
+          network.type && network.type.some((t) => t.name === "harmonization")
+      );
+    },
+    consortiaNetworks() {
+      return this.networks.filter(
+        (network) =>
+          network.type && network.type.some((t) => t.name === "h2020")
+      );
+    },
+    otherNetworks() {
+      return this.networks.filter(
+        (network) =>
+          !network.type ||
+          (!network.type.some((t) => t.name === "h2020") &&
+            !network.type.some((t) => t.name === "harmonization"))
+      );
+    },
+    searchFilter() {
+      return this.searchTerms
+        ? ',filter: { _search: "' + this.searchTerms + '"}'
+        : "";
+    },
+  },
+  methods: {
+    async fetchData() {
+      const result = await request(
+        "graphql",
+        `{Networks(orderby:{pid: ASC}${this.searchFilter})
+          {
+          pid
+          name
+          localName
+          acronym
+          website
+          description
+          institution{
+          name
+          }
+          logo {
+          url
+          }
+          startYear
+          endYear
+          fundingStatement
+          acknowledgements
+          partners {
+          institution {
+          name
+          }
+          department
+          }
+          type {name}
+          }}`
+      ).catch((error) => console.log(error));
+      this.networks = result.Networks;
+    },
+  },
+  mounted: async function () {
+    this.fetchData();
+  },
+  watch: {
+    searchTerms() {
+      this.fetchData();
+    },
+  },
+};
+</script>
 
 <style>
 .card-img-top {
