@@ -67,6 +67,7 @@ import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
 import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
+import TableSimple from "../src/components/tables/TableSimple.vue"
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -129,6 +130,7 @@ export {
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,
+  TableSimple,
   Molgenis,
   MolgenisAccount,
   MolgenisFooter,
