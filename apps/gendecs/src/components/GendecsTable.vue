@@ -1,7 +1,5 @@
 <template>
   <div class="table-responsive">
-<!--    <p><button @click="sortTable">Sort</button></p>-->
-
     <table class="table table-bordered" :class="{ 'table-hover': tableHover }" id="gendecs-table">
       <thead>
       <tr>
@@ -23,7 +21,11 @@
         >
           <ul v-if="Array.isArray(row[col])" class="list-unstyled">
             <li v-for="(item, index3) in row[col]" :key="index3">
-              <a v-if="col === 'Diseases'" :href="item" target="_blank">link to disease</a>
+              <div v-if="col === 'Diseases'">
+                <a v-if="item.includes('omim')" :href="item" target="_blank">link to OMIM</a>
+                <a v-if="item.includes('orpha')" :href="item" target="_blank">link to ORPHA</a>
+              </div>
+
 
               <a v-if="col === 'ClinVar' && item !== ''"
                     :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + item + '[alleleid]' + item" target="_blank">link to ClinVar</a>
@@ -32,7 +34,7 @@
               <p v-else-if="col !== 'ClinVar' && col !== 'Diseases'"> {{item}}</p>
             </li>
           </ul>
-          <span v-else-if="row[col]">{{ flattenObject(row[col]) }} 54321</span>
+          <span v-else-if="row[col]">{{ flattenObject(row[col]) }}</span>
         </td>
       </tr>
       </tbody>

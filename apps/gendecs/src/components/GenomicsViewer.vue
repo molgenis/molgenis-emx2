@@ -46,7 +46,7 @@
           </p>
           <div>
             <GendecsTable
-                :columns="['MatchedWith', 'Gene', 'Diseases', 'ClinVar']"
+                :columns="['MatchedWith', 'Gene', 'HGVS', 'Diseases', 'ClinVar']"
                 :rows="this.matchedVariants">
             </GendecsTable>
           </div>
@@ -262,7 +262,8 @@ export default {
         if(diseaseIds[i].includes("OMIM")) {
           diseaseIds[i] = 'https://www.omim.org/entry/' + diseaseIds[i].split(":")[1];
         } else if(diseaseIds[i].includes("ORPHA")) {
-          diseaseIds[i] = 'https://www.orpha.net/consor/cgi-bin/Disease_Search.php?lng=NL&data_id=665&Disease_Disease_Search_diseaseGroup=' + diseaseIds[i].split(":")[1];
+          diseaseIds[i] = 'https://www.orpha.net/consor/cgi-bin/Disease_Search.php?lng=NL&data_id=665&Disease_Disease_Search_diseaseGroup=' + diseaseIds[i].split(":")[1]
+            + '&Disease_Disease_Search_diseaseType=ORPHA';
         }
       }
 
@@ -272,6 +273,7 @@ export default {
 
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = [gene];
+      this.fileData[property].HGVS = splitInfoLine[10];
       this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 3).toString().replaceAll(",", "|");
       this.matchedVariants.push(this.fileData[property]);
 
