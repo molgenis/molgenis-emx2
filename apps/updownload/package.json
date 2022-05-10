@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@mswertz/emx2-styleguide": "*",
-    "core-js": "3.22.4",
+    "core-js": "3.22.5",
     "graphql-request": "3.7.0",
     "vue": "2.6.14"
   },
