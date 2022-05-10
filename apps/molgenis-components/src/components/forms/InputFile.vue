@@ -30,11 +30,7 @@
       </div>
       <div class="input-group-append">
         <button
-          class="btn"
-          :class="{
-            'btn-outline-primary': !errorMessage,
-            'btn-outline-danger': errorMessage,
-          }"
+          class="btn btn-outline-primary"
           type="button"
           title="Toggle"
           data-toggle
@@ -44,74 +40,51 @@
         </button>
       </div>
     </div>
-    <div v-for="val in valueArray" :key="JSON.stringify(val)">
-      <a v-if="val && val.url" :href="val.url">
-        Previous value: {{ name }}.{{ val.extension }}
-      </a>
-    </div>
-  </form-group>
+  </FormGroup>
 </template>
 
-<style scoped>
-.form-control.is-invalid {
-  background-image: none;
-}
-</style>
-
 <script>
-import _baseInput from "./_baseInput.vue";
-import FormGroup from "./_formGroup";
+import BaseInput from "./BaseInput.vue";
+import FormGroup from "./FormGroup.vue";
 
 export default {
-  extends: _baseInput,
+  extends: BaseInput,
   components: { FormGroup },
   computed: {
     filename() {
-      if (this.value) return this.value.name;
-      return null;
+      if (this.value) {
+        return this.value.name;
+      } else {
+        return null;
+      }
     },
   },
   methods: {
     handleFileUpload() {
-      this.value = this.$refs.file.files[0];
-      this.$emit("input", this.value);
+      this.$emit("input", this.$refs.file.files[0]);
     },
     clearInput() {
       this.$refs.file.value = "";
-      this.value = null;
-      this.$emit("input", this.value);
+      this.$emit("input", null);
     },
   },
 };
 </script>
 
 <docs>
-Example
-```
 <template>
-  <div>
-    <InputFile label="My file input" v-model="check"/>
-    Selected: {{ check }}
-  </div>
+  <DemoItem>
+    <InputFile id='input-file' label="My file input" description="Example file upload" v-model="uploadedFile"/>
+    Selected: {{ uploadedFile }}
+  </DemoItem>
 </template>
 <script>
   export default {
     data: function () {
       return {
-        check: null
+        uploadedFile: null
       };
-    },
-    methods: {
-      clear() {
-        this.check = null;
-      }
     }
   };
 </script>
-```
-
-Example with error
-```
-<InputFile label="My file input" errorMessage="Some error with files"/>
-```
 </docs>

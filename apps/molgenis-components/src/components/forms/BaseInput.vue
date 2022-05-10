@@ -21,7 +21,7 @@ export default {
         return this.id;
       },
     },
-    value: { type: [String, Number, Object, Array, Boolean], default: null },
+    value: { type: [String, Number, Object, Array, Boolean, File], default: null },
     /**
      * Caption for an item in a user interface.
      * relates to EMX2 columnName
