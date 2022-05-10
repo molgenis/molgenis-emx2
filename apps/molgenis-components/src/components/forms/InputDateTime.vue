@@ -46,7 +46,7 @@ export default {
         label="Input Date/Time - defaultvalue"
         description="Input date/time with a default value"
       />
-      <div>You selected: {{ value }}</div>
+      <div>You selected: {{ defaultValue }}</div>
     </DemoItem>
   </div>
 </template>
