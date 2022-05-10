@@ -31,6 +31,7 @@ import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
+import InputFile from "../src/components/forms/InputFile.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
@@ -72,7 +73,7 @@ import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
 import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
-import TableSimple from "../src/components/tables/TableSimple.vue"
+import TableSimple from "../src/components/tables/TableSimple.vue";
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -119,6 +120,7 @@ export {
   FormMolgenis,
   InputDecimal,
   InputBoolean,
+  InputFile,
   InputInt,
   InputGroup,
   InputLong,
