@@ -30,6 +30,8 @@ import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
+import InputDate from "../src/components/forms/InputDate.vue";
+import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
@@ -118,6 +120,8 @@ export {
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InputDate,
+  InputDateTime,
   InputDecimal,
   InputBoolean,
   InputFile,
