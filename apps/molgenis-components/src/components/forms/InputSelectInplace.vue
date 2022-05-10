@@ -76,21 +76,20 @@ export default {
 <template>
   <div>
     <DemoItem>
-      <div> This selector is in place  
-      <InputSelectInplace
-        id="input-select-inplace"
-        label="Animals"
-        v-model="check"
-        :options="['lion', 'ape', 'monkey']"
-      />
-       in this sentence.
-      </div>
       <div>
-        Selected: {{ check }}
+        This selector is in place
+        <InputSelectInplace
+          id="input-select-inplace"
+          label="Animals"
+          v-model="check"
+          :options="['lion', 'ape', 'monkey']"
+        />
+        in this sentence.
       </div>
+      <div>Selected: {{ check }}</div>
     </DemoItem>
     <DemoItem>
-      <div> 
+      <div>
         This in place selector is required.
         <InputSelectInplace
           id="input-select-inplace"
@@ -100,21 +99,19 @@ export default {
           :options="['lion', 'ape', 'monkey']"
         />
         And can not be put back to nothing selected.
-       </div>
-      <div>
-        Selected: {{ requiredCheck }}
       </div>
+      <div>Selected: {{ requiredCheck }}</div>
     </DemoItem>
   </div>
 </template>
 <script>
-  export default {
-    data: function () {
-      return {
-        check: null,
-        requiredCheck: "lion",
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      check: null,
+      requiredCheck: "lion",
+    };
+  },
+};
 </script>
 </docs>

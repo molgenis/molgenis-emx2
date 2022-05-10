@@ -42,6 +42,7 @@ import InputRadio from "../src/components/forms/InputRadio.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
+import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputText from "../src/components/forms/InputText.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
@@ -123,6 +124,7 @@ export {
   InputPassword,
   InputRadio,
   InputSelect,
+  InputSelectInplace,
   InputString,
   InputSearch,
   InputText,

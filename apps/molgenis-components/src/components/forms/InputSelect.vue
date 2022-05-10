@@ -1,6 +1,8 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <MessageError v-if="!options">No options provided</MessageError>
+    <MessageError v-if="!options || !options.length">
+      No options provided
+    </MessageError>
     <select
       v-else
       :id="id"
@@ -43,15 +45,15 @@ export default {
   <div>
     <DemoItem>
       <InputSelect
-      description="Normal select input"
+        description="Normal select input"
         id="input-select"
         label="Animals"
         v-model="check"
         :options="['lion', 'ape', 'monkey']"
       />
-    Selected: {{ check }}
+      Selected: {{ check }}
     </DemoItem>
-   <DemoItem>
+    <DemoItem>
       <InputSelect
         id="input-select-required"
         description="Required select input"
@@ -60,18 +62,29 @@ export default {
         v-model="requiredCheck"
         :options="['lion', 'ape', 'monkey']"
       />
-    Selected: {{ requiredCheck }}
+      Selected: {{ requiredCheck }}
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
+        description="Empty select input"
+        id="input-select"
+        label="No animals"
+        v-model="check"
+        :options="[]"
+      />
+      Selected: {{ empty }}
     </DemoItem>
   </div>
 </template>
 <script>
-  export default {
-    data: function () {
-      return {
-        check: null,
-        requiredCheck: null,
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      check: null,
+      requiredCheck: null,
+      empty: null,
+    };
+  },
+};
 </script>
 </docs>
