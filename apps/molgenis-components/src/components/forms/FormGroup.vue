@@ -1,10 +1,10 @@
 <template>
   <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :for="id">{{
-      label
-    }}</label>
+    <label v-if="label !== null && label !== undefined" :for="id">
+      <b> {{ label }}</b>
+    </label>
     <small
-      v-if="isNonEmptyString(description)"
+      v-if="hasDescription(description)"
       :id="id + '-help-text'"
       class="form-text text-muted"
     >
@@ -39,8 +39,10 @@ export default {
     },
   },
   methods: {
-    isNonEmptyString(s) {
-      return s !== null && s !== undefined && s.length;
+    hasDescription(description) {
+      return (
+        description !== null && description !== undefined && description.length
+      );
     },
   },
 };
