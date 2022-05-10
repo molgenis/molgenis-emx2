@@ -30,6 +30,7 @@ import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
+import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
@@ -40,7 +41,10 @@ import InputPassword from "../src/components/forms/InputPassword.vue";
 import InputRadio from "../src/components/forms/InputRadio.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
+import InputSelect from "../src/components/forms/InputSelect.vue";
+import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputText from "../src/components/forms/InputText.vue";
+
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
@@ -113,12 +117,15 @@ export {
   FormGroup,
   FormMolgenis,
   InputDecimal,
+  InputBoolean,
   InputInt,
   InputGroup,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
   InputRadio,
+  InputSelect,
+  InputSelectInplace,
   InputString,
   InputSearch,
   InputText,
