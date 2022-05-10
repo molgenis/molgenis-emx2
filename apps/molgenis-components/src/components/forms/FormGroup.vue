@@ -7,9 +7,13 @@
       v-if="hasDescription(description)"
       :id="id + '-help-text'"
       class="form-text text-muted"
-      >{{ description }}</small
     >
+      {{ description }}
+    </small>
     <slot></slot>
+    <small v-if="errorMessage" class="text-danger form-text">
+      {{ errorMessage }}
+    </small>
   </div>
 </template>
 
@@ -26,6 +30,10 @@ export default {
       required: false,
     },
     description: {
+      type: String,
+      required: false,
+    },
+    errorMessage: {
       type: String,
       required: false,
     },

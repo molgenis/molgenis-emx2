@@ -5,7 +5,7 @@
       type="number"
       step="1"
       :value="value"
-      :class="{ 'form-control': true }"
+      class="form-control"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @keypress="handleKeyValidity"
@@ -26,7 +26,7 @@ export default {
   },
   methods: {
     emitIfValid(event) {
-      const value = parseFloat(event.target.value);
+      const value = parseInt(event.target.value);
       if (event.target.value === "") {
         this.$emit("input", null);
       }
@@ -35,9 +35,7 @@ export default {
       }
     },
     handleKeyValidity(event) {
-      if (!isNumericKey(event)) {
-        event.preventDefault();
-      }
+      if (!isNumericKey(event)) event.preventDefault();
     },
   },
 };
@@ -45,23 +43,18 @@ export default {
 
 <docs>
   <template>
-    <demo-item id="input-decimal-demo" label="Input decimal">
-      <InputDecimal
-        id="input-decimal"
-        v-model="value"
-        label="My decimal input label"
-        description="Some help needed?"
-      />
+    <demo-item>
+      <InputInt id="input-int" v-model="value" label="My int input label" description="Some help needed?"/>
       You typed: {{ JSON.stringify(value) }}
     </demo-item>
   </template>
   <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-      };
-    },
-  };
+    export default {
+      data: function () {
+        return {
+            value: null
+        };
+      }
+    };
   </script>
 </docs>
