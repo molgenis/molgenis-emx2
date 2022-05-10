@@ -77,7 +77,7 @@
         <th><h6>Syntax</h6></th>
         <th><h6>Notes</h6></th>
       </tr>
-      <tr v-for="m in variablemappings">
+      <tr v-for="(m, index) in variablemappings" :key="index">
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
@@ -97,6 +97,7 @@
           <div v-if="m.fromVariable">
             <RouterLink
               v-for="v in m.fromVariable"
+              :key="v.name"
               :to="{
                 name: 'SourceVariables-details',
                 params: {
@@ -113,6 +114,7 @@
           <div v-if="m.fromVariablesOtherTables">
             <RouterLink
               v-for="v in m.fromVariablesOtherTables"
+              :key="v.name"
               :to="{
                 name: 'SourceVariables-details',
                 params: {
