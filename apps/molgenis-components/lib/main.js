@@ -32,6 +32,8 @@ import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputCheckBox from "../src/components/forms/InputCheckBox.vue";
+import InputDate from "../src/components/forms/InputDate.vue";
+import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
@@ -121,6 +123,8 @@ export {
   FormMolgenis,
   InputBoolean,
   InputCheckBox,
+  InputDate,
+  InputDateTime,
   InputDecimal,
   InputFile,
   InputGroup,
