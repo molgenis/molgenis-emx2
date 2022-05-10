@@ -20,7 +20,6 @@ import FormGroup from "./FormGroup.vue";
 import FlatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 
-/** Show a data input */
 export default {
   extends: BaseInput,
   components: {
@@ -33,7 +32,7 @@ export default {
   computed: {
     config() {
       return {
-        wrap: true, // set wrap to true only when using 'input-group'
+        wrap: true,
         dateFormat: "Y-m-d",
         allowInput: false,
         clickOpens: !this.readonly,
@@ -47,31 +46,43 @@ export default {
 <template>
   <div>
     <DemoItem>
-      <p>Input Date</p>
-      <InputDate id="input-date" v-model="value" label="My date input label" description="Some help needed?"/>
-      <br/>
-      You selected: {{ value }}
+      <InputDate
+        id="input-date"
+        v-model="value"
+        label="Input Date"
+        description="Normal input date"
+      />
+      <div>You selected: {{ value }}</div>
     </DemoItem>
     <DemoItem>
-      <p>Input Date - readonly</p>
-      <InputDate id="input-date" v-model="defaultValue" readonly label="My date input label" description="Some help needed?"/>
+      <InputDate
+        id="input-date-readonly"
+        v-model="readonlyValue"
+        readonly
+        label="Input Date - readonly"
+        description="Readonly input date"
+      />
     </DemoItem>
     <DemoItem>
-      <p>Input Date - defaultvalue</p>
-      <InputDate id="input-date" v-model="defaultValue" label="My date input label" description="Some help needed?"/>
-      <br/>
-      You selected: {{ defaultValue }}
+      <InputDate
+        id="input-date-default"
+        v-model="defaultValue"
+        label="Input Date - defaultvalue"
+        description="Input date with a default value"
+      />
+      <div>You selected: {{ defaultValue }}</div>
     </DemoItem>
   </div>
 </template>
 <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-        defaultValue:'2022-1-1'
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      value: null,
+      defaultValue: "2022-1-1",
+      readonlyValue: "2022-1-1",
+    };
+  },
+};
 </script>
 </docs>

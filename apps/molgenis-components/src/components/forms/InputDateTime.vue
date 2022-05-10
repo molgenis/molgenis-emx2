@@ -7,7 +7,7 @@ export default {
   computed: {
     config() {
       return {
-        wrap: true, // set wrap to true only when using 'input-group'
+        wrap: true,
         dateFormat: "Y-m-dTH:i:S",
         allowInput: false,
         enableTime: true,
@@ -22,31 +22,43 @@ export default {
 <template>
   <div>
     <DemoItem>
-      <p>Input Date/Time</p>
-      <InputDateTime id="input-date" v-model="value" label="My date input label" description="Some help needed?"/>
-      <br/>
-      You selected: {{ value }}
+      <InputDateTime
+        id="input-date-time"
+        v-model="value"
+        label="Input Date/Time"
+        description="Normal input date/time"
+      />
+      <div>You selected: {{ value }}</div>
     </DemoItem>
     <DemoItem>
-      <p>Input Date/Time - readonly</p>
-      <InputDateTime id="input-date" v-model="defaultValue" readonly label="My date input label" description="Some help needed?"/>
+      <InputDateTime
+        id="input-date-time-readonly"
+        v-model="readonlyValue"
+        readonly
+        label="Input Date/Time - readonly"
+        description="Readonly input date/time"
+      />
     </DemoItem>
     <DemoItem>
-      <p>Input Date/Time - defaultvalue</p>
-      <InputDateTime id="input-date" v-model="defaultValue" label="My date input label" description="Some help needed?"/>
-      <br/>
-      You selected: {{ defaultValue }}
+      <InputDateTime
+        id="input-date-time-default"
+        v-model="defaultValue"
+        label="Input Date/Time - defaultvalue"
+        description="Input date/time with a default value"
+      />
+      <div>You selected: {{ value }}</div>
     </DemoItem>
   </div>
 </template>
 <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-        defaultValue:'2022-1-1T12:15:00'
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      value: null,
+      defaultValue: "2022-1-1T00:25:00",
+      readonlyValue: "2022-1-1T13:37:42",
+    };
+  },
+};
 </script>
 </docs>
