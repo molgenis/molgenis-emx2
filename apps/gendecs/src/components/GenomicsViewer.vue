@@ -210,17 +210,12 @@ export default {
       this.fileData[property].MatchedWith = [];
       let splitInfoLine = InfoLine.split("|");
       let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
-      if (splitInfoLine[splitInfoLine.length - 2].split(",").length !== splitInfoLine[splitInfoLine.length - 1].split(",").length) {
-        // console.log(splitInfoLine.toString());
-        // console.log("lengte hpo en disease " + splitInfoLine[splitInfoLine.length - 2].split(",").length);
-        // console.log( "en " + splitInfoLine[splitInfoLine.length - 1].split(",").length);
-      }
       let termIndex = [];
       let matchedTerms = [];
 
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
+        let currentHpoTerm = hpoTermsToMatch[i].trim().replace(";", ",");
 
-        let currentHpoTerm = hpoTermsToMatch[i].trim();
           for (let j = 0; j < termsEntered; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
@@ -248,13 +243,6 @@ export default {
       let diseaseIds = [];
       for (let j = 0; j < termIndex.length; j++) {
         let index = termIndex[j];
-        // TODO create a solution for this problems temporary work around
-        // When uploading the annotations of HPO and disease are of equal length.
-        // but here in the app there are differences for some lines. How?
-        if (index === splitInfoLine[splitInfoLine.length - 1].split(",").length ||
-          index > splitInfoLine[splitInfoLine.length - 1 ].split(",").length) {
-          index = index = 0;
-        }
         diseaseIds.push(splitInfoLine[splitInfoLine.length - 1].split(",")[index].replace("[", "").replace("]", ""));
       }
 
@@ -281,14 +269,6 @@ export default {
     },
     async getVariantData() {
       let query = "{vcfVariants{VCFSourceFile Chromosome Position RefSNPNumber Reference Alternative Quality Filter Information }}"
-      // let newQuery = `{
-      //     Patients(gender: "male") {
-      //       identifier
-      //       gender
-      //       birthdate
-      //       vcfdata
-      //       }
-      //     }`
       let vcfData = await request("graphql", query)
           .then((data) => {
             return data["vcfVariants"];
@@ -348,7 +328,7 @@ export default {
     async main() {
       this.searchAssociates.push("Search more specific");
       if (this.selectedHpoTerms.length === 0) {
-        alert("Please make sure to enter 1 or multiple HPO terms");
+        alert("Please make sure to submit 1 or multiple HPO terms");
       } else {
         this.loading = true;
         this.foundMatch = false;
@@ -380,23 +360,21 @@ export default {
 #wrapper {
   overflow: hidden; /* add this to contain floated children */
 }
-#titlediv {
-  width: 75%;
-  padding: 10px;
-  text-align: center;
-  margin: 0 auto;
-}
 #searchdiv {
-  width: 35%;
-  float: left;
-  /*margin: 0 auto;*/
+  width: 70%;
+  margin: 0 auto;
   padding: 10px;
 }
 #bottemdiv {
-  width: 65%;
+  width: 100%;
   float:left;
   padding: 10px;
   text-align: center;
+}
+#titlediv {
+  width: 100%;
+  float: left;
+  padding: 10px;
 }
 h1{
   text-align: center;
