@@ -1,6 +1,5 @@
 <template>
   <div class="container-fluid">
-    {{ searchFilter }}
     <h1>Welcome to the European Cohort Network Catalogue.</h1>
     <p>
       This catalogue contains metadata on cohorts/data sources, the variables
@@ -10,8 +9,8 @@
       below.
     </p>
     <InputSearch v-model="searchTerms" placeholder="search cohorts" />
-    <h2>Harmonization networks</h2>
     <div v-if="harmonizationNetworks.length > 0">
+      <h2>Harmonization networks</h2>
       <p>
         In this section you find networks that aim to enable data reuse across
         multiple projects.
@@ -55,6 +54,7 @@
         </div>
       </div>
     </div>
+    <div v-if="networks.length == 0">No networks found</div>
   </div>
 </template>
 
@@ -77,24 +77,36 @@ export default {
   },
   computed: {
     harmonizationNetworks() {
-      return this.networks.filter(
-        (network) =>
-          network.type && network.type.some((t) => t.name === "harmonization")
-      );
+      if (this.networks) {
+        return this.networks.filter(
+          (network) =>
+            network.type && network.type.some((t) => t.name === "harmonization")
+        );
+      } else {
+        return [];
+      }
     },
     consortiaNetworks() {
-      return this.networks.filter(
-        (network) =>
-          network.type && network.type.some((t) => t.name === "h2020")
-      );
+      if (this.networks) {
+        return this.networks.filter(
+          (network) =>
+            network.type && network.type.some((t) => t.name === "h2020")
+        );
+      } else {
+        return [];
+      }
     },
     otherNetworks() {
-      return this.networks.filter(
-        (network) =>
-          !network.type ||
-          (!network.type.some((t) => t.name === "h2020") &&
-            !network.type.some((t) => t.name === "harmonization"))
-      );
+      if (this.networks) {
+        return this.networks.filter(
+          (network) =>
+            !network.type ||
+            (!network.type.some((t) => t.name === "h2020") &&
+              !network.type.some((t) => t.name === "harmonization"))
+        );
+      } else {
+        return [];
+      }
     },
     searchFilter() {
       return this.searchTerms

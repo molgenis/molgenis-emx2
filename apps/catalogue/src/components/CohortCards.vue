@@ -1,6 +1,12 @@
 <template>
   <div>
-    <h1>Cohorts for {{ network }}</h1>
+    <RouterLink
+      class="btn btn-primary float-right"
+      :to="{ name: 'NetworkVariables', params: { network: network } }"
+      >View {{ network }} variables
+    </RouterLink>
+    <h1 class="bg-white">Cohorts for {{ network }}</h1>
+    <p>This page lists all cohorts partner in the {{ network }} network.</p>
     <InputSearch v-model="searchTerms" placeholder="search cohorts" />
     <p>Found {{ count }} cohorts.</p>
     <div class="row">
