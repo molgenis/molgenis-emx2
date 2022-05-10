@@ -35,6 +35,7 @@ import InputHeading from "../src/components/forms/InputHeading.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
+import InputLong from "../src/components/forms/InputLong.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import InputPassword from "../src/components/forms/InputPassword.vue";
@@ -120,6 +121,7 @@ export {
   InputBoolean,
   InputInt,
   InputGroup,
+  InputLong,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
