@@ -35,6 +35,7 @@ import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
 import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
+import InputDecimalRange from "../src/components/forms/InputDecimalRange.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
@@ -127,6 +128,7 @@ export {
   InputDate,
   InputDateTime,
   InputDecimal,
+  InputDecimalRange,
   InputFile,
   InputGroup,
   InputInt,
