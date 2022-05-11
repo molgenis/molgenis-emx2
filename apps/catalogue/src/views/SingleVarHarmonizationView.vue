@@ -67,8 +67,7 @@ export default {
         path: this.$route.path,
         query: {
           ...this.$route.query,
-          sourceCohort:
-            this.variable.mappings[0].fromTable.dataDictionary.resource.pid,
+          sourceCohort: this.resourceListSorted[0],
         },
       });
     }

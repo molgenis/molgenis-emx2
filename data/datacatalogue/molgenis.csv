@@ -235,7 +235,7 @@ CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCatego
 CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
 CollectionEvents,,standardizedTools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
-CollectionEvents,,coreVariables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event 
+CollectionEvents,,coreVariables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event
 CollectionEvents,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
@@ -253,6 +253,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
+Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,Type of network,e.g. h2020 project,
 Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
