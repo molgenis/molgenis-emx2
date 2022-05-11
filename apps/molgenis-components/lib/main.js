@@ -30,6 +30,7 @@ import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
+import InlineInput from "../src/components/forms/InlineInput.vue"
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
 import InputDate from "../src/components/forms/InputDate.vue";
@@ -123,6 +124,7 @@ export {
   ButtonSubmit,
   FormGroup,
   FormMolgenis,
+  InlineInput,
   InputBoolean,
   InputCheckbox,
   InputDate,
