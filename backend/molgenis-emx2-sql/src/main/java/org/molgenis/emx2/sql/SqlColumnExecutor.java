@@ -280,17 +280,21 @@ public class SqlColumnExecutor {
                       .setDescription("User friendly name for this code"),
                   column("codesystem")
                       .setKey(2)
+                      .setRequired(true)
                       .setDescription(
                           "Abbreviation of the code system/ontology this ontology term belongs to"),
                   column("code")
                       .setKey(2)
+                      .setRequired(true)
                       .setDescription(
                           "Identifier used for this code within this code system/ontology"),
                   column("parent")
                       .setType(REF)
                       .setRefTable(column.getRefTableName())
                       .setDescription("Parent in case this code exists in a hierarchy"),
-                  column("ontologyTermURI")
+                  column("ontologyTermIRI")
+                      .setKey(3)
+                      .setRequired(true)
                       .setDescription("reference to external definition for this term"),
                   column("definition").setType(TEXT).setDescription("Definition of the term"),
                   column("children")
