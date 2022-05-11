@@ -22,6 +22,7 @@ export default {
       },
     },
     value: {
+      type: [String, Number, Object, Array, Boolean],
       default: null,
     },
     /**

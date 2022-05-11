@@ -50,6 +50,11 @@ import FormGroup from "./FormGroup.vue";
 export default {
   extends: BaseInput,
   components: { FormGroup },
+  props: {
+    value: {
+      default: null,
+    },
+  },
   computed: {
     filename() {
       if (this.value) {
