@@ -1,5 +1,5 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup :id="id + '-from'" :label="label" :description="description">
     <InputInt
       :id="id + '-from'"
       :value="value[0]"
