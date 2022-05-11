@@ -3,8 +3,10 @@
     class="btn p-1 mt-n1 mb-n1 btn-outline-primary border-0"
     @click.prevent="onClick"
   >
-    <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon"></i>
+    <span v-if="label" class="mr-2">
+      {{ label }}
+    </span>
+    <i :class="'fas fa-fw fa-' + icon" />
   </button>
 </template>
 
