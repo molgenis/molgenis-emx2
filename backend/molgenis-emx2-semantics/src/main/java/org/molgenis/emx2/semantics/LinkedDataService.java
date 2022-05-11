@@ -55,7 +55,7 @@ public class LinkedDataService {
       // key
       Query q = table.query();
       for (Column c : table.getMetadata().getColumns()) {
-        if (c.isReference()) {
+        if (c.isReference() && !c.isOntology()) {
           // check ref columns for id
           List<Column> refId =
               c.getRefTable().getColumns().stream()
@@ -79,6 +79,13 @@ public class LinkedDataService {
           }
           // add to select
           q.select(s(c.getName(), s(refId.get(0).getName())));
+        } else if (c.isReference() && c.isOntology()) {
+          Column iri =
+              c.getRefTable().getColumns().stream()
+                  .filter(r -> r.getName().equals("ontologyTermIRI"))
+                  .collect(Collectors.toList())
+                  .get(0);
+          q.select(s(c.getName(), s(iri.getName())));
         } else {
           q.select(s(c.getName()));
         }
@@ -142,8 +149,11 @@ public class LinkedDataService {
             }
             final Column ref = temp;
             final String prefix = prefixTemp;
-            if (c.isRef()) {
+            if (c.isRef() && !c.isOntology()) {
               row.put(c.getName(), ((Map<String, Object>) row.get(c.getName())).get(ref.getName()));
+            } else if (c.isRef() && c.isOntology()) {
+              row.put(
+                  c.getName(), ((Map<String, Object>) row.get(c.getName())).get("ontologyTermIRI"));
             } else {
               // list of maps
               List<Map<String, Object>> listOfObjects =
