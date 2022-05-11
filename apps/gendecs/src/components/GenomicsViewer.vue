@@ -111,7 +111,7 @@ export default {
     },
     /**
      * Function gets the Hpo term that is selected by the user as selectedHpoTerm.
-     * This is then used to gather the ID of the term using an api call.
+     * This is then used to gather the ID of the term by sending the term to the gendecs api
      * */
     async hpoTermToId(hpoTerm) {
       return await fetch("/patients/api/gendecs/hpoToId/" + hpoTerm)
@@ -127,7 +127,7 @@ export default {
     },
     /**
      * Function gets the Hpo id that is selected by the user as hpoId.
-     * This is then used to gather the HPO term of the id using an api call.
+     * This is then used to gather the HPO term of by sending the id to the gendecs api
      * */
     async hpoIdToTerm(hpoId) {
       return await fetch("/patients/api/gendecs/idToHpo/" + hpoId)
@@ -142,8 +142,9 @@ export default {
           });
     },
     /**
-     * Function that gets the HPO id of the entered HPO term. This id is sent to the backend.
-     * The parents and children of this term are returned by the backend.
+     * Function that gets the HPO id(s) of the entered HPO term(s). These id(s)
+     * are sent to the gendecs api.
+     * The parents and children of this term are returned by the api.
      * */
     async getHpoAssociates(hpoIds) {
       for (let i = 0; i < this.hpoIds.length; i++) {
