@@ -36,7 +36,6 @@ import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
 import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
-import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputFile from "../src/components/forms/InputFile.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
@@ -46,6 +45,9 @@ import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import InputPassword from "../src/components/forms/InputPassword.vue";
 import InputRadio from "../src/components/forms/InputRadio.vue";
+import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
+import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
+import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
@@ -130,7 +132,6 @@ export {
   InputDate,
   InputDateTime,
   InputDecimal,
-  InputRangeDecimal,
   InputFile,
   InputGroup,
   InputInt,
@@ -139,6 +140,9 @@ export {
   InputOntologySubtree,
   InputPassword,
   InputRadio,
+  InputRangeDecimal,
+  InputRangeDate,
+  InputRangeDateTime,
   InputRangeInt,
   InputSearch,
   InputSelect,
