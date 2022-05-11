@@ -107,7 +107,7 @@ const fetchTableData = async (
 
   const search =
     properties &&
-    properties.searchTerms !== null &&
+    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
     properties.searchTerms !== ""
       ? ',search:"' + properties.searchTerms.trim() + '"'
       : "";
