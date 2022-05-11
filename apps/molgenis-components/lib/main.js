@@ -44,6 +44,7 @@ import InputOntology from "../src/components/forms/InputOntology.vue";
 import InputOntologySubtree from "../src/components/forms/InputOntologySubtree.vue";
 import InputPassword from "../src/components/forms/InputPassword.vue";
 import InputRadio from "../src/components/forms/InputRadio.vue";
+import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
@@ -134,6 +135,7 @@ export {
   InputOntologySubtree,
   InputPassword,
   InputRadio,
+  InputRangeInt,
   InputSearch,
   InputSelect,
   InputSelectInplace,
