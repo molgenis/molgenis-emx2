@@ -5,11 +5,11 @@
       type="number"
       step="1"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      :class="{ 'form-control': true }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @keypress="handleKeyValidity"
-      @input="$emit('input', $event.target.value)"
+      @input="emitIfValid"
     />
   </FormGroup>
 </template>
@@ -17,42 +17,31 @@
 <script>
 import BaseInput from "./BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import constants from "../constants.js";
-
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
+import { isNumericKey } from "./utils/InputUtils";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
   },
-  props: {
-    errorMessage: { type: String, default: null },
-  },
   methods: {
-    handleKeyValidity(event) {
-      if (!this.isValidKey(event)) {
-        event.preventDefault();
+    emitIfValid(event) {
+      const value = parseFloat(event.target.value);
+      if (event.target.value === "") {
+        this.$emit("input", null);
+      }
+      if (!isNaN(value)) {
+        this.$emit("input", value);
       }
     },
-    isValidKey(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
-      return (
-        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-        keyCode === CODE_BACKSPACE ||
-        keyCode === CODE_DELETE
-      );
+    handleKeyValidity(event) {
+      if (!isNumericKey(event)) {
+        event.preventDefault();
+      }
     },
   },
 };
 </script>
-
-<style scoped>
-.is-invalid {
-  background-image: none;
-  padding-right: 0.75rem;
-}
-</style>
 
 <docs>
   <template>

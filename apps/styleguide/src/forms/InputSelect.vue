@@ -12,8 +12,8 @@
           href="#"
           :key="option"
           @click.prevent="select(option, idx)"
-          :class="{'text-primary': option == el}"
-          >{{ option ? option : '&zwnj;' }}</a
+          :class="{ 'text-primary': option == el }"
+          >{{ option ? option : "&zwnj;" }}</a
         >
       </div>
     </div>
@@ -24,7 +24,7 @@
       style="min-width: 1em"
       class="d-flex flex-nowrap"
     >
-      {{ value ? value : '&zwnj;&zwnj;' }}
+      {{ value ? value : "&zwnj;&zwnj;" }}
       <IconAction icon="pencil-alt" class="hoverIcon" />
       <div v-if="errorMessage" class="text-danger">{{ errorMessage }}</div>
     </span>
@@ -44,7 +44,7 @@
         v-else
         :id="id"
         :value="valueArray[idx]"
-        :class="{'form-control': true, 'is-invalid': errorMessage}"
+        :class="{ 'form-control': true, 'is-invalid': errorMessage }"
         @change="emitValue($event, idx)"
       >
         <option v-if="!required" :selected="el === undefined" />
@@ -64,33 +64,33 @@
 </template>
 
 <script>
-import _baseInput from './_baseInput.vue';
-import InputAppend from './_inputAppend';
-import FormGroup from './_formGroup';
-import MessageError from './MessageError';
-import IconAction from './IconAction';
-import vClickOutside from 'v-click-outside';
+import _baseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import FormGroup from "./_formGroup";
+import MessageError from "./MessageError";
+import IconAction from "./IconAction";
+import vClickOutside from "v-click-outside";
 
 export default {
   directives: {
-    clickOutside: vClickOutside.directive
+    clickOutside: vClickOutside.directive,
   },
   extends: _baseInput,
   components: {
     InputAppend,
     FormGroup,
     MessageError,
-    IconAction
+    IconAction,
   },
   methods: {
     select(option, idx) {
       this.toggleFocus();
       this.emitValue(option, idx);
-    }
+    },
   },
   props: {
-    options: Array
-  }
+    options: Array,
+  },
 };
 </script>
 

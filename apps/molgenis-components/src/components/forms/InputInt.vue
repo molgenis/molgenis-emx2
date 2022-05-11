@@ -44,7 +44,12 @@ export default {
 <docs>
   <template>
     <demo-item>
-      <InputInt id="input-int" v-model="value" label="My int input label" description="Some help needed?"/>
+      <InputInt
+        id="input-int"
+        v-model="value"
+        label="My int input label"
+        description="Some help needed?"
+      />
       You typed: {{ JSON.stringify(value) }}
     </demo-item>
   </template>
@@ -52,9 +57,9 @@ export default {
     export default {
       data: function () {
         return {
-            value: null
+          value: null,
         };
-      }
+      },
     };
   </script>
 </docs>
