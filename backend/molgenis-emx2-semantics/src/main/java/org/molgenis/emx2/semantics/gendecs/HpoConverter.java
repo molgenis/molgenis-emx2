@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Hpo {
+public class HpoConverter {
 
   public static String getHpoTerm(String id, String genes_to_pheno) {
     try {
