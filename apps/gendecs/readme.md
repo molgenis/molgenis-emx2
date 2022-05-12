@@ -13,7 +13,7 @@ If a match is found a table with the matched variants will be shown.
 
 ### Server
 
-* Navigate to http://localhost:8080/gendecs/gendecs/#/
+* Navigate to https://emx2.dev.molgenis.org ?
 
 ### Local
 
@@ -22,9 +22,15 @@ If a match is found a table with the matched variants will be shown.
 * Run molgenis emx2. [molgenis guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/use).
 * Navigate to http://localhost:8080/[database]/gendecs/#/
 
+Make sure apps/dev-proxy.config.js has the following variables:
+```
+const HOST = process.env.MOLGENIS_APPS_HOST || "http://localhost:8080";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "gendecs";
+```
+
 ## Usage
 
-If you succesfully followed the setup steps you should see a screen 
+If you successfully followed the setup steps you should see a screen 
 with the Patient database. 
 
 * Click on a desired patient.
