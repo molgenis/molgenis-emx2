@@ -45,19 +45,25 @@ public class GendecsApi {
         hpoTerm.addChildren(hpoParentChildren);
       }
     }
-    return Serialize.serializeHpo(hpoTerm);
+    return serializeHpo(hpoTerm);
   }
 
   private static String idToHpo(Request request, Response response) {
     String id = request.params("id");
-    return Hpo.getHpoTerm(
+    return HpoConverter.getHpoTerm(
         id, "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt");
   }
 
   private static String hpoToId(Request request, Response response) {
     String hpoTerm = request.params("hpoterm");
-    return Hpo.getHpoId(
+    return HpoConverter.getHpoId(
         hpoTerm,
         "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt");
   }
+
+  private static String serializeHpo(HpoTerm hpoTerm) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    return gson.toJson(hpoTerm);
+    }
 }

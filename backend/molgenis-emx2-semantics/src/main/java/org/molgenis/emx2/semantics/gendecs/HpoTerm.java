@@ -15,20 +15,8 @@ public class HpoTerm {
     this.hpoTerm = hpoTerm;
   }
 
-  public String getHpoTerm() {
-    return hpoTerm;
-  }
-
-  public ArrayList<String> getParents() {
-    return parents;
-  }
-
   public void setParents(ArrayList<String> parents) {
     this.parents = parents;
-  }
-
-  public ArrayList<String> getChildren() {
-    return children;
   }
 
   public void addChildren(ArrayList<String> children) {

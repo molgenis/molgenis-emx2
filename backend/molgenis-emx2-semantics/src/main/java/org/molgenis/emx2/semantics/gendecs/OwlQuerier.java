@@ -1,6 +1,7 @@
 package org.molgenis.emx2.semantics.gendecs;
 
 import java.util.ArrayList;
+
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class OwlQuerier {
   private static final Logger logger = LoggerFactory.getLogger(OwlQuerier.class);
+  private static final String owlFile = "data/gendecs/hp.owl";
 
   /**
    * Method that queries the hp.owl for all subclasses of an HPO term.
@@ -76,7 +78,7 @@ public class OwlQuerier {
   }
 
   public static ArrayList<String> getParentClasses(String hpoID) {
-    Model model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    Model model = FileManager.getInternal().loadModelInternal(owlFile);
     ResultSet resultSet = queryParentClass(hpoID, model);
     ArrayList<String> parents = new ArrayList<>();
 
@@ -104,7 +106,7 @@ public class OwlQuerier {
   }
 
   public static ArrayList<String> getSubClasses(String hpoID) {
-    Model model = FileManager.getInternal().loadModelInternal("data/gendecs/hp.owl");
+    Model model = FileManager.getInternal().loadModelInternal(owlFile);
     ResultSet resultSet = querySubClasses(hpoID, model);
     ArrayList<String> hpoTerms = new ArrayList<>();
     if (resultSet != null) {
