@@ -1,8 +1,5 @@
 <template>
   <div class="autocomplete">
-<!--    <div>-->
-<!--    <Info>Enter some information about the hpo search</Info>-->
-<!--    </div>-->
     <h2>Select HPO term</h2>
     <InputString v-model="hpoTerms" :list="true" :readonly="this.readOnly"
            @input="onChange"
@@ -22,7 +19,6 @@
             <div>
               <Spinner/>
             </div>
-            Loading results...
           </li>
           <li v-else
               v-for="(result, i) in results" :key="i"

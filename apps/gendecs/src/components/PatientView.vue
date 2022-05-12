@@ -1,6 +1,6 @@
 <template>
   <div id="wrapper">
-    <h3>selected patient:</h3>
+    <h3>Selected patient:</h3>
     <div id="left-div">
       <TableSimple
           v-model="selectedItems"
@@ -18,9 +18,7 @@
         Go to Genomics viewer of GenDecS
       </ButtonOutline>
     </div>
-
   </div>
-
 </template>
 
 <script>
@@ -52,14 +50,6 @@ export default {
   methods: {
     async fetchPatient() {
       let query = "{Patients{identifier gender birthdate vcfdata}}"
-      // let newQuery = `{
-      //     Patients(gender: "male") {
-      //       identifier
-      //       gender
-      //       birthdate
-      //       vcfdata
-      //       }
-      //     }`
       let resultPatients = [];
       await request("graphql", query)
           .then((data) => {

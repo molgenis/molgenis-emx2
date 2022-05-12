@@ -26,7 +26,6 @@
                 <a v-if="item.includes('orpha')" :href="item" target="_blank">link to ORPHA</a>
               </div>
 
-
               <a v-if="col === 'ClinVar' && item !== ''"
                     :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + item + '[alleleid]' + item" target="_blank">link to ClinVar</a>
               <p v-if="col ==='ClinVar' && item === ''">No ClinVar match</p>
