@@ -1,27 +1,32 @@
-# GenDecS prototype app
-The prototype for Genomic Decision Support.
+# GenDecS prototype
+The prototype for Genomic Decision Support. 
 
 ## Introduction
-This prototype is build inside MOLGENIS EMX2
+This prototype is build inside MOLGENIS EMX2. it contains the
+genomics viewer of GenDecS. In the genomics viewer you are able to 
+perform a search on patient data using HPO terms. 
+The app will check for a given HPO term if there are any matches with 
+the variants in the patient data.  
+If a match is found a table with the matched variants will be shown.
+
+## Setup
+
+### Server
+
+* Navigate to http://localhost:8080/gendecs/gendecs/#/
+
+### Local
+
+* Create the Patients database. The database can be found in the folder data as Patients.csv
+* Create the patient data. The steps can be found [here](https://github.com/JonathanKlimp/GenDecS-tools). 
+* Run molgenis emx2. [molgenis guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/use).
+* Navigate to http://localhost:8080/[database]/gendecs/#/
 
 ## Usage
-With this prototype you are able to search for an HPO term and search for 
-a patient in the EMX2 database. 
 
-There is a checkbox present if pressed the children and parents will be searched for the entered HPO term.
-This is done using Java jena and SPARQL. SPARQL is used to query 
-for the related terms found in [hp.owl](https://hpo.jax.org/app/download/ontology).
+If you succesfully followed the setup steps you should see a screen 
+with the Patient database. 
 
-When entering a patient id/number a vcfdata.vcf file will automatically be downloaded.
-This needs to be placed in data/gendecs.
-
-If a term has been entered and the file has been placed in the directory the button
-"search for matches" can be pressed. 
-The program will then filter the .vcf file using ClinVar.
-It will match the variants to HPO terms using [gene_to_phenotype.txt](https://hpo.jax.org/app/download/annotation)
-And will match the resulting HPO terms with the selected HPO term. 
-
-The matched variants with ClinVar are written to two files in data/gendecs. One file with
-the variant lines from Clinvar and one with the lines from the vcfdata.vcf file.
-If a result with the HPO term is found a "match found!" message will appear with the matching genes.
-
+* Click on a desired patient.
+* Click on the button "go to genomics viewer"
+* Enter an HPO term and perform a search!

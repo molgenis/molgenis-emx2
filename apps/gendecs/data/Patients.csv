@@ -1,0 +1,8 @@
+identifier,gender,birthdate,vcfdata
+1,male,1988-05-10,vcftest1_clinvar_matched_annotated_hpo.vcf
+2,female,1960-06-09,vcftest2_clinvar_matched_annotated_hpo.vcf
+3,male,1990-02-14,vcftest3_clinvar_matched_annotated_hpo.vcf
+4,female,1999-12-17,vcftest4_clinvar_matched_annotated_hpo.vcf
+5,male,1977-08-18,vcftest5_clinvar_matched_annotated_hpo.vcf
+6,female,1985-03-15,vcftest6_clinvar_matched_annotated_hpo.vcf
+7,unknown,2022-05-17,this_is_no_file
