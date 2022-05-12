@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputDate from "./InputDate.vue";
 import FormGroup from "./FormGroup.vue";
 

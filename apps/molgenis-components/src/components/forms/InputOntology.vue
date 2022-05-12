@@ -102,7 +102,7 @@ input:focus {
 
 <script>
 import Client from "../../client/client.js";
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import Spinner from "../layout/Spinner.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";

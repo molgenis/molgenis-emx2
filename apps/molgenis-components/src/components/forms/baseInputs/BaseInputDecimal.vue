@@ -4,7 +4,7 @@
       type="number"
       step="1"
       :value="value"
-      class="form-control"
+      :class="{ 'form-control': true }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       @keypress="handleKeyValidity"
@@ -20,7 +20,7 @@ export default {
   extends: BaseInput,
   methods: {
     emitIfValid(event) {
-      const value = parseInt(event.target.value);
+      const value = parseFloat(event.target.value);
       if (event.target.value === "") {
         this.$emit("input", null);
       }
@@ -29,7 +29,9 @@ export default {
       }
     },
     handleKeyValidity(event) {
-      if (!isNumericKey(event)) event.preventDefault();
+      if (!isNumericKey(event)) {
+        event.preventDefault();
+      }
     },
   },
 };

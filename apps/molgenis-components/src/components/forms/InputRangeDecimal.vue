@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputDecimal from "./InputDecimal.vue";
 import FormGroup from "./FormGroup.vue";
 
