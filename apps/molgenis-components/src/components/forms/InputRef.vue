@@ -27,12 +27,12 @@
             :id="id + index"
             :name="id"
             type="radio"
-            :value="getPkey(row)"
+            :value="getPrimaryKey(row, tableMetaData)"
             v-model="selection"
-            @change="$emit('input', getPkey(row))"
+            @change="$emit('input', getPrimaryKey(row, tableMetaData))"
           />
           <label class="form-check-label" :for="id + index">
-            {{ flattenObject(getPkey(row)) }}
+            {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
         <ButtonAlt
@@ -48,10 +48,9 @@
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
-          <MessageError v-if="errorMessage">{{ graphqlError }}</MessageError>
           <TableSearch
-            :selection="[valueArray[0]]"
-            :table="table"
+            :selection="[value]"
+            :lookupTableName="tableName"
             :filter="filter"
             @select="select($event)"
             @deselect="emitClear"
@@ -73,7 +72,6 @@ import Client from "../../client/client.js";
 import BaseInput from "./BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import MessageError from "./MessageError.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 
@@ -85,12 +83,13 @@ export default {
       selectIdx: null,
       options: [],
       selection: [],
-      count: 999,
+      data: null,
+      count: 0,
+      tableMetaData: null,
     };
   },
   components: {
     TableSearch,
-    MessageError,
     LayoutModal,
     FormGroup,
     ButtonAlt,
@@ -104,6 +103,10 @@ export default {
     filter: Object,
     multipleColumns: Boolean,
     maxNum: { type: Number, default: 11 },
+    tableName: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
     title() {
@@ -116,7 +119,9 @@ export default {
             this.count <= this.maxNum ||
             !this.selection.some(
               (v) =>
-                this.flattenObject(this.getPkey(row)) == this.flattenObject(v)
+                this.flattenObject(
+                  this.getPrimaryKey(row, this.tableMetaData)
+                ) == this.flattenObject(v)
             )
         );
         //truncate on maxNum (we overquery because we include all selected which might not be in query)
@@ -130,6 +135,22 @@ export default {
     },
   },
   methods: {
+    getPrimaryKey(row, tableMetadata) {
+      //we only have pkey when the record has been saved
+      if (!row["mg_insertedOn"]) {
+        return null;
+      }
+
+      let result = {};
+      if (tableMetadata !== null) {
+        tableMetadata.columns.forEach((col) => {
+          if (col.key == 1 && row[col.id]) {
+            result[col.id] = row[col.id];
+          }
+        });
+      }
+      return result;
+    },
     deselect(key) {
       this.selection.splice(key, 1);
       this.$emit("input", this.selection);
@@ -142,7 +163,6 @@ export default {
     },
     closeSelect() {
       this.showSelect = false;
-      this.reload();
     },
     openSelect(idx) {
       this.showSelect = true;
@@ -174,12 +194,13 @@ export default {
     this.selection = this.value ? this.value : [];
   },
   async mounted() {
-    /*
     const client = Client.newClient(this.graphqlURL);
-    this.data = (await client.fetchTableData(this.ontologyTableName))[
-      this.ontologyTableName
-    ];
-    */
+    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+      (table) => table.id === this.tableName
+    );
+    this.data = (await client.fetchTableData(this.tableName))[this.tableName];
+    this.count = this.data.length; // ?
+    console.log(this.data);
   },
 };
 </script>
@@ -193,17 +214,18 @@ export default {
       <InputRef
         id="input-ref"
         v-model="defaultValue"
-        table="Pet"
+        tableName="Pet"
         graphqlURL="/pet store/graphql"
       />
       Selection: {{ JSON.stringify(defaultValue) }}
     </DemoItem>
+    <!--
     <DemoItem>
       <InputRef
         id="input-ref-default"
         label="My pets"
         v-model="defaultValue"
-        table="Pet"
+        tableName="Pet"
         :defaultValue="defaultValue"
         graphqlURL="/pet store/graphql"
       />
@@ -213,12 +235,13 @@ export default {
       <InputRef
         id="input-ref-filter"
         v-model="filterValue"
-        table="Pet"
+        tableName="Pet"
         :filter="{ category: { name: { equals: 'dog' } } }"
         graphqlURL="/pet store/graphql"
       />
       Selection: {{ filterValue }}
     </DemoItem>
+    -->
   </div>
 </template>
 
