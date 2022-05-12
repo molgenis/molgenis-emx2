@@ -1,15 +1,15 @@
 <template>
-    <input
-      :id="id"
-      type="number"
-      step="1"
-      :value="value"
-      :class="{ 'form-control': true }"
-      :aria-describedby="id + 'Help'"
-      :placeholder="placeholder"
-      @keypress="handleKeyValidity"
-      @input="emitIfValid"
-    />
+  <input
+    :id="id"
+    type="number"
+    step="1"
+    :value="value"
+    :class="{ 'form-control': true }"
+    :aria-describedby="id + 'Help'"
+    :placeholder="placeholder"
+    @keypress="handleKeyValidity"
+    @input="emitIfValid"
+  />
 </template>
 
 <script>
@@ -23,8 +23,7 @@ export default {
       const value = parseFloat(event.target.value);
       if (event.target.value === "") {
         this.$emit("input", null);
-      }
-      if (!isNaN(value)) {
+      } else if (!isNaN(value)) {
         this.$emit("input", value);
       }
     },
