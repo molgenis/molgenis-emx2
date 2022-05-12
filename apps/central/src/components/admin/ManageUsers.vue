@@ -39,7 +39,7 @@ import {
   InputString,
   InputPassword,
   ButtonAction,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {

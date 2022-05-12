@@ -23,6 +23,11 @@ ul.list-group.list-group-horizontal li.list-group-item {
   padding-top: 0px;
   padding-bottom: 0px;
 }
+
+.card > .list-group {
+  border-top: none;
+  border-bottom: none;
+}
 </style>
 
 <script>
@@ -58,35 +63,35 @@ Display a list of links
 Display a list of links with link description
 ```
 const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org', text:'link 1' },
-    { label: 'Vue',  href: 'https://vuejs.org/', text:'link 2' } 
+{ label: 'Molgenis', href: 'https://molgenis.org', text:'link 1' },
+{ label: 'Vue', href: 'https://vuejs.org/', text:'link 2' }
 ]
 <template>
-  <links-list :items="links"> </links-list>
+  <links-list :items="links"></links-list>
 </template>
 ```
 
 Without labels
 ```
 const links = [
-    { href: 'https://molgenis.org', text:'Molgenis' },
-    { href: 'https://vuejs.org/', text:'Vue' } 
+{ href: 'https://molgenis.org', text:'Molgenis' },
+{ href: 'https://vuejs.org/', text:'Vue' }
 ]
 <template>
-  <links-list :items="links" ></links-list>
+  <links-list :items="links"></links-list>
 </template>
 
 ```
 Display Horizontal
 ```
 const links = [
-    { label: 'Molgenis', href: 'https://molgenis.org' },
-    { label: 'Vue',  href: 'https://vuejs.org/' } 
+{ label: 'Molgenis', href: 'https://molgenis.org' },
+{ label: 'Vue', href: 'https://vuejs.org/' }
 ]
 
 const isHorizontal = true
 <template>
-  <links-list :items="links" :isHorizontal="isHorizontal" ></links-list>
+  <links-list :items="links" :isHorizontal="isHorizontal"></links-list>
 </template>
 
 ```

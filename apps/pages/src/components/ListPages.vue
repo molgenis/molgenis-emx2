@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import {ShowMore} from "@mswertz/emx2-styleguide";
+import {ShowMore} from "molgenis-components";
 
 export default {
   components: {
