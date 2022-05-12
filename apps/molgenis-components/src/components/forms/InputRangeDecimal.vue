@@ -1,19 +1,21 @@
 <template>
   <FormGroup :id="id + '-from'" :label="label" :description="description">
-    <InputDecimal
-      :id="id + '-from'"
-      :value="value[0]"
-      @input="emitValue($event, 0)"
-      placeholder="from"
-      class="m-0 d-inline-block"
-    />
-    <InputDecimal
-      :id="id + '-to'"
-      :value="value[1]"
-      @input="emitValue($event, 1)"
-      placeholder="to"
-      class="m-0 d-inline-block"
-    />
+    <div class="d-flex">
+      <InputDecimal
+        :id="id + '-from'"
+        :value="value[0]"
+        @input="emitValue($event, 0)"
+        placeholder="from"
+        class="m-0"
+      />
+      <InputDecimal
+        :id="id + '-to'"
+        :value="value[1]"
+        @input="emitValue($event, 1)"
+        placeholder="to"
+        class="m-0"
+      />
+    </div>
   </FormGroup>
 </template>
 

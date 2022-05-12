@@ -16,14 +16,34 @@
 
 <script>
 import StringFilter from "./StringFilter.vue";
+import IntegerFilter from "./IntegerFilter.vue";
 
 export default {
   name: "FilterInput",
-  components: { StringFilter },
+  components: { StringFilter, IntegerFilter },
   props: {
     id: {
       type: String,
       required: true,
+    },
+    columnType: {
+      type: String,
+      required: true,
+      validator(value) {
+        // The value must match one of these strings
+        return [
+          "STRING",
+          "TEXT",
+          "UUID",
+          "INT",
+          "DECIMAL",
+          "DATE",
+          "BOOL",
+          "ONTOLOGY",
+          "ONTOLOGY_ARRAY",
+          "REF",
+        ].includes(value);
+      },
     },
     conditions: {
       type: Array,
@@ -45,7 +65,12 @@ export default {
   },
   computed: {
     filterType() {
-      return StringFilter;
+      return {
+        STRING: StringFilter,
+        TEXT: StringFilter,
+        UUID: StringFilter,
+        INT: IntegerFilter,
+      }[this.columnType];
     },
   },
   methods: {
@@ -85,6 +110,7 @@ export default {
       <demo-item>
         <FilterInput
             id="filter-input-example-1"
+            columnType="STRING"
             :conditions="conditions"
             @updateConditions="conditions = $event"
         ></FilterInput>
@@ -97,10 +123,24 @@ export default {
       <demo-item>
         <FilterInput
             id="filter-input-example-2"
+            columnType="STRING"
             :conditions="conditions1"
             @updateConditions="conditions1 = $event"
         ></FilterInput>
         <div>conditions: {{ conditions1 }}</div>
+      </demo-item>
+    </div>
+
+    <div class="mt-3">
+      <label>pre-filled int filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-3"
+            columnType="INT"
+            :conditions="conditions2"
+            @updateConditions="conditions2 = $event"
+        ></FilterInput>
+        <div>conditions: {{ conditions2 }}</div>
       </demo-item>
     </div>
   </div>
@@ -111,6 +151,7 @@ export default {
       return {
         conditions: [],
         conditions1: ["tst"],
+        conditions2: [[1, 3]],
       };
     },
   };

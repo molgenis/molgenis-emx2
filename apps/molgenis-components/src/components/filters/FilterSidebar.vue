@@ -1,22 +1,26 @@
 <template>
-  <div>
-    <div>
-      <FilterContainer
-        v-for="(filter, index) in visibleFilters"
-        :key="filter.name"
-        :title="filter.name"
-        :conditions="filter.conditions"
-      >
-        <FilterInput
-          :id="'filter-' + filter.name"
-          :conditions="filters[index].conditions"
-          @updateConditions="handleUpdateFilter(index, $event)"
-          :columnType="filter.columnType"
-        />
-      </FilterContainer>
-    </div>
+  <div class="sidebar-container">
+    <FilterContainer
+      v-for="(filter, index) in visibleFilters"
+      :key="filter.name"
+      :title="filter.name"
+      :conditions="filter.conditions"
+    >
+      <FilterInput
+        :id="'filter-' + filter.name"
+        :conditions="filters[index].conditions"
+        @updateConditions="handleUpdateFilter(index, $event)"
+        :columnType="filter.columnType"
+      />
+    </FilterContainer>
   </div>
 </template>
+
+<style scoped>
+.sidebar-container {
+  min-width: 16rem;
+}
+</style>
 
 <script>
 import FilterContainer from "./FilterContainer.vue";
@@ -52,10 +56,10 @@ export default {
 <template>
   <demo-item>
     <div class="row">
-      <div class="col-3">
+      <div class="col-4">
         <FilterSidebar :filters="filters" @updateFilters="onUpdate"></FilterSidebar>
       </div>
-      <div class="col-9">
+      <div class="col-auto">
         <FilterWells :filters="filters" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
