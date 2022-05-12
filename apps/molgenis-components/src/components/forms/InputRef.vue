@@ -117,18 +117,20 @@ export default {
         let result = this.data.filter(
           (row) =>
             this.count <= this.maxNum ||
-            !this.selection.some(
-              (v) =>
+            !this.selection.some((value) => {
+              return (
                 this.flattenObject(
                   this.getPrimaryKey(row, this.tableMetaData)
-                ) == this.flattenObject(v)
-            )
+                ) === this.flattenObject(value)
+              );
+            })
         );
         //truncate on maxNum (we overquery because we include all selected which might not be in query)
         result.length = Math.min(result.length, this.maxNum);
         return result;
+      } else {
+        return [];
       }
-      return [];
     },
     showMultipleColumns() {
       return this.multipleColumns && this.count > 12;
@@ -169,17 +171,17 @@ export default {
       this.selectIdx = idx;
     },
     flattenObject(object) {
-      let result = "";
-      Object.keys(object).forEach((key) => {
-        if (object[key] === null) {
-          //nothing
-        } else if (typeof object[key] === "object") {
-          result += this.flattenObject(object[key]);
-        } else {
-          result += " " + object[key];
+      return object.reduce((accum, key, value) => {
+        if (value === null) {
+          return accum;
         }
-      });
-      return result;
+        if (typeof key === "object") {
+          accum += this.flattenObject(value);
+        } else {
+          accum += " " + value;
+        }
+        return accum;
+      }, "");
     },
   },
   watch: {
@@ -199,7 +201,7 @@ export default {
       (table) => table.id === this.tableName
     );
     this.data = (await client.fetchTableData(this.tableName))[this.tableName];
-    this.count = this.data.length; // ?
+    this.count = this.data.length;
     console.log(this.data);
   },
 };
