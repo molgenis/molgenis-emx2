@@ -1,31 +1,38 @@
 <template>
   <FormGroup :id="id + '-from'" :label="label" :description="description">
-    <div class="d-flex">
-      <InputDecimal
+    <InputGroup class="d-flex">
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+      <BaseInputDecimal
         :id="id + '-from'"
         :value="value[0]"
         @input="emitValue($event, 0)"
         placeholder="from"
         class="m-0"
       />
-      <InputDecimal
+      <BaseInputDecimal
         :id="id + '-to'"
         :value="value[1]"
         @input="emitValue($event, 1)"
         placeholder="to"
         class="m-0"
       />
-    </div>
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
-import InputDecimal from "./InputDecimal.vue";
 import FormGroup from "./FormGroup.vue";
+import BaseInputDecimal from "./baseInputs/BaseInputDecimal.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
-  components: { InputDecimal, FormGroup },
+  components: { FormGroup, BaseInputDecimal, InputGroup },
   extends: BaseInput,
   props: {
     value: {

@@ -17,6 +17,7 @@
 <script>
 import StringFilter from "./StringFilter.vue";
 import IntegerFilter from "./IntegerFilter.vue";
+import DecimalFilter from "./DecimalFilter.vue";
 
 export default {
   name: "FilterInput",
@@ -70,6 +71,7 @@ export default {
         TEXT: StringFilter,
         UUID: StringFilter,
         INT: IntegerFilter,
+        DECIMAL: DecimalFilter
       }[this.columnType];
     },
   },
