@@ -1,5 +1,4 @@
 import constants from "../constants";
-import _ from "lodash";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
 
@@ -14,21 +13,18 @@ export function isNumericKey(event) {
 
 export function flattenObject(object) {
   if (typeof object === "object") {
-    return _.reduce(
-      object,
-      (accum, value) => {
-        if (value === null) {
-          return accum;
-        }
-        if (typeof value === "object") {
-          accum += this.flattenObject(value);
-        } else {
-          accum += " " + value;
-        }
-        return accum;
-      },
-      ""
-    );
+    let result = "";
+    Object.keys(object).forEach((key) => {
+      if (object[key] === null) {
+        return;
+      }
+      if (typeof object[key] === "object") {
+        result += this.flattenObject(object[key]);
+      } else {
+        result += " " + object[key];
+      }
+    });
+    return result;
   } else {
     return object;
   }

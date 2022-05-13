@@ -73,7 +73,6 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import { flattenObject } from "../utils/utils";
-import _ from "lodash";
 
 export default {
   extends: BaseInput,
@@ -116,19 +115,16 @@ export default {
   methods: {
     getPrimaryKey(row, tableMetadata) {
       //we only have pkey when the record has been saved
-      if (!row["mg_insertedOn"]) {
+      if (!row["mg_insertedOn"] || !tableMetadata) {
         return null;
-      }
-      return _.reduce(
-        tableMetadata?.columns,
-        (accum, column) => {
+      } else {
+        return tableMetadata.columns?.reduce((accum, column) => {
           if (column.key === 1 && row[column.id]) {
             accum[column.id] = row[column.id];
           }
           return accum;
-        },
-        {}
-      );
+        }, {});
+      }
     },
     clearValue() {
       this.$emit("input", null);
