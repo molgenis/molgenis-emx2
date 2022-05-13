@@ -10,14 +10,12 @@
           :value="value[0]"
           @input="emitValue($event, 0)"
           placeholder="from"
-          class="m-0"
         />
         <BaseIntInput
           :id="id + '-to'"
           :value="value[1]"
           @input="emitValue($event, 1)"
           placeholder="to"
-          class="m-0"
         />
     
       <template v-slot:append>
