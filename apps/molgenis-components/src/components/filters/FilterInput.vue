@@ -31,7 +31,6 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        // The value must match one of these strings
         return [
           "STRING",
           "TEXT",
