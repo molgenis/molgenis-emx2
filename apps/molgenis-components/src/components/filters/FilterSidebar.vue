@@ -57,7 +57,7 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" @updateFilters="onUpdate"></FilterSidebar>
+        <FilterSidebar :filters="filters" @updateFilters="onUpdate"/>
       </div>
       <div class="col-auto">
         <FilterWells :filters="filters" @updateFilters="onUpdate"/>
