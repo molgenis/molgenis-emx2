@@ -19,7 +19,7 @@
         <div
           class="form-check custom-control custom-checkbox"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="(row, index) in notSelectedRows"
+          v-for="(row, index) in data"
           :key="index"
         >
           <input
@@ -42,7 +42,7 @@
           @click="showSelect = true"
         >
           {{
-            count > limit ? "view all " + count + " options." : "view as table"
+            count > maxNum ? "view all " + count + " options." : "view as table"
           }}
         </ButtonAlt>
       </div>
@@ -74,6 +74,7 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
+import _ from "lodash";
 
 export default {
   extends: BaseInput,
@@ -83,7 +84,7 @@ export default {
       selectIdx: null,
       options: [],
       selection: [],
-      data: null,
+      data: [],
       count: 0,
       tableMetaData: null,
     };
@@ -95,7 +96,6 @@ export default {
     ButtonAlt,
   },
   props: {
-    /** change if graphql URL != 'graphql'*/
     graphqlURL: {
       default: "graphql",
       type: String,
@@ -112,28 +112,9 @@ export default {
     title() {
       return "Select " + this.table;
     },
-    notSelectedRows() {
-      if (this.data) {
-        let result = this.data.filter(
-          (row) =>
-            this.count <= this.maxNum ||
-            !this.selection.some((value) => {
-              return (
-                this.flattenObject(
-                  this.getPrimaryKey(row, this.tableMetaData)
-                ) === this.flattenObject(value)
-              );
-            })
-        );
-        //truncate on maxNum (we overquery because we include all selected which might not be in query)
-        result.length = Math.min(result.length, this.maxNum);
-        return result;
-      } else {
-        return [];
-      }
-    },
     showMultipleColumns() {
-      return this.multipleColumns && this.count > 12;
+      const itemsPerColumn = 12;
+      return this.multipleColumns && this.count > itemsPerColumn;
     },
   },
   methods: {
@@ -142,15 +123,12 @@ export default {
       if (!row["mg_insertedOn"]) {
         return null;
       }
-
       let result = {};
-      if (tableMetadata !== null) {
-        tableMetadata.columns.forEach((col) => {
-          if (col.key == 1 && row[col.id]) {
-            result[col.id] = row[col.id];
-          }
-        });
-      }
+      tableMetadata?.columns.forEach((column) => {
+        if (column.key === 1 && row[column.id]) {
+          result[column.id] = row[column.id];
+        }
+      });
       return result;
     },
     deselect(key) {
@@ -171,28 +149,36 @@ export default {
       this.selectIdx = idx;
     },
     flattenObject(object) {
-      return object.reduce((accum, key, value) => {
-        if (value === null) {
-          return accum;
-        }
-        if (typeof key === "object") {
-          accum += this.flattenObject(value);
-        } else {
-          accum += " " + value;
-        }
-        return accum;
-      }, "");
+      if (typeof object === "object") {
+        return _.reduce(
+          object,
+          (accum, value) => {
+            if (value === null) {
+              return accum;
+            }
+            if (typeof value === "object") {
+              accum += this.flattenObject(value);
+            } else {
+              accum += " " + value;
+            }
+            return accum;
+          },
+          ""
+        );
+      } else {
+        return object;
+      }
     },
   },
   watch: {
     value() {
       this.selection = this.value ? this.value : [];
-      //we overquery because we include all selected which might not be in query
-      this.limit = this.maxNum + this.selection.length;
+    },
+    selection() {
+      console.log(JSON.stringify(this.selection));
     },
   },
   created() {
-    this.limit = this.maxNum + this.selection.length;
     this.selection = this.value ? this.value : [];
   },
   async mounted() {
@@ -200,9 +186,12 @@ export default {
     this.tableMetaData = (await client.fetchMetaData()).tables.find(
       (table) => table.id === this.tableName
     );
-    this.data = (await client.fetchTableData(this.tableName))[this.tableName];
-    this.count = this.data.length;
-    console.log(this.data);
+    const options = {
+      limit: this.maxNum,
+    };
+    const response = await client.fetchTableData(this.tableName, options);
+    this.data = response[this.tableName];
+    this.count = response[this.tableName + "_agg"].count;
   },
 };
 </script>
@@ -215,19 +204,21 @@ export default {
       <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
       <InputRef
         id="input-ref"
-        v-model="defaultValue"
+        label="Standard ref input"
+        v-model="value"
         tableName="Pet"
+        description="Standard input"
         graphqlURL="/pet store/graphql"
       />
-      Selection: {{ JSON.stringify(defaultValue) }}
+      Selection: {{ value }}
     </DemoItem>
-    <!--
     <DemoItem>
       <InputRef
         id="input-ref-default"
-        label="My pets"
+        label="Ref with default value"
         v-model="defaultValue"
         tableName="Pet"
+        description="This is a default value"
         :defaultValue="defaultValue"
         graphqlURL="/pet store/graphql"
       />
@@ -236,14 +227,28 @@ export default {
     <DemoItem>
       <InputRef
         id="input-ref-filter"
+        label="Ref input with pre set filter"
         v-model="filterValue"
         tableName="Pet"
-        :filter="{ category: { name: { equals: 'dog' } } }"
+        description="Filter by name"
+        :filter="{ category: { name: { equals: 'pooky' } } }"
         graphqlURL="/pet store/graphql"
       />
       Selection: {{ filterValue }}
+    </DemoItem> 
+       <DemoItem>
+      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+      <InputRef
+        id="input-ref"
+        label="Ref input with multiple columns"
+        v-model="multiColValue"
+        tableName="Pet"
+        description="This is a multi column input"
+        graphqlURL="/pet store/graphql"
+        multipleColumns
+      />
+      Selection: {{ value }}
     </DemoItem>
-    -->
   </div>
 </template>
 
@@ -253,7 +258,8 @@ export default {
       return {
         value: null,
         defaultValue: {name: 'spike'},
-        filterValue: {name: 'spike'}
+        filterValue: {name: 'spike'},
+        multiColValue: null,	    
       };
     }
   };
