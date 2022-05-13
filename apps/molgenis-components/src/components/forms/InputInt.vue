@@ -17,7 +17,7 @@
 <script>
 import BaseInput from "./BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import { isNumericKey } from "./utils/InputUtils";
+import { isNumericKey } from "../utils/utils";
 
 export default {
   extends: BaseInput,

@@ -3,10 +3,10 @@
     <div>
       <div>
         <ButtonAlt
-          v-if="selection.length > 0"
+          v-if="value !== null"
           class="pl-1"
           icon="fa fa-clear"
-          @click="emitClear"
+          @click="clearValue"
         >
           clear selection
         </ButtonAlt>
@@ -23,15 +23,15 @@
           :key="index"
         >
           <input
-            class="form-check-input"
-            :id="id + index"
+            :id="`${id}-${row.name}`"
             :name="id"
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
-            v-model="selection"
+            :checked="isSelected(row)"
             @change="$emit('input', getPrimaryKey(row, tableMetaData))"
+            class="form-check-input"
           />
-          <label class="form-check-label" :for="id + index">
+          <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
@@ -39,11 +39,9 @@
           class="pl-0"
           :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
           icon="fa fa-search"
-          @click="showSelect = true"
+          @click="openSelect"
         >
-          {{
-            count > maxNum ? "view all " + count + " options." : "view as table"
-          }}
+          {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
@@ -53,7 +51,7 @@
             :lookupTableName="tableName"
             :filter="filter"
             @select="select($event)"
-            @deselect="emitClear"
+            @deselect="clearValue"
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
@@ -74,6 +72,7 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
+import { flattenObject } from "../utils/utils";
 import _ from "lodash";
 
 export default {
@@ -81,9 +80,6 @@ export default {
   data: function () {
     return {
       showSelect: false,
-      selectIdx: null,
-      options: [],
-      selection: [],
       data: [],
       count: 0,
       tableMetaData: null,
@@ -123,63 +119,36 @@ export default {
       if (!row["mg_insertedOn"]) {
         return null;
       }
-      let result = {};
-      tableMetadata?.columns.forEach((column) => {
-        if (column.key === 1 && row[column.id]) {
-          result[column.id] = row[column.id];
-        }
-      });
-      return result;
+      return _.reduce(
+        tableMetadata?.columns,
+        (accum, column) => {
+          if (column.key === 1 && row[column.id]) {
+            accum[column.id] = row[column.id];
+          }
+          return accum;
+        },
+        {}
+      );
     },
-    deselect(key) {
-      this.selection.splice(key, 1);
-      this.$emit("input", this.selection);
-    },
-    emitClear() {
+    clearValue() {
       this.$emit("input", null);
     },
     select(event) {
       this.$emit("input", event);
     },
+    openSelect() {
+      this.showSelect = true;
+    },
     closeSelect() {
       this.showSelect = false;
     },
-    openSelect(idx) {
-      this.showSelect = true;
-      this.selectIdx = idx;
+    isSelected(row) {
+      return (
+        this.getPrimaryKey(row, this.tableMetaData)?.name ===
+        (this.value ? this.value.name : "")
+      );
     },
-    flattenObject(object) {
-      if (typeof object === "object") {
-        return _.reduce(
-          object,
-          (accum, value) => {
-            if (value === null) {
-              return accum;
-            }
-            if (typeof value === "object") {
-              accum += this.flattenObject(value);
-            } else {
-              accum += " " + value;
-            }
-            return accum;
-          },
-          ""
-        );
-      } else {
-        return object;
-      }
-    },
-  },
-  watch: {
-    value() {
-      this.selection = this.value ? this.value : [];
-    },
-    selection() {
-      console.log(JSON.stringify(this.selection));
-    },
-  },
-  created() {
-    this.selection = this.value ? this.value : [];
+    flattenObject,
   },
   async mounted() {
     const client = Client.newClient(this.graphqlURL);
@@ -235,13 +204,12 @@ export default {
         graphqlURL="/pet store/graphql"
       />
       Selection: {{ filterValue }}
-    </DemoItem> 
-       <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+    </DemoItem>
+    <DemoItem>
       <InputRef
         id="input-ref"
         label="Ref input with multiple columns"
-        v-model="multiColValue"
+        v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
         graphqlURL="/pet store/graphql"
@@ -253,15 +221,15 @@ export default {
 </template>
 
 <script>
-  export default {
-    data: function () {
-      return {
-        value: null,
-        defaultValue: {name: 'spike'},
-        filterValue: {name: 'spike'},
-        multiColValue: null,	    
-      };
-    }
-  };
+export default {
+  data: function () {
+    return {
+      value: null,
+      defaultValue: { name: "spike" },
+      filterValue: { name: "spike" },
+      multiColumnValue: null,
+    };
+  },
+};
 </script>
 </docs>
