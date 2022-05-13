@@ -21,7 +21,7 @@ import DecimalFilter from "./DecimalFilter.vue";
 
 export default {
   name: "FilterInput",
-  components: { StringFilter, IntegerFilter },
+  components: { StringFilter, IntegerFilter, DecimalFilter },
   props: {
     id: {
       type: String,
