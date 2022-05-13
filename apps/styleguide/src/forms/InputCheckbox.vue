@@ -5,7 +5,7 @@
         v-for="(item, index) in options"
         :key="index"
         class="form-check form-check-inline"
-        :class="{'is-invalid': errorMessage}"
+        :class="{ 'is-invalid': errorMessage }"
       >
         <input
           :id="id + index"
@@ -16,7 +16,7 @@
           @change="
             $emit(
               'input',
-              result.filter((v) => v !== 0 || v != null)
+              result.filter((v) => v !== 0 || v !== null)
             )
           "
           :aria-describedby="id + 'Help'"
@@ -48,14 +48,14 @@
 </style>
 
 <script>
-import InputSelect from './InputSelect';
+import InputSelect from "./InputSelect";
 
 export default {
   extends: InputSelect,
   props: {
     list: {
-      default: true
-    }
+      default: true,
+    },
   },
   computed: {
     valueArray() {
@@ -66,16 +66,16 @@ export default {
       }
       result = this.removeNulls(result);
       return result;
-    }
+    },
   },
   data() {
     return {
-      result: []
+      result: [],
     };
   },
   created() {
     this.result = this.valueArray != [null] ? this.valueArray : [];
-  }
+  },
 };
 </script>
 

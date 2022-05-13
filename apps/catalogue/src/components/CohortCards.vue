@@ -3,9 +3,10 @@
     <RouterLink
       class="btn btn-primary float-right"
       :to="{ name: 'NetworkVariables', params: { network: network } }"
-      >View {{ network }} variables
+    >
+      View {{ network }} variables
     </RouterLink>
-    <h1 class="bg-white">Cohorts for {{ network }}</h1>
+    <h1 class="bg-white">{{ network }} cohorts</h1>
     <p>This page lists all cohorts partner in the {{ network }} network.</p>
     <InputSearch v-model="searchTerms" placeholder="search cohorts" />
     <p>Found {{ count }} cohorts.</p>
@@ -13,7 +14,7 @@
       <div
         class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
         v-for="cohort in data"
-        :key="cohort.name"
+        :key="cohort.pid"
       >
         <div class="card col-12 p-0">
           <div class="card-header bg-white">
@@ -69,8 +70,9 @@
                   <td>
                     <span
                       class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
+                      style="max-width: 15em"
                       v-for="country in cohort.countries"
-                      :key="cohort.name"
+                      :key="country.name"
                     >
                       {{ country.name }}
                     </span>

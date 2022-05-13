@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1>Welcome to the European Cohort Network Catalogue.</h1>
+    <h1>Welcome to the European Networks Health Data and Cohort Catalogue.</h1>
     <p>
       This catalogue contains metadata on cohorts/data sources, the variables
       they collect, and/or harmonization efforts to enable integrated reuse of
