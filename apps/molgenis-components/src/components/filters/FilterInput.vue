@@ -114,7 +114,7 @@ export default {
             columnType="STRING"
             :conditions="conditions"
             @updateConditions="conditions = $event"
-        ></FilterInput>
+        />
         <div>conditions: {{ conditions }}</div>
       </demo-item>
     </div>
@@ -127,7 +127,7 @@ export default {
             columnType="STRING"
             :conditions="conditions1"
             @updateConditions="conditions1 = $event"
-        ></FilterInput>
+        />
         <div>conditions: {{ conditions1 }}</div>
       </demo-item>
     </div>
@@ -140,7 +140,7 @@ export default {
             columnType="INT"
             :conditions="conditions2"
             @updateConditions="conditions2 = $event"
-        ></FilterInput>
+        />
         <div>conditions: {{ conditions2 }}</div>
       </demo-item>
     </div>
