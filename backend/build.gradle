@@ -41,7 +41,7 @@ subprojects {
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.2'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
         implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.2'
         implementation 'com.graphql-java:graphql-java:16.2'
