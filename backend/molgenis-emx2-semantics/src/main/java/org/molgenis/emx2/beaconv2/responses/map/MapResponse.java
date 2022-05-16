@@ -4,6 +4,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MapResponse {
-  String $schema = "../../configuration/beaconMapSchema.json";
-  EndPointSets endpointSets = new EndPointSets("https://myserver.molgeniscloud.org/");
+
+  String $schema;
+  EndPointSets endpointSets;
+
+  public MapResponse(String serverURL) {
+    this.$schema = "../../configuration/beaconMapSchema.json";
+    this.endpointSets = new EndPointSets(serverURL);
+  }
 }

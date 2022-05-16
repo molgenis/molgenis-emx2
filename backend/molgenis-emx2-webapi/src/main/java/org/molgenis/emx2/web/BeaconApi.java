@@ -54,7 +54,7 @@ public class BeaconApi {
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
-    return getWriter().writeValueAsString(new Map());
+    return getWriter().writeValueAsString(new Map(request));
   }
 
   private static Object getEntryTypes(Request request, Response response)
