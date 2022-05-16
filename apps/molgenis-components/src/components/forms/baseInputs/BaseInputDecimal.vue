@@ -4,7 +4,7 @@
     type="number"
     step="1"
     :value="value"
-    :class="{ 'form-control': true }"
+    class="form-control"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     @keypress="handleKeyValidity"
@@ -14,7 +14,7 @@
 
 <script>
 import BaseInput from "./BaseInput.vue";
-import { isNumericKey } from "../utils/InputUtils";
+import { isNumericKey } from "../../utils";
 
 export default {
   extends: BaseInput,

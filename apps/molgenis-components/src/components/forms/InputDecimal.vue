@@ -20,7 +20,7 @@ export default {
   components: {
     FormGroup,
     BaseInputDecimal,
-  }
+  },
 };
 </script>
 

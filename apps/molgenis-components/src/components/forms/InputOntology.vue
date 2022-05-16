@@ -1,7 +1,6 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
+    <MessageError v-if="error">{{ error }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -104,7 +103,6 @@ input:focus {
 import Client from "../../client/client.js";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import Spinner from "../layout/Spinner.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "v-click-outside";
@@ -123,7 +121,6 @@ export default {
   components: {
     FormGroup,
     InputOntologySubtree,
-    Spinner,
     MessageError,
   },
   directives: {
@@ -336,18 +333,6 @@ export default {
         this.$emit("input", selectedTerms);
       } else {
         this.$emit("input", selectedTerms[0]);
-      }
-    },
-    reloadMetadata() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMetadataMixin.methods.reloadMetadata.call(this);
-      }
-    },
-    reload() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMixin.methods.reload.call(this);
       }
     },
     applySelection(value) {
