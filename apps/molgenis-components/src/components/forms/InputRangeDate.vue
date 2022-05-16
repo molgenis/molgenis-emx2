@@ -1,7 +1,11 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <div class="d-flex">
-      <InputDate
+    <InputGroup class="d-flex">
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+
+      <BaseInputDate
         :id="id + '-from'"
         :value="value[0]"
         :readonly="readonly"
@@ -9,7 +13,8 @@
         placeholder="from"
         class="m-0"
       />
-      <InputDate
+      
+      <BaseInputDate
         :id="id + '-to'"
         :value="value[1]"
         :readonly="readonly"
@@ -17,17 +22,21 @@
         placeholder="to"
         class="m-0"
       />
-    </div>
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
-import InputDate from "./InputDate.vue";
+import BaseInputDate from "./baseInputs/BaseInputDate.vue";
 import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
-  components: { InputDate, FormGroup },
+  components: { BaseInputDate, FormGroup, InputGroup },
   extends: BaseInput,
   props: {
     value: {
