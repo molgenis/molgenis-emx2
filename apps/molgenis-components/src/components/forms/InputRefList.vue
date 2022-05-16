@@ -72,11 +72,12 @@
 
 <script>
 import Client from "../../client/client.js";
-import BaseInput from "./BaseInputs/BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
+import { flattenObject, getPrimaryKey } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -110,7 +111,7 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.table;
+      return "Select " + this.tableName;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -118,19 +119,7 @@ export default {
     },
   },
   methods: {
-    getPrimaryKey(row, tableMetadata) {
-      //we only have pkey when the record has been saved
-      if (!row["mg_insertedOn"] || !tableMetadata) {
-        return null;
-      } else {
-        return tableMetadata.columns?.reduce((accum, column) => {
-          if (column.key === 1 && row[column.id]) {
-            accum[column.id] = row[column.id];
-          }
-          return accum;
-        }, {});
-      }
-    },
+    getPrimaryKey,
     deselect(key) {
       this.selection.splice(key, 1);
       this.emitSelection();
@@ -148,42 +137,25 @@ export default {
     closeSelect() {
       this.showSelect = false;
     },
-    isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.value ? this.value.name : "")
-      );
-    },
-    flattenObject(object) {
-      if (typeof object === "object") {
-        let result = "";
-        Object.keys(object).forEach((key) => {
-          if (object[key] === null) {
-            return;
-          }
-          if (typeof object[key] === "object") {
-            result += this.flattenObject(object[key]);
-          } else {
-            result += " " + object[key];
-          }
-        });
-        return result;
-      } else {
-        return object;
-      }
-    },
+    flattenObject,
   },
   async mounted() {
     const client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+    const allMetaData = await client.fetchMetaData();
+    this.tableMetaData = allMetaData.tables.find(
       (table) => table.id === this.tableName
     );
+
     const options = {
       limit: this.maxNum,
     };
     const response = await client.fetchTableData(this.tableName, options);
     this.data = response[this.tableName];
     this.count = response[this.tableName + "_agg"].count;
+
+    if (!this.value) {
+      this.selection = [];
+    }
   },
 };
 </script>
@@ -195,8 +167,8 @@ export default {
     <DemoItem>
       <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
       <InputRefList
-        id="input-ref"
-        label="Standard ref input"
+        id="input-ref-list"
+        label="Standard ref input list"
         v-model="value"
         tableName="Pet"
         description="Standard input"
@@ -206,8 +178,8 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputRefList
-        id="input-ref-default"
-        label="Ref with default value"
+        id="input-ref-list-default"
+        label="Ref input list with default value"
         v-model="defaultValue"
         tableName="Pet"
         description="This is a default value"
@@ -218,8 +190,8 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputRefList
-        id="input-ref-filter"
-        label="Ref input with pre set filter"
+        id="input-ref-list-filter"
+        label="Ref input list with pre set filter"
         v-model="filterValue"
         tableName="Pet"
         description="Filter by name"
@@ -230,8 +202,8 @@ export default {
     </DemoItem>
     <DemoItem>
       <InputRefList
-        id="input-ref"
-        label="Ref input with multiple columns"
+        id="input-ref-list"
+        label="Ref input list with multiple columns"
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
@@ -248,8 +220,8 @@ export default {
   data: function () {
     return {
       value: null,
-      defaultValue: [ { "name": "pooky" }, { "name": "spike" } ],
-      filterValue: [{ "name": "spike" }],
+      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      filterValue: [{ name: "spike" }],
       multiColumnValue: null,
     };
   },
