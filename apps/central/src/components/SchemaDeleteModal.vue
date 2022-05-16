@@ -48,7 +48,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {

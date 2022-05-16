@@ -1,26 +1,28 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <InputDate
-      :id="id + '-from'"
-      :value="value[0]"
-      :readonly="readonly"
-      @input="emitValue($event, 0)"
-      placeholder="from"
-      class="m-0 d-inline-block"
-    />
-    <InputDate
-      :id="id + '-to'"
-      :value="value[1]"
-      :readonly="readonly"
-      @input="emitValue($event, 1)"
-      placeholder="to"
-      class="m-0 d-inline-block"
-    />
+    <div class="d-flex">
+      <InputDate
+        :id="id + '-from'"
+        :value="value[0]"
+        :readonly="readonly"
+        @input="emitValue($event, 0)"
+        placeholder="from"
+        class="m-0"
+      />
+      <InputDate
+        :id="id + '-to'"
+        :value="value[1]"
+        :readonly="readonly"
+        @input="emitValue($event, 1)"
+        placeholder="to"
+        class="m-0"
+      />
+    </div>
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputDate from "./InputDate.vue";
 import FormGroup from "./FormGroup.vue";
 

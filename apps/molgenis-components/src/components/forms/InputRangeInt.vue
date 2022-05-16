@@ -1,29 +1,38 @@
 <template>
   <FormGroup :id="id + '-from'" :label="label" :description="description">
-    <InputInt
-      :id="id + '-from'"
-      :value="value[0]"
-      @input="emitValue($event, 0)"
-      placeholder="from"
-      class="m-0 d-inline-block"
-    />
-    <InputInt
-      :id="id + '-to'"
-      :value="value[1]"
-      @input="emitValue($event, 1)"
-      placeholder="to"
-      class="m-0 d-inline-block"
-    />
+    <InputGroup class="d-flex">
+      <template v-slot:prepend>
+        <slot name="prepend"></slot>
+      </template>
+    
+        <BaseIntInput
+          :id="id + '-from'"
+          :value="value[0]"
+          @input="emitValue($event, 0)"
+          placeholder="from"
+        />
+        <BaseIntInput
+          :id="id + '-to'"
+          :value="value[1]"
+          @input="emitValue($event, 1)"
+          placeholder="to"
+        />
+    
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
-import InputInt from "./InputInt.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
+import BaseIntInput from "./baseInputs/BaseInputInt.vue";
 import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
-  components: { InputInt, FormGroup },
+  components: { BaseIntInput, FormGroup, InputGroup },
   extends: BaseInput,
   props: {
     value: {

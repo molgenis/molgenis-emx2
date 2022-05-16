@@ -9,7 +9,7 @@
   />
 </template>
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import ArrayInput from "./ArrayInput.vue";
 import InputString from "./InputString.vue";
 import InputOntology from "./InputOntology.vue";

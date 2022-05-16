@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputString from "./InputString.vue";
 
 export default {

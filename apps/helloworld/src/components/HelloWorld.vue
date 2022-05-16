@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { ButtonAction } from "@mswertz/emx2-styleguide";
+import { ButtonAction } from "molgenis-components";
 
 export default {
   components: {
