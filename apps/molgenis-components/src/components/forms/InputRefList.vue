@@ -2,14 +2,19 @@
   <FormGroup :id="id" :label="label" :description="description">
     <div>
       <div>
-        <ButtonAlt
-          v-if="value !== null"
-          class="pl-1"
-          icon="fa fa-clear"
-          @click="clearValue"
-        >
-          clear selection
-        </ButtonAlt>
+        <div v-if="count > maxNum">
+          <FilterWell
+            v-for="(item, key) in selection"
+            :key="JSON.stringify(item)"
+            :label="flattenObject(item)"
+            @click="deselect(key)"
+          />
+          <div>
+            <ButtonAlt class="pl-1" icon="fa fa-clear" @click="clearValue">
+              clear selection
+            </ButtonAlt>
+          </div>
+        </div>
       </div>
       <div
         :class="
@@ -25,10 +30,10 @@
           <input
             :id="`${id}-${row.name}`"
             :name="id"
-            type="radio"
+            type="checkbox"
             :value="getPrimaryKey(row, tableMetaData)"
-            :checked="isSelected(row)"
-            @change="$emit('input', getPrimaryKey(row, tableMetaData))"
+            v-model="selection"
+            @change="emitSelection"
             class="form-check-input"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
@@ -47,11 +52,11 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection="[value]"
+            :selection.sync="selection"
             :lookupTableName="tableName"
             :filter="filter"
-            @select="select($event)"
-            @deselect="clearValue"
+            @select="emitSelection"
+            @deselect="deselect"
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
@@ -80,6 +85,7 @@ export default {
     return {
       showSelect: false,
       data: [],
+      selection: this.value,
       count: 0,
       tableMetaData: null,
     };
@@ -114,11 +120,16 @@ export default {
   },
   methods: {
     getPrimaryKey,
-    clearValue() {
-      this.$emit("input", null);
+    deselect(key) {
+      this.selection.splice(key, 1);
+      this.emitSelection();
     },
-    select(event) {
-      this.$emit("input", event);
+    clearValue() {
+      this.selection = [];
+      this.emitSelection();
+    },
+    emitSelection() {
+      this.$emit("input", this.selection);
     },
     openSelect() {
       this.showSelect = true;
@@ -126,25 +137,25 @@ export default {
     closeSelect() {
       this.showSelect = false;
     },
-    isSelected(row) {
-      return (
-        this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.value ? this.value.name : "")
-      );
-    },
     flattenObject,
   },
   async mounted() {
     const client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+    const allMetaData = await client.fetchMetaData();
+    this.tableMetaData = allMetaData.tables.find(
       (table) => table.id === this.tableName
     );
+
     const options = {
       limit: this.maxNum,
     };
     const response = await client.fetchTableData(this.tableName, options);
     this.data = response[this.tableName];
     this.count = response[this.tableName + "_agg"].count;
+
+    if (!this.value) {
+      this.selection = [];
+    }
   },
 };
 </script>
@@ -155,9 +166,9 @@ export default {
     You have to be have server running and be signed in for this to work
     <DemoItem>
       <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
-      <InputRef
-        id="input-ref"
-        label="Standard ref input"
+      <InputRefList
+        id="input-ref-list"
+        label="Standard ref input list"
         v-model="value"
         tableName="Pet"
         description="Standard input"
@@ -166,9 +177,9 @@ export default {
       Selection: {{ value }}
     </DemoItem>
     <DemoItem>
-      <InputRef
-        id="input-ref-default"
-        label="Ref with default value"
+      <InputRefList
+        id="input-ref-list-default"
+        label="Ref input list with default value"
         v-model="defaultValue"
         tableName="Pet"
         description="This is a default value"
@@ -178,9 +189,9 @@ export default {
       Selection: {{ defaultValue }}
     </DemoItem>
     <DemoItem>
-      <InputRef
-        id="input-ref-filter"
-        label="Ref input with pre set filter"
+      <InputRefList
+        id="input-ref-list-filter"
+        label="Ref input list with pre set filter"
         v-model="filterValue"
         tableName="Pet"
         description="Filter by name"
@@ -190,9 +201,9 @@ export default {
       Selection: {{ filterValue }}
     </DemoItem>
     <DemoItem>
-      <InputRef
-        id="input-ref"
-        label="Ref input with multiple columns"
+      <InputRefList
+        id="input-ref-list"
+        label="Ref input list with multiple columns"
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
@@ -209,8 +220,8 @@ export default {
   data: function () {
     return {
       value: null,
-      defaultValue: { name: "spike" },
-      filterValue: { name: "spike" },
+      defaultValue: [{ name: "pooky" }, { name: "spike" }],
+      filterValue: [{ name: "spike" }],
       multiColumnValue: null,
     };
   },
