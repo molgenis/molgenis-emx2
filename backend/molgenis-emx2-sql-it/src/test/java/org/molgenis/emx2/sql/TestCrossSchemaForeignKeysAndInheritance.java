@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.examples.CrossSchemaReferenceExample;
+import org.molgenis.emx2.datamodels.test.CrossSchemaReferenceExample;
 
 public class TestCrossSchemaForeignKeysAndInheritance {
   static Schema schema1;

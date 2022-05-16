@@ -83,8 +83,8 @@
                 <router-link
                   :to="`/networks/${network.pid}`"
                   class="stretched-link"
-                  >LEARN MORE</router-link
-                >
+                  >LEARN MORE
+                </router-link>
               </small>
             </p>
           </template>
@@ -321,7 +321,7 @@ export default {
                     }, [])
                     .map((ag) => ag.name)
                     .join(","),
-              _path: `/cohorts/${this.$route.params.pid}/subcohorts/${subcohort.name}`,
+              _path: `${this.$route.path}/subcohorts/${subcohort.name}`,
             };
           });
     },
@@ -341,7 +341,7 @@ export default {
                   item.endYear && item.endYear.name ? item.endYear.name : null;
                 return startEndYear(startYear, endYear);
               })(),
-              _path: `/cohorts/${this.$route.params.pid}/collection-events/${item.name}`,
+              _path: `${this.$route.path}/collection-events/${item.name}`,
             };
           });
     },

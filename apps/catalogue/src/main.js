@@ -18,6 +18,10 @@ import SearchResourceView from "./views/SearchResourceView";
 import ResourceRedirectView from "./views/ResourceRedirectView";
 import Subcohort from "./views/cohorts/Subcohort";
 import CollectionEvent from "./views/cohorts/CollectionEvent";
+import NetworksHome from "./network/NetworksHome";
+import NetworkVariables from "./network/NetworkVariables";
+import NetworkCohorts from "./network/NetworkCohorts";
+import NetworkDetails from "./network/NetworkDetails";
 
 Vue.config.productionTip = false;
 
@@ -392,6 +396,63 @@ const router = new VueRouter({
       // hacky redirects to solve breadcrumb issue
       path: "/cohorts/:cohort/subcohorts",
       redirect: "/cohorts/:cohort",
+    },
+    {
+      name: "NetworkLandingPage",
+      path: "/networks-catalogue",
+      component: NetworksHome,
+    },
+    {
+      name: "NetworkDetails",
+      path: "/networks-catalogue/:network",
+      props: true,
+      component: NetworkDetails,
+    },
+    {
+      name: "NetworkVariables",
+      path: "/networks-catalogue/:network/variables",
+      props: true,
+      component: NetworkVariables,
+    },
+    {
+      name: "NetworkVariableDetailView",
+      path: "/networks-catalogue/:network/variables/:name",
+      props: (route) => ({ ...route.params, ...route.query }), // both key and value are dynamic
+      component: VariableDetailView,
+    },
+    {
+      name: "NetworkCohorts",
+      path: "/networks-catalogue/:network/cohorts",
+      props: true,
+      component: NetworkCohorts,
+    },
+    {
+      name: "NetworkCohortDetailView",
+      path: "/networks-catalogue/:network/cohorts/:pid",
+      props: true,
+      component: CohortView,
+    },
+    {
+      name: "NetworkCohortSubcohort",
+      path: "/networks-catalogue/:network/cohorts/:cohort/subcohorts/:name",
+      props: true,
+      component: Subcohort,
+    },
+    {
+      name: "NetworkCohortCollectionEvent",
+      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      props: true,
+      component: CollectionEvent,
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events",
+      redirect: "/networks-catalogue/:network/cohorts/:cohort",
+    },
+    {
+      // hacky redirects to solve breadcrumb issue
+      path: "/networks-catalogue/:network/cohorts/:cohort/subcohorts",
+      redirect: "/networks-catalogue/:network/cohorts/:cohort",
     },
   ],
 });

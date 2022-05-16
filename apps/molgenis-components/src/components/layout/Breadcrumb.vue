@@ -60,13 +60,17 @@ export default {
 </script>
 
 <docs>
-Example:
-```
-<Breadcrumb :crumbs="{'Home':'/', 'Schema':'/schema', 'Page':'/schema/page'}"/>
-```
-Example with nested
-```
-<Breadcrumb :crumbs="{'Home':'/', 'Schema':'/schema', 'Page':'/schema/page'}"
-            :dropdown="{'Other':'/other','Other2':'/other2'}"/>
-```
+<template>
+  <div>
+    <label>Example without nested</label>
+    <breadcrumb
+        :crumbs="{ Home: '/', Schema: '/schema', Page: '/schema/page' }"
+    />
+    <label>Example with nested</label>
+    <breadcrumb
+        :crumbs="{ Home: '/', Schema: '/schema', Page: '/schema/page' }"
+        :dropdown="{ Other: '/other', Other2: '/other2' }"
+    />
+  </div>
+</template>
 </docs>

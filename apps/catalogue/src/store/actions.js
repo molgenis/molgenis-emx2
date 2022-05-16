@@ -16,7 +16,7 @@ export default {
     state.isLoading = true;
     const query = gql`
             query TargetVariables($search: String, $filter: TargetVariablesFilter) {
-                TargetVariables(limit: 100, offset: ${offset}, search: $search, filter: $filter) {
+                TargetVariables(limit: 100, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
                     name
                     dataDictionary {
                         resource {
@@ -55,6 +55,17 @@ export default {
       };
     }
 
+    if (getters.selectedCohorts.length) {
+      queryVariables.filter.mappings = {
+        fromDataDictionary: {
+          resource: {
+            pid: {
+              equals: getters.selectedCohorts.map((cohort) => cohort.pid),
+            },
+          },
+        },
+      };
+    }
     if (getters.selectedKeywords.length) {
       queryVariables.filter.keywords = {
         equals: getters.selectedKeywords,
@@ -144,7 +155,10 @@ export default {
 
     const mappingQuery = gql`
       query VariableMappings($filter: VariableMappingsFilter) {
-        VariableMappings(filter: $filter) {
+        VariableMappings(
+          filter: $filter
+          orderby: { fromDataDictionary: ASC }
+        ) {
           fromTable {
             dataDictionary {
               resource {

@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.5
+Version,,,,,,,,,,,,2.6
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -235,7 +235,7 @@ CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCatego
 CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
 CollectionEvents,,standardizedTools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
-CollectionEvents,,coreVariables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event 
+CollectionEvents,,coreVariables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event
 CollectionEvents,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
@@ -253,6 +253,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
+Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,Type of network,e.g. h2020 project,
 Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
@@ -381,10 +382,10 @@ Counts,,ageband,,1,TRUE,,,,,,,
 Counts,,gender,,1,TRUE,,,,,,,
 Counts,,N,int,,TRUE,,,,,,,
 SubcohortCounts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
-SubcohortCounts,,year,int,1,TRUE,,,,,,,
-SubcohortCounts,,ageband,,1,TRUE,,,,,,,
-SubcohortCounts,,gender,,1,TRUE,,,,,,,
-SubcohortCounts,,N,int,,TRUE,,,,,,,
+SubcohortCounts,,ageGroup,ref,1,TRUE,CatalogueOntologies,AgeGroups,,,,,
+SubcohortCounts,,N total,int,,,,,,,,,
+SubcohortCounts,,N female,int,,,,,,,,,
+SubcohortCounts,,N male,int,,,,,,,,,
 PopulationSizes,,,,,,,,,,,,"Population size captured and population active, stratified by age (most recent counts)"
 PopulationSizes,,databank,ref,1,TRUE,,Databanks,,,,,Databank to which population size applies
 PopulationSizes,,ageband,,1,TRUE,,,,,,,Age band to which the counts apply

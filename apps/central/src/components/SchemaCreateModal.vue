@@ -4,6 +4,7 @@
     <LayoutModal v-if="loading" :title="title" :show="true">
       <template v-slot:body>
         <Spinner />
+        creating schema, may take a while ...
       </template>
     </LayoutModal>
     <!-- when update succesfull show result before close -->
@@ -15,8 +16,14 @@
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
-        Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
-        Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
+        <div v-if="template">
+          Go to <a :href="'/' + schemaName">{{ schemaName }}</a
+          ><br />
+        </div>
+        <div v-else>
+          Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
+          Go to upload <a :href="'/' + schemaName + '/updownload/'">files</a>
+        </div>
       </template>
       <template v-slot:footer>
         <ButtonAction @click="$emit('close')">Close</ButtonAction>
@@ -33,10 +40,23 @@
               v-model="schemaName"
               label="name"
               :defaultValue="schemaName"
+              :required="true"
+            />
+            <InputSelect
+              label="template"
+              description="Load existing database template"
+              v-model="template"
+              :options="templates"
+            />
+            <InputBoolean
+              v-if="template"
+              label="load example data"
+              description="Include example data in the template"
+              v-model="includeDemoData"
             />
             <InputText
               v-model="schemaDescription"
-              label="description"
+              label="description (optional)"
               :defaultValue="schemaDescription"
             />
           </LayoutForm>
@@ -44,8 +64,8 @@
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeCreateSchema"
-          >Create database
+        <ButtonAction @click="executeCreateSchema">
+          Create database
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -61,12 +81,14 @@ import {
   IconAction,
   InputString,
   InputText,
+  InputBoolean,
+  InputSelect,
   LayoutForm,
   LayoutModal,
   MessageError,
   MessageSuccess,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {
@@ -74,9 +96,11 @@ export default {
     MessageError,
     ButtonAction,
     ButtonAlt,
+    InputBoolean,
     LayoutModal,
     InputString,
     InputText,
+    InputSelect,
     LayoutForm,
     Spinner,
     IconAction,
@@ -89,6 +113,9 @@ export default {
       success: null,
       schemaName: null,
       schemaDescription: null,
+      template: null,
+      templates: [null, "PET_STORE", "DATA_CATALOGUE"],
+      includeDemoData: false,
     };
   },
   computed: {
@@ -106,10 +133,12 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String){createSchema(name:$name, description:$description){message}}`,
+        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
         {
           name: this.schemaName,
-          description: this.schemaDescription
+          description: this.schemaDescription,
+          template: this.template,
+          includeDemoData: this.includeDemoData,
         }
       )
         .then((data) => {

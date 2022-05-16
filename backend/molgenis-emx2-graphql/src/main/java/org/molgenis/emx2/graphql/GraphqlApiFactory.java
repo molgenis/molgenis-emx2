@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,7 +151,7 @@ public class GraphqlApiFactory {
     return result;
   }
 
-  public GraphQL createGraphqlForDatabase(Database database) {
+  public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -164,7 +165,7 @@ public class GraphqlApiFactory {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
     }
 
-    // acount operations
+    // account operations
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
     queryBuilder.field(session.userQueryField(database, null));
     mutationBuilder.field(session.signinField(database));
@@ -176,6 +177,7 @@ public class GraphqlApiFactory {
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.schemasQuery(database));
+    queryBuilder.field(db.tasksQueryField(taskService));
 
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
@@ -193,6 +195,10 @@ public class GraphqlApiFactory {
   }
 
   public GraphQL createGraphqlForSchema(Schema schema) {
+    return createGraphqlForSchema(schema, null);
+  }
+
+  public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());
 
@@ -214,6 +220,10 @@ public class GraphqlApiFactory {
     mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
+
+    // database level
+    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
+    queryBuilder.field(db.tasksQueryField(taskService));
 
     // schema
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();

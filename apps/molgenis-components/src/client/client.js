@@ -1,4 +1,5 @@
 import axios from "axios";
+
 const metaDataQuery = `{
 _schema {
   name,
@@ -101,12 +102,12 @@ const fetchTableData = async (
       : 20;
   const offset =
     properties && Object.prototype.hasOwnProperty.call(properties, "offset")
-      ? properties.limit
+      ? properties.offset
       : 0;
 
   const search =
     properties &&
-    properties.searchTerms != null &&
+    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
     properties.searchTerms !== ""
       ? ',search:"' + properties.searchTerms.trim() + '"'
       : "";
@@ -145,6 +146,15 @@ const fetchTableData = async (
     });
   return resp.data.data;
 };
+
+const request = async (url, graqphl) => {
+  const result = await axios.post(url, { query: graqphl }).catch((error) => {
+    return error;
+  });
+  return result.data.data;
+};
+
+export { request };
 
 export default {
   newClient: (graphqlURL, externalAxios) => {

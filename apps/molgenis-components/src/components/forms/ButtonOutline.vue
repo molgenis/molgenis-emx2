@@ -4,7 +4,7 @@
     :class="light ? 'btn btn-outline-light' : 'btn btn-outline-primary'"
     @click="onClick"
   >
-    <i v-if="icon" :class="icon" class="mr-2 ml-0"></i>
+    <i v-if="icon" :class="'fa-' + icon" class="fa fa-fw mr-2 ml-0"></i>
     <slot />
   </button>
 </template>
@@ -22,3 +22,21 @@ export default {
 };
 </script>
 
+<docs>
+<template>
+  <demo-item>
+    <div>
+      <ButtonOutline v-on:click="alert('cancel clicked')">Cancel</ButtonOutline>
+    </div>
+  </demo-item>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      },
+    },
+  };
+</script>
+</docs>

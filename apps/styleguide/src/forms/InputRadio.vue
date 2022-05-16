@@ -22,7 +22,7 @@
       <a
         class="radio-clear-value"
         href="#"
-        v-if="valueArray[0] !== null"
+        v-if="!required && valueArray[0] !== null"
         @click.prevent="clearValue(0)"
       >
         clear
