@@ -1,4 +1,4 @@
-import constants from "../constants";
+import constants from "./constants";
 
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
 

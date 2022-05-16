@@ -13,7 +13,6 @@
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import { isNumericKey } from "../utils/utils";
 import BaseInputDecimal from "./baseInputs/BaseInputDecimal.vue";
 
 export default {
@@ -21,7 +20,7 @@ export default {
   components: {
     FormGroup,
     BaseInputDecimal,
-  }
+  },
 };
 </script>
 

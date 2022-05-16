@@ -11,14 +11,14 @@
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
-import BaseIntInput from "./baseInputs/BaseInputInt.vue"
+import BaseIntInput from "./baseInputs/BaseInputInt.vue";
 import FormGroup from "./FormGroup.vue";
-import { isNumericKey } from "../utils/utils";
 
 export default {
   extends: BaseInput,
   components: {
-    FormGroup, BaseIntInput
+    FormGroup,
+    BaseIntInput,
   },
 };
 </script>

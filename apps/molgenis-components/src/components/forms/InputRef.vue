@@ -67,12 +67,12 @@
 
 <script>
 import Client from "../../client/client.js";
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject } from "../utils/utils";
+import { flattenObject } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -105,7 +105,7 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.table;
+      return "Select " + this.tableName;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;

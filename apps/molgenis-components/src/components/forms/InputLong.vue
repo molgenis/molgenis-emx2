@@ -22,7 +22,7 @@
 import FormGroup from "./FormGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import constants from "../constants";
-import { isNumericKey } from "../utils/utils";
+import { isNumericKey } from "../utils";
 
 const { CODE_MINUS, MIN_LONG, MAX_LONG } = constants;
 
