@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid">
-    <h1>Welcome to the European Networks Health Data and Cohort Catalogue.</h1>
+    <h1>European Networks Health Data and Cohort Catalogue.</h1>
     <p>
       This catalogue contains metadata on cohorts/data sources, the variables
       they collect, and/or harmonization efforts to enable integrated reuse of
@@ -10,10 +10,10 @@
     </p>
     <InputSearch v-model="searchTerms" placeholder="search cohorts" />
     <div v-if="harmonizationNetworks.length > 0">
-      <h2>Harmonization networks</h2>
+      <h2>Networks</h2>
       <p>
         In this section you find networks that aim to enable data reuse across
-        multiple projects.
+        multiple projects, data sources and institutions.
       </p>
       <div class="row">
         <div
@@ -80,7 +80,8 @@ export default {
       if (this.networks) {
         return this.networks.filter(
           (network) =>
-            network.type && network.type.some((t) => t.name === "harmonization")
+            network.type &&
+            network.type.some((type) => type.name === "harmonization")
         );
       } else {
         return [];
@@ -90,7 +91,7 @@ export default {
       if (this.networks) {
         return this.networks.filter(
           (network) =>
-            network.type && network.type.some((t) => t.name === "h2020")
+            network.type && network.type.some((type) => type.name === "h2020")
         );
       } else {
         return [];
@@ -101,8 +102,8 @@ export default {
         return this.networks.filter(
           (network) =>
             !network.type ||
-            (!network.type.some((t) => t.name === "h2020") &&
-              !network.type.some((t) => t.name === "harmonization"))
+            (!network.type.some((type) => type.name === "h2020") &&
+              !network.type.some((type) => type.name === "harmonization"))
         );
       } else {
         return [];
