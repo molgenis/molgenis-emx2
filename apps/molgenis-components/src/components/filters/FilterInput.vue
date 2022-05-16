@@ -118,7 +118,31 @@ export default {
       </demo-item>
     </div>
 
+    <div class="mt-3">
+      <label>pre-filled string filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-2"
+            columnType="STRING"
+            :conditions="conditions1"
+            @updateConditions="conditions1 = $event"
+        />
+        <div>conditions: {{ conditions1 }}</div>
+      </demo-item>
+    </div>
 
+    <div class="mt-3">
+      <label>pre-filled int filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-3"
+            columnType="INT"
+            :conditions="conditions2"
+            @updateConditions="conditions2 = $event"
+        />
+        <div>conditions: {{ conditions2 }}</div>
+      </demo-item>
+    </div>
 
     <div class="mt-3">
       <label>date filter</label>
