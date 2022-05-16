@@ -56,7 +56,7 @@
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
-            @deselect="clearValue"
+            @deselect="deselect"
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
