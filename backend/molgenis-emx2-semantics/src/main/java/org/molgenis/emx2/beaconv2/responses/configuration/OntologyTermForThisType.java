@@ -4,6 +4,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OntologyTermForThisType {
-  String id = "NCIT:C47824";
-  String label = "Data set";
+
+  String id;
+  String label;
+
+  public OntologyTermForThisType(String id, String label) {
+    this.id = id;
+    this.label = label;
+  }
 }
