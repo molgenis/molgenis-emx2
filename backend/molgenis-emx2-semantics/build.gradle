@@ -1,6 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.0.0'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.0.1'
     implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.0.0'
     implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.0.0'
     testImplementation project(':backend:molgenis-emx2-sql')
