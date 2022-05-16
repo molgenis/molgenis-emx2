@@ -1,9 +1,29 @@
 package org.molgenis.emx2.beaconv2.responses.map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class EndPointSets {
-  MapDataset dataset = new MapDataset();
-  // TODO: others e.g. genomic variant that follow the same structure as MapDataset
+
+  @JsonIgnore private String serverURL;
+
+  MapDataset analyses;
+  MapDataset biosamples;
+  MapDataset cohorts;
+  MapDataset datasets;
+  MapDataset g_variants;
+  MapDataset individuals;
+  MapDataset runs;
+
+  public EndPointSets(String serverURL) {
+    this.serverURL = serverURL;
+    this.analyses = new MapDataset("analyses", this.serverURL);
+    this.biosamples = new MapDataset("biosamples", this.serverURL);
+    this.cohorts = new MapDataset("cohorts", this.serverURL);
+    this.datasets = new MapDataset("datasets", this.serverURL);
+    this.g_variants = new MapDataset("g_variants", this.serverURL);
+    this.individuals = new MapDataset("individuals", this.serverURL);
+    this.runs = new MapDataset("runs", this.serverURL);
+  }
 }

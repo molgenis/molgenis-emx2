@@ -4,9 +4,17 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MapDataset {
-  String entryType = "dataset";
-  String openAPIEndpointsDefinition = "./datasets/endpoints.json";
-  String rootUrl = "https://beacon.cafevariome.org/datasets";
-  String singleEntryUrl = "https://beacon.cafevariome.org/datasets/{id}";
-  String filteringTermsUrl = "https://beacon.cafevariome.org/datasets/{id}/filtering_terms";
+  String entryType;
+  String openAPIEndpointsDefinition;
+  String rootUrl;
+  String singleEntryUrl;
+  String filteringTermsUrl;
+
+  public MapDataset(String entryType, String serverURL) {
+    this.entryType = entryType;
+    this.openAPIEndpointsDefinition = "./" + entryType + "/endpoints.json";
+    this.rootUrl = serverURL + "api/beacon/" + entryType;
+    this.singleEntryUrl = this.rootUrl + "/{id}";
+    this.filteringTermsUrl = this.singleEntryUrl + "/filtering_terms";
+  }
 }
