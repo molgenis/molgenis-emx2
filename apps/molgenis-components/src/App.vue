@@ -35,14 +35,35 @@ export default {
       return this.$route.path;
     },
   },
+  watch: {
+    /**
+     * In order to change the style of the html and body tag ( that are outside of the vue scope)
+     * css variables are used to hook into the style values and change them depending on the route
+     */
+    $route(newRoute) {
+      document.documentElement.style.setProperty("--dynamic-height", "100%");
+      document.documentElement.style.setProperty("--dynamic-visibility", "hidden");
+      if (newRoute.path !== "/") {
+        document.documentElement.style.setProperty("--dynamic-height", "auto");
+        document.documentElement.style.setProperty("--dynamic-visibility", "visible");
+      }
+    },
+  },
 };
 </script>
 
 <style>
-html, body {
-  min-height: 100% !important;
-  height: 100% !important;
-  overflow: hidden;
+/* see note on watch.$route */
+:root {
+  --dynamic-height: 100%;
+  --dynamic-visibility: hidden;
+}
+
+html,
+body {
+  min-height: var(--dynamic-height);
+  height: var(--dynamic-height);
+  overflow: var(--dynamic-visibility);
 }
 
 #sidebar-wrapper .sidebar-heading {
