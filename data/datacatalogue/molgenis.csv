@@ -149,7 +149,7 @@ Datasources,,networks,refback,,,,Networks,,datasources,,,List of networks that t
 Datasources,,studies,refback,,,,Studies,,datasources,,,
 Publications,,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,title,,,TRUE,,,,,,,Publication title
+Publications,,title,,,,,,,,,,Publication title
 Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
 Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
 Publications,,journal,,,,,,,,,,Journal or magazine the work was published in
