@@ -141,7 +141,7 @@ Cohorts,,studies,refback,,,,Studies,,cohorts,,,Listing of studies that used this
 RWEresources,,studies,refback,,,,Studies,,databanks,,,Listing of studies that used this databank
 Resources,,partners,refback,,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
-Studies,,networks,refback,,,,Networks,,studies,,,The consortia or networks that this study is part of
+Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
 Databanks,,datasource,refback,,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
 Databanks,,cdms,ref,,,,Models,,,,,Common data models used by this databank
@@ -260,7 +260,7 @@ Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
-Networks,,studies,ref_array,,,,Studies,,,,,
+Networks,,studies,refback,,,,Studies,networks,,,,
 Studies,,datasources,ref_array,,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study
