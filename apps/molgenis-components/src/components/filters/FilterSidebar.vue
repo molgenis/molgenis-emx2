@@ -79,13 +79,6 @@ export default {
             conditions: ["test123"]
           },
           {
-            name: "variables",
-            columnType: "REF",
-            refTable: "Variables",
-            showFilter: true,
-            conditions: []
-          },
-          {
             name: "quantity",
             columnType: "INT",
             showFilter: true,
@@ -112,13 +105,6 @@ export default {
           {
             name: "birthday",
             columnType: "DATE",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "tags",
-            refTable: "Tag",
-            columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
             conditions: []
           },
