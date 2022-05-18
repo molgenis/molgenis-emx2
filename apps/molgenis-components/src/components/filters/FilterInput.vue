@@ -16,14 +16,48 @@
 
 <script>
 import StringFilter from "./StringFilter.vue";
+import IntegerFilter from "./IntegerFilter.vue";
+import DecimalFilter from "./DecimalFilter.vue";
+import DateFilter from "./DateFilter.vue";
+import BooleanFilter from "./BooleanFilter.vue";
+
+const filterTypeMap = {
+  STRING: StringFilter,
+  STRING_ARRAY: StringFilter,
+  TEXT: StringFilter,
+  TEXT_ARRAY: StringFilter,
+  UUID: StringFilter,
+  UUID_ARRAY: StringFilter,
+  INT: IntegerFilter,
+  INT_ARRAY: IntegerFilter,
+  DECIMAL: DecimalFilter,
+  DECIMAL_ARRAY: DecimalFilter,
+  DATE: DateFilter,
+  DATE_ARRAY: DateFilter,
+  BOOL: BooleanFilter,
+  BOOl_ARRAY: BooleanFilter,
+};
 
 export default {
   name: "FilterInput",
-  components: { StringFilter },
+  components: {
+    StringFilter,
+    IntegerFilter,
+    DecimalFilter,
+    DateFilter,
+    BooleanFilter,
+  },
   props: {
     id: {
       type: String,
       required: true,
+    },
+    columnType: {
+      type: String,
+      required: true,
+      validator(value) {
+        return Object.keys(filterTypeMap).includes(value);
+      },
     },
     conditions: {
       type: Array,
@@ -42,7 +76,7 @@ export default {
   },
   computed: {
     filterType() {
-      return StringFilter;
+      return filterTypeMap[this.columnType];
     },
   },
   methods: {
@@ -82,9 +116,10 @@ export default {
       <demo-item>
         <FilterInput
             id="filter-input-example-1"
+            columnType="STRING"
             :conditions="conditions"
             @updateConditions="conditions = $event"
-        ></FilterInput>
+        />
         <div>conditions: {{ conditions }}</div>
       </demo-item>
     </div>
@@ -94,10 +129,37 @@ export default {
       <demo-item>
         <FilterInput
             id="filter-input-example-2"
+            columnType="STRING"
             :conditions="conditions1"
             @updateConditions="conditions1 = $event"
-        ></FilterInput>
+        />
         <div>conditions: {{ conditions1 }}</div>
+      </demo-item>
+    </div>
+
+    <div class="mt-3">
+      <label>pre-filled int filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-example-3"
+            columnType="INT"
+            :conditions="conditions2"
+            @updateConditions="conditions2 = $event"
+        />
+        <div>conditions: {{ conditions2 }}</div>
+      </demo-item>
+    </div>
+
+    <div class="mt-3">
+      <label>date filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-date"
+            columnType="DATE"
+            :conditions="conditions3"
+            @updateConditions="conditions3 = $event"
+        />
+        <div>conditions: {{ conditions3 }}</div>
       </demo-item>
     </div>
   </div>
@@ -108,6 +170,8 @@ export default {
       return {
         conditions: [],
         conditions1: ["tst"],
+        conditions2: [[1, 3]],
+        conditions3: []
       };
     },
   };

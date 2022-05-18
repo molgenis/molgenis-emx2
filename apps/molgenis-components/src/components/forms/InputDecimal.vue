@@ -1,58 +1,28 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <input
+    <BaseInputDecimal
       :id="id"
-      type="number"
-      step="1"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
-      :aria-describedby="id + 'Help'"
+      :class="{ 'form-control': true }"
       :placeholder="placeholder"
-      @keypress="handleKeyValidity"
-      @input="$emit('input', $event.target.value)"
+      @input="$emit('input', $event)"
     />
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import constants from "../constants.js";
-
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
+import BaseInputDecimal from "./baseInputs/BaseInputDecimal.vue";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
-  },
-  props: {
-    errorMessage: { type: String, default: null },
-  },
-  methods: {
-    handleKeyValidity(event) {
-      if (!this.isValidKey(event)) {
-        event.preventDefault();
-      }
-    },
-    isValidKey(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
-      return (
-        (keyCode >= CODE_0 && keyCode <= CODE_9) ||
-        keyCode === CODE_BACKSPACE ||
-        keyCode === CODE_DELETE
-      );
-    },
+    BaseInputDecimal,
   },
 };
 </script>
-
-<style scoped>
-.is-invalid {
-  background-image: none;
-  padding-right: 0.75rem;
-}
-</style>
 
 <docs>
   <template>

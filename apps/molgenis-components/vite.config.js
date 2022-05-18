@@ -15,6 +15,11 @@ let conf = {
   },
   server: {
     proxy: {
+      "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
+        target: BACKEND_LOCATION,
+        changeOrigin: true,
+        secure: false,
+      },
       "^/graphql": {
         target: `${BACKEND_LOCATION}/api`,
         changeOrigin: true,

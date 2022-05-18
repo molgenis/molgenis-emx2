@@ -27,6 +27,7 @@
           :list="true"
           :maxNum="100"
           :orderBy="{ pid: 'ASC' }"
+          :filter="network ? { networks: { pid: { equals: network } } } : null"
         ></input-ref>
       </div>
       <div class="col-6 col-sm-7 col-md-8 col-lg-9">
