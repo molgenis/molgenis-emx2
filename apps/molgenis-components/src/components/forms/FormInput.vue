@@ -383,7 +383,7 @@ export default {
           v-model="fileValue"
         />
       </div>
-      <div>You selected: {{ fileValue.name }}</div>
+      <div>You selected: {{ fileValue }}</div>
     </DemoItem>
     <DemoItem>
       <div>
@@ -393,6 +393,7 @@ export default {
         <FormInput
           id="unsupported-input-example"
           columnType="not_supported_input"
+          inplace
         />
       </div>
     </DemoItem>
