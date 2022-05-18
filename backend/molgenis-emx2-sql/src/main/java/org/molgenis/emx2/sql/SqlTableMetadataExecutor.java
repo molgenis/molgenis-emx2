@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Name;
@@ -143,12 +144,44 @@ class SqlTableMetadataExecutor {
           column(MG_TABLECLASS)
               .setReadonly(true)
               .setPosition(10005)
-              .setDefaultValue(
-                  other.getSchemaName()
-                      + "."
-                      + other.getTableName())); // should not be user editable
+              .setDefaultValue(other.getSchemaName() + "." + other.getTableName()));
+
+      // should not be user editable, we add trigger
+      createMgTableClassCannotUpdateCheck((SqlTableMetadata) other, jooq);
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
+  }
+
+  static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
+    Name name = name(table.getTableName() + "_MG_TABLECLASS_UPDATE");
+
+    String keyColumns =
+        table.getPrimaryKeyColumns().stream()
+            .map(keyColumn -> name(keyColumn.getName()).toString())
+            .collect(Collectors.joining(","));
+
+    String keyValues =
+        table.getPrimaryKeyColumns().stream()
+            .map(keyColumn -> "OLD." + name(keyColumn.getName()).toString())
+            .collect(Collectors.joining("||','||"));
+
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+            + "\nBEGIN"
+            + "\n\tIF OLD.{1} <> NEW.{1} THEN"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
+            + ", MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint'"
+            + ", DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};"
+            + "\n\tEND IF;"
+            + "\n\tRETURN NEW;"
+            + "\nEND; $BODY$ LANGUAGE plpgsql;",
+        name, name(MG_TABLECLASS), inline(keyColumns), keyword(keyValues));
+
+    jooq.execute(
+        "CREATE OR REPLACE TRIGGER {0} "
+            + "\nBEFORE UPDATE OF {2} ON {1} "
+            + "\nFOR EACH ROW EXECUTE PROCEDURE {0}()",
+        name, table.getJooqTable(), name(MG_TABLECLASS));
   }
 
   static Name[] asJooqNames(List<String> strings) {

@@ -197,5 +197,15 @@ public class TestInherits {
     } catch (Exception e) {
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // test that we cannot overwrite record from supertable using save
+    // fixes #
+    personTable.save(row("fullName", "testDuplicate"));
+    try {
+      studentTable.save(row("fullName", "testDuplicate"));
+      fail("should not be able to overwrite existing person in super table person");
+    } catch (Exception e) {
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
   }
 }
