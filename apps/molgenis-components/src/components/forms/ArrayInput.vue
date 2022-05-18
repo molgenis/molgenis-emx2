@@ -39,6 +39,12 @@ export default {
   data() {
     return { values: this.value || [null] };
   },
+  props: {
+    columnType: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     inputType() {
       return {
