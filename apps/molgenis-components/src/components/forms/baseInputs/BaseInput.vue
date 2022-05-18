@@ -48,9 +48,10 @@ export default {
      * A string specifying the type of control to render.
      * (note: no direct relation to emx2 type, emx2 types are implemented as vue components)
      */
-    columnType: {
+    type: {
       type: String,
       required: false,
+      default: () => "text",
     },
     required: {
       type: Boolean,
