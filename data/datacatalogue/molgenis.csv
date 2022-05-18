@@ -166,11 +166,7 @@ Partners,,institution,ref,1,TRUE,,Institutions,,,,,institution that contributed
 Partners,,department,text,,,,,,,,,"Optionally, the institutational unit(s) that play a role in this resource"
 Partners,,role,ontology,,,CatalogueOntologies,PartnerRoles,,,,,Role in this resource
 Partners,,roleDescription,text,,,,,,,,,Description of the role in this resource
-Contributions,,,,,,,,,,,,Persons that contributed to the creation of a resource
-Contributions,,resource,ref,1,TRUE,,Resources,,,,,Resource person has contributed to
-Contributions,,contact,ref,1,TRUE,,Contacts,,,,,Person who contributed to a resource
-Contributions,,contributionType,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type of the contribution
-Contributions,,contributionDescription,text,,,,,,,,,Contribution description
+Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
@@ -179,6 +175,7 @@ Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact p
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,2,,,,,,,,Contact's email address
+Contacts,,contributionType,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type of the contribution
 Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
