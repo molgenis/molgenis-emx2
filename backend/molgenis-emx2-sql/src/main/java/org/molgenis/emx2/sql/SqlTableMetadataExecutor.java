@@ -180,6 +180,8 @@ class SqlTableMetadataExecutor {
         inline(keyColumns),
         keyword(keyValues));
 
+    jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table.getJooqTable());
+
     jooq.execute(
         "CREATE CONSTRAINT TRIGGER {0} "
             + "\n\tAFTER UPDATE OF {1} ON {2}"

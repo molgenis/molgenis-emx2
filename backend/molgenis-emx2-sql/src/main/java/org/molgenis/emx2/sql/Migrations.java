@@ -75,7 +75,7 @@ public class Migrations {
     MetadataUtils.setVersion(db.getJooq(), newVersion);
   }
 
-  private static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
+  static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
     // should add trigger to all root tables, identfied by having MG_TABLCLASS column
     for (String schemaName : db.getSchemaNames()) {
       Schema schema = db.getSchema(schemaName);
