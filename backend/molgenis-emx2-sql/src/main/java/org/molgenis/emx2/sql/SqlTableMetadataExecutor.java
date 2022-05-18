@@ -153,7 +153,7 @@ class SqlTableMetadataExecutor {
   }
 
   static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
-    Name name = name(table.getTableName() + "_MG_TABLECLASS_UPDATE");
+    String functionName = table.getTableName() + "_MG_TABLECLASS_UPDATE";
 
     String keyColumns =
         table.getPrimaryKeyColumns().stream()
@@ -175,13 +175,16 @@ class SqlTableMetadataExecutor {
             + "\n\tEND IF;"
             + "\n\tRETURN NEW;"
             + "\nEND; $BODY$ LANGUAGE plpgsql;",
-        name, name(MG_TABLECLASS), inline(keyColumns), keyword(keyValues));
+        name(table.getSchemaName(), functionName),
+        name(MG_TABLECLASS),
+        inline(keyColumns),
+        keyword(keyValues));
 
     jooq.execute(
-        "CREATE OR REPLACE TRIGGER {0} "
+        "CREATE OR REPLACE TRIGGER {0}"
             + "\nBEFORE UPDATE OF {2} ON {1} "
             + "\nFOR EACH ROW EXECUTE PROCEDURE {0}()",
-        name, table.getJooqTable(), name(MG_TABLECLASS));
+        name(functionName), table.getJooqTable(), name(MG_TABLECLASS));
   }
 
   static Name[] asJooqNames(List<String> strings) {
