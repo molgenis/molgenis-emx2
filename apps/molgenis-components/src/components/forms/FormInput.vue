@@ -49,7 +49,6 @@ const typeToInputMap = {
   ONTOLOGY_ARRAY: ArrayInput,
   REF: InputRef,
   REF_ARRAY: ArrayInput,
-
   FILE: InputFile,
 };
 
@@ -73,6 +72,7 @@ export default {
     refBackType: String,
     refLabel: String,
     schema: String,
+    tableName: String,
     ontologyTableName: String,
   },
   components: {
@@ -88,10 +88,10 @@ export default {
     InputFile,
     InputText,
     InputHeading,
-    InputOntology: () => import("../forms/InputOntology.vue"), //because it uses itself in nested form,
-    InputRef: () => import("../forms/InputRef.vue"), //because it uses itself in nested form,
-    //  InputRefback: () => import("../forms/InputRefback.vue"), //because it uses itself in nested form,
-    //  InputRefSelect: () => import("../forms/InputRefSelect.vue"), //because it uses itself in nested form
+    InputOntology,
+    InputRef,
+    //  InputRefback
+    //  InputRefSelect
   },
   computed: {
     typeToInput() {
@@ -106,70 +106,245 @@ export default {
   <div>
     <DemoItem>
       <FormInput
-        id="ontology"
-        columnType="ONTOLOGY"
-        label="Test ontology"
-        ontologyTableName="Category"
-        v-model="valueOntology"
-        graphqlURL="/pet store/graphql"
-      />
-    </DemoItem>
-    <DemoItem>
-      <FormInput
-        id="heading"
+        id="heading-example"
         columnType="HEADING"
-        label="my header"
-        description="my description"
+        label="Example header"
+        description="Header description"
       />
     </DemoItem>
     <DemoItem>
       <FormInput
-        id="string"
+        id="string-example"
         columnType="STRING"
-        label="Test String"
-        v-model="value"
+        label="Example string input"
+        v-model="stringValue"
       />
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="string-inplace"
-        columnType="STRING"
-        label="Test String inplace"
-        v-model="valueInplace"
-        inplace
-      />
+      <div><b>In place string example</b></div>
+      <div>
+        This is inside this
+        <FormInput
+          id="string-inplace-example"
+          columnType="STRING"
+          label="Example string input inplace"
+          v-model="stringValueInplace"
+          inplace
+        />
+        sentence
+      </div>
     </DemoItem>
     <DemoItem>
       <FormInput
-        id="string-array"
+        id="string-array-example"
         columnType="STRING_ARRAY"
-        label="Test String Array"
-        v-model="valueArray"
+        label="Example string array input"
+        v-model="stringValueArray"
       />
     </DemoItem>
     <DemoItem>
       <FormInput
-        id="ref-array"
-        columnType="REF_ARRAY"
-        label="Test ref"
-        table="Pet"
-        :defaultValue="[{ name: 'spike' }]"
-        graphqlURL="/pet store/graphql"
+        id="date-example"
+        columnType="DATE"
+        label="Example date input"
+        v-model="dateValue"
       />
     </DemoItem>
     <DemoItem>
-      <FormInput id="date" columnType="DATE" label="Test Date" />
+      <FormInput
+        id="date-array-example"
+        columnType="DATE_ARRAY"
+        label="Example date array input"
+        v-model="dateValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="date-time-example"
+        columnType="DATETIME"
+        label="Example date-time input"
+        v-model="dateTimeValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="date-time-array-example"
+        columnType="DATETIME_ARRAY"
+        label="Example date-time array input"
+        v-model="dateTimeValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="int-example"
+        columnType="INT"
+        label="Example integer input"
+        v-model="intValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="int-array-example"
+        columnType="INT_ARRAY"
+        label="Example integer array input"
+        v-model="intValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="text-example"
+        columnType="TEXT"
+        label="Example text input"
+        v-model="textValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="text-array-example"
+        columnType="TEXT_ARRAY"
+        label="Example text array input"
+        v-model="textValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="long-example"
+        columnType="LONG"
+        label="Example long input"
+        v-model="longValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="long-array-example"
+        columnType="LONG_ARRAY"
+        label="Example long array input"
+        v-model="longValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="decimal-example"
+        columnType="DECIMAL"
+        label="Example decimal input"
+        v-model="decimalValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="decimal-array-example"
+        columnType="DECIMAL_ARRAY"
+        label="Example decimal array input"
+        v-model="decimalValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="boolean-example"
+        columnType="BOOL"
+        label="Example boolean input"
+        v-model="booleanValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="boolean-array-example"
+        columnType="BOOL_ARRAY"
+        label="Example boolean array input"
+        v-model="booleanValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="ref-example"
+        columnType="REF"
+        label="Example ref input"
+        tableName="Pet"
+        :defaultValue="{ name: 'spike' }"
+        :graphqlURL="graphqlUrl"
+        v-model="refValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="ref-array-example"
+        columnType="REF_ARRAY"
+        label="Example ref array input"
+        tableName="Pet"
+        :defaultValue="[{ name: 'spike' }]"
+        :graphqlURL="graphqlUrl"
+        v-model="refValueArray"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="ontology-example"
+        columnType="ONTOLOGY"
+        label="Example ontology input"
+        ontologyTableName="Category"
+        v-model="ontologyValue"
+        :graphqlURL="graphqlUrl"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="ontology-array-example"
+        columnType="ONTOLOGY_ARRAY"
+        label="Example ontology array input"
+        ontologyTableName="Category"
+        v-model="ontologyArrayValue"
+        :graphqlURL="graphqlUrl"
+      />
+    </DemoItem>
+    <DemoItem>
+      <FormInput
+        id="file-input-example"
+        columnType="FILE"
+        label="Example file input"
+        v-model="fileValue"
+      />
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <b>Example unsupported input</b>
+      </div>
+      <div>
+        <FormInput
+          id="unsupported-input-example"
+          columnType="not_supported_input"
+        />
+      </div>
     </DemoItem>
   </div>
 </template>
 <script>
+const graphqlUrl = "/pet store/graphql";
 export default {
   data: function () {
     return {
-      value: "test",
-      valueInplace: "inplace",
-      valueArray: ["value1", "value2"],
-      valueOntology: null
+      graphqlUrl,
+      stringValue: "test",
+      stringValueInplace: "inplace",
+      stringValueArray: ["value1", "value2"],
+      ontologyValue: null,
+      ontologyArrayValue: [],
+      dateValue: null,
+      dateValueArray: [null, null],
+      dateTimeValue: null,
+      dateTimeValueArray: [null, null],
+      intValue: 42,
+      intValueArray: [5, 37],
+      textValue: "example text",
+      textValueArray: ["text", "more text"],
+      longValue: "1337",
+      longValueArray: ["0", "1.1"],
+      decimalValue: 3.7,
+      decimalValueArray: [4.2, 13.37],
+      booleanValue: true,
+      booleanValueArray: [true, false],
+      refValue: null,
+      refValueArray: [null, null],
+      fileValue: null,
     };
   },
 };
