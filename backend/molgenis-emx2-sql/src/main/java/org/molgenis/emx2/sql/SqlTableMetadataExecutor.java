@@ -183,8 +183,11 @@ class SqlTableMetadataExecutor {
     jooq.execute(
         "CREATE OR REPLACE TRIGGER {0}"
             + "\nBEFORE UPDATE OF {2} ON {1} "
-            + "\nFOR EACH ROW EXECUTE PROCEDURE {0}()",
-        name(functionName), table.getJooqTable(), name(MG_TABLECLASS));
+            + "\nFOR EACH ROW EXECUTE PROCEDURE {3}()",
+        name(functionName),
+        table.getJooqTable(),
+        name(MG_TABLECLASS),
+        name(table.getSchemaName(), functionName));
   }
 
   static Name[] asJooqNames(List<String> strings) {
