@@ -5,7 +5,6 @@
         :is="inputType"
         :id="id + index"
         v-model="values[index]"
-        @updateInput="$emit('input', values)"
         :showAddButton="index === values.length"
       >
         <template v-slot:append>
@@ -44,7 +43,7 @@ export default {
     inputType() {
       return {
         STRING_ARRAY: InputString,
-      }[this.type];
+      }[this.columnType];
     },
   },
   methods: {
@@ -68,7 +67,7 @@ export default {
     <div>
       <ArrayInput
           id="array-string-1"
-          type="STRING_ARRAY"
+          columnType="STRING_ARRAY"
           v-model="value"
       ></ArrayInput>
     </div>
@@ -86,7 +85,7 @@ export default {
     },
     data() {
       return {
-        value: ["blaat"],
+        value: ["String array value"],
       };
     },
   };
