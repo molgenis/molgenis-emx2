@@ -1,5 +1,5 @@
 <template>
-  <component :is="inplace ? 'InlineInput' : 'div'" :value="value">
+  <component :is="inplace ? 'InlineInput' : 'span'" :value="value">
     <component
       v-if="typeToInput"
       :is="typeToInput"
@@ -52,28 +52,46 @@ const typeToInputMap = {
   FILE: InputFile,
 };
 
+const notRequiredString = {
+  type: String,
+  required: false,
+};
+
 export default {
   name: "FormInput",
   extends: BaseInput,
   props: {
     inplace: {
       type: Boolean,
+      default: false,
     },
-    columnType: String,
-    description: String,
-    editMeta: Boolean,
-    filter: Object,
+    columnType: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      default: null,
+    },
+    editMeta: {
+      type: Boolean,
+      required: false,
+    },
+    filter: {
+      type: Object,
+      required: false,
+    },
     graphqlURL: {
       default: "graphql",
       type: String,
     },
-    pkey: Object,
-    refBack: String,
-    refBackType: String,
-    refLabel: String,
-    schema: String,
-    tableName: String,
-    ontologyTableName: String,
+    pkey: notRequiredString,
+    refBack: notRequiredString,
+    refBackType: notRequiredString,
+    refLabel: notRequiredString,
+    schema: notRequiredString,
+    tableName: notRequiredString,
+    ontologyTableName: notRequiredString,
   },
   components: {
     InlineInput,
@@ -113,12 +131,15 @@ export default {
       />
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="string-example"
-        columnType="STRING"
-        label="Example string input"
-        v-model="stringValue"
-      />
+      <div>
+        <FormInput
+          id="string-example"
+          columnType="STRING"
+          label="Example string input"
+          v-model="stringValue"
+        />
+      </div>
+      <div>You typed: {{ stringValue }}</div>
     </DemoItem>
     <DemoItem>
       <div><b>In place string example</b></div>
@@ -135,174 +156,234 @@ export default {
       </div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="string-array-example"
-        columnType="STRING_ARRAY"
-        label="Example string array input"
-        v-model="stringValueArray"
-      />
+      <div>
+        <FormInput
+          id="string-array-example"
+          columnType="STRING_ARRAY"
+          label="Example string array input"
+          v-model="stringValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(stringValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="date-example"
-        columnType="DATE"
-        label="Example date input"
-        v-model="dateValue"
-      />
+      <div>
+        <FormInput
+          id="date-example"
+          columnType="DATE"
+          label="Example date input"
+          v-model="dateValue"
+        />
+      </div>
+      <div>You selected: {{ dateValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="date-array-example"
-        columnType="DATE_ARRAY"
-        label="Example date array input"
-        v-model="dateValueArray"
-      />
+      <div>
+        <FormInput
+          id="date-array-example"
+          columnType="DATE_ARRAY"
+          label="Example date array input"
+          v-model="dateValueArray"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(dateValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="date-time-example"
-        columnType="DATETIME"
-        label="Example date-time input"
-        v-model="dateTimeValue"
-      />
+      <div>
+        <FormInput
+          id="date-time-example"
+          columnType="DATETIME"
+          label="Example date-time input"
+          v-model="dateTimeValue"
+        />
+      </div>
+      <div>You selected: {{ dateTimeValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="date-time-array-example"
-        columnType="DATETIME_ARRAY"
-        label="Example date-time array input"
-        v-model="dateTimeValueArray"
-      />
+      <div>
+        <FormInput
+          id="date-time-array-example"
+          columnType="DATETIME_ARRAY"
+          label="Example date-time array input"
+          v-model="dateTimeValueArray"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(dateTimeValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="int-example"
-        columnType="INT"
-        label="Example integer input"
-        v-model="intValue"
-      />
+      <div>
+        <FormInput
+          id="int-example"
+          columnType="INT"
+          label="Example integer input"
+          v-model="intValue"
+        />
+      </div>
+      <div>You typed: {{ intValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="int-array-example"
-        columnType="INT_ARRAY"
-        label="Example integer array input"
-        v-model="intValueArray"
-      />
+      <div>
+        <FormInput
+          id="int-array-example"
+          columnType="INT_ARRAY"
+          label="Example integer array input"
+          v-model="intValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(intValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="text-example"
-        columnType="TEXT"
-        label="Example text input"
-        v-model="textValue"
-      />
+      <div>
+        <FormInput
+          id="text-example"
+          columnType="TEXT"
+          label="Example text input"
+          v-model="textValue"
+        />
+      </div>
+      <div>You typed: {{ textValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="text-array-example"
-        columnType="TEXT_ARRAY"
-        label="Example text array input"
-        v-model="textValueArray"
-      />
+      <div>
+        <FormInput
+          id="text-array-example"
+          columnType="TEXT_ARRAY"
+          label="Example text array input"
+          v-model="textValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(textValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="long-example"
-        columnType="LONG"
-        label="Example long input"
-        v-model="longValue"
-      />
+      <div>
+        <FormInput
+          id="long-example"
+          columnType="LONG"
+          label="Example long input"
+          v-model="longValue"
+        />
+      </div>
+      <div>You typed: {{ longValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="long-array-example"
-        columnType="LONG_ARRAY"
-        label="Example long array input"
-        v-model="longValueArray"
-      />
+      <div>
+        <FormInput
+          id="long-array-example"
+          columnType="LONG_ARRAY"
+          label="Example long array input"
+          v-model="longValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(longValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="decimal-example"
-        columnType="DECIMAL"
-        label="Example decimal input"
-        v-model="decimalValue"
-      />
+      <div>
+        <FormInput
+          id="decimal-example"
+          columnType="DECIMAL"
+          label="Example decimal input"
+          v-model="decimalValue"
+        />
+      </div>
+      <div>You typed: {{ decimalValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="decimal-array-example"
-        columnType="DECIMAL_ARRAY"
-        label="Example decimal array input"
-        v-model="decimalValueArray"
-      />
+      <div>
+        <FormInput
+          id="decimal-array-example"
+          columnType="DECIMAL_ARRAY"
+          label="Example decimal array input"
+          v-model="decimalValueArray"
+        />
+      </div>
+      <div>You typed: {{ JSON.stringify(decimalValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="boolean-example"
-        columnType="BOOL"
-        label="Example boolean input"
-        v-model="booleanValue"
-      />
+      <div>
+        <FormInput
+          id="boolean-example"
+          columnType="BOOL"
+          label="Example boolean input"
+          v-model="booleanValue"
+        />
+      </div>
+      <div>You selected: {{ booleanValue }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="boolean-array-example"
-        columnType="BOOL_ARRAY"
-        label="Example boolean array input"
-        v-model="booleanValueArray"
-      />
+      <div>
+        <FormInput
+          id="boolean-array-example"
+          columnType="BOOL_ARRAY"
+          label="Example boolean array input"
+          v-model="booleanValueArray"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(booleanValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="ref-example"
-        columnType="REF"
-        label="Example ref input"
-        tableName="Pet"
-        :defaultValue="{ name: 'spike' }"
-        :graphqlURL="graphqlUrl"
-        v-model="refValue"
-      />
+      <div>
+        <FormInput
+          id="ref-example"
+          columnType="REF"
+          label="Example ref input"
+          tableName="Pet"
+          :defaultValue="{ name: 'spike' }"
+          :graphqlURL="graphqlUrl"
+          v-model="refValue"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(refValue, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="ref-array-example"
-        columnType="REF_ARRAY"
-        label="Example ref array input"
-        tableName="Pet"
-        :defaultValue="[{ name: 'spike' }]"
-        :graphqlURL="graphqlUrl"
-        v-model="refValueArray"
-      />
+      <div>
+        <FormInput
+          id="ref-array-example"
+          columnType="REF_ARRAY"
+          label="Example ref array input"
+          tableName="Pet"
+          :defaultValue="[{ name: 'spike' }]"
+          :graphqlURL="graphqlUrl"
+          v-model="refValueArray"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(refValueArray, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="ontology-example"
-        columnType="ONTOLOGY"
-        label="Example ontology input"
-        ontologyTableName="Category"
-        v-model="ontologyValue"
-        :graphqlURL="graphqlUrl"
-      />
+      <div>
+        <FormInput
+          id="ontology-example"
+          columnType="ONTOLOGY"
+          label="Example ontology input"
+          ontologyTableName="Category"
+          v-model="ontologyValue"
+          :graphqlURL="graphqlUrl"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(ontologyValue, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="ontology-array-example"
-        columnType="ONTOLOGY_ARRAY"
-        label="Example ontology array input"
-        ontologyTableName="Category"
-        v-model="ontologyArrayValue"
-        :graphqlURL="graphqlUrl"
-      />
+      <div>
+        <FormInput
+          id="ontology-array-example"
+          columnType="ONTOLOGY_ARRAY"
+          label="Example ontology array input"
+          ontologyTableName="Category"
+          v-model="ontologyArrayValue"
+          :graphqlURL="graphqlUrl"
+        />
+      </div>
+      <div>You selected: {{ JSON.stringify(ontologyArrayValue, null, 2) }}</div>
     </DemoItem>
     <DemoItem>
-      <FormInput
-        id="file-input-example"
-        columnType="FILE"
-        label="Example file input"
-        v-model="fileValue"
-      />
+      <div>
+        <FormInput
+          id="file-input-example"
+          columnType="FILE"
+          label="Example file input"
+          v-model="fileValue"
+        />
+      </div>
+      <div>You selected: {{ fileValue.name }}</div>
     </DemoItem>
     <DemoItem>
       <div>
