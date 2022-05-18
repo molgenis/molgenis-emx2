@@ -1,11 +1,7 @@
 <template>
-  <div v-if="showLogin">
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <SigninForm @login="loginSuccess" @cancel="cancel" />
-  </div>
-  <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
+  <LayoutModal :title="title" :show="true" @close="$emit('close')">
     <template v-slot:body>
-      <LayoutForm v-if="tableMetadata && (pkey == null || value)">
+      <LayoutForm v-if="tableMetaData && (pkey == null || value)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <FormInput
             v-if="showColumn(column)"
@@ -15,13 +11,12 @@
             :errorMessage="errorPerColumn[column.id]"
             :graphqlURL="graphqlURL"
             :label="column.name"
-            :pkey="getPkey(value)"
+            :pkey="getPrimaryKey(value)"
             :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
             :refBack="column.refBack"
-            :refBackType="getRefBackType(column)"
             :refLabel="column.refLabel"
             :required="column.required"
-            :table="column.refTable"
+            :tableName="column.refTable"
           />
         </span>
       </LayoutForm>
@@ -31,23 +26,26 @@
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
       <ButtonOutline @click="saveDraft">Save draft</ButtonOutline>
-      <ButtonAction @click="save">Save {{ table }}</ButtonAction>
+      <ButtonAction @click="save">Save {{ tableName }}</ButtonAction>
     </template>
   </LayoutModal>
 </template>
 
 <script>
+import Client from "../../client/client.js";
 import LayoutForm from "../layout/LayoutForm.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import MessageError from "../forms/MessageError";
-import MessageSuccess from "../forms/MessageSuccess";
-import ButtonAction from "../forms/ButtonAction.vue";
-import ButtonAlt from "../forms/ButtonAlt.vue";
-import ButtonOutline from "../forms/ButtonOutline";
-import SigninForm from "../layout/MolgenisSignin";
+import MessageError from "./MessageError.vue";
+import MessageSuccess from "./MessageSuccess.vue";
+import ButtonAction from "./ButtonAction.vue";
+import ButtonAlt from "./ButtonAlt.vue";
+import ButtonOutline from "./ButtonOutline.vue";
 import FormInput from "./FormInput.vue";
 import Expressions from "@molgenis/expressions";
-import { EMAIL_REGEX, HYPERLINK_REGEX } from "../constants";
+import constants from "../constants";
+import { getPrimaryKey } from "../utils";
+
+const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 /**
  * Properties:
@@ -58,12 +56,16 @@ import { EMAIL_REGEX, HYPERLINK_REGEX } from "../constants";
  * **/
 
 export default {
+  name: "EditModal",
   data: function () {
     return {
       showLogin: false,
       value: {},
       errorPerColumn: {},
       success: null,
+      tableMetaData: null,
+      data: null,
+      graphqlError: null,
     };
   },
   props: {
@@ -71,6 +73,14 @@ export default {
     clone: Boolean,
     visibleColumns: Array,
     defaultValue: Object,
+    graphqlURL: {
+      default: "graphql",
+      type: String,
+    },
+    tableName: {
+      type: String,
+      required: true,
+    },
   },
   components: {
     LayoutForm,
@@ -80,69 +90,14 @@ export default {
     LayoutModal,
     MessageError,
     MessageSuccess,
-    SigninForm,
     ButtonOutline,
   },
   methods: {
-    getRefBackType(column) {
-      if (column.columnType === "REFBACK") {
-        const table = this.getTable(column.refTable);
-        return table.columns.find(
-          (otherColumn) => otherColumn.name === column.refBack
-        ).columnType;
-      }
-    },
-    loginSuccess() {
-      this.graphqlError = null;
-      this.success = null;
-      this.showLogin = false;
-    },
     saveDraft() {
       this.executeSaveCommand(true);
     },
     save() {
       this.executeSaveCommand(false);
-    },
-    executeSaveCommand(isDraft) {
-      this.graphqlError = null;
-      this.success = null;
-      // TODO: add spinner
-
-      this.setDraft(isDraft);
-
-      const variables = { value: [this.value] };
-      const query = this.getUpsertQuery();
-      this.requestMultipart(this.graphqlURL, query, variables)
-        .then((data) => {
-          if (data.insert) {
-            this.success = data.insert.message;
-          }
-          if (data.update) {
-            this.success = data.update.message;
-          }
-          this.$emit("close");
-        })
-        .catch((error) => {
-          if (error.status === 403) {
-            this.graphqlError =
-              "Schema doesn't exist or permission denied. Do you need to Sign In?";
-            this.showLogin = true;
-          } else {
-            this.graphqlError = error.errors[0].message;
-          }
-        });
-    },
-    setDraft(isDraft) {
-      if (isDraft) {
-        this.value["mg_draft"] = true;
-      } else {
-        this.value["mg_draft"] = false;
-      }
-    },
-    getUpsertQuery() {
-      const name = this.tableId;
-      const action = this.pkey && !this.clone ? "update" : "insert";
-      return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
     },
     showColumn(column) {
       const hasRefValue = !column.refLink || this.value[column.refLink];
@@ -167,8 +122,8 @@ export default {
       }
     },
     validate() {
-      if (this.tableMetadata) {
-        this.tableMetadata.columns.forEach((column) =>
+      if (this.tableMetaData) {
+        this.tableMetaData.columns.forEach((column) =>
           this.validateColumn(column)
         );
       }
@@ -194,7 +149,7 @@ export default {
         return false;
       } else {
         const refLinkId = getRefLinkColumnByName(
-          this.tableMetadata,
+          this.tableMetaData,
           column.refLink
         ).id;
         const value = this.value[column.id];
@@ -211,17 +166,18 @@ export default {
         }
       }
     },
+    getPrimaryKey,
   },
   computed: {
     columnsWithoutMeta() {
-      return this.tableMetadata.columns.filter(
-        (c) => !c.name.startsWith("mg_")
+      return this.tableMetaData.columns.filter(
+        (column) => !column.name.startsWith("mg_")
       );
     },
     //@overide
     graphqlFilter() {
-      if (this.tableMetadata && this.pkey) {
-        return this.tableMetadata.columns
+      if (this.tableMetaData && this.pkey) {
+        return this.tableMetaData.columns
           .filter((column) => column.key == 1)
           .reduce((accum, column) => {
             accum[column.id] = { equals: this.pkey[column.id] };
@@ -234,11 +190,11 @@ export default {
     // override from tableMixin
     title() {
       if (this.pkey && this.clone) {
-        return `copy ${this.table}`;
+        return `copy ${this.tableName}`;
       } else if (this.pkey) {
-        return `update ${this.table}`;
+        return `update ${this.tableName}`;
       } else {
-        return `insert ${this.table}`;
+        return `insert ${this.tableName}`;
       }
     },
   },
@@ -248,7 +204,7 @@ export default {
       if (this.pkey && val && val.length > 0) {
         let data = val[0];
         let defaultValue = {};
-        this.tableMetadata.columns.forEach((column) => {
+        this.tableMetaData.columns.forEach((column) => {
           // primary skip (key=1) key in case of clone
           if (data[column.id] && (!this.clone || column.key != 1)) {
             defaultValue[column.id] = data[column.id];
@@ -264,12 +220,20 @@ export default {
       },
       deep: true,
     },
-    tableMetadata: {
+    tableMetaData: {
       handler() {
         this.validate();
       },
       deep: true,
     },
+  },
+  async mounted() {
+    const client = Client.newClient(this.graphqlURL);
+    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+      (table) => table.id === this.tableName
+    );
+    const response = await client.fetchTableData(this.tableName);
+    this.data = response[this.tableName];
   },
   created() {
     //pass by value
@@ -332,7 +296,30 @@ function evaluateValidationExpression(column, values) {
   }
 }
 
-function getRefLinkColumnByName(tableMetadata, refLink) {
-  return tableMetadata.columns.find((column) => column.name === refLink);
+function getRefLinkColumnByName(tableMetaData, refLink) {
+  return tableMetaData.columns.find((column) => column.name === refLink);
 }
 </script>
+
+
+<docs>
+  <template>
+    <DemoItem>
+      <EditModal
+          :pkey="{name:'Pet'}"
+          graphqlURL="/pet store/graphql"
+          tableName="Pet"
+      />
+      You typed: {{ JSON.stringify(value) }}
+    </DemoItem>
+  </template>
+  <script>
+  export default {
+    data: function () {
+      return {
+        value: null,
+      };
+    },
+  };
+  </script>
+</docs>

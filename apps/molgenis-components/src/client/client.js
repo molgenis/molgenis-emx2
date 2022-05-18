@@ -154,6 +154,93 @@ const request = async (url, graqphl) => {
   return result.data.data;
 };
 
+const executeSaveCommand = (graphqlURL, tableName, isDraft, value, action) => {
+  let graphqlError = null;
+  let success = null;
+  // TODO: add spinner
+
+  value = setDraft(value, isDraft);
+
+  const variables = { value: [value] };
+  const query = getUpsertQuery(tableName, action);
+  requestMultipart(graphqlURL, query, variables)
+    .then((data) => {
+      if (data.insert) {
+        success = data.insert.message;
+      }
+      if (data.update) {
+        success = data.update.message;
+      }
+      //$emit("close");
+    })
+    .catch((error) => {
+      if (error.status === 403) {
+        graphqlError =
+          "Schema doesn't exist or permission denied. Do you need to Sign In?";
+      } else {
+        graphqlError = error.errors[0].message;
+      }
+    });
+};
+const setDraft = (value, isDraft) => {
+  if (isDraft) {
+    return (value["mg_draft"] = true);
+  } else {
+    return (value["mg_draft"] = false);
+  }
+};
+const getUpsertQuery = (tableName, action) => {
+  const name = tableName;
+  return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
+};
+
+const requestMultipart = (url, query, variables) => {
+  return new Promise(function (resolve, reject) {
+    //thanks to https://medium.com/@danielbuechele/file-uploads-with-graphql-and-apollo-5502bbf3941e
+    const formData = new FormData();
+
+    // search for File objects on the request and set it as formData
+    for (let { node, path } of new RecursiveIterator(variables)) {
+      if (node instanceof File) {
+        const id = Math.random().toString(36);
+        formData.append(id, node);
+        objectPath.set(variables, path.join("."), id);
+      }
+    }
+    formData.append("query", query);
+    formData.append("variables", JSON.stringify(variables || {}));
+    fetch(url, {
+      body: formData,
+      method: "POST",
+    })
+      .then((response) => {
+        if (response.ok) {
+          response.json().then((result) => {
+            if (!result.errors && result.data) {
+              resolve({
+                data: result.data,
+              });
+            } else {
+              {
+                reject({
+                  errors: result.errors,
+                });
+              }
+            }
+          });
+        } else {
+          response.json().then((result) => {
+            reject({ errors: result.errors });
+          });
+        }
+      })
+      .catch((error) => {
+        alert("catch: " + error.json());
+        reject({ status: error, query: query });
+      });
+  });
+};
+
 export { request };
 
 export default {
@@ -182,6 +269,12 @@ export default {
           myAxios,
           graphqlURL
         );
+      },
+      insertVariables(graphqlURL, tableName, isDraft, value) {
+        executeSaveCommand(graphqlURL, tableName, isDraft, value, "insert");
+      },
+      updateVariables(graphqlURL, tableName, isDraft, value) {
+        executeSaveCommand(graphqlURL, tableName, isDraft, value, "update");
       },
     };
   },
