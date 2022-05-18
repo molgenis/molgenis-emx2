@@ -11,6 +11,8 @@
         :conditions="filters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
+        :tableName="filter.tableName"
+        :graphqlURL="filter.graphqlURL"
       />
     </FilterContainer>
   </div>
@@ -77,6 +79,15 @@ export default {
             columnType: "STRING",
             showFilter: true,
             conditions: ["test123"]
+          },
+          {
+            "name": "pets",
+            "columnType": "REF",
+            "showFilter": true,
+            "expanded": true,
+            "conditions": [],
+            "tableName": "Pet",
+            "graphqlURL": "/pet store/graphql"
           },
           {
             name: "quantity",
