@@ -26,6 +26,7 @@ import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
+import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
@@ -127,6 +128,7 @@ export {
   ButtonDanger,
   ButtonSubmit,
   FormGroup,
+  FormInput,
   FormMolgenis,
   InlineInput,
   InputBoolean,
