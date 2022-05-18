@@ -181,12 +181,13 @@ class SqlTableMetadataExecutor {
         keyword(keyValues));
 
     jooq.execute(
-        "CREATE OR REPLACE TRIGGER {0}"
-            + "\nBEFORE UPDATE OF {2} ON {1} "
-            + "\nFOR EACH ROW EXECUTE PROCEDURE {3}()",
+        "CREATE CONSTRAINT TRIGGER {0} "
+            + "\n\tAFTER UPDATE OF {1} ON {2}"
+            + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
+            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
         name(functionName),
-        table.getJooqTable(),
         name(MG_TABLECLASS),
+        table.getJooqTable(),
         name(table.getSchemaName(), functionName));
   }
 
