@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
@@ -89,7 +90,7 @@ public class TestCreateForeignKeysArrays {
         schema.create(
             table("B")
                 .add(column("id").setPkey())
-                .add(column(refToA).setType(REF_ARRAY).setRefTable("A"))
+                .add(column(refToA).setType(REF_ARRAY).setRefTable("A").setRequired(true))
                 .add(column(refToA + "Nullable").setType(REF_ARRAY).setRefTable("A")));
 
     // error on insert of faulty fkey
@@ -98,6 +99,28 @@ public class TestCreateForeignKeysArrays {
       bTable.insert(bErrorRow);
       fail("insert should fail because value is missing");
     } catch (Exception e) {
+      System.out.println(
+          "insert exception correct because value " + testValues[2] + " is missing: \n" + e);
+    }
+
+    // error on insert of faulty null fkey
+    bErrorRow = new Row().set("id", 1).set(refToA, null);
+    try {
+      bTable.insert(bErrorRow);
+      fail("insert should fail because required value is null");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("required"));
+      System.out.println(
+          "insert exception correct because value " + testValues[2] + " is missing: \n" + e);
+    }
+
+    // error on insert of faulty empty array fkey
+    bErrorRow = new Row().set("id", 1).set(refToA, new Object[0]);
+    try {
+      bTable.insert(bErrorRow);
+      fail("insert should fail because required value is empty array");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("required"));
       System.out.println(
           "insert exception correct because value " + testValues[2] + " is missing: \n" + e);
     }
