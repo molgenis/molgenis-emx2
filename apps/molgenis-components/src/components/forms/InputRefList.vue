@@ -211,7 +211,7 @@ export default {
         graphqlURL="/pet store/graphql"
         multipleColumns
       />
-      Selection: {{ value }}
+      Selection: {{ multiColumnValue }}
     </DemoItem>
   </div>
 </template>
