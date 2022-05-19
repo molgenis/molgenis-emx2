@@ -73,7 +73,13 @@ export default {
     data: function () {
       return {
         filters: [
-
+          {
+            name: "orderId",
+            pkey: true,
+            columnType: "STRING",
+            showFilter: true,
+            conditions: ["test123"]
+          },
           {
             "name": "pets",
             "columnType": "REF",
