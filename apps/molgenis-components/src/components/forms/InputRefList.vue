@@ -53,6 +53,7 @@
         <template v-slot:body>
           <TableSearch
             :selection.sync="selection"
+            @update:selection="$emit('input', $event);"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
