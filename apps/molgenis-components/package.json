@@ -20,7 +20,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@vue/compiler-sfc": "3.2.33",
+    "@vue/compiler-sfc": "3.2.34",
     "axios": "0.27.2",
     "v-click-outside": "3.2.0",
     "vite-plugin-vue2": "1.9.3",
