@@ -8,10 +8,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -60,11 +57,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               .collect(Collectors.toSet());
       remove.forEach(s -> this.settings.remove(s));
 
-      from.settings.entrySet().stream()
-          .forEach(
-              s -> {
-                this.settings.put(s.getKey(), new Setting(s.getKey(), s.getValue().value()));
-              });
+      from.settings.putAll(from.getSettingsAsMap());
     }
   }
 
@@ -95,8 +88,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
-    for (Setting setting : MetadataUtils.loadSettings(getDatabase().getJooq(), this)) {
-      super.setSetting(setting.key(), setting.value());
+    for (Map.Entry<String, String> entry :
+        MetadataUtils.loadSettings(getDatabase().getJooq(), this).entrySet()) {
+      super.setSetting(entry.getKey(), entry.getValue());
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -194,7 +188,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     settings.forEach(
         s -> {
           MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
-          schema.settings.put(s.key(), s);
+          schema.settings.put(s.key(), s.value());
         });
     return schema;
   }
@@ -205,6 +199,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
     }
     return super.getSettings();
+  }
+
+  @Override
+  public Map<String, String> getSettingsAsMap() {
+    if (super.getSettingsAsMap().size() == 0) {
+      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
+    }
+    return super.getSettingsAsMap();
   }
 
   @Override
