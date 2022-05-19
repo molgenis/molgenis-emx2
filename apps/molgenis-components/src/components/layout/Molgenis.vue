@@ -57,7 +57,7 @@ export default {
   props: {
     menuItems: {
       type: Array,
-      default: [
+      default: () => [
         { label: "Tables", href: "tables", role: "Viewer" },
         {
           label: "Schema",
