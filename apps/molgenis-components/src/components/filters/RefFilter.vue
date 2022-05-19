@@ -40,8 +40,12 @@ export default {
     },
   },
   methods: {
-    onUpdateCondition($event) {
-      this.$emit("updateCondition", $event);
+    onUpdateCondition(newValue) {
+      if (newValue === null) {
+        this.$emit("clearCondition", newValue);
+      } else {
+        this.$emit("updateCondition", newValue);
+      }
     },
   },
 };
