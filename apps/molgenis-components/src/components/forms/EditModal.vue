@@ -66,6 +66,7 @@ export default {
       tableMetaData: null,
       data: null,
       graphqlError: null,
+      client: null,
     };
   },
   props: {
@@ -94,10 +95,43 @@ export default {
   },
   methods: {
     saveDraft() {
-      this.executeSaveCommand(true);
+      this.save(true);
     },
-    save() {
-      this.executeSaveCommand(false);
+    save(isDraft) {
+      let promise;
+      if (this.pkey && !this.clone) {
+        promise = this.client.updateVariables(
+          this.graphqlURL,
+          this.tableName,
+          isDraft,
+          this.value
+        );
+      } else {
+        promise = this.client.insertVariables(
+          this.graphqlURL,
+          this.tableName,
+          isDraft,
+          this.value
+        );
+      }
+      promise
+        .then((data) => {
+          if (data.insert) {
+            this.success = data.insert.message;
+          }
+          if (data.update) {
+            this.success = data.update.message;
+          }
+          this.$emit("close");
+        })
+        .catch((error) => {
+          if (error.status === 403) {
+            this.graphqlError =
+              "Schema doesn't exist or permission denied. Do you need to Sign In?";
+          } else {
+            this.graphqlError = error.errors[0].message;
+          }
+        });
     },
     showColumn(column) {
       const hasRefValue = !column.refLink || this.value[column.refLink];
@@ -228,11 +262,11 @@ export default {
     },
   },
   async mounted() {
-    const client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+    this.client = Client.newClient(this.graphqlURL);
+    this.tableMetaData = (await this.client.fetchMetaData()).tables.find(
       (table) => table.id === this.tableName
     );
-    const response = await client.fetchTableData(this.tableName);
+    const response = await this.client.fetchTableData(this.tableName);
     this.data = response[this.tableName];
   },
   created() {

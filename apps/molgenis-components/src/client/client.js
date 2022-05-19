@@ -1,4 +1,57 @@
 import axios from "axios";
+import RecursiveIterator from "recursive-iterator";
+import objectPath from "object-path";
+
+export { request };
+
+export default {
+  newClient: (graphqlURL, externalAxios) => {
+    const myAxios = externalAxios || axios;
+    // use closure to have metaData cache private to client
+    let metaData = null;
+    return {
+      fetchMetaData: () => {
+        return fetchMetaData(myAxios, graphqlURL).then((schema) => {
+          metaData = schema;
+          // node js may not have structuredClone function, then fallback to deep clone via JSON
+          return typeof structuredClone === "function"
+            ? structuredClone(metaData)
+            : JSON.parse(JSON.stringify(metaData));
+        });
+      },
+      fetchTableData: async (tableId, properties) => {
+        if (metaData === null) {
+          metaData = await fetchMetaData(myAxios, graphqlURL);
+        }
+        return fetchTableData(
+          tableId,
+          properties,
+          metaData,
+          myAxios,
+          graphqlURL
+        );
+      },
+      insertVariables(graphqlURL, tableName, isDraft, value) {
+        return executeSaveCommand(
+          graphqlURL,
+          tableName,
+          isDraft,
+          value,
+          "insert"
+        );
+      },
+      updateVariables(graphqlURL, tableName, isDraft, value) {
+        return executeSaveCommand(
+          graphqlURL,
+          tableName,
+          isDraft,
+          value,
+          "update"
+        );
+      },
+    };
+  },
+};
 
 const metaDataQuery = `{
 _schema {
@@ -155,46 +208,21 @@ const request = async (url, graqphl) => {
 };
 
 const executeSaveCommand = (graphqlURL, tableName, isDraft, value, action) => {
-  let graphqlError = null;
-  let success = null;
   // TODO: add spinner
 
-  value = setDraft(value, isDraft);
+  value.mg_draft = isDraft;
 
   const variables = { value: [value] };
   const query = getUpsertQuery(tableName, action);
-  requestMultipart(graphqlURL, query, variables)
-    .then((data) => {
-      if (data.insert) {
-        success = data.insert.message;
-      }
-      if (data.update) {
-        success = data.update.message;
-      }
-      //$emit("close");
-    })
-    .catch((error) => {
-      if (error.status === 403) {
-        graphqlError =
-          "Schema doesn't exist or permission denied. Do you need to Sign In?";
-      } else {
-        graphqlError = error.errors[0].message;
-      }
-    });
-};
-const setDraft = (value, isDraft) => {
-  if (isDraft) {
-    return (value["mg_draft"] = true);
-  } else {
-    return (value["mg_draft"] = false);
-  }
-};
-const getUpsertQuery = (tableName, action) => {
-  const name = tableName;
-  return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
+  return requestMultipart(graphqlURL, query, variables);
 };
 
-const requestMultipart = (url, query, variables) => {
+function getUpsertQuery(tableName, action) {
+  const name = tableName;
+  return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
+}
+
+function requestMultipart(url, query, variables) {
   return new Promise(function (resolve, reject) {
     //thanks to https://medium.com/@danielbuechele/file-uploads-with-graphql-and-apollo-5502bbf3941e
     const formData = new FormData();
@@ -239,43 +267,4 @@ const requestMultipart = (url, query, variables) => {
         reject({ status: error, query: query });
       });
   });
-};
-
-export { request };
-
-export default {
-  newClient: (graphqlURL, externalAxios) => {
-    const myAxios = externalAxios || axios;
-    // use closure to have metaData cache private to client
-    let metaData = null;
-    return {
-      fetchMetaData: () => {
-        return fetchMetaData(myAxios, graphqlURL).then((schema) => {
-          metaData = schema;
-          // node js may not have structuredClone function, then fallback to deep clone via JSON
-          return typeof structuredClone === "function"
-            ? structuredClone(metaData)
-            : JSON.parse(JSON.stringify(metaData));
-        });
-      },
-      fetchTableData: async (tableId, properties) => {
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, graphqlURL);
-        }
-        return fetchTableData(
-          tableId,
-          properties,
-          metaData,
-          myAxios,
-          graphqlURL
-        );
-      },
-      insertVariables(graphqlURL, tableName, isDraft, value) {
-        executeSaveCommand(graphqlURL, tableName, isDraft, value, "insert");
-      },
-      updateVariables(graphqlURL, tableName, isDraft, value) {
-        executeSaveCommand(graphqlURL, tableName, isDraft, value, "update");
-      },
-    };
-  },
-};
+}
