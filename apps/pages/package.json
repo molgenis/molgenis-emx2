@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "ckeditor4-vue": "2.0.0",
+    "ckeditor4-vue": "2.1.0",
     "core-js": "3.22.5",
     "graphql-request": "3.7.0",
     "vue": "2.6.14",

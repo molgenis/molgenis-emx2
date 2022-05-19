@@ -18,6 +18,7 @@
                 menu: 'Menu',
                 pages: 'Pages',
               }"
+              :key="key"
             >
               <router-link
                 class="nav-link"
@@ -40,7 +41,7 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import { Molgenis } from "molgenis-components";
 
 export default {
   components: {

@@ -16,12 +16,14 @@
       <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
         <InputString
+          id="member-email"
           class="mb-2 mr-sm-4"
           v-model="editMember['email']"
           placeholder="email address"
           label="Email:"
         />
         <InputSelect
+          id="member-role"
           class="mb-2 mr-sm-4"
           v-model="editMember['role']"
           :options="roles"
@@ -62,7 +64,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
