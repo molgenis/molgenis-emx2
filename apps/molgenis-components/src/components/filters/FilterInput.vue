@@ -23,10 +23,15 @@ import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
+import RefListFilter from "./RefListFilter.vue";
 
 const filterTypeMap = {
   STRING: StringFilter,
   STRING_ARRAY: StringFilter,
+  EMAIL: StringFilter,
+  EMAIL_ARRAY: StringFilter,
+  HYPERLINK: StringFilter,
+  HYPERLINK_ARRAY: StringFilter,
   TEXT: StringFilter,
   TEXT_ARRAY: StringFilter,
   UUID: StringFilter,
@@ -39,7 +44,9 @@ const filterTypeMap = {
   DATE_ARRAY: DateFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
-  REF: RefFilter,
+  REF: RefListFilter,
+  REFBACK: RefListFilter,
+  REF_ARRAY: RefListFilter
 };
 
 export default {
@@ -51,6 +58,7 @@ export default {
     DateFilter,
     BooleanFilter,
     RefFilter,
+    RefListFilter
   },
   props: {
     id: {
@@ -87,18 +95,23 @@ export default {
   data() {
     return {
       // used to add new empty field when adding conditions
-      fieldCount: this.conditions.length || 1,
+      fieldCount: this.isMultiConditionFilter ? 1 : this.conditions.length || 1,
     };
   },
   computed: {
     filterType() {
       return filterTypeMap[this.columnType];
     },
+    isMultiConditionFilter() {
+      return ["REF", "REF_ARRAY", "REFBACK"].includes(this.columnType)
+    }
   },
   methods: {
     updateCondition(index, value) {
       let updatedConditions = [...this.conditions];
-      if (!this.conditions.length) {
+      if(this.isMultiConditionFilter) {
+          updatedConditions = value;
+      } else if (!this.conditions.length) {
         updatedConditions = [value];
       } else {
         updatedConditions[index] = value;
@@ -116,7 +129,7 @@ export default {
   },
   watch: {
     conditions(newValue) {
-      this.fieldCount = newValue.length || 1;
+      this.fieldCount = this.isMultiConditionFilter ? 1 : newValue.length || 1;
     },
   },
 };
