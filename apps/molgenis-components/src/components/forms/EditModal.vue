@@ -1,17 +1,18 @@
 <template>
-  <LayoutModal :title="title" :show="true" @close="$emit('close')">
+  <LayoutModal :title="title" :show="true" @close="$emit('closeFormModal')">
     <template v-slot:body>
-      <LayoutForm v-if="tableMetaData && (pkey == null || value)">
+      <LayoutForm v-if="tableMetaData && (pkey == null || values)">
         <span v-for="column in columnsWithoutMeta" :key="column.name">
           <FormInput
+            :id="`${id}-${column.name}`"
             v-if="showColumn(column)"
-            v-model="value[column.id]"
+            v-model="values[column.id]"
             :columnType="column.columnType"
             :description="column.description"
             :errorMessage="errorPerColumn[column.id]"
             :graphqlURL="graphqlURL"
             :label="column.name"
-            :pkey="getPrimaryKey(value)"
+            :pkey="getPrimaryKey(values)"
             :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
             :refBack="column.refBack"
             :refLabel="column.refLabel"
@@ -24,7 +25,7 @@
     <template v-slot:footer>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
+      <ButtonAlt @click="$emit('closeFormModal')">Close</ButtonAlt>
       <ButtonOutline @click="saveDraft">Save draft</ButtonOutline>
       <ButtonAction @click="save">Save {{ tableName }}</ButtonAction>
     </template>
@@ -59,8 +60,7 @@ export default {
   name: "EditModal",
   data: function () {
     return {
-      showLogin: false,
-      value: {},
+      values: {},
       errorPerColumn: {},
       success: null,
       tableMetaData: null,
@@ -70,6 +70,10 @@ export default {
     };
   },
   props: {
+    id: {
+      type: String,
+      required: true,
+    },
     pkey: Object,
     clone: Boolean,
     visibleColumns: Array,
@@ -97,24 +101,24 @@ export default {
     saveDraft() {
       this.save(true);
     },
-    save(isDraft) {
+    async save(isDraft) {
       let promise;
       if (this.pkey && !this.clone) {
         promise = this.client.updateVariables(
           this.graphqlURL,
           this.tableName,
           isDraft,
-          this.value
+          this.values
         );
       } else {
         promise = this.client.insertVariables(
           this.graphqlURL,
           this.tableName,
           isDraft,
-          this.value
+          this.values
         );
       }
-      promise
+      await promise
         .then((data) => {
           if (data.insert) {
             this.success = data.insert.message;
@@ -132,9 +136,10 @@ export default {
             this.graphqlError = error.errors[0].message;
           }
         });
+      this.$emit("closeFormModal");
     },
     showColumn(column) {
-      const hasRefValue = !column.refLink || this.value[column.refLink];
+      const hasRefValue = !column.refLink || this.values[column.refLink];
       const isColumnVisible =
         !this.visibleColumns || this.visibleColumns.includes(column.name);
       return (
@@ -147,7 +152,7 @@ export default {
     visible(expression, columnId) {
       if (expression) {
         try {
-          return Expressions.evaluate(expression, this.value);
+          return Expressions.evaluate(expression, this.values);
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
@@ -163,7 +168,7 @@ export default {
       }
     },
     validateColumn(column) {
-      const value = this.value[column.id];
+      const value = this.values[column.id];
       const isInvalidNumber = typeof value === "number" && isNaN(value);
       const missesValue = value === undefined || value === null || value === "";
       if (column.required && (missesValue || isInvalidNumber)) {
@@ -186,8 +191,8 @@ export default {
           this.tableMetaData,
           column.refLink
         ).id;
-        const value = this.value[column.id];
-        const refValue = this.value[refLinkId];
+        const value = this.values[column.id];
+        const refValue = this.values[refLinkId];
 
         if (typeof value === "string" && typeof refValue === "string") {
           return value && refValue && value !== refValue;
@@ -208,7 +213,6 @@ export default {
         (column) => !column.name.startsWith("mg_")
       );
     },
-    //@overide
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
         return this.tableMetaData.columns
@@ -221,7 +225,6 @@ export default {
         return {};
       }
     },
-    // override from tableMixin
     title() {
       if (this.pkey && this.clone) {
         return `copy ${this.tableName}`;
@@ -244,7 +247,7 @@ export default {
             defaultValue[column.id] = data[column.id];
           }
         });
-        this.value = defaultValue;
+        this.values = defaultValue;
       }
     },
     // validation happens here
@@ -272,7 +275,7 @@ export default {
   created() {
     //pass by value
     if (this.defaultValue) {
-      this.value = JSON.parse(JSON.stringify(this.defaultValue));
+      this.values = JSON.parse(JSON.stringify(this.defaultValue));
     }
     this.validate();
   },
@@ -335,25 +338,36 @@ function getRefLinkColumnByName(tableMetaData, refLink) {
 }
 </script>
 
-
 <docs>
-  <template>
-    <DemoItem>
-      <EditModal
-          :pkey="{name:'Pet'}"
-          graphqlURL="/pet store/graphql"
-          tableName="Pet"
-      />
-      You typed: {{ JSON.stringify(value) }}
-    </DemoItem>
-  </template>
-  <script>
+<template>
+  <DemoItem>
+    <button type="button" class="btn btn-primary" @click="openModal">Open form</button>
+    <EditModal
+      v-if="showModal"
+      id="editFormModal"
+      :pkey="{ name: 'Pet' }"
+      graphqlURL="/pet store/graphql"
+      tableName="Pet"
+      @closeFormModal="closeFormModal"
+    />
+  </DemoItem>
+</template>
+<script>
   export default {
     data: function () {
       return {
         value: null,
+        showModal: false,
       };
     },
+    methods: {
+      closeFormModal() {
+        this.showModal = false;
+      },
+      openModal() {
+        this.showModal = true;
+      },
+    },
   };
-  </script>
+</script>
 </docs>
