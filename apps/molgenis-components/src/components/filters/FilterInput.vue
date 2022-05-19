@@ -9,6 +9,8 @@
         @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
+        :tableName="tableName"
+        :graphqlURL="graphqlURL"
       ></component>
     </div>
   </div>
@@ -20,6 +22,7 @@ import IntegerFilter from "./IntegerFilter.vue";
 import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
+import RefFilter from "./RefFilter.vue";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -36,6 +39,7 @@ const filterTypeMap = {
   DATE_ARRAY: DateFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
+  REF: RefFilter,
 };
 
 export default {
@@ -46,6 +50,7 @@ export default {
     DecimalFilter,
     DateFilter,
     BooleanFilter,
+    RefFilter,
   },
   props: {
     id: {
@@ -69,6 +74,14 @@ export default {
       default: function () {
         return this.id;
       },
+    },
+    tableName: {
+      type: String,
+      required: false,
+    },
+    graphqlURL: {
+      type: String,
+      required: false,
     },
   },
   data() {
