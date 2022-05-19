@@ -99,7 +99,6 @@ public class SqlDatabase implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -154,7 +153,8 @@ public class SqlDatabase implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      if (settings.get(Constants.IS_OIDC_ENABLED) != null) {
+      if (getSettingValue(Constants.IS_OIDC_ENABLED) == null) {
+        // use environment property unless overriden in settings
         this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
@@ -302,16 +302,21 @@ public class SqlDatabase implements Database {
 
   @Override
   public Collection<Setting> getSettings() {
-    if (this.settings.isEmpty()) {
-      this.settings = MetadataUtils.loadSettings(jooq);
-    }
+    this.reloadSettingsIfNeeded();
     return this.settings.entrySet().stream()
         .map(entry -> new Setting(entry.getKey(), entry.getValue()))
         .toList();
   }
 
+  private void reloadSettingsIfNeeded() {
+    if (this.settings.isEmpty()) {
+      this.settings = MetadataUtils.loadSettings(jooq);
+    }
+  }
+
   @Override
   public String getSettingValue(String key) {
+    this.reloadSettingsIfNeeded();
     return this.settings.get(key);
   }
 
@@ -321,6 +326,8 @@ public class SqlDatabase implements Database {
       Setting newSetting = new Setting(key, value);
       MetadataUtils.saveSetting(jooq, newSetting);
       this.settings.put(key, value);
+      // force all sessions to reload
+      this.listener.afterCommit();
       return newSetting;
     } else {
       throw new MolgenisException("Insufficient rights to create database level setting");
@@ -333,6 +340,8 @@ public class SqlDatabase implements Database {
       MetadataUtils.deleteSetting(jooq, key);
       if (this.settings.containsKey(key)) {
         this.settings.remove(key);
+        // force all sessions to reload
+        this.listener.afterCommit();
         return true;
       } else {
         return false;
