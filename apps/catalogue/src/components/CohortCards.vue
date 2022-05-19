@@ -127,6 +127,9 @@ export default {
       return filter;
     },
   },
+  created() {
+    this.limit = 1000;
+  },
 };
 </script>
 
