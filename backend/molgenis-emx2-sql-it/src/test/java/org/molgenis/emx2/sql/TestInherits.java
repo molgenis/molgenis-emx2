@@ -55,7 +55,7 @@ public class TestInherits {
     Table employee =
         s.create(table("Employee").setInherit(person.getName()).add(column("salary").setType(INT)));
 
-    Table manager =
+    Table managerTable =
         s.create(
             table("Manager")
                 .setInherit("Employee")
@@ -73,7 +73,7 @@ public class TestInherits {
 
     // try to extend twice
     try {
-      manager.getMetadata().setInherit("Student");
+      managerTable.getMetadata().setInherit("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -181,7 +181,7 @@ public class TestInherits {
     assertEquals(4, personTable.retrieveRows().size());
     assertEquals(1, studentTable.retrieveRows().size());
     assertEquals(3, employeeTable.retrieveRows().size());
-    assertEquals(1, manager.retrieveRows().size());
+    assertEquals(1, managerTable.retrieveRows().size());
     assertEquals(0, ceoTable.retrieveRows().size());
 
     try {
@@ -205,7 +205,16 @@ public class TestInherits {
       studentTable.save(row("fullName", "testDuplicate"));
       fail("should not be able to overwrite existing person in super table person");
     } catch (Exception e) {
+      assertTrue(e.getMessage().contains("Duplicate key"));
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // can also drop the table without errors when trigger is removed
+    ceoTable.getMetadata().drop();
+    managerTable.getMetadata().drop();
+    employeeTable.getMetadata().drop();
+    studentTable.getMetadata().drop();
+    personTable.getMetadata().drop();
+    // todo add test that trigger actually is deleted
   }
 }

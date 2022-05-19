@@ -21,6 +21,8 @@ import org.molgenis.emx2.*;
 
 class SqlTableMetadataExecutor {
 
+  public static final String MG_TABLECLASS_UPDATE = "_MG_TABLECLASS_UPDATE";
+
   private SqlTableMetadataExecutor() {}
 
   static void executeCreateTable(DSLContext jooq, SqlTableMetadata table) {
@@ -112,7 +114,7 @@ class SqlTableMetadataExecutor {
 
   static void executeDropKey(DSLContext jooq, TableMetadata table, Integer key) {
     jooq.alterTable(table.getJooqTable())
-        .dropConstraint(name(table.getTableName() + "_KEY" + key))
+        .dropConstraintIfExists(name(table.getTableName() + "_KEY" + key))
         .execute();
   }
 
@@ -153,7 +155,7 @@ class SqlTableMetadataExecutor {
   }
 
   static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
-    String functionName = table.getTableName() + "_MG_TABLECLASS_UPDATE";
+    String functionName = table.getTableName() + MG_TABLECLASS_UPDATE;
 
     String keyColumns =
         table.getPrimaryKeyColumns().stream()
@@ -164,6 +166,8 @@ class SqlTableMetadataExecutor {
         table.getPrimaryKeyColumns().stream()
             .map(keyColumn -> "OLD." + name(keyColumn.getName()).toString())
             .collect(Collectors.joining("||','||"));
+
+    dropMgTableClassCannotUpdateCheck(table, jooq);
 
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
@@ -180,8 +184,6 @@ class SqlTableMetadataExecutor {
         inline(keyColumns),
         keyword(keyValues));
 
-    jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table.getJooqTable());
-
     jooq.execute(
         "CREATE CONSTRAINT TRIGGER {0} "
             + "\n\tAFTER UPDATE OF {1} ON {2}"
@@ -191,6 +193,12 @@ class SqlTableMetadataExecutor {
         name(MG_TABLECLASS),
         table.getJooqTable(),
         name(table.getSchemaName(), functionName));
+  }
+
+  private static void dropMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
+    String functionName = table.getTableName() + MG_TABLECLASS_UPDATE;
+    jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table.getJooqTable());
+    jooq.execute("DROP FUNCTION IF EXISTS {0}", name(table.getSchemaName(), functionName));
   }
 
   static Name[] asJooqNames(List<String> strings) {
@@ -224,6 +232,9 @@ class SqlTableMetadataExecutor {
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
+
+      // drop trigger function if extended
+      dropMgTableClassCannotUpdateCheck((SqlTableMetadata) table, jooq);
 
       // drop all triggers from all columns
       for (Column c : table.getStoredColumns()) {
