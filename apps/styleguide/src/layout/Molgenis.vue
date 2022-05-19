@@ -83,7 +83,7 @@ export default {
       var result = {};
       if (this.session && this.session.schemas) {
         //all databases
-        result["list all databases"] = "/";
+        result["list all databases"] = "/apps/central/";
         this.session.schemas.forEach((s) => {
           result[s] = "../../" + s; // all paths are of form /:schema/:app
         });
