@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.8
+Version,,,,,,,,,,,,3
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -10,6 +10,7 @@ Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in wh
 Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre
 Institutions,,website,,,,,,,,,,Link to the homepage of this institution
 Institutions,,email,,,,,,,,,,Contact email address for person responsible for institution entry in catalogue
+Institutions,,department,,,,,,,,,,Optional: department within the institution
 Institutions,,description,text,,,,,,,,,General description
 Institutions,,logo,file,,,,,,,,,Institution logo
 Institutions,,roles,ontology_array,,,CatalogueOntologies,InstitutionRoles,,,,,Role(s) of the institution in connection with data sources and data banks in the catalogue
@@ -83,7 +84,9 @@ Databanks,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person 
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
 Databanks,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?"
-RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Numerical summaries describing data bank population
+RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this databank or datasource
+Models,,dataDictionaries,refback,,,,TargetDataDictionaries,,resource,,,Data dictionary for this model
+Cohorts,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this cohort
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,,Numerical summaries describing resource population
 RWEresources,,quantantitativeInformation,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
 RWEresources,,counts,refback,,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
