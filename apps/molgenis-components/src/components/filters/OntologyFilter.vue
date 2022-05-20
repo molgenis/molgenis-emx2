@@ -1,19 +1,21 @@
 <template>
-  <InputRefList
+  <InputOntology
     :id="id"
     :value="condition"
     @input="onUpdateCondition"
     :tableName="tableName"
     :graphqlURL="graphqlURL"
+    :isMultiSelect="true"
+    :showExpanded="true"
   />
 </template>
 
 <script>
-import InputRefList from "../forms/InputRefList.vue";
+import InputOntology from "../forms/InputOntology.vue";
 
 export default {
-  name: "InputRefListFilter",
-  components: { InputRefList },
+  name: "InputOntologyFilter",
+  components: { InputOntology },
   props: {
     id: {
       type: String,

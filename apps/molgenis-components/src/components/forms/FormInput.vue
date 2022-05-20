@@ -91,7 +91,6 @@ export default {
     refLabel: notRequiredString,
     schema: notRequiredString,
     tableName: notRequiredString,
-    ontologyTableName: notRequiredString,
   },
   components: {
     InlineInput,
@@ -354,7 +353,7 @@ export default {
           id="ontology-example"
           columnType="ONTOLOGY"
           label="Example ontology input"
-          ontologyTableName="Category"
+          tableName="Category"
           v-model="ontologyValue"
           :graphqlURL="graphqlUrl"
         />
@@ -367,7 +366,7 @@ export default {
           id="ontology-array-example"
           columnType="ONTOLOGY_ARRAY"
           label="Example ontology array input"
-          ontologyTableName="Category"
+          tableName="Category"
           v-model="ontologyArrayValue"
           :graphqlURL="graphqlUrl"
         />
