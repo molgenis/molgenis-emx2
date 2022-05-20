@@ -16,7 +16,7 @@ spec:
           mountPath: /docker-entrypoint-initdb.d
   containers:
     - name: java
-      image: gradle:jdk17
+      image: gradle:jdk17-alpine
       imagePullPolicy: IfNotPresent
       command:
       - cat
