@@ -102,22 +102,14 @@ export default {
       this.save(true);
     },
     async save(isDraft) {
-      let promise;
-      if (this.pkey && !this.clone) {
-        promise = this.client.updateVariables(
-          this.graphqlURL,
-          this.tableName,
-          isDraft,
-          this.values
-        );
-      } else {
-        promise = this.client.insertVariables(
-          this.graphqlURL,
-          this.tableName,
-          isDraft,
-          this.values
-        );
-      }
+      const method =
+        this.pkey && !this.clone ? "updateVariables" : "insertVariables";
+      const promise = this.client[method](
+        this.graphqlURL,
+        this.tableName,
+        isDraft,
+        this.values
+      );
       await promise
         .then((data) => {
           if (data.insert) {
@@ -183,28 +175,7 @@ export default {
       }
     },
     getColumnError,
-    isRefLinkWithoutOverlap(column) {
-      if (!column.refLink) {
-        return false;
-      } else {
-        const refLinkId = getRefLinkColumnByName(
-          this.tableMetaData,
-          column.refLink
-        ).id;
-        const value = this.values[column.id];
-        const refValue = this.values[refLinkId];
-
-        if (typeof value === "string" && typeof refValue === "string") {
-          return value && refValue && value !== refValue;
-        } else {
-          return (
-            value &&
-            refValue &&
-            JSON.stringify(value) !== JSON.stringify(refValue)
-          );
-        }
-      }
-    },
+    isRefLinkWithoutOverlap,
     getPrimaryKey,
   },
   computed: {
@@ -250,7 +221,6 @@ export default {
         this.values = defaultValue;
       }
     },
-    // validation happens here
     value: {
       handler() {
         this.validate();
@@ -281,6 +251,24 @@ export default {
   },
 };
 
+function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+  if (!column.refLink) {
+    return false;
+  } else {
+    const refLinkId = getRefLinkColumnByName(tableMetaData, column.refLink).id;
+    const value = values[column.id];
+    const refValue = values[refLinkId];
+
+    if (typeof value === "string" && typeof refValue === "string") {
+      return value && refValue && value !== refValue;
+    } else {
+      return (
+        value && refValue && JSON.stringify(value) !== JSON.stringify(refValue)
+      );
+    }
+  }
+}
+
 function getColumnError(column, values) {
   const value = values[column.id];
   const type = column.columnType;
@@ -300,7 +288,7 @@ function getColumnError(column, values) {
   if (column.validation) {
     return evaluateValidationExpression(column, values);
   }
-  if (this.isRefLinkWithoutOverlap(column)) {
+  if (this.isRefLinkWithoutOverlap(column, this.tableMetaData, this.values)) {
     return `value should match your selection in column '${column.refLink}' `;
   }
 

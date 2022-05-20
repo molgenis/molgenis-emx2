@@ -31,21 +31,21 @@ export default {
           graphqlURL
         );
       },
-      insertVariables(graphqlURL, tableName, isDraft, value) {
+      insertVariables(graphqlURL, tableName, isDraft, values) {
         return executeSaveCommand(
           graphqlURL,
           tableName,
           isDraft,
-          value,
+          values,
           "insert"
         );
       },
-      updateVariables(graphqlURL, tableName, isDraft, value) {
+      updateVariables(graphqlURL, tableName, isDraft, values) {
         return executeSaveCommand(
           graphqlURL,
           tableName,
           isDraft,
-          value,
+          values,
           "update"
         );
       },
@@ -149,21 +149,12 @@ const fetchTableData = async (
   onError
 ) => {
   const url = graphqlURL ? graphqlURL : "graphql";
-  const limit =
-    properties && Object.prototype.hasOwnProperty.call(properties, "limit")
-      ? properties.limit
-      : 20;
-  const offset =
-    properties && Object.prototype.hasOwnProperty.call(properties, "offset")
-      ? properties.offset
-      : 0;
+  const limit = properties?.limit ? properties.limit : 20;
+  const offset = properties?.offset ? properties.offset : 0;
 
-  const search =
-    properties &&
-    Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
-    properties.searchTerms !== ""
-      ? ',search:"' + properties.searchTerms.trim() + '"'
-      : "";
+  const search = properties?.searchTerms
+    ? ',search:"' + properties.searchTerms.trim() + '"'
+    : "";
 
   const cNames = columnNames(tableId, metaData);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
@@ -181,14 +172,8 @@ const fetchTableData = async (
           }
         }`;
 
-  const filter =
-    properties && Object.prototype.hasOwnProperty.call(properties, "filter")
-      ? properties.filter
-      : {};
-  const orderby =
-    properties && Object.prototype.hasOwnProperty.call(properties, "orderby")
-      ? properties.orderby
-      : {};
+  const filter = properties?.filter ? properties.filter : {};
+  const orderby = properties?.orderby ? properties.orderby : {};
   const resp = await axios
     .post(url, { query: tableDataQuery, variables: { filter, orderby } })
     .catch((error) => {
@@ -200,71 +185,67 @@ const fetchTableData = async (
   return resp.data.data;
 };
 
-const request = async (url, graqphl) => {
-  const result = await axios.post(url, { query: graqphl }).catch((error) => {
+const request = async (url, graphql) => {
+  const result = await axios.post(url, { query: graphql }).catch((error) => {
     return error;
   });
   return result.data.data;
 };
 
-const executeSaveCommand = (graphqlURL, tableName, isDraft, value, action) => {
-  // TODO: add spinner
-
-  value.mg_draft = isDraft;
-
-  const variables = { value: [value] };
-  const query = getUpsertQuery(tableName, action);
-  return requestMultipart(graphqlURL, query, variables);
-};
-
-function getUpsertQuery(tableName, action) {
-  const name = tableName;
-  return `mutation ${action}($value:[${name}Input]){${action}(${name}:$value){message}}`;
+function executeSaveCommand(graphqlURL, tableName, isDraft, values, action) {
+  values.mg_draft = isDraft;
+  const variables = { value: [values] };
+  const query = `mutation ${action}($value:[${tableName}Input]){${action}(${tableName}:$value){message}}`;
+  const formData = getFormData(variables, query);
+  return requestMultipart(graphqlURL, query, formData);
 }
 
-function requestMultipart(url, query, variables) {
-  return new Promise(function (resolve, reject) {
-    //thanks to https://medium.com/@danielbuechele/file-uploads-with-graphql-and-apollo-5502bbf3941e
-    const formData = new FormData();
+function getFormData(variables, query) {
+  let formData = createFormDataWithFiles(variables);
+  formData.append("query", query);
+  formData.append("variables", JSON.stringify(variables || {}));
+  return formData;
+}
 
-    // search for File objects on the request and set it as formData
-    for (let { node, path } of new RecursiveIterator(variables)) {
-      if (node instanceof File) {
-        const id = Math.random().toString(36);
-        formData.append(id, node);
-        objectPath.set(variables, path.join("."), id);
-      }
+function createFormDataWithFiles(variables) {
+  let formData = new FormData();
+  for (let { node, path } of new RecursiveIterator(variables)) {
+    if (node instanceof File) {
+      const id = Math.random().toString(36);
+      formData.append(id, node);
+      objectPath.set(variables, path.join("."), id);
     }
-    formData.append("query", query);
-    formData.append("variables", JSON.stringify(variables || {}));
+  }
+  return formData;
+}
+
+function requestMultipart(url, query, formData) {
+  return new Promise((resolve, reject) => {
+    //thanks to https://medium.com/@danielbuechele/file-uploads-with-graphql-and-apollo-5502bbf3941e
     fetch(url, {
       body: formData,
       method: "POST",
     })
       .then((response) => {
-        if (response.ok) {
-          response.json().then((result) => {
-            if (!result.errors && result.data) {
-              resolve({
-                data: result.data,
-              });
-            } else {
-              {
-                reject({
-                  errors: result.errors,
-                });
-              }
-            }
-          });
-        } else {
-          response.json().then((result) => {
-            reject({ errors: result.errors });
-          });
-        }
+        multipartSuccessHandler(response, resolve, reject);
       })
       .catch((error) => {
-        alert("catch: " + error.json());
+        alert("catch: " + error);
         reject({ status: error, query: query });
       });
+  });
+}
+
+function multipartSuccessHandler(response, resolve, reject) {
+  response.json().then((result) => {
+    if (response.ok && !result.errors && result.data) {
+      resolve({
+        data: result.data,
+      });
+    } else {
+      reject({
+        errors: result.errors,
+      });
+    }
   });
 }
