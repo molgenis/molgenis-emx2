@@ -24,6 +24,7 @@ import DateFilter from "./DateFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
+import OntologyFilter from "./OntologyFilter.vue";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -46,7 +47,9 @@ const filterTypeMap = {
   BOOl_ARRAY: BooleanFilter,
   REF: RefListFilter,
   REFBACK: RefListFilter,
-  REF_ARRAY: RefListFilter
+  REF_ARRAY: RefListFilter,
+  ONTOLOGY: OntologyFilter,
+  ONTOLOGY_ARRAY: OntologyFilter,
 };
 
 export default {
@@ -58,7 +61,8 @@ export default {
     DateFilter,
     BooleanFilter,
     RefFilter,
-    RefListFilter
+    RefListFilter,
+    OntologyFilter,
   },
   props: {
     id: {
@@ -103,14 +107,16 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return ["REF", "REF_ARRAY", "REFBACK"].includes(this.columnType)
-    }
+      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+        this.columnType
+      );
+    },
   },
   methods: {
     updateCondition(index, value) {
       let updatedConditions = [...this.conditions];
-      if(this.isMultiConditionFilter) {
-          updatedConditions = value;
+      if (this.isMultiConditionFilter) {
+        updatedConditions = value;
       } else if (!this.conditions.length) {
         updatedConditions = [value];
       } else {

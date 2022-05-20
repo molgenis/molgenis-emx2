@@ -142,7 +142,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    ontologyTableName: {
+    tableName: {
       type: String,
       required: false,
     },
@@ -475,10 +475,10 @@ export default {
     },
   },
   async mounted() {
-    if (this.ontologyTableName) {
+    if (this.tableName) {
       const client = Client.newClient(this.graphqlURL);
-      this.data = (await client.fetchTableData(this.ontologyTableName))[
-        this.ontologyTableName
+      this.data = (await client.fetchTableData(this.tableName))[
+        this.tableName
       ];
     }
   },
@@ -544,7 +544,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="false"
-          ontologyTableName="Tag"
+          tableName="Tag"
           graphqlURL="/pet store/graphql"
       />
     </demo-item>
@@ -557,7 +557,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="true"
-          ontologyTableName="Tag"
+          tableName="Tag"
           graphqlURL="/pet store/graphql"
       />
     </demo-item>

@@ -61,7 +61,7 @@ export default {
       <div class="col-4">
         <FilterSidebar :filters="filters" @updateFilters="onUpdate"/>
       </div>
-      <div class="col-auto">
+      <div class="col-8">
         <FilterWells :filters="filters" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
@@ -81,13 +81,13 @@ export default {
             conditions: ["test123"]
           },
           {
-            "name": "pets",
-            "columnType": "REF",
-            "showFilter": true,
-            "expanded": true,
-            "conditions": [],
-            "tableName": "Pet",
-            "graphqlURL": "/pet store/graphql"
+            name: "pets",
+            columnType: "REF",
+            showFilter: true,
+            expanded: true,
+            conditions: [],
+            tableName: "Pet",
+            graphqlURL: "/pet store/graphql"
           },
           {
             name: "quantity",
@@ -118,6 +118,14 @@ export default {
             columnType: "DATE",
             showFilter: true,
             conditions: []
+          },
+          {
+            name: "tags",
+            columnType: "ONTOLOGY_ARRAY",
+            showFilter: true,
+            conditions: [],
+            tableName: "Tag",
+            graphqlURL: "/pet store/graphql"
           },
         ],
       };

@@ -35,20 +35,25 @@ export default {
       return this.$route.path;
     },
   },
-  watch: {
-    /**
-     * In order to change the style of the html and body tag ( that are outside of the vue scope)
-     * css variables are used to hook into the style values and change them depending on the route
-     */
-    $route(newRoute) {
-      document.documentElement.style.setProperty("--dynamic-height", "100%");
-      document.documentElement.style.setProperty("--dynamic-visibility", "hidden");
-      if (newRoute.path !== "/") {
-        document.documentElement.style.setProperty("--dynamic-height", "auto");
-        document.documentElement.style.setProperty("--dynamic-visibility", "visible");
-      }
+  methods: {
+    setScrollStyle(isFixed) {
+      /**
+       * In order to change the style of the html and body tag ( that are outside of the vue scope)
+       * css variables are used to hook into the style values and change them depending on the route
+       */
+      const style = document.documentElement.style;
+      style.setProperty("--dynamic-height", isFixed ? "100%" : "auto");
+      style.setProperty("--dynamic-visibility", isFixed ? "hidden" : "visible");
     },
   },
+  watch: {
+    $route(newRoute) {
+      this.setScrollStyle(newRoute.path === "/");
+    },
+  },
+  mounted: function () {
+    this.setScrollStyle(this.$route.path === "/")
+  }
 };
 </script>
 
