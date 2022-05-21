@@ -3,7 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import java.sql.Connection;
 import javax.sql.DataSource;

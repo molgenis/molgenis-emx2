@@ -58,7 +58,7 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction } from "@mswertz/emx2-styleguide";
+import { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction } from "molgenis-components";
 export default {
   name: "ManageSettings",
   components: { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction },

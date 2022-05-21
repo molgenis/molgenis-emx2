@@ -1,7 +1,6 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
+    <MessageError v-if="error">{{ error }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -102,9 +101,8 @@ input:focus {
 
 <script>
 import Client from "../../client/client.js";
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import Spinner from "../layout/Spinner.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "v-click-outside";
@@ -123,7 +121,6 @@ export default {
   components: {
     FormGroup,
     InputOntologySubtree,
-    Spinner,
     MessageError,
   },
   directives: {
@@ -145,13 +142,13 @@ export default {
       type: Boolean,
       default: false,
     },
-    ontologyTableName: {
+    tableName: {
       type: String,
       required: false,
     },
     graphqlURL: {
       type: String,
-      default: "graphql", 
+      default: "graphql",
     },
   },
   data() {
@@ -212,7 +209,7 @@ export default {
     },
     getSelectedChildNodes(term) {
       let result = [];
-      if (term.selected == "complete") {
+      if (term.selected === "complete") {
         result.push(term.name);
       } else if (term.children) {
         term.children.forEach((childTerm) =>
@@ -328,7 +325,7 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected == "complete")
+        .filter((term) => term.selected === "complete")
         .map((term) => {
           return { name: term.name };
         });
@@ -336,18 +333,6 @@ export default {
         this.$emit("input", selectedTerms);
       } else {
         this.$emit("input", selectedTerms[0]);
-      }
-    },
-    reloadMetadata() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMetadataMixin.methods.reloadMetadata.call(this);
-      }
-    },
-    reload() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMixin.methods.reload.call(this);
       }
     },
     applySelection(value) {
@@ -490,10 +475,10 @@ export default {
     },
   },
   async mounted() {
-    if (this.ontologyTableName) {
+    if (this.tableName) {
       const client = Client.newClient(this.graphqlURL);
-      this.data = (await client.fetchTableData(this.ontologyTableName))[
-        this.ontologyTableName
+      this.data = (await client.fetchTableData(this.tableName))[
+        this.tableName
       ];
     }
   },
@@ -509,3 +494,82 @@ export default {
 };
 </script>
 
+<docs>
+<template>
+  <div>
+    <label>ontology array</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-1"
+          v-model="value"
+          label="My ontology select"
+          description="please choose your options in tree below"
+          :options="[
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' } },
+          { name: 'dog', parent: { name: 'pet' } },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]"
+          :isMultiSelect="true"
+      />
+      <div>You selected: {{ value }}</div>
+    </demo-item>
+
+    <label>ontology array expanded</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-2"
+          v-model="value"
+          label="My ontology select expanded"
+          :showExpanded="true"
+          description="please choose your options in tree below"
+          :options="[
+          { name: 'pet' },
+          { name: 'cat', parent: { name: 'pet' } },
+          { name: 'dog', parent: { name: 'pet' } },
+          { name: 'cattle' },
+          { name: 'cow', parent: { name: 'cattle' } },
+        ]"
+          :isMultiSelect="true"
+      />
+      <div>You selected: {{ value }}</div>
+    </demo-item>
+
+    <label>ontology (single) with backend data</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-3"
+          label="Ontology select with backend data"
+          description="please choose your options in tree below"
+          v-model="value"
+          :isMultiSelect="false"
+          tableName="Tag"
+          graphqlURL="/pet store/graphql"
+      />
+    </demo-item>
+
+    <label>ontology array with backend data</label>
+    <demo-item>
+      <InputOntology
+          id="input-ontology-4"
+          label="Ontology select with backend data"
+          description="please choose your options in tree below"
+          v-model="value"
+          :isMultiSelect="true"
+          tableName="Tag"
+          graphqlURL="/pet store/graphql"
+      />
+    </demo-item>
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null,
+      };
+    },
+  };
+</script>
+</docs>

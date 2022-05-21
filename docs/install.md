@@ -39,7 +39,7 @@ N.B.
 
 ## Using java and your own postgresql
 
-* Install java (we use java 16)
+* Install java (we use java 17)
 * Download a molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
 * Download and install [Postgresql](https://www.postgresql.org/download/) (we use 13)
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:

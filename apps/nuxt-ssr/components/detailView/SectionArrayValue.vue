@@ -13,11 +13,8 @@
 
 <script>
 import OntologyFieldValue from "./OntologyFieldValue.vue";
-import {
-  StringDisplay,
-  TextDisplay,
-  ObjectDisplay,
-} from "molgenis-components";
+import { StringDisplay, TextDisplay, ObjectDisplay } from "molgenis-components";
+
 export default {
   name: "SectionArrayValue",
   components: {

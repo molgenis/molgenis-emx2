@@ -12,155 +12,167 @@
               : null
           "
         ></page-header>
-        <NuxtLink v-if="$route.params.collectionEvent || $route.params.subCohort" :to="`..`">&lt; Back to cohort</NuxtLink>
+        <NuxtLink
+          v-if="$route.params.collectionEvent || $route.params.subCohort"
+          :to="`..`"
+          >&lt; Back to cohort
+        </NuxtLink>
       </grid-block>
 
-      <NuxtChild v-if="$route.params.collectionEvent" :collectionEvent="$route.params.collectionEvent" />
-      <NuxtChild v-if="$route.params.subCohort" :subCohort="$route.params.subCohort" />
+      <NuxtChild
+        v-if="$route.params.collectionEvent"
+        :collectionEvent="$route.params.collectionEvent"
+      />
+      <NuxtChild
+        v-if="$route.params.subCohort"
+        :subCohort="$route.params.subCohort"
+      />
 
-      <template v-if="!($route.params.collectionEvent || $route.params.subCohort)">
-      <grid-block>
-        <links-list :isHorizontal="true" :items="mainLinks"></links-list>
-      </grid-block>
-
-      <div class="card-columns card-columns-2">
-        <key-value-block
-          :items="[{ label: 'Description', value: cohort.description }]"
-        ></key-value-block>
-
-        <key-value-block
-          v-if="cohort.designPaper"
-          :items="[{ label: 'Marker paper', value: cohort.designPaper.title }]"
-        ></key-value-block>
-
-        <key-value-block
-          heading="General design"
-          :items="generalDesignItems"
-        ></key-value-block>
-      </div>
-
-      <grid-block
-        heading="Contributors"
-        v-if="cohort.contributors && cohort.contributors.length"
+      <template
+        v-if="!($route.params.collectionEvent || $route.params.subCohort)"
       >
-        <div class="card-columns">
-          <contact-display
-            v-for="(contributor, index) in cohort.contributors"
-            :key="index"
-            :contact="contributor.contact"
-            :contributionType="contributor.contributionType"
-            :contributionDescription="contributor.contributionDescription"
-          ></contact-display>
+        <grid-block>
+          <links-list :isHorizontal="true" :items="mainLinks"></links-list>
+        </grid-block>
+
+        <div class="card-columns card-columns-2">
+          <key-value-block
+            :items="[{ label: 'Description', value: cohort.description }]"
+          ></key-value-block>
+
+          <key-value-block
+            v-if="cohort.designPaper"
+            :items="[
+              { label: 'Marker paper', value: cohort.designPaper.title },
+            ]"
+          ></key-value-block>
+
+          <key-value-block
+            heading="General design"
+            :items="generalDesignItems"
+          ></key-value-block>
         </div>
-      </grid-block>
 
-      <grid-block heading="Partners" v-if="partners.length">
-        <div class="card-columns">
-          <image-card
-            v-for="(partner, index) in partners"
-            :key="index"
-            :title="partner.institution.name"
-            :linkUrl="`/institutions/${partner.institution.pid}`"
-          >
-            <template #image>
-              <image-display
-                :url="partner.institution.logo.url"
-                :alt="partner.institution.pid"
-              ></image-display>
-            </template>
-          </image-card>
-        </div>
-      </grid-block>
-
-      <grid-block heading="Networks" v-if="networks.length">
-        <div class="card-columns">
-          <image-card v-for="(network, index) in networks" :key="index">
-            <template #image>
-              <image-display
-                :url="network.logo.url"
-                :alt="network.name"
-              ></image-display>
-            </template>
-            <template #body>
-              <h5 class="card-title">{{ network.name }}</h5>
-              <p class="card-text">{{ network.description }}</p>
-              <p class="card-text">
-                <small class="text-muted">
-                  <router-link
-                    :to="`/networks/${network.pid}`"
-                    class="stretched-link"
-                    >LEARN MORE</router-link
-                  >
-                </small>
-              </p>
-            </template>
-          </image-card>
-        </div>
-      </grid-block>
-
-      <grid-block heading="Available data & samples">
-        <strong>Data categories</strong>
-        <p>{{ dataCategories.join(", ") }}</p>
-        <strong>Sample categories</strong>
-        <p>{{ sampleCategories.join(", ") }}</p>
-        <strong>Areas of information</strong>
-        <p>{{ areasOfInformation.join(", ") }}</p>
-      </grid-block>
-
-      <grid-block heading="Documentation" v-if="documentation.length">
-        <links-list :items="documentation"></links-list>
-      </grid-block>
-
-      <grid-block heading="Subpopulations" v-if="subpopulations.length">
-        <table-display
-          :isClickable="true"
-          @row-click="$router.push({ path: $event._path })"
-          :columns="[
-            { name: 'name', label: 'Name' },
-            { name: 'description', label: 'Description' },
-            { name: 'numberOfParticipants', label: 'Number of participants' },
-            { name: 'ageGroups', label: 'Age categories' },
-          ]"
-          :rows="subpopulations"
-        ></table-display>
-      </grid-block>
-
-      <grid-block heading="Collection events" v-if="collectionEvents.length">
-        <table-display
-          :isClickable="true"
-          @row-click="$router.push({ path: $event._path })"
-          :columns="[
-            { name: 'name', label: 'Name' },
-            { name: 'description', label: 'Description' },
-            { name: 'startAndEndYear', label: 'Start and end year' },
-          ]"
-          :rows="collectionEvents"
-        ></table-display>
-      </grid-block>
-
-      <div class="card-columns card-columns-2">
-        <grid-block heading="Access conditions">
-          <ul>
-            <li
-              v-for="(condition, index) in cohort.dataAccessConditions"
+        <grid-block
+          heading="Contributors"
+          v-if="cohort.contributors && cohort.contributors.length"
+        >
+          <div class="card-columns">
+            <contact-display
+              v-for="(contributor, index) in cohort.contributors"
               :key="index"
+              :contact="contributor.contact"
+              :contributionType="contributor.contributionType"
+              :contributionDescription="contributor.contributionDescription"
+            ></contact-display>
+          </div>
+        </grid-block>
+
+        <grid-block heading="Partners" v-if="partners.length">
+          <div class="card-columns">
+            <image-card
+              v-for="(partner, index) in partners"
+              :key="index"
+              :title="partner.institution.name"
+              :linkUrl="`/institutions/${partner.institution.pid}`"
             >
-              {{ condition.name }}
-            </li>
-          </ul>
-          <p>{{ cohort.dataAccessConditionsDescription }}</p>
-          <p>{{ cohort.releaseDescription }}</p>
+              <template #image>
+                <image-display
+                  :url="partner.institution.logo.url"
+                  :alt="partner.institution.pid"
+                ></image-display>
+              </template>
+            </image-card>
+          </div>
         </grid-block>
 
-        <grid-block heading="Linkage options">
-          <p>
-            {{ cohort.linkageOptions }}
-          </p>
+        <grid-block heading="Networks" v-if="networks.length">
+          <div class="card-columns">
+            <image-card v-for="(network, index) in networks" :key="index">
+              <template #image>
+                <image-display
+                  :url="network.logo.url"
+                  :alt="network.name"
+                ></image-display>
+              </template>
+              <template #body>
+                <h5 class="card-title">{{ network.name }}</h5>
+                <p class="card-text">{{ network.description }}</p>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <router-link
+                      :to="`/networks/${network.pid}`"
+                      class="stretched-link"
+                      >LEARN MORE
+                    </router-link>
+                  </small>
+                </p>
+              </template>
+            </image-card>
+          </div>
         </grid-block>
-      </div>
 
+        <grid-block heading="Available data & samples">
+          <strong>Data categories</strong>
+          <p>{{ dataCategories.join(", ") }}</p>
+          <strong>Sample categories</strong>
+          <p>{{ sampleCategories.join(", ") }}</p>
+          <strong>Areas of information</strong>
+          <p>{{ areasOfInformation.join(", ") }}</p>
+        </grid-block>
+
+        <grid-block heading="Documentation" v-if="documentation.length">
+          <links-list :items="documentation"></links-list>
+        </grid-block>
+
+        <grid-block heading="Subpopulations" v-if="subpopulations.length">
+          <table-display
+            :isClickable="true"
+            @row-click="$router.push({ path: $event._path })"
+            :columns="[
+              { name: 'name', label: 'Name' },
+              { name: 'description', label: 'Description' },
+              { name: 'numberOfParticipants', label: 'Number of participants' },
+              { name: 'ageGroups', label: 'Age categories' },
+            ]"
+            :rows="subpopulations"
+          ></table-display>
+        </grid-block>
+
+        <grid-block heading="Collection events" v-if="collectionEvents.length">
+          <table-display
+            :isClickable="true"
+            @row-click="$router.push({ path: $event._path })"
+            :columns="[
+              { name: 'name', label: 'Name' },
+              { name: 'description', label: 'Description' },
+              { name: 'startAndEndYear', label: 'Start and end year' },
+            ]"
+            :rows="collectionEvents"
+          ></table-display>
+        </grid-block>
+
+        <div class="card-columns card-columns-2">
+          <grid-block heading="Access conditions">
+            <ul>
+              <li
+                v-for="(condition, index) in cohort.dataAccessConditions"
+                :key="index"
+              >
+                {{ condition.name }}
+              </li>
+            </ul>
+            <p>{{ cohort.dataAccessConditionsDescription }}</p>
+            <p>{{ cohort.releaseDescription }}</p>
+          </grid-block>
+
+          <grid-block heading="Linkage options">
+            <p>
+              {{ cohort.linkageOptions }}
+            </p>
+          </grid-block>
+        </div>
       </template>
-
     </div>
   </div>
 </template>
@@ -186,13 +198,13 @@ import {
   TableDisplay,
   ImageCard,
 } from "molgenis-components";
+
 const networkNoLogoUrl =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAABkCAYAAAAWlKtGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJbSURBVHgB7dzNbdRgEAbgl58DR0r4SuDIkRLoINsBdJDtADoIVAIdhA5SAmdOwVaUS5SNvGt712M/jzRXKxq/mtjJ50kAAAAAAAAAAAAAAAAAAACYyfuurru66+r+xLrt6qarlvXQlwW56upvTr8RT6u/1tfUpy8L8iXT3YindZW69GVBWqadGM9NkPepp2WjfXmTZfrW1cfM511X/7r6nVr0ZWH6h/z7mesu9ejLwhxqYsvx2gvXq2azfXmVZTrUrFN/3qmvdymb7cvrQAGCSglvs20Vn1M3yUSlBEGlBEGlBEGlBEGlhK2/9a/lD/6rZ6JSgqBSQrWgthyvZf1ajtfCaP1Rs7mPs92mns32ZakT9Wfm9yEPB5ErnfQ/R1/+hMH68Mz5ycXTg8KfU8Pcfemv3cJRdjlPUB/rJjVu0i7z9cCXqCfqG3euyfo4XXdZvqn70l9rF0ZpXf3IuO+F+gB+z/CXkZssf7q2TNOXfWp+kbtqLQ83d03TlRXbZV3TlRXrf931jwNDp6sXDS7qU4ZP118xXbmwfYa/hFwHLqhl+HS9i+nKhe1julJEi+lKIfuYrhTR8vDGP3S6Dp3Ez5V15Yx2zrMH1pUzSsvwf8NOUVeBEXY5z4n7qmvcWZCW84R1HxjJunJKOBSuluO1F663adU2hSzRoRBtfY37pCygoARBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBpQRBnU/L8VpgJv0RvLmP+VVc4z4pE3U868opwbpyythlvqD6EpVJWVdOGS3WlQMAAAAAAAAAAADA4vwH56V4ljC8O5IAAAAASUVORK5CYII=";
 
-
 export default {
   name: "CohortView",
-    components: {
+  components: {
     GridBlock,
     PageHeader,
     LinksList,

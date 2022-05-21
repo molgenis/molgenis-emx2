@@ -29,7 +29,9 @@ public interface Database {
 
   Collection<Setting> getSettings();
 
-  Setting createSetting(Setting setting);
+  String getSettingValue(String key);
+
+  Setting createSetting(String key, String value);
 
   Boolean deleteSetting(String key);
 
@@ -85,4 +87,6 @@ public interface Database {
   void becomeAdmin();
 
   boolean isOidcEnabled();
+
+  boolean hasSchema(String catalogueOntologies);
 }

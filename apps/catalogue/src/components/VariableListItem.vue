@@ -22,6 +22,23 @@
     </div>
     <p class="mt-3" v-if="showDetail">
       <router-link
+        v-if="network"
+        class="nav-link"
+        :to="{
+          name: 'NetworkVariableDetailView',
+          params: {
+            name: variable.name,
+            network: network,
+          },
+          query: {
+            model: variable.dataDictionary.resource.pid,
+            version: variable.dataDictionary.version,
+          },
+        }"
+        >view details
+      </router-link>
+      <router-link
+        v-else
         class="nav-link"
         :to="{
           name: 'VariableDetailView',
@@ -119,6 +136,7 @@ export default {
   components: { Spinner },
   props: {
     variable: Object,
+    network: String,
   },
   data() {
     return {

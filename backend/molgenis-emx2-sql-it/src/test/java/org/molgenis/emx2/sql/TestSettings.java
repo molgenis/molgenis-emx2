@@ -144,7 +144,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting(new Setting("it-db-setting-key", "it-db-setting-value"));
+          db.createSetting("it-db-setting-key", "it-db-setting-value");
           var settings = db.getSettings();
           var setting = new Setting("it-db-setting-key", "it-db-setting-value");
           assertTrue(settings.contains(setting));
@@ -156,7 +156,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("testsettingsmanager");
-          db.createSetting(new Setting("it-db-setting-key", "it-db-setting-value"));
+          db.createSetting("it-db-setting-key", "it-db-setting-value");
         });
   }
 
@@ -166,7 +166,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting(new Setting("delete-me", "life is short"));
+          db.createSetting("delete-me", "life is short");
         });
     // execute
     database.tx(

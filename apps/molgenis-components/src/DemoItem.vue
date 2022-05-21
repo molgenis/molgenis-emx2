@@ -1,26 +1,5 @@
 <template>
-    <div :id="id" class="mb-5 pt-3 border-top">
-    <h3>{{ label }}</h3>
-
+  <div class="mb-4 p-4">
     <slot></slot>
-    </div>
+  </div>
 </template>
-
-<script>
-export default {
-  name: "DemoItem",
-  props: {
-      id: {
-        type: String,
-        required: true
-      },
-      label: {
-        type: String,       
-      }
-  }
-}
-</script>
-
-<style>
-
-</style>

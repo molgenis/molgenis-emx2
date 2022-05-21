@@ -16,12 +16,12 @@
       <table-display
         :isClickable="false"
         :columns="[
-          { name: 'year', label: 'Year' },
-          { name: 'ageband', label: 'Age band' },
-          { name: 'gender', label: 'Gender' },
-          { name: 'N', label: 'N' },
+          { name: 'ageGroup', label: 'Age group' },
+          { name: 'N_total', label: 'N total' },
+          { name: 'N_female', label: 'N female' },
+          { name: 'N_male', label: 'N male' },
         ]"
-        :rows="subcohort.counts"
+        :rows="quantitativeInformation"
       ></table-display>
     </grid-block>
   </div>
@@ -107,6 +107,12 @@ export default {
             : [],
         },
       ];
+    },
+    quantitativeInformation() {
+      return this.subcohort.counts.map(count => {
+        count.ageGroup = count.ageGroup.name
+        return count
+      })
     },
   },
   mounted: async function () {

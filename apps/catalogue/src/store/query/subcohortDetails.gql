@@ -40,10 +40,12 @@ query Subcohorts($pid: String, $name: String) {
             name
         }
         counts {
-            year
-            ageband
-            gender
-            N
+            ageGroup {
+                name
+            }
+            N_female
+            N_male
+            N_total
         }
     }
 }

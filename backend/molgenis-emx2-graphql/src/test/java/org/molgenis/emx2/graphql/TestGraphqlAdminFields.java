@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

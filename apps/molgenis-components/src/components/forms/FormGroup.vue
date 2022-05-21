@@ -1,39 +1,49 @@
 <template>
   <div class="form-group">
-    <label v-if="label !== null && label !== undefined" :for="id">{{
-      label
-    }}</label>
-    <slot></slot>
+    <label v-if="label !== null && label !== undefined" :for="id">
+      <b> {{ label }}</b>
+    </label>
     <small
-      v-if="isNonEmptyString(description)"
+      v-if="hasDescription(description)"
       :id="id + '-help-text'"
       class="form-text text-muted"
-      >{{ description }}</small
     >
+      {{ description }}
+    </small>
+    <slot></slot>
+    <small v-if="errorMessage" class="text-danger form-text">
+      {{ errorMessage }}
+    </small>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'FormGroup',
+  name: "FormGroup",
   props: {
     id: {
       type: String,
-      required: true
+      required: true,
     },
     label: {
       type: String,
-      required: false
+      required: false,
     },
     description: {
       type: String,
-      required: false
+      required: false,
+    },
+    errorMessage: {
+      type: String,
+      required: false,
     },
   },
   methods: {
-    isNonEmptyString(s) {
-      return s !== null && s !== undefined && s.length;
-    }
-  }
+    hasDescription(description) {
+      return (
+        description !== null && description !== undefined && description.length
+      );
+    },
+  },
 };
 </script>

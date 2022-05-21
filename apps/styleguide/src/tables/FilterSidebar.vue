@@ -116,9 +116,9 @@ examples
             "columnType": "STRING", showFilter: true
           },
             {
-              "name": "variables",
+              "name": "pet",
               "columnType": "REF",
-              "refTable": "Variables", showFilter: true
+              "refTable": "Pet", showFilter: true
             },
             {
               "name": "quantity",

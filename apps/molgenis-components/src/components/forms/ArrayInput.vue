@@ -5,7 +5,6 @@
         :is="inputType"
         :id="id + index"
         v-model="values[index]"
-        @updateInput="$emit('input', values)"
         :showAddButton="index === values.length"
       >
         <template v-slot:append>
@@ -31,19 +30,26 @@
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputString from "./InputString.vue";
+
 export default {
   name: "ArrayInput",
   extends: BaseInput,
   data() {
     return { values: this.value || [null] };
   },
+  props: {
+    columnType: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     inputType() {
       return {
         STRING_ARRAY: InputString,
-      }[this.type];
+      }[this.columnType];
     },
   },
   methods: {
@@ -60,3 +66,34 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <div>
+      <ArrayInput
+          id="array-string-1"
+          columnType="STRING_ARRAY"
+          v-model="value"
+      ></ArrayInput>
+    </div>
+    <div>
+      {{ value }}
+    </div>
+  </demo-item>
+</template>
+<script>
+  export default {
+    methods: {
+      alert(text) {
+        alert(text);
+      },
+    },
+    data() {
+      return {
+        value: ["String array value"],
+      };
+    },
+  };
+</script>
+</docs>

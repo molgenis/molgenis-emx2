@@ -4,6 +4,7 @@ public class Constants {
   static final String TABLE = "table";
   public static final String CONTENT_TYPE = "Content-type";
   public static final String MOLGENIS_TOKEN = "x-molgenis-token";
+  public static final String LANDING_PAGE = "LANDING_PAGE";
 
   private Constants() {
     // hide constructor

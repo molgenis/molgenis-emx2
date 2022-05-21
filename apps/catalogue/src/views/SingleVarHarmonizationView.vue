@@ -3,25 +3,23 @@
     <ul v-if="variable" class="nav nav-tabs">
       <li
         class="nav-item"
-        v-for="mapping in variable.mappings"
-        :key="mapping.fromTable.dataDictionary.resource.pid"
+        v-for="resource in resourceListSorted"
+        :key="resource"
       >
         <router-link
           class="nav-link"
           :class="{
-            active:
-              $route.query.sourceCohort ===
-              mapping.fromTable.dataDictionary.resource.pid,
+            active: $route.query.sourceCohort === resource,
           }"
           :to="{
-            name: 'VariableDetailView',
+            path: $route.path,
             query: {
               ...$route.query,
-              sourceCohort: mapping.fromTable.dataDictionary.resource.pid,
+              sourceCohort: resource,
             },
           }"
         >
-          {{ mapping.fromTable.dataDictionary.resource.pid }}
+          {{ resource }}
         </router-link>
       </li>
     </ul>
@@ -47,6 +45,17 @@ export default {
     version: String,
     variable: Object,
   },
+  computed: {
+    resourceListSorted() {
+      if (this.variable.mappings) {
+        return this.variable.mappings
+          .map((m) => m.fromTable.dataDictionary.resource.pid)
+          .sort();
+      } else {
+        return [];
+      }
+    },
+  },
   async created() {
     // initialy select the first mapping
     if (
@@ -55,11 +64,10 @@ export default {
       !this.$route.query.sourceCohort
     ) {
       this.$router.replace({
-        name: "VariableDetailView",
+        path: this.$route.path,
         query: {
           ...this.$route.query,
-          sourceCohort:
-            this.variable.mappings[0].fromTable.dataDictionary.resource.pid,
+          sourceCohort: this.resourceListSorted[0],
         },
       });
     }

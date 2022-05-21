@@ -1,6 +1,6 @@
 # MOLGENIS documentation
 
-Find below links to documentation of the tools in the MOLGENIS 'emx2' suite:
+Find below links to documentation of the tools in the MOLGENIS emx2 suite:
 
 * [Platform guide](/molgenis/)
 * [Catalogue guide](/catalogue/)

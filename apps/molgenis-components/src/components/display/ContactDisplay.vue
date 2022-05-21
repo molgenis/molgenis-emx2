@@ -36,6 +36,7 @@
 .card {
   border: 0;
 }
+
 .img-thumbnail {
   border: 0;
   padding: 0;
@@ -82,54 +83,38 @@ export default {
 </script>
 
 <docs>
-Contact with lost of details ( and no photo)
-```
-const contact = {
-    firstName: "John",
-    surname: "Doe",
-    initials: "J.J.",
-    title: {
-        name: "Mr."
-    },
-    email: "j.j.doe@world-online.com",
-    department: "craft services"
-}
-
-const contributions = [{
-    name: 'lead',
-    oder: 1
-}]
-
-const  contributionDescription ="getting coffee"
-
 <template>
-<div class="row">
-  <div class="col-3">
-    <contact-display :contact="contact" :contributionType="contributions" :contributionDescription="contributionDescription"></contact-display>
-  </div></div>
+  <demo-item>
+    <contact-display
+        :contact="contact"
+        :contributionType="contributions"
+        :contributionDescription="contributionDescription"
+    ></contact-display>
+  </demo-item>
 </template>
-```
-
-Contact with details and photo
-```
-const contact = {
-    firstName: "Albus",
-    surname: "Dumbledore",
-    title: {
-        name: "Prof."
+<script>
+  export default {
+    data() {
+      return {
+        contact: {
+          firstName: "John",
+          surname: "Doe",
+          initials: "J.J.",
+          title: {
+            name: "Mr.",
+          },
+          email: "j.j.doe@world-online.com",
+          department: "craft services",
+        },
+        contributions: [
+          {
+            name: "lead",
+            oder: 1,
+          },
+        ],
+        contributionDescription: "getting coffee",
+      };
     },
-    email: "albus@hogwarts.edu",
-    department: "Gryffindor",
-    photo: {
-        url: "https://static.wikia.nocookie.net/harrypotterfanon/images/9/9a/Albus_Dumbledore_%28Richard_Harris%29.jpg"
-    }
-}
-
-<template>
-<div class="row">
-  <div class="col-3">
-    <contact-display :contact="contact"></contact-display>
-  </div></div>
-</template>
-```
+  };
+</script>
 </docs>

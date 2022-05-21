@@ -49,7 +49,7 @@ public class WebApiSmokeTests {
 
     // grant a user permission
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
-    schema.addMember(org.molgenis.emx2.Constants.ANONYMOUS, Privileges.VIEWER.toString());
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
 
     // start web service for testing

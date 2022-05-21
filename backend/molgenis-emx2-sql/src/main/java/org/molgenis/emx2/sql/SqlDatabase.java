@@ -22,6 +22,7 @@ public class SqlDatabase implements Database {
   public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
+  public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
 
@@ -34,7 +35,7 @@ public class SqlDatabase implements Database {
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
-  private Collection<Setting> settings = new ArrayList<>();
+  private Map<String, String> settings = new LinkedHashMap<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
@@ -72,7 +73,7 @@ public class SqlDatabase implements Database {
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
-    this.settings.addAll(copy.settings);
+    this.settings.putAll(copy.settings);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -98,7 +99,6 @@ public class SqlDatabase implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -142,8 +142,8 @@ public class SqlDatabase implements Database {
 
       Migrations.initOrMigrate(this);
 
-      if (!hasUser(Constants.ANONYMOUS)) {
-        addUser(Constants.ANONYMOUS); // used when not logged in
+      if (!hasUser(ANONYMOUS)) {
+        addUser(ANONYMOUS); // used when not logged in
       }
       if (!hasUser(USER)) {
         addUser(USER); // used as role to identify all users except anonymous
@@ -153,8 +153,9 @@ public class SqlDatabase implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      if (settings.stream().noneMatch(s -> s.key().equals(Constants.IS_OIDC_ENABLED))) {
-        this.createSetting(new Setting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled)));
+      if (getSettingValue(Constants.IS_OIDC_ENABLED) == null) {
+        // use environment property unless overriden in settings
+        this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
     } catch (Exception e) {
@@ -241,24 +242,27 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public void dropSchemaIfExists(String name) {
+    if (getSchema(name) != null) {
+      this.dropSchema(name);
+    }
+  }
+
+  @Override
   public void dropSchema(String name) {
     long start = System.currentTimeMillis();
-    if (getSchema(name) != null) {
-      tx(
-          database -> {
-            SqlDatabase sqlDatabase = (SqlDatabase) database;
-            SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
-            sqlDatabase.schemaNames.remove(name);
-            sqlDatabase.schemaInfos.clear();
-            sqlDatabase.settings.clear();
-            sqlDatabase.schemaCache.remove(name);
-          });
+    tx(
+        database -> {
+          SqlDatabase sqlDatabase = (SqlDatabase) database;
+          SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
+          sqlDatabase.schemaNames.remove(name);
+          sqlDatabase.schemaInfos.clear();
+          sqlDatabase.settings.clear();
+          sqlDatabase.schemaCache.remove(name);
+        });
 
-      listener.schemaRemoved(name);
-      log(start, "dropped schema " + name);
-    } else {
-      log(start, "dropped schema" + name + " skipped: schema does not exist");
-    }
+    listener.schemaRemoved(name);
+    log(start, "dropped schema " + name);
   }
 
   @Override
@@ -298,21 +302,32 @@ public class SqlDatabase implements Database {
 
   @Override
   public Collection<Setting> getSettings() {
-    if (this.settings.isEmpty()) {
-      this.settings = MetadataUtils.loadSettings(jooq);
-    }
-    // filter out public vs private settings
-    return this.settings.stream()
-        .filter(setting -> setting.isPublic() || setting.user().equals(getActiveUser()))
+    this.reloadSettingsIfNeeded();
+    return this.settings.entrySet().stream()
+        .map(entry -> new Setting(entry.getKey(), entry.getValue()))
         .toList();
   }
 
+  private void reloadSettingsIfNeeded() {
+    if (this.settings.isEmpty()) {
+      this.settings = MetadataUtils.loadSettings(jooq);
+    }
+  }
+
   @Override
-  public Setting createSetting(Setting setting) {
+  public String getSettingValue(String key) {
+    this.reloadSettingsIfNeeded();
+    return this.settings.get(key);
+  }
+
+  @Override
+  public Setting createSetting(String key, String value) {
     if (isAdmin()) {
-      Setting newSetting = new Setting(setting.key(), setting.value(), null);
+      Setting newSetting = new Setting(key, value);
       MetadataUtils.saveSetting(jooq, newSetting);
-      this.settings.add(newSetting);
+      this.settings.put(key, value);
+      // force all sessions to reload
+      this.listener.afterCommit();
       return newSetting;
     } else {
       throw new MolgenisException("Insufficient rights to create database level setting");
@@ -323,7 +338,14 @@ public class SqlDatabase implements Database {
   public Boolean deleteSetting(String key) {
     if (isAdmin()) {
       MetadataUtils.deleteSetting(jooq, key);
-      return this.settings.removeIf((Setting s) -> s.key().equals(key));
+      if (this.settings.containsKey(key)) {
+        this.settings.remove(key);
+        // force all sessions to reload
+        this.listener.afterCommit();
+        return true;
+      } else {
+        return false;
+      }
     } else {
       throw new MolgenisException("Insufficient rights to delete database level setting");
     }
@@ -456,7 +478,7 @@ public class SqlDatabase implements Database {
     if (inTx) {
       // then we don't use the connection provider
       try {
-        setActiveUser(Constants.ANONYMOUS);
+        setActiveUser(ANONYMOUS);
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Clear active user failed", dae);
       }
@@ -533,6 +555,11 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public boolean inTx() {
+    return inTx;
+  }
+
+  @Override
   public void clearCache() {
     this.schemaCache.clear();
     this.schemaNames.clear();
@@ -575,5 +602,10 @@ public class SqlDatabase implements Database {
   @Override
   public boolean isOidcEnabled() {
     return this.isOidcEnabled;
+  }
+
+  @Override
+  public boolean hasSchema(String name) {
+    return getSchema(name) != null;
   }
 }

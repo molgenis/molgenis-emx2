@@ -56,10 +56,17 @@ export default {
           return resourceMapping ? resourceMapping.match.name : "zna";
         });
 
-        if (statusList.includes("complete")) {
+        if (
+          statusList.includes("complete") &&
+          !statusList.includes("zna") &&
+          statusList.includes("partial")
+        ) {
           return "complete";
-        } else if (statusList.includes("partial")) {
-          return "complete";
+        } else if (
+          statusList.includes("partial") ||
+          (statusList.includes("complete") && statusList.includes("zna"))
+        ) {
+          return "partial";
         } else {
           return "unmapped";
         }

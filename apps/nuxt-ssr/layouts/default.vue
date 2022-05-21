@@ -1,23 +1,27 @@
 <template>
   <div class="wrapper d-flex flex-column">
-
     <Menu :logo="logo" :brandHref="brandHref" :menu="menu" :light="true">
       <template v-if="!isSignendIn">
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
-          Sign in</ButtonOutline
-        >
+          Sign in
+        </ButtonOutline>
         <ButtonOutline v-else @click="showSignInForm = true" :light="true">
-          Sign in</ButtonOutline
-        >
-        <SignInForm
-          :show="showSignInForm"
+          Sign in
+        </ButtonOutline>
+        <MolgenisSignin
+          v-if="showSignInForm"
           @cancel="showSignInForm = false"
-          @requestSignIn="signIn(...arguments)"
+          @signin="signIn(...arguments)"
         />
       </template>
       <template v-else>
-        <span class="text-light mr-1">{{email}}</span>
-        <ButtonOutline v-if="isSignendIn" @click="signOut({onSignOutFailed})" :light="true">Sign out</ButtonOutline>
+        <span class="text-light mr-1">{{ email }}</span>
+        <ButtonOutline
+          v-if="isSignendIn"
+          @click="signOut({ onSignOutFailed })"
+          :light="true"
+          >Sign out
+        </ButtonOutline>
       </template>
     </Menu>
 
@@ -54,20 +58,21 @@ div.wrapper {
 </style>
 
 <script>
-import {Breadcrumb, ButtonOutline, SignInForm} from 'molgenis-components';
-import {mapGetters, mapActions} from 'vuex';
+import { Breadcrumb, ButtonOutline, MolgenisSignin, MolgenisFooter } from "molgenis-components";
+import { mapGetters, mapActions } from "vuex";
+
 export default {
-  components: {Breadcrumb, ButtonOutline, SignInForm},
+  components: { Breadcrumb, ButtonOutline, MolgenisSignin, MolgenisFooter },
   data() {
     return {
-      showSignInForm: false
+      showSignInForm: false,
     };
   },
   computed: {
-    ...mapGetters(['menu', 'logo', 'isOidcEnabled']),
+    ...mapGetters(["menu", "logo", "isOidcEnabled"]),
     isSignendIn() {
       return (
-        this.session && this.session.email && this.session.email !== 'anonymous'
+        this.session && this.session.email && this.session.email !== "anonymous"
       );
     },
     email() {
@@ -83,36 +88,36 @@ export default {
       return this.$store.state.manifest;
     },
     brandHref() {
-      return '/' + this.schema;
+      return "/" + this.schema;
     },
     crumbs() {
       const sections = this.$route.path
-        .split('/')
-        .filter((section) => section !== '');
+        .split("/")
+        .filter((section) => section !== "");
 
       // given a path section walk the path (building the url) until section is found
       const buildUrl = (section) => {
         return sections.reduce((url, current) => {
-          return url.split('/').pop() !== section ? url + '/' + current : url;
+          return url.split("/").pop() !== section ? url + "/" + current : url;
         });
       };
 
       return sections.reduce((accum, section) => {
         // add "/" to make absolute path
-        const routeUrl = '/' + buildUrl(section);
+        const routeUrl = "/" + buildUrl(section);
         accum[section] = routeUrl;
         return accum;
       }, {});
     },
     isBreadcrumbShown() {
-      return this.$route.path !== '/apps/central/';
-    }
+      return this.$route.path !== "/apps/central/";
+    },
   },
   methods: {
-    ...mapActions(['signIn', 'signOut']),
+    ...mapActions(["signIn", "signOut"]),
     onSignOutFailed(msg) {
-      console.log(msg)
-    }
-  }
+      console.log(msg);
+    },
+  },
 };
 </script>

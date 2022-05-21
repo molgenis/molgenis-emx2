@@ -5,8 +5,7 @@
 </template>
 
 <docs>
-Example
-```
-<Spinner/>
-```
+<template>
+  <Spinner/>
+</template>
 </docs>
