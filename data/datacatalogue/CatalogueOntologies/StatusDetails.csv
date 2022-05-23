@@ -1,4 +1,5 @@
-name,code,order,definition,comments,parent,ontologyTermURI
-complete,,,
-nza,,,
-partial,,,
+order,name,code,parent,ontologyTermURI,definition
+,na,,,,
+,complete,,,,
+,nza,,,,
+,partial,,,,

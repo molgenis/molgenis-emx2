@@ -1,1 +1,6 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+name
+Required for general use
+Required for all studies
+Required for intervention studies
+Waiver
+Other

@@ -1,5 +1,5 @@
-order,name,code,parent,ontologyTermURI,definition
-1,Data originator,,,,
-2,Research,,,,
-3,Surveillance,,,,
-4,other,,,,
+name
+Data originator
+Research
+Surveillance
+Other

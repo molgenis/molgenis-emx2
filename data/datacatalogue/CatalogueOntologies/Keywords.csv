@@ -1,1 +1,323 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+order,name,code,parent,ontologyTermURI,definition
+8,Birth length,,Birth outcomes,,aaaaczock6baf6qwhycgrlaaae
+9,vitamin_d_UV_dose,,Meteorology,,sub_sub_folder_58
+10,land_surface_temperature,,Meteorology,,sub_sub_folder_59
+,Sitting height,,Child's height,,
+4,ln_categorical,,Noise,,sub_sub_folder_72
+5,distance (noise),,Noise,,sub_sub_folder_73
+1,area_level_ses_tertiles,,Social context,,sub_sub_folder_74
+,Maternal measurements,,Health-related characteristics (M),,
+,Paternal measurements,,Health-related characteristics (F),,
+,Circumferences,,Measurements,,
+,Arm circumference,,Circumferences,,
+,Waist circumference,,Circumferences,,
+,Head circumference,,Circumferences,,
+,Hip circumference,,Circumferences,,
+,Skinfold,,Measurements,,
+,Bicep skinfold,,Skinfold,,
+,Subscapular skinfold,,Skinfold,,
+,Suprailiac skinfold,,Skinfold,,
+,Tricep skinfold,,Skinfold,,
+1,Socio-demographic characteristics (M),,Maternal Characteristics,,1
+2,Maternal Characteristics,,,,3
+3,Lifestyle Characteristics (M),,Maternal Characteristics,,4
+1,Maternal smoking,,Lifestyle Characteristics (M),,5
+1,Socio-demographic characteristics (C),,Child,,aaaac2iph3bzb6qwhza7xqiaae
+1,Child's country of birth,,Socio-demographic characteristics (C),,aaaac2ipjyxw36qwhza7xqiaae
+2,EUSILC-based household income,,Household Characteristics,,aaaac2iplmanp6qwhza7xqiaae
+6,Cognitive domains,,Child,,aaaac3pyj4jej6qwhza7xqiaae
+7,Behavioral problem domains,,Child,,aaaac3pyjzyiz6qwhza7xqiaae
+1,Internalizing problems,,Behavioral problem domains,,aaaac3pykclzp6qwhza7xqiaae
+2,Externalizing problems,,Behavioral problem domains,,aaaac3pytaulj6qwhza7xqiaae
+3,ADHD symptoms,,Behavioral problem domains,,aaaac3pyupqij6qwhza7xqiaae
+4,ADHD Registry diagnosis,,Behavioral problem domains,,aaaac3pyut3pd6qwhza7xqiaae
+2,School age,,Diet (C),,aaaac4cx554gn6qwhza7xqiaae
+1,Method of dietary assessment (M),,Diet (M),,aaaac4cyaophz6qwhza7xqiaae
+5,Autism spectrum disorder symptoms,,Behavioral problem domains,,aaaac3pyuvqcj6qwhza7xqiaae
+6,ASD Registry diagnosis,,Behavioral problem domains,,aaaac3pyuxgv56qwhza7xqiaae
+1,Gross motor,,Cognitive domains,,aaaac3pyweyf76qwhza7xqiaae
+2,Fine motor,,Cognitive domains,,aaaac3pywgivt6qwhza7xqiaai
+3,Non-verbal intelligence,,Cognitive domains,,aaaac3pywidtd6qwhza7xqiaae
+4,Working memory,,Cognitive domains,,aaaac3pywkewr6qwhza7xqiaae
+5,Language,,Cognitive domains,,aaaac3pywlwmb6qwhza7xqiaau
+6,Urban environment,,,,aaaac3tj53kmz6qwhza7xqiaae
+1,Air pollution,,Urban environment,,aaaac3tj6cuob6qwhza7xqiaae
+2,Natural spaces,,Urban environment,,aaaac3tj6kfo36qwhza7xqiaae
+3,Build environment,,Urban environment,,aaaac3tj6mknf6qwhza7xqiaae
+4,Social context,,Urban environment,,aaaac3tj6oywf6qwhza7xqiaae
+5,Traffic,,Urban environment,,aaaac3tj6qq6x6qwhza7xqiaay
+6,Noise,,Urban environment,,aaaac3tj6ssf76qwhza7xqiaae
+7,Unhealthy food environment,,Urban environment,,aaaac3tj6u2w76qwhza7xqiaae
+8,Meteorology,,Urban environment,,aaaac3tj6xkwh6qwhza7xqiaae
+8,Urban area id,,Meta variables,,aaaac3tn4bup76qwhza7xqiaae
+8,Preschool outdoor play,,Exposures/Lifestyle/Environment,,aaaac3wu545nf6qwhza7xqiaae
+9,Preschool screen times,,Exposures/Lifestyle/Environment,,aaaac3wu57zcf6qwhza7xqiaae
+7,Preschool sleep,,Exposures/Lifestyle/Environment,,aaaac3wu5zbjn6qwhza7xqiaae
+10,Preschool multibehavioral profiles,,Exposures/Lifestyle/Environment,,aaaac3wu6cr4l6qwhza7xqiaae
+5,Pets,,Exposures/Lifestyle/Environment,,aaaac4b5nls2j6qwhza7xqiaae
+2,Cats (any),,Pets,,aaaac4b5pvo7j6qwhza7xqiaae
+3,Cats (number),,Pets,,aaaac4b5qh37j6qwhza7xqiaae
+4,Dogs (any),,Pets,,aaaac4b5qxlmb6qwhza7xqiaae
+5,Dogs (number),,Pets,,aaaac4b5rhofr6qwhza7xqiaae
+4,Diet (M),,Maternal Characteristics,,aaaac4cx2362j6qwhza7xqiaae
+5,Diet (C),,Child,,aaaac4cx266gp6qwhza7xqiaae
+1,Preschool age,,Diet (C),,aaaac4cx4tinl6qwhza7xqiaae
+2,Gestational week at dietary assessment,,Diet (M),,aaaac4cyap2ax6qwhza7xqiaae
+3,Food groups (M),,Diet (M),,aaaac4cyara376qwhza7xqiaae
+5,Nutrients (M),,Diet (M),,aaaac4cyas72j6qwhza7xqiaae
+4,Supplements (M),,Diet (M),,aaaac4cyashqb6qwhza7xqiaae
+6,DASH diet index (M),,Diet (M),,aaaac4cyatw2x6qwhza7xqiaai
+1,Method of dietary assessment (Preschool),,Preschool age,,aaaac4cyecpgp6qwhza7xqiaae
+2,Exact age at dietary assessment (Preschool),,Preschool age,,aaaac4cyedlqt6qwhza7xqiaae
+3,Food groups (Preschool),,Preschool age,,aaaac4cyeeamt6qwhza7xqiaam
+4,Supplements (Preschool),,Preschool age,,aaaac4cyeevev6qwhza7xqiaae
+5,Nutrients (Preschool),,Preschool age,,aaaac4cyegdwf6qwhza7xqiaae
+6,Dietary behavior (Preschool),,Preschool age,,aaaac4cyehvsh6qwhza7xqiaae
+1,Method of dietary assessment (School),,School age,,aaaac4cyes5vb6qwhza7xqiaae
+2,Exact age at dietary assessment (School),,School age,,aaaac4cyetswx6qwhza7xqiaae
+4,Supplements (School),,School age,,aaaac4cyeu56j6qwhza7xqiaae
+3,Food groups (School),,School age,,aaaac4cyeuhdp6qwhza7xqiaae
+5,Nutrients (School),,School age,,aaaac4cyevtgx6qwhza7xqiaae
+6,Dietary behavior (School),,School age,,aaaac4cyewju56qwhza7xqiaae
+7,DASH diet index,,School age,,aaaac4cyexglz6qwhza7xqiaai
+4,Child,,,,aaaacyy2wne2p6qwh3nxvnaaae
+2,Maternal occupational status,,Socio-demographic characteristics (M),,aaaacyxw33i5d6qwh3nxvnaaae
+1,Maternal cohabitation status,,Socio-demographic characteristics (M),,aaaacyxwwccfp6qwh3nxvnaaae
+1,Paternal occupational status,,Socio-demographic characteristics (F),,aaaacyxxchjdn6qwh3nxvnaaae
+3,Paternal Characteristics,,,,aaaacyxxcixw56qwh3nxvnaaae
+2,Paternal height,,Health-related characteristics (F),,aaaacyy22c72p6qwh3nxvnaaae
+22,pm10zn,,Air pollution,,sub_sub_folder_22
+1,Paternal weight,,Health-related characteristics (F),,aaaacyy22cbx36qwh3nxvnaaae
+3,Paternal diabetes,,Health-related characteristics (F),,aaaacyy22d7ud6qwh3nxvnaaae
+4,Paternal asthma,,Health-related characteristics (F),,aaaacyy22ey536qwh3nxvnaaae
+5,Paternal psychiatric health,,Health-related characteristics (F),,aaaacyy22gh4d6qwh3nxvnaaae
+1,Paternal smoking,,Lifestyle characteristics (F),,aaaacyy22jkcf6qwh3nxvnaaae
+2,Birth outcomes,,Child,,aaaacyy22k2lf6qwh3nxvnaaae
+3,Health-related characteritics,,Child,,aaaacyy22mkpx6qwh3nxvnaaae
+4,Exposures/Lifestyle/Environment,,Child,,aaaacyy22n7qb6qwh3nxvnaaae
+1,Breastfeeding,,Exposures/Lifestyle/Environment,,aaaacyy22p2fn6qwh3nxvnaaae
+2,Solid food introduction,,Exposures/Lifestyle/Environment,,aaaacyy22qzkr6qwh3nxvnaaae
+3,Childcare,,Exposures/Lifestyle/Environment,,aaaacyy22rlmt6qwh3nxvnaaae
+1,Furry Pets,,Pets,,aaaacyy22t2cn6qwh3nxvnaaae
+4,Passive smoking,,Exposures/Lifestyle/Environment,,aaaacyy22tfx76qwh3nxvnaaae
+6,Family mental health,,Exposures/Lifestyle/Environment,,aaaacyy22vk3t6qwh3nxvnaaae
+1,Household income,,Household Characteristics,,aaaacyy23rzj76qwh3nxvnaaae
+2,Family split up,,Household Characteristics,,aaaacyy23svon6qwh3nxvnaaae
+3,Family size,,Household Characteristics,,aaaacyy23tsy56qwh3nxvnaaae
+2,Health-related characteristics (M),,Maternal Characteristics,,aaaacyy2w5fk76qwh3nxvnaaae
+1,Meta variables,,,,aaaacyy2wixud6qwh3nxvnaaae
+5,Household Characteristics,,,,aaaacyy2wqyet6qwh3nxvnaaae
+1,Child id,,Meta variables,,aaaacyy2ws4556qwh3nxvnaaae
+2,Mother id,,Meta variables,,aaaacyy2wugwj6qwh3nxvnaaae
+3,Pregnancy number,,Meta variables,,aaaacyy2wvn4r6qwh3nxvnaaae
+4,Cohort id,,Meta variables,,aaaacyy2wxhyh6qwh3nxvnaaae
+6,Country of cohort,,Meta variables,,aaaacyy2wy7lz6qwh3nxvnaaae
+5,Recruitment age,,Meta variables,,aaaacyy2wycnf6qwh3nxvnaaae
+7,Maternal age at birth,,Socio-demographic characteristics (M),,aaaacyy2x2n4f6qwh3nxvnaaae
+6,Maternal ethnicity,,Socio-demographic characteristics (M),,aaaacyy2x7ycp6qwh3nxvnaaae
+5,Obstetric Characteristics,,Maternal Characteristics,,aaaacyy2xcznx6qwh3nxvnaaae
+1,Maternal weight,,Health-related characteristics (M),,aaaacyy2ylzix6qwh3nxvnaaae
+2,Maternal height,,Health-related characteristics (M),,aaaacyy2ynhez6qwh3nxvnaaae
+3,Maternal diabetes,,Health-related characteristics (M),,aaaacyy2yrfh76qwh3nxvnaaae
+4,Maternal thyroid disorders,,Health-related characteristics (M),,aaaacyy2ysu5l6qwh3nxvnaaae
+5,Fever during pregnancy,,Health-related characteristics (M),,aaaacyy2yuawl6qwh3nxvnaaae
+6,Preeclampsia/gestational hypertension,,Health-related characteristics (M),,aaaacyy2yvbll6qwh3nxvnaaae
+9,Maternal asthma,,Health-related characteristics (M),,aaaacyy2yydqt6qwh3nxvnaaae
+7,Maternal psychiatric disoders,,Health-related characteristics (M),,aaaacyy2yzrkd6qwh3nxvnaaae
+2,Paternal occupational code,,Socio-demographic characteristics (F),,aaaacyy2z2iej6qwh3nxvnaaae
+4,Plurality,,Birth outcomes,,aaaaczocj4gkb6qwhycgrlaaae
+5,Paternal ethnicity,,Socio-demographic characteristics (F),,aaaacyy2z3sdh6qwh3nxvnaaae
+6,Paternal age at birth,,Socio-demographic characteristics (F),,aaaacyy2z4tqj6qwh3nxvnaaae
+5,Paternal death,,Socio-demographic characteristics (F),,aaaacyy2z5qpv6qwh3nxvnaaae
+8,Maternal death,,Socio-demographic characteristics (M),,aaaacyy2zapz76qwh3nxvnaaae
+2,Maternal alcohol intake,,Lifestyle Characteristics (M),,aaaacyy2zc3hp6qwh3nxvnaaae
+3,Folic acids supplementation,,Lifestyle Characteristics (M),,aaaacyy2zdxxd6qwh3nxvnaaae
+1,Maternal parity,,Obstetric Characteristics,,aaaacyy2ze5ib6qwh3nxvnaaae
+2,Planned pregnancy,,Obstetric Characteristics,,aaaacyy2zg42p6qwh3nxvnaaae
+3,Fertility treatment,,Obstetric Characteristics,,aaaacyy2zhuep6qwh3nxvnaaae
+4,Mode of delivery,,Obstetric Characteristics,,aaaacyy2zjxht6qwh3nxvnaaae
+5,Birth outcome,,Obstetric Characteristics,,aaaacyy2zknrv6qwh3nxvnaaae
+6,Placental abruption,,Obstetric Characteristics,,aaaacyy2zljl76qwh3nxvnaaae
+1,Socio-demographic characteristics (F),,Paternal Characteristics,,aaaacyy2zr3jn6qwh3nxvnaaae
+2,Health-related characteristics (F),,Paternal Characteristics,,aaaacyy2zuj2t6qwh3nxvnaaae
+3,Lifestyle characteristics (F),,Paternal Characteristics,,aaaacyy2zvkbr6qwh3nxvnaaae
+3,Paternal education (core),,Socio-demographic characteristics (F),,aaaacyy2zzopf6qwh3nxvnaaae
+3,Maternal occupational code,,Socio-demographic characteristics (M),,aaaaczoccqdsx6qwhycgrlaaae
+4,Maternal education (core),,Socio-demographic characteristics (M),,aaaaczocdgl636qwhycgrlaaae
+5,Maternal country of birth,,Socio-demographic characteristics (M),,aaaaczocdikup6qwhycgrlaaae
+5,Paternal country of birth,,Socio-demographic characteristics (F),,aaaaczochh3bp6qwhycgrlaaae
+3,Transferred to neonatal unit,,Birth outcomes,,aaaaczocj2xfb6qwhycgrlaaae
+5,Gestational age,,Birth outcomes,,aaaaczocj7ekb6qwhycgrlaaba
+1,Year and month of birth,,Birth outcomes,,aaaaczocjrcav6qwhycgrlaaae
+2,Apgar score,,Birth outcomes,,aaaaczocjzph56qwhycgrlaaae
+3,Child's weight,,Health-related characteritics,,aaaaczock4cdf6qwhycgrlaaae
+2,Sex,,Birth outcomes,,aaaaczock4lxx6qwhycgrlaaae
+2,Child's height,,Health-related characteritics,,aaaaczock5eyb6qwhycgrlaaai
+1,Death of child,,Health-related characteritics,,aaaaczock67jh6qwhycgrlaaae
+9,Birth head circumference,,Birth outcomes,,aaaaczock7g5v6qwhycgrlaaae
+7,Birth weight,,Birth outcomes,,aaaaczockliiz6qwhycgrlaaae
+10,Size for gestational age,,Birth outcomes,,aaaaczoclca2n6qwhycgrlaaae
+11,Placenta weight,,Birth outcomes,,aaaaczocldmzj6qwhycgrlaaae
+12,Congenital anomalies,,Birth outcomes,,aaaaczoclfi7h6qwhycgrlaaae
+13,Cerebral palsy,,Birth outcomes,,aaaaczoclgvkr6qwhycgrlaaae
+14,Sibling position,,Birth outcomes,,aaaaczoclim5r6qwhycgrlaaae
+8,Adult health-related characteristics,,Child,,child_adulthealthchar
+1,Respiratory (Adult health),,Adult health-related characteristics,,child_adulthealthchar_resp
+4,Allergy,,Health-related characteritics,,child_healthchar_allergy
+4,Allergic sensitization,,Allergy,,child_healthchar_allergy_allsens
+1,Food,,Allergic sensitization,,child_healthchar_allergy_allsens_food
+2,IgE (Food),,Food,,child_healthchar_allergy_allsens_food_ige
+1,Any food allergic sensitization (IgE),,IgE (Food),,child_healthchar_allergy_allsens_food_ige_any
+1,Skin prick test (Food),,Food,,child_healthchar_allergy_allsens_food_skinprick
+1,Any food allergic sensitization (Skin prick test),,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_any
+3,Chicken egg,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_chickenegg
+1,Food allergy,,Allergy,,child_healthchar_allergy_foodallergy
+2,Cow milk,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_cowmilk
+8,Fish,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_fish
+10,Fruit,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_fruit
+6,Nut,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_nut
+5,Peanut,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_peanut
+7,Sesame,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_sesame
+9,Shellfish,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_shellfish
+4,Wheat,,Skin prick test (Food),,child_healthchar_allergy_allsens_food_skinprick_wheat
+2,Inhalant,,Allergic sensitization,,child_healthchar_allergy_allsens_inhalant
+2,IgE (Inhalant),,Inhalant,,child_healthchar_allergy_allsens_inhalant_ige
+1,Any inhalant allergic sensitization (IgE),,IgE (Inhalant),,child_healthchar_allergy_allsens_inhalant_ige_any
+3,Cat (IgE),,IgE (Inhalant),,child_healthchar_allergy_allsens_inhalant_ige_cat
+2,House dust mite (IgE),,IgE (Inhalant),,child_healthchar_allergy_allsens_inhalant_ige_dustmite
+5,Mould,,IgE (Inhalant),,child_healthchar_allergy_allsens_inhalant_ige_mould
+4,Rye,,IgE (Inhalant),,child_healthchar_allergy_allsens_inhalant_ige_rye
+1,Skin prick test (Inhalant),,Inhalant,,child_healthchar_allergy_allsens_inhalant_skinprick
+1,Any inhalant allergic sensitization  (Skin prick test),,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_any
+1,Absolute (FEF25),,FEF25,,child_healthchar_resp_lungfunc_spirometry_fef25_absolute
+3,Cat (Skin prick test),,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_cat
+4,Dog,,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_dog
+5,House dust mite (Skin prick test),,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_dustmite
+2,Grass,,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_grass
+6,Tree,,Skin prick test (Inhalant),,child_healthchar_allergy_allsens_inhalant_skinprick_tree
+6,Anaphylaxis,,Allergy,,child_healthchar_allergy_anaphylaxis
+3,Any allergy,,Allergy,,child_healthchar_allergy_anyallergy
+2,Inhalant allergy,,Allergy,,child_healthchar_allergy_inhallergy
+5,Urticaria,,Allergy,,child_healthchar_allergy_urticaria
+5,Respiratory (Health-related),,Health-related characteritics,,child_healthchar_resp
+2,Asthma (Respiratory),,Respiratory (Health-related),,child_healthchar_resp_asthma
+20,pm10si,,Air pollution,,sub_sub_folder_20
+1,Asthma,,Asthma (Respiratory),,child_healthchar_resp_asthma_Asthma
+5,CHICOS,,Asthma (Respiratory),,child_healthchar_resp_asthma_chicos
+4,ISAAC,,Asthma (Respiratory),,child_healthchar_resp_asthma_isaac
+2,Asthma medication,,Asthma (Respiratory),,child_healthchar_resp_asthma_med
+3,MeDALL,,Asthma (Respiratory),,child_healthchar_resp_asthma_medall
+4,Lung function,,Respiratory (Health-related),,child_healthchar_resp_lungfunc
+2,FeNO,,Lung function,,child_healthchar_resp_lungfunc_feno
+1,Spirometry,,Lung function,,child_healthchar_resp_lungfunc_spirometry
+8,Bronchial hyperresponsiveness,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_bronchhr
+4,FEF25,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fef25
+5,FEF50,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fef50
+1,Absolute (FEF50),,FEF50,,child_healthchar_resp_lungfunc_spirometry_fef50_absolute
+6,FEF75,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fef75
+1,Absolute (FEF75),,FEF75,,child_healthchar_resp_lungfunc_spirometry_fef75_absolute
+2,Z-score (FEF75),,FEF75,,child_healthchar_resp_lungfunc_spirometry_fef75_zscore
+1,FEV1,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fev1
+1,Absolute (FEV1),,FEV1,,child_healthchar_resp_lungfunc_spirometry_fev1_absolute
+3,FEV1/FVC,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fev1fvc
+1,Z-score (FEV1/FVC),,FEV1/FVC,,child_healthchar_resp_lungfunc_spirometry_fev1fvc_zscore
+2,Z-score (FEV1),,FEV1,,child_healthchar_resp_lungfunc_spirometry_fev1_zscore
+2,FVC,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_fvc
+1,Absolute,,FVC,,child_healthchar_resp_lungfunc_spirometry_fvc_absolute
+2,Z-score (FVC),,FVC,,child_healthchar_resp_lungfunc_spirometry_fvc_zscore
+7,Reproducibility,,Spirometry,,child_healthchar_resp_lungfunc_spirometry_rep
+3,Respiratory tract infections,,Respiratory (Health-related),,child_healthchar_resp_resptractinf
+2,Lower respiratory tract infections,,Respiratory tract infections,,child_healthchar_resp_resptractinf_lower
+1,Upper respiratory tract infections,,Respiratory tract infections,,child_healthchar_resp_resptractinf_upper
+1,Wheezing,,Respiratory (Health-related),,child_healthchar_resp_wheezing
+6,Skin,,Health-related characteritics,,child_healthchar_skin
+1,Eczema,,Skin,,child_healthchar_skin_eczema
+2,Itchy rash,,Skin,,child_healthchar_skin_itchyrash
+5,Anorexia nervosa,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_an
+3,Anxiety,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_anx
+1,Any psychiatric disorder,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_any
+6,Bulimia nervosa,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_bn
+2,Depression,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_dep
+4,Any eating disorder,,Maternal psychiatric disoders,,matchar_healthchar_matpsychdis_ed
+8,Respiratory allergy and skin characteristics,,Health-related characteristics (M),,matchar_healthchar_respallergyskin
+1,no2,,Air pollution,,sub_sub_folder_1
+10,pm25ni,,Air pollution,,sub_sub_folder_10
+11,pm25s,,Air pollution,,sub_sub_folder_11
+12,pm25si,,Air pollution,,sub_sub_folder_12
+13,pm25v,,Air pollution,,sub_sub_folder_13
+14,pm25zn,,Air pollution,,sub_sub_folder_14
+15,pm10cu,,Air pollution,,sub_sub_folder_15
+16,pm10fe,,Air pollution,,sub_sub_folder_16
+17,pm10k,,Air pollution,,sub_sub_folder_17
+18,pm10ni,,Air pollution,,sub_sub_folder_18
+19,pm10s,,Air pollution,,sub_sub_folder_19
+2,nox,,Air pollution,,sub_sub_folder_2
+21,pm10v,,Air pollution,,sub_sub_folder_21
+1,population_density,,Build environment,,sub_sub_folder_23
+2,building_density100,,Build environment,,sub_sub_folder_24
+3,building_density300,,Build environment,,sub_sub_folder_25
+4,connectivity_density100,,Build environment,,sub_sub_folder_26
+5,connectivity_density300,,Build environment,,sub_sub_folder_27
+6,access_to_public_transport_lines100,,Build environment,,sub_sub_folder_28
+7,access_to_public_transport_lines300,,Build environment,,sub_sub_folder_29
+3,pm10,,Air pollution,,sub_sub_folder_3
+8,access_to_public_transport_lines500,,Build environment,,sub_sub_folder_30
+9,access_to_public_transport_stops100,,Build environment,,sub_sub_folder_31
+10,access_to_public_transport_stops300,,Build environment,,sub_sub_folder_32
+11,access_to_public_transport_stops500,,Build environment,,sub_sub_folder_33
+12,facilities_density,,Build environment,,sub_sub_folder_34
+13,facilities_richness,,Build environment,,sub_sub_folder_35
+14,land_use_mix,,Build environment,,sub_sub_folder_36
+15,walkability,,Build environment,,sub_sub_folder_37
+16,main_land_use_agricultural,,Build environment,,sub_sub_folder_38
+17,main_land_use_airports,,Build environment,,sub_sub_folder_39
+4,pm25,,Air pollution,,sub_sub_folder_4
+18,main_land_use_continuous_urban_fabric,,Build environment,,sub_sub_folder_40
+19,main_land_use_industrial,,Build environment,,sub_sub_folder_41
+20,main_land_use_medium_urban_fabric,,Build environment,,sub_sub_folder_42
+21,main_land_use_forests,,Build environment,,sub_sub_folder_43
+22,main_land_use_other,,Build environment,,sub_sub_folder_44
+23,main_land_use_port,,Build environment,,sub_sub_folder_45
+24,main_land_use_transports,,Build environment,,sub_sub_folder_46
+25,main_land_use_green_urban,,Build environment,,sub_sub_folder_47
+26,main_land_use_low_density,,Build environment,,sub_sub_folder_48
+27,main_land_use_water,,Build environment,,sub_sub_folder_49
+5,pmcoarse,,Air pollution,,sub_sub_folder_5
+1,mean_temperature,,Meteorology,,sub_sub_folder_50
+2,minimum_temperature,,Meteorology,,sub_sub_folder_51
+3,maximum_temperature,,Meteorology,,sub_sub_folder_52
+4,mean_relative_humidity,,Meteorology,,sub_sub_folder_53
+5,minimum_relative_humidity,,Meteorology,,sub_sub_folder_54
+6,maximum_relative_humidity,,Meteorology,,sub_sub_folder_55
+7,DNA_damage_UV_dose,,Meteorology,,sub_sub_folder_56
+8,erythemal_UV_dose,,Meteorology,,sub_sub_folder_57
+6,pm25abs,,Air pollution,,sub_sub_folder_6
+1,blue_distance,,Natural spaces,,sub_sub_folder_60
+2,green_distance,,Natural spaces,,sub_sub_folder_61
+3,blue_size,,Natural spaces,,sub_sub_folder_62
+4,green_size,,Natural spaces,,sub_sub_folder_63
+5,blue_access,,Natural spaces,,sub_sub_folder_64
+6,green_access,,Natural spaces,,sub_sub_folder_65
+7,ndvi100,,Natural spaces,,sub_sub_folder_66
+8,ndvi300,,Natural spaces,,sub_sub_folder_67
+9,ndvi500,,Natural spaces,,sub_sub_folder_68
+1,lden,,Noise,,sub_sub_folder_69
+7,pm25cu,,Air pollution,,sub_sub_folder_7
+2,ln,,Noise,,sub_sub_folder_70
+3,lden_categorical,,Noise,,sub_sub_folder_71
+2,area_level_ses_quintiles,,Social context,,sub_sub_folder_75
+1,distance (traffic),,Traffic,,sub_sub_folder_76
+2,traffic_load_all_roads,,Traffic,,sub_sub_folder_77
+3,traffic_load_major_roads,,Traffic,,sub_sub_folder_78
+4,traffic_density,,Traffic,,sub_sub_folder_79
+8,pm25fe,,Air pollution,,sub_sub_folder_8
+1,unhealthy_facilities_density,,Unhealthy food environment,,sub_sub_folder_80
+2,unhealthy_facilities_density_osm,,Unhealthy food environment,,sub_sub_folder_81
+9,pm25k,,Air pollution,,sub_sub_folder_9
+11,meteo_distance,,Meteorology,,urbanenv_meteo_mdist
+,Measurements,,Health-related characteritics,,
+,Blood pressure,,Measurements,,
+,Pulse,,Measurements,,
+,Cholesterol,,Measurements,,
+,(Molecular) biomarkers,,Measurements,,
+,Body Composition,,Health-related characteritics,,
