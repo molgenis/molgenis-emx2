@@ -7,7 +7,9 @@
         v-model="query"
         placeholder="Search"
       />
-      <button type="submit" class="btn btn-primary btn-lg">Search</button>
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary btn-lg">Search</button>
+      </div>
     </div>
   </form>
 </template>
@@ -18,7 +20,7 @@ export default {
   props: {
     resourceType: {
       type: String, // one of Resource
-      default: () => "institutions",
+      default: () => "Institutions",
     },
   },
   data() {
