@@ -1396,10 +1396,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@molgenis/expressions@0.21.1":
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/@molgenis/expressions/-/expressions-0.21.1.tgz#2ae2b4f8a17bdaec2cb074d7c43b8e41b21e868c"
-  integrity sha512-549ckozAbCYUyP2hgOsutFyMeWXU0NqHc86u3T5bCplZh2HdtrBXrLINXetl/0DbGAkdLPlSSAasYVRuKc1zFA==
+"@molgenis/expressions@0.21.2":
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/@molgenis/expressions/-/expressions-0.21.2.tgz#eceb57c294f49a7ac4bee7db5f1957fc83401d3c"
+  integrity sha512-iL6MgMoKp8fbYqPTz1M6EYWTM3EYusSLugsqM4ddpmVttwNVImzpFNmA70Hl+SjaKtPPmobCpHNkgr6xTEWTbQ==
 
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
