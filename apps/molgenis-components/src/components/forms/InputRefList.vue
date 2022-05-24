@@ -53,6 +53,7 @@
         <template v-slot:body>
           <TableSearch
             :selection.sync="selection"
+            @update:selection="$emit('input', $event);"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
@@ -210,7 +211,7 @@ export default {
         graphqlURL="/pet store/graphql"
         multipleColumns
       />
-      Selection: {{ value }}
+      Selection: {{ multiColumnValue }}
     </DemoItem>
   </div>
 </template>

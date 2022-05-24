@@ -75,6 +75,7 @@ import ButtonAlt from "./ButtonAlt.vue";
 import { flattenObject, getPrimaryKey } from "../utils";
 
 export default {
+  name: "InputRef",
   extends: BaseInput,
   data: function () {
     return {

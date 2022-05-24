@@ -18,15 +18,16 @@
         </div>
         <div>
           <label v-if="idx == 0">label</label>
-          <InputString v-model="item.label" :defaultValue="item.label" />
+          <InputString :id="'menu-label' + idx" v-model="item.label" :defaultValue="item.label" />
         </div>
         <div>
           <label v-if="idx == 0">href</label>
-          <InputString v-model="item.href" :defaultValue="item.href" />
+          <InputString :id="'menu-href' + idx" v-model="item.href" :defaultValue="item.href" />
         </div>
         <div>
           <label v-if="idx == 0">role</label>
           <InputSelect
+            :id="'menu-role' + idx"
             v-model="item.role"
             :defaultValue="item.role"
             :options="['Viewer', 'Editor', 'Manager']"
@@ -46,7 +47,7 @@ import {
   IconDanger,
   InputSelect,
   InputString,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {
