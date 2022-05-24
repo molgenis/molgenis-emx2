@@ -17,11 +17,11 @@
       <div v-else>
         <TableMolgenis
           :selection="selection"
-          @update:selection="$emit('update:selection', $event)"
-          :metadata="tableMetadata"
+          :tableMetadata="tableMetadata"
           :columns="columnsVisible"
           :data="data"
           :showSelect="showSelect"
+          @update:selection="$emit('update:selection', $event)"
           @select="select"
           @deselect="deselect"
         >

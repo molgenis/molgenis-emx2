@@ -23,7 +23,7 @@
           :key="index"
         >
           <input
-            :id="`${id}-${row.name}`"
+            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
             :name="id"
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
@@ -31,7 +31,10 @@
             @change="$emit('input', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"
           />
-          <label class="form-check-label" :for="`${id}-${row.name}`">
+          <label
+            class="form-check-label"
+            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
+          >
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
