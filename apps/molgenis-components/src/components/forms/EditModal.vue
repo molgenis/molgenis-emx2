@@ -50,10 +50,17 @@ const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 /**
  * Properties:
+ * id: used as html id for components
  * pkey:  when updating existing record, this is the primary key value
  * clone: when you want to clone instead of update
  * visibleColumns:  visible columns, useful if you only want to allow partial edit (array of strings)
  * defaultValue: when creating new record, this is initialization value
+ * graphqlURL: url to graphql endpoint
+ * tableName: name of the molgenis table loaded
+ *
+ * Emits:
+ * closeFormModal: close the modal
+ *
  * **/
 
 export default {
@@ -74,10 +81,19 @@ export default {
       type: String,
       required: true,
     },
-    pkey: Object,
-    clone: Boolean,
-    visibleColumns: Array,
-    defaultValue: Object,
+    pkey: { type: Object },
+    clone: {
+      type: Boolean,
+      required: false,
+    },
+    visibleColumns: {
+      type: Array,
+      required: false,
+    },
+    defaultValue: {
+      type: Object,
+      required: false,
+    },
     graphqlURL: {
       default: "graphql",
       type: String,
@@ -118,7 +134,6 @@ export default {
           if (data.update) {
             this.success = data.update.message;
           }
-          this.$emit("close");
         })
         .catch((error) => {
           if (error.status === 403) {
@@ -152,30 +167,11 @@ export default {
         return true;
       }
     },
-    validate() {
-      if (this.tableMetaData) {
-        this.tableMetaData.columns.forEach((column) =>
-          this.validateColumn(column)
-        );
-      }
+    validateTable() {
+      this.tableMetaData?.columns.forEach((column) => {
+        this.errorPerColumn[column.id] = getColumnError(column, this.values);
+      });
     },
-    validateColumn(column) {
-      const value = this.values[column.id];
-      const isInvalidNumber = typeof value === "number" && isNaN(value);
-      const missesValue = value === undefined || value === null || value === "";
-      if (column.required && (missesValue || isInvalidNumber)) {
-        this.errorPerColumn[column.id] = column.name + " is required ";
-      } else if (missesValue) {
-        this.errorPerColumn[column.id] = undefined;
-      } else {
-        this.errorPerColumn[column.id] = this.getColumnError(
-          column,
-          this.values
-        );
-      }
-    },
-    getColumnError,
-    isRefLinkWithoutOverlap,
     getPrimaryKey,
   },
   computed: {
@@ -223,13 +219,13 @@ export default {
     },
     value: {
       handler() {
-        this.validate();
+        this.validateTable();
       },
       deep: true,
     },
     tableMetaData: {
       handler() {
-        this.validate();
+        this.validateTable();
       },
       deep: true,
     },
@@ -247,32 +243,22 @@ export default {
     if (this.defaultValue) {
       this.values = JSON.parse(JSON.stringify(this.defaultValue));
     }
-    this.validate();
+    this.validateTable();
   },
 };
 
-function isRefLinkWithoutOverlap(column, tableMetaData, values) {
-  if (!column.refLink) {
-    return false;
-  } else {
-    const refLinkId = getRefLinkColumnByName(tableMetaData, column.refLink).id;
-    const value = values[column.id];
-    const refValue = values[refLinkId];
-
-    if (typeof value === "string" && typeof refValue === "string") {
-      return value && refValue && value !== refValue;
-    } else {
-      return (
-        value && refValue && JSON.stringify(value) !== JSON.stringify(refValue)
-      );
-    }
-  }
-}
-
 function getColumnError(column, values) {
   const value = values[column.id];
+  const isInvalidNumber = typeof value === "number" && isNaN(value);
+  const missesValue = value === undefined || value === null || value === "";
   const type = column.columnType;
 
+  if (column.required && (missesValue || isInvalidNumber)) {
+    return column.name + " is required ";
+  }
+  if (missesValue) {
+    return undefined;
+  }
   if (type === "EMAIL" && !isValidEmail(value)) {
     return "Invalid email address";
   }
@@ -288,7 +274,7 @@ function getColumnError(column, values) {
   if (column.validation) {
     return evaluateValidationExpression(column, values);
   }
-  if (this.isRefLinkWithoutOverlap(column, this.tableMetaData, this.values)) {
+  if (isRefLinkWithoutOverlap(column, this.tableMetaData, this.values)) {
     return `value should match your selection in column '${column.refLink}' `;
   }
 
@@ -318,6 +304,24 @@ function evaluateValidationExpression(column, values) {
     }
   } catch (error) {
     return "Invalid validation expression";
+  }
+}
+
+function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+  if (!column.refLink) {
+    return false;
+  } else {
+    const refLinkId = getRefLinkColumnByName(tableMetaData, column.refLink).id;
+    const value = values[column.id];
+    const refValue = values[refLinkId];
+
+    if (typeof value === "string" && typeof refValue === "string") {
+      return value && refValue && value !== refValue;
+    } else {
+      return (
+        value && refValue && JSON.stringify(value) !== JSON.stringify(refValue)
+      );
+    }
   }
 }
 
