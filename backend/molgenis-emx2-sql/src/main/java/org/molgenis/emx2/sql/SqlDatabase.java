@@ -89,11 +89,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (init) {
       try {
         // elevate privileges for init
-        this.becomeAdmin();
+        this.connectionProvider.setActiveUser(ADMIN_USER);
         this.init();
       } finally {
         // always sure to return to anonyous
-        this.clearActiveUser();
+        this.connectionProvider.clearActiveUser();
       }
     }
     // get database version if exists

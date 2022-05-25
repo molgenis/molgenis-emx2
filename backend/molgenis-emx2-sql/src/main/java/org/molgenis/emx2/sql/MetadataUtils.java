@@ -152,7 +152,6 @@ public class MetadataUtils {
                   name(MOLGENIS));
             }
 
-            // set version
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(DATABASE_METADATA)) {
               t.columns(DATABASE_ID, VERSION, SETTINGS)
                   .constraints(primaryKey(DATABASE_ID))
