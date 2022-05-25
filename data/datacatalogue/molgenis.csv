@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.0
+Version,,,,,,,,,,,,3
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -82,6 +82,7 @@ Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data
 Databanks,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records in the data bank are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
 Databanks,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
+Databanks,,treatments,refback,,,,Treatments,,resource,,,
 Databanks,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?"
 RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this databank or datasource
@@ -105,7 +106,11 @@ Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or org
 RWEresources,,informedConsent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?
 RWEresources,,informedConsentOther,text,,,,,,,,,"If other, describe the conditions when informed consent is required"
 RWEresources,,accessIdentifiableData,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?
+RWEresources,,accessIdentifiableDataRoute,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
 RWEresources,,accessSubjectDetails,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?
+RWEresources,,accessSubjectDetailsRoute,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
+RWEresources,,auditPossible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?"
+RWEresources,,publicationApproval,bool,,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data source?
 Databanks,,accessThirdParty,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?
 Databanks,,accessThirdPartyConditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted"
 Databanks,,accessNonEU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
@@ -254,6 +259,26 @@ Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countri
 Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
+Treatments,,,,,,,,,,,,"Details about the availability of information on e.g. prescriptions, medication and procedures"
+Treatments,,resource,ref,1,TRUE,,,,,,,
+Treatments,,prescriptionsVocabulary,ontology,,,CatalogueOntologies,PrescriptionVocabularies,,,,,What prescription vocabulary is used?
+Treatments,,prescriptionsNotCoded,int,,,,,,,,,"If Not coded (Free text), approximately what percentage of records are not coded?"
+Treatments,,dispensingsVocabulary,ontology,,,CatalogueOntologies,DispensingsVocabulary,,,,,"Is information on dispensing of medications included? If yes, what vocabulary is used? "
+Treatments,,productInformation,ontology_array,,,CatalogueOntologies,ProductInformation,,,,,Is product information available? Select all items that apply.
+Treatments,,productVocabulary,ontology_array,,,CatalogueOntologies,ProductVocabularies,,,,,"If product information is included, what vocabulary is used to describe the product?"
+Treatments,,substanceVocabulary,ontology_array,,,CatalogueOntologies,SubstanceVocabularies,,,,,"If substance information is included, what vocabulary is used to describe the substance?"
+Treatments,,otherMedicines,bool,,,,,,,,,Is other information on medicines or products included?
+Treatments,,ATMP,bool,,,,,,,,,Is information on advanced therapy medicinal products included?
+Treatments,,contraception,bool,,,,,,,,,Is information on contraceptives included?
+Treatments,,indicationForUse,bool,,,,,,,,,"If medicines information is captured, is the indication for use recorded?"
+Treatments,,indicationVocabulary,ontology_array,,,CatalogueOntologies,IndicationsVocabulary,,,,,"If yes, what vocabulary is used? Select from the following:"
+Treatments,,percentageIndicationNotCoded,int,,,,,,,,,"If Not coded (Free text), approximately what percentage of records are not coded?"
+Treatments,,indicationVocabularyOther,text,,,,,,,,,"If 'other,' what vocabulary is used?"
+Treatments,,administrationVaccines,bool,,,,,,,,,Is information on the administration of vaccines included?
+Treatments,,medicalDevices,bool,,,,,,,,,Is information on medical devices included?
+Treatments,,proceduresIncluded,bool,,,,,,,,,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?"
+Treatments,,proceduresVocabulary,ontology_array,,,CatalogueOntologies,ProceduresVocabulary,,,,,"If yes, what vocabulary is used? Select from the following:"
+Treatments,,percentageProceduresNotCoded,int,,,,,,,,,"If Not coded (Free text), approximately what percentage of records are not coded?"
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
 Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network, e.g. h2020 project"
 Networks,,datasources,ref_array,,,,Datasources,,,,,
