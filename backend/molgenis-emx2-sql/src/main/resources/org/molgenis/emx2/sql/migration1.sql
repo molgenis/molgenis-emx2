@@ -1,3 +1,5 @@
+do $$
+BEGIN
 IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'version_metadata' AND SCHEMA_NAME = 'MOLGENIS')
 THEN
 TRUNCATE "MOLGENIS"."version_metadata";
@@ -5,3 +7,4 @@ ALTER TABLE "MOLGENIS"."version_metadata" DROP COLUMN "version";
 ALTER TABLE "MOLGENIS"."version_metadata"
     ADD COLUMN "version" INTEGER NOT NULL;
 END IF;
+end; $$ language plpgsql;
