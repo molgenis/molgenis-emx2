@@ -103,27 +103,33 @@ public class MetadataUtils {
       if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
         // schema does not exist, need to full init
         version = -1;
+        return version;
       } else {
-        Result<org.jooq.Record> result = jooq.selectFrom(DATABASE_METADATA).fetch();
-        if (result.size() > 0) {
-          version = (Integer) result.get(0).get(VERSION);
-        } else {
-          // older schema used "version_metadata'
-          result = jooq.selectFrom(name("version_metadata")).fetch();
+        try {
+          Result<org.jooq.Record> result = jooq.selectFrom(DATABASE_METADATA).fetch();
           if (result.size() > 0) {
-            try {
+            version = (Integer) result.get(0).get(VERSION);
+            return version;
+          }
+        } catch (Exception e) {
+          // older schema used "version_metadata'
+          try {
+            Result<org.jooq.Record> result = jooq.selectFrom(name("version_metadata")).fetch();
+            if (result.size() > 0) {
               // in very old version this was a string so might not be integer
               version = (Integer) result.get(0).get(VERSION);
-            } catch (ClassCastException e) {
-              // this is to handle the legacy systems: before Migration system we used version
-              // string of
-              // software
-              logger.debug(
-                  "Updating from old 'x.y.z' based database version number to numeric database version number");
+              return version;
             }
-            // default
-            version = 0;
+          } catch (ClassCastException e2) {
+            // this is to handle the legacy systems: before Migration system we used version
+            // string of
+            // software
+            logger.debug(
+                "Updating from old 'x.y.z' based database version number to numeric database version number");
           }
+          // default
+          version = 0;
+          return version;
         }
       }
     }
