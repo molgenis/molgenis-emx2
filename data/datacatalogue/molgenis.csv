@@ -115,6 +115,11 @@ Databanks,,accessThirdParty,bool,,,,,,,,,Can (an extract of) the data bank be ac
 Databanks,,accessThirdPartyConditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted"
 Databanks,,accessNonEU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
 Databanks,,accessNonEUConditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
+Databanks,,standardOperatingProcedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?
+Databanks,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
+Databanks,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted."
+Databanks,,dataController,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank.
+RWEresources,,governanceDetails,,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
 RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data
 RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
 RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
@@ -218,6 +223,7 @@ DatasourceDatabanks,,linkageVariableUnique,bool,,,,,,,,,"If a single variable is
 DatasourceDatabanks,,linkageCompleteness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).
 QuantitativeInformation,,,,,,,,,,,,Quantitative information on the resource
 QuantitativeInformation,,resource,ref,1,,,Resources,,,,,
+QuantitativeInformation,,ageGroup,ref,,,CatalogueOntologies,AgeGroups,,,,,
 QuantitativeInformation,,populationSize,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,activeSize,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,noIndividualsWithSamples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year "
