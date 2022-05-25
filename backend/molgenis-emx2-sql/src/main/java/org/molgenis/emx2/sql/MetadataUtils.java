@@ -101,10 +101,11 @@ public class MetadataUtils {
   protected static Integer getVersion(DSLContext jooq) {
     if (version == null) {
       if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
-        // schema does not exist, need to full init
+        // schema does not exist, need to do a full init
         version = -1;
         return version;
       } else {
+        // use DATABASE_METADATA table, this is what recent versions would use
         try {
           Result<org.jooq.Record> result = jooq.selectFrom(DATABASE_METADATA).fetch();
           if (result.size() > 0) {
@@ -112,7 +113,7 @@ public class MetadataUtils {
             return version;
           }
         } catch (Exception e) {
-          // older schema used "version_metadata'
+          // if fails, might be older schema, we before used "version_metadata'
           try {
             Result<org.jooq.Record> result = jooq.selectFrom(name("version_metadata")).fetch();
             if (result.size() > 0) {
@@ -127,7 +128,7 @@ public class MetadataUtils {
             logger.debug(
                 "Updating from old 'x.y.z' based database version number to numeric database version number");
           }
-          // default
+          // default if schema exists but seems empty
           version = 0;
           return version;
         }
