@@ -82,7 +82,7 @@ Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data
 Databanks,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records in the data bank are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
 Databanks,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
-Databanks,,treatments,refback,,,,Treatments,,resource,,,
+RWEresources,,treatments,refback,,,,Treatments,,resource,,,
 Databanks,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?"
 RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this databank or datasource
@@ -134,14 +134,22 @@ Databanks,,multipleEntries,bool,,,,,,,,,"Can there be multiple entries for a sin
 Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags
 Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records
 Databanks,,lagTime,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
+Databanks,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
+Databanks,,preservationLength,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
 Databanks,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
 Databanks,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
 Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
 Databanks,,numberOfRecords,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count)
 Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)."
 Databanks,,completenessOverTime,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time"
+Databanks,,completenessResults,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?
 Databanks,,qualityDescription,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
 Databanks,,qualityOverTime,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
+Databanks,,accessForValidation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
+Databanks,,qualityValidationFrequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?
+Databanks,,qualityValidationMethods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?
+Databanks,,correctionMethods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?
+Databanks,,qualityValidationResults,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results."
 Resources,,otherInformation,heading,,,,,,,,,Other information
 Resources,,designPaper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
