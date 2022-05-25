@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import java.util.Collection;
 import java.util.List;
 
-public interface Database {
+public interface Database extends HasSettingsInterface<Database> {
 
   void tx(Transaction transaction);
 
@@ -27,17 +27,11 @@ public interface Database {
 
   Collection<SchemaInfo> getSchemaInfos();
 
-  Collection<Setting> getSettings();
-
-  String getSettingValue(String key);
-
-  Setting createSetting(String key, String value);
-
-  Boolean deleteSetting(String key);
+  SchemaInfo getSchemaInfo(String schemaName);
 
   Schema getSchema(String name);
 
-  void addUser(String name);
+  User addUser(String name);
 
   boolean checkUserPassword(String name, String password);
 
@@ -89,4 +83,8 @@ public interface Database {
   boolean isOidcEnabled();
 
   boolean hasSchema(String catalogueOntologies);
+
+  User getUser(String userName);
+
+  void saveUser(User user);
 }

@@ -470,13 +470,13 @@ public class GraphqlSchemaFieldFactory {
                   selectedKeys.stream().anyMatch(selectedKey -> selectedKey.startsWith("page."));
 
               return Stream.concat(
-                      schema.getMetadata().getSettings().stream()
+                      schema.getMetadata().getSettings().entrySet().stream()
                           .filter(
                               setting ->
                                   selectedKeys.isEmpty()
-                                      || selectedKeys.contains(setting.key())
-                                      || (includePages && setting.key().startsWith("page.")))
-                          .map(entry -> Map.of("key", entry.key(), VALUE, entry.value())),
+                                      || selectedKeys.contains(setting.getKey())
+                                      || (includePages && setting.getKey().startsWith("page.")))
+                          .map(entry -> Map.of("key", entry.getKey(), VALUE, entry.getValue())),
                       Stream.of(
                           Map.of(
                               "key",
@@ -502,7 +502,7 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SETTINGS)
+                .name(Constants.SETTINGS)
                 .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(
             GraphQLArgument.newArgument()

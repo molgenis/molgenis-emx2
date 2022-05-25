@@ -18,7 +18,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SqlDatabase implements Database {
+public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ADMIN_USER = "admin";
   public static final String ADMIN_PW_DEFAULT = "admin";
 
@@ -35,7 +35,6 @@ public class SqlDatabase implements Database {
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
-  private Map<String, String> settings = new LinkedHashMap<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
@@ -73,7 +72,7 @@ public class SqlDatabase implements Database {
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
-    this.settings.putAll(copy.settings);
+    this.setSettingsWithoutReload(copy.getSettings());
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -153,9 +152,9 @@ public class SqlDatabase implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      if (getSettingValue(Constants.IS_OIDC_ENABLED) == null) {
+      if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
         // use environment property unless overriden in settings
-        this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+        this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
     } catch (Exception e) {
@@ -216,7 +215,7 @@ public class SqlDatabase implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          MetadataUtils.updateSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+          MetadataUtils.saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
 
           // refresh
           db.clearCache();
@@ -257,7 +256,6 @@ public class SqlDatabase implements Database {
           SqlSchemaMetadataExecutor.executeDropSchema(sqlDatabase, name);
           sqlDatabase.schemaNames.remove(name);
           sqlDatabase.schemaInfos.clear();
-          sqlDatabase.settings.clear();
           sqlDatabase.schemaCache.remove(name);
         });
 
@@ -301,73 +299,67 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public Collection<Setting> getSettings() {
-    this.reloadSettingsIfNeeded();
-    return this.settings.entrySet().stream()
-        .map(entry -> new Setting(entry.getKey(), entry.getValue()))
-        .toList();
-  }
-
-  private void reloadSettingsIfNeeded() {
-    if (this.settings.isEmpty()) {
-      this.settings = MetadataUtils.loadSettings(jooq);
+  public SchemaInfo getSchemaInfo(String schemaName) {
+    Optional<SchemaInfo> result =
+        this.getSchemaInfos().stream()
+            .filter(schemaInfo -> schemaInfo.tableSchema().equals(schemaName))
+            .findFirst();
+    if (result.isPresent()) {
+      return result.get();
     }
+    return null;
   }
 
   @Override
-  public String getSettingValue(String key) {
-    this.reloadSettingsIfNeeded();
-    return this.settings.get(key);
-  }
-
-  @Override
-  public Setting createSetting(String key, String value) {
+  public Database setSetting(String key, String value) {
     if (isAdmin()) {
-      Setting newSetting = new Setting(key, value);
-      MetadataUtils.saveSetting(jooq, newSetting);
-      this.settings.put(key, value);
+      super.setSetting(key, value);
+      // save the new setting
+      MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
       // force all sessions to reload
       this.listener.afterCommit();
-      return newSetting;
+      return this;
     } else {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
   }
 
   @Override
-  public Boolean deleteSetting(String key) {
+  public Database removeSetting(String key) {
     if (isAdmin()) {
-      MetadataUtils.deleteSetting(jooq, key);
-      if (this.settings.containsKey(key)) {
-        this.settings.remove(key);
+      if (this.getSettings().containsKey(key)) {
+        super.removeSetting(key);
+        MetadataUtils.saveDatabaseSettings(getJooq(), super.getSettings());
         // force all sessions to reload
         this.listener.afterCommit();
-        return true;
-      } else {
-        return false;
       }
+      return this;
     } else {
       throw new MolgenisException("Insufficient rights to delete database level setting");
     }
   }
 
   @Override
-  public void addUser(String user) {
-    if (hasUser(user)) return; // idempotent
-    long start = System.currentTimeMillis();
-    // need elevated privileges, so clear user and run as root
-    // this is not thread safe therefore must be in a transaction
-    tx(
-        db -> {
-          String currentUser = db.getActiveUser();
-          try {
-            db.becomeAdmin();
-            executeCreateUser(((SqlDatabase) db).getJooq(), user);
-          } finally {
-            db.setActiveUser(currentUser);
-          }
-        });
-    log(start, "created user " + user);
+  public User addUser(String userName) {
+    User user = getUser(userName);
+    if (user == null) {
+      long start = System.currentTimeMillis();
+      // need elevated privileges, so clear user and run as root
+      // this is not thread safe therefore must be in a transaction
+      tx(
+          db -> {
+            String currentUser = db.getActiveUser();
+            try {
+              db.becomeAdmin();
+              executeCreateUser(((SqlDatabase) db).getJooq(), userName);
+            } finally {
+              db.setActiveUser(currentUser);
+            }
+          });
+      log(start, "created user " + userName);
+    }
+    return getUser(userName);
   }
 
   @Override
@@ -454,8 +446,8 @@ public class SqlDatabase implements Database {
         listener.userChanged();
       }
     }
-    this.clearCache();
     this.connectionProvider.setActiveUser(username);
+    this.clearCache();
   }
 
   @Override
@@ -526,7 +518,7 @@ public class SqlDatabase implements Database {
 
       this.schemaNames = from.schemaNames;
       this.schemaInfos = from.schemaInfos;
-      this.settings = from.settings;
+      this.setSettingsWithoutReload(from.getSettings());
 
       // remove schemas that were dropped
       Set<String> removeSet = new HashSet<>();
@@ -564,7 +556,14 @@ public class SqlDatabase implements Database {
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
-    this.settings.clear();
+    // elevate privileges for loading settings
+    String user = this.connectionProvider.getActiveUser();
+    try {
+      this.connectionProvider.setActiveUser(ADMIN_USER);
+      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
+    } finally {
+      this.connectionProvider.setActiveUser(user);
+    }
   }
 
   public DSLContext getJooq() {
@@ -607,5 +606,15 @@ public class SqlDatabase implements Database {
   @Override
   public boolean hasSchema(String name) {
     return getSchema(name) != null;
+  }
+
+  @Override
+  public void saveUser(User user) {
+    MetadataUtils.saveUserMetadata(getJooq(), user);
+  }
+
+  @Override
+  public User getUser(String userName) {
+    return MetadataUtils.loadUserMetadata(getJooq(), userName);
   }
 }

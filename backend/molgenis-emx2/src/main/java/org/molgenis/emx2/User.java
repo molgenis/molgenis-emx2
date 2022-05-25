@@ -2,7 +2,7 @@ package org.molgenis.emx2;
 
 import java.util.Objects;
 
-public class User {
+public class User extends HasSettings<User> {
   String username;
 
   public User(String username) {

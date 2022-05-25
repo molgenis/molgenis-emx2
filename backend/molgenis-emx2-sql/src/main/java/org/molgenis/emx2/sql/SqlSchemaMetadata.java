@@ -50,23 +50,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 }
               });
 
-      // remove settings not available anymore
-      remove =
-          this.settings.keySet().stream()
-              .filter(t -> !from.settings.containsKey(t))
-              .collect(Collectors.toSet());
-      remove.forEach(s -> this.settings.remove(s));
-
-      from.settings.putAll(from.getSettingsAsMap());
+      // sync settings
+      this.setSettingsWithoutReload(from.getSettings());
     }
   }
 
   public SqlSchemaMetadata(Database db, String name, String description) {
     super(
         db,
-        MetadataUtils.loadSchemaMetadata(
-            ((SqlDatabase) db).getJooq(), new SchemaMetadata(name, description)));
+        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
     this.reload();
+    this.setDescription(description);
   }
 
   public SqlSchemaMetadata(Database db, String name) {
@@ -77,20 +71,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public void reload() {
-
     if (logger.isInfoEnabled()) {
       logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
     }
     long start = System.currentTimeMillis();
+    MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
-    this.settings.clear();
     this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
-    }
-    for (Map.Entry<String, String> entry :
-        MetadataUtils.loadSettings(getDatabase().getJooq(), this).entrySet()) {
-      super.setSetting(entry.getKey(), entry.getValue());
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -157,7 +146,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
+  public SchemaMetadata setSettings(Map<String, String> settings) {
     if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
       getDatabase()
           .tx(
@@ -176,55 +165,11 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
-  public SqlSchemaMetadata setSetting(String key, String value) {
-    this.setSettings(List.of(new Setting(key, value)));
-    return this;
-  }
-
   private static SqlSchemaMetadata setSettingsTransaction(
-      SqlDatabase db, String schemaName, Collection<Setting> settings) {
+      SqlDatabase db, String schemaName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    settings.forEach(
-        s -> {
-          MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
-          schema.settings.put(s.key(), s.value());
-        });
-    return schema;
-  }
-
-  @Override
-  public List<Setting> getSettings() {
-    if (super.getSettings().size() == 0) {
-      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
-    }
-    return super.getSettings();
-  }
-
-  @Override
-  public Map<String, String> getSettingsAsMap() {
-    if (super.getSettingsAsMap().size() == 0) {
-      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
-    }
-    return super.getSettingsAsMap();
-  }
-
-  @Override
-  public SqlSchemaMetadata removeSetting(String key) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(removeSettingTransaction(key, (SqlDatabase) db, getName()));
-            });
-    getDatabase().getListener().schemaChanged(getName());
-    return this;
-  }
-
-  private static SqlSchemaMetadata removeSettingTransaction(
-      String key, SqlDatabase db, String schemaName) {
-    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    MetadataUtils.deleteSetting(db.getJooq(), schema, null, new Setting(key, null));
-    schema.settings.remove(key);
+    schema.setSettingsWithoutReload(settings);
+    MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
     return schema;
   }
 

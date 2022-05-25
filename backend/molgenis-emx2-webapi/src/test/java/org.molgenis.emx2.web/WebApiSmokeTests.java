@@ -475,7 +475,7 @@ public class WebApiSmokeTests {
             .asString()
             .contains("anonymous"));
 
-    // witht token we are shopmanager
+    // with token we are shopmanager
     assertTrue(
         given()
             .header(MOLGENIS_TOKEN, token)

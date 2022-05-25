@@ -5,7 +5,6 @@ public class GraphqlConstants {
   public static final String INPUT = "Input";
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
-  public static final String SETTINGS = "settings";
   public static final String REQUIRED = "required";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";

@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Row.row;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -18,28 +19,21 @@ public class Emx2Settings {
     List<Row> settings = new ArrayList<>();
 
     // schema settings
-    for (Setting setting : schema.getMetadata().getSettings()) {
-      settings.add(
-          row(
-              SETTINGS_NAME,
-              setting.key(),
-              SETTINGS_VALUE,
-              setting.value(),
-              SETTINGS_USER,
-              setting.user()));
+    for (Map.Entry<String, String> setting : schema.getMetadata().getSettings().entrySet()) {
+      settings.add(row(SETTINGS_NAME, setting.getKey(), SETTINGS_VALUE, setting.getValue()));
     }
 
     // table settings
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      for (Setting setting : table.getSettings()) {
+      for (Map.Entry<String, String> setting : table.getSettings().entrySet()) {
         settings.add(
             row(
                 TABLE,
                 table.getTableName(),
                 SETTINGS_NAME,
-                setting.key(),
+                setting.getKey(),
                 SETTINGS_VALUE,
-                setting.value()));
+                setting.getValue()));
       }
     }
 

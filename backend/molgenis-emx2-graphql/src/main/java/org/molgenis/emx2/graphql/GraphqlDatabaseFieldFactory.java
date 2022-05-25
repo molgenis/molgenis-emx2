@@ -111,7 +111,7 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
               String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
-              database.createSetting(key, value);
+              database.setSetting(key, value);
               return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
             });
   }
@@ -125,7 +125,7 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              database.deleteSetting(key);
+              database.removeSetting(key);
               return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
             });
   }

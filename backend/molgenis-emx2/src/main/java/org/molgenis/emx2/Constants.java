@@ -36,6 +36,7 @@ public class Constants {
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
+  public static final String SETTINGS = "settings";
   public static final String SETTINGS_NAME = "key";
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
