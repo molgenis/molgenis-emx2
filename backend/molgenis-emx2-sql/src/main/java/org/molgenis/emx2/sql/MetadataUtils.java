@@ -25,6 +25,12 @@ public class MetadataUtils {
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  private static final org.jooq.Table SETTINGS_METADATA =
+      table(name(MOLGENIS, "settings_metadata"));
+
+  // deprecated table/clumn, to be delete on next major upgrade
+  private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
+  private static final org.jooq.Field VERSION_ID = field(name("id"), INTEGER.nullable(false));
 
   // version
   private static final org.jooq.Field DATABASE_ID = field(name("id"), INTEGER.nullable(false));
@@ -86,6 +92,16 @@ public class MetadataUtils {
 
   // settings
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
+
+  // old settingstable, to be removed on major update
+  private static final org.jooq.Field SETTINGS_NAME =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
+  private static final org.jooq.Field SETTINGS_TABLE_NAME =
+      field(
+          name(TABLE_NAME.getName()),
+          VARCHAR.nullable(true)); // note table might be null in case of schema
+  private static final org.jooq.Field SETTINGS_VALUE =
+      field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -152,14 +168,14 @@ public class MetadataUtils {
                   name(MOLGENIS));
             }
 
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(DATABASE_METADATA)) {
-              t.columns(DATABASE_ID, VERSION, SETTINGS)
-                  .constraints(primaryKey(DATABASE_ID))
-                  .execute();
+            // set version (at major update replace table with database_metadata
+            // now it will be migrated
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
+              t.columns(VERSION_ID, VERSION).constraints(primaryKey(VERSION_ID)).execute();
             }
 
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-              t.columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION, SETTINGS)
+              t.columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
                   .constraint(primaryKey(TABLE_SCHEMA))
                   .execute();
 
@@ -228,6 +244,12 @@ public class MetadataUtils {
             }
             try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
               t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            }
+
+            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
+              t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+                  .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+                  .execute();
             }
           });
 
