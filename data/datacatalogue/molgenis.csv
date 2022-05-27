@@ -7,18 +7,11 @@ Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicab
 Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
 Institutions,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
 Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre
 Institutions,,website,,,,,,,,,,Link to the homepage of this institution
-Institutions,,email,,,,,,,,,,Contact email address for person responsible for institution entry in catalogue
-Institutions,,department,,,,,,,,,,Optional: department within the institution
-Institutions,,description,text,,,,,,,,,General description
-Institutions,,logo,file,,,,,,,,,Institution logo
-Institutions,,roles,ontology_array,,,CatalogueOntologies,InstitutionRoles,,,,,Role(s) of the institution in connection with data sources and data banks in the catalogue
-Institutions,,rolesOther,text,,,,,,,,,"If role is 'other', a description of the primary role"
+Institutions,,partnerIn,refback,,,,Resources,,institution,,,List of partner roles this institution has in various resources
+Institutions,,logo,file,,,,,,,,,Group logo
 Institutions,,providerOf,refback,,,,DAPs,,institution,,,"Query that lists all resources (datasources, databanks, cohorts, networks) that this institution is access provider of"
-Institutions,,partnerIn,refback,,,,Partners,,institution,,,List of partner roles this institution has in various resources
 Institutions,,studies,refback,,,,Studies,,leadInstitution,,,List of studies this intsitution is involved in
-Institutions,,expertise,text,,,,,,,,,A short description of the expertise of this institution
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Models,Resources,,,,,,,,,,,Common Data Element models and Harmonization models
 RWEresources,Resources,,,,,,,,,,,Resources for real world evidence such as data source and databanks
@@ -181,12 +174,6 @@ Publications,,publisher,,,,,,,,,,Publisher's name
 Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis)
 Publications,,abstract,text,,,,,,,,,Publication abstract
 Publications,,resources,refback,,,,Resources,,publications,,,List of resources that refer to this publication
-Partners,,,,,,,,,,,,Institutions that partnered in the creation of a resource
-Partners,,resource,ref,1,TRUE,,Resources,,,,,Resource that is contributed to
-Partners,,institution,ref,1,TRUE,,Institutions,,,,,institution that contributed
-Partners,,department,text,,,,,,,,,"Optionally, the institutational unit(s) that play a role in this resource"
-Partners,,role,ontology,,,CatalogueOntologies,PartnerRoles,,,,,Role in this resource
-Partners,,roleDescription,text,,,,,,,,,Description of the role in this resource
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
@@ -209,7 +196,7 @@ Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
 DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource
-DAPs,,institution,ref,1,TRUE,,Institutions,,,,,Institution that provides access
+DAPs,,institution,ref,1,TRUE,,Institutions,,,,,Group that provides access
 DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to
 DAPs,,department,text,,,,,,,,,"optionally, the organisational unit(s) that play a role as data access provider"
 DAPs,,contact,ref_array,,,,Contacts,,,,,Whom to contact for information and access
