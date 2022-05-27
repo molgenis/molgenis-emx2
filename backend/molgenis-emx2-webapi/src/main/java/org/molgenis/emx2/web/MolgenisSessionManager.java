@@ -49,7 +49,9 @@ public class MolgenisSessionManager {
     } else {
       // check if we should apply a token
       if (request.headers("x-molgenis-token") != null) {
-        String user = JWTgenerator.getUserFromToken(request.headers("x-molgenis-token"));
+        String user =
+            JWTgenerator.getUserFromToken(
+                session.getDatabase(), request.headers("x-molgenis-token"));
         session.getDatabase().setActiveUser(user);
       }
 

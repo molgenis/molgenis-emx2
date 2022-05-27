@@ -455,7 +455,7 @@ public class WebApiSmokeTests {
   @Test
   public void testTokenBasedAuth() throws JsonProcessingException {
 
-    // check if we can use token based auth
+    // check if we can use temporary token
     String result =
         given()
             .body(
@@ -476,6 +476,60 @@ public class WebApiSmokeTests {
             .contains("anonymous"));
 
     // with token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // can we create a long lived token
+    result =
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"mutation{createToken(tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // get token for admin
+    result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // as admin can we create a long lived token for others
+    result =
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\" tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
     assertTrue(
         given()
             .header(MOLGENIS_TOKEN, token)

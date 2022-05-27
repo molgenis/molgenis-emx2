@@ -24,17 +24,15 @@ import org.molgenis.emx2.sql.SqlSchemaMetadata;
 
 public class GraphqlSchemaFieldFactory {
 
-  static final GraphQLInputObjectType inputSettingsMetadataType =
+  public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField().name(TABLE).type(Scalars.GraphQLString))
           .build();
-  static final GraphQLType outputSettingsMetadataType =
+  public static final GraphQLType outputSettingsMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))

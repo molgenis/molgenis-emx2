@@ -342,8 +342,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public User addUser(String userName) {
-    User user = getUser(userName);
-    if (user == null) {
+    if (!hasUser(userName)) {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
@@ -352,7 +351,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             String currentUser = db.getActiveUser();
             try {
               db.becomeAdmin();
-              executeCreateUser(((SqlDatabase) db).getJooq(), userName);
+              executeCreateUser((SqlDatabase) db, userName);
             } finally {
               db.setActiveUser(currentUser);
             }
@@ -398,7 +397,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!ADMIN_USER.equals(getActiveUser()) && getActiveUser() != null) {
       throw new MolgenisException("getUsers denied");
     }
-    return MetadataUtils.loadUsers(getJooq(), limit, offset);
+    return MetadataUtils.loadUsers(this, limit, offset);
   }
 
   @Override
@@ -594,6 +593,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public boolean isAnonymous() {
+    return ANONYMOUS.equals(getActiveUser());
+  }
+
+  @Override
   public void becomeAdmin() {
     this.setActiveUser(getAdminUserName());
   }
@@ -615,6 +619,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public User getUser(String userName) {
-    return MetadataUtils.loadUserMetadata(getJooq(), userName);
+    return MetadataUtils.loadUserMetadata(this, userName);
   }
 }

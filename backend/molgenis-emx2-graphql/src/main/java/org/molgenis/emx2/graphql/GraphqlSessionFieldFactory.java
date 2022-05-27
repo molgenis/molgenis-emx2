@@ -1,9 +1,11 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -93,7 +95,7 @@ public class GraphqlSessionFieldFactory {
                 GraphqlApiSigninResult result =
                     new GraphqlApiSigninResult(
                         GraphqlApiMutationResult.Status.SUCCESS,
-                        JWTgenerator.createTokenForUser(userName, 60),
+                        JWTgenerator.createTemporaryToken(database, userName),
                         "Signed in as '%s'",
                         userName);
                 return result;
@@ -122,7 +124,11 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
-                        .type(GraphQLList.list(Scalars.GraphQLString))))
+                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(SETTINGS)
+                        .type(GraphQLList.list(outputSettingsMetadataType))))
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
@@ -132,7 +138,35 @@ public class GraphqlSessionFieldFactory {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               result.put(SCHEMAS, database.getSchemaNames());
+              result.put(SETTINGS, database.getUser(database.getActiveUser()).getSettings());
               return result;
+            })
+        .build();
+  }
+
+  public GraphQLFieldDefinition createTokenField(Database database) {
+    GraphQLFieldDefinition.Builder builder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name("createToken")
+            .type(GraphqlApiSigninResult.typeForSignResult);
+    if (database.isAdmin()) {
+      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
+    }
+    return builder
+        .argument(GraphQLArgument.newArgument().name(TOKEN_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
+              String username = dataFetchingEnvironment.getArgument(EMAIL);
+              if (username == null) {
+                username = database.getActiveUser();
+              }
+              return new GraphqlApiSigninResult(
+                  GraphqlApiMutationResult.Status.SUCCESS,
+                  JWTgenerator.createNamedTokenForUser(database, username, tokenId),
+                  "Token '%s' created for user '%s'",
+                  tokenId,
+                  username);
             })
         .build();
   }

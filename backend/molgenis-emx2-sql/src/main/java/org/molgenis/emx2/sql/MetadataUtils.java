@@ -370,17 +370,18 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static List<User> loadUsers(DSLContext jooq, int limit, int offset) {
+  protected static List<User> loadUsers(SqlDatabase db, int limit, int offset) {
     List<User> users = new ArrayList<>();
     for (Object username :
-        jooq.select(USER_NAME)
+        db.getJooq()
+            .select(USER_NAME)
             .from(USERS_METADATA)
             .orderBy(USER_NAME)
             .limit(limit)
             .offset(offset)
             .fetch()
             .getValues(USER_NAME)) {
-      users.add(new User((String) username));
+      users.add(new User(db, (String) username));
     }
     return users;
   }
@@ -628,11 +629,14 @@ public class MetadataUtils {
         .execute();
   }
 
-  public static User loadUserMetadata(DSLContext jooq, String userName) {
+  public static User loadUserMetadata(SqlDatabase db, String userName) {
     org.jooq.Record userRecord =
-        jooq.selectFrom(USERS_METADATA).where(USER_NAME.eq(MG_USER_PREFIX + userName)).fetchOne();
+        db.getJooq()
+            .selectFrom(USERS_METADATA)
+            .where(USER_NAME.eq(MG_USER_PREFIX + userName))
+            .fetchOne();
     if (userRecord != null) {
-      User result = new User(userName);
+      User result = new User(db, userName);
       result.setSettings(userRecord.get(SETTINGS, Map.class));
       return result;
     }

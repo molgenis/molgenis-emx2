@@ -169,9 +169,12 @@ public class GraphqlApiFactory {
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
     queryBuilder.field(session.userQueryField(database, null));
     mutationBuilder.field(session.signinField(database));
-    mutationBuilder.field(session.signoutField(database));
     mutationBuilder.field(session.signupField(database));
-    mutationBuilder.field(session.changePasswordField(database));
+    if (!database.isAnonymous()) {
+      mutationBuilder.field(session.signoutField(database));
+      mutationBuilder.field(session.changePasswordField(database));
+      mutationBuilder.field(session.createTokenField(database));
+    }
 
     // database operations
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
@@ -217,9 +220,14 @@ public class GraphqlApiFactory {
     GraphqlSessionFieldFactory accountFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(accountFactory.userQueryField(schema.getDatabase(), schema));
     mutationBuilder.field(accountFactory.signinField(schema.getDatabase()));
-    mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
     mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
-    mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
+
+    // authenticated user operations
+    if (!schema.getDatabase().isAnonymous()) {
+      mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
+      mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
+      mutationBuilder.field(accountFactory.createTokenField(schema.getDatabase()));
+    }
 
     // database level
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
