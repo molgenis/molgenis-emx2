@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3
+Version,,,,,,,,,,,,3.0
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -27,7 +27,7 @@ Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Selec
 Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Cohorts,Resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
 Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
-Resources,,contributors,refback,,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
+Resources,,contributors,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,,"If other, describe the type of resource"
@@ -127,7 +127,7 @@ Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and 
 Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records
 Databanks,,lagTime,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
 Databanks,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
-Databanks,,preservationLength,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
+Databanks,,preservationDuration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
 Databanks,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
 Databanks,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
 Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
@@ -182,7 +182,7 @@ Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact p
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,2,,,,,,,,Contact's email address
-Contacts,,contributionType,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type of the contribution
+Contacts,,contributionType,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type(s) of contribution
 Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
