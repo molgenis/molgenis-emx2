@@ -5,11 +5,10 @@ Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
 Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicable"
 Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
-Institutions,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
 Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
 Institutions,,website,,,,,,,,,,Link to the homepage of this institution
 Institutions,,partnerIn,refback,,,,Resources,,institution,,,List of partner roles this institution has in various resources
-Institutions,,logo,file,,,,,,,,,Group logo
+Institutions,,logo,file,,,,,,,,,Institution logo
 Institutions,,providerOf,refback,,,,DAPs,,institution,,,"Query that lists all resources (datasources, databanks, cohorts, networks) that this institution is access provider of"
 Institutions,,studies,refback,,,,Studies,,leadInstitution,,,List of studies this intsitution is involved in
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
