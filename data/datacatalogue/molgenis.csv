@@ -261,7 +261,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Treatments,,,,,,,,,,,,"Details about the availability of information on e.g. prescriptions, medication and procedures"
-Treatments,,resource,ref,1,TRUE,,,,,,,
+Treatments,,resource,ref,1,TRUE,,RWEresources,,,,,
 Treatments,,prescriptionsVocabulary,ontology,,,CatalogueOntologies,PrescriptionVocabularies,,,,,What prescription vocabulary is used?
 Treatments,,prescriptionsNotCoded,int,,,,,,,,,"If Not coded (Free text), approximately what percentage of records are not coded?"
 Treatments,,dispensingsVocabulary,ontology,,,CatalogueOntologies,DispensingsVocabulary,,,,,"Is information on dispensing of medications included? If yes, what vocabulary is used? "
