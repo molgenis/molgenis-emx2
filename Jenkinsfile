@@ -8,9 +8,9 @@ pipeline {
     environment {
         DOCKER_CONFIG = "/root/.docker"
         CHART_VERSION = "8.73.1"
-        MOLGENIS_POSTGRES_USER = 'molgenis_admin'
-        MOLGENIS_POSTGRES_PASS = 'molgenis_admin'
-        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenisdb'
+        MOLGENIS_POSTGRES_USER = 'molgenis'
+        MOLGENIS_POSTGRES_PASS = 'molgenis'
+        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenis'
     }
     stages {
         stage('Prepare') {
