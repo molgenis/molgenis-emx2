@@ -614,6 +614,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public void saveUser(User user) {
+    if (!isAdmin() && !user.getUsername().equals(getActiveUser())) {
+      throw new MolgenisException("Cannot save changes for user " + user + ": permission denied");
+    }
     MetadataUtils.saveUserMetadata(getJooq(), user);
   }
 

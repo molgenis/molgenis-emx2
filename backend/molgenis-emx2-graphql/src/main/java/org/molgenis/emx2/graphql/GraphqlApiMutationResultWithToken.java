@@ -6,12 +6,12 @@ import graphql.Scalars;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 
-public class GraphqlApiSigninResult {
+public class GraphqlApiMutationResultWithToken {
   private String message;
   private GraphqlApiMutationResult.Status status;
   private String token;
 
-  public GraphqlApiSigninResult(
+  public GraphqlApiMutationResultWithToken(
       GraphqlApiMutationResult.Status status,
       String token,
       String message,

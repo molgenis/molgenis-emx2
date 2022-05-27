@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapToSettings;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -82,7 +83,7 @@ public class GraphqlSessionFieldFactory {
   public GraphQLFieldDefinition signinField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
-        .type(GraphqlApiSigninResult.typeForSignResult)
+        .type(GraphqlApiMutationResultWithToken.typeForSignResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
@@ -92,8 +93,8 @@ public class GraphqlSessionFieldFactory {
 
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 database.setActiveUser(userName);
-                GraphqlApiSigninResult result =
-                    new GraphqlApiSigninResult(
+                GraphqlApiMutationResultWithToken result =
+                    new GraphqlApiMutationResultWithToken(
                         GraphqlApiMutationResult.Status.SUCCESS,
                         JWTgenerator.createTemporaryToken(database, userName),
                         "Signed in as '%s'",
@@ -138,7 +139,9 @@ public class GraphqlSessionFieldFactory {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               result.put(SCHEMAS, database.getSchemaNames());
-              result.put(SETTINGS, database.getUser(database.getActiveUser()).getSettings());
+              result.put(
+                  SETTINGS,
+                  mapToSettings(database.getUser(database.getActiveUser()).getSettings()));
               return result;
             })
         .build();
@@ -148,7 +151,7 @@ public class GraphqlSessionFieldFactory {
     GraphQLFieldDefinition.Builder builder =
         GraphQLFieldDefinition.newFieldDefinition()
             .name("createToken")
-            .type(GraphqlApiSigninResult.typeForSignResult);
+            .type(GraphqlApiMutationResultWithToken.typeForSignResult);
     if (database.isAdmin()) {
       builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     }
@@ -161,7 +164,7 @@ public class GraphqlSessionFieldFactory {
               if (username == null) {
                 username = database.getActiveUser();
               }
-              return new GraphqlApiSigninResult(
+              return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   JWTgenerator.createNamedTokenForUser(database, username, tokenId),
                   "Token '%s' created for user '%s'",

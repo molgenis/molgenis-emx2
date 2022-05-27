@@ -1,18 +1,16 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.SETTINGS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsMetadataType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
 
 import graphql.Scalars;
 import graphql.schema.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.AvailableDataModels;
 import org.molgenis.emx2.tasks.TaskService;
@@ -196,5 +194,58 @@ public class GraphqlDatabaseFieldFactory {
               return taskService.listTasks();
             })
         .build();
+  }
+
+  public static final GraphQLInputObjectType inputUserType =
+      GraphQLInputObjectType.newInputObject()
+          .name("UsersInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(EMAIL).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SETTINGS)
+                  .type(GraphQLList.list(inputSettingsMetadataType))
+                  .build())
+          .build();
+
+  public GraphQLFieldDefinition changeMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("change")
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.USERS)
+                .type(GraphQLList.list(inputUserType)))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              database.tx(
+                  db -> {
+                    try {
+                      changeUsers(db, dataFetchingEnvironment);
+                    } catch (Exception e) {
+                      throw new GraphqlException("change failed", e);
+                    }
+                  });
+              return new GraphqlApiMutationResult(SUCCESS, "Change succesfull");
+            })
+        .build();
+  }
+
+  private static void changeUsers(
+      Database database, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<Map<String, String>> userList = dataFetchingEnvironment.getArgument(USERS);
+    if (userList != null) {
+      for (Map userAsMap : userList) {
+        User user = new User(database, (String) userAsMap.get(EMAIL));
+        if (userAsMap.get(SETTINGS) != null) {
+          Map<String, String> settings = new LinkedHashMap<>();
+          for (Map<String, String> setting : (List<Map<String, String>>) userAsMap.get(SETTINGS)) {
+            settings.put(setting.get(KEY), setting.get(VALUE));
+          }
+          user.setSettingsWithoutReload(settings);
+        }
+        database.saveUser(user);
+      }
+    }
   }
 }

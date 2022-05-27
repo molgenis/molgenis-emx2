@@ -582,15 +582,7 @@ public class GraphqlSchemaFieldFactory {
     if (settings != null) {
       settings.forEach(
           entry -> {
-            if (entry.get(TABLE) != null) {
-              Table table = schema.getTable(entry.get(TABLE));
-              if (table == null) {
-                throw new MolgenisException("Table " + entry.get(TABLE) + " not found");
-              }
-              table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
-            } else {
-              schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
-            }
+            schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
           });
     }
   }

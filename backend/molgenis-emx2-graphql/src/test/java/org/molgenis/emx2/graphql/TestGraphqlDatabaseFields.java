@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -156,6 +157,42 @@ public class TestGraphqlDatabaseFields {
   }
 
   @Test
+  public void testUserSettings() throws IOException {
+    try {
+      execute(
+          "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
+
+      // test we can retrieve the setting
+      assertEquals(
+          "myvalue",
+          execute("{_admin{users(email:\"pietje\"){email,settings{key,value}}}}")
+              .at("/data/_admin/users/0/settings/0/value")
+              .textValue());
+
+      // test that we can this only for 'ourselves'
+      database.setActiveUser("pietje");
+      execute(
+          "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
+      assertEquals(
+          "myvalue",
+          execute("{_session{settings{key,value}}}")
+              .at("/data/_session/settings/0/value")
+              .textValue());
+
+      try {
+        execute(
+            "mutation{change(users:{email:\"bofke\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
+        fail("should have failed to update other user");
+      } catch (Exception e) {
+        // fails correctly
+        assertTrue(e.getMessage().contains("permission denied"));
+      }
+    } finally {
+      database.becomeAdmin();
+    }
+  }
+
+  @Test
   public void testDatabaseVersion() throws IOException {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
@@ -167,7 +204,7 @@ public class TestGraphqlDatabaseFields {
     JsonNode result =
         new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
     if (result.get("errors") != null) {
-      throw new RuntimeException(result.get("errors").toString());
+      throw new MolgenisException(result.get("errors").toString());
     }
     return result;
   }

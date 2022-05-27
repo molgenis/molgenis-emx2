@@ -44,6 +44,7 @@ public class GraphqlConstants {
   public static final String TASK_DESCRIPTION = "description";
   public static final String TASK_SUBTASKS = "subTasks";
   public static final String TOKEN_NAME = "tokenName";
+  public static final String USERS = "users";
 
   private GraphqlConstants() {
     // hide constructor
