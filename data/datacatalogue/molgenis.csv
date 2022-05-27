@@ -74,7 +74,7 @@ Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data
 Databanks,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records in the data bank are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
 Databanks,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
-RWEresources,,treatments,refback,,,,Treatments,,resource,,,
+RWEresources,,treatments,refback,,,,Treatments,,resource,,,"Details about the availability of information on e.g. prescriptions, medication and procedures"
 Databanks,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 Databanks,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?"
 RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this databank or datasource
@@ -152,14 +152,13 @@ Resources,,supplementaryInformation,text,,,,,,,,,Any other information that need
 Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
 Cohorts,,studies,refback,,,,Studies,,cohorts,,,Listing of studies that used this cohort
 RWEresources,,studies,refback,,,,Studies,,databanks,,,Listing of studies that used this databank
-Resources,,partners,refback,,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
 Databanks,,datasource,refback,,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
 Databanks,,cdms,ref,,,,Models,,,,,Common data models used by this databank
 Datasources,,networks,refback,,,,Networks,,datasources,,,List of networks that this datasource is associated with
-Datasources,,studies,refback,,,,Studies,,datasources,,,
+Datasources,,studies,refback,,,,Studies,,datasources,,,List of studies that this datasource is associated with
 Publications,,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
 Publications,,title,,,,,,,,,,Publication title
@@ -217,7 +216,7 @@ DatasourceDatabanks,,linkageVariableUnique,bool,,,,,,,,,"If a single variable is
 DatasourceDatabanks,,linkageCompleteness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).
 QuantitativeInformation,,,,,,,,,,,,Quantitative information on the resource
 QuantitativeInformation,,resource,ref,1,,,Resources,,,,,
-QuantitativeInformation,,ageGroup,ref,,,CatalogueOntologies,AgeGroups,,,,,
+QuantitativeInformation,,ageGroup,ref,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information
 QuantitativeInformation,,populationSize,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,activeSize,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,noIndividualsWithSamples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year "
@@ -260,7 +259,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Treatments,,,,,,,,,,,,"Details about the availability of information on e.g. prescriptions, medication and procedures"
-Treatments,,resource,ref,1,TRUE,,RWEresources,,,,,
+Treatments,,resource,ref,1,TRUE,,RWEresources,,,,,The resource these treatment details belong to
 Treatments,,prescriptionsVocabulary,ontology,,,CatalogueOntologies,PrescriptionVocabularies,,,,,What prescription vocabulary is used?
 Treatments,,prescriptionsNotCoded,int,,,,,,,,,"If Not coded (Free text), approximately what percentage of records are not coded?"
 Treatments,,dispensingsVocabulary,ontology,,,CatalogueOntologies,DispensingsVocabulary,,,,,"Is information on dispensing of medications included? If yes, what vocabulary is used? "
@@ -285,7 +284,7 @@ Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
-Networks,,studies,refback,,,,Studies,networks,,,,
+Networks,,studies,refback,,,,Studies,,networks,,,
 Studies,,datasources,ref_array,,,,Datasources,,,,,
 Studies,,databanks,ref_array,,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study
