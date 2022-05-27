@@ -6,9 +6,9 @@
     <Spinner v-if="alterLoading"></Spinner>
     <form v-else class="form-inline bg-white">
       <InputString
-        label="username"
-        v-model="username"
-        placeholder="Enter username"
+        label="email"
+        v-model="email"
+        placeholder="Enter user email"
       />
       <InputPassword
         label="password"
@@ -18,7 +18,7 @@
       <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
     </form>
     <h2>User list</h2>
-    <TableSimple class="bg-white" :rows="users" :columns="['username']" />
+    <TableSimple class="bg-white" :rows="users" :columns="['email']" />
     <Pagination
       v-model="page"
       :count="userCount"
@@ -66,7 +66,7 @@ export default {
       page: 1,
       limit: 20,
       error: null,
-      username: null,
+      email: null,
       password: null,
       alterError: null,
       alterSuccess: null,
@@ -81,20 +81,19 @@ export default {
   },
   methods: {
     alterUser() {
-      if (this.username == null || this.password == null) {
-        this.alterError =
-          "Error: valid username and password should be filled in";
+      if (this.email == null || this.password == null) {
+        this.alterError = "Error: valid email and password should be filled in";
       } else {
         this.alterError = null;
         this.alterLoading = true;
         request(
           "graphql",
-          `mutation{changePassword(username: "${this.username}", password: "${this.password}"){status,message}}`
+          `mutation{changePassword(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then((data) => {
             if (data.changePassword.status === "SUCCESS") {
               this.alterSuccess =
-                "Success. Created/altered user: " + this.username;
+                "Success. Created/altered user: " + this.email;
               this.getUserList();
             } else {
               this.alterError =
@@ -112,7 +111,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        `{_admin{users(limit:${this.limit},offset:${this.offset}){username},userCount}}`
+        `{_admin{users(limit:${this.limit},offset:${this.offset}){email},userCount}}`
       )
         .then((data) => {
           this.users = data._admin.users;

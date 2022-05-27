@@ -160,16 +160,16 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
-              if (username == null) {
-                username = database.getActiveUser();
+              String userEmail = dataFetchingEnvironment.getArgument(EMAIL);
+              if (userEmail == null) {
+                userEmail = database.getActiveUser();
               }
               return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
-                  JWTgenerator.createNamedTokenForUser(database, username, tokenId),
+                  JWTgenerator.createNamedTokenForUser(database, userEmail, tokenId),
                   "Token '%s' created for user '%s'",
                   tokenId,
-                  username);
+                  userEmail);
             })
         .build();
   }
@@ -180,14 +180,14 @@ public class GraphqlSessionFieldFactory {
             .name("changePassword")
             .type(typeForMutationResult);
     if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
+      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     }
     return builder
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(USERNAME);
+              String username = dataFetchingEnvironment.getArgument(EMAIL);
               if (username == null) {
                 username = database.getActiveUser();
               }

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapToSettings;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -92,7 +93,7 @@ public class GraphqlDatabaseFieldFactory {
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsMetadataType))
-        .dataFetcher(dataFetchingEnvironment -> database.getSettings());
+        .dataFetcher(dataFetchingEnvironment -> mapToSettings(database.getSettings()));
   }
 
   public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {

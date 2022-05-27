@@ -38,7 +38,7 @@ public class TestGraphqlAdminFields {
           grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
 
           try {
-            JsonNode result = execute("{_admin{users{username} userCount}}");
+            JsonNode result = execute("{_admin{users{email} userCount}}");
             TestCase.assertTrue(result.at("/_admin/userCount").intValue() > 0);
           } catch (Exception e) {
             throw new RuntimeException(e);
