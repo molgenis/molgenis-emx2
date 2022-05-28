@@ -7,9 +7,9 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 
 public class GraphqlApiMutationResultWithToken {
-  private String message;
-  private GraphqlApiMutationResult.Status status;
-  private String token;
+  private final String message;
+  private final GraphqlApiMutationResult.Status status;
+  private final String token;
 
   public GraphqlApiMutationResultWithToken(
       GraphqlApiMutationResult.Status status,
@@ -26,17 +26,17 @@ public class GraphqlApiMutationResultWithToken {
           .name("SigninResult")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("status")
+                  .name(GraphqlConstants.STATUS)
                   .type(enumMutationResultStatus)
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("message")
+                  .name(GraphqlConstants.MESSAGE)
                   .type(Scalars.GraphQLString)
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name("token")
+                  .name(GraphqlConstants.TOKEN)
                   .type(Scalars.GraphQLString)
                   .build())
           .build();

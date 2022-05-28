@@ -41,7 +41,7 @@ public interface Database extends HasSettingsInterface<Database> {
 
   List<User> getUsers(int limit, int offset);
 
-  void removeUser(String name);
+  void dropUsers(String name);
 
   void setActiveUser(String username);
 

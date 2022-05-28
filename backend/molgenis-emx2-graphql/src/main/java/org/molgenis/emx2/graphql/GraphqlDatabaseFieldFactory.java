@@ -1,13 +1,13 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapToSettings;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapToSettings;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsMetadataType;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -22,6 +22,7 @@ public class GraphqlDatabaseFieldFactory {
     // no instances
   }
 
+  // todo move to drop() mutation
   public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
@@ -35,6 +36,7 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
+  // todo move to create() mutation
   public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")
@@ -92,41 +94,8 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
-        .type(GraphQLList.list(outputSettingsMetadataType))
+        .type(GraphQLList.list(outputSettingsType))
         .dataFetcher(dataFetchingEnvironment -> mapToSettings(database.getSettings()));
-  }
-
-  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("createSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.SETTINGS_VALUE)
-                .type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
-              database.setSetting(key, value);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
-            });
-  }
-
-  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("deleteSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              database.removeSetting(key);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
-            });
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
@@ -205,7 +174,7 @@ public class GraphqlDatabaseFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SETTINGS)
-                  .type(GraphQLList.list(inputSettingsMetadataType))
+                  .type(GraphQLList.list(inputSettingsType))
                   .build())
           .build();
 
@@ -213,40 +182,99 @@ public class GraphqlDatabaseFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("change")
         .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.USERS)
-                .type(GraphQLList.list(inputUserType)))
+            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              StringBuilder messageBuilder = new StringBuilder();
               database.tx(
                   db -> {
                     try {
-                      changeUsers(db, dataFetchingEnvironment);
+                      changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
+                      changeSettings(
+                          db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
                   });
-              return new GraphqlApiMutationResult(SUCCESS, "Change succesfull");
+              return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();
   }
 
-  private static void changeUsers(
-      Database database, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<Map<String, String>> userList = dataFetchingEnvironment.getArgument(USERS);
+  public GraphQLFieldDefinition dropMutation(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("drop")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
+        .argument(
+            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              StringBuilder messageBuilder = new StringBuilder();
+              database.tx(
+                  db -> {
+                    try {
+                      dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
+                      dropSettings(
+                          db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                    } catch (Exception e) {
+                      throw new GraphqlException("change failed", e);
+                    }
+                  });
+              return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
+            })
+        .build();
+  }
+
+  private static void dropUsers(
+      Database database, List<Map<String, String>> userList, StringBuilder messageBuilder) {
     if (userList != null) {
-      for (Map userAsMap : userList) {
-        User user = new User(database, (String) userAsMap.get(EMAIL));
-        if (userAsMap.get(SETTINGS) != null) {
-          Map<String, String> settings = new LinkedHashMap<>();
-          for (Map<String, String> setting : (List<Map<String, String>>) userAsMap.get(SETTINGS)) {
-            settings.put(setting.get(KEY), setting.get(VALUE));
-          }
-          user.setSettingsWithoutReload(settings);
-        }
-        database.saveUser(user);
+      for (Map<String, ?> userAsMap : userList) {
+        database.dropUsers((String) userAsMap.get(EMAIL));
+        messageBuilder.append("Dropped user '" + userAsMap.get(EMAIL) + "'. ");
       }
+    }
+  }
+
+  private static void dropSettings(
+      HasSettingsInterface<?> hasSettings,
+      List<Map<String, String>> settingsRaw,
+      StringBuilder messageBuilder) {
+    if (settingsRaw != null) {
+      for (Map<String, String> setting : settingsRaw) {
+        hasSettings.dropSetting(setting.get(KEY));
+        messageBuilder.append("Dropped setting '" + setting.get(KEY) + "'. ");
+      }
+    }
+  }
+
+  private static void changeUsers(
+      Database database, List<Map<String, String>> userList, StringBuilder messageBuilder) {
+    if (userList != null) {
+      for (Map<String, ?> userAsMap : userList) {
+        User user = new User(database, (String) userAsMap.get(EMAIL));
+        changeSettings(user, (List<Map<String, String>>) userAsMap.get(SETTINGS), null);
+        database.saveUser(user);
+        messageBuilder.append("Changed user '" + userAsMap.get(EMAIL) + "'. ");
+      }
+    }
+  }
+
+  private static void changeSettings(
+      HasSettingsInterface<?> hasSettings,
+      List<Map<String, String>> settingsRaw,
+      StringBuilder messageBuilder) {
+    if (settingsRaw != null) {
+      Map<String, String> settings = new LinkedHashMap<>();
+      for (Map<String, String> setting : settingsRaw) {
+        settings.put(setting.get(KEY), setting.get(VALUE));
+        if (messageBuilder != null) {
+          messageBuilder.append("Changed setting '" + setting.get(KEY) + "'. ");
+        }
+      }
+      hasSettings.changeSettings(settings);
     }
   }
 }

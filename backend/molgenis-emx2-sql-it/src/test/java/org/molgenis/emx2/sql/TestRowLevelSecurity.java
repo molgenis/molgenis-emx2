@@ -88,7 +88,7 @@ public class TestRowLevelSecurity {
           });
 
       database.becomeAdmin();
-      database.removeUser(TESTRLS_HAS_RLS_VIEW);
+      database.dropUsers(TESTRLS_HAS_RLS_VIEW);
       assertEquals(false, database.hasUser(TESTRLS_HAS_RLS_VIEW));
     } finally {
       database.becomeAdmin();

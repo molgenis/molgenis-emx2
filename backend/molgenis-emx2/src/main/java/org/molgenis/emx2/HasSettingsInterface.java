@@ -7,11 +7,13 @@ public interface HasSettingsInterface<T> {
 
   T setSettings(Map<String, String> settings);
 
-  T removeSetting(String key);
+  T dropSetting(String key);
 
   T setSetting(String key, String value);
 
   String getSetting(String key);
 
   Map<String, String> getSettings();
+
+  T changeSettings(Map<String, String> settings);
 }

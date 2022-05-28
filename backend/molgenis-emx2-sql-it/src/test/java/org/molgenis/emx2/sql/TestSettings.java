@@ -145,7 +145,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.removeSetting("delete-me");
+          db.dropSetting("delete-me");
         });
 
     database = TestDatabaseFactory.getTestDatabase();
@@ -157,7 +157,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("testsettingsmanager");
-          db.removeSetting("delete-me");
+          db.dropSetting("delete-me");
         });
   }
 
@@ -167,7 +167,7 @@ public class TestSettings {
     user.setSetting("my-setting", "user setting");
     database.saveUser(user);
     assertEquals(database.getUser("SettingsTestUser").getSetting("my-setting"), "user setting");
-    user = database.getUser("SettingsTestUser").removeSetting("my-setting");
+    user = database.getUser("SettingsTestUser").dropSetting("my-setting");
     database.saveUser(user);
     assertNull(database.getUser("SettingsTestUser").getSetting("my-setting"));
   }

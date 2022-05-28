@@ -64,7 +64,7 @@ public class TestGraphqlDatabaseFields {
     String createSettingQuery =
         """
             mutation {
-              createSetting(key: "db-key-1", value: "db-value-1" ){
+              change(settings:{key: "db-key-1", value: "db-value-1" }){
                     message
               }
             }
@@ -76,7 +76,7 @@ public class TestGraphqlDatabaseFields {
     ObjectNode expected =
         new ObjectMapper()
             .readValue(
-                "{\"data\":{\"createSetting\":{\"message\":\"Database setting db-key-1 created\"}}}",
+                "{\"data\":{\"change\":{\"message\":\"Changed setting 'db-key-1'.\"}}}",
                 ObjectNode.class);
     assertEquals(expected, result);
   }
@@ -86,7 +86,7 @@ public class TestGraphqlDatabaseFields {
     String createSettingQuery =
         """
                 mutation {
-                  deleteSetting(key: "db-key-1"){
+                  drop(settings:{key: "db-key-1"}){
                         message
                   }
                 }
@@ -98,7 +98,7 @@ public class TestGraphqlDatabaseFields {
     ObjectNode expected =
         new ObjectMapper()
             .readValue(
-                "{\"data\":{\"deleteSetting\":{\"message\":\"Database setting db-key-1 deleted\"}}}",
+                "{\"data\":{\"drop\":{\"message\":\"Dropped setting 'db-key-1'.\"}}}",
                 ObjectNode.class);
     assertEquals(expected, result);
   }
@@ -122,7 +122,7 @@ public class TestGraphqlDatabaseFields {
             + "\") {message}}");
     Assert.assertTrue(database.isAdmin());
 
-    if (database.hasUser("pietje")) database.removeUser("pietje");
+    if (database.hasUser("pietje")) database.dropUsers("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));

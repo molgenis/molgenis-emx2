@@ -326,10 +326,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public Database removeSetting(String key) {
+  public Database dropSetting(String key) {
     if (isAdmin()) {
       if (this.getSettings().containsKey(key)) {
-        super.removeSetting(key);
+        super.dropSetting(key);
         MetadataUtils.saveDatabaseSettings(getJooq(), super.getSettings());
         // force all sessions to reload
         this.listener.afterCommit();
@@ -401,7 +401,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void removeUser(String user) {
+  public void dropUsers(String user) {
     long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(

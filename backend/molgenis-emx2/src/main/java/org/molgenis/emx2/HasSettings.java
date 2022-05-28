@@ -12,7 +12,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
   }
 
   @Override
-  public T removeSetting(String key) {
+  public T dropSetting(String key) {
     // this is so that subclasses only need override setSettings(map)
     Map<String, String> settings = new LinkedHashMap<>();
     settings.putAll(getSettings());
@@ -31,12 +31,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
 
   @Override
   public T setSetting(String key, String value) {
-    // this is so that subclasses only need override setSettings(map)
-    Map<String, String> settings = new LinkedHashMap<>();
-    settings.putAll(getSettings());
-    settings.put(key, value);
-    this.setSettings(settings);
-    return (T) this;
+    return changeSettings(Map.of(key, value));
   }
 
   @Override
@@ -54,5 +49,15 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     if (settings != null) {
       this.settings.putAll(settings);
     }
+  }
+
+  @Override
+  public T changeSettings(Map<String, String> changedSettings) {
+    // this is so that subclasses only need override setSettings(map)
+    Map<String, String> settings = new LinkedHashMap<>();
+    settings.putAll(getSettings());
+    settings.putAll(changedSettings);
+    this.setSettings(settings);
+    return (T) this;
   }
 }

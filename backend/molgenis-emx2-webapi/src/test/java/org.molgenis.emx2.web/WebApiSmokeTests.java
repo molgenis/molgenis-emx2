@@ -448,7 +448,7 @@ public class WebApiSmokeTests {
         .when()
         .get("/pet store/");
 
-    schema.getMetadata().removeSetting("menu");
+    schema.getMetadata().dropSetting("menu");
     db.becomeAdmin();
   }
 

@@ -1,12 +1,12 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapToSettings;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapToSettings;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsMetadataType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -20,9 +20,6 @@ import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.Schema;
 
 public class GraphqlSessionFieldFactory {
-
-  private static final String ROLES = "roles";
-  private static final String SCHEMAS = "schemas";
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -129,7 +126,7 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SETTINGS)
-                        .type(GraphQLList.list(outputSettingsMetadataType))))
+                        .type(GraphQLList.list(outputSettingsType))))
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();

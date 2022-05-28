@@ -25,30 +25,32 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(escape(column.getName()))) {
-          if (column.isRef()) {
-            convertRefToRow(
-                (Map<String, Object>) object.get(escape(column.getName())), row, column);
-          } else if (column.isReference()) {
-            // REFBACK, REF_ARRAY
-            convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
-          } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
-            if (bfw == null || !bfw.isSkip()) {
-              // also necessary in case of 'null' to ensure all file metadata fields are made empty
-              // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
-            }
-          } else {
-            row.set(column.getName(), object.get(escape(column.getName())));
-          }
-        }
+        convertObjectToColumn(object, row, column);
       }
       rows.add(row);
     }
     return rows;
+  }
+
+  private static void convertObjectToColumn(Map<String, Object> object, Row row, Column column) {
+    if (object.containsKey(escape(column.getName()))) {
+      if (column.isRef()) {
+        convertRefToRow((Map<String, Object>) object.get(escape(column.getName())), row, column);
+      } else if (column.isReference()) {
+        // REFBACK, REF_ARRAY
+        convertRefArrayToRow(
+            (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
+      } else if (column.isFile()) {
+        BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
+        if (bfw == null || !bfw.isSkip()) {
+          // also necessary in case of 'null' to ensure all file metadata fields are made empty
+          // skip is used when use submitted only metadata (that they received in query)
+          row.setBinary(column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
+        }
+      } else {
+        row.set(column.getName(), object.get(escape(column.getName())));
+      }
+    }
   }
 
   private static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
@@ -162,7 +164,7 @@ public class GraphqlApiFactory {
 
     // admin operations
     if (database.isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
     }
 
     // account operations
@@ -185,11 +187,8 @@ public class GraphqlApiFactory {
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
-    if (database.isAdmin()) {
-      mutationBuilder.field(db.createSettingsMutation(database));
-      mutationBuilder.field(db.deleteSettingsMutation(database));
-      mutationBuilder.field(db.changeMutation(database));
-    }
+    mutationBuilder.field(db.dropMutation(database));
+    mutationBuilder.field(db.changeMutation(database));
 
     // notice we here add custom exception handler for mutations
     return GraphQL.newGraphQL(
@@ -204,14 +203,14 @@ public class GraphqlApiFactory {
 
   public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());
+    logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
     // admin operations
     if (schema.getDatabase().isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(schema.getDatabase()));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(schema.getDatabase()));
     }
 
     // queries
@@ -267,11 +266,9 @@ public class GraphqlApiFactory {
 
     if (logger.isInfoEnabled()) {
       logger.info(
-          "creation graphql for schema: "
-              + schema.getMetadata().getName()
-              + " completed in "
-              + (System.currentTimeMillis() - start)
-              + "ms");
+          "creation graphql for schema: {} completed in {}ms",
+          schema.getMetadata().getName(),
+          (System.currentTimeMillis() - start));
     }
 
     return result;
