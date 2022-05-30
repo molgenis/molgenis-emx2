@@ -18,7 +18,6 @@
       <p v-if="subTitle">
         {{ subTitle }}
       </p>
-      <p>{{ baseColor }}</p>
     </div>
   </div>
 </template>
