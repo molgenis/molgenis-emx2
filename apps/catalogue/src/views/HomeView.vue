@@ -2,7 +2,11 @@
   <div class="">
     <div class="row">
       <div class="col">
-        <BannerImg />
+        <BannerImage
+          imageUrl="https://image.focuspoints.io/general-1.jpg?_jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJmb2N1c1BvaW50WSI6MC4wLCJmb2N1c1BvaW50WCI6MC4wLCJ3aWR0aCI6MTQ0MCwiaXNzIjoidW1jZyIsImFjdGlvbiI6InRyYW5zZm9ybSIsInVybCI6Imh0dHBzOi8vdW1jZ3Jlc2VhcmNoLm9yZy9kb2N1bWVudHMvNzcwNTM0Lzc3NTkwNy9nZW5lcmFsLTEuanBnL2NlNGVkMTM5LTMxYzMtOTg3Mi02NjBiLWU3ZjVjNDFhNTY0OD90PTE2Mjk3MDYzODQyOTMmZG93bmxvYWQ9dHJ1ZSIsImhlaWdodCI6MzYwfQ.ulaZWsVt6k6Uil4zLdaxpnLrWZJubDttUIlE5hr5yqgXW7ACAD5nF1Kpl4R-Wd2QU2haLYJt0zvzMWv2843gfA"
+          title="Cohorts, biobanks and dataset of the UMC"
+          subTitle="Universitair Medisch Centrum Groningen, the Netherlands"
+        />
       </div>
     </div>
 
@@ -182,7 +186,7 @@
 
 <script>
 import SearchResource from "../components/SearchResource";
-import BannerImg from "../components/display/BannerImg.vue";
+import BannerImage from "../components/display/BannerImage.vue";
 
 import {
   DatabaseIcon,
@@ -199,7 +203,7 @@ export default {
   name: "HomeView",
   components: {
     SearchResource,
-    BannerImg,
+    BannerImage,
     DatabaseIcon,
     UsersIcon,
     TestPipeIcon,
@@ -225,6 +229,6 @@ export default {
 
 <style scoped>
 .mg-card-icon {
-  color: #017ffd;
+  color: var(--primary)
 }
 </style>
