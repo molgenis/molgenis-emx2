@@ -29,6 +29,8 @@ public interface Database {
 
   Collection<Setting> getSettings();
 
+  String getSettingValue(String key);
+
   Setting createSetting(String key, String value);
 
   Boolean deleteSetting(String key);

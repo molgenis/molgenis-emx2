@@ -40,7 +40,7 @@
 </style>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import IconAction from "./IconAction.vue";
 import vClickOutside from "v-click-outside";
 

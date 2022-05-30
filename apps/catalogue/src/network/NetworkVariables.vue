@@ -1,6 +1,11 @@
 <template>
   <div class="container-fluid">
     <div class="container-fluid bg-white">
+      <RouterLink
+        class="btn btn-primary ml-2 float-right"
+        :to="{ name: 'NetworkCohorts', params: { network: network } }"
+        >View {{ network }} cohorts
+      </RouterLink>
       <h1>{{ network }} harmonized variables</h1>
       <p>
         This page lists all variables harmonized in the {{ network }} network.

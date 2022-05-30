@@ -1,44 +1,25 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <input
+    <BaseInputDecimal
       :id="id"
-      type="number"
-      step="1"
       :value="value"
       :class="{ 'form-control': true }"
-      :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
-      @keypress="handleKeyValidity"
-      @input="emitIfValid"
+      @input="$emit('input', $event)"
     />
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import { isNumericKey } from "./utils/InputUtils";
+import BaseInputDecimal from "./baseInputs/BaseInputDecimal.vue";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
-  },
-  methods: {
-    emitIfValid(event) {
-      const value = parseFloat(event.target.value);
-      if (event.target.value === "") {
-        this.$emit("input", null);
-      }
-      if (!isNaN(value)) {
-        this.$emit("input", value);
-      }
-    },
-    handleKeyValidity(event) {
-      if (!isNumericKey(event)) {
-        event.preventDefault();
-      }
-    },
+    BaseInputDecimal,
   },
 };
 </script>

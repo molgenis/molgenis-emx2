@@ -1,43 +1,28 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <input v-if="readonly" readonly v-model="value" class="form-control" />
-    <FlatPickr
-      v-else
+    <BaseInputDate
+      :id="id"
       :value="value"
-      style="background: white"
-      class="form-control active"
-      :config="config"
       :placeholder="placeholder"
-      :disabled="readonly"
+      :readonly="readonly"
       @input="$emit('input', $event)"
     />
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
+import BaseInputDate from "./baseInputs/BaseInputDate.vue";
 import FormGroup from "./FormGroup.vue";
-import FlatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
 
 export default {
   extends: BaseInput,
   components: {
-    FlatPickr,
+    BaseInputDate,
     FormGroup,
   },
   props: {
     readonly: { type: Boolean, default: false },
-  },
-  computed: {
-    config() {
-      return {
-        wrap: true,
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        clickOpens: !this.readonly,
-      };
-    },
   },
 };
 </script>

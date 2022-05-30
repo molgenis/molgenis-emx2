@@ -1,7 +1,6 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <Spinner v-if="loading" />
-    <MessageError v-else-if="error">{{ error }}</MessageError>
+    <MessageError v-if="error">{{ error }}</MessageError>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -102,9 +101,8 @@ input:focus {
 
 <script>
 import Client from "../../client/client.js";
-import BaseInput from "./BaseInput.vue";
+import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import Spinner from "../layout/Spinner.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "v-click-outside";
@@ -123,7 +121,6 @@ export default {
   components: {
     FormGroup,
     InputOntologySubtree,
-    Spinner,
     MessageError,
   },
   directives: {
@@ -145,7 +142,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    ontologyTableName: {
+    tableName: {
       type: String,
       required: false,
     },
@@ -338,18 +335,6 @@ export default {
         this.$emit("input", selectedTerms[0]);
       }
     },
-    reloadMetadata() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMetadataMixin.methods.reloadMetadata.call(this);
-      }
-    },
-    reload() {
-      //we only load if not options provided
-      if (!this.options) {
-        // TableMixin.methods.reload.call(this);
-      }
-    },
     applySelection(value) {
       //deselect all
       Object.keys(this.terms).forEach(
@@ -490,10 +475,10 @@ export default {
     },
   },
   async mounted() {
-    if (this.ontologyTableName) {
+    if (this.tableName) {
       const client = Client.newClient(this.graphqlURL);
-      this.data = (await client.fetchTableData(this.ontologyTableName))[
-        this.ontologyTableName
+      this.data = (await client.fetchTableData(this.tableName))[
+        this.tableName
       ];
     }
   },
@@ -559,7 +544,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="false"
-          ontologyTableName="Tag"
+          tableName="Tag"
           graphqlURL="/pet store/graphql"
       />
     </demo-item>
@@ -572,7 +557,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="true"
-          ontologyTableName="Tag"
+          tableName="Tag"
           graphqlURL="/pet store/graphql"
       />
     </demo-item>

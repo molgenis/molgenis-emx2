@@ -1,5 +1,5 @@
 <template>
-  <div class="card p-4">
+  <div class="card p-4 w-100">
     <img
       :src="
         network.logo.url
@@ -12,13 +12,15 @@
     />
     <div class="card-body">
       <h5 class="card-title">{{ network.pid }}</h5>
-      <p>
-        A Europe-wide network of cohort studies started in early life Cohort
-        studies started from pregnancy or childhood give the unique opportunity
-        to relate early-life stressors with variation in development, health and
-        disease throughout the life course.
+      <p v-if="network.description && network.description.trim().length > 0">
+        {{ network.description.substring(0, 500) }}
+        <span v-if="network.description.length > 500">...</span>
       </p>
-      <p>{{ network.fundingStatement }}</p>
+      <p v-else>No description available.</p>
+      <p v-if="network.fundingStatement">
+        {{ network.fundingStatement.substring(0, 500) }}
+        <span v-if="network.fundingStatement.length > 500">...</span>
+      </p>
       <div class="card-footer bg-white mt-auto">
         <RouterLink
           class="btn btn-primary ml-2"
@@ -50,7 +52,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-footer {
   border: none;
   position: absolute;

@@ -9,7 +9,7 @@ import org.molgenis.emx2.utils.TableSort;
 public class SchemaMetadata {
 
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
-  protected Map<String, Setting> settings = new LinkedHashMap<>();
+  protected Map<String, String> settings = new LinkedHashMap<>();
   protected String name;
   // optional
   protected String description;
@@ -122,20 +122,28 @@ public class SchemaMetadata {
 
   public List<Setting> getSettings() {
     List<Setting> result = new ArrayList<>();
-    result.addAll(this.settings.values());
+    result.addAll(
+        this.settings.entrySet().stream()
+            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+            .toList());
     return result;
+  }
+
+  public SchemaMetadata setSettings(Map<String, String> settingsMap) {
+    this.settings.putAll(settingsMap);
+    return this;
   }
 
   public SchemaMetadata setSettings(Collection<Setting> settings) {
     if (settings == null) return this;
     for (Setting setting : settings) {
-      this.settings.put(setting.key(), setting);
+      this.settings.put(setting.key(), setting.value());
     }
     return this;
   }
 
   public SchemaMetadata setSetting(String name, String value) {
-    this.settings.put(name, new Setting(name, value));
+    this.settings.put(name, value);
     return this;
   }
 
@@ -186,5 +194,9 @@ public class SchemaMetadata {
         addExternalTablesRecursive(tables, c.getRefTable());
       }
     }
+  }
+
+  protected Map<String, String> getSettingsAsMap() {
+    return Collections.unmodifiableMap(this.settings);
   }
 }
