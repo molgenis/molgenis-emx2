@@ -26,7 +26,6 @@ Object.entries(components).forEach(([path, definition]) => {
 });
 
 Vue.component("DemoItem", DemoItem);
-Vue.component("Client", Client);
 
 const routes = [
   { path: "/", components: { sidebar: Sidebar } },
@@ -54,6 +53,7 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
 });
 // global variable
 Vue.prototype.$docsMap = docsMap;
+Vue.prototype.$Client = Client;
 
 Vue.use(VueRouter);
 const router = new VueRouter({ routes });

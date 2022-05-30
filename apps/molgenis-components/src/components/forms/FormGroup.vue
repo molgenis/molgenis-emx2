@@ -3,6 +3,7 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
+    <slot></slot>
     <small
       v-if="hasDescription(description)"
       :id="id + '-help-text'"
@@ -10,7 +11,6 @@
     >
       {{ description }}
     </small>
-    <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
     </small>

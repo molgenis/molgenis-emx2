@@ -26,35 +26,33 @@ import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
+import InputRefSelect from "../forms/InputRefSelect.vue"
 
 const typeToInputMap = {
   HEADING: InputHeading,
+  EMAIL: InputString,
+  HYPERLINK: InputString,
   STRING: InputString,
-  STRING_ARRAY: ArrayInput,
   TEXT: InputText,
-  TEXT_ARRAY: ArrayInput,
   INT: InputInt,
-  INT_ARRAY: ArrayInput,
   LONG: InputLong,
-  LONG_ARRAY: ArrayInput,
   DECIMAL: InputDecimal,
-  DECIMAL_ARRAY: ArrayInput,
   BOOL: InputBoolean,
-  BOOL_ARRAY: ArrayInput,
   DATE: InputDate,
-  DATE_ARRAY: ArrayInput,
-  DATETIME: InputDateTime,
-  DATETIME_ARRAY: ArrayInput,
-  ONTOLOGY: InputOntology,
-  ONTOLOGY_ARRAY: ArrayInput,
-  REF: InputRef,
-  REF_ARRAY: ArrayInput,
+  REF: InputRefSelect,
   FILE: InputFile,
-};
-
-const notRequiredString = {
-  type: String,
-  required: false,
+  DATETIME: InputDateTime,
+  ONTOLOGY: InputOntology,
+  STRING_ARRAY: ArrayInput,
+  TEXT_ARRAY: ArrayInput,
+  INT_ARRAY: ArrayInput,
+  LONG_ARRAY: ArrayInput,
+  DECIMAL_ARRAY: ArrayInput,
+  BOOL_ARRAY: ArrayInput,
+  DATE_ARRAY: ArrayInput,
+  DATETIME_ARRAY: ArrayInput,
+  ONTOLOGY_ARRAY: ArrayInput,
+  REF_ARRAY: ArrayInput,
 };
 
 export default {
@@ -85,12 +83,30 @@ export default {
       default: "graphql",
       type: String,
     },
-    pkey: notRequiredString,
-    refBack: notRequiredString,
-    refBackType: notRequiredString,
-    refLabel: notRequiredString,
-    schema: notRequiredString,
-    tableName: notRequiredString,
+    pkey: {
+      type: String,
+      required: false,
+    },
+    refBack: {
+      type: String,
+      required: false,
+    },
+    refBackType: {
+      type: String,
+      required: false,
+    },
+    refLabel: {
+      type: String,
+      required: false,
+    },
+    schema: {
+      type: String,
+      required: false,
+    },
+    tableName: {
+      type: String,
+      required: false,
+    },
   },
   components: {
     InlineInput,
