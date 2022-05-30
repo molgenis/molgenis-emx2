@@ -13,10 +13,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.Version;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,16 +56,21 @@ public class MolgenisWebservice {
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
     get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    // root
+    // get setting for home
     get(
         "/",
         ACCEPT_HTML,
-        (request, response) ->
-            "Welcome to MOLGENIS EMX2 "
-                + Version.getVersion()
-                + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
-
-    redirect.get("/", "/apps/central/");
+        (request, response) -> {
+          // check for setting
+          String ladingPagePath =
+              sessionManager.getSession(request).getDatabase().getSettingValue(LANDING_PAGE);
+          if (ladingPagePath != null) {
+            response.redirect(ladingPagePath);
+          } else {
+            response.redirect("/apps/central/");
+          }
+          return response;
+        });
 
     redirect.get("/api", "/api/");
 
