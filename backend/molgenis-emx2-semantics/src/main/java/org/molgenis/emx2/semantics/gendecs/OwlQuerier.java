@@ -1,7 +1,6 @@
 package org.molgenis.emx2.semantics.gendecs;
 
 import java.util.ArrayList;
-
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
@@ -12,7 +11,8 @@ import org.slf4j.LoggerFactory;
 
 public class OwlQuerier {
   private static final Logger logger = LoggerFactory.getLogger(OwlQuerier.class);
-  private static final String owlFile = "data/gendecs/hp.owl";
+  private static final String owlFile =
+      "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/hp.owl";
 
   /**
    * Method that queries the hp.owl for all subclasses of an HPO term.
@@ -93,7 +93,11 @@ public class OwlQuerier {
           if (resource.getLocalName().equals("subClassOf")) {
             // get the id of the term
             Resource literal = querySolution.getResource("label");
-            parents.add(literal.getLocalName());
+            String hpoTerm =
+                HpoConverter.getHpoTerm(
+                    literal.getLocalName().replace("_", ":"),
+                    "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt");
+            parents.add(hpoTerm);
           }
         }
       } else {
