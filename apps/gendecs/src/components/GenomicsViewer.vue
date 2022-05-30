@@ -172,9 +172,7 @@ export default {
       if(this.searchAssociates.includes("Search less specific")) {
         for (let j = 0; j < data["parents"].length; j++) {
           this.parentSearch = true;
-          let parentId = data["parents"][j];
-          let parentTerm = await this.hpoIdToTerm(parentId.replace("_", ":"));
-          this.selectedHpoTerms[i].parents.push(parentTerm);
+          this.selectedHpoTerms[i].parents.push(data["parents"][j]);
         }
       }
       if(this.searchAssociates.includes("Search more specific")) {
