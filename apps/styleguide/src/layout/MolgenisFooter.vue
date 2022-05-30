@@ -3,7 +3,7 @@
     <span>
       This database was created using the
       <a href="http://molgenis.org">MOLGENIS</a>&nbsp;
-      <a href="http://github.com/mswertz/molgenis-emx2"> molgenis-emx2 </a>
+      <a href="http://github.com/molgenis/molgenis-emx2"> molgenis-emx2 </a>
       open source software (license:
       <a href="https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE"
         >LGPLv3</a

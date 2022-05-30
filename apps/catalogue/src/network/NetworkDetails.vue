@@ -1,12 +1,5 @@
 <template>
   <div v-if="networkDetails" class="container">
-    <div>
-      <p>
-        Welcome to the home page for the {{ network }} network. Use the 'view
-        variables' and 'view cohorts' buttons to view details on
-        cohorts/variables in the network
-      </p>
-    </div>
     <grid-block>
       <page-header
         :title="networkDetails.pid"
@@ -28,6 +21,13 @@
         </RouterLink>
       </div>
     </grid-block>
+    <div>
+      <p class="pl-2 pr-2">
+        Welcome to the home page for the {{ network }} network. Use the 'view
+        variables' and 'view cohorts' buttons to view details on
+        cohorts/variables in the network
+      </p>
+    </div>
     <grid-block>
       <links-list
         :isHorizontal="true"
@@ -84,7 +84,6 @@ export default {
   methods: {
     async fetchData() {
       if (this.network) {
-        console.log("haat");
         const result = await request(
           "graphql",
           `{Networks(filter: { pid: { equals: "${this.network}" } }){
@@ -117,7 +116,6 @@ export default {
           }}`
         ).catch((error) => console.log(error));
         this.networkDetails = result.Networks[0];
-        console.log(JSON.stringify(this.networkDetails));
         this.$forceUpdate();
       }
     },

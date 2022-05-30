@@ -29,3 +29,17 @@ export function flattenObject(object) {
     return object;
   }
 }
+
+export function getPrimaryKey(row, tableMetadata) {
+  //we only have pkey when the record has been saved
+  if (!row["mg_insertedOn"] || !tableMetadata) {
+    return null;
+  } else {
+    return tableMetadata.columns?.reduce((accum, column) => {
+      if (column.key === 1 && row[column.id]) {
+        accum[column.id] = row[column.id];
+      }
+      return accum;
+    }, {});
+  }
+}

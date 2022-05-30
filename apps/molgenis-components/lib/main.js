@@ -26,6 +26,7 @@ import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
+import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
@@ -50,6 +51,7 @@ import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
+import InputRefList from "../src/components/forms/InputRefList.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
@@ -126,6 +128,7 @@ export {
   ButtonDanger,
   ButtonSubmit,
   FormGroup,
+  FormInput,
   FormMolgenis,
   InlineInput,
   InputBoolean,
@@ -146,6 +149,7 @@ export {
   InputRangeDateTime,
   InputRangeInt,
   InputRef,
+  InputRefList,
   InputSearch,
   InputSelect,
   InputSelectInplace,
