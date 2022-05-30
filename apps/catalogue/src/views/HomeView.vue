@@ -25,10 +25,10 @@
                 <DatabaseIcon :size="iconSize" class="mg-card-icon" /> Datasets
               </h5>
               <div class="card-text">
-                <h1 class="text-center">1,26M</h1>
+                <h1 class="text-center">{{ cohortCount + bioBankCount }}</h1>
                 <ul class="card-text">
-                  <li>Cohorts: 89</li>
-                  <li>Biobanks: 15</li>
+                  <li>Cohorts: {{ cohortCount }}</li>
+                  <li>Biobanks: {{ bioBankCount }}</li>
                 </ul>
               </div>
             </div>
@@ -43,15 +43,21 @@
               </h5>
 
               <div class="card-text">
-                <h1 class="text-center">1,26M</h1>
-                <p>in total > 1,000: 34%</p>
+                <h1 class="text-center">
+                  {{
+                    Math.round(participantCount / 10000 + Number.EPSILON) / 100
+                  }}M
+                </h1>
+                <p class="text-center">
+                  in total > 1,000: {{ participantPercentageAboveOneThousand }}%
+                </p>
               </div>
             </div>
             <div class="card-footer">
               <small class="text-muted">Last updated 3 mins ago</small>
             </div>
           </div>
-          <div class="card">
+          <!-- <div class="card">
             <div class="card-body">
               <h5 class="card-title">
                 <TestPipeIcon :size="iconSize" class="mg-card-icon" />Samples
@@ -68,7 +74,7 @@
             <div class="card-footer">
               <small class="text-muted">Last updated 3 mins ago</small>
             </div>
-          </div>
+          </div> -->
 
           <div class="card">
             <div class="card-body">
@@ -76,11 +82,9 @@
                 <ToolsIcon :size="iconSize" class="mg-card-icon" />Cohort design
               </h5>
               <div class="card-text">
-                <h1 class="text-center">61%</h1>
+                <h1 class="text-center" style="color: white">spacer</h1>
                 <ul>
-                  <li>Prospective: 54%</li>
-                  <li>Retrospective: 28%</li>
-                  <li>Both: 44%</li>
+                   <li v-for="type in Object.keys(typeCounts)" :key="type">{{type}}: {{(typeCounts[type] / typesTotalCount) * 100 }}%</li>
                 </ul>
               </div>
             </div>
@@ -96,7 +100,9 @@
                 studies
               </h5>
               <div class="card-text">
-                <h1 class="text-center">77,5%</h1>
+                <h1 class="text-center">
+                  {{ percentageLongitudinalStudies }}%
+                </h1>
               </div>
             </div>
             <div class="card-footer">
@@ -185,8 +191,10 @@
 </template>
 
 <script>
+import { request } from "graphql-request";
 import SearchResource from "../components/SearchResource";
 import BannerImage from "../components/display/BannerImage.vue";
+import homeViewQuery from "../store/query/homeView.gql";
 
 import {
   DatabaseIcon,
@@ -216,19 +224,76 @@ export default {
   data() {
     return {
       iconSize: "62",
+      cohortCount: 0,
+      bioBankCount: 0,
+      participantCount: 0,
+      participantPercentageAboveOneThousand: 0,
+      percentageLongitudinalStudies: 0,
+      typeCounts: {},
+      graphqlError: "",
     };
   },
   props: {
     resourceType: {
       type: String, // one of Resource
-      default: () => "Institutions",
+      default: () => "Cohorts",
     },
+  },
+  computed: {
+    typesTotalCount () {
+      return Object.values(this.typeCounts).reduce((total, count) => total + count, 0)
+    }
+  },
+  methods: {
+    async load() {
+      const resp = await request("graphql", homeViewQuery).catch((error) => {
+        console.log(error);
+      });
+
+      this.cohortCount = resp.Cohorts_agg.count;
+      this.bioBankCount = resp.Databanks_agg.count;
+      this.participantCount = resp.Cohorts.filter((c) => c.numberOfParticipants)
+        .map((c) => c.numberOfParticipants)
+        .reduce((a, b) => a + b, 0);
+      this.participantPercentageAboveOneThousand = Math.round(
+        (resp.Cohorts.filter(
+          (c) => c.numberOfParticipants && c.numberOfParticipants > 1000
+        ).length /
+          resp.Cohorts.length) *
+          100
+      );
+      this.percentageLongitudinalStudies = Math.round(
+        (resp.Cohorts.filter(
+          (c) => c.design && c.design.name === "Longitudinal"
+        ).length /
+          resp.Cohorts.length) *
+          100
+      );
+      this.typeCounts = resp.Cohorts.filter((c) => c.collectionType).reduce(
+        (typeCounts, c) => {
+          c.collectionType.forEach((collectionType) => {
+            const type = collectionType.name;
+            if (typeCounts[type] >= 0) {
+              typeCounts[type] = typeCounts[type] + 1;
+            } else {
+              typeCounts[type] = 0;
+            }
+          });
+
+          return typeCounts;
+        },
+        {}
+      );
+    },
+  },
+  mounted: function () {
+    this.load();
   },
 };
 </script>
 
 <style scoped>
 .mg-card-icon {
-  color: var(--primary)
+  color: var(--primary);
 }
 </style>

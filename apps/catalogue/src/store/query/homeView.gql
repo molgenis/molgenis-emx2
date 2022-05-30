@@ -1,0 +1,26 @@
+query {
+  _schema {
+    name
+  }
+  Institutions_agg {
+    count
+  }
+  Studies_agg {
+    count
+  }
+  Cohorts_agg {
+    count
+  }
+  Databanks_agg {
+    count
+  }
+  Cohorts {
+    numberOfParticipants
+    design {
+      name
+    }
+    collectionType {
+      name
+    }
+  }
+}
