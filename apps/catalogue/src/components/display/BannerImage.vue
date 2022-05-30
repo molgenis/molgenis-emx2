@@ -1,6 +1,6 @@
 <template>
   <div
-    class="hero-image"
+    class="hero-image rounded"
     :style="{
       backgroundImage:
         'linear-gradient( ' +
