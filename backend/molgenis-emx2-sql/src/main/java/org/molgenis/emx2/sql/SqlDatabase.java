@@ -374,6 +374,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         && !user.equals(getActiveUser())) {
       throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
     }
+    // password should have minimum length
+    if (password == null || password.length() < 5) {
+      throw new MolgenisException(
+          "Set password failed for user '" + user + "': password too short");
+    }
     long start = System.currentTimeMillis();
     tx(
         db -> {

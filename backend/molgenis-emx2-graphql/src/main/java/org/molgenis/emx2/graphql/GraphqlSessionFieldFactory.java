@@ -126,7 +126,11 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SETTINGS)
-                        .type(GraphQLList.list(outputSettingsType))))
+                        .type(GraphQLList.list(outputSettingsType)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(TOKEN)
+                        .type(Scalars.GraphQLString)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
@@ -139,6 +143,8 @@ public class GraphqlSessionFieldFactory {
               result.put(
                   SETTINGS,
                   mapToSettings(database.getUser(database.getActiveUser()).getSettings()));
+              result.put(
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
               return result;
             })
         .build();

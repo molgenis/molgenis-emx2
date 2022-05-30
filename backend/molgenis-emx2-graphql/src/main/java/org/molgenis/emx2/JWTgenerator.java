@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.nimbusds.jose.*;
@@ -11,6 +12,7 @@ import com.nimbusds.jwt.SignedJWT;
 import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class JWTgenerator {
   private static byte[] sharedSecret;
@@ -19,10 +21,25 @@ public class JWTgenerator {
 
   private static void init() {
     try {
-      // Generate random 256-bit (32-byte) shared secret
-      // todo make this environment variable, if not provided throw exception
-      sharedSecret = new byte[32];
-      new SecureRandom().nextBytes(sharedSecret);
+      sharedSecret = null;
+      String key =
+          (String)
+              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      if (key != null) {
+        // try to parse from environment variable
+        sharedSecret = key.getBytes();
+      } else {
+        // Generate random 256-bit (32-byte) shared secret
+        sharedSecret = new byte[32];
+        new SecureRandom().nextBytes(sharedSecret);
+      }
+
+      // check enough bytes
+      if (sharedSecret.length < 32) {
+        throw new MolgenisException(
+            Constants.MOLGENIS_JWT_SHARED_SECRET
+                + " was not secure enough, should be 32 bytes/256bit");
+      }
 
       // Create HMAC signer
       signer = new MACSigner(sharedSecret);

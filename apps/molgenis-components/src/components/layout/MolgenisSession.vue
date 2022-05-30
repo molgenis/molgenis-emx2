@@ -12,6 +12,8 @@
         >&nbsp;
         <MolgenisAccount
           v-if="showChangePasswordForm"
+          :user="session.email"
+          :token="session.token"
           :error="error"
           @cancel="showChangePasswordForm = false"
         />
@@ -57,7 +59,7 @@ import MolgenisAccount from "./MolgenisAccount.vue";
 import { request } from "../../client/client.js";
 
 const query = `{
-  _session { email, roles, schemas },
+  _session { email, roles, schemas, token },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;

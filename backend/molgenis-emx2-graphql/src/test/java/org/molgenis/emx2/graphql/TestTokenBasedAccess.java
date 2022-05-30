@@ -15,6 +15,8 @@ public class TestTokenBasedAccess {
     db.addUser("tokentest1");
     db.addUser("tokentest2");
 
+    // user environment variable
+
     // temp token
     JWTgenerator gen = new JWTgenerator();
     String result = gen.createTemporaryToken(db, "tokentest1");
