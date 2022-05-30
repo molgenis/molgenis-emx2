@@ -40,12 +40,6 @@
   </FormGroup>
 </template>
 
-<style scoped>
-.foo {
-  z-index: 10000;
-}
-</style>
-
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
