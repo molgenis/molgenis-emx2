@@ -57,9 +57,9 @@ export default {
           })
           .catch((error) => {
             if (Array.isArray(error.response.errors)) {
-              this.graphqlError = error.response.errors[0].message;
+              console.log(error.response.errors[0].message);
             } else {
-              this.graphqlError = error;
+              console.log(error);
             }
           });
       this.getCorrectPatient(resultPatients);

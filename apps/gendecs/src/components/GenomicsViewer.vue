@@ -274,9 +274,9 @@ export default {
           })
           .catch((error) => {
             if (Array.isArray(error.response.errors)) {
-              this.graphqlError = error.response.errors[0].message;
+              console.log(error.response.errors[0].message);
             } else {
-              this.graphqlError = error;
+              console.log(error);
             }
           });
 
@@ -343,7 +343,6 @@ export default {
       this.selectedHpoTerms = [];
       this.hpoIds = null;
       this.searchAssociates = [];
-      this.patientGenes = null;
       this.loading = false;
       this.readOnly = false;
       this.foundMatch = false;
