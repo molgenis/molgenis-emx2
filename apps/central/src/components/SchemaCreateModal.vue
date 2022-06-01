@@ -114,7 +114,7 @@ export default {
       schemaName: null,
       schemaDescription: null,
       template: null,
-      templates: [null, "PET_STORE", "DATA_CATALOGUE"],
+      templates: [null, "PET_STORE", "DATA_CATALOGUE", "BEACON_V2"],
       includeDemoData: false,
     };
   },

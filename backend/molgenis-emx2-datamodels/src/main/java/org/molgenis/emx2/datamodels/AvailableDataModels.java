@@ -7,7 +7,8 @@ import org.molgenis.emx2.Schema;
 public enum AvailableDataModels {
   DATA_CATALOGUE(new DataCatalogueLoader()),
   DATA_CATALOGUE_STAGING(new DataCatalogueStagingLoader()),
-  PET_STORE(new PetStoreLoader());
+  PET_STORE(new PetStoreLoader()),
+  BEACON_V2(new Beaconv2Loader());
 
   private DataModelLoader installer;
 

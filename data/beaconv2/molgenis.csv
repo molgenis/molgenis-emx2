@@ -1,0 +1,10 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+GenomicVariations,,,,,,,,,,,,Beacon v2  GenomicVariation
+GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,,E.g. 20:2447955..2447958c>g
+GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP
+GenomicVariations,,referenceBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,E.g. c
+GenomicVariations,,alternateBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,E.g. g
+GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37
+GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20
+GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955
+GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958

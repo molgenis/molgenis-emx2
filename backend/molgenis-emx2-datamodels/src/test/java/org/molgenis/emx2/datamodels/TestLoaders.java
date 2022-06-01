@@ -12,18 +12,26 @@ public class TestLoaders {
   static Database database;
   static Schema cohortsSchema;
   static Schema stagingSchema;
+  static Schema beaconv2Schema;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     cohortsSchema = database.dropCreateSchema("CohortNetwork");
     stagingSchema = database.dropCreateSchema("CohortStaging");
+    beaconv2Schema = database.dropCreateSchema("BeaconTest");
   }
 
   @Test
   public void testDataCatalogueLoader() {
     AvailableDataModels.DATA_CATALOGUE.install(cohortsSchema, true);
     assertEquals(37, cohortsSchema.getTableNames().size());
+  }
+
+  @Test
+  public void testBeaconv2Loader() {
+    AvailableDataModels.BEACON_V2.install(beaconv2Schema, true);
+    assertEquals(1, beaconv2Schema.getTableNames().size());
   }
 
   @Test
