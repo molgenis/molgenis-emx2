@@ -12,7 +12,7 @@
 
     <div class="row justify-content-md-center py-3">
       <div class="col-sm-12 col-md-8">
-        <search-resource :resourceType="resourceType" />
+        <search-resource :resourceType="resourceType" placeholder="Search the UMCG cohorts" />
       </div>
     </div>
 
@@ -22,7 +22,7 @@
           <IconCard
             cardTitle="Datasets"
             icon="DatabaseIcon"
-            footerText="Last updated 3 mins ago"
+            footerText=""
           >
             <div class="card-text">
               <h1 class="text-center">{{ cohortCount + bioBankCount }}</h1>
@@ -36,7 +36,7 @@
           <IconCard
             cardTitle="Participants"
             icon="UsersIcon"
-            footerText="Last updated 3 mins ago"
+            footerText=""
           >
             <div class="card-text">
               <h1 class="text-center">
@@ -53,7 +53,7 @@
           <!-- <IconCard
             cardTitle="Samples"
             icon="TestPipeIcon"
-            footerText="Last updated 3 mins ago"
+            footerText=""
           >
             <div class="card-text">
               <h1 class="text-center">61%</h1>
@@ -68,7 +68,7 @@
           <IconCard
             cardTitle="Cohort design"
             icon="ToolsIcon"
-            footerText="Last updated 3 mins ago"
+            footerText=""
           >
             <div class="card-text">
               <h1 class="text-center" style="color: white">spacer</h1>
@@ -83,7 +83,7 @@
           <IconCard
             cardTitle="Longitudinal"
             icon="ClockIcon"
-            footerText="Last updated 3 mins ago"
+            footerText=""
           >
             <div class="card-text">
               <h1 class="text-center">{{ percentageLongitudinalStudies }}%</h1>
@@ -99,9 +99,10 @@
           <IconCard cardTitle="Recently added" icon="CirclePlusIcon">
             <div class="card-text">
               <ul class="card-text">
-                <li>23-04-2022 - Head and neck oncology patients</li>
-                <li>12-01-2022 - Lung path ( Lung tissue and cell biobanks</li>
-                <li>22-12-2021 - Oncolifes</li>
+                <li v-for="(added, index) in recentlyAdded" :key="index">
+                  {{ added.date }} - <span v-html="added.html"></span>
+                </li>
+                <li v-if="recentlyAdded.length === 0">No recently added items</li>
               </ul>
             </div>
           </IconCard>
@@ -109,11 +110,10 @@
           <IconCard cardTitle="News" icon="NewsIcon">
             <div class="card-text">
               <ul class="card-text">
-                <li>
-                  2021-03-01 – The dataset of TRAILS-CC is now available for
-                  external users
+                <li v-for="(newsItem, index) in newsItems" :key="index">
+                  {{ newsItem.date }} - <span v-html="newsItem.html"></span>
                 </li>
-                <li>2021-03-01 - Bla die bla</li>
+                <li v-if="newsItems.length === 0">No news items</li>
               </ul>
             </div>
           </IconCard>
@@ -139,7 +139,6 @@
               </address>
             </div>
           </IconCard>
-
         </div>
       </div>
     </div>
@@ -152,6 +151,7 @@ import SearchResource from "../components/SearchResource";
 import BannerImage from "../components/display/BannerImage.vue";
 import IconCard from "../components/display/IconCard.vue";
 import homeViewQuery from "../store/query/homeView.gql";
+import newsItemsQuery from "../store/query/newsItems.gql";
 
 import {} from "vue-tabler-icons";
 
@@ -171,6 +171,8 @@ export default {
       participantPercentageAboveOneThousand: 0,
       percentageLongitudinalStudies: 0,
       typeCounts: {},
+      newsItems: [],
+      recentlyAdded: [],
       graphqlError: "",
     };
   },
@@ -196,9 +198,11 @@ export default {
 
       this.cohortCount = resp.Cohorts_agg.count;
       this.bioBankCount = resp.Databanks_agg.count;
+
       this.participantCount = resp.Cohorts.filter((c) => c.numberOfParticipants)
         .map((c) => c.numberOfParticipants)
         .reduce((a, b) => a + b, 0);
+
       this.participantPercentageAboveOneThousand = Math.round(
         (resp.Cohorts.filter(
           (c) => c.numberOfParticipants && c.numberOfParticipants > 1000
@@ -206,6 +210,7 @@ export default {
           resp.Cohorts.length) *
           100
       );
+
       this.percentageLongitudinalStudies = Math.round(
         (resp.Cohorts.filter(
           (c) => c.design && c.design.name === "Longitudinal"
@@ -213,6 +218,7 @@ export default {
           resp.Cohorts.length) *
           100
       );
+
       this.typeCounts = resp.Cohorts.filter((c) => c.collectionType).reduce(
         (typeCounts, c) => {
           c.collectionType.forEach((collectionType) => {
@@ -228,6 +234,19 @@ export default {
         },
         {}
       );
+
+      const newsResponse = await request("graphql", newsItemsQuery).catch(
+        (error) => {
+          console.log(error);
+        }
+      );
+
+      const newsItemsSettings = newsResponse._settings.filter(
+        (s) => s.key === "newsItems"
+      );
+      this.newsItems = newsItemsSettings[0]
+        ? JSON.parse(newsItemsSettings[0].value)
+        : [];
     },
   },
   mounted: function () {

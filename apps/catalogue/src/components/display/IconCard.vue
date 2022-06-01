@@ -7,7 +7,7 @@
       </h5>
       <slot></slot>
     </div>
-    <div class="card-footer">
+    <div v-if="footerText" class="card-footer">
       <small class="text-muted">{{footerText}}</small>
     </div>
   </div>

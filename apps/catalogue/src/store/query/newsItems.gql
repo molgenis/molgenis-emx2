@@ -1,0 +1,6 @@
+query {
+  _settings(keys: ["newsItems"]) {
+    key
+    value
+  }
+}

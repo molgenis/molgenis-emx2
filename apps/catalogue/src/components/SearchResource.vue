@@ -5,7 +5,7 @@
         type="text"
         class="form-control form-control-lg"
         v-model="query"
-        placeholder="Search"
+        :placeholder="placeholder"
       />
       <div class="input-group-append">
         <button type="submit" class="btn btn-primary btn-lg">Search</button>
@@ -22,6 +22,11 @@ export default {
       type: String, // one of Resource
       default: () => "Institutions",
     },
+    placeholder: {
+      type: String, 
+      required: false,
+      default: () => "Search"
+    }
   },
   data() {
     return {
