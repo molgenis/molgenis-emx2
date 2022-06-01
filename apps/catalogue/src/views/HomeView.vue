@@ -50,7 +50,7 @@
             </div>
           </IconCard>
 
-          <IconCard
+          <!-- <IconCard
             cardTitle="Samples"
             icon="TestPipeIcon"
             footerText="Last updated 3 mins ago"
@@ -63,7 +63,7 @@
                 <li>Other: 44%</li>
               </ul>
             </div>
-          </IconCard>
+          </IconCard> -->
 
           <IconCard
             cardTitle="Cohort design"
