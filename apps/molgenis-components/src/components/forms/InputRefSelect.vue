@@ -16,7 +16,6 @@
       v-if="showSelect"
       :title="title"
       @close="showSelect = false"
-      class="foo"
     >
       <template v-slot:body>
         <TableSearch
