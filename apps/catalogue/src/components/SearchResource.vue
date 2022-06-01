@@ -35,13 +35,12 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.$router.push({
-        name: this.resourceType,
-        query: { q: this.query },
-      });
+      const route = { name: this.resourceType }
+      if(this.query) {
+        route.query = { q: this.query }
+      }
+      this.$router.push(route);
     },
   },
 };
 </script>
-
-<style></style>
