@@ -19,96 +19,76 @@
     <div class="row">
       <div class="col">
         <div class="card-deck">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <DatabaseIcon :size="iconSize" class="mg-card-icon" /> Datasets
-              </h5>
-              <div class="card-text">
-                <h1 class="text-center">{{ cohortCount + bioBankCount }}</h1>
-                <ul class="card-text">
-                  <li>Cohorts: {{ cohortCount }}</li>
-                  <li>Biobanks: {{ bioBankCount }}</li>
-                </ul>
-              </div>
+          <IconCard
+            cardTitle="Datasets"
+            icon="DatabaseIcon"
+            footerText="Last updated 3 mins ago"
+          >
+            <div class="card-text">
+              <h1 class="text-center">{{ cohortCount + bioBankCount }}</h1>
+              <ul class="card-text">
+                <li>Cohorts: {{ cohortCount }}</li>
+                <li>Biobanks: {{ bioBankCount }}</li>
+              </ul>
             </div>
-            <div class="card-footer">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <UsersIcon :size="iconSize" class="mg-card-icon" />Participants
-              </h5>
+          </IconCard>
 
-              <div class="card-text">
-                <h1 class="text-center">
-                  {{
-                    Math.round(participantCount / 10000 + Number.EPSILON) / 100
-                  }}M
-                </h1>
-                <p class="text-center">
-                  in total > 1,000: {{ participantPercentageAboveOneThousand }}%
-                </p>
-              </div>
+          <IconCard
+            cardTitle="Participants"
+            icon="UsersIcon"
+            footerText="Last updated 3 mins ago"
+          >
+            <div class="card-text">
+              <h1 class="text-center">
+                {{
+                  Math.round(participantCount / 10000 + Number.EPSILON) / 100
+                }}M
+              </h1>
+              <p class="text-center">
+                in total > 1,000: {{ participantPercentageAboveOneThousand }}%
+              </p>
             </div>
-            <div class="card-footer">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </div>
-          </div>
-          <!-- <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <TestPipeIcon :size="iconSize" class="mg-card-icon" />Samples
-              </h5>
-              <div class="card-text">
-                <h1 class="text-center">61%</h1>
-                <ul>
-                  <li>Blood: 54%</li>
-                  <li>DNA: 28%</li>
-                  <li>Other: 44%</li>
-                </ul>
-              </div>
-            </div>
-            <div class="card-footer">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </div>
-          </div> -->
+          </IconCard>
 
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <ToolsIcon :size="iconSize" class="mg-card-icon" />Cohort design
-              </h5>
-              <div class="card-text">
-                <h1 class="text-center" style="color: white">spacer</h1>
-                <ul>
-                   <li v-for="type in Object.keys(typeCounts)" :key="type">{{type}}: {{(typeCounts[type] / typesTotalCount) * 100 }}%</li>
-                </ul>
-              </div>
+          <IconCard
+            cardTitle="Samples"
+            icon="TestPipeIcon"
+            footerText="Last updated 3 mins ago"
+          >
+            <div class="card-text">
+              <h1 class="text-center">61%</h1>
+              <ul>
+                <li>Blood: 54%</li>
+                <li>DNA: 28%</li>
+                <li>Other: 44%</li>
+              </ul>
             </div>
-            <div class="card-footer">
-              <small class="text-muted">Last updated 3 mins ago</small>
-            </div>
-          </div>
+          </IconCard>
 
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <ClockIcon :size="iconSize" class="mg-card-icon" />Longitudinal
-                studies
-              </h5>
-              <div class="card-text">
-                <h1 class="text-center">
-                  {{ percentageLongitudinalStudies }}%
-                </h1>
-              </div>
+          <IconCard
+            cardTitle="Cohort design"
+            icon="ToolsIcon"
+            footerText="Last updated 3 mins ago"
+          >
+            <div class="card-text">
+              <h1 class="text-center" style="color: white">spacer</h1>
+              <ul>
+                <li v-for="type in Object.keys(typeCounts)" :key="type">
+                  {{ type }}: {{ (typeCounts[type] / typesTotalCount) * 100 }}%
+                </li>
+              </ul>
             </div>
-            <div class="card-footer">
-              <small class="text-muted">Last updated 3 mins ago</small>
+          </IconCard>
+
+          <IconCard
+            cardTitle="Longitudinal"
+            icon="ClockIcon"
+            footerText="Last updated 3 mins ago"
+          >
+            <div class="card-text">
+              <h1 class="text-center">{{ percentageLongitudinalStudies }}%</h1>
             </div>
-          </div>
+          </IconCard>
         </div>
       </div>
     </div>
@@ -116,46 +96,27 @@
     <div class="row mt-3">
       <div class="col">
         <div class="card-deck">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <CirclePlusIcon :size="iconSize" class="mg-card-icon" />
-                Recently added
-              </h5>
-              <div class="card-text">
-                <ul class="card-text">
-                  <li>23-04-2022 - Head and neck oncology patients</li>
-                  <li>
-                    12-01-2022 - Lung path ( Lung tissue and cell biobanks
-                  </li>
-                  <li>22-12-2021 - Oncolifes</li>
-                </ul>
-              </div>
+          <IconCard cardTitle="Recently added" icon="CirclePlusIcon">
+            <div class="card-text">
+              <ul class="card-text">
+                <li>23-04-2022 - Head and neck oncology patients</li>
+                <li>12-01-2022 - Lung path ( Lung tissue and cell biobanks</li>
+                <li>22-12-2021 - Oncolifes</li>
+              </ul>
             </div>
-            <div class="card-footer">
-              <small class="text-muted"></small>
-            </div>
-          </div>
+          </IconCard>
 
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <NewsIcon :size="iconSize" class="mg-card-icon" /> News
-              </h5>
-              <div class="card-text">
-                <ul class="card-text">
-                  <li>
-                    2021-03-01 – The dataset of TRAILS-CC is now available for
-                    external users
-                  </li>
-                  <li>2021-03-01 - Bla die bla</li>
-                </ul>
-              </div>
+          <IconCard cardTitle="News" icon="NewsIcon">
+            <div class="card-text">
+              <ul class="card-text">
+                <li>
+                  2021-03-01 – The dataset of TRAILS-CC is now available for
+                  external users
+                </li>
+                <li>2021-03-01 - Bla die bla</li>
+              </ul>
             </div>
-            <div class="card-footer">
-              <small class="text-muted"></small>
-            </div>
-          </div>
+          </IconCard>
         </div>
       </div>
     </div>
@@ -163,27 +124,22 @@
     <div class="row mt-3">
       <div class="col">
         <div class="card-deck">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <AffiliateIcon :size="iconSize" class="mg-card-icon" />
-                Cohort & Biobank Coordination hub
-              </h5>
-              <div class="card-text">
-                <address>
-                  <strong>University Medical Center Groningen (UMCG)</strong
-                  ><br />
-                  Antonius Deusinglaan 1<br />
-                  9713 AV Groningen<br />
-                  The Netherlands<br />
-                  <abbr title="Phone"></abbr> (123) 456-7890
-                </address>
-              </div>
+          <IconCard
+            cardTitle="Cohort & Biobank Coordination hub"
+            icon="AffiliateIcon"
+          >
+            <div class="card-text">
+              <address>
+                <strong>University Medical Center Groningen (UMCG)</strong
+                ><br />
+                Antonius Deusinglaan 1<br />
+                9713 AV Groningen<br />
+                The Netherlands<br />
+                <abbr title="Phone"></abbr> (123) 456-7890
+              </address>
             </div>
-            <div class="card-footer">
-              <small class="text-muted"></small>
-            </div>
-          </div>
+          </IconCard>
+
         </div>
       </div>
     </div>
@@ -194,32 +150,17 @@
 import { request } from "graphql-request";
 import SearchResource from "../components/SearchResource";
 import BannerImage from "../components/display/BannerImage.vue";
+import IconCard from "../components/display/IconCard.vue";
 import homeViewQuery from "../store/query/homeView.gql";
 
-import {
-  DatabaseIcon,
-  UsersIcon,
-  TestPipeIcon,
-  CirclePlusIcon,
-  NewsIcon,
-  ToolsIcon,
-  ClockIcon,
-  AffiliateIcon,
-} from "vue-tabler-icons";
+import {} from "vue-tabler-icons";
 
 export default {
   name: "HomeView",
   components: {
     SearchResource,
     BannerImage,
-    DatabaseIcon,
-    UsersIcon,
-    TestPipeIcon,
-    CirclePlusIcon,
-    ToolsIcon,
-    NewsIcon,
-    ClockIcon,
-    AffiliateIcon,
+    IconCard,
   },
   data() {
     return {
@@ -240,9 +181,12 @@ export default {
     },
   },
   computed: {
-    typesTotalCount () {
-      return Object.values(this.typeCounts).reduce((total, count) => total + count, 0)
-    }
+    typesTotalCount() {
+      return Object.values(this.typeCounts).reduce(
+        (total, count) => total + count,
+        0
+      );
+    },
   },
   methods: {
     async load() {
@@ -292,8 +236,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.mg-card-icon {
-  color: var(--primary);
-}
-</style>
+
