@@ -1,42 +1,53 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
-    <input type="hidden" class="form-control" />
-    <select
-      class="form-control"
-      :id="id"
-      @change.stop.prevent="showSelect = true"
-      @click.stop.prevent="showSelect = true"
-    >
-      <option :value="value" hidden>
-        {{ refLabel ? applyJsTemplate(value) : flattenObject(value) }}
-      </option>
-    </select>
-
-    <LayoutModal
-      v-if="showSelect"
-      :title="title"
-      @close="showSelect = false"
-      class="foo"
-    >
-      <template v-slot:body>
-        <TableSearch
-          :lookupTableName="tableName"
-          :filter="filter"
-          :graphqlURL="graphqlURL"
-          @select="select($event)"
-          @deselect="deselect(selectIdx)"
+    <InputGroup>
+      <template v-slot:append>
+        <button
+          v-if="value"
+          @click="$emit('input', null)"
+          class="btn btn-outline-primary"
+          type="button"
         >
-          <template v-slot:rowheader="slotProps">
-            <ButtonAction @click="select(slotProps.rowkey)">
-              Select
-            </ButtonAction>
-          </template>
-        </TableSearch>
+          <i class="fas fa-fw fa-times"></i>
+        </button>
       </template>
-      <template v-slot:footer>
-        <ButtonAlt @click="showSelect = false">Close</ButtonAlt>
-      </template>
-    </LayoutModal>
+      <input type="hidden" class="form-control" />
+      <select
+        class="form-control"
+        :id="id"
+        @change.stop.prevent="showSelect = true"
+        @click.stop.prevent="showSelect = true"
+      >
+        <option v-if="!showSelect"  :value="value">
+          {{ refLabel ? applyJsTemplate(value) : flattenObject(value) }}
+        </option>
+      </select>
+
+      <LayoutModal
+        v-if="showSelect"
+        :title="title"
+        @close="showSelect = false"
+      >
+        <template v-slot:body>
+          <TableSearch
+            :lookupTableName="tableName"
+            :filter="filter"
+            :graphqlURL="graphqlURL"
+            @select="select($event)"
+            @deselect="deselect(selectIdx)"
+          >
+            <template v-slot:rowheader="slotProps">
+              <ButtonAction @click="select(slotProps.rowkey)">
+                Select
+              </ButtonAction>
+            </template>
+          </TableSearch>
+        </template>
+        <template v-slot:footer>
+          <ButtonAlt @click="showSelect = false">Close</ButtonAlt>
+        </template>
+      </LayoutModal>
+    </InputGroup>
   </FormGroup>
 </template>
 
