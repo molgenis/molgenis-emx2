@@ -77,14 +77,6 @@ import { flattenObject, getPrimaryKey } from "../utils";
 export default {
   name: "InputRef",
   extends: BaseInput,
-  data: function () {
-    return {
-      showSelect: false,
-      data: [],
-      count: 0,
-      tableMetaData: null,
-    };
-  },
   components: {
     TableSearch,
     LayoutModal,
@@ -103,6 +95,14 @@ export default {
       type: String,
       required: true,
     },
+  },
+  data: function () {
+    return {
+      showSelect: false,
+      data: [],
+      count: 0,
+      tableMetaData: null,
+    };
   },
   computed: {
     title() {
