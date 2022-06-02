@@ -154,7 +154,6 @@ export default {
           hpoTerm: this.selectedHpoTerms[i].term,
           searchAssociates: this.searchAssociates})
         };
-
         let data = await fetch('/patients/api/gendecs/queryHpo', requestOptions)
             .then((response) => {
               if (response.ok) {

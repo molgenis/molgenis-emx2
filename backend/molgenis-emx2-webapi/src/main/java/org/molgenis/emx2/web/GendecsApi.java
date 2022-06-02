@@ -15,6 +15,19 @@ public class GendecsApi {
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
   private static final String genesToPheno = "data/gendecs/genes_to_phenotype.txt";
 
+  /**
+   * queryHpo: Api that can be used to query a HPO term for its children and parent terms expected
+   *   javascript example:
+   * ------------------
+   *     let searchAssociates = ['Search less specific', 'Search more specific'] // or either by its self
+   *     let requestOptions = { method: 'POST', body:
+   *         JSON.stringify({ hpoId: ID, hpoTerm: Bladder polyp, searchAssociates: this.searchAssociates}) };
+   *
+   *     let data = await fetch('/[schema]/api/gendecs/queryHpo', requestOptions).then((response) => return response.json();
+   * ------------------
+   * idToHPo: api that gets id of an HPO term and returns the HPO term string.
+   * hpoToId: api that gets the string of a HPO term and returns the id.
+   */
   public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
     get("/:schema/api/gendecs/idToHpo/:id", GendecsApi::idToHpo);
