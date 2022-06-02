@@ -95,6 +95,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    filter: {
+      type: Object,
+      required: false
+    }
   },
   data: function () {
     return {
@@ -131,6 +135,7 @@ export default {
         limit: this.limit,
         offset: this.limit * (this.page - 1),
         searchTerms: this.searchTerms,
+        filter: this.filter,
       };
 
       const client = Client.newClient(this.graphqlURL);

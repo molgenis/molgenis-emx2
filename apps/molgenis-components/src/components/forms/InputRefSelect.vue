@@ -1,6 +1,12 @@
 <template>
   <FormGroup :id="id" :label="label" :description="description">
     <InputGroup>
+      <input
+        class="form-control"
+        @click="showSelect = true"
+        @focus="showSelect = true"
+        :value="refLabel ? applyJsTemplate(value) : flattenObject(value)"
+      />
       <template v-slot:append>
         <button
           v-if="value"
@@ -11,23 +17,8 @@
           <i class="fas fa-fw fa-times"></i>
         </button>
       </template>
-      <input type="hidden" class="form-control" />
-      <select
-        class="form-control"
-        :id="id"
-        @change.stop.prevent="showSelect = true"
-        @click.stop.prevent="showSelect = true"
-      >
-        <option v-if="!showSelect"  :value="value">
-          {{ refLabel ? applyJsTemplate(value) : flattenObject(value) }}
-        </option>
-      </select>
 
-      <LayoutModal
-        v-if="showSelect"
-        :title="title"
-        @close="showSelect = false"
-      >
+      <LayoutModal v-if="showSelect" :title="title" @close="showSelect = false">
         <template v-slot:body>
           <TableSearch
             :lookupTableName="tableName"
@@ -86,7 +77,7 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.table;
+      return "Select " + this.tableName;
     },
   },
   methods: {
@@ -130,7 +121,7 @@ export default {
 <template>
 <div>
   <div>
-  <label for="">Example </label>
+  <label for="input-ref-select-1">Example </label>
     <InputRefSelect 
       id="input-ref-select-1" 
       v-model="value1" 
@@ -140,7 +131,7 @@ export default {
     Selection: {{ value1 }}
   </div>
 
-  <label for="">Example with default value</label>
+  <label for="input-ref-select-2" class="mt-3">Example with default value</label>
   <div>
     <InputRefSelect
         id="input-ref-select-2"
@@ -151,15 +142,16 @@ export default {
     Selection: {{ value2 }}
   </div>
 
+  <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
   <div>
     <InputRefSelect
         id="input-ref-select-3"
-        v-model="value2"
+        v-model="value3"
         tableName="Pet"
         :filter="{category:{name: {equals:'dog'}}}"
         graphqlURL="/pet store/graphql"
     />
-    Selection: {{ value2 }}
+    Selection: {{ value3 }}
   </div>
   
 
@@ -173,7 +165,8 @@ export default {
     data: function () {
       return {
         value1: null,
-        value2: {name: 'spike'}
+        value2: {name: 'spike'},
+        value3: {name: 'pooky'}
       };
     }
   };
