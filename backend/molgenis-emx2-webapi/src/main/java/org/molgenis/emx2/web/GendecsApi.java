@@ -13,8 +13,7 @@ import spark.Response;
 
 public class GendecsApi {
   private static final Logger logger = LoggerFactory.getLogger(GendecsApi.class);
-  private static final String genesToPheno =
-      "/Users/jonathan/Documents/GitHub/molgenis-emx2/data/gendecs/genes_to_phenotype.txt";
+  private static final String genesToPheno = "data/gendecs/genes_to_phenotype.txt";
 
   public static void create() {
     post("/:schema/api/gendecs/queryHpo", GendecsApi::queryHpo);
