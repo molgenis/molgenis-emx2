@@ -19,7 +19,7 @@
         <RowButton
           v-if="canEdit"
           type="add"
-          :table="refTableName"
+          :table="tableName"
           :graphqlURL="graphqlURL"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
@@ -37,7 +37,7 @@
         <RowButton
           v-if="canEdit"
           type="edit"
-          :table="refTableName"
+          :table="tableName"
           :graphqlURL="graphqlURL"
           :visible-columns="visibleColumnNames"
           :refTablePrimaryKeyObject="getPrimaryKey(slotProps.row, tableMetadata)"
@@ -46,7 +46,7 @@
         <RowButton
           v-if="canEdit"
           type="clone"
-          :table="refTableName"
+          :table="tableName"
           :graphqlURL="graphqlURL"
           :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
           @close="reload"
@@ -56,7 +56,7 @@
         <RowButton
           v-if="canEdit"
           type="delete"
-          :table="refTableName"
+          :table="tableName"
           :graphqlURL="graphqlURL"
           :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
           @close="reload"
@@ -91,12 +91,12 @@ export default {
   },
   props: {
     /** name of the table from which is referred back to this field */
-    refTableName: {
+    tableName: {
       type: String,
       required: true
     },
     /** name of the column in the other table */
-    refBackColumn: {
+    refBack: {
       type: String,
       required: true,
     },
@@ -156,13 +156,13 @@ export default {
   methods: {
     getPrimaryKey,
     async reload () {
-      this.data = await this.client.fetchTableDataValues(this.refTableName);
+      this.data = await this.client.fetchTableDataValues(this.tableName);
     }
   },
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
-    this.tableMetadata = await this.client.fetchTableMetaData(this.refTableName);
-    this.data = await this.client.fetchTableDataValues(this.refTableName);
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
+    this.data = await this.client.fetchTableDataValues(this.tableName);
   },
 };
 </script>
@@ -182,8 +182,8 @@ This also means you cannot do this unless your current record has a refTablePrim
   <InputRefBack
       id="refback1"
       label="Orders"
-      refTableName="Order"
-      refBackColumn="pet"
+      tableName="Order"
+      refBack="pet"
       :refTablePrimaryKeyObject=null
       graphqlURL="/pet store/graphql"
   />
@@ -196,8 +196,8 @@ This also means you cannot do this unless your current record has a refTablePrim
   <InputRefBack
       id="refback2"
       label="Orders"
-      refTableName="Order"
-      refBackColumn="pet"
+      tableName="Order"
+      refBack="pet"
       :refTablePrimaryKeyObject="{name:'spike'}"
       graphqlURL="/pet store/graphql"
   />
@@ -210,8 +210,8 @@ This also means you cannot do this unless your current record has a refTablePrim
       id="refback3"
       canEdit
       label="Orders"
-      refTableName="Order"
-      refBackColumn="pet"
+      tableName="Order"
+      refBack="pet"
       :refTablePrimaryKeyObject="{name:'spike'}"
       graphqlURL="/pet store/graphql"
   />
