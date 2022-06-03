@@ -98,7 +98,7 @@ public class MolgenisWebservice {
     TaskApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
-    BeaconApi.create();
+    BeaconApi.create(sessionManager);
     BootstrapThemeService.create();
 
     get(

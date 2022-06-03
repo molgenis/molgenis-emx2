@@ -5,6 +5,11 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchemaNames;
 import static spark.Spark.get;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.BeaconFilteringTermsResponse;
 import org.molgenis.emx2.beaconv2.responses.*;
@@ -15,8 +20,10 @@ import spark.Response;
 // is a beacon on level of database, schema or table?
 public class BeaconApi {
 
-  public static void create() {
+  private static MolgenisSessionManager sessionManager;
 
+  public static void create(MolgenisSessionManager sm) {
+    sessionManager = sm;
     // framework
     get("/api/beacon", BeaconApi::getInfo);
     get("/api/beacon/", BeaconApi::getInfo);
@@ -27,6 +34,11 @@ public class BeaconApi {
     get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
     get("/api/beacon/datasets", BeaconApi::getDatasets);
     get("/api/beacon/g_variants", BeaconApi::getGenomicVariants);
+
+    /*
+    both GET and POST are used to retrieve data, implement both?
+    https://docs.genomebeacons.org/variant-queries/#beacon-sequence-queries
+     */
 
     //    get("/:schema/api/beacon/filtering_terms", BeaconApi::getFilteringTerms);
     //
@@ -80,9 +92,17 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new Datasets(request, getSchemaNames(request)));
   }
 
-  private static String getGenomicVariants(Request request, Response response)
-      throws JsonProcessingException {
-    return getWriter().writeValueAsString(new GenomicVariants());
+  private static String getGenomicVariants(Request request, Response response) throws Exception {
+
+    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    List<Table> genomicVariantTables = new ArrayList<Table>();
+
+    for (String sn : schemaNames) {
+      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
+      Table gv = schema.getTable("GenomicVariations");
+      genomicVariantTables.add(gv);
+    }
+    return getWriter().writeValueAsString(new GenomicVariants(request, genomicVariantTables));
   }
 
   private static String postDatasets(Request request, Response response)

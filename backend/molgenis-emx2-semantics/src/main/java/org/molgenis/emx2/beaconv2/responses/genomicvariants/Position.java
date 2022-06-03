@@ -7,11 +7,17 @@ public class Position {
 
   String assemblyId;
   String refseqId;
-  int[] start;
+  Long[] start;
+  Long[] end;
 
-  public Position(String assemblyId, String refseqId, int[] start) {
+  public Position() {
+    super();
+  }
+
+  public Position(String assemblyId, String refseqId, Long[] start, Long[] end) {
     this.assemblyId = assemblyId;
     this.refseqId = refseqId;
     this.start = start;
+    this.end = end;
   }
 }
