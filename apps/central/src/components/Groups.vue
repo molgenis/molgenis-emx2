@@ -115,9 +115,10 @@ export default {
       return this.schemasFiltered.length;
     },
     schemasFiltered() {
+      let filtered = this.schemas
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(' ');
-        return this.schemas.filter((s) =>
+        filtered = this.schemas.filter((s) =>
           terms.every(
             (v) =>
               s.name.toLowerCase().includes(v) ||
@@ -125,7 +126,7 @@ export default {
           )
         );
       }
-      return this.schemas;
+      return filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
   },
   created() {
