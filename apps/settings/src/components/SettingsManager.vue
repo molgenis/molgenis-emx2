@@ -81,7 +81,7 @@ export default {
   methods: {
     async fetchSettings() {
       const resp = await request("graphql", `{_settings{key, value}}`);
-      this.settings = resp._settings;
+      this.settings = resp._settings.filter(s => s.key !== "isOidcEnabled");
     },
     handleRowEditRequest(setting) {
       this.modalTitle = `Edit ${setting.key} setting`
