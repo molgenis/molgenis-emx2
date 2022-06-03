@@ -4,9 +4,10 @@
       No options provided
     </MessageError>
     <select
-      v-else
+      v-else-if="!readonly"
       :id="id"
       :value="value"
+      :readonly="readonly"
       class="form-control"
       @change="$emit('input', $event.target.value)"
     >
@@ -20,6 +21,7 @@
         {{ option }}
       </option>
     </select>
+    <input :id="id" v-else class="form-control" type="text" readonly :value="value"/>
   </FormGroup>
 </template>
 
@@ -72,7 +74,16 @@ export default {
         v-model="check"
         :options="[]"
       />
-      Selected: {{ empty }}
+    </DemoItem>
+    <DemoItem>
+      <InputSelect
+        id="input-select"
+        label="Readonly"
+        v-model="readonlyModel"
+        :options="['lion', 'ape', 'monkey']"
+        readonly
+      />
+      Selected: {{ readonlyModel }}
     </DemoItem>
   </div>
 </template>
@@ -83,6 +94,7 @@ export default {
       check: null,
       requiredCheck: null,
       empty: null,
+      readonlyModel: 'lion' 
     };
   },
 };
