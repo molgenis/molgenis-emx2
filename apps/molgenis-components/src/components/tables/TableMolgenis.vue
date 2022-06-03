@@ -9,7 +9,7 @@
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
           <span style="text-align: left; font-weight: normal">
-            <slot name="colheader" />
+            <slot name="rowcolheader" />
           </span>
         </th>
         <th

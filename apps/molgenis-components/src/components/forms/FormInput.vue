@@ -26,6 +26,7 @@ import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
+import InputRefBack from '../forms/InputRefBack.vue';
 import InputRefSelect from "../forms/InputRefSelect.vue"
 
 const typeToInputMap = {
@@ -40,6 +41,7 @@ const typeToInputMap = {
   BOOL: InputBoolean,
   DATE: InputDate,
   REF: InputRefSelect,
+  REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
   ONTOLOGY: InputOntology,
@@ -123,8 +125,8 @@ export default {
     InputHeading,
     InputOntology,
     InputRef,
-    //  InputRefback
-    //  InputRefSelect
+    InputRefBack,
+    InputRefSelect
   },
   computed: {
     typeToInput() {
