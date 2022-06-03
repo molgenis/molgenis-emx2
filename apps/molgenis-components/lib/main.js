@@ -52,6 +52,7 @@ import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
+import InputRefSelect from "../src/components/forms/InputRefSelect.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
@@ -150,6 +151,7 @@ export {
   InputRangeInt,
   InputRef,
   InputRefList,
+  InputRefSelect,
   InputSearch,
   InputSelect,
   InputSelectInplace,
