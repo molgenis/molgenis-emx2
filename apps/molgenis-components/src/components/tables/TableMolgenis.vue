@@ -142,7 +142,7 @@ export default {
       }
     },
     getPrimaryKey(row) {
-      getPrimaryKey(row, this.tableMetadata);
+      return getPrimaryKey(row, this.tableMetadata);
     },
     isSelected(row) {
       let key = this.getPrimaryKey(row);
