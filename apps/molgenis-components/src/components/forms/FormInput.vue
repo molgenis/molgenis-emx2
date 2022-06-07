@@ -3,6 +3,7 @@
     <component
       v-if="typeToInput"
       :is="typeToInput"
+      :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -53,7 +54,7 @@ const typeToInputMap = {
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
-  ONTOLOGY_ARRAY: ArrayInput,
+  ONTOLOGY_ARRAY: InputOntology,
   REF_ARRAY: ArrayInput,
 };
 
