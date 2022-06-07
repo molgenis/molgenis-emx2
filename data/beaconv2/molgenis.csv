@@ -8,3 +8,4 @@ GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/
 GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20
 GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955
 GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958
+GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN

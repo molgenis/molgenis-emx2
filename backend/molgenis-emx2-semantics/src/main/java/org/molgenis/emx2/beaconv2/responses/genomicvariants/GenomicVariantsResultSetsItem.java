@@ -9,6 +9,7 @@ public class GenomicVariantsResultSetsItem {
   String referenceBases;
   String alternateBases;
   Position position;
+  String geneId;
 
   public GenomicVariantsResultSetsItem() {
     super();
@@ -20,11 +21,13 @@ public class GenomicVariantsResultSetsItem {
       String variantType,
       String referenceBases,
       String alternateBases,
-      Position position) {
+      Position position,
+      String geneId) {
     this.variantInternalId = variantInternalId;
     this.variantType = variantType;
     this.alternateBases = alternateBases;
     this.referenceBases = referenceBases;
     this.position = position;
+    this.geneId = geneId;
   }
 }
