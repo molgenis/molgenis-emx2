@@ -4,7 +4,7 @@
       <div class="col">
         <BannerImage
           imageUrl="https://image.focuspoints.io/general-1.jpg?_jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJmb2N1c1BvaW50WSI6MC4wLCJmb2N1c1BvaW50WCI6MC4wLCJ3aWR0aCI6MTQ0MCwiaXNzIjoidW1jZyIsImFjdGlvbiI6InRyYW5zZm9ybSIsInVybCI6Imh0dHBzOi8vdW1jZ3Jlc2VhcmNoLm9yZy9kb2N1bWVudHMvNzcwNTM0Lzc3NTkwNy9nZW5lcmFsLTEuanBnL2NlNGVkMTM5LTMxYzMtOTg3Mi02NjBiLWU3ZjVjNDFhNTY0OD90PTE2Mjk3MDYzODQyOTMmZG93bmxvYWQ9dHJ1ZSIsImhlaWdodCI6MzYwfQ.ulaZWsVt6k6Uil4zLdaxpnLrWZJubDttUIlE5hr5yqgXW7ACAD5nF1Kpl4R-Wd2QU2haLYJt0zvzMWv2843gfA"
-          title="Cohorts, biobanks and dataset of the UMC"
+          title="Cohorts, biobanks and dataset of the UMCG"
           subTitle="Universitair Medisch Centrum Groningen, the Netherlands"
         />
       </div>
@@ -12,18 +12,17 @@
 
     <div class="row justify-content-md-center py-3">
       <div class="col-sm-12 col-md-8">
-        <search-resource :resourceType="resourceType" placeholder="Search the UMCG cohorts" />
+        <search-resource
+          :resourceType="resourceType"
+          placeholder="Search the UMCG cohorts"
+        />
       </div>
     </div>
 
     <div class="row">
       <div class="col">
         <div class="card-deck">
-          <IconCard
-            cardTitle="Datasets"
-            icon="DatabaseIcon"
-            footerText=""
-          >
+          <IconCard cardTitle="Datasets" icon="DatabaseIcon" footerText="">
             <div class="card-text">
               <h1 class="text-center">{{ cohortCount + bioBankCount }}</h1>
               <ul class="card-text">
@@ -33,11 +32,7 @@
             </div>
           </IconCard>
 
-          <IconCard
-            cardTitle="Participants"
-            icon="UsersIcon"
-            footerText=""
-          >
+          <IconCard cardTitle="Participants" icon="UsersIcon" footerText="">
             <div class="card-text">
               <h1 class="text-center">
                 {{
@@ -65,11 +60,7 @@
             </div>
           </IconCard> -->
 
-          <IconCard
-            cardTitle="Cohort design"
-            icon="ToolsIcon"
-            footerText=""
-          >
+          <IconCard cardTitle="Cohort design" icon="ToolsIcon" footerText="">
             <div class="card-text">
               <h1 class="text-center" style="color: white">spacer</h1>
               <ul>
@@ -80,11 +71,7 @@
             </div>
           </IconCard>
 
-          <IconCard
-            cardTitle="Longitudinal"
-            icon="ClockIcon"
-            footerText=""
-          >
+          <IconCard cardTitle="Longitudinal" icon="ClockIcon" footerText="">
             <div class="card-text">
               <h1 class="text-center">{{ percentageLongitudinalStudies }}%</h1>
             </div>
@@ -102,7 +89,9 @@
                 <li v-for="(added, index) in recentlyAdded" :key="index">
                   {{ added.date }} - <span v-html="added.html"></span>
                 </li>
-                <li v-if="recentlyAdded.length === 0">No recently added items</li>
+                <li v-if="recentlyAdded.length === 0">
+                  No recently added items
+                </li>
               </ul>
             </div>
           </IconCard>
@@ -151,7 +140,6 @@ import SearchResource from "../components/SearchResource";
 import BannerImage from "../components/display/BannerImage.vue";
 import IconCard from "../components/display/IconCard.vue";
 import homeViewQuery from "../store/query/homeView.gql";
-import newsItemsQuery from "../store/query/newsItems.gql";
 
 import {} from "vue-tabler-icons";
 
@@ -235,17 +223,18 @@ export default {
         {}
       );
 
-      const newsResponse = await request("graphql", newsItemsQuery).catch(
-        (error) => {
-          console.log(error);
-        }
-      );
-
-      const newsItemsSettings = newsResponse._settings.filter(
+      const newsItemsSettings = resp._settings.filter(
         (s) => s.key === "newsItems"
       );
       this.newsItems = newsItemsSettings[0]
         ? JSON.parse(newsItemsSettings[0].value)
+        : [];
+
+      const recentlyAddedSettings = resp._settings.filter(
+        (s) => s.key === "recentlyAdded"
+      );
+      this.recentlyAdded = recentlyAddedSettings[0]
+        ? JSON.parse(recentlyAddedSettings[0].value)
         : [];
     },
   },

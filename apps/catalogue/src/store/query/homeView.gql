@@ -2,6 +2,10 @@ query {
   _schema {
     name
   }
+  _settings(keys: ["newsItems", "recentlyAdded"]) {
+    key
+    value
+  }
   Institutions_agg {
     count
   }
