@@ -5,7 +5,7 @@
     <table class="table table-hover table-bordered bg-white">
       <thead>
       <th style="width: 1px">
-        <IconAction icon="plus" @click="handleCreateRequest" />
+        <IconAction icon="plus" @click="handleCreateRequest"/>
       </th>
       <th>key</th>
       <th>value</th>
@@ -14,8 +14,8 @@
       <tr v-for="setting in settings" :key="setting.key">
         <td>
           <div style="display: flex">
-            <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
-            <IconDanger icon="trash" @click="handleRowDeleteRequest(setting)" />
+            <IconAction icon="edit" @click="handleRowEditRequest(setting)"/>
+            <IconDanger icon="trash" @click="handleRowDeleteRequest(setting)"/>
           </div>
         </td>
         <td>
@@ -59,11 +59,21 @@
 </template>
 
 <script>
-import { request, gql } from "graphql-request";
-import { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction } from "molgenis-components";
+import {request, gql} from "graphql-request";
+import {
+  IconAction,
+  IconDanger,
+  LayoutModal,
+  LayoutForm,
+  InputString,
+  InputText,
+  ButtonAlt,
+  ButtonAction
+} from "molgenis-components";
+
 export default {
   name: "ManageSettings",
-  components: { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction },
+  components: {IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction},
   data() {
     return {
       settings: null,
@@ -84,69 +94,73 @@ export default {
       this.settings = resp._settings.filter(s => s.key !== "isOidcEnabled");
     },
     handleRowEditRequest(setting) {
-      this.modalTitle = `Edit ${setting.key} setting`
-      this.settingActionLabel = "Edit Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-          this.isValueReadOnly = false,
-          this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = `Edit ${setting.key} setting`;
+      this.settingActionLabel = "Edit Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      this.isKeyReadOnly = true;
+      this.isValueReadOnly = false;
+      this.actionFunction = this.createSetting;
+      this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
-      this.modalTitle = `Delete ${setting.key} setting`
-      this.settingActionLabel = "Delete Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-          this.isValueReadOnly = true,
-          this.actionFunction = this.deleteSetting
-      this.showModal = true
+      this.modalTitle = `Delete ${setting.key} setting`;
+      this.settingActionLabel = "Delete Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      this.isKeyReadOnly = true;
+      this.isValueReadOnly = true;
+      this.actionFunction = this.deleteSetting;
+      this.showModal = true;
     },
     handleCreateRequest() {
-      this.modalTitle = "Create new setting"
-      this.settingActionLabel = "Create Setting"
-      this.settingKey = ""
-      this.settingValue = ""
-      this.isKeyReadOnly = false,
-          this.isValueReadOnly = false,
-          this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = "Create new setting";
+      this.settingActionLabel = "Create Setting";
+      this.settingKey = "";
+      this.settingValue = "";
+      this.isKeyReadOnly = false;
+      this.isValueReadOnly = false;
+      this.actionFunction = this.createSetting;
+      this.showModal = true;
     },
     async createSetting() {
       const createMutation = gql`mutation change($settings:[MolgenisSettingsInput]){
         change(settings:$settings){
           message
         }
-       }`
+       }`;
 
-      const variables = { settings: {
-        key: this.settingKey,
-        value: this.settingValue
-      }}
+      const variables = {
+        settings: {
+          key: this.settingKey,
+          value: this.settingValue
+        }
+      };
 
       await request("graphql", createMutation, variables).catch((e) => {
         console.error(e);
       });
       this.fetchSettings();
-      this.showModal = false
+      this.showModal = false;
     },
     async deleteSetting() {
       const deleteMutation = gql`mutation drop($settings:[DropSettingsInput]){
         drop(settings:$settings){
           message
         }
-      }`
+      }`;
 
-      const variables = { settings: {
-        key: this.settingKey,
-      }}
+      const variables = {
+        settings: {
+          key: this.settingKey,
+        }
+      };
 
       await request("graphql", deleteMutation, variables).catch((e) => {
         console.error(e);
       });
       this.fetchSettings();
-      this.showModal = false
+      this.showModal = false;
     }
   },
   mounted() {
