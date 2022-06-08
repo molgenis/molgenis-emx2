@@ -34,7 +34,6 @@ export default {
     return {
       internalValues: deepClone(this.value),
       errorPerColumn: {},
-      data: null,
     };
   },
   props: {
@@ -219,20 +218,6 @@ export default {
     },
   },
   watch: {
-    data(val) {
-      // TODO: prevent loading of parent class if no pkey
-      if (this.pkey && val && val.length > 0) {
-        const data = val[0];
-        let defaultValue = {};
-        this.tableMetaData.columns.forEach((column) => {
-          // primary skip (key=1) key in case of clone
-          if (data[column.id] && (!this.clone || column.key != 1)) {
-            defaultValue[column.id] = data[column.id];
-          }
-        });
-        this.internalValues = defaultValue;
-      }
-    },
     internalValues: {
       handler(newValue) {
         this.validateTable();
@@ -260,73 +245,77 @@ export default {
 <docs>
 <template>
   <DemoItem>
-  
-  <div class="row">
-    <div class="col-6">
-    <label class="border-bottom">In create mode</label>
-      <RowEdit
-        id="row-edit"
-        v-model="rowData"
-        :tableName="tableName"
-        :tableMetaData="tableMetaData"
-        :graphqlURL="graphqlURL"
-      />
-    </div>
-    <div class="col-6 border-left">
-      <label for="create-mode-config" class="border-bottom">Meta data</label>
-      <dl id="create-mode-config">
-      
-      <dt>Table name</dt>
-      {{tableName}}
-      <dd>
-        <select v-model="tableName">
-          <option>Pet</option>
-          <option>Order</option>
-          <option>Category</option>
-          <option>User</option>
-        </select>
-      </dd>
+    <div class="row">
+      <div class="col-6">
+        <label class="border-bottom">In create mode</label>
+        <RowEdit
+          v-if="showRowEdit"
+          id="row-edit"
+          v-model="rowData"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+        />
+      </div>
+      <div class="col-6 border-left">
+        <label for="create-mode-config" class="border-bottom">Meta data</label>
+        <dl id="create-mode-config">
+          <dt>Table name</dt>
+          <dd>
+            <select v-model="tableName">
+              <option>Pet</option>
+              <option>Order</option>
+              <option>Category</option>
+              <option>User</option>
+            </select>
+          </dd>
 
-      <dt>Row data</dt>
-      <dd>{{rowData}}</dd>
-            
-      <dt>MetaData</dt>
-      <dd>{{tableMetaData}}</dd>
-      </dl>
-      
+          <dt>Row data</dt>
+          <dd>{{ rowData }}</dd>
+
+          <dt>MetaData</dt>
+          <dd>{{ tableMetaData }}</dd>
+        </dl>
+      </div>
     </div>
-  </div>
   </DemoItem>
 </template>
 <script>
-
-  export default {
-    data: function () {
-      return {
-        tableName: "Pet",
-        tableMetaData: {
-          columns: []
-        },
-        rowData: {},
-        graphqlURL: "/pet store/graphql"
-      };
-    },
-    watch: {
-      async tableMetaData () {
-        const client = this.$Client.newClient(this.graphqlURL);
-         this.tableMetaData = (await client.fetchMetaData()).tables.find(
-        (table) => table.id === this.tableName
-      );
+export default {
+  data: function () {
+    return {
+      showRowEdit: true,
+      tableName: "Pet",
+      tableMetaData: {
+        columns: [],
+      },
+      rowData: {},
+      graphqlURL: "/pet store/graphql",
+    };
+  },
+  watch: {
+    async tableName(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.rowData = {};
+        await this.reload();
       }
     },
-    methods: {},
-    async mounted () {
+  },
+  methods: {
+    async reload () {
+      // force complete component reload to have a clean demo component and hit all lifecycle events
+      this.showRowEdit = false
       const client = this.$Client.newClient(this.graphqlURL);
       this.tableMetaData = (await client.fetchMetaData()).tables.find(
-        (table) => table.id === this.tableName
+      (table) => table.id === this.tableName
       );
       // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+      this.showRowEdit = true
     }
-  };
+  },
+  async mounted() {
+    this.reload()
+  },
+};
 </script>
 </docs>
