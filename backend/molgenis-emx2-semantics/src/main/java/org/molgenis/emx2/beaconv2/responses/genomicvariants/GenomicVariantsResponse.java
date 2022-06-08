@@ -59,7 +59,13 @@ public class GenomicVariantsResponse {
               "Bad request. Start and end parameters supplied, but both must either be of length 1 (range query) or 2 (bracket query)");
         }
       } else {
-        qt = GenomicQueryType.SEQUENCE;
+        if (qReferenceBases == null || qAlternateBases == null) {
+          throw new Exception(
+              "Bad request. Sequence query missing referenceBases and/or alternateBases parameters");
+
+        } else {
+          qt = GenomicQueryType.SEQUENCE;
+        }
       }
     } else if (qGeneId != null) {
       qt = GenomicQueryType.GENEID;
@@ -93,12 +99,10 @@ public class GenomicVariantsResponse {
           q.where(
               and(
                   f("position_start", EQUALS, qStart),
-                  f("position_refseqId", EQUALS, qReferenceName))
-              // , f("referenceBases", EQUALS, qReferenceBases), f("alternateBases", EQUALS,
-              // qAlternateBases)
-              );
+                  f("position_refseqId", EQUALS, qReferenceName),
+                  f("referenceBases", EQUALS, qReferenceBases)),
+              f("alternateBases", EQUALS, qAlternateBases));
 
-          // todo: must also match ref/alt bases!
           // todo optional parameter: datasetIds
           // todo optional parameter: filters
           break;
