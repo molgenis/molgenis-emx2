@@ -7,6 +7,7 @@
     class="form-control"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
+    :readonly="readonly"
     @keypress="handleKeyValidity"
     @input="emitIfValid"
   />

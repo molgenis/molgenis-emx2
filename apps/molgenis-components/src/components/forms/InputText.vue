@@ -7,6 +7,7 @@
         class="form-control"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
+        :readonly="readonly"
         @input="$emit('input', $event.target.value)"
       />
     </ResizableTextarea>
@@ -49,6 +50,14 @@ export default {
           label="My text label"
           placeholder="type here your text"
           description="This should have default value?"
+      />
+    </demo-item>
+    <demo-item>
+      <InputText
+          id="input-text3"
+          v-model="value2"
+          label="My readonly text"
+          readonly
       />
     </demo-item>
   </div>

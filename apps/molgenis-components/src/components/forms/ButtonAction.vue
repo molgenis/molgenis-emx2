@@ -14,7 +14,7 @@ export default {
   },
   methods: {
     onClick() {
-      if (window && this.href) {
+      if (window && window.open && this.href) {
         window.open(this.href, "_self");
       } else {
         /** emitted on click */

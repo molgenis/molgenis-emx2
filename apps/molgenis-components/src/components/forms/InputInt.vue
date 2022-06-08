@@ -4,6 +4,7 @@
       :id="id"
       :value="value"
       :placeholder="placeholder"
+      :readonly="readonly"
       @input="$emit('input', $event)"
     />
   </FormGroup>
@@ -25,6 +26,7 @@ export default {
 
 <docs>
   <template>
+  <div>
     <demo-item>
       <InputInt
         id="input-int"
@@ -34,12 +36,23 @@ export default {
       />
       You typed: {{ JSON.stringify(value) }}
     </demo-item>
+    <demo-item>
+      <InputInt
+        id="input-int-readonly"
+        v-model="readonlyModel"
+        label="Readonly"
+        readonly
+      />
+      Value: {{ JSON.stringify(readonlyModel) }}
+    </demo-item>
+</div>
   </template>
   <script>
     export default {
       data: function () {
         return {
           value: null,
+          readonlyModel: 32
         };
       },
     };

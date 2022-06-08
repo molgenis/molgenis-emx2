@@ -14,6 +14,7 @@
         class="form-control"
         :aria-describedby="id"
         :placeholder="placeholderValue"
+        :readonly="readonly"
       />
 
       <template v-slot:append>
