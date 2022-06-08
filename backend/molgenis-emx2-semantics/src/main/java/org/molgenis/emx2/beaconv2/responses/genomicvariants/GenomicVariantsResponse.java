@@ -91,6 +91,7 @@ public class GenomicVariantsResponse {
           case "position_start":
           case "position_end":
             q.select(s(c.getName()));
+            // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
         }
       }
 

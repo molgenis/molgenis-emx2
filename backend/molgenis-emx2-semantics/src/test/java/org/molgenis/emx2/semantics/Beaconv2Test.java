@@ -1,5 +1,6 @@
 package org.molgenis.emx2.semantics;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,15 +32,24 @@ public class Beaconv2Test {
   public void testRoot() {}
 
   @Test
-  public void testGenomicVariants() throws Exception {
+  public void testGenomicVariants_SequenceQuery() throws Exception {
+
+    // todo test case insensitive
+    // todo test all valid and some invalid query parameter combinations
 
     Request request = mock(Request.class);
     when(request.queryParams("referenceName")).thenReturn("20");
     when(request.queryParams("start")).thenReturn("2447955");
+    when(request.queryParams("referenceBases")).thenReturn("c");
+    when(request.queryParams("alternateBases")).thenReturn("g");
 
     GenomicVariants gv =
         new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
-    System.out.println("##### " + json);
+    assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+
+
+    //System.out.println("##### " + json);
   }
 }
