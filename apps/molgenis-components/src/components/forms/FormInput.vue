@@ -29,6 +29,7 @@ import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
 import InputRefBack from '../forms/InputRefBack.vue';
 import InputRefSelect from "../forms/InputRefSelect.vue"
+import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   HEADING: InputHeading,
@@ -55,7 +56,7 @@ const typeToInputMap = {
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
   ONTOLOGY_ARRAY: InputOntology,
-  REF_ARRAY: ArrayInput,
+  REF_ARRAY: InputRefList,
 };
 
 export default {
