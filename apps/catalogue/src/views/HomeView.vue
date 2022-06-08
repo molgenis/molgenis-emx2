@@ -45,20 +45,16 @@
             </div>
           </IconCard>
 
-          <!-- <IconCard
-            cardTitle="Samples"
-            icon="TestPipeIcon"
-            footerText=""
-          >
+          <IconCard cardTitle="Samples" icon="TestPipeIcon" footerText="">
             <div class="card-text">
-              <h1 class="text-center">61%</h1>
-              <ul>
+              <h1 class="text-center"> {{ Math.round((biologicalSamplesCounts / dataCategoriesCounts) * 100 )}}%</h1>
+              <!-- <ul>
                 <li>Blood: 54%</li>
                 <li>DNA: 28%</li>
                 <li>Other: 44%</li>
-              </ul>
+              </ul> -->
             </div>
-          </IconCard> -->
+          </IconCard>
 
           <IconCard cardTitle="Cohort design" icon="ToolsIcon" footerText="">
             <div class="card-text">
@@ -159,6 +155,8 @@ export default {
       participantPercentageAboveOneThousand: 0,
       percentageLongitudinalStudies: 0,
       typeCounts: {},
+      dataCategoriesCounts: 0,
+      biologicalSamplesCounts: 0,
       newsItems: [],
       recentlyAdded: [],
       graphqlError: "",
@@ -222,6 +220,30 @@ export default {
         },
         {}
       );
+
+      // total number of selected dataCategories
+      this.dataCategoriesCounts = resp.Cohorts.reduce((total, cohort) => {
+        return (total +=
+          total + cohort.collectionEvents
+            ? cohort.collectionEvents.reduce((perCohort, collectionEvent) => {
+                return (perCohort += collectionEvent.dataCategories
+                  ? collectionEvent.dataCategories.length
+                  : 0);
+              }, total)
+            : 0);
+      }, 0);
+
+      // total number of Biological samples dataCategories
+      this.biologicalSamplesCounts = resp.Cohorts.reduce((total, cohort) => {
+        return (total +=
+          total + cohort.collectionEvents
+            ? cohort.collectionEvents.reduce((perCohort, collectionEvent) => {
+                return (perCohort += collectionEvent.dataCategories
+                  ? collectionEvent.dataCategories.map(dc => dc.name).includes('Biological samples') ? 1 : 0
+                  : 0);
+              }, total)
+            : 0);
+      }, 0);
 
       const newsItemsSettings = resp._settings.filter(
         (s) => s.key === "newsItems"

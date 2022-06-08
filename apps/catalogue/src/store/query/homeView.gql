@@ -26,5 +26,10 @@ query {
     collectionType {
       name
     }
+    collectionEvents {
+      dataCategories {
+        name
+      }
+    }
   }
 }
