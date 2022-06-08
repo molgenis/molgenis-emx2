@@ -100,7 +100,9 @@ public class BeaconApi {
     for (String sn : schemaNames) {
       Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
       Table gv = schema.getTable("GenomicVariations");
-      genomicVariantTables.add(gv);
+      if (gv != null) {
+        genomicVariantTables.add(gv);
+      }
     }
     return getWriter().writeValueAsString(new GenomicVariants(request, genomicVariantTables));
   }
