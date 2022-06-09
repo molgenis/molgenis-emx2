@@ -17,7 +17,7 @@ public class Beaconv2Loader implements AvailableDataModels.DataModelLoader {
 
     // optionally, load demo data
     if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("beaconv2/GenomicVariations", schema, false);
+      MolgenisIO.fromClasspathDirectory("beaconv2/demodata", schema, false);
     }
   }
 
