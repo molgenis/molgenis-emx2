@@ -2,8 +2,10 @@
 
 ## Files needed to run GenDecS:
 * ClinVar: clinvar_20220528.vcf.gz from: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/ 
-* HPO ontology: https://github.com/obophenotype/human-phenotype-ontology/blob/v2022-04-14/hp.owl or from: https://hpo.jax.org/app/download/ontology 
-* Genes_to_phenotype.txt: https://github.com/obophenotype/human-phenotype-ontology/releases/tag/v2022-04-14 or from: https://hpo.jax.org/app/download/annotation 
+* HPO ontology: version used during developing: https://github.com/obophenotype/human-phenotype-ontology/blob/v2022-04-14/hp.owl   
+   or latest version: https://hpo.jax.org/app/download/ontology 
+* Genes_to_phenotype.txt: version used during developing: https://github.com/obophenotype/human-phenotype-ontology/releases/tag/v2022-04-14.   
+   or latest version: https://hpo.jax.org/app/download/annotation 
 
 ## Creation of database
 1. clone emx2 (https://github.com/JonathanKlimp/molgenis-emx2)
