@@ -9,12 +9,15 @@
             :label="flattenObject(item)"
             @click="deselect(key)"
           />
-          <div>
-            <ButtonAlt class="pl-1" icon="fa fa-clear" @click="clearValue">
-              clear selection
-            </ButtonAlt>
-          </div>
         </div>
+        <ButtonAlt
+          v-if="value && value.length"
+          class="pl-1"
+          icon="fa fa-clear"
+          @click="clearValue"
+        >
+          clear selection
+        </ButtonAlt>
       </div>
       <div
         :class="
@@ -53,7 +56,7 @@
         <template v-slot:body>
           <TableSearch
             :selection.sync="selection"
-            @update:selection="$emit('input', $event);"
+            @update:selection="$emit('input', $event)"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
