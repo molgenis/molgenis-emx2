@@ -36,3 +36,8 @@ with the Patient database.
 * Click on a desired patient.
 * Click on the button "go to genomics viewer"
 * Enter an HPO term and perform a search!
+
+## Contact
+
+Jonathan Klimp
+email: j.klimp@st.hanze.nl
