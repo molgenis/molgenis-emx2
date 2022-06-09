@@ -6,7 +6,7 @@
     @click="onClick"
   >
     <slot />
-    <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
+    <i v-if="icon" :class="'fa fa-fw fa-' + icon" ></i>
   </button>
 </template>
 
@@ -18,6 +18,11 @@ export default {
   extends: ButtonAction,
   props: {
     light: { type: Boolean, default: false },
+    icon: {
+      type: String,
+      required: false,
+      default: () => null,
+    },
   },
 };
 </script>
@@ -25,9 +30,18 @@ export default {
 <docs>
 <template>
   <demo-item>
+
     <div>
       <ButtonAlt v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
     </div>
+
+    <div class="mt-3">
+      <label for="alt-icon-btn">with icon</label>
+      <div>
+        <ButtonAlt id="alt-icon-btn" icon="times" v-on:click="alert('cancel clicked')">Cancel</ButtonAlt>
+      </div>
+    </div>
+
   </demo-item>
 </template>
 <script>

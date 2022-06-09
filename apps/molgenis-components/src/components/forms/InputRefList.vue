@@ -13,7 +13,6 @@
         <ButtonAlt
           v-if="value && value.length"
           class="pl-1"
-          icon="fa fa-clear"
           @click="clearValue"
         >
           clear selection
