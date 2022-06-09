@@ -5,9 +5,11 @@
         type="text"
         class="form-control form-control-lg"
         v-model="query"
-        placeholder="Search"
+        :placeholder="placeholder"
       />
-      <button type="submit" class="btn btn-primary btn-lg">Search</button>
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary btn-lg">Search</button>
+      </div>
     </div>
   </form>
 </template>
@@ -18,8 +20,13 @@ export default {
   props: {
     resourceType: {
       type: String, // one of Resource
-      default: () => "institutions",
+      default: () => "Institutions",
     },
+    placeholder: {
+      type: String, 
+      required: false,
+      default: () => "Search"
+    }
   },
   data() {
     return {
@@ -28,13 +35,12 @@ export default {
   },
   methods: {
     onSubmit() {
-      this.$router.push({
-        name: this.resourceType,
-        query: { q: this.query },
-      });
+      const route = { name: this.resourceType }
+      if(this.query) {
+        route.query = { q: this.query }
+      }
+      this.$router.push(route);
     },
   },
 };
 </script>
-
-<style></style>

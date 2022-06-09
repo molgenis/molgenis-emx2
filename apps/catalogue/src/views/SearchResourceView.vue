@@ -19,7 +19,7 @@ export default {
   props: {
     resourceType: {
       type: String, // one of Resource
-      default: () => "institutions",
+      default: () => "Institutions",
     },
   },
 };
