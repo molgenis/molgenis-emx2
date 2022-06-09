@@ -34,6 +34,7 @@ public class BeaconApi {
     get("/api/beacon/entry_types", BeaconApi::getEntryTypes);
     get("/api/beacon/datasets", BeaconApi::getDatasets);
     get("/api/beacon/g_variants", BeaconApi::getGenomicVariants);
+    get("/api/beacon/analyses", BeaconApi::getAnalyses);
 
     /*
     both GET and POST are used to retrieve data, implement both?
@@ -92,19 +93,27 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new Datasets(request, getSchemaNames(request)));
   }
 
+  private static String getAnalyses(Request request, Response response) throws Exception {
+    List<Table> tables = getTableFromAllSchemas("Analyses", request);
+    return getWriter().writeValueAsString(new Analyses(request, tables));
+  }
+
   private static String getGenomicVariants(Request request, Response response) throws Exception {
+    List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
+    return getWriter().writeValueAsString(new GenomicVariants(request, tables));
+  }
 
+  private static List<Table> getTableFromAllSchemas(String tableName, Request request) {
+    List<Table> tables = new ArrayList<>();
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
-    List<Table> genomicVariantTables = new ArrayList<Table>();
-
     for (String sn : schemaNames) {
       Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
-      Table gv = schema.getTable("GenomicVariations");
-      if (gv != null) {
-        genomicVariantTables.add(gv);
+      Table t = schema.getTable(tableName);
+      if (t != null) {
+        tables.add(t);
       }
     }
-    return getWriter().writeValueAsString(new GenomicVariants(request, genomicVariantTables));
+    return tables;
   }
 
   private static String postDatasets(Request request, Response response)
