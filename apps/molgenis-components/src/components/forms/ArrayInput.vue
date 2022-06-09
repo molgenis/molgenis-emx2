@@ -1,9 +1,15 @@
 <template>
-   <FormGroup :id="id + '-0'" :label="label" :description="description">
+  <FormGroup
+    :id="id + '-0'"
+    :label="label"
+    :required="required"
+    description="description"
+    :errorMessage="errorMessage"
+  >
     <div v-for="(value, index) in values" :key="index">
       <component
         :is="inputType"
-        :id="id + '-'+ index"
+        :id="id + '-' + index"
         v-model="values[index]"
         :showAddButton="index === values.length"
       >
@@ -26,7 +32,7 @@
         </template>
       </component>
     </div>
-   </FormGroup >
+  </FormGroup>
 </template>
 
 <script>

@@ -1,10 +1,17 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <ResizableTextarea>
       <textarea
         :id="id"
         :value="value"
         class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
         :aria-describedby="id + 'Help'"
         :placeholder="placeholder"
         :readonly="readonly"

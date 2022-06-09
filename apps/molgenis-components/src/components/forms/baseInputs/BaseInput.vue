@@ -50,8 +50,13 @@ export default {
     },
     readonly: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    errorMessage: {
+      type: String,
+      required: false,
+      default: () => null,
+    },
   },
   computed: {
     placeholderValue() {

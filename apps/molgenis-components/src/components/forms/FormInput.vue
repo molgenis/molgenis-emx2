@@ -3,6 +3,7 @@
     <component
       v-if="typeToInput"
       :is="typeToInput"
+      :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -28,6 +29,7 @@ import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
 import InputRefBack from '../forms/InputRefBack.vue';
 import InputRefSelect from "../forms/InputRefSelect.vue"
+import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   HEADING: InputHeading,
@@ -53,8 +55,8 @@ const typeToInputMap = {
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
-  ONTOLOGY_ARRAY: ArrayInput,
-  REF_ARRAY: ArrayInput,
+  ONTOLOGY_ARRAY: InputOntology,
+  REF_ARRAY: InputRefList,
 };
 
 export default {
