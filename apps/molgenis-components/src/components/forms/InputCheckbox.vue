@@ -2,6 +2,7 @@
   <FormGroup
     :id="id"
     :label="label"
+    :required="required"
     :description="description"
     class="checkbox-form-group"
   >

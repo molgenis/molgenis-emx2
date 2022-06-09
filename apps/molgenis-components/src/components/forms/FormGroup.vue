@@ -3,6 +3,7 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
+    <span v-if="required" class="float-right">(required)</span>
     <slot></slot>
     <small
       v-if="hasDescription(description)"
@@ -33,6 +34,11 @@ export default {
       type: String,
       required: false,
     },
+    required: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
     errorMessage: {
       type: String,
       required: false,
@@ -47,3 +53,32 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <demo-item>
+    <div>
+      <label for="my-id">default form group</label>
+      <FormGroup id="my-id"
+        label="my label"
+        description="my description">
+        <InputGroup>
+          <InputString id="my-id"></InputString>
+        </InputGroup>
+        </FormGroup>
+    </div>
+
+    <div class="mt-5">
+      <label for="my-id">required field form group</label>
+      <FormGroup id="my-id"
+        label="my label"
+        required
+        description="my description">
+        <InputGroup>
+          <InputString id="my-id"></InputString>
+        </InputGroup>
+        </FormGroup>
+    </div>
+  </demo-item>
+</template>
+</docs>
