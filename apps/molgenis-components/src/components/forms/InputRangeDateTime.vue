@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <div class="d-flex">
       <InputDateTime

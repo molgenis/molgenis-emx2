@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <div class="input-group">
       <input
@@ -15,6 +16,7 @@
       />
       <input
         class="form-control active"
+        :class="{ 'is-invalid': errorMessage }"
         :placeholder="filename"
         @click="$refs.file.click()"
         @keydown.prevent

@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <div>
       <div>
@@ -35,6 +36,7 @@
             :checked="isSelected(row)"
             @change="$emit('input', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}

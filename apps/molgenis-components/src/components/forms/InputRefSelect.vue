@@ -4,10 +4,12 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <input
         class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
         :value="refLabel ? applyJsTemplate(value) : flattenObject(value)"

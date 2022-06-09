@@ -5,6 +5,7 @@
     :required="required"
     :description="description"
     class="checkbox-form-group"
+    :errorMessage="errorMessage"
   >
     <div
       v-for="(option, index) in options"

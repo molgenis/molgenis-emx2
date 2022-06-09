@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <template v-slot:prepend>
@@ -17,6 +18,7 @@
         @input="$emit('input', $event.target.value)"
         type="text"
         class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
         :aria-describedby="id"
         :placeholder="placeholderValue"
         :readonly="readonly"

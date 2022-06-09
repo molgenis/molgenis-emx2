@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <MessageError v-if="error">{{ error }}</MessageError>
     <div

@@ -4,12 +4,13 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
+    :errorMessage="errorMessage || bigIntError"
   >
     <input
       :id="id"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      class="form-control"
+      :class="{ 'is-invalid': errorMessage || bigIntError }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       :readonly="readonly"
@@ -40,7 +41,7 @@ export default {
     },
   },
   computed: {
-    errorMessage() {
+    bigIntError() {
       return getBigIntError(this.value);
     },
   },

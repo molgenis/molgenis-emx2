@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
+    :errorMessage="errorMessage"
   >
     <div>
       <div>
@@ -42,6 +43,7 @@
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}

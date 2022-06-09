@@ -4,6 +4,7 @@
     :label="label"
     :required="required"
     description="description"
+    :errorMessage="errorMessage"
   >
     <div v-for="(value, index) in values" :key="index">
       <component
