@@ -6,7 +6,7 @@
     @click="onClick"
   >
     <slot />
-    <i v-if="icon" :class="'fa fa-fw fa-' + icon" ></i>
+    <i v-if="icon" :class="'fa fa-fw fa-' + icon"></i>
   </button>
 </template>
 
