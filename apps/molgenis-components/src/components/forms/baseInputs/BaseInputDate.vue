@@ -5,6 +5,7 @@
     readonly
     v-model="value"
     class="form-control"
+    :class="{ 'is-invalid': errorMessage }"
   />
   <FlatPickr
     v-else

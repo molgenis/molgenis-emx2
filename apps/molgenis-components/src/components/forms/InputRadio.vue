@@ -2,8 +2,10 @@
   <FormGroup
     :id="id"
     :label="label"
+    :required="required"
     :description="description"
     class="radio-form-group"
+    :errorMessage="errorMessage"
   >
     <div
       class="input-group"
@@ -17,6 +19,7 @@
       >
         <input
           class="form-check-input"
+          :class="{ 'is-invalid': errorMessage }"
           type="radio"
           :id="id + idx"
           :aria-describedby="id + 'Help'"

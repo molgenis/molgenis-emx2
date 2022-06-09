@@ -1,10 +1,17 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <BaseIntInput
       :id="id"
       :value="value"
       :placeholder="placeholder"
       :readonly="readonly"
+      :class="{ 'is-invalid': errorMessage }"
       @input="$emit('input', $event)"
     />
   </FormGroup>
