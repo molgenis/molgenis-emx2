@@ -29,6 +29,18 @@ public class Beaconv2_GenomicVariationTest {
   }
 
   @Test
+  public void testGenomicVariants_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    GenomicVariants gv =
+        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(gv);
+    // check correct empty resultset structure
+    assertTrue(
+        json.contains("\"response\" : {\n" + "    \"resultSets\" : [\n" + "      { }\n" + "    ]"));
+    assertEquals(742, json.length());
+  }
+
+  @Test
   public void testGenomicVariants_SequenceQuery() throws Exception {
 
     // todo test case insensitive

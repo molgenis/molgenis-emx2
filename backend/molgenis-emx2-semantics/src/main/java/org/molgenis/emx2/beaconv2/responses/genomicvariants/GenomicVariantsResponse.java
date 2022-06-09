@@ -62,7 +62,6 @@ public class GenomicVariantsResponse {
         if (qReferenceBases == null || qAlternateBases == null) {
           throw new Exception(
               "Bad request. Sequence query missing referenceBases and/or alternateBases parameters");
-
         } else {
           qt = GenomicQueryType.SEQUENCE;
         }
@@ -70,7 +69,25 @@ public class GenomicVariantsResponse {
     } else if (qGeneId != null) {
       qt = GenomicQueryType.GENEID;
     } else {
-      throw new Exception("Bad request. Must at least supply: referenceName and start, or geneId");
+      if (qReferenceName == null
+          && qStart == null
+          && qEnd == null
+          && qGeneId == null
+          && qReferenceBases == null
+          && qAlternateBases == null
+          && qGeneId == null) {
+        qt = GenomicQueryType.NO_REQUEST_PARAMS;
+      } else {
+        throw new Exception(
+            "Bad request. Must at least supply: referenceName and start, or geneId");
+      }
+    }
+
+    if (qt == GenomicQueryType.NO_REQUEST_PARAMS) {
+      // return an empty resultSets object in g_variants response
+      rList.add(new GenomicVariantsResultSets());
+      this.resultSets = rList.toArray(new GenomicVariantsResultSets[rList.size()]);
+      return;
     }
 
     // each schema has 0 or 1 'GenomicVariations' table

@@ -23,4 +23,8 @@ public class GenomicVariantsResultSets {
     this.resultsCount = results.length;
     this.results = results;
   }
+
+  public GenomicVariantsResultSets() {
+    super();
+  }
 }
