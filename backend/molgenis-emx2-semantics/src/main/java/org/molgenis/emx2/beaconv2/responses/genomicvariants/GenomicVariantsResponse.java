@@ -7,6 +7,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 import org.molgenis.emx2.Column;
@@ -25,6 +26,8 @@ import spark.Request;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResponse {
 
+  // annotation to print empty array as "[ ]" as required per Beacon spec
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   GenomicVariantsResultSets[] resultSets;
 
   // query parameters, ignore from output
@@ -84,9 +87,8 @@ public class GenomicVariantsResponse {
     }
 
     if (qt == GenomicQueryType.NO_REQUEST_PARAMS) {
-      // return an empty resultSets object in g_variants response
-      rList.add(new GenomicVariantsResultSets());
-      this.resultSets = rList.toArray(new GenomicVariantsResultSets[rList.size()]);
+      // must return an empty resultSets object
+      this.resultSets = rList.toArray(new GenomicVariantsResultSets[0]);
       return;
     }
 

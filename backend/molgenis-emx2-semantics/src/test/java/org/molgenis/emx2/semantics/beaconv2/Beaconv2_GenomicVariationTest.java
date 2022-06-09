@@ -34,10 +34,10 @@ public class Beaconv2_GenomicVariationTest {
     GenomicVariants gv =
         new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
-    // check correct empty resultset structure
-    assertTrue(
-        json.contains("\"response\" : {\n" + "    \"resultSets\" : [\n" + "      { }\n" + "    ]"));
-    assertEquals(742, json.length());
+
+    // check correct empty resultset structure (must be exactly this!)
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]\n" + "  }"));
+    assertEquals(728, json.length());
   }
 
   @Test
