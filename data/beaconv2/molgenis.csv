@@ -19,3 +19,13 @@ Analyses,,pipelineName,string,,,,,,,,http://edamontology.org/data_2531,E.g. Pipe
 Analyses,,pipelineRef,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17564,E.g. https://doi.org/10.48511/workflowhub.workflow.111.1
 Analyses,,runId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
 Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g. GATK4.0
+Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
+Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
+Biosamples,,biosampleStatus_id,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. EFO:0009655
+Biosamples,,biosampleStatus_label,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
+Biosamples,,sampleOriginType_id,string,,,,,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. UBERON:0000992
+Biosamples,,sampleOriginType_label,string,,,,,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. ovary
+Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
+Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
+Biosamples,,obtentionProcedure_procedureCode_id,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. OBI:0002654
+Biosamples,,obtentionProcedure_procedureCode_label,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy

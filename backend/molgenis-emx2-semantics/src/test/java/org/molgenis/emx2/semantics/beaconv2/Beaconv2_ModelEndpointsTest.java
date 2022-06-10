@@ -9,13 +9,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.beaconv2.responses.Analyses;
+import org.molgenis.emx2.beaconv2.responses.Biosamples;
 import org.molgenis.emx2.beaconv2.responses.GenomicVariants;
 import org.molgenis.emx2.datamodels.Beaconv2Loader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
 
-public class Beaconv2_GenomicVariationTest {
+public class Beaconv2_ModelEndpointsTest {
 
   static Database database;
   static Schema beaconSchema;
@@ -103,5 +105,51 @@ public class Beaconv2_GenomicVariationTest {
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertEquals(1394, json.length());
+  }
+
+  @Test
+  public void testAnalyses_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    Analyses a = new Analyses(request, Arrays.asList(beaconSchema.getTable("Analyses")));
+    String json = JsonUtil.getWriter().writeValueAsString(a);
+    assertTrue(json.contains("\"resultsCount\" : 4,"));
+    assertEquals(2604, json.length());
+  }
+
+  @Test
+  public void testAnalyses_IdQuery() throws Exception {
+
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("A03");
+    Analyses a = new Analyses(request, Arrays.asList(beaconSchema.getTable("Analyses")));
+    String json = JsonUtil.getWriter().writeValueAsString(a);
+    assertTrue(json.contains("\"id\" : \"A03\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+    assertEquals(1341, json.length());
+  }
+
+  @Test
+  public void testBiosamples_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    Biosamples b = new Biosamples(request, Arrays.asList(beaconSchema.getTable("Biosamples")));
+    String json = JsonUtil.getWriter().writeValueAsString(b);
+    assertTrue(json.contains("\"resultsCount\" : 2,"));
+    assertTrue(
+        json.contains(
+            "\"obtentionProcedure\" : {\n"
+                + "              \"procedureCode\" : {\n"
+                + "                \"id\" : \"OBI:0002654\","));
+    assertEquals(2020, json.length());
+  }
+
+  @Test
+  public void testBiosamples_IdQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("sample-example-0002");
+    Biosamples b = new Biosamples(request, Arrays.asList(beaconSchema.getTable("Biosamples")));
+    String json = JsonUtil.getWriter().writeValueAsString(b);
+    assertTrue(json.contains("\"id\" : \"sample-example-0002\","));
+    assertTrue(json.contains("\"resultsCount\" : 1,"));
+    assertEquals(1473, json.length());
   }
 }

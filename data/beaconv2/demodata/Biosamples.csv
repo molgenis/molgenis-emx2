@@ -1,0 +1,3 @@
+id,biosampleStatus_id,biosampleStatus_label,sampleOriginType_id,sampleOriginType_label,collectionMoment,collectionDate,obtentionProcedure_procedureCode_id,obtentionProcedure_procedureCode_label
+sample-example-0001,EFO:0009655,abnormal sample,UBERON:0000992,ovary,P32Y6M1D,2020-09-11,OBI:0002654,needle biopsy
+sample-example-0002,EFO:0009654,reference sample,UBERON:0001723,tongue,P31Y5M2D,2021-04-12,OBI:0002657,surgical biopsy
