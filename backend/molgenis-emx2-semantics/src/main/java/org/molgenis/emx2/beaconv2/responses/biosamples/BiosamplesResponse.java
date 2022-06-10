@@ -13,6 +13,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.common.Ontology;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -55,10 +56,10 @@ public class BiosamplesResponse {
       for (Row r : q.retrieveRows()) {
         BiosamplesResultSetsItem a = new BiosamplesResultSetsItem();
         a.id = r.getString("id");
-        a.biosampleStatus_id = r.getString("biosampleStatus_id");
-        a.biosampleStatus_label = r.getString("biosampleStatus_label");
-        a.sampleOriginType_id = r.getString("sampleOriginType_id");
-        a.sampleOriginType_label = r.getString("sampleOriginType_label");
+        a.biosampleStatus =
+            new Ontology(r.getString("biosampleStatus_id"), r.getString("biosampleStatus_label"));
+        a.sampleOriginType =
+            new Ontology(r.getString("sampleOriginType_id"), r.getString("sampleOriginType_label"));
         a.collectionMoment = r.getString("collectionMoment");
         a.collectionDate = r.getString("collectionDate");
         a.obtentionProcedure =
