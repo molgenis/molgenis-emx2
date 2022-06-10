@@ -15838,6 +15838,11 @@ vue-swatches@2.1.1:
   resolved "https://registry.yarnpkg.com/vue-swatches/-/vue-swatches-2.1.1.tgz#26c467fb7648ff4ee0887aea36d1e03b15032b83"
   integrity sha512-YugkNbByxMz1dnx1nZyHSL3VSf/TnBH3/NQD+t8JKxPSqUmX87sVGBxjEaqH5IMraOLfVmU0pHCHl2BfXNypQg==
 
+vue-tabler-icons@1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-1.13.0.tgz#ff8a67975e891d4ae677c43a4d63fc64d01b770f"
+  integrity sha512-e4pYD4XqWvuOvvGGiR3kPCLMggEr780jdgnhGF8QNaK52pQgtS2GW/iXYzKV+bka+Yy2+SmCgyp3xduWW64/Kg==
+
 vue-template-compiler@2.6.14, vue-template-compiler@^2.6.11, vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.6.14.tgz#a2f0e7d985670d42c9c9ee0d044fed7690f4f763"
