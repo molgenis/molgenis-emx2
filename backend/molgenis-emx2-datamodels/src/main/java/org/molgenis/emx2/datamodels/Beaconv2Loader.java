@@ -15,6 +15,9 @@ public class Beaconv2Loader implements AvailableDataModels.DataModelLoader {
     // create catalogue schema (which will create tables in ontology schema)
     createSchema(schema, "beaconv2/molgenis.csv");
 
+    // load ontologies
+    MolgenisIO.fromClasspathDirectory("beaconv2/ontologies", schema, false);
+
     // optionally, load demo data
     if (includeDemoData) {
       MolgenisIO.fromClasspathDirectory("beaconv2/demodata", schema, false);
