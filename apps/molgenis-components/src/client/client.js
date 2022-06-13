@@ -161,6 +161,20 @@ const cloneMetaData = (metaData) => {
     : JSON.parse(JSON.stringify(metaData));
 };
 
+const saveRowData = (rowData, tableName, graphqlURL) => {
+  const formData = new FormData();
+  // todo handle files
+  const variables = JSON.stringify({ value: [rowData] });
+  formData.append("variables", variables);
+  formData.append(
+    "query",
+    `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`
+  );
+
+  // todo handle error
+  return axios.post(graphqlURL, formData);
+};
+
 export { request };
 
 export default {
@@ -169,6 +183,7 @@ export default {
     // use closure to have metaData cache private to client
     let metaData = null;
     return {
+      saveRowData,
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;
