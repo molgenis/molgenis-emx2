@@ -30,12 +30,12 @@ export function flattenObject(object) {
   }
 }
 
-export function getPrimaryKey(row, tableMetadata) {
+export function getPrimaryKey(row, tableMetaData) {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetadata) {
+  if (!row["mg_insertedOn"] || !tableMetaData) {
     return null;
   } else {
-    return tableMetadata.columns?.reduce((accum, column) => {
+    return tableMetaData.columns?.reduce((accum, column) => {
       if (column.key === 1 && row[column.id]) {
         accum[column.id] = row[column.id];
       }
