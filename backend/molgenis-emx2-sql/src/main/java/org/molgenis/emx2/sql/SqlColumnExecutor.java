@@ -292,10 +292,10 @@ public class SqlColumnExecutor {
                       .setType(REF)
                       .setRefTable(column.getRefTableName())
                       .setDescription("Parent in case this code exists in a hierarchy"),
-                  column("ontologyTermIRI")
+                  column("iri")
                       .setKey(3)
                       .setRequired(true)
-                      .setDescription("reference to external definition for this term"),
+                      .setDescription("Reference to structured definition of this term"),
                   column("definition").setType(TEXT).setDescription("Definition of the term"),
                   column("children")
                       .setType(REFBACK)
