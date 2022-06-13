@@ -132,11 +132,18 @@ export default {
       <button 
         class="btn btn-primary" 
         @click="isModalShown = !isModalShown">
-          Show edit modal
+          Show edit {{tableName}}
       </button>
+       <select class="ml-5" v-model="tableName">
+          <option>Pet</option>
+          <option>Order</option>
+          <option>Category</option>
+          <option>User</option>
+        </select>
       <EditModal 
+        :key="tableName"
         id="edit-modal" 
-        tableName="Pet" 
+        :tableName="tableName" 
         :isModalShown="isModalShown" 
         :graphqlURL="graphqlURL"
         @close="isModalShown = false"
@@ -147,7 +154,7 @@ export default {
   export default {
     data: function () {
       return {
-        value: null,
+        tableName: "Pet",
         isModalShown: false,
         graphqlURL: "/pet store/graphql"
       };
