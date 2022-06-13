@@ -14,6 +14,7 @@ plugins {
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
     id 'com.palantir.docker' version '0.33.0'
+    id "org.graalvm.plugin.compiler" version "0.1.0-alpha2"
 }
 
 
@@ -48,6 +49,10 @@ repositories {
 
 dependencies {
     implementation project(':backend:molgenis-emx2-run')
+    implementation "org.graalvm.sdk:graal-sdk:22.1.0"
+    implementation "org.graalvm.js:js:22.1.0"
+    // necessary to integrate with legacy ScriptEngine based implementation
+    implementation "org.graalvm.js:js-scriptengine:22.1.0"
 }
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
@@ -150,7 +155,7 @@ String getGitHash() {
     def command = Runtime.getRuntime().exec("git rev-parse --short HEAD")
     def result = command.waitFor()
     if (result != 0) {
-        throw new IOException("Command 'getGitHash()' exited with " + result)
+//        throw new IOException("Command 'getGitHash()' exited with " + result)
     }
 
     String gitCommitHash = command.inputStream.text.trim()

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.graalvm.polyglot.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
@@ -47,8 +48,17 @@ public class MolgenisWebservice {
     staticFiles.location("/public_html");
 
     /*
-     * WARNING !! SPARK JAVA USES DESIGN WHERE THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
+     * WARNING !! THE ORDER OF REQUEST DEFINITION DETERMINES THE HANDLER
      */
+
+    get(
+        "/poly",
+        (request, response) -> {
+          response.type("text/plain;charset=UTF-8");
+          Context polyglot = Context.create();
+          Value res = polyglot.eval("python", "40 + 2");
+          return String.valueOf(res);
+        });
 
     get(
         ("/" + OIDC_CALLBACK_PATH),
