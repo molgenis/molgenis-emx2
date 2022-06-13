@@ -11,6 +11,7 @@
       :value="value"
       :placeholder="placeholder"
       :readonly="readonly"
+      :required="required"
       :class="{ 'is-invalid': errorMessage }"
       @input="$emit('input', $event)"
     />

@@ -6,6 +6,7 @@
     v-model="value"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
+    :required="required"
   />
   <FlatPickr
     v-else
