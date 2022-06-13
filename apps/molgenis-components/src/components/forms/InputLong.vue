@@ -14,6 +14,7 @@
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       :readonly="readonly"
+      :required="required"
       @keypress="handleKeyValidity($event)"
       @input="inputHandler($event)"
     />

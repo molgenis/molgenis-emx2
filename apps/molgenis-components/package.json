@@ -30,7 +30,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "2.3.3",
     "cross-env": "7.0.3",
-    "vite": "2.9.10",
+    "vite": "2.9.11",
     "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0"
   }
