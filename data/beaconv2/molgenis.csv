@@ -29,3 +29,14 @@ Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_0
 Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
 Biosamples,,obtentionProcedure_procedureCode_id,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. OBI:0002654
 Biosamples,,obtentionProcedure_procedureCode_label,string,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
+Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
+Cohorts,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001
+Cohorts,,name,string,,,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
+Cohorts,,cohortType,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined"
+Cohorts,,cohortDesign,ontology_array,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design
+Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000
+Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y
+Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y
+Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Catalonia Autonomous Community
+Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth"
+Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. clinical history, genotyping assay, survey data"
