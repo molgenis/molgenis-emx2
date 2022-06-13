@@ -1,0 +1,250 @@
+name,definition,codesystem,code,iri
+"Afghanistan","Afghanistan",ISO3166,AF,https://www.iso.org/obp/ui/#iso:code:3166:AF
+"Albania","Albania",ISO3166,AL,https://www.iso.org/obp/ui/#iso:code:3166:AL
+"Algeria","Algeria",ISO3166,DZ,https://www.iso.org/obp/ui/#iso:code:3166:DZ
+"American Samoa","American Samoa",ISO3166,AS,https://www.iso.org/obp/ui/#iso:code:3166:AS
+"Andorra","Andorra",ISO3166,AD,https://www.iso.org/obp/ui/#iso:code:3166:AD
+"Angola","Angola",ISO3166,AO,https://www.iso.org/obp/ui/#iso:code:3166:AO
+"Anguilla","Anguilla",ISO3166,AI,https://www.iso.org/obp/ui/#iso:code:3166:AI
+"Antarctica","Antarctica",ISO3166,AQ,https://www.iso.org/obp/ui/#iso:code:3166:AQ
+"Antigua and Barbuda","Antigua and Barbuda",ISO3166,AG,https://www.iso.org/obp/ui/#iso:code:3166:AG
+"Argentina","Argentina",ISO3166,AR,https://www.iso.org/obp/ui/#iso:code:3166:AR
+"Armenia","Armenia",ISO3166,AM,https://www.iso.org/obp/ui/#iso:code:3166:AM
+"Aruba","Aruba",ISO3166,AW,https://www.iso.org/obp/ui/#iso:code:3166:AW
+"Australia","Australia",ISO3166,AU,https://www.iso.org/obp/ui/#iso:code:3166:AU
+"Austria","Austria",ISO3166,AT,https://www.iso.org/obp/ui/#iso:code:3166:AT
+"Azerbaijan","Azerbaijan",ISO3166,AZ,https://www.iso.org/obp/ui/#iso:code:3166:AZ
+"Bahamas (the)","Bahamas (the)",ISO3166,BS,https://www.iso.org/obp/ui/#iso:code:3166:BS
+"Bahrain","Bahrain",ISO3166,BH,https://www.iso.org/obp/ui/#iso:code:3166:BH
+"Bangladesh","Bangladesh",ISO3166,BD,https://www.iso.org/obp/ui/#iso:code:3166:BD
+"Barbados","Barbados",ISO3166,BB,https://www.iso.org/obp/ui/#iso:code:3166:BB
+"Belarus","Belarus",ISO3166,BY,https://www.iso.org/obp/ui/#iso:code:3166:BY
+"Belgium","Belgium",ISO3166,BE,https://www.iso.org/obp/ui/#iso:code:3166:BE
+"Belize","Belize",ISO3166,BZ,https://www.iso.org/obp/ui/#iso:code:3166:BZ
+"Benin","Benin",ISO3166,BJ,https://www.iso.org/obp/ui/#iso:code:3166:BJ
+"Bermuda","Bermuda",ISO3166,BM,https://www.iso.org/obp/ui/#iso:code:3166:BM
+"Bhutan","Bhutan",ISO3166,BT,https://www.iso.org/obp/ui/#iso:code:3166:BT
+"Bolivia (Plurinational State of)","Bolivia (Plurinational State of)",ISO3166,BO,https://www.iso.org/obp/ui/#iso:code:3166:BO
+"Bonaire, Sint Eustatius and Saba","Bonaire, Sint Eustatius and Saba",ISO3166,BQ,https://www.iso.org/obp/ui/#iso:code:3166:BQ
+"Bosnia and Herzegovina","Bosnia and Herzegovina",ISO3166,BA,https://www.iso.org/obp/ui/#iso:code:3166:BA
+"Botswana","Botswana",ISO3166,BW,https://www.iso.org/obp/ui/#iso:code:3166:BW
+"Bouvet Island","Bouvet Island",ISO3166,BV,https://www.iso.org/obp/ui/#iso:code:3166:BV
+"Brazil","Brazil",ISO3166,BR,https://www.iso.org/obp/ui/#iso:code:3166:BR
+"British Indian Ocean Territory (the)","British Indian Ocean Territory (the)",ISO3166,IO,https://www.iso.org/obp/ui/#iso:code:3166:IO
+"Brunei Darussalam","Brunei Darussalam",ISO3166,BN,https://www.iso.org/obp/ui/#iso:code:3166:BN
+"Bulgaria","Bulgaria",ISO3166,BG,https://www.iso.org/obp/ui/#iso:code:3166:BG
+"Burkina Faso","Burkina Faso",ISO3166,BF,https://www.iso.org/obp/ui/#iso:code:3166:BF
+"Burundi","Burundi",ISO3166,BI,https://www.iso.org/obp/ui/#iso:code:3166:BI
+"Cabo Verde","Cabo Verde",ISO3166,CV,https://www.iso.org/obp/ui/#iso:code:3166:CV
+"Cambodia","Cambodia",ISO3166,KH,https://www.iso.org/obp/ui/#iso:code:3166:KH
+"Cameroon","Cameroon",ISO3166,CM,https://www.iso.org/obp/ui/#iso:code:3166:CM
+"Canada","Canada",ISO3166,CA,https://www.iso.org/obp/ui/#iso:code:3166:CA
+"Cayman Islands (the)","Cayman Islands (the)",ISO3166,KY,https://www.iso.org/obp/ui/#iso:code:3166:KY
+"Central African Republic (the)","Central African Republic (the)",ISO3166,CF,https://www.iso.org/obp/ui/#iso:code:3166:CF
+"Chad","Chad",ISO3166,TD,https://www.iso.org/obp/ui/#iso:code:3166:TD
+"Chile","Chile",ISO3166,CL,https://www.iso.org/obp/ui/#iso:code:3166:CL
+"China","China",ISO3166,CN,https://www.iso.org/obp/ui/#iso:code:3166:CN
+"Christmas Island","Christmas Island",ISO3166,CX,https://www.iso.org/obp/ui/#iso:code:3166:CX
+"Cocos (Keeling) Islands (the)","Cocos (Keeling) Islands (the)",ISO3166,CC,https://www.iso.org/obp/ui/#iso:code:3166:CC
+"Colombia","Colombia",ISO3166,CO,https://www.iso.org/obp/ui/#iso:code:3166:CO
+"Comoros (the)","Comoros (the)",ISO3166,KM,https://www.iso.org/obp/ui/#iso:code:3166:KM
+"Congo (the Democratic Republic of the)","Congo (the Democratic Republic of the)",ISO3166,CD,https://www.iso.org/obp/ui/#iso:code:3166:CD
+"Congo (the)","Congo (the)",ISO3166,CG,https://www.iso.org/obp/ui/#iso:code:3166:CG
+"Cook Islands (the)","Cook Islands (the)",ISO3166,CK,https://www.iso.org/obp/ui/#iso:code:3166:CK
+"Costa Rica","Costa Rica",ISO3166,CR,https://www.iso.org/obp/ui/#iso:code:3166:CR
+"Croatia","Croatia",ISO3166,HR,https://www.iso.org/obp/ui/#iso:code:3166:HR
+"Cuba","Cuba",ISO3166,CU,https://www.iso.org/obp/ui/#iso:code:3166:CU
+"Curaçao","Curaçao",ISO3166,CW,https://www.iso.org/obp/ui/#iso:code:3166:CW
+"Cyprus","Cyprus",ISO3166,CY,https://www.iso.org/obp/ui/#iso:code:3166:CY
+"Czechia","Czechia",ISO3166,CZ,https://www.iso.org/obp/ui/#iso:code:3166:CZ
+"Côte d'Ivoire","Côte d'Ivoire",ISO3166,CI,https://www.iso.org/obp/ui/#iso:code:3166:CI
+"Denmark","Denmark",ISO3166,DK,https://www.iso.org/obp/ui/#iso:code:3166:DK
+"Djibouti","Djibouti",ISO3166,DJ,https://www.iso.org/obp/ui/#iso:code:3166:DJ
+"Dominica","Dominica",ISO3166,DM,https://www.iso.org/obp/ui/#iso:code:3166:DM
+"Dominican Republic (the)","Dominican Republic (the)",ISO3166,DO,https://www.iso.org/obp/ui/#iso:code:3166:DO
+"Ecuador","Ecuador",ISO3166,EC,https://www.iso.org/obp/ui/#iso:code:3166:EC
+"Egypt","Egypt",ISO3166,EG,https://www.iso.org/obp/ui/#iso:code:3166:EG
+"El Salvador","El Salvador",ISO3166,SV,https://www.iso.org/obp/ui/#iso:code:3166:SV
+"Equatorial Guinea","Equatorial Guinea",ISO3166,GQ,https://www.iso.org/obp/ui/#iso:code:3166:GQ
+"Eritrea","Eritrea",ISO3166,ER,https://www.iso.org/obp/ui/#iso:code:3166:ER
+"Estonia","Estonia",ISO3166,EE,https://www.iso.org/obp/ui/#iso:code:3166:EE
+"Eswatini","Eswatini",ISO3166,SZ,https://www.iso.org/obp/ui/#iso:code:3166:SZ
+"Ethiopia","Ethiopia",ISO3166,ET,https://www.iso.org/obp/ui/#iso:code:3166:ET
+"Falkland Islands (the) [Malvinas]","Falkland Islands (the) [Malvinas]",ISO3166,FK,https://www.iso.org/obp/ui/#iso:code:3166:FK
+"Faroe Islands (the)","Faroe Islands (the)",ISO3166,FO,https://www.iso.org/obp/ui/#iso:code:3166:FO
+"Fiji","Fiji",ISO3166,FJ,https://www.iso.org/obp/ui/#iso:code:3166:FJ
+"Finland","Finland",ISO3166,FI,https://www.iso.org/obp/ui/#iso:code:3166:FI
+"France","France",ISO3166,FR,https://www.iso.org/obp/ui/#iso:code:3166:FR
+"French Guiana","French Guiana",ISO3166,GF,https://www.iso.org/obp/ui/#iso:code:3166:GF
+"French Polynesia","French Polynesia",ISO3166,PF,https://www.iso.org/obp/ui/#iso:code:3166:PF
+"French Southern Territories (the)","French Southern Territories (the)",ISO3166,TF,https://www.iso.org/obp/ui/#iso:code:3166:TF
+"Gabon","Gabon",ISO3166,GA,https://www.iso.org/obp/ui/#iso:code:3166:GA
+"Gambia (the)","Gambia (the)",ISO3166,GM,https://www.iso.org/obp/ui/#iso:code:3166:GM
+"Georgia","Georgia",ISO3166,GE,https://www.iso.org/obp/ui/#iso:code:3166:GE
+"Germany","Germany",ISO3166,DE,https://www.iso.org/obp/ui/#iso:code:3166:DE
+"Ghana","Ghana",ISO3166,GH,https://www.iso.org/obp/ui/#iso:code:3166:GH
+"Gibraltar","Gibraltar",ISO3166,GI,https://www.iso.org/obp/ui/#iso:code:3166:GI
+"Greece","Greece",ISO3166,GR,https://www.iso.org/obp/ui/#iso:code:3166:GR
+"Greenland","Greenland",ISO3166,GL,https://www.iso.org/obp/ui/#iso:code:3166:GL
+"Grenada","Grenada",ISO3166,GD,https://www.iso.org/obp/ui/#iso:code:3166:GD
+"Guadeloupe","Guadeloupe",ISO3166,GP,https://www.iso.org/obp/ui/#iso:code:3166:GP
+"Guam","Guam",ISO3166,GU,https://www.iso.org/obp/ui/#iso:code:3166:GU
+"Guatemala","Guatemala",ISO3166,GT,https://www.iso.org/obp/ui/#iso:code:3166:GT
+"Guernsey","Guernsey",ISO3166,GG,https://www.iso.org/obp/ui/#iso:code:3166:GG
+"Guinea","Guinea",ISO3166,GN,https://www.iso.org/obp/ui/#iso:code:3166:GN
+"Guinea-Bissau","Guinea-Bissau",ISO3166,GW,https://www.iso.org/obp/ui/#iso:code:3166:GW
+"Guyana","Guyana",ISO3166,GY,https://www.iso.org/obp/ui/#iso:code:3166:GY
+"Haiti","Haiti",ISO3166,HT,https://www.iso.org/obp/ui/#iso:code:3166:HT
+"Heard Island and McDonald Islands","Heard Island and McDonald Islands",ISO3166,HM,https://www.iso.org/obp/ui/#iso:code:3166:HM
+"Holy See (the)","Holy See (the)",ISO3166,VA,https://www.iso.org/obp/ui/#iso:code:3166:VA
+"Honduras","Honduras",ISO3166,HN,https://www.iso.org/obp/ui/#iso:code:3166:HN
+"Hong Kong","Hong Kong",ISO3166,HK,https://www.iso.org/obp/ui/#iso:code:3166:HK
+"Hungary","Hungary",ISO3166,HU,https://www.iso.org/obp/ui/#iso:code:3166:HU
+"Iceland","Iceland",ISO3166,IS,https://www.iso.org/obp/ui/#iso:code:3166:IS
+"India","India",ISO3166,IN,https://www.iso.org/obp/ui/#iso:code:3166:IN
+"Indonesia","Indonesia",ISO3166,ID,https://www.iso.org/obp/ui/#iso:code:3166:ID
+"Iran (Islamic Republic of)","Iran (Islamic Republic of)",ISO3166,IR,https://www.iso.org/obp/ui/#iso:code:3166:IR
+"Iraq","Iraq",ISO3166,IQ,https://www.iso.org/obp/ui/#iso:code:3166:IQ
+"Ireland","Ireland",ISO3166,IE,https://www.iso.org/obp/ui/#iso:code:3166:IE
+"Isle of Man","Isle of Man",ISO3166,IM,https://www.iso.org/obp/ui/#iso:code:3166:IM
+"Israel","Israel",ISO3166,IL,https://www.iso.org/obp/ui/#iso:code:3166:IL
+"Italy","Italy",ISO3166,IT,https://www.iso.org/obp/ui/#iso:code:3166:IT
+"Jamaica","Jamaica",ISO3166,JM,https://www.iso.org/obp/ui/#iso:code:3166:JM
+"Japan","Japan",ISO3166,JP,https://www.iso.org/obp/ui/#iso:code:3166:JP
+"Jersey","Jersey",ISO3166,JE,https://www.iso.org/obp/ui/#iso:code:3166:JE
+"Jordan","Jordan",ISO3166,JO,https://www.iso.org/obp/ui/#iso:code:3166:JO
+"Kazakhstan","Kazakhstan",ISO3166,KZ,https://www.iso.org/obp/ui/#iso:code:3166:KZ
+"Kenya","Kenya",ISO3166,KE,https://www.iso.org/obp/ui/#iso:code:3166:KE
+"Kiribati","Kiribati",ISO3166,KI,https://www.iso.org/obp/ui/#iso:code:3166:KI
+"Korea (the Democratic People's Republic of)","Korea (the Democratic People's Republic of)",ISO3166,KP,https://www.iso.org/obp/ui/#iso:code:3166:KP
+"Korea (the Republic of)","Korea (the Republic of)",ISO3166,KR,https://www.iso.org/obp/ui/#iso:code:3166:KR
+"Kuwait","Kuwait",ISO3166,KW,https://www.iso.org/obp/ui/#iso:code:3166:KW
+"Kyrgyzstan","Kyrgyzstan",ISO3166,KG,https://www.iso.org/obp/ui/#iso:code:3166:KG
+"Lao People's Democratic Republic (the)","Lao People's Democratic Republic (the)",ISO3166,LA,https://www.iso.org/obp/ui/#iso:code:3166:LA
+"Latvia","Latvia",ISO3166,LV,https://www.iso.org/obp/ui/#iso:code:3166:LV
+"Lebanon","Lebanon",ISO3166,LB,https://www.iso.org/obp/ui/#iso:code:3166:LB
+"Lesotho","Lesotho",ISO3166,LS,https://www.iso.org/obp/ui/#iso:code:3166:LS
+"Liberia","Liberia",ISO3166,LR,https://www.iso.org/obp/ui/#iso:code:3166:LR
+"Libya","Libya",ISO3166,LY,https://www.iso.org/obp/ui/#iso:code:3166:LY
+"Liechtenstein","Liechtenstein",ISO3166,LI,https://www.iso.org/obp/ui/#iso:code:3166:LI
+"Lithuania","Lithuania",ISO3166,LT,https://www.iso.org/obp/ui/#iso:code:3166:LT
+"Luxembourg","Luxembourg",ISO3166,LU,https://www.iso.org/obp/ui/#iso:code:3166:LU
+"Macao","Macao",ISO3166,MO,https://www.iso.org/obp/ui/#iso:code:3166:MO
+"Madagascar","Madagascar",ISO3166,MG,https://www.iso.org/obp/ui/#iso:code:3166:MG
+"Malawi","Malawi",ISO3166,MW,https://www.iso.org/obp/ui/#iso:code:3166:MW
+"Malaysia","Malaysia",ISO3166,MY,https://www.iso.org/obp/ui/#iso:code:3166:MY
+"Maldives","Maldives",ISO3166,MV,https://www.iso.org/obp/ui/#iso:code:3166:MV
+"Mali","Mali",ISO3166,ML,https://www.iso.org/obp/ui/#iso:code:3166:ML
+"Malta","Malta",ISO3166,MT,https://www.iso.org/obp/ui/#iso:code:3166:MT
+"Marshall Islands (the)","Marshall Islands (the)",ISO3166,MH,https://www.iso.org/obp/ui/#iso:code:3166:MH
+"Martinique","Martinique",ISO3166,MQ,https://www.iso.org/obp/ui/#iso:code:3166:MQ
+"Mauritania","Mauritania",ISO3166,MR,https://www.iso.org/obp/ui/#iso:code:3166:MR
+"Mauritius","Mauritius",ISO3166,MU,https://www.iso.org/obp/ui/#iso:code:3166:MU
+"Mayotte","Mayotte",ISO3166,YT,https://www.iso.org/obp/ui/#iso:code:3166:YT
+"Mexico","Mexico",ISO3166,MX,https://www.iso.org/obp/ui/#iso:code:3166:MX
+"Micronesia (Federated States of)","Micronesia (Federated States of)",ISO3166,FM,https://www.iso.org/obp/ui/#iso:code:3166:FM
+"Moldova (the Republic of)","Moldova (the Republic of)",ISO3166,MD,https://www.iso.org/obp/ui/#iso:code:3166:MD
+"Monaco","Monaco",ISO3166,MC,https://www.iso.org/obp/ui/#iso:code:3166:MC
+"Mongolia","Mongolia",ISO3166,MN,https://www.iso.org/obp/ui/#iso:code:3166:MN
+"Montenegro","Montenegro",ISO3166,ME,https://www.iso.org/obp/ui/#iso:code:3166:ME
+"Montserrat","Montserrat",ISO3166,MS,https://www.iso.org/obp/ui/#iso:code:3166:MS
+"Morocco","Morocco",ISO3166,MA,https://www.iso.org/obp/ui/#iso:code:3166:MA
+"Mozambique","Mozambique",ISO3166,MZ,https://www.iso.org/obp/ui/#iso:code:3166:MZ
+"Myanmar","Myanmar",ISO3166,MM,https://www.iso.org/obp/ui/#iso:code:3166:MM
+"Namibia","Namibia",ISO3166,NA,https://www.iso.org/obp/ui/#iso:code:3166:NA
+"Nauru","Nauru",ISO3166,NR,https://www.iso.org/obp/ui/#iso:code:3166:NR
+"Nepal","Nepal",ISO3166,NP,https://www.iso.org/obp/ui/#iso:code:3166:NP
+"Netherlands (the)","Netherlands (the)",ISO3166,NL,https://www.iso.org/obp/ui/#iso:code:3166:NL
+"New Caledonia","New Caledonia",ISO3166,NC,https://www.iso.org/obp/ui/#iso:code:3166:NC
+"New Zealand","New Zealand",ISO3166,NZ,https://www.iso.org/obp/ui/#iso:code:3166:NZ
+"Nicaragua","Nicaragua",ISO3166,NI,https://www.iso.org/obp/ui/#iso:code:3166:NI
+"Niger (the)","Niger (the)",ISO3166,NE,https://www.iso.org/obp/ui/#iso:code:3166:NE
+"Nigeria","Nigeria",ISO3166,NG,https://www.iso.org/obp/ui/#iso:code:3166:NG
+"Niue","Niue",ISO3166,NU,https://www.iso.org/obp/ui/#iso:code:3166:NU
+"Norfolk Island","Norfolk Island",ISO3166,NF,https://www.iso.org/obp/ui/#iso:code:3166:NF
+"North Macedonia","North Macedonia",ISO3166,MK,https://www.iso.org/obp/ui/#iso:code:3166:MK
+"Northern Mariana Islands (the)","Northern Mariana Islands (the)",ISO3166,MP,https://www.iso.org/obp/ui/#iso:code:3166:MP
+"Norway","Norway",ISO3166,NO,https://www.iso.org/obp/ui/#iso:code:3166:NO
+"Oman","Oman",ISO3166,OM,https://www.iso.org/obp/ui/#iso:code:3166:OM
+"Pakistan","Pakistan",ISO3166,PK,https://www.iso.org/obp/ui/#iso:code:3166:PK
+"Palau","Palau",ISO3166,PW,https://www.iso.org/obp/ui/#iso:code:3166:PW
+"Palestine, State of","Palestine, State of",ISO3166,PS,https://www.iso.org/obp/ui/#iso:code:3166:PS
+"Panama","Panama",ISO3166,PA,https://www.iso.org/obp/ui/#iso:code:3166:PA
+"Papua New Guinea","Papua New Guinea",ISO3166,PG,https://www.iso.org/obp/ui/#iso:code:3166:PG
+"Paraguay","Paraguay",ISO3166,PY,https://www.iso.org/obp/ui/#iso:code:3166:PY
+"Peru","Peru",ISO3166,PE,https://www.iso.org/obp/ui/#iso:code:3166:PE
+"Philippines (the)","Philippines (the)",ISO3166,PH,https://www.iso.org/obp/ui/#iso:code:3166:PH
+"Pitcairn","Pitcairn",ISO3166,PN,https://www.iso.org/obp/ui/#iso:code:3166:PN
+"Poland","Poland",ISO3166,PL,https://www.iso.org/obp/ui/#iso:code:3166:PL
+"Portugal","Portugal",ISO3166,PT,https://www.iso.org/obp/ui/#iso:code:3166:PT
+"Puerto Rico","Puerto Rico",ISO3166,PR,https://www.iso.org/obp/ui/#iso:code:3166:PR
+"Qatar","Qatar",ISO3166,QA,https://www.iso.org/obp/ui/#iso:code:3166:QA
+"Romania","Romania",ISO3166,RO,https://www.iso.org/obp/ui/#iso:code:3166:RO
+"Russian Federation (the)","Russian Federation (the)",ISO3166,RU,https://www.iso.org/obp/ui/#iso:code:3166:RU
+"Rwanda","Rwanda",ISO3166,RW,https://www.iso.org/obp/ui/#iso:code:3166:RW
+"Réunion","Réunion",ISO3166,RE,https://www.iso.org/obp/ui/#iso:code:3166:RE
+"Saint Barthélemy","Saint Barthélemy",ISO3166,BL,https://www.iso.org/obp/ui/#iso:code:3166:BL
+"Saint Helena, Ascension and Tristan da Cunha","Saint Helena, Ascension and Tristan da Cunha",ISO3166,SH,https://www.iso.org/obp/ui/#iso:code:3166:SH
+"Saint Kitts and Nevis","Saint Kitts and Nevis",ISO3166,KN,https://www.iso.org/obp/ui/#iso:code:3166:KN
+"Saint Lucia","Saint Lucia",ISO3166,LC,https://www.iso.org/obp/ui/#iso:code:3166:LC
+"Saint Martin (French part)","Saint Martin (French part)",ISO3166,MF,https://www.iso.org/obp/ui/#iso:code:3166:MF
+"Saint Pierre and Miquelon","Saint Pierre and Miquelon",ISO3166,PM,https://www.iso.org/obp/ui/#iso:code:3166:PM
+"Saint Vincent and the Grenadines","Saint Vincent and the Grenadines",ISO3166,VC,https://www.iso.org/obp/ui/#iso:code:3166:VC
+"Samoa","Samoa",ISO3166,WS,https://www.iso.org/obp/ui/#iso:code:3166:WS
+"San Marino","San Marino",ISO3166,SM,https://www.iso.org/obp/ui/#iso:code:3166:SM
+"Sao Tome and Principe","Sao Tome and Principe",ISO3166,ST,https://www.iso.org/obp/ui/#iso:code:3166:ST
+"Saudi Arabia","Saudi Arabia",ISO3166,SA,https://www.iso.org/obp/ui/#iso:code:3166:SA
+"Senegal","Senegal",ISO3166,SN,https://www.iso.org/obp/ui/#iso:code:3166:SN
+"Serbia","Serbia",ISO3166,RS,https://www.iso.org/obp/ui/#iso:code:3166:RS
+"Seychelles","Seychelles",ISO3166,SC,https://www.iso.org/obp/ui/#iso:code:3166:SC
+"Sierra Leone","Sierra Leone",ISO3166,SL,https://www.iso.org/obp/ui/#iso:code:3166:SL
+"Singapore","Singapore",ISO3166,SG,https://www.iso.org/obp/ui/#iso:code:3166:SG
+"Sint Maarten (Dutch part)","Sint Maarten (Dutch part)",ISO3166,SX,https://www.iso.org/obp/ui/#iso:code:3166:SX
+"Slovakia","Slovakia",ISO3166,SK,https://www.iso.org/obp/ui/#iso:code:3166:SK
+"Slovenia","Slovenia",ISO3166,SI,https://www.iso.org/obp/ui/#iso:code:3166:SI
+"Solomon Islands","Solomon Islands",ISO3166,SB,https://www.iso.org/obp/ui/#iso:code:3166:SB
+"Somalia","Somalia",ISO3166,SO,https://www.iso.org/obp/ui/#iso:code:3166:SO
+"South Africa","South Africa",ISO3166,ZA,https://www.iso.org/obp/ui/#iso:code:3166:ZA
+"South Georgia and the South Sandwich Islands","South Georgia and the South Sandwich Islands",ISO3166,GS,https://www.iso.org/obp/ui/#iso:code:3166:GS
+"South Sudan","South Sudan",ISO3166,SS,https://www.iso.org/obp/ui/#iso:code:3166:SS
+"Spain","Spain",ISO3166,ES,https://www.iso.org/obp/ui/#iso:code:3166:ES
+"Sri Lanka","Sri Lanka",ISO3166,LK,https://www.iso.org/obp/ui/#iso:code:3166:LK
+"Sudan (the)","Sudan (the)",ISO3166,SD,https://www.iso.org/obp/ui/#iso:code:3166:SD
+"Suriname","Suriname",ISO3166,SR,https://www.iso.org/obp/ui/#iso:code:3166:SR
+"Svalbard and Jan Mayen","Svalbard and Jan Mayen",ISO3166,SJ,https://www.iso.org/obp/ui/#iso:code:3166:SJ
+"Sweden","Sweden",ISO3166,SE,https://www.iso.org/obp/ui/#iso:code:3166:SE
+"Switzerland","Switzerland",ISO3166,CH,https://www.iso.org/obp/ui/#iso:code:3166:CH
+"Syrian Arab Republic (the)","Syrian Arab Republic (the)",ISO3166,SY,https://www.iso.org/obp/ui/#iso:code:3166:SY
+"Taiwan (Province of China)","Taiwan (Province of China)",ISO3166,TW,https://www.iso.org/obp/ui/#iso:code:3166:TW
+"Tajikistan","Tajikistan",ISO3166,TJ,https://www.iso.org/obp/ui/#iso:code:3166:TJ
+"Tanzania, the United Republic of","Tanzania, the United Republic of",ISO3166,TZ,https://www.iso.org/obp/ui/#iso:code:3166:TZ
+"Thailand","Thailand",ISO3166,TH,https://www.iso.org/obp/ui/#iso:code:3166:TH
+"Timor-Leste","Timor-Leste",ISO3166,TL,https://www.iso.org/obp/ui/#iso:code:3166:TL
+"Togo","Togo",ISO3166,TG,https://www.iso.org/obp/ui/#iso:code:3166:TG
+"Tokelau","Tokelau",ISO3166,TK,https://www.iso.org/obp/ui/#iso:code:3166:TK
+"Tonga","Tonga",ISO3166,TO,https://www.iso.org/obp/ui/#iso:code:3166:TO
+"Trinidad and Tobago","Trinidad and Tobago",ISO3166,TT,https://www.iso.org/obp/ui/#iso:code:3166:TT
+"Tunisia","Tunisia",ISO3166,TN,https://www.iso.org/obp/ui/#iso:code:3166:TN
+"Turkey","Turkey",ISO3166,TR,https://www.iso.org/obp/ui/#iso:code:3166:TR
+"Turkmenistan","Turkmenistan",ISO3166,TM,https://www.iso.org/obp/ui/#iso:code:3166:TM
+"Turks and Caicos Islands (the)","Turks and Caicos Islands (the)",ISO3166,TC,https://www.iso.org/obp/ui/#iso:code:3166:TC
+"Tuvalu","Tuvalu",ISO3166,TV,https://www.iso.org/obp/ui/#iso:code:3166:TV
+"Uganda","Uganda",ISO3166,UG,https://www.iso.org/obp/ui/#iso:code:3166:UG
+"Ukraine","Ukraine",ISO3166,UA,https://www.iso.org/obp/ui/#iso:code:3166:UA
+"United Arab Emirates (the)","United Arab Emirates (the)",ISO3166,AE,https://www.iso.org/obp/ui/#iso:code:3166:AE
+"United Kingdom of Great Britain and Northern Ireland (the)","United Kingdom of Great Britain and Northern Ireland (the)",ISO3166,GB,https://www.iso.org/obp/ui/#iso:code:3166:GB
+"United States Minor Outlying Islands (the)","United States Minor Outlying Islands (the)",ISO3166,UM,https://www.iso.org/obp/ui/#iso:code:3166:UM
+"United States of America (the)","United States of America (the)",ISO3166,US,https://www.iso.org/obp/ui/#iso:code:3166:US
+"Uruguay","Uruguay",ISO3166,UY,https://www.iso.org/obp/ui/#iso:code:3166:UY
+"Uzbekistan","Uzbekistan",ISO3166,UZ,https://www.iso.org/obp/ui/#iso:code:3166:UZ
+"Vanuatu","Vanuatu",ISO3166,VU,https://www.iso.org/obp/ui/#iso:code:3166:VU
+"Venezuela (Bolivarian Republic of)","Venezuela (Bolivarian Republic of)",ISO3166,VE,https://www.iso.org/obp/ui/#iso:code:3166:VE
+"Viet Nam","Viet Nam",ISO3166,VN,https://www.iso.org/obp/ui/#iso:code:3166:VN
+"Virgin Islands (British)","Virgin Islands (British)",ISO3166,VG,https://www.iso.org/obp/ui/#iso:code:3166:VG
+"Virgin Islands (U.S.)","Virgin Islands (U.S.)",ISO3166,VI,https://www.iso.org/obp/ui/#iso:code:3166:VI
+"Wallis and Futuna","Wallis and Futuna",ISO3166,WF,https://www.iso.org/obp/ui/#iso:code:3166:WF
+"Western Sahara*","Western Sahara*",ISO3166,EH,https://www.iso.org/obp/ui/#iso:code:3166:EH
+"Yemen","Yemen",ISO3166,YE,https://www.iso.org/obp/ui/#iso:code:3166:YE
+"Zambia","Zambia",ISO3166,ZM,https://www.iso.org/obp/ui/#iso:code:3166:ZM
+"Zimbabwe","Zimbabwe",ISO3166,ZW,https://www.iso.org/obp/ui/#iso:code:3166:ZW
+"Åland Islands","Åland Islands",ISO3166,AX,https://www.iso.org/obp/ui/#iso:code:3166:AX

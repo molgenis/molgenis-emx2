@@ -1,0 +1,7 @@
+name,definition,codesystem,code,iri
+Dataset,"Data encoded in a defined structure. Examples include lists, tables, and databases. A dataset may be useful for direct machine processing.",DC,Dataset,http://purl.org/dc/dcmitype/Dataset
+Moving Image,"A series of visual representations imparting an impression of motion when shown in succession. Examples include animations, movies, television programs, videos, zoetropes, or visual output from a simulation.",DC,MovingImage,http://purl.org/dc/dcmitype/MovingImage
+Physical Object,"An inanimate, three-dimensional object or substance. Note that digital representations of, or surrogates for, these objects should use Image, Text or one of the other types.",DC,PhysicalObject,http://purl.org/dc/dcmitype/PhysicalObject
+Sound,"A resource primarily intended to be heard. Examples include a music playback file format, an audio compact disc, and recorded speech or sounds.",DC,Sound,http://purl.org/dc/dcmitype/Sound
+Still Image,"A static visual representation. Examples include photographs, paintings, drawings, graphic designs, plans and maps. Recommended best practice is to assign the type Text to images of textual materials.",DC,StillImage,http://purl.org/dc/dcmitype/StillImage
+Text,"A resource consisting primarily of words for reading. Examples include books, letters, dissertations, poems, newspapers, articles, archives of mailing lists. Note that facsimiles or images of texts are still of the genre Text.",DC,Text,http://purl.org/dc/dcmitype/Text
