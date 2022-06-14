@@ -83,7 +83,10 @@ export default {
   },
   computed: {
     title() {
-      return this.tableName;
+      return this.titlePrefix + " " + this.tableName;
+    },
+    titlePrefix() {
+      return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
   },
   methods: {
