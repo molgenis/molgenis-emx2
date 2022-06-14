@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <MessageError v-if="!options || !options.length">
       No options provided
     </MessageError>
@@ -21,7 +27,14 @@
         {{ option }}
       </option>
     </select>
-    <input :id="id" v-else class="form-control" type="text" readonly :value="value"/>
+    <input
+      :id="id"
+      v-else
+      class="form-control"
+      type="text"
+      readonly
+      :value="value"
+    />
   </FormGroup>
 </template>
 

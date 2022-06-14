@@ -5,9 +5,11 @@
     step="1"
     :value="value"
     class="form-control"
+    :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     :readonly="readonly"
+    :required="required"
     @keypress="handleKeyValidity"
     @input="emitIfValid"
   />

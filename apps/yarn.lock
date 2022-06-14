@@ -4859,10 +4859,10 @@ core-js-compat@^3.12.1, core-js-compat@^3.20.2, core-js-compat@^3.21.0, core-js-
     browserslist "^4.19.1"
     semver "7.0.0"
 
-core-js@3.22.8:
-  version "3.22.8"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.22.8.tgz#23f860b1fe60797cc4f704d76c93fea8a2f60631"
-  integrity sha512-UoGQ/cfzGYIuiq6Z7vWL1HfkE9U9IZ4Ub+0XSiJTCzvbZzgPA69oDF2f+lgJ6dFFLEdjW5O6svvoKzXX23xFkA==
+core-js@3.23.0:
+  version "3.23.0"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.23.0.tgz#9e33448c8fd3b02ad023d85bd6e85da6335b5cc4"
+  integrity sha512-v2/hZoRcRrvQiBoGsHwmRdr+S4oICKcjA6xb2qjVurin6TpcDC1X2CIDa8rdu/d5n8RT/Sdoos2IlnpQ1rXs5A==
 
 core-js@^1.1.1:
   version "1.2.7"
@@ -12213,7 +12213,12 @@ prettier@2.0.2:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.2.tgz#1ba8f3eb92231e769b7fcd7cb73ae1b6b74ade08"
   integrity sha512-5xJQIPT8BraI7ZnaDwSbu5zLrB6vvi8hVV58yHQ+QK64qrY40dULy0HSRlQ2/2IdzeBpjhDkqdcFBnFeDEMVdg==
 
-prettier@2.6.2, "prettier@^1.18.2 || ^2.0.0", prettier@^2.4.1:
+prettier@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.0.tgz#a4fdae07e5596c51c9857ea676cd41a0163879d6"
+  integrity sha512-nwoX4GMFgxoPC6diHvSwmK/4yU8FFH3V8XWtLQrbj4IBsK2pkYhG4kf/ljF/haaZ/aii+wNJqISrCDPgxGWDVQ==
+
+"prettier@^1.18.2 || ^2.0.0", prettier@^2.4.1:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.6.2.tgz#e26d71a18a74c3d0f0597f55f01fb6c06c206032"
   integrity sha512-PkUpF+qoXTqhOeWL9fu7As8LXsIUZ1WYaJiY/a7McAQzxjk82OF0tibkFXVCDImZtWxbvojFjerkiLb0/q8mew==
@@ -15568,10 +15573,10 @@ vite-plugin-vue2@1.9.3:
     source-map "^0.7.3"
     vue-template-es2015-compiler "^1.9.1"
 
-vite@2.9.10:
-  version "2.9.10"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.10.tgz#f574d96655622c2e0fbc662edd0ed199c60fe91a"
-  integrity sha512-TwZRuSMYjpTurLqXspct+HZE7ONiW9d+wSWgvADGxhDPPyoIcNywY+RX4ng+QpK30DCa1l/oZgi2PLZDibhzbQ==
+vite@2.9.12:
+  version "2.9.12"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.12.tgz#b1d636b0a8ac636afe9d83e3792d4895509a941b"
+  integrity sha512-suxC36dQo9Rq1qMB2qiRorNJtJAdxguu5TMvBHOc/F370KvqAe9t48vYp+/TbPKRNrMh/J55tOUmkuIqstZaew==
   dependencies:
     esbuild "^0.14.27"
     postcss "^8.4.13"
@@ -15837,6 +15842,11 @@ vue-swatches@2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/vue-swatches/-/vue-swatches-2.1.1.tgz#26c467fb7648ff4ee0887aea36d1e03b15032b83"
   integrity sha512-YugkNbByxMz1dnx1nZyHSL3VSf/TnBH3/NQD+t8JKxPSqUmX87sVGBxjEaqH5IMraOLfVmU0pHCHl2BfXNypQg==
+
+vue-tabler-icons@1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-1.13.0.tgz#ff8a67975e891d4ae677c43a4d63fc64d01b770f"
+  integrity sha512-e4pYD4XqWvuOvvGGiR3kPCLMggEr780jdgnhGF8QNaK52pQgtS2GW/iXYzKV+bka+Yy2+SmCgyp3xduWW64/Kg==
 
 vue-template-compiler@2.6.14, vue-template-compiler@^2.6.11, vue-template-compiler@^2.6.12, vue-template-compiler@^2.6.14:
   version "2.6.14"

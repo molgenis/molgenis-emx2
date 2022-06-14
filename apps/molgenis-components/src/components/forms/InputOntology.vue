@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <MessageError v-if="error">{{ error }}</MessageError>
     <div
       class="p-0 m-0"
@@ -110,7 +116,8 @@ import vClickOutside from "v-click-outside";
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
  *
- * Known limitations: this version retrieves complete ontology and renders in place. Purpose is to enable sensible data entry and limited use in filter user interface.
+ * Known limitations: this version retrieves complete ontology and renders in place.
+ * Purpose is to enable sensible data entry and limited use in filter user interface.
  *
  * For future versions we have many ideas for improvements, for example:
  * - want to make it more lazy, only retrieving the 'root' elements and loading the children when needed.
@@ -477,9 +484,7 @@ export default {
   async mounted() {
     if (this.tableName) {
       const client = Client.newClient(this.graphqlURL);
-      this.data = (await client.fetchTableData(this.tableName))[
-        this.tableName
-      ];
+      this.data = (await client.fetchTableData(this.tableName))[this.tableName];
     }
   },
   created() {

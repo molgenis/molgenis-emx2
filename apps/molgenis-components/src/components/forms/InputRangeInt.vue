@@ -1,23 +1,30 @@
 <template>
-  <FormGroup :id="id + '-from'" :label="label" :description="description">
+  <FormGroup
+    :id="id + '-from'"
+    :label="label"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>
       </template>
-    
-        <BaseIntInput
-          :id="id + '-from'"
-          :value="value[0]"
-          @input="emitValue($event, 0)"
-          placeholder="from"
-        />
-        <BaseIntInput
-          :id="id + '-to'"
-          :value="value[1]"
-          @input="emitValue($event, 1)"
-          placeholder="to"
-        />
-    
+
+      <BaseIntInput
+        :id="id + '-from'"
+        :value="value[0]"
+        @input="emitValue($event, 0)"
+        placeholder="from"
+        :class="{ 'is-invalid': errorMessage }"
+      />
+      <BaseIntInput
+        :id="id + '-to'"
+        :value="value[1]"
+        @input="emitValue($event, 1)"
+        placeholder="to"
+        :class="{ 'is-invalid': errorMessage }"
+      />
+
       <template v-slot:append>
         <slot name="append"></slot>
       </template>
