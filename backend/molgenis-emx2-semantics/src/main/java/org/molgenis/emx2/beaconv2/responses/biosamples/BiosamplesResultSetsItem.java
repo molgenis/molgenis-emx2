@@ -8,7 +8,7 @@ public class BiosamplesResultSetsItem {
 
   String id;
   Ontology biosampleStatus;
-  Ontology sampleOriginType;
+  Ontology[] sampleOriginType;
   String collectionMoment;
   String collectionDate;
   ObtentionProcedure obtentionProcedure;

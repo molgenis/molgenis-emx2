@@ -8,11 +8,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Table;
+import java.util.stream.Collectors;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.Ontology;
 import spark.Request;
 
@@ -32,19 +31,30 @@ public class BiosamplesResponse {
     qId = request.queryParams("id");
 
     for (Table t : tables) {
+      System.out.println("## table: " + t.getName());
       Query q = t.query();
+
+      // for every column that is an ontology, add the name, code and codesystem to select
       for (Column c : t.getMetadata().getColumns()) {
-        switch (c.getName()) {
-          case "id":
-          case "biosampleStatus_id":
-          case "biosampleStatus_label":
-          case "sampleOriginType_id":
-          case "sampleOriginType_label":
-          case "collectionMoment":
-          case "collectionDate":
-          case "obtentionProcedure_procedureCode_id":
-          case "obtentionProcedure_procedureCode_label":
-            q.select(s(c.getName()));
+        if (c.isOntology()) {
+          List<Column> ontoRefCols =
+              c.getRefTable().getColumns().stream()
+                  .filter(
+                      colDef ->
+                          colDef.getName().equals("name")
+                              || colDef.getName().equals("code")
+                              || colDef.getName().equals("codesystem"))
+                  .collect(Collectors.toList());
+          ArrayList<String> colNames = new ArrayList<>();
+          for (Column cc : ontoRefCols) {
+            colNames.add(cc.getName());
+          }
+          q.select(new SelectColumn(c.getName(), colNames));
+        } else if (c.isReference()) {
+          throw new Exception(
+              "Reference datatypes (except ontology) not yet supported in Biosamples");
+        } else {
+          q.select(s(c.getName()));
         }
       }
 
@@ -52,27 +62,62 @@ public class BiosamplesResponse {
         q.where(f("id", EQUALS, qId));
       }
 
-      List<BiosamplesResultSetsItem> aList = new ArrayList<>();
+      HashMap<String, BiosamplesResultSetsItem> aList = new HashMap<>();
+
+      // todo better way to deal with duplicated rows when 1 row has multiple values in a column...
+      // tmp store for 0..n variables
+      HashMap<String, List<Ontology>> sampleOriginType = new HashMap<>();
+
       for (Row r : q.retrieveRows()) {
-        BiosamplesResultSetsItem a = new BiosamplesResultSetsItem();
-        a.id = r.getString("id");
-        a.biosampleStatus =
-            new Ontology(r.getString("biosampleStatus_id"), r.getString("biosampleStatus_label"));
-        a.sampleOriginType =
-            new Ontology(r.getString("sampleOriginType_id"), r.getString("sampleOriginType_label"));
-        a.collectionMoment = r.getString("collectionMoment");
-        a.collectionDate = r.getString("collectionDate");
-        a.obtentionProcedure =
-            new ObtentionProcedure(
-                r.getString("obtentionProcedure_procedureCode_id"),
-                r.getString("obtentionProcedure_procedureCode_label"));
-        aList.add(a);
+        String id = r.getString("id");
+        BiosamplesResultSetsItem a;
+        if (!aList.containsKey(id)) {
+          a = new BiosamplesResultSetsItem();
+          // 0..1 variables, ok to put once
+          a.id = id;
+          a.collectionMoment = r.getString("collectionMoment");
+          a.collectionDate = r.getString("collectionDate");
+          a.biosampleStatus =
+              new Ontology(
+                  r.getString("biosampleStatus-codesystem") + r.getString("biosampleStatus-code"),
+                  r.getString("biosampleStatus-name"));
+          a.obtentionProcedure =
+              new ObtentionProcedure(
+                  r.getString("obtentionProcedure-codesystem")
+                      + r.getString("obtentionProcedure-code"),
+                  r.getString("obtentionProcedure-name"));
+
+          // tmp store for 0..n variables
+          List<Ontology> sampleOriginTypeList = new ArrayList<>();
+          sampleOriginTypeList.add(
+              new Ontology(
+                  r.getString("sampleOriginType-codesystem") + r.getString("sampleOriginType-code"),
+                  r.getString("sampleOriginType-name")));
+          sampleOriginType.put(id, sampleOriginTypeList);
+          aList.put(id, a);
+        } else {
+          // tmp store for 0..n variables
+          sampleOriginType
+              .get(id)
+              .add(
+                  new Ontology(
+                      r.getString("sampleOriginType-codesystem")
+                          + r.getString("sampleOriginType-code"),
+                      r.getString("sampleOriginType-name")));
+        }
       }
+
+      for (String id : aList.keySet()) {
+        BiosamplesResultSetsItem a = aList.get(id);
+        a.sampleOriginType =
+            sampleOriginType.get(id).toArray(new Ontology[sampleOriginType.get(id).size()]);
+      }
+
       BiosamplesResultSets aSet =
           new BiosamplesResultSets(
               t.getSchema().getName(),
               aList.size(),
-              aList.toArray(new BiosamplesResultSetsItem[aList.size()]));
+              aList.values().toArray(new BiosamplesResultSetsItem[aList.size()]));
       rList.add(aSet);
     }
 
