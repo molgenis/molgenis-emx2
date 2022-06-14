@@ -9,8 +9,9 @@
     <BaseInputDecimal
       :id="id"
       :value="value"
-      :class="{ 'form-control': true }"
+      :class="{ 'is-invalid': errorMessage }"
       :placeholder="placeholder"
+      :required="required"
       @input="$emit('input', $event)"
     />
   </FormGroup>

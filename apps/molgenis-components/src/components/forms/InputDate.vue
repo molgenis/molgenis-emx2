@@ -11,6 +11,8 @@
       :value="value"
       :placeholder="placeholder"
       :readonly="readonly"
+      :class="{ 'is-invalid': errorMessage }"
+      :required="required"
       @input="$emit('input', $event)"
     />
   </FormGroup>
