@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 reference sample,"A material sample derived from cells or tissue representing a physiologically or phenotypically normal state.",EFO,0009654,http://www.ebi.ac.uk/efo/EFO_0009654
 abnormal sample,"A material sample derived from cells or tissue representing an observed or suspected physiologically, genomically or phenotypically abnormal state.",EFO,0009655,http://www.ebi.ac.uk/efo/EFO_0009655
 neoplastic sample,"A material sample derived from neoplastic cells or tissue.",EFO,0009656,http://www.ebi.ac.uk/efo/EFO_0009656

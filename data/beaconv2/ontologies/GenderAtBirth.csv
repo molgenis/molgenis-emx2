@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 assigned U at birth,"An assignment of an 'U' gender shortly after birth. Note that 'U' is only available in certain jurisdictions on birth certificates.",GSSO,009511,http://purl.obolibrary.org/obo/GSSO_009511
 assigned X at birth,"An assignment of an 'X' gender shortly after birth. Note that 'X' is only available in certain jurisdictions on birth certificates.",GSSO,009486,http://purl.obolibrary.org/obo/GSSO_009486
 assigned diverse at birth,"An assignment of a diverse gender marker shortly after birth. Note that 'diverse' is only available in certain jurisdictions on birth certificates. Further, note that 'diverse' itself is not a gender, but is a legal gender in this context.",GSSO,009512,http://purl.obolibrary.org/obo/GSSO_009512

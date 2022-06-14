@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 case control study design,"A study design that compares two groups of subjects; those with the disease or condtion under study and a similar group of subjects who do not have the condition.",OMIABIS,0001017,http://purl.obolibrary.org/obo/OMIABIS_0001017
 cross sectional study design,"A study design in which all participants or a representative subset of participants are examined at only a single time for characteristics of a interest (e.g. a specific disease).",OMIABIS,0001018,http://purl.obolibrary.org/obo/OMIABIS_0001018
 disease state design,"A study design in which the pathological condition of a part, organ, or system of an organism is studied. The etiology may be from infection, genetic defect, or environmental stress.",OBI,0001293,http://purl.obolibrary.org/obo/OBI_0001293

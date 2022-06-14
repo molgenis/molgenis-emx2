@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 atrial appendage specimen,atrial appendage specimen,OBI,0002543,http://purl.obolibrary.org/obo/OBI_0002543
 sigmoid colon specimen,sigmoid colon specimen,OBI,0002550,http://purl.obolibrary.org/obo/OBI_0002550
 esophagogastric junction specimen,esophagogastric junction specimen,OBI,0002544,http://purl.obolibrary.org/obo/OBI_0002544

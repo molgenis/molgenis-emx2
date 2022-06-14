@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 Dataset,"Data encoded in a defined structure. Examples include lists, tables, and databases. A dataset may be useful for direct machine processing.",DC,Dataset,http://purl.org/dc/dcmitype/Dataset
 Moving Image,"A series of visual representations imparting an impression of motion when shown in succession. Examples include animations, movies, television programs, videos, zoetropes, or visual output from a simulation.",DC,MovingImage,http://purl.org/dc/dcmitype/MovingImage
 Physical Object,"An inanimate, three-dimensional object or substance. Note that digital representations of, or surrogates for, these objects should use Image, Text or one of the other types.",DC,PhysicalObject,http://purl.org/dc/dcmitype/PhysicalObject

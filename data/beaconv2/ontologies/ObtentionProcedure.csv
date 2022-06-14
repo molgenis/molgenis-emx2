@@ -1,4 +1,4 @@
-name,definition,codesystem,code,iri
+name,definition,codesystem,code,ontologyTermURI
 histological sample preparation,histological sample preparation,OBI,0000341,http://purl.obolibrary.org/obo/OBI_0000341
 material sampling process,material sampling process,OBI,0000744,http://purl.obolibrary.org/obo/OBI_0000744
 specimen set collection process,specimen set collection process,OBI,0002078,http://purl.obolibrary.org/obo/OBI_0002078
