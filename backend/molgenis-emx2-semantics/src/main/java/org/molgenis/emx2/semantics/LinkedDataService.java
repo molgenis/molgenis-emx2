@@ -53,6 +53,7 @@ public class LinkedDataService {
       // in particular, for references we check if there are columns tagged with 'id'
       // because then 'id' will be used as the @id of the reference, otherwise we will use primary
       // key
+      // fixme: what happens when non-unique values are tagged as 'id' ?
       Query q = table.query();
       for (Column c : table.getMetadata().getColumns()) {
         if (c.isReference() && !c.isOntology()) {
@@ -80,12 +81,12 @@ public class LinkedDataService {
           // add to select
           q.select(s(c.getName(), s(refId.get(0).getName())));
         } else if (c.isReference() && c.isOntology()) {
-          Column iri =
+          Column ontologyTermURI =
               c.getRefTable().getColumns().stream()
-                  .filter(r -> r.getName().equals("ontologyTermIRI"))
+                  .filter(r -> r.getName().equals("ontologyTermURI"))
                   .collect(Collectors.toList())
                   .get(0);
-          q.select(s(c.getName(), s(iri.getName())));
+          q.select(s(c.getName(), s(ontologyTermURI.getName())));
         } else {
           q.select(s(c.getName()));
         }
@@ -153,7 +154,7 @@ public class LinkedDataService {
               row.put(c.getName(), ((Map<String, Object>) row.get(c.getName())).get(ref.getName()));
             } else if (c.isRef() && c.isOntology()) {
               row.put(
-                  c.getName(), ((Map<String, Object>) row.get(c.getName())).get("ontologyTermIRI"));
+                  c.getName(), ((Map<String, Object>) row.get(c.getName())).get("ontologyTermURI"));
             } else {
               // list of maps
               List<Map<String, Object>> listOfObjects =
