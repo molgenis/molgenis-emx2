@@ -13,7 +13,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
 import org.molgenis.emx2.beacon.responses.BeaconFilteringTermsResponse;
 import org.molgenis.emx2.beaconv2.responses.*;
-import org.molgenis.emx2.beaconv2_prev.ServiceInfo;
 import spark.Request;
 import spark.Response;
 
@@ -59,7 +58,7 @@ public class BeaconApi {
 
   private static String getServiceInfo(Request request, Response response)
       throws JsonProcessingException {
-    return getWriter().writeValueAsString(new ServiceInfo());
+    return getWriter().writeValueAsString(new Info());
   }
 
   private static Object getConfiguration(Request request, Response response)

@@ -138,8 +138,9 @@ public class Beaconv2_ModelEndpointsTest {
         json.contains(
             "\"obtentionProcedure\" : {\n"
                 + "              \"procedureCode\" : {\n"
-                + "                \"id\" : \"OBI:0002654\","));
-    assertEquals(2098, json.length());
+                + "                \"id\" : \"OBI0002654\",\n"
+                + "                \"label\" : \"needle biopsy\""));
+    assertEquals(2531, json.length());
   }
 
   @Test
@@ -150,6 +151,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(b);
     assertTrue(json.contains("\"id\" : \"sample-example-0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1512, json.length());
+    assertEquals(1670, json.length());
   }
 }
