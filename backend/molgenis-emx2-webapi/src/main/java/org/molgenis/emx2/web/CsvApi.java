@@ -63,8 +63,8 @@ public class CsvApi {
       // therefore, use findTableByColumns() to figure out where the data must go
       Iterable<Row> rows = getRowList(request);
       Row firstRow = rows.iterator().next();
-      Table t = findTableByColumns(firstRow.getColumnNames(), getSchema(request));
-      int count = t != null ? t.save(getRowList(request)) : 0;
+      Table table = findTableByColumns(firstRow.getColumnNames(), getSchema(request));
+      int count = table != null ? table.save(getRowList(request)) : 0;
       response.status(200);
       response.type(ACCEPT_CSV);
       return "" + count;
