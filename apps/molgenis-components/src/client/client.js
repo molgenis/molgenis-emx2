@@ -1,4 +1,5 @@
 import axios from "axios";
+import { deepClone } from "../components/utils";
 
 const metaDataQuery = `{
 _schema {
@@ -154,24 +155,43 @@ const request = async (url, graqphl) => {
   return result.data.data;
 };
 
-const cloneMetaData = (metaData) => {
-  // node js may not have structuredClone function, then fallback to deep clone via JSON
-  return typeof structuredClone === "function"
-    ? structuredClone(metaData)
-    : JSON.parse(JSON.stringify(metaData));
+const isFileValue = (value) => {
+  if (window && "File" in window) {
+    return value instanceof File;
+  } else {
+    throw "Files can only be uploaded via a browser client";
+  }
 };
 
 const saveRowData = (rowData, tableName, graphqlURL) => {
+  if (!FormData) {
+    throw "Files can only be uploaded via a browser client";
+  }
   const formData = new FormData();
-  // todo handle files
-  const variables = JSON.stringify({ value: [rowData] });
+  let nonFileValue = {};
+  let fileValues = {};
+
+  // split into file and non-file entries
+  for (const [key, value] of Object.entries(rowData)) {
+    isFileValue(value)
+      ? (fileValues[key] = value)
+      : (nonFileValue[key] = value);
+  }
+
+  // add the file objects to the formData and place a link to the object in the variables 
+  for (const [key, value] of Object.entries(fileValues)) {
+    const id = Math.random().toString(36);
+    formData.append(id, value);
+    nonFileValue[key] = id;
+  }
+
+  const variables = JSON.stringify({ value: [nonFileValue] });
   formData.append("variables", variables);
   formData.append(
     "query",
     `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`
   );
 
-  // todo handle error
   return axios.post(graphqlURL, formData);
 };
 
@@ -187,14 +207,14 @@ export default {
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;
-        return cloneMetaData(metaData);
+        return deepClone(metaData);
       },
       fetchTableMetaData: async (tableName) => {
         if (metaData === null) {
           const schema = await fetchMetaData(myAxios, graphqlURL);
           metaData = schema;
         }
-        return cloneMetaData(metaData).tables.find(
+        return deepClone(metaData).tables.find(
           (table) => table.id === tableName
         );
       },

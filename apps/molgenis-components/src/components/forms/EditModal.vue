@@ -1,5 +1,5 @@
 <template>
-  <LayoutModal :title="title" :show="isModalShown" @close="$emit('close')">
+  <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <RowEdit
         :id="id"
@@ -13,10 +13,11 @@
     </template>
     <template #footer>
       <RowEditFooter
-        :tableName="tableName"
-        :id="id + '-footer'"
         class="modal-footer"
-        @cancel="$emit('close')"
+        :id="id + '-footer'"
+        :tableName="tableName"
+        :errorMessage="errorMessage"
+        @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
       ></RowEditFooter>
@@ -38,6 +39,7 @@ export default {
       rowData: {},
       tableMetaData: {},
       client: null,
+      errorMessage: null,
     };
   },
   props: {
@@ -85,33 +87,30 @@ export default {
     },
   },
   methods: {
-    async handleSaveRequest() {
-      await this.client
-        .saveRowData(
-          { ...this.rowData, mg_draft: false },
-          this.tableName,
-          this.graphqlURL
-        )
-        .catch(this.handleSaveError);
-      this.$emit("close");
+    handleSaveRequest() {
+      this.save({ ...this.rowData, mg_draft: false });
     },
-    async handleSaveDraftRequest() {
-      await this.client
-        .saveRowData(
-          { ...this.rowData, mg_draft: true },
-          this.tableName,
-          this.graphqlURL
-        )
+    handleSaveDraftRequest() {
+      this.save({ ...this.rowData, mg_draft: true });
+    },
+    async save(formData) {
+      this.errorMessage = null;
+      const result = await this.client
+        .saveRowData(formData, this.tableName, this.graphqlURL)
         .catch(this.handleSaveError);
-      this.$emit("close");
+      if (result) {
+        this.$emit("close");
+      }
     },
     handleSaveError(error) {
-      if (error.status === 403) {
-        this.graphqlError =
-          "Schema doesn't exist or permission denied. Do you need to Sign In?";
-      } else {
-        this.graphqlError = error.errors[0].message;
-      }
+      this.errorMessage =
+        error.response && error.response.status === 403
+          ? "Schema doesn't exist or permission denied. Do you need to Sign In?"
+          : error.response.data.errors[0].message;
+    },
+    handleClose() {
+      this.errorMessage = null;
+      this.$emit("close");
     },
   },
   async mounted() {
