@@ -81,12 +81,12 @@ public class LinkedDataService {
           // add to select
           q.select(s(c.getName(), s(refId.get(0).getName())));
         } else if (c.isReference() && c.isOntology()) {
-          Column ontologyTermURI =
+          Column ontoRefCol =
               c.getRefTable().getColumns().stream()
                   .filter(r -> r.getName().equals("ontologyTermURI"))
                   .collect(Collectors.toList())
                   .get(0);
-          q.select(s(c.getName(), s(ontologyTermURI.getName())));
+          q.select(s(c.getName(), s(ontoRefCol.getName())));
         } else {
           q.select(s(c.getName()));
         }
