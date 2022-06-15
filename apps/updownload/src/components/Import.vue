@@ -198,15 +198,21 @@ export default {
       this.error = null;
       this.success = null;
       this.loading = true;
-      //upload file contents
-      let type = this.file.name.split(".").pop();
+      const splitFileName = this.file.name.split(".");
+      const fileName = splitFileName[0];
+      const type = splitFileName[splitFileName.length - 1];
       if (["csv", "json", "yaml"].includes(type)) {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.readAsText(this.file);
         let url = "/" + this.schema + "/api/" + type;
+        // let url = `/${this.schema}/api/type?table=${fileName}`;
         let _this = this;
-        reader.onload = function () {
-          fetch(url, { method: "POST", body: reader.result })
+        reader.onload = () => {
+          fetch(url, {
+            method: "POST",
+            body: reader.result,
+            headers: { fileName: fileName },
+          })
             .then((response) => {
               response.text().then((successText) => {
                 _this.success = successText;

@@ -52,22 +52,17 @@ public class CsvApi {
   }
 
   static String mergeMetadata(Request request, Response response) {
-    try {
+    String fileName = request.headers("fileName");
+    boolean fileNameMatchesTable = getSchema(request).getTableNames().contains(fileName);
+
+    if (fileNameMatchesTable) {
+      // so we assume it isn't meta data
+      return tableUpdate(request, response);
+    } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
       return "add/update metadata success";
-    } catch (MolgenisException me) {
-      // the upload might actual table data instead of metadata
-      // but, we don't know which table because there is no filename (no multipart form)
-      // therefore, use findTableByColumns() to figure out where the data must go
-      Iterable<Row> rows = getRowList(request);
-      Row firstRow = rows.iterator().next();
-      Table table = findTableByColumns(firstRow.getColumnNames(), getSchema(request));
-      int count = table != null ? table.save(getRowList(request)) : 0;
-      response.status(200);
-      response.type(ACCEPT_CSV);
-      return "" + count;
     }
   }
 
