@@ -10,9 +10,9 @@ public class CohortsResultSets {
   String setType;
   Boolean exists;
   Integer resultsCount;
-  CohortsResultSets[] results;
+  CohortsResultSetsItem[] results;
 
-  public CohortsResultSets(String id, int resultsCount, CohortsResultSets[] results) {
+  public CohortsResultSets(String id, int resultsCount, CohortsResultSetsItem[] results) {
     this.id = id;
     this.type = "dataset";
     this.setType = "analyses";

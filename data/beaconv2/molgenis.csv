@@ -22,13 +22,13 @@ Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g
 Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
 Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
 Biosamples,,biosampleStatus,ontology,,,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
-Biosamples,,sampleOriginType,ontology_array,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
+Biosamples,,sampleOriginType,ontology,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
 Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
 Biosamples,,obtentionProcedure,ontology,,,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
 Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
-Cohorts,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001
-Cohorts,,name,string,,,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
+Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001
+Cohorts,,cohortName,string,,,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
 Cohorts,,cohortType,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined"
 Cohorts,,cohortDesign,ontology_array,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design
 Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000
