@@ -59,12 +59,14 @@ public class AnalysesResponse {
         a.variantCaller = r.getString("variantCaller");
         aList.add(a);
       }
-      AnalysesResultSets aSet =
-          new AnalysesResultSets(
-              t.getSchema().getName(),
-              aList.size(),
-              aList.toArray(new AnalysesResultSetsItem[aList.size()]));
-      rList.add(aSet);
+      if (aList.size() > 0) {
+        AnalysesResultSets aSet =
+            new AnalysesResultSets(
+                t.getSchema().getName(),
+                aList.size(),
+                aList.toArray(new AnalysesResultSetsItem[aList.size()]));
+        rList.add(aSet);
+      }
     }
 
     this.resultSets = rList.toArray(new AnalysesResultSets[rList.size()]);

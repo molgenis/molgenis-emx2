@@ -164,12 +164,14 @@ public class GenomicVariantsResponse {
 
         gviList.add(gvi);
       }
-      GenomicVariantsResultSets gvr =
-          new GenomicVariantsResultSets(
-              t.getSchema().getName(),
-              gviList.size(),
-              gviList.toArray(new GenomicVariantsResultSetsItem[gviList.size()]));
-      rList.add(gvr);
+      if (gviList.size() > 0) {
+        GenomicVariantsResultSets gvr =
+            new GenomicVariantsResultSets(
+                t.getSchema().getName(),
+                gviList.size(),
+                gviList.toArray(new GenomicVariantsResultSetsItem[gviList.size()]));
+        rList.add(gvr);
+      }
     }
 
     this.resultSets = rList.toArray(new GenomicVariantsResultSets[rList.size()]);
