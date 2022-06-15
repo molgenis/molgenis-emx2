@@ -52,7 +52,8 @@ public class BiosamplesResponse {
           BiosamplesResultSetsItem a = new BiosamplesResultSetsItem();
           a.id = (String) map.get("id");
           a.biosampleStatus = mapToOntologyTerm((Map) map.get("biosampleStatus"));
-          a.sampleOriginType = mapListToOntologyTerms((List<Map>) map.get("sampleOriginType"));
+          // a.sampleOriginType = mapListToOntologyTerms((List<Map>) map.get("sampleOriginType"));
+          a.sampleOriginType = mapToOntologyTerm((Map) map.get("sampleOriginType"));
           a.collectionMoment = (String) map.get("collectionMoment");
           a.collectionDate = (String) map.get("collectionDate");
           a.obtentionProcedure =
