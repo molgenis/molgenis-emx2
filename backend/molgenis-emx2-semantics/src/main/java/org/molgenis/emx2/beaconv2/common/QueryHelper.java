@@ -4,6 +4,7 @@ import static org.molgenis.emx2.SelectColumn.s;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
@@ -36,5 +37,29 @@ public class QueryHelper {
         q.select(s(c.getName()));
       }
     }
+  }
+
+  /**
+   * Convert list of maps to array of ontologies
+   *
+   * @param mapList
+   * @return
+   */
+  public static OntologyTerm[] mapListToOntologyTerms(List<Map> mapList) {
+    OntologyTerm[] result = new OntologyTerm[mapList.size()];
+    for (int i = 0; i < mapList.size(); i++) {
+      OntologyTerm ot = new OntologyTerm();
+      ot.id = mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code");
+      ot.label = (String) mapList.get(i).get("name");
+      result[i] = ot;
+    }
+    return result;
+  }
+
+  public static OntologyTerm mapToOntologyTerm(Map map) {
+    OntologyTerm ot = new OntologyTerm();
+    ot.id = map.get("codesystem") + ":" + (String) map.get("code");
+    ot.label = (String) map.get("name");
+    return ot;
   }
 }
