@@ -4,13 +4,16 @@ import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -57,41 +60,13 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
+      request.params().put("table", fileName);
       return tableUpdate(request, response);
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);
       response.status(200);
       return "add/update metadata success";
-    }
-  }
-
-  /**
-   * Intersect a list of column names with the column names of tables of a specified schema. If we
-   * find exactly one table that contains all of these columns, that table is returned.
-   *
-   * @param checkColNames
-   * @param schema
-   * @return
-   */
-  static Table findTableByColumns(Set<String> checkColNames, Schema schema) {
-    List<Table> candidateTables = new ArrayList<>();
-    for (String tableName : schema.getTableNames()) {
-      Table t = schema.getTable(tableName);
-      List<String> intersect = new ArrayList<>();
-      for (String colName : t.getMetadata().getColumnNames()) {
-        if (checkColNames.contains(colName)) {
-          intersect.add(colName);
-        }
-      }
-      if (checkColNames.size() == intersect.size()) {
-        candidateTables.add(t);
-      }
-    }
-    if (candidateTables.size() == 1) {
-      return candidateTables.get(0);
-    } else {
-      return null;
     }
   }
 

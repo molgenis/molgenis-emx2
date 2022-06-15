@@ -106,7 +106,6 @@ import {
   MessageSuccess,
   MessageWarning,
   Molgenis,
-  Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import Task from "./Task";
@@ -119,7 +118,6 @@ export default {
     MessageError,
     MessageSuccess,
     MessageWarning,
-    Spinner,
     Molgenis,
     Task,
   },
@@ -139,9 +137,10 @@ export default {
   computed: {
     tablesHash() {
       if (this.tables) {
-        this.tables.map((t) => t.name).join("-");
+        return this.tables.map((table) => table.name).join("-");
+      } else {
+        return null;
       }
-      return null;
     },
   },
   methods: {
@@ -204,30 +203,29 @@ export default {
       if (["csv", "json", "yaml"].includes(type)) {
         const reader = new FileReader();
         reader.readAsText(this.file);
-        let url = "/" + this.schema + "/api/" + type;
-        // let url = `/${this.schema}/api/type?table=${fileName}`;
-        let _this = this;
+        const body = reader.result;
+        const url = `/${this.schema}/api/${type}`;
         reader.onload = () => {
           fetch(url, {
             method: "POST",
-            body: reader.result,
+            body,
             headers: { fileName: fileName },
           })
             .then((response) => {
               response.text().then((successText) => {
-                _this.success = successText;
-                _this.error = null;
+                this.success = successText;
+                this.error = null;
               });
             })
             .catch((error) => {
               error.text().then((errorText) => {
-                _this.success = null;
-                _this.error = "Failed: " + errorText;
+                this.success = null;
+                this.error = "Failed: " + errorText;
               });
             })
             .finally(() => {
-              _this.file = null;
-              _this.loading = false;
+              this.file = null;
+              this.loading = false;
               this.loadSchema();
             });
         };
