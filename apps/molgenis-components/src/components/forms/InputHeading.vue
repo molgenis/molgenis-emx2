@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex form-group bg-white rounded p-2">
+  <div class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1">
     <span v-if="!focus">
       <h1>{{ label }}</h1>
       <p>{{ description }}</p>

@@ -19,6 +19,7 @@ import FilterWell from "../src/components/filters/FilterWell.vue";
 import FilterWells from "../src/components/filters/FilterWells.vue";
 
 //forms
+import ArrayInput from "../src/components/forms/ArrayInput.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
@@ -30,8 +31,9 @@ import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
-import IconDanger from "../src/components/forms/IconDanger.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
+import IconDanger from "../src/components/forms/IconDanger.vue";
+import Info from "../src/components/forms/Info.vue";
 import InlineInput from "../src/components/forms/InlineInput.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
@@ -52,7 +54,9 @@ import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
+import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
+import InputRefSelect from "../src/components/forms/InputRefSelect.vue";
 import InputSearch from "../src/components/forms/InputSearch.vue";
 import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
@@ -62,6 +66,9 @@ import InputText from "../src/components/forms/InputText.vue";
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
+import ResizableTextarea from "../src/components/forms/ResizableTextarea.vue";
+import RowEdit from "../src/components/forms/RowEdit.vue";
+import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
 //layout
 import Breadcrumb from "../src/components/layout/Breadcrumb.vue";
@@ -97,16 +104,7 @@ import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue"
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
 export {
-  MolgenisMenu,
-  MessageWarning,
-  LayoutForm,
-  InputHeading,
-  EmailDisplay,
   EditModal,
-  HyperlinkDisplay,
-  IconAction,
-  IconDanger,
-  IconBar,
   ContactDisplay,
   GridBlock,
   ImageCard,
@@ -116,13 +114,16 @@ export {
   PageHeader,
   PersonDetails,
   TableDisplay,
+  MessageWarning,
+  InputHeading,
+  EmailDisplay,
+  HyperlinkDisplay,
   FilterContainer,
   FilterInput,
   FilterSidebar,
   FilterWell,
   FilterWells,
-  MessageError,
-  MessageSuccess,
+  ArrayInput,
   ButtonAction,
   ButtonDropdown,
   ButtonOutline,
@@ -132,6 +133,10 @@ export {
   FormGroup,
   FormInput,
   FormMolgenis,
+  IconAction,
+  IconBar,
+  IconDanger,
+  Info,
   InlineInput,
   InputBoolean,
   InputCheckbox,
@@ -151,34 +156,43 @@ export {
   InputRangeDateTime,
   InputRangeInt,
   InputRef,
+  InputRefBack,
   InputRefList,
+  InputRefSelect,
   InputSearch,
   InputSelect,
   InputSelectInplace,
   InputString,
   InputText,
+  MessageError,
+  MessageSuccess,
+  ResizableTextarea,
+  RowEdit,
+  RowEditFooter,
   Breadcrumb,
+  LayoutCard,
+  LayoutForm,
   LayoutModal,
-  ReadMore,
+  Molgenis,
   Spinner,
   VueTemplate,
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,
   TableSimple,
-  Molgenis,
   MolgenisAccount,
   MolgenisFooter,
+  MolgenisMenu,
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  ReadMore,
+  ShowMore,
   Pagination,
   FileDisplay,
   ListDisplay,
   ObjectDisplay,
   StringDisplay,
   TextDisplay,
-  ShowMore,
   Client,
-  LayoutCard,
 };

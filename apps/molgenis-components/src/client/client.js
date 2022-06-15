@@ -10,14 +10,19 @@ export default {
     // use closure to have metaData cache private to client
     let metaData = null;
     return {
-      fetchMetaData: () => {
-        return fetchMetaData(myAxios, graphqlURL).then((schema) => {
+      fetchMetaData: async () => {
+        const schema = await fetchMetaData(myAxios, graphqlURL);
+        metaData = schema;
+        return cloneMetaData(metaData);
+      },
+      fetchTableMetaData: async (tableName) => {
+        if (metaData === null) {
+          const schema = await fetchMetaData(myAxios, graphqlURL);
           metaData = schema;
-          // node js may not have structuredClone function, then fallback to deep clone via JSON
-          return typeof structuredClone === "function"
-            ? structuredClone(metaData)
-            : JSON.parse(JSON.stringify(metaData));
-        });
+        }
+        return cloneMetaData(metaData).tables.find(
+          (table) => table.id === tableName
+        );
       },
       fetchTableData: async (tableId, properties) => {
         if (metaData === null) {
@@ -49,6 +54,20 @@ export default {
           "update"
         );
       },
+      fetchTableDataValues: async (tableId, properties) => {
+        if (metaData === null) {
+          const schema = await fetchMetaData(myAxios, graphqlURL);
+          metaData = schema;
+        }
+        const dataResp = await fetchTableData(
+          tableId,
+          properties,
+          metaData,
+          myAxios,
+          graphqlURL
+        );
+        return dataResp[tableId];
+      },
     };
   },
 };
@@ -79,6 +98,13 @@ _schema {
     }
   }
 }}`;
+
+const cloneMetaData = (metaData) => {
+  // node js may not have structuredClone function, then fallback to deep clone via JSON
+  return typeof structuredClone === "function"
+    ? structuredClone(metaData)
+    : JSON.parse(JSON.stringify(metaData));
+};
 
 /**
  *
