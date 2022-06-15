@@ -2,14 +2,13 @@ package org.molgenis.emx2.beaconv2.endpoints.analyses;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -32,25 +31,20 @@ public class AnalysesResponse {
 
     for (Table t : tables) {
       Query q = t.query();
-      for (Column c : t.getMetadata().getColumns()) {
-        switch (c.getName()) {
-          case "id":
-          case "runId":
-          case "biosampleId":
-          case "individualId":
-          case "analysisDate":
-          case "pipelineName":
-          case "pipelineRef":
-          case "aligner":
-          case "variantCaller":
-            q.select(s(c.getName()));
-        }
-      }
+      selectColumns(t, q);
 
       if (qId != null) {
         q.where(f("id", EQUALS, qId));
       }
 
+      /*
+      todo
+      could replace with reflection, but wouldn't work for the other more complex endpoints anyway
+      e.g.
+                Field field = a.getClass().getDeclaredField(colName);
+                if (r.containsName(colName)) {
+                field.set(a, r.getString(colName));
+       */
       List<AnalysesResultSetsItem> aList = new ArrayList<>();
       for (Row r : q.retrieveRows()) {
         AnalysesResultSetsItem a = new AnalysesResultSetsItem();

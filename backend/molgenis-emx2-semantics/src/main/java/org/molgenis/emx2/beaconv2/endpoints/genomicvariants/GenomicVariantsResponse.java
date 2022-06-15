@@ -3,14 +3,13 @@ package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.BETWEEN;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -97,22 +96,10 @@ public class GenomicVariantsResponse {
     // each row becomes a GenomicVariantsResultSetsItem
     for (Table t : genomicVariantTables) {
       System.out.println("TABLE: " + t.getName() + " FROM SCHEMA " + t.getSchema().getName());
+
+      // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
       Query q = t.query();
-      for (Column c : t.getMetadata().getColumns()) {
-        switch (c.getName()) {
-          case "variantInternalId":
-          case "variantType":
-          case "referenceBases":
-          case "alternateBases":
-          case "geneId":
-          case "position_assemblyId":
-          case "position_refseqId":
-          case "position_start":
-          case "position_end":
-            q.select(s(c.getName()));
-            // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
-        }
-      }
+      selectColumns(t, q);
 
       switch (qt) {
         case SEQUENCE:

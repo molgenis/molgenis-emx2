@@ -2,7 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.biosamples;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 import spark.Request;
@@ -32,31 +31,9 @@ public class BiosamplesResponse {
 
     for (Table t : tables) {
       System.out.println("## table: " + t.getName());
-      Query q = t.query();
 
-      // for every column that is an ontology, add the name, code and codesystem to select
-      for (Column c : t.getMetadata().getColumns()) {
-        if (c.isOntology()) {
-          List<Column> ontoRefCols =
-              c.getRefTable().getColumns().stream()
-                  .filter(
-                      colDef ->
-                          colDef.getName().equals("name")
-                              || colDef.getName().equals("code")
-                              || colDef.getName().equals("codesystem"))
-                  .collect(Collectors.toList());
-          ArrayList<String> colNames = new ArrayList<>();
-          for (Column cc : ontoRefCols) {
-            colNames.add(cc.getName());
-          }
-          q.select(new SelectColumn(c.getName(), colNames));
-        } else if (c.isReference()) {
-          throw new Exception(
-              "Reference datatypes (except ontology) not yet supported in Biosamples");
-        } else {
-          q.select(s(c.getName()));
-        }
-      }
+      Query q = t.query();
+      selectColumns(t, q);
 
       if (qId != null) {
         q.where(f("id", EQUALS, qId));
