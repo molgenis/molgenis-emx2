@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -34,11 +34,16 @@ public class Beaconv2_ModelEndpointsTest {
   public void testGenomicVariants_NoParams() throws Exception {
     Request request = mock(Request.class);
     GenomicVariants gv =
-        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
 
     // check correct empty resultset structure (must be exactly this!)
-    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]\n" + "  }"));
+    assertTrue(
+        json.contains(
+            """
+            "response" : {
+                "resultSets" : [ ]
+              }"""));
     assertEquals(728, json.length());
   }
 
@@ -55,7 +60,7 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("referenceBases")).thenReturn("c");
     when(request.queryParams("alternateBases")).thenReturn("g");
     GenomicVariants gv =
-        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
@@ -63,15 +68,27 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
-  public void testGenomicVariants_RangeQuery() throws Exception {
-    // start=2447952 & end=2447955 & referenceName=20
+  public void testGenomicVariants_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("referenceName")).thenReturn("20");
+    when(request.queryParams("start")).thenReturn("2447955");
+    when(request.queryParams("referenceBases")).thenReturn("c");
+    when(request.queryParams("alternateBases")).thenReturn("a");
+    GenomicVariants gv =
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
+    String json = JsonUtil.getWriter().writeValueAsString(gv);
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertEquals(728, json.length());
+  }
 
+  @Test
+  public void testGenomicVariants_RangeQuery() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("start")).thenReturn("2447952");
     when(request.queryParams("end")).thenReturn("2447955");
     when(request.queryParams("referenceName")).thenReturn("20");
     GenomicVariants gv =
-        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
@@ -84,7 +101,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     when(request.queryParams("geneId")).thenReturn("SNRPB");
     GenomicVariants gv =
-        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
     assertTrue(json.contains("\"resultsCount\" : 3,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
@@ -100,7 +117,7 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("end")).thenReturn("2447952,2447953");
     when(request.queryParams("referenceName")).thenReturn("20");
     GenomicVariants gv =
-        new GenomicVariants(request, Arrays.asList(beaconSchema.getTable("GenomicVariations")));
+        new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(gv);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
@@ -110,10 +127,20 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testAnalyses_NoParams() throws Exception {
     Request request = mock(Request.class);
-    Analyses a = new Analyses(request, Arrays.asList(beaconSchema.getTable("Analyses")));
+    Analyses a = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(a);
     assertTrue(json.contains("\"resultsCount\" : 4,"));
     assertEquals(2604, json.length());
+  }
+
+  @Test
+  public void testAnalyses_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("A05");
+    Analyses a = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
+    String json = JsonUtil.getWriter().writeValueAsString(a);
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertEquals(728, json.length());
   }
 
   @Test
@@ -121,7 +148,7 @@ public class Beaconv2_ModelEndpointsTest {
 
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("A03");
-    Analyses a = new Analyses(request, Arrays.asList(beaconSchema.getTable("Analyses")));
+    Analyses a = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(a);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
@@ -131,26 +158,37 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testBiosamples_NoParams() throws Exception {
     Request request = mock(Request.class);
-    Biosamples b = new Biosamples(request, Arrays.asList(beaconSchema.getTable("Biosamples")));
+    Biosamples b = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(b);
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(
         json.contains(
-            "\"obtentionProcedure\" : {\n"
-                + "              \"procedureCode\" : {\n"
-                + "                \"id\" : \"OBI0002654\",\n"
-                + "                \"label\" : \"needle biopsy\""));
-    assertEquals(2531, json.length());
+            """
+                        "obtentionProcedure" : {
+                                      "procedureCode" : {
+                                        "id" : "OBI:0002654",
+                                        "label" : "needle biopsy\""""));
+    assertEquals(2540, json.length());
+  }
+
+  @Test
+  public void testBiosamples_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("sample-example-0003");
+    Biosamples b = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
+    String json = JsonUtil.getWriter().writeValueAsString(b);
+    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertEquals(728, json.length());
   }
 
   @Test
   public void testBiosamples_IdQuery() throws Exception {
     Request request = mock(Request.class);
     when(request.queryParams("id")).thenReturn("sample-example-0002");
-    Biosamples b = new Biosamples(request, Arrays.asList(beaconSchema.getTable("Biosamples")));
+    Biosamples b = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(b);
     assertTrue(json.contains("\"id\" : \"sample-example-0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1670, json.length());
+    assertEquals(1674, json.length());
   }
 }
