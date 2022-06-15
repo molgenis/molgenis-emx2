@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
-import org.molgenis.emx2.beaconv2.responses.EntryTypes;
+import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
 

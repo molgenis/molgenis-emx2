@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.beacon.requests.BeaconRequestBody;
-import org.molgenis.emx2.beacon.responses.BeaconFilteringTermsResponse;
-import org.molgenis.emx2.beaconv2.responses.*;
+import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.beaconv2.responses.BeaconFilteringTermsResponse;
 import spark.Request;
 import spark.Response;
 

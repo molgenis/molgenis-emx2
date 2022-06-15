@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.molgenis.emx2.beaconv2.responses.Map;
+import org.molgenis.emx2.beaconv2.endpoints.Map;
 import org.molgenis.emx2.json.JsonUtil;
 import spark.Request;
 

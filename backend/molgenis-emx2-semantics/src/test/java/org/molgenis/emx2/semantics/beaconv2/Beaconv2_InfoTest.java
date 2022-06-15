@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.molgenis.emx2.beaconv2.responses.Info;
+import org.molgenis.emx2.beaconv2.endpoints.Info;
 import org.molgenis.emx2.json.JsonUtil;
 
 public class Beaconv2_InfoTest {
