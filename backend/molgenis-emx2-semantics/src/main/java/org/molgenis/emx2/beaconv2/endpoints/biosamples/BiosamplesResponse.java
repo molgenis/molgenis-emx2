@@ -2,16 +2,16 @@ package org.molgenis.emx2.beaconv2.endpoints.biosamples;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -39,65 +39,42 @@ public class BiosamplesResponse {
         q.where(f("id", EQUALS, qId));
       }
 
-      HashMap<String, BiosamplesResultSetsItem> aList = new HashMap<>();
+      List<BiosamplesResultSetsItem> sampleList = new ArrayList<>();
 
-      // todo better way to deal with duplicated rows when 1 row has multiple values in a column...
-      // tmp store for 0..n variables
-      HashMap<String, List<OntologyTerm>> sampleOriginType = new HashMap<>();
+      String json = q.retrieveJSON();
+      System.out.println(json);
+      Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
+      List<Map<String, Object>> sampleListFromJSON =
+          (List<Map<String, Object>>) result.get("Biosamples");
 
-      for (Row r : q.retrieveRows()) {
-        String id = r.getString("id");
-        BiosamplesResultSetsItem a;
-        if (!aList.containsKey(id)) {
-          a = new BiosamplesResultSetsItem();
-          // 0..1 variables, ok to put once
-          a.id = id;
-          a.collectionMoment = r.getString("collectionMoment");
-          a.collectionDate = r.getString("collectionDate");
-          a.biosampleStatus =
-              new OntologyTerm(
-                  r.getString("biosampleStatus-codesystem") + r.getString("biosampleStatus-code"),
-                  r.getString("biosampleStatus-name"));
+      if (sampleListFromJSON != null) {
+        for (Map map : sampleListFromJSON) {
+          BiosamplesResultSetsItem a = new BiosamplesResultSetsItem();
+          a.id = (String) map.get("id");
+          a.biosampleStatus = mapToOntologyTerm((Map) map.get("biosampleStatus"));
+          a.sampleOriginType = mapListToOntologyTerms((List<Map>) map.get("sampleOriginType"));
+          a.collectionMoment = (String) map.get("collectionMoment");
+          a.collectionDate = (String) map.get("collectionDate");
           a.obtentionProcedure =
-              new ObtentionProcedure(
-                  r.getString("obtentionProcedure-codesystem")
-                      + r.getString("obtentionProcedure-code"),
-                  r.getString("obtentionProcedure-name"));
-
-          // tmp store for 0..n variables
-          List<OntologyTerm> sampleOriginTypeList = new ArrayList<>();
-          sampleOriginTypeList.add(
-              new OntologyTerm(
-                  r.getString("sampleOriginType-codesystem") + r.getString("sampleOriginType-code"),
-                  r.getString("sampleOriginType-name")));
-          sampleOriginType.put(id, sampleOriginTypeList);
-          aList.put(id, a);
-        } else {
-          // tmp store for 0..n variables
-          sampleOriginType
-              .get(id)
-              .add(
-                  new OntologyTerm(
-                      r.getString("sampleOriginType-codesystem")
-                          + r.getString("sampleOriginType-code"),
-                      r.getString("sampleOriginType-name")));
+              new ObtentionProcedure(mapToOntologyTerm((Map) map.get("obtentionProcedure")));
+          sampleList.add(a);
         }
       }
 
-      for (String id : aList.keySet()) {
-        BiosamplesResultSetsItem a = aList.get(id);
-        a.sampleOriginType =
-            sampleOriginType.get(id).toArray(new OntologyTerm[sampleOriginType.get(id).size()]);
+      if (sampleList.size() > 0) {
+        BiosamplesResultSets aSet =
+            new BiosamplesResultSets(
+                t.getSchema().getName(),
+                sampleList.size(),
+                sampleList.toArray(new BiosamplesResultSetsItem[sampleList.size()]));
+        rList.add(aSet);
       }
-
-      BiosamplesResultSets aSet =
-          new BiosamplesResultSets(
-              t.getSchema().getName(),
-              aList.size(),
-              aList.values().toArray(new BiosamplesResultSetsItem[aList.size()]));
-      rList.add(aSet);
     }
 
+    System.out.println("rlist size " + rList.size());
+
     this.resultSets = rList.toArray(new BiosamplesResultSets[rList.size()]);
+
+    System.out.println("this.resultSets length " + this.resultSets.length);
   }
 }

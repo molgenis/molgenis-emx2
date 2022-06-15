@@ -12,4 +12,8 @@ public class OntologyTerm {
     this.id = id;
     this.label = label;
   }
+
+  public OntologyTerm() {
+    super();
+  }
 }

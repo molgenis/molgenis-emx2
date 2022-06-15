@@ -7,7 +7,7 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 public class ObtentionProcedure {
   OntologyTerm procedureCode;
 
-  public ObtentionProcedure(String procedureCode_id, String procedureCode_label) {
-    this.procedureCode = new OntologyTerm(procedureCode_id, procedureCode_label);
+  public ObtentionProcedure(OntologyTerm procedureCode) {
+    this.procedureCode = procedureCode;
   }
 }
