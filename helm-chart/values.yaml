@@ -9,9 +9,9 @@ image:
   pullPolicy: Always
 
 database:
-  name: molgenis
-  username: molgenis
-  password: molgenis
+  name: molgenisdb
+  username: molgenis_admin
+  password: molgenis_admin
 
 oidc:
   enabled: false
