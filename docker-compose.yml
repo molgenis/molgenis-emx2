@@ -15,7 +15,7 @@ services:
   emx2:
     image: molgenis/molgenis-emx2
     environment:
-      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenis
+      - MOLGENIS_POSTGRES_URI=jdbc:postgresql://postgres/molgenisdb
       - MOLGENIS_POSTGRES_USER=molgenis_admin
       - MOLGENIS_POSTGRES_PASS=molgenis_admin
 #      - MOLGENIS_OIDC_CLIENT_ID=[]

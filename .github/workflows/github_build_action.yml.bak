@@ -38,9 +38,9 @@ jobs:
       - name: Build with run tests and sonar (add 'release' to also do releases, and jib to push docker)
         run: ./gradlew --stacktrace test jacocoMergedReport sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$GITHUB_TOKEN -Dorg.ajoberstar.grgit.auth.password
         env:
-          MOLGENIS_POSTGRES_USER: molgenis
-          MOLGENIS_POSTGRES_PASS: molgenis
-          MOLGENIS_POSTGRES_URI: jdbc:postgresql://postgres/molgenis
+          MOLGENIS_POSTGRES_USER: molgenis_admin
+          MOLGENIS_POSTGRES_PASS: molgenis_admin
+          MOLGENIS_POSTGRES_URI: jdbc:postgresql://postgres/molgenisdb
           JVM_OPTS: -Xmx3200m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
