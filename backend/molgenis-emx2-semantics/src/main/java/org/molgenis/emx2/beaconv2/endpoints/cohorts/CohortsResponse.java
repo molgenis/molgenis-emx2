@@ -21,15 +21,15 @@ public class CohortsResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  CohortsResultSets[] collections;
+  CohortsResultSetsItem[] collections;
 
   // query parameters, ignore from output
   @JsonIgnore String qId;
 
   public CohortsResponse(Request request, List<Table> tables) throws Exception {
 
-    List<CohortsResultSets> cList = new ArrayList<>();
     qId = request.queryParams("cohortId");
+    List<CohortsResultSetsItem> cohortList = new ArrayList<>();
 
     for (Table t : tables) {
       Query q = t.query();
@@ -38,8 +38,6 @@ public class CohortsResponse {
       if (qId != null) {
         q.where(f("cohortId", EQUALS, qId));
       }
-
-      List<CohortsResultSetsItem> cohortList = new ArrayList<>();
 
       String json = q.retrieveJSON();
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
@@ -64,16 +62,8 @@ public class CohortsResponse {
           cohortList.add(c);
         }
       }
-      if (cohortList.size() > 0) {
-        CohortsResultSets cSet =
-            new CohortsResultSets(
-                t.getSchema().getName(),
-                cohortList.size(),
-                cohortList.toArray(new CohortsResultSetsItem[cohortList.size()]));
-        cList.add(cSet);
-      }
     }
 
-    this.collections = cList.toArray(new CohortsResultSets[cList.size()]);
+    this.collections = cohortList.toArray(new CohortsResultSetsItem[cohortList.size()]);
   }
 }
