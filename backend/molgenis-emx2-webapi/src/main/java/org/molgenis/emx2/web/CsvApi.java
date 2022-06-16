@@ -60,8 +60,10 @@ public class CsvApi {
 
     if (fileNameMatchesTable) {
       // so we assume it isn't meta data
-      request.params().put("table", fileName);
-      return tableUpdate(request, response);
+      int count = MolgenisWebservice.getTable(request, fileName).save(getRowList(request));
+      response.status(200);
+      response.type(ACCEPT_CSV);
+      return "imported number of rows: " + count;
     } else {
       SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
       getSchema(request).migrate(schema);

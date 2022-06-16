@@ -203,14 +203,14 @@ export default {
       if (["csv", "json", "yaml"].includes(type)) {
         const reader = new FileReader();
         reader.readAsText(this.file);
-        const body = reader.result;
-        const url = `/${this.schema}/api/${type}`;
         reader.onload = () => {
-          fetch(url, {
+          const url = `/${this.schema}/api/${type}`;
+          const options = {
             method: "POST",
-            body,
+            body: reader.result,
             headers: { fileName: fileName },
-          })
+          };
+          fetch(url, options)
             .then((response) => {
               response.text().then((successText) => {
                 this.success = successText;
