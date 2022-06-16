@@ -37,3 +37,25 @@ Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://pur
 Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain
 Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth"
 Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image"
+Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
+Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
+Individuals,,sex,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,E.g. assigned female at birth
+Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
+Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland
+Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001
+Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001
+IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases
+IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001
+IndividualsDiseases,,diseaseCode,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C20587,E.g. Adult 18-65 Years Old
+IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false
+IndividualsDiseases,,severity,ontology,,,,DiseaseSeverity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
+IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset
+IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures
+IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001
+IndividualsMeasures,,assayCode,ontology,,,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics
+IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03
+IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count
+IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_P355,E.g. Per Millimeter
+IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
