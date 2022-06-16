@@ -11,6 +11,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.endpoints.Analyses;
 import org.molgenis.emx2.beaconv2.endpoints.Biosamples;
+import org.molgenis.emx2.beaconv2.endpoints.Cohorts;
 import org.molgenis.emx2.beaconv2.endpoints.GenomicVariants;
 import org.molgenis.emx2.datamodels.Beaconv2Loader;
 import org.molgenis.emx2.json.JsonUtil;
@@ -168,7 +169,7 @@ public class Beaconv2_ModelEndpointsTest {
                                       "procedureCode" : {
                                         "id" : "OBI:0002654",
                                         "label" : "needle biopsy\""""));
-    assertEquals(2540, json.length());
+    assertEquals(2121, json.length());
   }
 
   @Test
@@ -189,6 +190,59 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(b);
     assertTrue(json.contains("\"id\" : \"sample-example-0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1674, json.length());
+    assertEquals(1523, json.length());
+  }
+
+  @Test
+  public void testCohorts_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    Cohorts c = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
+    String json = JsonUtil.getWriter().writeValueAsString(c);
+    // 'collections' structure, different from 'resultSet'
+    assertTrue(
+        json.contains(
+            """
+            "response" : {
+                "collections" : [
+                  {
+                    "cohortId" : "cohort0001","""));
+    assertTrue(
+        json.contains(
+            """
+            "locations" : [
+                      {
+                        "id" : "ISO3166:FR",
+                        "label" : "France"
+                      },
+                      {
+                        "id" : "ISO3166:ES",
+                        "label" : "Spain\""""));
+    assertEquals(3627, json.length());
+  }
+
+  @Test
+  public void testCohorts_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("cohortId")).thenReturn("cohort0003");
+    Cohorts c = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
+    String json = JsonUtil.getWriter().writeValueAsString(c);
+    assertTrue(
+        json.contains(
+            """
+            "response" : {
+                "collections" : [ ]
+              }"""));
+    assertEquals(729, json.length());
+  }
+
+  @Test
+  public void testCohorts_IdQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("cohortId")).thenReturn("cohort0001");
+    Cohorts c = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
+    String json = JsonUtil.getWriter().writeValueAsString(c);
+    assertTrue(json.contains("\"cohortId\" : \"cohort0001\","));
+    assertFalse(json.contains("\"cohortId\" : \"cohort0002\","));
+    assertEquals(2163, json.length());
   }
 }
