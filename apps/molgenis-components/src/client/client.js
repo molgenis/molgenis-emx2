@@ -163,7 +163,7 @@ const isFileValue = (value) => {
   }
 };
 
-const saveRowData = (rowData, tableName, graphqlURL) => {
+const toFormData = (rowData) => {
   if (!FormData) {
     throw "Files can only be uploaded via a browser client";
   }
@@ -178,19 +178,33 @@ const saveRowData = (rowData, tableName, graphqlURL) => {
       : (nonFileValue[key] = value);
   }
 
-  // add the file objects to the formData and place a link to the object in the variables 
+  // add the file objects to the formData and place a link to the object in the variables
   for (const [key, value] of Object.entries(fileValues)) {
     const id = Math.random().toString(36);
     formData.append(id, value);
     nonFileValue[key] = id;
   }
 
-  const variables = JSON.stringify({ value: [nonFileValue] });
-  formData.append("variables", variables);
-  formData.append(
-    "query",
-    `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`
-  );
+  formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
+
+  return formData
+}
+
+const insertDataRow = (rowData, tableName, graphqlURL) => {
+  
+  const formData = toFormData(rowData);
+
+  const query = `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`
+  formData.append("query", query);
+
+  return axios.post(graphqlURL, formData);
+};
+
+const updateDataRow = (rowData, tableName, graphqlURL) => {
+  const formData = toFormData(rowData);
+
+  const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`
+  formData.append("query", query);
 
   return axios.post(graphqlURL, formData);
 };
@@ -203,7 +217,8 @@ export default {
     // use closure to have metaData cache private to client
     let metaData = null;
     return {
-      saveRowData,
+      insertDataRow,
+      updateDataRow,
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;

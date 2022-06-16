@@ -8,6 +8,7 @@
         :tableName="tableName"
         :tableMetaData="tableMetaData"
         :graphqlURL="graphqlURL"
+        :clone="clone"
       >
       </RowEdit>
     </template>
@@ -98,9 +99,13 @@ export default {
     },
     async save(formData) {
       this.errorMessage = null;
-      const result = await this.client
-        .saveRowData(formData, this.tableName, this.graphqlURL)
-        .catch(this.handleSaveError);
+      const action =
+        this.pkey && !this.clone ? "updateDataRow" : "insertDataRow";
+      const result = await this.client[action](
+        formData,
+        this.tableName,
+        this.graphqlURL
+      ).catch(this.handleSaveError);
       if (result) {
         this.$emit("close");
       }
@@ -111,6 +116,26 @@ export default {
           ? "Schema doesn't exist or permission denied. Do you need to Sign In?"
           : error.response.data.errors[0].message;
     },
+    async fetchRowData() {
+      // build id filter
+      const filter = this.tableMetaData.columns
+        .filter((column) => column.key === 1)
+        .reduce((accum, column) => {
+          accum[column.id] = { equals: this.pkey[column.id] };
+          return accum;
+        }, {});
+
+      const resultArray = await this.client.fetchTableDataValues(
+        this.tableName,
+        { filter }
+      );
+
+      if (!resultArray.length || resultArray.length !== 1) {
+        this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
+      }
+
+      return resultArray[0];
+    },
     handleClose() {
       this.errorMessage = null;
       this.$emit("close");
@@ -119,8 +144,24 @@ export default {
   async mounted() {
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
-    // todo handle update
-    // this.rowData = await this.client.fetchTableDataValues(this.tableName);
+
+    if (this.pkey) {
+      this.rowData = await this.fetchRowData();
+
+      if (this.clone) {
+        // in case of clone, remove the key columns from the row data
+        const keyColumnsNames = this.tableMetaData.columns
+          .filter((column) => column.key === 1)
+          .map((column) => column.name);
+          
+        this.rowData = Object.keys(this.rowData)
+          .filter((key) => !keyColumnsNames.includes(key))
+          .reduce((obj, key) => {
+            obj[key] = this.rowData[key];
+            return obj;
+          }, {});
+      }
+    }
   },
 };
 </script>
@@ -131,25 +172,47 @@ export default {
 <docs>
   <template>
     <demo-item label="Edit Modal">
+
       <button 
         class="btn btn-primary" 
         @click="isModalShown = !isModalShown">
-          Show edit {{tableName}}
+          Show {{demoMode}} {{tableName}}
       </button>
-       <select class="ml-5" v-model="tableName">
-          <option>Pet</option>
-          <option>Order</option>
-          <option>Category</option>
-          <option>User</option>
-        </select>
+
+      <label for="table-selector" class="ml-5 pr-1">table</label>
+      <select id="table-selector"  v-model="tableName">
+        <option>Pet</option>
+        <option>Order</option>
+        <option>Category</option>
+        <option>User</option>
+      </select>
+
+      <input type="radio" id="insert" value="insert" v-model="demoMode" class="ml-5">
+      <label for="insert" class="pl-1">Insert</label>
+    
+      <input type="radio" id="update" value="update" v-model="demoMode" class="ml-1 pr-1">
+      <label for="update" class="pl-1">Update</label>
+   
+      <input type="radio" id="clone" value="clone" v-model="demoMode" class="ml-1 pr-1">
+      <label for="clone" class="pl-1">Clone</label>
+
       <EditModal 
-        :key="tableName"
+        :key="tableName + demoKey + demoMode"
         id="edit-modal" 
         :tableName="tableName" 
+        :pkey="demoKey"
+        :clone="demoMode === 'clone'"
         :isModalShown="isModalShown" 
         :graphqlURL="graphqlURL"
         @close="isModalShown = false"
       />
+
+      <div v-if="log.length" class="py-3">
+        <label>showCase log:</label>
+        <ul>
+          <li v-for="(msg, idx) in log" :key="idx">{{msg}}</li>
+        </ul>
+      </div>
     </demo-item>
   </template>
   <script>
@@ -157,12 +220,34 @@ export default {
     data: function () {
       return {
         tableName: "Pet",
+        demoMode: "insert", // one of [insert, update, clone] 
+        demoKey: null, // empty in case of insert 
         isModalShown: false,
-        graphqlURL: "/pet store/graphql"
+        graphqlURL: "/pet store/graphql",
+        log: []
       };
     },
     methods: {
-      
+      async reload () {
+        const client = this.$Client.newClient(this.graphqlURL);
+        const tableMetaData = await client.fetchTableMetaData(this.tableName);
+        const rowData = await client.fetchTableDataValues(this.tableName);
+        this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData)
+        this.log.unshift(`reloaded ${this.tableName} for ${this.demoMode}`);
+      },
+      onModeChange () {
+        if(this.demoMode !== 'insert') {
+          this.reload();
+        } else {
+          this.log.unshift(`cleared  ${this.tableName} pKey for insert`);
+          this.demoKey = null;
+        }
+      }
+    },
+    watch: {
+      demoMode () {
+        this.onModeChange()
+      }
     }
   };
   </script>
