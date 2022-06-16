@@ -10,12 +10,14 @@
       :errorMessage="errorPerColumn[column.id]"
       :graphqlURL="graphqlURL"
       :label="column.name"
-      :pkey="getPrimaryKey(internalValues)"
+      :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
+      :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
       :refLabel="column.refLabel"
       :required="column.required"
       :tableName="column.refTable"
+      :canEdit="canEdit"
     />
   </div>
 </template>
@@ -77,6 +79,11 @@ export default {
     graphqlURL: {
       default: "graphql",
       type: String,
+    },
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => true,
     },
   },
   components: {
