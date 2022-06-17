@@ -47,12 +47,20 @@
 
           <IconCard cardTitle="Samples" icon="TestPipeIcon" footerText="">
             <div class="card-text">
-              <h1 class="text-center"> {{ Math.round((biologicalSamplesCounts / dataCategoriesCounts) * 100 )}}%</h1>
-              <!-- <ul>
-                <li>Blood: 54%</li>
-                <li>DNA: 28%</li>
-                <li>Other: 44%</li>
-              </ul> -->
+              <h1 class="text-center">
+                {{
+                  Math.round(
+                    (biologicalSamplesCounts / dataCategoriesCounts) * 100
+                  )
+                }}%
+              </h1>
+              <ul>
+                <li>Fluid: {{ sampleTypeCounts["Fluid"] }}</li>
+                <li>
+                  Genetic material: {{ sampleTypeCounts["Genetic material"] }}
+                </li>
+                <li>Tissue: {{ sampleTypeCounts["Tissue"] }}</li>
+              </ul>
             </div>
           </IconCard>
 
@@ -61,7 +69,8 @@
               <h1 class="text-center" style="color: white">spacer</h1>
               <ul>
                 <li v-for="type in Object.keys(typeCounts)" :key="type">
-                  {{ type }}: {{ (typeCounts[type] / typesTotalCount) * 100 }}%
+                  {{ type }}:
+                  {{ Math.round((typeCounts[type] / typesTotalCount) * 100) }}%
                 </li>
               </ul>
             </div>
@@ -157,6 +166,11 @@ export default {
       typeCounts: {},
       dataCategoriesCounts: 0,
       biologicalSamplesCounts: 0,
+      sampleTypeCounts: {
+        Fluid: 0,
+        "Genetic material": 4,
+        Tissue: 0,
+      },
       newsItems: [],
       recentlyAdded: [],
       graphqlError: "",
@@ -239,11 +253,49 @@ export default {
           total + cohort.collectionEvents
             ? cohort.collectionEvents.reduce((perCohort, collectionEvent) => {
                 return (perCohort += collectionEvent.dataCategories
-                  ? collectionEvent.dataCategories.map(dc => dc.name).includes('Biological samples') ? 1 : 0
+                  ? collectionEvent.dataCategories
+                      .map((dc) => dc.name)
+                      .includes("Biological samples")
+                    ? 1
+                    : 0
                   : 0);
               }, total)
             : 0);
       }, 0);
+
+      // sample types
+      this.sampleTypeCounts = resp.Cohorts.reduce((sampleTypes, cohort) => {
+        if (cohort.collectionEvents) {
+          sampleTypes = cohort.collectionEvents.reduce(
+            (sampleTypes, collectionEvent) => {
+              if (collectionEvent.sampleCategories) {
+                if (
+                  collectionEvent.sampleCategories.name ===
+                    "Fluids and Secretions" ||
+                  collectionEvent.sampleCategories.parent ===
+                    "Fluids and Secretions"
+                ) {
+                  sampleTypes["Fluids and Secretions"] += 1;
+                } else if (
+                  collectionEvent.sampleCategories.name ===
+                    "Genetic material" ||
+                  collectionEvent.sampleCategories.parent === "Genetic material"
+                ) {
+                  sampleTypes["Genetic material"] += 1;
+                } else if (
+                  collectionEvent.sampleCategories.name.startsWith("Tissue") ||
+                  collectionEvent.sampleCategories.parent.startsWith("Tissue")
+                ) {
+                  sampleTypes["Tissue"] += 1;
+                }
+              }
+              return sampleTypes;
+            },
+            sampleTypes
+          );
+        }
+        return sampleTypes;
+      }, this.sampleTypeCounts);
 
       const newsItemsSettings = resp._settings.filter(
         (s) => s.key === "newsItems"
