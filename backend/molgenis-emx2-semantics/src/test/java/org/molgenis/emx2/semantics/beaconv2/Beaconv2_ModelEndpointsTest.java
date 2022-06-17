@@ -9,10 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.beaconv2.endpoints.Analyses;
-import org.molgenis.emx2.beaconv2.endpoints.Biosamples;
-import org.molgenis.emx2.beaconv2.endpoints.Cohorts;
-import org.molgenis.emx2.beaconv2.endpoints.GenomicVariants;
+import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.datamodels.Beaconv2Loader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -244,5 +241,72 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"cohortId\" : \"cohort0001\","));
     assertFalse(json.contains("\"cohortId\" : \"cohort0002\","));
     assertEquals(2163, json.length());
+  }
+
+  @Test
+  public void testIndividuals_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    Individuals i = new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
+    String json = JsonUtil.getWriter().writeValueAsString(i);
+    assertTrue(json.contains("\"id\" : \"Ind001\","));
+    assertTrue(json.contains("\"id\" : \"Ind002\","));
+    assertEquals(5916, json.length());
+  }
+
+  @Test
+  public void testIndividuals_IdQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("Ind002");
+    Individuals c = new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
+    String json = JsonUtil.getWriter().writeValueAsString(c);
+    assertFalse(json.contains("\"id\" : \"Ind001\","));
+    assertTrue(json.contains("\"id\" : \"Ind002\","));
+    // check if nested references and other key structures are present
+    assertTrue(
+        json.contains(
+            """
+            "measures" : [
+                          {
+                            "assayCode" : {
+                              "id" : "EDAM:topic_3308","""));
+    assertTrue(
+        json.contains(
+            """
+            },
+                         {
+                           "assayCode" : {
+                             "id" : "EDAM:topic_0121","""
+                .indent(1)));
+    assertTrue(
+        json.contains(
+            """
+            "measurementVariable" : "TTN peptipe",
+                            "measurementValue" : {
+                              "value" : 6853,
+                              "units" : {
+                                "id" : "NCIT:C67433",
+                                "label" : "Nanomole per Milligram of Protein\""""));
+    assertTrue(
+        json.contains(
+            """
+            "observationMoment" : {
+                              "age" : {
+                                "iso8601duration" : "P75Y9M11D\""""));
+    assertEquals(3406, json.length());
+  }
+
+  @Test
+  public void testIndividuals_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("Ind003");
+    Individuals c = new Individuals(request, List.of(beaconSchema.getTable("Individuals")));
+    String json = JsonUtil.getWriter().writeValueAsString(c);
+    assertTrue(
+        json.contains(
+            """
+            "response" : {
+                "resultSets" : [ ]
+              }"""));
+    assertEquals(728, json.length());
   }
 }
