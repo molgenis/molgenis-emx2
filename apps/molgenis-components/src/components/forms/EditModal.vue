@@ -31,6 +31,7 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import RowEdit from "./RowEdit.vue";
+import { filterObject } from "../utils";
 
 export default {
   name: "EditModal",
@@ -112,29 +113,19 @@ export default {
     },
     handleSaveError(error) {
       this.errorMessage =
-        error.response && error.response.status === 403
+        error.response?.status === 403
           ? "Schema doesn't exist or permission denied. Do you need to Sign In?"
-          : error.response.data.errors[0].message;
+          : error.response
+          ? error.response.data.errors[0].message
+          : "An Error occurred during save";
     },
     async fetchRowData() {
-      // build id filter
-      const filter = this.tableMetaData.columns
-        .filter((column) => column.key === 1)
-        .reduce((accum, column) => {
-          accum[column.id] = { equals: this.pkey[column.id] };
-          return accum;
-        }, {});
-
-      const resultArray = await this.client.fetchTableDataValues(
-        this.tableName,
-        { filter }
-      );
-
-      if (!resultArray.length || resultArray.length !== 1) {
+      const result = this.client.fetchRowData(this.tableName, this.pkey);
+      if (!result) {
         this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
+      } else {
+        return result;
       }
-
-      return resultArray[0];
     },
     handleClose() {
       this.errorMessage = null;
@@ -153,21 +144,16 @@ export default {
         const keyColumnsNames = this.tableMetaData.columns
           .filter((column) => column.key === 1)
           .map((column) => column.name);
-          
-        this.rowData = Object.keys(this.rowData)
-          .filter((key) => !keyColumnsNames.includes(key))
-          .reduce((obj, key) => {
-            obj[key] = this.rowData[key];
-            return obj;
-          }, {});
+
+        this.rowData = filterObject(
+          this.rowData,
+          (key) => !keyColumnsNames.includes(key)
+        );
       }
     }
   },
 };
 </script>
-
-<style>
-</style>
 
 <docs>
   <template>
@@ -207,12 +193,6 @@ export default {
         @close="isModalShown = false"
       />
 
-      <div v-if="log.length" class="py-3">
-        <label>showCase log:</label>
-        <ul>
-          <li v-for="(msg, idx) in log" :key="idx">{{msg}}</li>
-        </ul>
-      </div>
     </demo-item>
   </template>
   <script>
@@ -224,7 +204,6 @@ export default {
         demoKey: null, // empty in case of insert 
         isModalShown: false,
         graphqlURL: "/pet store/graphql",
-        log: []
       };
     },
     methods: {
@@ -233,13 +212,11 @@ export default {
         const tableMetaData = await client.fetchTableMetaData(this.tableName);
         const rowData = await client.fetchTableDataValues(this.tableName);
         this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData)
-        this.log.unshift(`reloaded ${this.tableName} for ${this.demoMode}`);
       },
       onModeChange () {
         if(this.demoMode !== 'insert') {
           this.reload();
         } else {
-          this.log.unshift(`cleared  ${this.tableName} pKey for insert`);
           this.demoKey = null;
         }
       }

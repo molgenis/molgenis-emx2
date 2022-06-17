@@ -1,6 +1,93 @@
 import axios from "axios";
 import { deepClone } from "../components/utils";
 
+export { request };
+
+export default {
+  newClient: (graphqlURL, externalAxios) => {
+    const myAxios = externalAxios || axios;
+    // use closure to have metaData cache private to client
+    let metaData = null;
+    return {
+      insertDataRow,
+      updateDataRow,
+      fetchMetaData: async () => {
+        const schema = await fetchMetaData(myAxios, graphqlURL);
+        metaData = schema;
+        return deepClone(metaData);
+      },
+      fetchTableMetaData: async (tableName) => {
+        if (metaData === null) {
+          const schema = await fetchMetaData(myAxios, graphqlURL);
+          metaData = schema;
+        }
+        return deepClone(metaData).tables.find(
+          (table) => table.id === tableName
+        );
+      },
+      fetchTableData: async (tableId, properties) => {
+        if (metaData === null) {
+          metaData = await fetchMetaData(myAxios, graphqlURL);
+        }
+        return fetchTableData(
+          tableId,
+          properties,
+          metaData,
+          myAxios,
+          graphqlURL
+        );
+      },
+      fetchTableDataValues: async (tableId, properties) => {
+        if (metaData === null) {
+          const schema = await fetchMetaData(myAxios, graphqlURL);
+          metaData = schema;
+        }
+        const dataResp = await fetchTableData(
+          tableId,
+          properties,
+          metaData,
+          myAxios,
+          graphqlURL
+        );
+        return dataResp[tableId];
+      },
+      fetchRowData: async (tableName, rowId) => {
+        if (metaData === null) {
+          const schema = await fetchMetaData(myAxios, graphqlURL);
+          metaData = schema;
+        }
+        const tableMetaData = metaData.tables.find(
+          (table) => table.id === tableName
+        );
+        const filter = tableMetaData.columns
+          .filter((column) => column.key === 1)
+          .reduce((accum, column) => {
+            accum[column.id] = { equals: rowId[column.id] };
+            return accum;
+          }, {});
+
+        const resultArray = (
+          await fetchTableData(
+            tableName,
+            {
+              filter,
+            },
+            metaData,
+            myAxios,
+            graphqlURL
+          )
+        )[tableName];
+
+        if (!resultArray.length || resultArray.length !== 1) {
+          return undefined;
+        } else {
+          return resultArray[0];
+        }
+      },
+    };
+  },
+};
+
 const metaDataQuery = `{
 _schema {
   name,
@@ -28,51 +115,18 @@ _schema {
   }
 }}`;
 
-/**
- *
- * @param {String} tableName
- * @param {Object} metaData - object that contains all schema meta data
- * @returns String of fields for use in gql query
- */
-const columnNames = (tableName, metaData) => {
-  let result = "";
-  getTable(tableName, metaData.tables).columns.forEach((col) => {
-    if (
-      ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        col.columnType
-      ) > 0
-    ) {
-      result = result + " " + col.id + "{" + refGraphql(col, metaData) + "}";
-    } else if (col.columnType === "FILE") {
-      result = result + " " + col.id + "{id,size,extension,url}";
-    } else if (col.columnType !== "HEADING") {
-      result = result + " " + col.id;
-    }
-  });
-
-  return result;
+const insertDataRow = (rowData, tableName, graphqlURL) => {
+  const formData = toFormData(rowData);
+  const query = `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`;
+  formData.append("query", query);
+  return axios.post(graphqlURL, formData);
 };
 
-const refGraphql = (column, metaData) => {
-  let graphqlString = "";
-  const refTable = getTable(column.refTable, metaData.tables);
-  refTable.columns.forEach((c) => {
-    if (c.key == 1) {
-      graphqlString += c.id + " ";
-      if (
-        ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-          c.columnType
-        ) > 0
-      ) {
-        graphqlString += "{" + refGraphql(c, metaData) + "}";
-      }
-    }
-  });
-  return graphqlString;
-};
-
-const getTable = (tableName, tableStore) => {
-  return tableStore.find((table) => table.name === tableName);
+const updateDataRow = (rowData, tableName, graphqlURL) => {
+  const formData = toFormData(rowData);
+  const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`;
+  formData.append("query", query);
+  return axios.post(graphqlURL, formData);
 };
 
 const fetchMetaData = async (axios, graphqlURL, onError) => {
@@ -155,6 +209,53 @@ const request = async (url, graqphl) => {
   return result.data.data;
 };
 
+/**
+ *
+ * @param {String} tableName
+ * @param {Object} metaData - object that contains all schema meta data
+ * @returns String of fields for use in gql query
+ */
+const columnNames = (tableName, metaData) => {
+  let result = "";
+  getTable(tableName, metaData.tables).columns.forEach((col) => {
+    if (
+      ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+        col.columnType
+      ) > 0
+    ) {
+      result = result + " " + col.id + "{" + refGraphql(col, metaData) + "}";
+    } else if (col.columnType === "FILE") {
+      result = result + " " + col.id + "{id,size,extension,url}";
+    } else if (col.columnType !== "HEADING") {
+      result = result + " " + col.id;
+    }
+  });
+
+  return result;
+};
+
+const refGraphql = (column, metaData) => {
+  let graphqlString = "";
+  const refTable = getTable(column.refTable, metaData.tables);
+  refTable.columns.forEach((c) => {
+    if (c.key == 1) {
+      graphqlString += c.id + " ";
+      if (
+        ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+          c.columnType
+        ) > 0
+      ) {
+        graphqlString += "{" + refGraphql(c, metaData) + "}";
+      }
+    }
+  });
+  return graphqlString;
+};
+
+const getTable = (tableName, tableStore) => {
+  return tableStore.find((table) => table.name === tableName);
+};
+
 const isFileValue = (value) => {
   if (window && "File" in window) {
     return value instanceof File;
@@ -187,78 +288,5 @@ const toFormData = (rowData) => {
 
   formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
 
-  return formData
-}
-
-const insertDataRow = (rowData, tableName, graphqlURL) => {
-  
-  const formData = toFormData(rowData);
-
-  const query = `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`
-  formData.append("query", query);
-
-  return axios.post(graphqlURL, formData);
-};
-
-const updateDataRow = (rowData, tableName, graphqlURL) => {
-  const formData = toFormData(rowData);
-
-  const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`
-  formData.append("query", query);
-
-  return axios.post(graphqlURL, formData);
-};
-
-export { request };
-
-export default {
-  newClient: (graphqlURL, externalAxios) => {
-    const myAxios = externalAxios || axios;
-    // use closure to have metaData cache private to client
-    let metaData = null;
-    return {
-      insertDataRow,
-      updateDataRow,
-      fetchMetaData: async () => {
-        const schema = await fetchMetaData(myAxios, graphqlURL);
-        metaData = schema;
-        return deepClone(metaData);
-      },
-      fetchTableMetaData: async (tableName) => {
-        if (metaData === null) {
-          const schema = await fetchMetaData(myAxios, graphqlURL);
-          metaData = schema;
-        }
-        return deepClone(metaData).tables.find(
-          (table) => table.id === tableName
-        );
-      },
-      fetchTableData: async (tableId, properties) => {
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, graphqlURL);
-        }
-        return fetchTableData(
-          tableId,
-          properties,
-          metaData,
-          myAxios,
-          graphqlURL
-        );
-      },
-      fetchTableDataValues: async (tableId, properties) => {
-        if (metaData === null) {
-          const schema = await fetchMetaData(myAxios, graphqlURL);
-          metaData = schema;
-        }
-        const dataResp = await fetchTableData(
-          tableId,
-          properties,
-          metaData,
-          myAxios,
-          graphqlURL
-        );
-        return dataResp[tableId];
-      },
-    };
-  },
+  return formData;
 };
