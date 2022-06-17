@@ -22,7 +22,9 @@ _schema {
       required,
       semantics,
       description,
-      position
+      position,
+      visible,
+      validation
     }
   }
 }}`;
