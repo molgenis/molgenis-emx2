@@ -112,12 +112,15 @@ export default {
       }
     },
     handleSaveError(error) {
-      this.errorMessage =
-        error.response?.status === 403
-          ? "Schema doesn't exist or permission denied. Do you need to Sign In?"
-          : error.response
-          ? error.response.data.errors[0].message
-          : "An Error occurred during save";
+      let errorMessage = "An Error occurred during save";
+      if (error.response?.status === 403) {
+        errorMessage =
+          "Schema doesn't exist or permission denied. Do you need to Sign In?";
+      } else if (error.response?.data?.errors[0].message) {
+        errorMessage = error.response.data.errors[0].message;
+      }
+
+      this.errorMessage = errorMessage;
     },
     async fetchRowData() {
       const result = this.client.fetchRowData(this.tableName, this.pkey);
