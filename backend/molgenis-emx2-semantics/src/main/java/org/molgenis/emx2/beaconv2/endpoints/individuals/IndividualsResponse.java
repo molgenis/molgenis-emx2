@@ -24,7 +24,6 @@ public class IndividualsResponse {
 
   public IndividualsResponse(Request request, List<Table> tables) throws Exception {
 
-    // TODO id query, and others!
     List<IndividualsResultSets> rList = new ArrayList<>();
     qId = request.queryParams("id");
 
@@ -34,7 +33,9 @@ public class IndividualsResponse {
       GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(t.getSchema());
       ExecutionResult executionResult =
           grapql.execute(
-              "{Individuals{"
+              "{Individuals"
+                  + (qId != null ? "(filter:{id: {equals:\"" + qId + "\"}})" : "")
+                  + "{"
                   + "id,"
                   + "sex{name,codesystem,code},"
                   + "ethnicity{name,codesystem,code},"
