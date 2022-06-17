@@ -119,6 +119,170 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testCsvApi_csvUploadDownload() throws IOException {
+    final String CSV_TEST_SCHEMA = "pet store csv";
+
+    // create a new schema for complete csv data round trip
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    // download csv metadata and data from existing schema
+    byte[] contentsMeta =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv")
+            .asByteArray();
+    byte[] contentsCategoryData =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Category")
+            .asByteArray();
+    byte[] contentsOrderData =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Order")
+            .asByteArray();
+    byte[] contentsPetData =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asByteArray();
+    byte[] contentsUserData =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/User")
+            .asByteArray();
+    byte[] contentsTagData =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Tag")
+            .asByteArray();
+
+    // create tmp files for csv metadata and data
+    File contentsMetaFile = createTempFile(contentsMeta, ".csv");
+    File contentsCategoryDataFile = createTempFile(contentsCategoryData, ".csv");
+    File contentsOrderDataFile = createTempFile(contentsOrderData, ".csv");
+    File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
+    File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
+    File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
+
+    // upload csv metadata and data into the new schema
+    // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
+    // json and yaml import is submitted in the request body
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsMetaFile)
+        .header("fileName", "molgenis")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsCategoryDataFile)
+        .header("fileName", "Category")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsTagDataFile)
+        .header("fileName", "Tag")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsPetDataFile)
+        .header("fileName", "Pet")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsOrderDataFile)
+        .header("fileName", "Order")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+    given()
+        .sessionId(SESSION_ID)
+        .body(contentsUserDataFile)
+        .header("fileName", "User")
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+
+    // download csv from the new schema
+    String contentsMetaNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv")
+            .asString();
+    String contentsCategoryDataNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv/Category")
+            .asString();
+    String contentsOrderDataNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv/Order")
+            .asString();
+    String contentsPetDataNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv/Pet")
+            .asString();
+    String contentsUserDataNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv/User")
+            .asString();
+    String contentsTagDataNew =
+        given()
+            .sessionId(SESSION_ID)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + CSV_TEST_SCHEMA + "/api/csv/Tag")
+            .asString();
+
+    // test if existing and new schema are equal
+    assertEquals(new String(contentsMeta), contentsMetaNew);
+    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
+    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
+    assertEquals(new String(contentsPetData), contentsPetDataNew);
+    assertEquals(new String(contentsUserData), contentsUserDataNew);
+    assertEquals(new String(contentsTagData), contentsTagDataNew);
+  }
+
+  @Test
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
