@@ -36,6 +36,7 @@ public class BeaconApi {
     get("/api/beacon/analyses", BeaconApi::getAnalyses);
     get("/api/beacon/biosamples", BeaconApi::getBiosamples);
     get("/api/beacon/cohorts", BeaconApi::getCohorts);
+    get("/api/beacon/individuals", BeaconApi::getIndividuals);
 
     /*
     both GET and POST are used to retrieve data, implement both?
@@ -107,6 +108,11 @@ public class BeaconApi {
   private static String getCohorts(Request request, Response response) throws Exception {
     List<Table> tables = getTableFromAllSchemas("Cohorts", request);
     return getWriter().writeValueAsString(new Cohorts(request, tables));
+  }
+
+  private static String getIndividuals(Request request, Response response) throws Exception {
+    List<Table> tables = getTableFromAllSchemas("Individuals", request);
+    return getWriter().writeValueAsString(new Individuals(request, tables));
   }
 
   private static String getGenomicVariants(Request request, Response response) throws Exception {
