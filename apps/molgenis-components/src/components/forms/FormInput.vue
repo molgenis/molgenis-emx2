@@ -63,13 +63,14 @@ export default {
   name: "FormInput",
   extends: BaseInput,
   props: {
-    inplace: {
-      type: Boolean,
-      default: false,
-    },
     columnType: {
       type: String,
       required: true,
+    },
+    inplace: {
+      type: Boolean,
+      required: false,
+      default: () => false,
     },
     description: {
       type: String,
@@ -88,8 +89,9 @@ export default {
       type: String,
     },
     pkey: {
-      type: String,
+      type: Object,
       required: false,
+      default: () => null,
     },
     refBack: {
       type: String,
@@ -98,6 +100,11 @@ export default {
     refBackType: {
       type: String,
       required: false,
+    },
+    refTablePrimaryKeyObject: {
+      type: Object,
+      required: false,
+      default: () => null,
     },
     refLabel: {
       type: String,
@@ -110,6 +117,11 @@ export default {
     tableName: {
       type: String,
       required: false,
+    },
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => true,
     },
   },
   components: {

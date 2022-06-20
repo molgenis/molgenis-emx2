@@ -50,3 +50,12 @@ export function deepClone(original) {
     ? structuredClone(original)
     : JSON.parse(JSON.stringify(original));
 }
+
+export function filterObject(object, filter) {
+  return Object.keys(object).reduce((accum, key) => {
+    if (filter(key)) {
+      accum[key] = object[key];
+    }
+    return accum;
+  }, {});
+}
