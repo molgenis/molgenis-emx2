@@ -61,6 +61,7 @@ public class BeaconRequestBody {
         this.value = value;
       }
 
+      @Override
       public String toString() {
         return value;
       }
