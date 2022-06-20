@@ -20,8 +20,4 @@ public class AnalysesResultSets {
     this.resultsCount = results.length;
     this.results = results;
   }
-
-  public AnalysesResultSets() {
-    super();
-  }
 }

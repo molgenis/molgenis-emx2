@@ -6,10 +6,6 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class CohortsResultSetsItem {
 
-  public CohortsResultSetsItem() {
-    super();
-  }
-
   private String cohortId;
   private String cohortName;
   private String cohortType;

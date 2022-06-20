@@ -12,7 +12,7 @@ public class BeaconFilteringTermsResponse {
     private Resource[] resources;
 
     // Entities can be filtered using this term
-    private  FilteringTerm[] filteringTerms;
+    private FilteringTerm[] filteringTerms;
 
     // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/responses/sections/beaconFilteringTermsResults.json
     public static class FilteringTerm {

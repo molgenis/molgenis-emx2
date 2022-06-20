@@ -13,9 +13,7 @@ public class OntologyTerm {
     this.label = label;
   }
 
-  public OntologyTerm() {
-    super();
-  }
+  public OntologyTerm() {}
 
   public void setId(String id) {
     this.id = id;

@@ -5,10 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResultSetsItem {
 
-  public GenomicVariantsResultSetsItem() {
-    super();
-  }
-
   private String variantInternalId;
   private String variantType;
   private String referenceBases;

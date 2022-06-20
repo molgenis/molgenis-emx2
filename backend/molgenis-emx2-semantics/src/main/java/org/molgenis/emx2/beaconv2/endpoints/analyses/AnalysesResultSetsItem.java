@@ -5,10 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class AnalysesResultSetsItem {
 
-  public AnalysesResultSetsItem() {
-    super();
-  }
-
   private String id;
   private String runId;
   private String biosampleId;

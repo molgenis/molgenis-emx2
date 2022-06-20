@@ -13,10 +13,6 @@ public class IndividualsResultSetsItem {
   private Diseases[] diseases;
   private Measures[] measures;
 
-  public IndividualsResultSetsItem() {
-    super();
-  }
-
   public void setId(String id) {
     this.id = id;
   }

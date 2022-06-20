@@ -16,10 +16,6 @@ public class Diseases {
   private OntologyTerm severity;
   private OntologyTerm stage;
 
-  public Diseases() {
-    super();
-  }
-
   public static Diseases[] get(Object diseases) {
     List<Map<String, Object>> diseasesCast = (List<Map<String, Object>>) diseases;
     Diseases[] result = new Diseases[diseasesCast.size()];

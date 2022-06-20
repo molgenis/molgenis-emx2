@@ -10,10 +10,6 @@ public class Position {
   private Long[] start;
   private Long[] end;
 
-  public Position() {
-    super();
-  }
-
   public Position(String assemblyId, String refseqId, Long[] start, Long[] end) {
     this.assemblyId = assemblyId;
     this.refseqId = refseqId;
