@@ -13,7 +13,14 @@ import org.molgenis.emx2.Table;
 
 public class QueryHelper {
 
-  /** for every column that is an ontology, add the name, code and codesystem to select */
+  /**
+   * Select query columns from table, including OntologyTerm sub columns. For ontologyTerm the name,
+   * code and codesystem are added to the select. These are needed for the Beacon response.
+   *
+   * @param t
+   * @param q
+   * @throws Exception
+   */
   public static void selectColumns(Table t, Query q) throws Exception {
     for (Column c : t.getMetadata().getColumns()) {
       if (c.isOntology()) {
@@ -40,7 +47,7 @@ public class QueryHelper {
   }
 
   /**
-   * Convert list of maps to array of ontologies
+   * Convert list of maps to an array of ontology terms
    *
    * @param mapList
    * @return
@@ -56,6 +63,12 @@ public class QueryHelper {
     return result;
   }
 
+  /**
+   * Convert a single map to an ontology term
+   *
+   * @param map
+   * @return
+   */
   public static OntologyTerm mapToOntologyTerm(Map map) {
     OntologyTerm ot = new OntologyTerm();
     ot.id = map.get("codesystem") + ":" + (String) map.get("code");

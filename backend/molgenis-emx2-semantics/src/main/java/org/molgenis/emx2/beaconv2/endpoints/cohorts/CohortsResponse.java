@@ -24,46 +24,45 @@ public class CohortsResponse {
   CohortsResultSetsItem[] collections;
 
   // query parameters, ignore from output
-  @JsonIgnore String qId;
+  @JsonIgnore String idForQuery;
 
   public CohortsResponse(Request request, List<Table> tables) throws Exception {
 
-    qId = request.queryParams("cohortId");
-    List<CohortsResultSetsItem> cohortList = new ArrayList<>();
+    idForQuery = request.queryParams("cohortId");
+    List<CohortsResultSetsItem> cohortItemList = new ArrayList<>();
 
-    for (Table t : tables) {
-      Query q = t.query();
-      selectColumns(t, q);
+    for (Table table : tables) {
+      Query query = table.query();
+      selectColumns(table, query);
 
-      if (qId != null) {
-        q.where(f("cohortId", EQUALS, qId));
+      if (idForQuery != null) {
+        query.where(f("cohortId", EQUALS, idForQuery));
       }
 
-      String json = q.retrieveJSON();
-      Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
-      List<Map<String, Object>> cohortListFromJSON =
-          (List<Map<String, Object>>) result.get("Cohorts");
+      String queryResultJSON = query.retrieveJSON();
+      Map<String, Object> queryResult = new ObjectMapper().readValue(queryResultJSON, Map.class);
+      List<Map<String, Object>> cohortList = (List<Map<String, Object>>) queryResult.get("Cohorts");
 
-      if (cohortListFromJSON != null) {
-        for (Map map : cohortListFromJSON) {
-          CohortsResultSetsItem c = new CohortsResultSetsItem();
-          c.cohortId = (String) map.get("cohortId");
-          c.cohortName = (String) map.get("cohortName");
-          c.cohortType = (String) map.get("cohortType");
-          c.cohortDesign = mapListToOntologyTerms((List<Map>) map.get("cohortDesign"));
-          c.cohortSize = (Integer) map.get("cohortSize");
-          c.inclusionCriteria =
+      if (cohortList != null) {
+        for (Map map : cohortList) {
+          CohortsResultSetsItem cohortsItem = new CohortsResultSetsItem();
+          cohortsItem.cohortId = (String) map.get("cohortId");
+          cohortsItem.cohortName = (String) map.get("cohortName");
+          cohortsItem.cohortType = (String) map.get("cohortType");
+          cohortsItem.cohortDesign = mapListToOntologyTerms((List<Map>) map.get("cohortDesign"));
+          cohortsItem.cohortSize = (Integer) map.get("cohortSize");
+          cohortsItem.inclusionCriteria =
               new InclusionCriteria(
                   (String) map.get("inclusionCriteria_ageRange_start_iso8601duration"),
                   (String) map.get("inclusionCriteria_ageRange_end_iso8601duration"));
-          c.locations = mapListToOntologyTerms((List<Map>) map.get("locations"));
-          c.genders = mapListToOntologyTerms((List<Map>) map.get("genders"));
-          c.cohortDataTypes = mapListToOntologyTerms((List<Map>) map.get("cohortDataTypes"));
-          cohortList.add(c);
+          cohortsItem.locations = mapListToOntologyTerms((List<Map>) map.get("locations"));
+          cohortsItem.genders = mapListToOntologyTerms((List<Map>) map.get("genders"));
+          cohortsItem.cohortDataTypes =
+              mapListToOntologyTerms((List<Map>) map.get("cohortDataTypes"));
+          cohortItemList.add(cohortsItem);
         }
       }
     }
-
-    this.collections = cohortList.toArray(new CohortsResultSetsItem[cohortList.size()]);
+    this.collections = cohortItemList.toArray(new CohortsResultSetsItem[cohortItemList.size()]);
   }
 }

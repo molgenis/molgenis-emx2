@@ -40,7 +40,7 @@ public class GenomicVariantsResponse {
   public GenomicVariantsResponse(Request request, List<Table> genomicVariantTables)
       throws Exception {
 
-    List<GenomicVariantsResultSets> rList = new ArrayList<>();
+    List<GenomicVariantsResultSets> resultSetsList = new ArrayList<>();
     qReferenceName = request.queryParams("referenceName");
     qStart = parseCoordinatesFromRequest(request, "start");
     qEnd = parseCoordinatesFromRequest(request, "end");
@@ -49,13 +49,13 @@ public class GenomicVariantsResponse {
     qAlternateBases = request.queryParams("alternateBases");
     qGeneId = request.queryParams("geneId");
 
-    GenomicQueryType qt;
+    GenomicQueryType genomicQueryType;
     if ((qReferenceName != null && qStart != null) && (qGeneId == null)) {
       if (qEnd != null) {
         if (qStart.length == 1 && qEnd.length == 1) {
-          qt = GenomicQueryType.RANGE;
+          genomicQueryType = GenomicQueryType.RANGE;
         } else if (qStart.length == 2 && qEnd.length == 2) {
-          qt = GenomicQueryType.BRACKET;
+          genomicQueryType = GenomicQueryType.BRACKET;
         } else {
           throw new Exception(
               "Bad request. Start and end parameters supplied, but both must either be of length 1 (range query) or 2 (bracket query)");
@@ -65,11 +65,11 @@ public class GenomicVariantsResponse {
           throw new Exception(
               "Bad request. Sequence query missing referenceBases and/or alternateBases parameters");
         } else {
-          qt = GenomicQueryType.SEQUENCE;
+          genomicQueryType = GenomicQueryType.SEQUENCE;
         }
       }
     } else if (qGeneId != null) {
-      qt = GenomicQueryType.GENEID;
+      genomicQueryType = GenomicQueryType.GENEID;
     } else {
       if (qReferenceName == null
           && qStart == null
@@ -78,32 +78,31 @@ public class GenomicVariantsResponse {
           && qReferenceBases == null
           && qAlternateBases == null
           && qGeneId == null) {
-        qt = GenomicQueryType.NO_REQUEST_PARAMS;
+        genomicQueryType = GenomicQueryType.NO_REQUEST_PARAMS;
       } else {
         throw new Exception(
             "Bad request. Must at least supply: referenceName and start, or geneId");
       }
     }
 
-    if (qt == GenomicQueryType.NO_REQUEST_PARAMS) {
+    if (genomicQueryType == GenomicQueryType.NO_REQUEST_PARAMS) {
       // must return an empty resultSets object
-      this.resultSets = rList.toArray(new GenomicVariantsResultSets[0]);
+      this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
       return;
     }
 
     // each schema has 0 or 1 'GenomicVariations' table
     // each table match yields 1 GenomicVariantsResultSets
     // each row becomes a GenomicVariantsResultSetsItem
-    for (Table t : genomicVariantTables) {
-      System.out.println("TABLE: " + t.getName() + " FROM SCHEMA " + t.getSchema().getName());
+    for (Table table : genomicVariantTables) {
 
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
-      Query q = t.query();
-      selectColumns(t, q);
+      Query query = table.query();
+      selectColumns(table, query);
 
-      switch (qt) {
+      switch (genomicQueryType) {
         case SEQUENCE:
-          q.where(
+          query.where(
               and(
                   f("position_start", EQUALS, qStart),
                   f("position_refseqId", EQUALS, qReferenceName),
@@ -115,7 +114,7 @@ public class GenomicVariantsResponse {
           break;
         case RANGE:
           // "Range Query"
-          q.where(
+          query.where(
               or(
                   and(
                       f("position_start", BETWEEN, new Long[] {qStart[0], qEnd[0]}),
@@ -129,7 +128,7 @@ public class GenomicVariantsResponse {
           // todo optional parameter: variantMaxLength
           break;
         case BRACKET:
-          q.where(
+          query.where(
               and(
                   f("position_start", BETWEEN, new Long[] {qStart[0], qStart[1]}),
                   f("position_end", BETWEEN, new Long[] {qEnd[0], qEnd[1]}),
@@ -140,7 +139,7 @@ public class GenomicVariantsResponse {
           break;
         case GENEID:
           // "GeneId Query"
-          q.where(f("geneId", EQUALS, qGeneId));
+          query.where(f("geneId", EQUALS, qGeneId));
 
           // todo: required parameter 'geneId'
           // todo optional parameter: variantType OR alternateBases OR aminoacidChange
@@ -149,32 +148,32 @@ public class GenomicVariantsResponse {
           break;
       }
 
-      List<GenomicVariantsResultSetsItem> gviList = new ArrayList<>();
-      for (Row r : q.retrieveRows()) {
-        GenomicVariantsResultSetsItem gvi = new GenomicVariantsResultSetsItem();
-        gvi.variantInternalId = r.getString("variantInternalId");
-        gvi.variantType = r.getString("variantType");
-        gvi.referenceBases = r.getString("referenceBases");
-        gvi.alternateBases = r.getString("alternateBases");
-        gvi.geneId = r.getString("geneId");
-        gvi.position.assemblyId = r.getString("position_assemblyId");
-        gvi.position.refseqId = r.getString("position_refseqId");
-        gvi.position.start = new Long[] {r.getLong("position_start")};
-        gvi.position.end = new Long[] {r.getLong("position_end")};
-
-        gviList.add(gvi);
+      List<GenomicVariantsResultSetsItem> genomicVariantsItemList = new ArrayList<>();
+      for (Row row : query.retrieveRows()) {
+        GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
+        genomicVariantsItem.variantInternalId = row.getString("variantInternalId");
+        genomicVariantsItem.variantType = row.getString("variantType");
+        genomicVariantsItem.referenceBases = row.getString("referenceBases");
+        genomicVariantsItem.alternateBases = row.getString("alternateBases");
+        genomicVariantsItem.geneId = row.getString("geneId");
+        genomicVariantsItem.position.assemblyId = row.getString("position_assemblyId");
+        genomicVariantsItem.position.refseqId = row.getString("position_refseqId");
+        genomicVariantsItem.position.start = new Long[] {row.getLong("position_start")};
+        genomicVariantsItem.position.end = new Long[] {row.getLong("position_end")};
+        genomicVariantsItemList.add(genomicVariantsItem);
       }
-      if (gviList.size() > 0) {
-        GenomicVariantsResultSets gvr =
+      if (genomicVariantsItemList.size() > 0) {
+        GenomicVariantsResultSets genomicVariantsResultSets =
             new GenomicVariantsResultSets(
-                t.getSchema().getName(),
-                gviList.size(),
-                gviList.toArray(new GenomicVariantsResultSetsItem[gviList.size()]));
-        rList.add(gvr);
+                table.getSchema().getName(),
+                genomicVariantsItemList.size(),
+                genomicVariantsItemList.toArray(
+                    new GenomicVariantsResultSetsItem[genomicVariantsItemList.size()]));
+        resultSetsList.add(genomicVariantsResultSets);
       }
     }
 
-    this.resultSets = rList.toArray(new GenomicVariantsResultSets[rList.size()]);
+    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[resultSetsList.size()]);
   }
 
   /**

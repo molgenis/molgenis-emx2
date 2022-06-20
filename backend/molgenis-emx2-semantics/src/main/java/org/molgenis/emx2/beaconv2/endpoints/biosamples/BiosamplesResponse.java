@@ -22,60 +22,52 @@ public class BiosamplesResponse {
   BiosamplesResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String qId;
+  @JsonIgnore String idForQuery;
 
   public BiosamplesResponse(Request request, List<Table> tables) throws Exception {
 
-    List<BiosamplesResultSets> rList = new ArrayList<>();
-    qId = request.queryParams("id");
+    List<BiosamplesResultSets> resultSetsList = new ArrayList<>();
+    idForQuery = request.queryParams("id");
 
-    for (Table t : tables) {
-      System.out.println("## table: " + t.getName());
+    for (Table table : tables) {
 
-      Query q = t.query();
-      selectColumns(t, q);
+      Query query = table.query();
+      selectColumns(table, query);
 
-      if (qId != null) {
-        q.where(f("id", EQUALS, qId));
+      if (idForQuery != null) {
+        query.where(f("id", EQUALS, idForQuery));
       }
 
-      List<BiosamplesResultSetsItem> sampleList = new ArrayList<>();
+      List<BiosamplesResultSetsItem> biosamplesItemList = new ArrayList<>();
 
-      String json = q.retrieveJSON();
-      System.out.println(json);
-      Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
-      List<Map<String, Object>> sampleListFromJSON =
-          (List<Map<String, Object>>) result.get("Biosamples");
+      String queryResultJSON = query.retrieveJSON();
+      Map<String, Object> queryResult = new ObjectMapper().readValue(queryResultJSON, Map.class);
+      List<Map<String, Object>> biosampleListFromJSON =
+          (List<Map<String, Object>>) queryResult.get("Biosamples");
 
-      if (sampleListFromJSON != null) {
-        for (Map map : sampleListFromJSON) {
-          BiosamplesResultSetsItem a = new BiosamplesResultSetsItem();
-          a.id = (String) map.get("id");
-          a.biosampleStatus = mapToOntologyTerm((Map) map.get("biosampleStatus"));
-          // a.sampleOriginType = mapListToOntologyTerms((List<Map>) map.get("sampleOriginType"));
-          a.sampleOriginType = mapToOntologyTerm((Map) map.get("sampleOriginType"));
-          a.collectionMoment = (String) map.get("collectionMoment");
-          a.collectionDate = (String) map.get("collectionDate");
-          a.obtentionProcedure =
+      if (biosampleListFromJSON != null) {
+        for (Map map : biosampleListFromJSON) {
+          BiosamplesResultSetsItem biosamplesItem = new BiosamplesResultSetsItem();
+          biosamplesItem.id = (String) map.get("id");
+          biosamplesItem.biosampleStatus = mapToOntologyTerm((Map) map.get("biosampleStatus"));
+          biosamplesItem.sampleOriginType = mapToOntologyTerm((Map) map.get("sampleOriginType"));
+          biosamplesItem.collectionMoment = (String) map.get("collectionMoment");
+          biosamplesItem.collectionDate = (String) map.get("collectionDate");
+          biosamplesItem.obtentionProcedure =
               new ObtentionProcedure(mapToOntologyTerm((Map) map.get("obtentionProcedure")));
-          sampleList.add(a);
+          biosamplesItemList.add(biosamplesItem);
         }
       }
-
-      if (sampleList.size() > 0) {
-        BiosamplesResultSets aSet =
+      if (biosamplesItemList.size() > 0) {
+        BiosamplesResultSets biosamplesResultSets =
             new BiosamplesResultSets(
-                t.getSchema().getName(),
-                sampleList.size(),
-                sampleList.toArray(new BiosamplesResultSetsItem[sampleList.size()]));
-        rList.add(aSet);
+                table.getSchema().getName(),
+                biosamplesItemList.size(),
+                biosamplesItemList.toArray(
+                    new BiosamplesResultSetsItem[biosamplesItemList.size()]));
+        resultSetsList.add(biosamplesResultSets);
       }
     }
-
-    System.out.println("rlist size " + rList.size());
-
-    this.resultSets = rList.toArray(new BiosamplesResultSets[rList.size()]);
-
-    System.out.println("this.resultSets length " + this.resultSets.length);
+    this.resultSets = resultSetsList.toArray(new BiosamplesResultSets[resultSetsList.size()]);
   }
 }

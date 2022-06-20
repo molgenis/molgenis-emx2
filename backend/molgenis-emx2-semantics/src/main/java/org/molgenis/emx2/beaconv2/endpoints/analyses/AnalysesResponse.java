@@ -22,53 +22,44 @@ public class AnalysesResponse {
   AnalysesResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String qId;
+  @JsonIgnore String idForQuery;
 
   public AnalysesResponse(Request request, List<Table> tables) throws Exception {
 
-    List<AnalysesResultSets> rList = new ArrayList<>();
-    qId = request.queryParams("id");
+    List<AnalysesResultSets> resultSetsList = new ArrayList<>();
+    idForQuery = request.queryParams("id");
 
-    for (Table t : tables) {
-      Query q = t.query();
-      selectColumns(t, q);
+    for (Table table : tables) {
+      Query query = table.query();
+      selectColumns(table, query);
 
-      if (qId != null) {
-        q.where(f("id", EQUALS, qId));
+      if (idForQuery != null) {
+        query.where(f("id", EQUALS, idForQuery));
       }
 
-      /*
-      todo
-      could replace with reflection, but wouldn't work for the other more complex endpoints anyway
-      e.g.
-                Field field = a.getClass().getDeclaredField(colName);
-                if (r.containsName(colName)) {
-                field.set(a, r.getString(colName));
-       */
-      List<AnalysesResultSetsItem> aList = new ArrayList<>();
-      for (Row r : q.retrieveRows()) {
-        AnalysesResultSetsItem a = new AnalysesResultSetsItem();
-        a.id = r.getString("id");
-        a.runId = r.getString("runId");
-        a.biosampleId = r.getString("biosampleId");
-        a.individualId = r.getString("individualId");
-        a.analysisDate = r.getString("analysisDate");
-        a.pipelineName = r.getString("pipelineName");
-        a.pipelineRef = r.getString("pipelineRef");
-        a.aligner = r.getString("aligner");
-        a.variantCaller = r.getString("variantCaller");
-        aList.add(a);
+      List<AnalysesResultSetsItem> analysesItemList = new ArrayList<>();
+      for (Row row : query.retrieveRows()) {
+        AnalysesResultSetsItem analysesItem = new AnalysesResultSetsItem();
+        analysesItem.id = row.getString("id");
+        analysesItem.runId = row.getString("runId");
+        analysesItem.biosampleId = row.getString("biosampleId");
+        analysesItem.individualId = row.getString("individualId");
+        analysesItem.analysisDate = row.getString("analysisDate");
+        analysesItem.pipelineName = row.getString("pipelineName");
+        analysesItem.pipelineRef = row.getString("pipelineRef");
+        analysesItem.aligner = row.getString("aligner");
+        analysesItem.variantCaller = row.getString("variantCaller");
+        analysesItemList.add(analysesItem);
       }
-      if (aList.size() > 0) {
-        AnalysesResultSets aSet =
+      if (analysesItemList.size() > 0) {
+        AnalysesResultSets analysesResultSets =
             new AnalysesResultSets(
-                t.getSchema().getName(),
-                aList.size(),
-                aList.toArray(new AnalysesResultSetsItem[aList.size()]));
-        rList.add(aSet);
+                table.getSchema().getName(),
+                analysesItemList.size(),
+                analysesItemList.toArray(new AnalysesResultSetsItem[analysesItemList.size()]));
+        resultSetsList.add(analysesResultSets);
       }
     }
-
-    this.resultSets = rList.toArray(new AnalysesResultSets[rList.size()]);
+    this.resultSets = resultSetsList.toArray(new AnalysesResultSets[resultSetsList.size()]);
   }
 }

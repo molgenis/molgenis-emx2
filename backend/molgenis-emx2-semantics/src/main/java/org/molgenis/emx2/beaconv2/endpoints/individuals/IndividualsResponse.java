@@ -20,21 +20,21 @@ public class IndividualsResponse {
   IndividualsResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String qId;
+  @JsonIgnore String idForQuery;
 
   public IndividualsResponse(Request request, List<Table> tables) throws Exception {
 
-    List<IndividualsResultSets> rList = new ArrayList<>();
-    qId = request.queryParams("id");
+    List<IndividualsResultSets> resultSetsList = new ArrayList<>();
+    idForQuery = request.queryParams("id");
 
-    for (Table t : tables) {
-      List<IndividualsResultSetsItem> indList = new ArrayList<>();
+    for (Table table : tables) {
+      List<IndividualsResultSetsItem> individualsItemList = new ArrayList<>();
 
-      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(t.getSchema());
+      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
       ExecutionResult executionResult =
           grapql.execute(
               "{Individuals"
-                  + (qId != null ? "(filter:{id: {equals:\"" + qId + "\"}})" : "")
+                  + (idForQuery != null ? "(filter:{id: {equals:\"" + idForQuery + "\"}})" : "")
                   + "{"
                   + "id,"
                   + "sex{name,codesystem,code},"
@@ -63,26 +63,27 @@ public class IndividualsResponse {
 
       if (individualsListFromJSON != null) {
         for (Map map : individualsListFromJSON) {
-          IndividualsResultSetsItem i = new IndividualsResultSetsItem();
-          i.id = (String) map.get("id");
-          i.sex = mapToOntologyTerm((Map) map.get("sex"));
-          i.ethnicity = mapToOntologyTerm((Map) map.get("ethnicity"));
-          i.geographicOrigin = mapToOntologyTerm((Map) map.get("geographicOrigin"));
-          i.diseases = Diseases.get(map.get("diseases"));
-          i.measures = Measures.get(map.get("measures"));
-          indList.add(i);
+          IndividualsResultSetsItem individualsItem = new IndividualsResultSetsItem();
+          individualsItem.id = (String) map.get("id");
+          individualsItem.sex = mapToOntologyTerm((Map) map.get("sex"));
+          individualsItem.ethnicity = mapToOntologyTerm((Map) map.get("ethnicity"));
+          individualsItem.geographicOrigin = mapToOntologyTerm((Map) map.get("geographicOrigin"));
+          individualsItem.diseases = Diseases.get(map.get("diseases"));
+          individualsItem.measures = Measures.get(map.get("measures"));
+          individualsItemList.add(individualsItem);
         }
       }
 
-      if (indList.size() > 0) {
+      if (individualsItemList.size() > 0) {
         IndividualsResultSets aSet =
             new IndividualsResultSets(
-                t.getSchema().getName(),
-                indList.size(),
-                indList.toArray(new IndividualsResultSetsItem[indList.size()]));
-        rList.add(aSet);
+                table.getSchema().getName(),
+                individualsItemList.size(),
+                individualsItemList.toArray(
+                    new IndividualsResultSetsItem[individualsItemList.size()]));
+        resultSetsList.add(aSet);
       }
     }
-    this.resultSets = rList.toArray(new IndividualsResultSets[rList.size()]);
+    this.resultSets = resultSetsList.toArray(new IndividualsResultSets[resultSetsList.size()]);
   }
 }

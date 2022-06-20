@@ -1,7 +1,9 @@
 package org.molgenis.emx2.beaconv2.configuration;
 
 import java.util.Map;
+import org.molgenis.emx2.beaconv2.common.BeaconEnvironment;
 import org.molgenis.emx2.beaconv2.common.EntryType;
+import org.molgenis.emx2.beaconv2.common.SecurityLevel;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 
 public class BeaconConfigurationSchema {
@@ -13,23 +15,11 @@ public class BeaconConfigurationSchema {
   Map<String, EntryType> entryTypes;
 
   public static class MaturityAttributes {
-    public enum ProductionStatus {
-      DEV,
-      TEST,
-      PROD
-    };
-
-    ProductionStatus productionStatus;
+    BeaconEnvironment productionStatus;
   }
 
   public static class SecurityAttributes {
-    public enum SecurityLevels {
-      PUBLIC,
-      REGISTERED,
-      CONTROLLED
-    };
-
     Granularity defaultGranularity;
-    SecurityLevels[] securityLevels;
+    SecurityLevel[] securityLevels;
   }
 }
