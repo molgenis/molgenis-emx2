@@ -8,13 +8,13 @@ public class EndPointSets {
 
   @JsonIgnore private String serverURL;
 
-  MapDataset analyses;
-  MapDataset biosamples;
-  MapDataset cohorts;
-  MapDataset datasets;
-  MapDataset g_variants;
-  MapDataset individuals;
-  MapDataset runs;
+  private MapDataset analyses;
+  private MapDataset biosamples;
+  private MapDataset cohorts;
+  private MapDataset datasets;
+  private MapDataset g_variants;
+  private MapDataset individuals;
+  private MapDataset runs;
 
   public EndPointSets(String serverURL) {
     this.serverURL = serverURL;

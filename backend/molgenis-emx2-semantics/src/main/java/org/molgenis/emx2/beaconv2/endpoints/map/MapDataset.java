@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MapDataset {
-  String entryType;
-  String openAPIEndpointsDefinition;
-  String rootUrl;
-  String singleEntryUrl;
-  String filteringTermsUrl;
+  private String entryType;
+  private String openAPIEndpointsDefinition;
+  private String rootUrl;
+  private String singleEntryUrl;
+  private String filteringTermsUrl;
 
   public MapDataset(String entryType, String serverURL) {
     this.entryType = entryType;

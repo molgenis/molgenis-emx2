@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Collection {
 
-  String id;
-  String name;
-  String createDataTime;
-  String updateDataTime;
+  private String id;
+  private String name;
+  private String createDataTime;
+  private String updateDataTime;
 
   public Collection(String id, String name, String createDataTime, String updateDataTime) {
     this.id = id;

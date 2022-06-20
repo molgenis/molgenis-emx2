@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 /** Use for any id-label combinations to express ontologies */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class OntologyTerm {
-  String id;
-  String label;
+  private String id;
+  private String label;
 
   public OntologyTerm(String id, String label) {
     this.id = id;
@@ -15,5 +15,13 @@ public class OntologyTerm {
 
   public OntologyTerm() {
     super();
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
   }
 }

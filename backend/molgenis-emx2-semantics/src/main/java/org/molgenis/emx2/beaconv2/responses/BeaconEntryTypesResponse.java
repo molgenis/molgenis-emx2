@@ -9,9 +9,9 @@ public class BeaconEntryTypesResponse {
 
   // Information about the response that could be relevant for the Beacon client in order to
   // interpret the results.
-  BeaconInformationalResponseMeta meta;
+  private BeaconInformationalResponseMeta meta;
 
   // This is a dictionary of the entry types implemented in this Beacon instance.
   // https://github.com/ga4gh-beacon/beacon-framework-v2/blob/main/configuration/entryTypesSchema.json
-  Map<String, EntryType> entryTypes;
+  private Map<String, EntryType> entryTypes;
 }

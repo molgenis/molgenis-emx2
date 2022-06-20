@@ -30,12 +30,12 @@ public class GenomicVariantsResponse {
   GenomicVariantsResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String qReferenceName;
-  @JsonIgnore Long[] qStart;
-  @JsonIgnore Long[] qEnd;
-  @JsonIgnore String qReferenceBases;
-  @JsonIgnore String qAlternateBases;
-  @JsonIgnore String qGeneId;
+  @JsonIgnore private String qReferenceName;
+  @JsonIgnore private Long[] qStart;
+  @JsonIgnore private Long[] qEnd;
+  @JsonIgnore private String qReferenceBases;
+  @JsonIgnore private String qAlternateBases;
+  @JsonIgnore private String qGeneId;
 
   public GenomicVariantsResponse(Request request, List<Table> genomicVariantTables)
       throws Exception {
@@ -151,15 +151,17 @@ public class GenomicVariantsResponse {
       List<GenomicVariantsResultSetsItem> genomicVariantsItemList = new ArrayList<>();
       for (Row row : query.retrieveRows()) {
         GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
-        genomicVariantsItem.variantInternalId = row.getString("variantInternalId");
-        genomicVariantsItem.variantType = row.getString("variantType");
-        genomicVariantsItem.referenceBases = row.getString("referenceBases");
-        genomicVariantsItem.alternateBases = row.getString("alternateBases");
-        genomicVariantsItem.geneId = row.getString("geneId");
-        genomicVariantsItem.position.assemblyId = row.getString("position_assemblyId");
-        genomicVariantsItem.position.refseqId = row.getString("position_refseqId");
-        genomicVariantsItem.position.start = new Long[] {row.getLong("position_start")};
-        genomicVariantsItem.position.end = new Long[] {row.getLong("position_end")};
+        genomicVariantsItem.setVariantInternalId(row.getString("variantInternalId"));
+        genomicVariantsItem.setVariantType(row.getString("variantType"));
+        genomicVariantsItem.setReferenceBases(row.getString("referenceBases"));
+        genomicVariantsItem.setAlternateBases(row.getString("alternateBases"));
+        genomicVariantsItem.setGeneId(row.getString("geneId"));
+        genomicVariantsItem.setPosition(
+            new Position(
+                row.getString("position_assemblyId"),
+                row.getString("position_refseqId"),
+                new Long[] {row.getLong("position_start")},
+                new Long[] {row.getLong("position_end")}));
         genomicVariantsItemList.add(genomicVariantsItem);
       }
       if (genomicVariantsItemList.size() > 0) {

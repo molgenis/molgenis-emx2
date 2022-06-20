@@ -6,6 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 public class Pagination {
 
   // TODO default? get from request?
-  int skip = 0;
-  int limit = 10;
+  private int skip = 0;
+  private int limit = 10;
 }

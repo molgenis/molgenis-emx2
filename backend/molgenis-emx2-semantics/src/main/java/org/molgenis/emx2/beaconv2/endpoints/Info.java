@@ -6,7 +6,7 @@ import org.molgenis.emx2.beaconv2.endpoints.info.InfoResponse;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
-  String $schema = "../beaconInfoResponse.json";
-  Meta meta = new Meta("../beaconInfoResponse.json", "info");
-  InfoResponse response = new InfoResponse();
+  private String $schema = "../beaconInfoResponse.json";
+  private Meta meta = new Meta("../beaconInfoResponse.json", "info");
+  private InfoResponse response = new InfoResponse();
 }

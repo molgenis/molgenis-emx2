@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class EntryTypes {
 
-  EntryType analysis =
+  private EntryType analysis =
       new EntryType(
           "analysis",
           "analyses",
@@ -13,7 +13,7 @@ public class EntryTypes {
           "Apply analytical methods to existing data of a specific type.",
           "edam:operation_2945",
           "Analysis");
-  EntryType biosample =
+  private EntryType biosample =
       new EntryType(
           "biosample",
           "biosamples",
@@ -21,7 +21,7 @@ public class EntryTypes {
           "Any material sample taken from a biological entity for testing, diagnostic, propagation, treatment or research purposes, including a sample obtained from a living organism or taken from the biological object after halting of all its life functions. Biospecimen can contain one or more components including but not limited to cellular molecules, cells, tissues, organs, body fluids, embryos, and body excretory products.",
           "NCIT:C70699",
           "Biospecimen");
-  EntryType cohort =
+  private EntryType cohort =
       new EntryType(
           "cohort",
           "cohorts",
@@ -29,7 +29,7 @@ public class EntryTypes {
           "A group of individuals, identified by a common characteristic.",
           "NCIT:C61512",
           "Cohort");
-  EntryType dataset =
+  private EntryType dataset =
       new EntryType(
           "dataset",
           "datasets",
@@ -37,7 +37,7 @@ public class EntryTypes {
           "A Dataset is a collection of related sets of information, e.g. genomic variations together with associated procedural and biological metadata. In a Beacon context, a datasets may consist of information generated in a specific study or project, or represent the main content of the Beacon resource.",
           "NCIT:C47824",
           "Data set");
-  EntryType genomicVariant =
+  private EntryType genomicVariant =
       new EntryType(
           "genomicVariant",
           "genomicVariations",
@@ -45,7 +45,7 @@ public class EntryTypes {
           "The location of a sequence.",
           "ENSGLOSSARY:0000092",
           "Variant");
-  EntryType individual =
+  private EntryType individual =
       new EntryType(
           "individual",
           "individuals",
@@ -53,7 +53,7 @@ public class EntryTypes {
           "A human being. It could be a Patient, a Tissue Donor, a Participant, a Human Study Subject, etc.",
           "NCIT:C25190",
           "Person");
-  EntryType run =
+  private EntryType run =
       new EntryType(
           "run",
           "runs",

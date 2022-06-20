@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class AnalysesResultSets {
 
-  String id;
-  String type;
-  String setType;
-  Boolean exists;
-  Integer resultsCount;
-  AnalysesResultSetsItem[] results;
+  private String id;
+  private String type;
+  private String setType;
+  private Boolean exists;
+  private Integer resultsCount;
+  private AnalysesResultSetsItem[] results;
 
   public AnalysesResultSets(String id, int resultsCount, AnalysesResultSetsItem[] results) {
     this.id = id;

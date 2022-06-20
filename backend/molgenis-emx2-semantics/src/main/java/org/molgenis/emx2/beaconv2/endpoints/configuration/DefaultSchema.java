@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class DefaultSchema {
 
-  String id;
-  String name;
-  String referenceToSchemaDefinition;
-  String schemaVersion;
+  private String id;
+  private String name;
+  private String referenceToSchemaDefinition;
+  private String schemaVersion;
 
   public DefaultSchema(String entryTypeSingular, String entryTypePlural) {
     this.id = "ga4gh-beacon-" + entryTypeSingular + "-v2.0.0-draft.4";

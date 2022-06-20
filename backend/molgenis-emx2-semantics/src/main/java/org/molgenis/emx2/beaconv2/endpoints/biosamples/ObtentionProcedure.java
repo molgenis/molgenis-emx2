@@ -5,7 +5,7 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class ObtentionProcedure {
-  OntologyTerm procedureCode;
+  private OntologyTerm procedureCode;
 
   public ObtentionProcedure(OntologyTerm procedureCode) {
     this.procedureCode = procedureCode;

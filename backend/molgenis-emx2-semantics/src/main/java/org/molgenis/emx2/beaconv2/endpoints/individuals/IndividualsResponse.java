@@ -17,10 +17,10 @@ public class IndividualsResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  IndividualsResultSets[] resultSets;
+  private IndividualsResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String idForQuery;
+  @JsonIgnore private String idForQuery;
 
   public IndividualsResponse(Request request, List<Table> tables) throws Exception {
 
@@ -64,12 +64,12 @@ public class IndividualsResponse {
       if (individualsListFromJSON != null) {
         for (Map map : individualsListFromJSON) {
           IndividualsResultSetsItem individualsItem = new IndividualsResultSetsItem();
-          individualsItem.id = (String) map.get("id");
-          individualsItem.sex = mapToOntologyTerm((Map) map.get("sex"));
-          individualsItem.ethnicity = mapToOntologyTerm((Map) map.get("ethnicity"));
-          individualsItem.geographicOrigin = mapToOntologyTerm((Map) map.get("geographicOrigin"));
-          individualsItem.diseases = Diseases.get(map.get("diseases"));
-          individualsItem.measures = Measures.get(map.get("measures"));
+          individualsItem.setId((String) map.get("id"));
+          individualsItem.setSex(mapToOntologyTerm((Map) map.get("sex")));
+          individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
+          individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
+          individualsItem.setDiseases(Diseases.get(map.get("diseases")));
+          individualsItem.setMeasures(Measures.get(map.get("measures")));
           individualsItemList.add(individualsItem);
         }
       }

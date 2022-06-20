@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BiosamplesResultSets {
 
-  String id;
-  String type;
-  String setType;
-  Boolean exists;
-  Integer resultsCount;
-  BiosamplesResultSetsItem[] results;
+  private String id;
+  private String type;
+  private String setType;
+  private Boolean exists;
+  private Integer resultsCount;
+  private BiosamplesResultSetsItem[] results;
 
   public BiosamplesResultSets(String id, int resultsCount, BiosamplesResultSetsItem[] results) {
     this.id = id;
@@ -19,9 +19,5 @@ public class BiosamplesResultSets {
     this.exists = true;
     this.resultsCount = results.length;
     this.results = results;
-  }
-
-  public BiosamplesResultSets() {
-    super();
   }
 }

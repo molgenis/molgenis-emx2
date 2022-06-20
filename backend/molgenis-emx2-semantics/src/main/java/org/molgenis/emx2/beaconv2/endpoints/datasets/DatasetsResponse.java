@@ -7,7 +7,8 @@ import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class DatasetsResponse {
-  Collection[] collections;
+
+  private Collection[] collections;
 
   public DatasetsResponse(Request request, java.util.Collection<String> schemaNames) {
     List<Collection> cList = new ArrayList<>();

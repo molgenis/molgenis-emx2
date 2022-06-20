@@ -7,12 +7,12 @@ import org.molgenis.emx2.beaconv2.common.SecurityLevel;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 
 public class BeaconConfigurationSchema {
-  String $schema;
-  MaturityAttributes maturityAttributes;
-  SecurityAttributes securityAttributes;
+  private String $schema;
+  private MaturityAttributes maturityAttributes;
+  private SecurityAttributes securityAttributes;
 
   // this one is dynamic, depending on implemented models
-  Map<String, EntryType> entryTypes;
+  private Map<String, EntryType> entryTypes;
 
   public static class MaturityAttributes {
     BeaconEnvironment productionStatus;

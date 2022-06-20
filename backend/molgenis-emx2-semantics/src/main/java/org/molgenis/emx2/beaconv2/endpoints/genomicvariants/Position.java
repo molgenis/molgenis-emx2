@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Position {
 
-  String assemblyId;
-  String refseqId;
-  Long[] start;
-  Long[] end;
+  private String assemblyId;
+  private String refseqId;
+  private Long[] start;
+  private Long[] end;
 
   public Position() {
     super();

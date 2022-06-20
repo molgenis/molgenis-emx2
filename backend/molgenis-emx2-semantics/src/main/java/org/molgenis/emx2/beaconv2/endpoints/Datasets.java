@@ -10,9 +10,9 @@ import spark.Request;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Datasets {
 
-  DatasetsMeta meta;
-  ResponseSummary responseSummary;
-  DatasetsResponse response;
+  private DatasetsMeta meta;
+  private ResponseSummary responseSummary;
+  private DatasetsResponse response;
 
   public Datasets(Request request, Collection<String> schemaNames) {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");

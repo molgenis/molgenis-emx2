@@ -11,9 +11,9 @@ import spark.Request;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Individuals {
 
-  DatasetsMeta meta;
-  ResponseSummary responseSummary;
-  IndividualsResponse response;
+  private DatasetsMeta meta;
+  private ResponseSummary responseSummary;
+  private IndividualsResponse response;
 
   public Individuals(Request request, List<Table> tables) throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");

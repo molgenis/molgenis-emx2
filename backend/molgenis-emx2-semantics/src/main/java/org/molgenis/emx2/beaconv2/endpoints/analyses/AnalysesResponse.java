@@ -19,10 +19,10 @@ public class AnalysesResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  AnalysesResultSets[] resultSets;
+  private AnalysesResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String idForQuery;
+  @JsonIgnore private String idForQuery;
 
   public AnalysesResponse(Request request, List<Table> tables) throws Exception {
 
@@ -40,15 +40,15 @@ public class AnalysesResponse {
       List<AnalysesResultSetsItem> analysesItemList = new ArrayList<>();
       for (Row row : query.retrieveRows()) {
         AnalysesResultSetsItem analysesItem = new AnalysesResultSetsItem();
-        analysesItem.id = row.getString("id");
-        analysesItem.runId = row.getString("runId");
-        analysesItem.biosampleId = row.getString("biosampleId");
-        analysesItem.individualId = row.getString("individualId");
-        analysesItem.analysisDate = row.getString("analysisDate");
-        analysesItem.pipelineName = row.getString("pipelineName");
-        analysesItem.pipelineRef = row.getString("pipelineRef");
-        analysesItem.aligner = row.getString("aligner");
-        analysesItem.variantCaller = row.getString("variantCaller");
+        analysesItem.setId(row.getString("id"));
+        analysesItem.setRunId(row.getString("runId"));
+        analysesItem.setBiosampleId(row.getString("biosampleId"));
+        analysesItem.setIndividualId(row.getString("individualId"));
+        analysesItem.setAnalysisDate(row.getString("analysisDate"));
+        analysesItem.setPipelineName(row.getString("pipelineName"));
+        analysesItem.setPipelineRef(row.getString("pipelineRef"));
+        analysesItem.setAligner(row.getString("aligner"));
+        analysesItem.setVariantCaller(row.getString("variantCaller"));
         analysesItemList.add(analysesItem);
       }
       if (analysesItemList.size() > 0) {

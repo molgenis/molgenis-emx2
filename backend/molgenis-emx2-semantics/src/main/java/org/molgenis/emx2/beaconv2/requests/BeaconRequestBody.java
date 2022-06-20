@@ -7,17 +7,17 @@ import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.common.misc.Pagination;
 
 public class BeaconRequestBody {
-  String $schema;
-  BeaconRequestMeta meta;
-  BeaconQuery query;
+  private String $schema;
+  private BeaconRequestMeta meta;
+  private BeaconQuery query;
 
   public static class BeaconQuery {
-    BeaconRequestParameters requestParameters;
-    BeaconFilteringTerms[] filters;
-    IncludedResultsetResponses includeResultsetResponses = HIT;
-    Pagination pagination = new Pagination();
-    Granularity requestGranularity;
-    boolean testMode;
+    private BeaconRequestParameters requestParameters;
+    private BeaconFilteringTerms[] filters;
+    private IncludedResultsetResponses includeResultsetResponses = HIT;
+    private Pagination pagination = new Pagination();
+    private Granularity requestGranularity;
+    private boolean testMode;
   }
 
   public static class BeaconFilteringTerms {

@@ -5,11 +5,11 @@ import org.molgenis.emx2.beaconv2.common.ISO8601duration;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class InclusionCriteria {
-  AgeRange ageRange;
+  private AgeRange ageRange;
 
   public InclusionCriteria(String start, String end) {
     this.ageRange = new AgeRange();
-    this.ageRange.start = new ISO8601duration(start);
-    this.ageRange.end = new ISO8601duration(end);
+    this.ageRange.setStart(new ISO8601duration(start));
+    this.ageRange.setEnd(new ISO8601duration(end));
   }
 }

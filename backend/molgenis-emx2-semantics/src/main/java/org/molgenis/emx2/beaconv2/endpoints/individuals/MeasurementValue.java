@@ -5,8 +5,8 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MeasurementValue {
-  Integer value;
-  OntologyTerm units;
+  private Integer value;
+  private OntologyTerm units;
 
   public MeasurementValue(Integer value, OntologyTerm units) {
     this.value = value;

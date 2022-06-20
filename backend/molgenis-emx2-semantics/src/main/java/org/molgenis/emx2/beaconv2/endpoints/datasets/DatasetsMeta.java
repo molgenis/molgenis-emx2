@@ -10,6 +10,6 @@ public class DatasetsMeta extends Meta {
     super($schema, entityType);
   }
 
-  String returnedGranularity = "record";
-  ReceivedRequestSummary receivedRequestSummary = new ReceivedRequestSummary();
+  private String returnedGranularity = "record";
+  private ReceivedRequestSummary receivedRequestSummary = new ReceivedRequestSummary();
 }

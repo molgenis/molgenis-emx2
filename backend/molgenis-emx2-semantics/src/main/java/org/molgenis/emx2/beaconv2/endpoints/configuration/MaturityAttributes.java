@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MaturityAttributes {
-  String productionStatus = "DEV"; // DEV, TEST or PROD
+  private String productionStatus = "DEV"; // DEV, TEST or PROD
 }

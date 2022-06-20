@@ -5,7 +5,7 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class AgeOfOnset {
-  OntologyTerm ageGroup;
+  private OntologyTerm ageGroup;
 
   public AgeOfOnset(OntologyTerm ageGroup) {
     this.ageGroup = ageGroup;

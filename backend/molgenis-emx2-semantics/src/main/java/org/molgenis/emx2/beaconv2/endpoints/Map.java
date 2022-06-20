@@ -8,8 +8,8 @@ import spark.Request;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Map {
 
-  Meta meta;
-  MapResponse response;
+  private Meta meta;
+  private MapResponse response;
 
   public Map(Request request) {
     this.meta = new Meta("../beaconMapResponse.json", "map");

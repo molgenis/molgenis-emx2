@@ -19,10 +19,10 @@ public class BiosamplesResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  BiosamplesResultSets[] resultSets;
+  private BiosamplesResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore String idForQuery;
+  @JsonIgnore private String idForQuery;
 
   public BiosamplesResponse(Request request, List<Table> tables) throws Exception {
 
@@ -48,13 +48,13 @@ public class BiosamplesResponse {
       if (biosampleListFromJSON != null) {
         for (Map map : biosampleListFromJSON) {
           BiosamplesResultSetsItem biosamplesItem = new BiosamplesResultSetsItem();
-          biosamplesItem.id = (String) map.get("id");
-          biosamplesItem.biosampleStatus = mapToOntologyTerm((Map) map.get("biosampleStatus"));
-          biosamplesItem.sampleOriginType = mapToOntologyTerm((Map) map.get("sampleOriginType"));
-          biosamplesItem.collectionMoment = (String) map.get("collectionMoment");
-          biosamplesItem.collectionDate = (String) map.get("collectionDate");
-          biosamplesItem.obtentionProcedure =
-              new ObtentionProcedure(mapToOntologyTerm((Map) map.get("obtentionProcedure")));
+          biosamplesItem.setId((String) map.get("id"));
+          biosamplesItem.setBiosampleStatus(mapToOntologyTerm((Map) map.get("biosampleStatus")));
+          biosamplesItem.setSampleOriginType(mapToOntologyTerm((Map) map.get("sampleOriginType")));
+          biosamplesItem.setCollectionMoment((String) map.get("collectionMoment"));
+          biosamplesItem.setCollectionDate((String) map.get("collectionDate"));
+          biosamplesItem.setObtentionProcedure(
+              new ObtentionProcedure(mapToOntologyTerm((Map) map.get("obtentionProcedure"))));
           biosamplesItemList.add(biosamplesItem);
         }
       }

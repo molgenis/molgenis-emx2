@@ -6,10 +6,10 @@ import java.util.Arrays;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Meta {
 
-  String beaconId = "org.molgenis.beaconv2";
-  String apiVersion = "v2.0.0-draft.4";
-  String $schema;
-  Schemas[] returnedSchemas;
+  private String beaconId = "org.molgenis.beaconv2";
+  private String apiVersion = "v2.0.0-draft.4";
+  private String $schema;
+  private Schemas[] returnedSchemas;
 
   /**
    * "returnedSchemas" refers to the schema of the current response, so always 1 (??) e.g.

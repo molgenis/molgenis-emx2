@@ -6,6 +6,6 @@ import org.molgenis.emx2.beaconv2.endpoints.configuration.ConfigurationResponse;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Configuration {
-  Meta meta = new Meta("../beaconConfigurationResponse.json", "configuration");
-  ConfigurationResponse response = new ConfigurationResponse();
+  private Meta meta = new Meta("../beaconConfigurationResponse.json", "configuration");
+  private ConfigurationResponse response = new ConfigurationResponse();
 }

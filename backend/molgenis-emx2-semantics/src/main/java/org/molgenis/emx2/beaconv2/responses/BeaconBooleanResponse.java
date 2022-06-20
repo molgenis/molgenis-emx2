@@ -4,10 +4,10 @@ import java.util.Map;
 import org.molgenis.emx2.beaconv2.common.misc.Handover;
 
 public class BeaconBooleanResponse {
-  BeaconResponseMeta meta;
-  BooleanResponseSummary responseSummary;
-  Map<String, Object> info;
-  Handover[] beaconHandovers;
+  private BeaconResponseMeta meta;
+  private BooleanResponseSummary responseSummary;
+  private Map<String, Object> info;
+  private Handover[] beaconHandovers;
 
   private class BooleanResponseSummary {
     // Indicator of whether any entry was observed. This should be non-null, unless there was an

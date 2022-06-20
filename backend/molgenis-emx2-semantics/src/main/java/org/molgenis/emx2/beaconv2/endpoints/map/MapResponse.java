@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MapResponse {
 
-  String $schema;
-  EndPointSets endpointSets;
+  private String $schema;
+  private EndPointSets endpointSets;
 
   public MapResponse(String serverURL) {
     this.$schema = "../../configuration/beaconMapSchema.json";

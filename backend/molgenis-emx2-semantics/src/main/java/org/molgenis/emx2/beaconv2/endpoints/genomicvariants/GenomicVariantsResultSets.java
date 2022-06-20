@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResultSets {
 
-  String id;
-  String type;
-  String setType;
-  Boolean exists;
-  Integer resultsCount;
-  GenomicVariantsResultSetsItem[] results;
+  private String id;
+  private String type;
+  private String setType;
+  private Boolean exists;
+  private Integer resultsCount;
+  private GenomicVariantsResultSetsItem[] results;
 
   // see
   // https://github.com/ga4gh-beacon/beacon-v2-Models/blob/94bd059442c386c8306b08b34ec7db547d6df13d/BEACON-V2-Model/genomicVariations/examples/genomicVariant-MID-example.json
@@ -22,9 +22,5 @@ public class GenomicVariantsResultSets {
     this.exists = true;
     this.resultsCount = results.length;
     this.results = results;
-  }
-
-  public GenomicVariantsResultSets() {
-    super();
   }
 }

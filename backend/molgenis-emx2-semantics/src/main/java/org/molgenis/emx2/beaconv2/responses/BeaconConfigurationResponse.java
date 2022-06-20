@@ -4,6 +4,6 @@ import org.molgenis.emx2.beaconv2.common.misc.BeaconInformationalResponseMeta;
 import org.molgenis.emx2.beaconv2.configuration.BeaconConfigurationSchema;
 
 public class BeaconConfigurationResponse {
-  BeaconInformationalResponseMeta meta;
-  BeaconConfigurationSchema response;
+  private BeaconInformationalResponseMeta meta;
+  private BeaconConfigurationSchema response;
 }

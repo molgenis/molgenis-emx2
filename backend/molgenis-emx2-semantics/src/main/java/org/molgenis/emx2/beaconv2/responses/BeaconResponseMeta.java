@@ -8,20 +8,20 @@ import org.molgenis.emx2.beaconv2.common.misc.SchemasPerEntity;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
 public class BeaconResponseMeta {
-  String beaconId;
-  String apiVersion;
-  SchemasPerEntity[] returnedSchemas;
-  Granularity returnedGranularity;
-  ReceivedRequestSummary receivedRequestSummary;
+  private String beaconId;
+  private String apiVersion;
+  private SchemasPerEntity[] returnedSchemas;
+  private Granularity returnedGranularity;
+  private ReceivedRequestSummary receivedRequestSummary;
 
   public static class ReceivedRequestSummary {
-    String apiVersion;
-    SchemasPerEntity[] requestedSchemas;
-    Pagination pagination;
-    Granularity requestedGranularity;
-    BeaconRequestBody.BeaconFilteringTerms.Filter[] filters;
-    Map<String, Object> requestParameters; // this is nasty
-    IncludedResultsetResponses includeResultsetResponses;
-    boolean testMode = false;
+    private String apiVersion;
+    private SchemasPerEntity[] requestedSchemas;
+    private Pagination pagination;
+    private Granularity requestedGranularity;
+    private BeaconRequestBody.BeaconFilteringTerms.Filter[] filters;
+    private Map<String, Object> requestParameters; // this is nasty
+    private IncludedResultsetResponses includeResultsetResponses;
+    private boolean testMode = false;
   }
 }

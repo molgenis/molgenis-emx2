@@ -12,9 +12,9 @@ import spark.Request;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariants {
 
-  DatasetsMeta meta;
-  ResponseSummary responseSummary;
-  GenomicVariantsResponse response;
+  private DatasetsMeta meta;
+  private ResponseSummary responseSummary;
+  private GenomicVariantsResponse response;
 
   public GenomicVariants(Request request, List<Table> genomicVariantTables) throws Exception {
     this.meta = new DatasetsMeta("../beaconDatasetResponse.json", "datasets");

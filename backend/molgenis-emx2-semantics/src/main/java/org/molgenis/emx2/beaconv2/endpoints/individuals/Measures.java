@@ -11,11 +11,11 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Measures {
 
-  OntologyTerm assayCode;
-  String date;
-  String measurementVariable;
-  MeasurementValue measurementValue;
-  ObservationMoment observationMoment;
+  private OntologyTerm assayCode;
+  private String date;
+  private String measurementVariable;
+  private MeasurementValue measurementValue;
+  private ObservationMoment observationMoment;
 
   public static Measures[] get(Object measures) {
     List<Map<String, Object>> measuresCast = (List<Map<String, Object>>) measures;

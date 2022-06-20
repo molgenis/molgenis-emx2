@@ -4,8 +4,8 @@ package org.molgenis.emx2.beaconv2.responses;
 public class BeaconSummaryResponseSection {
   // "Indicator of whether any entry was observed. This should be non-null, unless there was an
   // error, in which case an error response is expected instead of this one.
-  boolean exists;
+  private boolean exists;
 
   // Total number of results
-  int numTotalResults;
+  private int numTotalResults;
 }

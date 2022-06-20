@@ -7,12 +7,12 @@ import org.molgenis.emx2.beaconv2.endpoints.configuration.OntologyTermForThisTyp
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class EntryType {
 
-  String id;
-  String name;
-  String partOfSpecification;
-  String description;
-  DefaultSchema defaultSchema;
-  OntologyTermForThisType ontologyTermForThisType;
+  private String id;
+  private String name;
+  private String partOfSpecification;
+  private String description;
+  private DefaultSchema defaultSchema;
+  private OntologyTermForThisType ontologyTermForThisType;
 
   public EntryType(
       String entryTypeSingular,

@@ -10,11 +10,11 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Diseases {
 
-  OntologyTerm diseaseCode;
-  AgeOfOnset ageOfOnset;
-  Boolean familyHistory;
-  OntologyTerm severity;
-  OntologyTerm stage;
+  private OntologyTerm diseaseCode;
+  private AgeOfOnset ageOfOnset;
+  private Boolean familyHistory;
+  private OntologyTerm severity;
+  private OntologyTerm stage;
 
   public Diseases() {
     super();

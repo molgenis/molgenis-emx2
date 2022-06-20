@@ -21,10 +21,10 @@ public class CohortsResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
   @JsonInclude(JsonInclude.Include.ALWAYS)
-  CohortsResultSetsItem[] collections;
+  private CohortsResultSetsItem[] collections;
 
   // query parameters, ignore from output
-  @JsonIgnore String idForQuery;
+  @JsonIgnore private String idForQuery;
 
   public CohortsResponse(Request request, List<Table> tables) throws Exception {
 
@@ -46,19 +46,19 @@ public class CohortsResponse {
       if (cohortList != null) {
         for (Map map : cohortList) {
           CohortsResultSetsItem cohortsItem = new CohortsResultSetsItem();
-          cohortsItem.cohortId = (String) map.get("cohortId");
-          cohortsItem.cohortName = (String) map.get("cohortName");
-          cohortsItem.cohortType = (String) map.get("cohortType");
-          cohortsItem.cohortDesign = mapListToOntologyTerms((List<Map>) map.get("cohortDesign"));
-          cohortsItem.cohortSize = (Integer) map.get("cohortSize");
-          cohortsItem.inclusionCriteria =
+          cohortsItem.setCohortId((String) map.get("cohortId"));
+          cohortsItem.setCohortName((String) map.get("cohortName"));
+          cohortsItem.setCohortType((String) map.get("cohortType"));
+          cohortsItem.setCohortDesign(mapListToOntologyTerms((List<Map>) map.get("cohortDesign")));
+          cohortsItem.setCohortSize((Integer) map.get("cohortSize"));
+          cohortsItem.setInclusionCriteria(
               new InclusionCriteria(
                   (String) map.get("inclusionCriteria_ageRange_start_iso8601duration"),
-                  (String) map.get("inclusionCriteria_ageRange_end_iso8601duration"));
-          cohortsItem.locations = mapListToOntologyTerms((List<Map>) map.get("locations"));
-          cohortsItem.genders = mapListToOntologyTerms((List<Map>) map.get("genders"));
-          cohortsItem.cohortDataTypes =
-              mapListToOntologyTerms((List<Map>) map.get("cohortDataTypes"));
+                  (String) map.get("inclusionCriteria_ageRange_end_iso8601duration")));
+          cohortsItem.setLocations(mapListToOntologyTerms((List<Map>) map.get("locations")));
+          cohortsItem.setGenders(mapListToOntologyTerms((List<Map>) map.get("genders")));
+          cohortsItem.setCohortDataTypes(
+              mapListToOntologyTerms((List<Map>) map.get("cohortDataTypes")));
           cohortItemList.add(cohortsItem);
         }
       }
