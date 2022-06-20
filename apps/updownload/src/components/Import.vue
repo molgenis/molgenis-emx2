@@ -7,11 +7,11 @@
       <div v-if="taskUrl">
         <h4>Progress of current upload:</h4>
         <ul class="fa-ul">
-          <Task :task="task"/>
+          <Task :task="task" />
         </ul>
         <ButtonAction
-            v-if="task.status == 'COMPLETED' || task.status == 'ERROR'"
-            @click="done"
+          v-if="task.status == 'COMPLETED' || task.status == 'ERROR'"
+          @click="done"
         >
           Done
         </ButtonAction>
@@ -19,7 +19,7 @@
       <div v-else class="mb-2">
         <h4>Upload</h4>
         <MessageWarning
-            v-if="
+          v-if="
             !session ||
             !session.roles ||
             !['Manager', 'Editor', 'Owner'].some((r) =>
@@ -39,16 +39,16 @@
               Import data by uploading files in excel, zip, json or yaml format.
             </p>
             <form class="form-inline">
-              <InputFile v-model="file"/>
+              <InputFile v-model="file" />
               <ButtonAction @click="upload" v-if="file != undefined">
                 Import
               </ButtonAction>
             </form>
-            <br/>
+            <br />
           </div>
         </div>
         <div
-            v-if="
+          v-if="
             session &&
             session.roles &&
             ['Manager', 'Editor', 'Viewer', 'Owner'].some((r) =>
@@ -58,7 +58,7 @@
         ></div>
         <h4>Download</h4>
         <MessageWarning
-            v-if="!session || !session.roles || session.roles.length == 0"
+          v-if="!session || !session.roles || session.roles.length == 0"
         >
           You don't have permission to download data. Might you need to login?
         </MessageWarning>
@@ -107,7 +107,7 @@ import {
   MessageWarning,
   Molgenis,
 } from "@mswertz/emx2-styleguide";
-import {request} from "graphql-request";
+import { request } from "graphql-request";
 import Task from "./Task";
 
 /** Data import tool */
@@ -163,35 +163,35 @@ export default {
     },
     monitorTask() {
       fetch(this.taskUrl)
-          .then((response) => {
-            if (response.ok) {
-              response.json().then((task) => {
-                this.task = task;
-                this.startMonitorTask();
-              });
-            } else {
-              response.text().then((error) => {
-                this.error = error;
-                this.startMonitorTask();
-              });
-            }
-          })
-          .catch((error) => {
-            this.error = error;
-            this.startMonitorTask();
-          });
+        .then((response) => {
+          if (response.ok) {
+            response.json().then((task) => {
+              this.task = task;
+              this.startMonitorTask();
+            });
+          } else {
+            response.text().then((error) => {
+              this.error = error;
+              this.startMonitorTask();
+            });
+          }
+        })
+        .catch((error) => {
+          this.error = error;
+          this.startMonitorTask();
+        });
     },
     loadSchema() {
       this.loading = true;
       request("graphql", "{_schema{name,tables{name}}}")
-          .then((data) => {
-            this.schema = data._schema.name;
-            this.tables = data._schema.tables;
-          })
-          .catch((error) => {
-            this.error = error.response.errors[0].message;
-          })
-          .finally((this.loading = false));
+        .then((data) => {
+          this.schema = data._schema.name;
+          this.tables = data._schema.tables;
+        })
+        .catch((error) => {
+          this.error = error.response.errors[0].message;
+        })
+        .finally((this.loading = false));
     },
     upload() {
       this.error = null;
@@ -208,50 +208,14 @@ export default {
           const options = {
             method: "POST",
             body: reader.result,
-            headers: {fileName: fileName},
+            headers: { fileName: fileName },
           };
           fetch(url, options)
-              .then((response) => {
-                if (response.ok) {
-                  response.text().then((successText) => {
-                    this.success = successText;
-                    this.error = null;
-                  })
-                } else {
-                  response.json().then((error) => {
-                    this.success = null;
-                    this.error = error.errors[0].message;
-                  })
-                }
-              })
-              .catch((error) => {
-                this.error = error;
-              })
-              .finally(() => {
-                this.file = null;
-                this.loading = false;
-                this.loadSchema();
-              });
-        };
-      } else if (["xlsx", "zip"].includes(type)) {
-        let formData = new FormData();
-        formData.append("file", this.file);
-        let url =
-            "/" +
-            this.schema +
-            "/api/" +
-            (type == "xlsx" ? "excel" : "zip") +
-            "?async=true";
-        fetch(url, {
-          method: "POST",
-          body: formData,
-        })
             .then((response) => {
               if (response.ok) {
-                response.json().then((task) => {
-                  this.taskUrl = task.url;
+                response.text().then((successText) => {
+                  this.success = successText;
                   this.error = null;
-                  this.monitorTask();
                 });
               } else {
                 response.json().then((error) => {
@@ -268,6 +232,42 @@ export default {
               this.loading = false;
               this.loadSchema();
             });
+        };
+      } else if (["xlsx", "zip"].includes(type)) {
+        let formData = new FormData();
+        formData.append("file", this.file);
+        let url =
+          "/" +
+          this.schema +
+          "/api/" +
+          (type == "xlsx" ? "excel" : "zip") +
+          "?async=true";
+        fetch(url, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (response.ok) {
+              response.json().then((task) => {
+                this.taskUrl = task.url;
+                this.error = null;
+                this.monitorTask();
+              });
+            } else {
+              response.json().then((error) => {
+                this.success = null;
+                this.error = error.errors[0].message;
+              });
+            }
+          })
+          .catch((error) => {
+            this.error = error;
+          })
+          .finally(() => {
+            this.file = null;
+            this.loading = false;
+            this.loadSchema();
+          });
       } else {
         this.error = "File extension " + type + " not supported";
       }
