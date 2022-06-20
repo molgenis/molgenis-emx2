@@ -17,15 +17,15 @@ public class QueryHelper {
    * Select query columns from table, including OntologyTerm sub columns. For ontologyTerm the name,
    * code and codesystem are added to the select. These are needed for the Beacon response.
    *
-   * @param t
-   * @param q
+   * @param table
+   * @param query
    * @throws Exception
    */
-  public static void selectColumns(Table t, Query q) throws Exception {
-    for (Column c : t.getMetadata().getColumns()) {
-      if (c.isOntology()) {
+  public static void selectColumns(Table table, Query query) throws Exception {
+    for (Column column : table.getMetadata().getColumns()) {
+      if (column.isOntology()) {
         List<Column> ontoRefCols =
-            c.getRefTable().getColumns().stream()
+            column.getRefTable().getColumns().stream()
                 .filter(
                     colDef ->
                         colDef.getName().equals("name")
@@ -33,15 +33,15 @@ public class QueryHelper {
                             || colDef.getName().equals("codesystem"))
                 .collect(Collectors.toList());
         ArrayList<String> colNames = new ArrayList<>();
-        for (Column cc : ontoRefCols) {
-          colNames.add(cc.getName());
+        for (Column ontoRefCol : ontoRefCols) {
+          colNames.add(ontoRefCol.getName());
         }
-        q.select(new SelectColumn(c.getName(), colNames));
-      } else if (c.isReference()) {
+        query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isReference()) {
         throw new Exception(
             "Reference datatypes (except ontology) not yet supported in Biosamples");
       } else {
-        q.select(s(c.getName()));
+        query.select(s(column.getName()));
       }
     }
   }
@@ -55,10 +55,10 @@ public class QueryHelper {
   public static OntologyTerm[] mapListToOntologyTerms(List<Map> mapList) {
     OntologyTerm[] result = new OntologyTerm[mapList.size()];
     for (int i = 0; i < mapList.size(); i++) {
-      OntologyTerm ot = new OntologyTerm();
-      ot.setId(mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
-      ot.setLabel((String) mapList.get(i).get("name"));
-      result[i] = ot;
+      OntologyTerm ontologyTerm = new OntologyTerm();
+      ontologyTerm.setId(mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
+      ontologyTerm.setLabel((String) mapList.get(i).get("name"));
+      result[i] = ontologyTerm;
     }
     return result;
   }
@@ -70,9 +70,9 @@ public class QueryHelper {
    * @return
    */
   public static OntologyTerm mapToOntologyTerm(Map map) {
-    OntologyTerm ot = new OntologyTerm();
-    ot.setId(map.get("codesystem") + ":" + (String) map.get("code"));
-    ot.setLabel((String) map.get("name"));
-    return ot;
+    OntologyTerm ontologyTerm = new OntologyTerm();
+    ontologyTerm.setId(map.get("codesystem") + ":" + (String) map.get("code"));
+    ontologyTerm.setLabel((String) map.get("name"));
+    return ontologyTerm;
   }
 }
