@@ -47,12 +47,41 @@
 
           <IconCard cardTitle="Samples" icon="TestPipeIcon" footerText="">
             <div class="card-text">
-              <h1 class="text-center"> {{ Math.round((biologicalSamplesCounts / dataCategoriesCounts) * 100 )}}%</h1>
-              <!-- <ul>
-                <li>Blood: 54%</li>
-                <li>DNA: 28%</li>
-                <li>Other: 44%</li>
-              </ul> -->
+              <h1 class="text-center">
+                {{
+                  Math.round(
+                    (biologicalSamplesCounts / dataCategoriesCounts) * 100
+                  )
+                }}%
+              </h1>
+              <ul>
+                <li>
+                  Fluid:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Fluid"] / sampleTypesTotalCount) * 100
+                    )
+                  }}%
+                </li>
+                <li>
+                  Genetic:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Genetic material"] /
+                        sampleTypesTotalCount) *
+                        100
+                    )
+                  }}%
+                </li>
+                <li>
+                  Tissue:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Tissue"] / sampleTypesTotalCount) * 100
+                    )
+                  }}%
+                </li>
+              </ul>
             </div>
           </IconCard>
 
@@ -60,8 +89,13 @@
             <div class="card-text">
               <h1 class="text-center" style="color: white">spacer</h1>
               <ul>
-                <li v-for="type in Object.keys(typeCounts)" :key="type">
-                  {{ type }}: {{ (typeCounts[type] / typesTotalCount) * 100 }}%
+                <li v-for="type in Object.keys(designTypeCounts)" :key="type">
+                  {{ type }}:
+                  {{
+                    Math.round(
+                      (designTypeCounts[type] / designTypesTotalCount) * 100
+                    )
+                  }}%
                 </li>
               </ul>
             </div>
@@ -154,9 +188,14 @@ export default {
       participantCount: 0,
       participantPercentageAboveOneThousand: 0,
       percentageLongitudinalStudies: 0,
-      typeCounts: {},
+      designTypeCounts: {},
       dataCategoriesCounts: 0,
       biologicalSamplesCounts: 0,
+      sampleTypeCounts: {
+        Fluid: 0,
+        "Genetic material": 4,
+        Tissue: 0,
+      },
       newsItems: [],
       recentlyAdded: [],
       graphqlError: "",
@@ -169,8 +208,14 @@ export default {
     },
   },
   computed: {
-    typesTotalCount() {
-      return Object.values(this.typeCounts).reduce(
+    designTypesTotalCount() {
+      return Object.values(this.designTypeCounts).reduce(
+        (total, count) => total + count,
+        0
+      );
+    },
+    sampleTypesTotalCount() {
+      return Object.values(this.sampleTypeCounts).reduce(
         (total, count) => total + count,
         0
       );
@@ -205,21 +250,20 @@ export default {
           100
       );
 
-      this.typeCounts = resp.Cohorts.filter((c) => c.collectionType).reduce(
-        (typeCounts, c) => {
-          c.collectionType.forEach((collectionType) => {
-            const type = collectionType.name;
-            if (typeCounts[type] >= 0) {
-              typeCounts[type] = typeCounts[type] + 1;
-            } else {
-              typeCounts[type] = 0;
-            }
-          });
+      this.designTypeCounts = resp.Cohorts.filter(
+        (c) => c.collectionType
+      ).reduce((count, c) => {
+        c.collectionType.forEach((collectionType) => {
+          const type = collectionType.name;
+          if (count[type] >= 0) {
+            count[type] = count[type] + 1;
+          } else {
+            count[type] = 0;
+          }
+        });
 
-          return typeCounts;
-        },
-        {}
-      );
+        return count;
+      }, {});
 
       // total number of selected dataCategories
       this.dataCategoriesCounts = resp.Cohorts.reduce((total, cohort) => {
@@ -239,11 +283,49 @@ export default {
           total + cohort.collectionEvents
             ? cohort.collectionEvents.reduce((perCohort, collectionEvent) => {
                 return (perCohort += collectionEvent.dataCategories
-                  ? collectionEvent.dataCategories.map(dc => dc.name).includes('Biological samples') ? 1 : 0
+                  ? collectionEvent.dataCategories
+                      .map((dc) => dc.name)
+                      .includes("Biological samples")
+                    ? 1
+                    : 0
                   : 0);
               }, total)
             : 0);
       }, 0);
+
+      // sample types
+      this.sampleTypeCounts = resp.Cohorts.reduce((sampleTypes, cohort) => {
+        if (cohort.collectionEvents) {
+          sampleTypes = cohort.collectionEvents.reduce(
+            (sampleTypes, collectionEvent) => {
+              if (collectionEvent.sampleCategories) {
+                if (
+                  collectionEvent.sampleCategories.name ===
+                    "Fluids and Secretions" ||
+                  collectionEvent.sampleCategories.parent ===
+                    "Fluids and Secretions"
+                ) {
+                  sampleTypes["Fluids and Secretions"] += 1;
+                } else if (
+                  collectionEvent.sampleCategories.name ===
+                    "Genetic material" ||
+                  collectionEvent.sampleCategories.parent === "Genetic material"
+                ) {
+                  sampleTypes["Genetic material"] += 1;
+                } else if (
+                  collectionEvent.sampleCategories.name.startsWith("Tissue") ||
+                  collectionEvent.sampleCategories.parent.startsWith("Tissue")
+                ) {
+                  sampleTypes["Tissue"] += 1;
+                }
+              }
+              return sampleTypes;
+            },
+            sampleTypes
+          );
+        }
+        return sampleTypes;
+      }, this.sampleTypeCounts);
 
       const newsItemsSettings = resp._settings.filter(
         (s) => s.key === "newsItems"
