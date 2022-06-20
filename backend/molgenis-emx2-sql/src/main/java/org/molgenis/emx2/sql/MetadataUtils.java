@@ -533,33 +533,32 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static List<Setting> loadSettings(DSLContext jooq, SchemaMetadata schema) {
+  protected static Map<String, String> loadSettings(DSLContext jooq, SchemaMetadata schema) {
     List<org.jooq.Record> settingRecords =
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
-    return asSettingsList(settingRecords);
+    return asSettingsMap(settingRecords);
   }
 
   /**
    * Loads a list of all database settings ( i.e., settings not related to a specific Schema or
    * Table)
    */
-  protected static List<Setting> loadSettings(DSLContext jooq) {
+  protected static Map<String, String> loadSettings(DSLContext jooq) {
     List<org.jooq.Record> settingRecords =
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(NOT_PROVIDED), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
-    return asSettingsList(settingRecords);
+    return asSettingsMap(settingRecords);
   }
 
-  private static List<Setting> asSettingsList(List<Record> settingRecords) {
-    List<Setting> settings = new ArrayList<>();
+  private static Map<String, String> asSettingsMap(List<Record> settingRecords) {
+    Map<String, String> settings = new LinkedHashMap<>();
     for (Record settingRecord : settingRecords) {
-      settings.add(
-          new Setting(
-              settingRecord.get(SETTINGS_NAME, String.class),
-              settingRecord.get(SETTINGS_VALUE, String.class)));
+      settings.put(
+          settingRecord.get(SETTINGS_NAME, String.class),
+          settingRecord.get(SETTINGS_VALUE, String.class));
     }
     return settings;
   }

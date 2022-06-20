@@ -8,8 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@mswertz/emx2-styleguide": "*",
-    "core-js": "3.22.5",
+    "molgenis-components": "*",
+    "core-js": "3.23.1",
     "graphql-request": "3.7.0",
     "vue": "2.6.14",
     "vue-router": "3.5.4",

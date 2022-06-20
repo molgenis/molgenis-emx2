@@ -51,12 +51,39 @@ import {
   IconAction,
   MessageError,
   MessageSuccess,
-  DefaultMenuMixin,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { request } from "graphql-request";
 
+const defaultMenu = [
+  { label: "Tables", href: "tables", role: "Viewer" },
+  {
+    label: "Schema",
+    href: "schema",
+    role: "Manager",
+  },
+  {
+    label: "Up/Download",
+    href: "updownload",
+    role: "Editor",
+  },
+  {
+    label: "Graphql",
+    href: "graphql-playground",
+    role: "Viewer",
+  },
+  {
+    label: "Settings",
+    href: "settings",
+    role: "Manager",
+  },
+  {
+    label: "Help",
+    href: "docs",
+    role: "Viewer",
+  },
+];
+
 export default {
-  mixins: [DefaultMenuMixin],
   components: {
     MenuDesign,
     IconAction,
@@ -90,7 +117,7 @@ export default {
         this.draft = JSON.parse(JSON.stringify(this.session.settings.menu));
       } else {
         //deep clone
-        this.draft = JSON.parse(JSON.stringify(this.defaultMenu));
+        this.draft = JSON.parse(JSON.stringify(defaultMenu));
       }
       this.updateKey();
     },

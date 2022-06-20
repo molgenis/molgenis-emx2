@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div class="input-group">
       <input
         :id="id"
@@ -10,6 +16,7 @@
       />
       <input
         class="form-control active"
+        :class="{ 'is-invalid': errorMessage }"
         :placeholder="filename"
         @click="$refs.file.click()"
         @keydown.prevent

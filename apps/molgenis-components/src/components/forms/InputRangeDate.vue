@@ -1,5 +1,10 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>
@@ -13,7 +18,7 @@
         placeholder="from"
         class="m-0"
       />
-      
+
       <BaseInputDate
         :id="id + '-to'"
         :value="value[1]"

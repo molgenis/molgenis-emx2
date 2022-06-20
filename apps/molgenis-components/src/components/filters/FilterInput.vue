@@ -9,6 +9,8 @@
         @clearCondition="clearCondition(index - 1)"
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
+        :tableName="tableName"
+        :graphqlURL="graphqlURL"
       ></component>
     </div>
   </div>
@@ -20,10 +22,17 @@ import IntegerFilter from "./IntegerFilter.vue";
 import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
+import RefFilter from "./RefFilter.vue";
+import RefListFilter from "./RefListFilter.vue";
+import OntologyFilter from "./OntologyFilter.vue";
 
 const filterTypeMap = {
   STRING: StringFilter,
   STRING_ARRAY: StringFilter,
+  EMAIL: StringFilter,
+  EMAIL_ARRAY: StringFilter,
+  HYPERLINK: StringFilter,
+  HYPERLINK_ARRAY: StringFilter,
   TEXT: StringFilter,
   TEXT_ARRAY: StringFilter,
   UUID: StringFilter,
@@ -36,6 +45,11 @@ const filterTypeMap = {
   DATE_ARRAY: DateFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
+  REF: RefListFilter,
+  REFBACK: RefListFilter,
+  REF_ARRAY: RefListFilter,
+  ONTOLOGY: OntologyFilter,
+  ONTOLOGY_ARRAY: OntologyFilter,
 };
 
 export default {
@@ -46,6 +60,9 @@ export default {
     DecimalFilter,
     DateFilter,
     BooleanFilter,
+    RefFilter,
+    RefListFilter,
+    OntologyFilter,
   },
   props: {
     id: {
@@ -67,22 +84,37 @@ export default {
       type: String,
       required: false,
     },
+    tableName: {
+      type: String,
+      required: false,
+    },
+    graphqlURL: {
+      type: String,
+      required: false,
+    },
   },
   data() {
     return {
       // used to add new empty field when adding conditions
-      fieldCount: this.conditions.length || 1,
+      fieldCount: this.isMultiConditionFilter ? 1 : this.conditions.length || 1,
     };
   },
   computed: {
     filterType() {
       return filterTypeMap[this.columnType];
     },
+    isMultiConditionFilter() {
+      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+        this.columnType
+      );
+    },
   },
   methods: {
     updateCondition(index, value) {
       let updatedConditions = [...this.conditions];
-      if (!this.conditions.length) {
+      if (this.isMultiConditionFilter) {
+        updatedConditions = value;
+      } else if (!this.conditions.length) {
         updatedConditions = [value];
       } else {
         updatedConditions[index] = value;
@@ -100,7 +132,7 @@ export default {
   },
   watch: {
     conditions(newValue) {
-      this.fieldCount = newValue.length || 1;
+      this.fieldCount = this.isMultiConditionFilter ? 1 : newValue.length || 1;
     },
   },
 };

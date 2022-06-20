@@ -28,7 +28,7 @@
           <th>description</th>
         </thead>
         <tbody>
-          <tr v-for="schema in schemasFiltered" :key="schema.name">
+          <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
             <td>
               <div style="display: flex">
                 <IconAction
@@ -112,12 +112,13 @@ export default {
   },
   computed: {
     count() {
-      return this.schemasFiltered.length;
+      return this.schemasFilteredAndSorted.length;
     },
-    schemasFiltered() {
+    schemasFilteredAndSorted() {
+      let filtered = this.schemas
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(' ');
-        return this.schemas.filter((s) =>
+        filtered = this.schemas.filter((s) =>
           terms.every(
             (v) =>
               s.name.toLowerCase().includes(v) ||
@@ -125,7 +126,7 @@ export default {
           )
         );
       }
-      return this.schemas;
+      return filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
   },
   created() {

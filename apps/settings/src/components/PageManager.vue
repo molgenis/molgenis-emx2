@@ -2,13 +2,14 @@
   <div>
     <h5 class="card-title">Manage pages</h5>
     <ul>
-      <li v-for="page in pages">
+      <li v-for="(page, index) in pages" :key="index">
         <a :href="'../pages/#/' + page">{{ page }}</a>
         <IconAction icon="edit" @click="openPageEdit(page)" />
       </li>
     </ul>
     <form class="form-inline">
       <InputString
+        id="page-title"
         label="Add new page: "
         v-model="newPage"
         :errorMessage="nameError"
@@ -25,7 +26,7 @@ import {
   ButtonAction,
   IconAction,
   InputString,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   components: {
@@ -50,6 +51,8 @@ export default {
     nameError() {
       if (this.pages.includes(this.newPage)) {
         return "Page name already exists";
+      } else {
+        return undefined
       }
     },
     pages() {

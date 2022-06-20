@@ -8,6 +8,7 @@ import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
+import * as utils from "./components/utils";
 
 const app = createApp(App);
 
@@ -36,6 +37,7 @@ const generatedDocumentComponents = import.meta.globEager(
   app.component("DemoItem", DemoItem);
   app.component("Client", Client);
 
+});
 
 let docsMap = {};
 
@@ -56,9 +58,13 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
+
 // // global variable
 // Vue.prototype.$docsMap = docsMap;
 app.config.globalProperties.$docsMap = docsMap;
+app.config.globalProperties.$Client = Client;
+app.config.globalProperties.$utils = utils;
+
 
 // Vue.use(VueRouter);
 // const router = new VueRouter({ routes });
