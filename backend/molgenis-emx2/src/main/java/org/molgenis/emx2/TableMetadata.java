@@ -218,9 +218,7 @@ public class TableMetadata implements Comparable {
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
-            result.put(
-                ref.getName(),
-                new Column(c.getTable(), ref.getName(), true).setType(ref.getPrimitiveType()));
+            result.put(ref.getName(), ref.toPrimitiveColumn());
           }
         }
       } else {

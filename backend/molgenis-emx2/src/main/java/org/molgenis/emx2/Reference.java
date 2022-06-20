@@ -111,4 +111,10 @@ public class Reference {
   public boolean isOverlappingRef() {
     return isOverlapping() && getOverlapping().getColumnType().getBaseType().equals(ColumnType.REF);
   }
+
+  public Column toPrimitiveColumn() {
+    return new Column(this.column.getTable(), this.getName(), true)
+        .setType(this.getPrimitiveType())
+        .setRequired(this.column.isRequired());
+  }
 }
