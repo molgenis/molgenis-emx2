@@ -99,41 +99,14 @@ public class BootstrapThemeService {
         String.format(
             "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n@import 'theme.scss'",
             primaryColor, secondaryColor);
-    Compiler compiler;
+    Compiler compiler = new Compiler();
+    Options options = new Options();
+    options.setImporters(Collections.singleton(BootstrapThemeService::doScssImport));
     try {
-      // new Compiler() fails with java.lang.UnsatisfiedLinkError or java.lang.NoClassDefFoundError
-      // if the required OS dependencies (system libraries or NativeAdapter) cannot be resolved
-      compiler = new Compiler();
-      Options options = new Options();
-      options.setImporters(Collections.singleton(BootstrapThemeService::doScssImport));
       return compiler.compileString(input, options).getCss();
-    } catch (Throwable e) {
-      logger.error(e.getMessage());
-      logger.error(String.format("SASS compilation failed, input was:%n%s", input));
-      return retrieveThemeFromServer();
-    }
-  }
-
-  /**
-   * If local compilation of the theme CSS fails, retrieve a precompiled default theme CSS from an
-   * online EMX2 instance. If the retrieval also fails, log the error and return null, resulting in
-   * no theme available for styling the app.
-   *
-   * @return String containing theme CSS for styling the EMX2 app, or null if retrieval fails.
-   * @throws IOException
-   */
-  public static String retrieveThemeFromServer() {
-    try {
-      return new Scanner(
-              new URL("https://emx2.test.molgenis.org/apps/central/theme.css").openStream(),
-              "UTF-8")
-          .useDelimiter("\\A")
-          .next();
     } catch (Exception e) {
-      logger.error(
-          "Fallback theme could not be retrieved because device is not connected to internet or server is unreachable.");
-      logger.error(e.getMessage());
-      return null;
+      logger.error(String.format("SASS compilation failed, input was:%n%s", input));
+      throw new MolgenisException("SASS compilation failed", e);
     }
   }
 
