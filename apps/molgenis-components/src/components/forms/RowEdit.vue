@@ -24,7 +24,7 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import Expressions from "@molgenis/expressions";
+// import Expressions from "@molgenis/expressions";
 import constants from "../constants";
 import { getPrimaryKey, deepClone } from "../utils";
 
@@ -125,7 +125,9 @@ export default {
     visible(expression, columnId) {
       if (expression) {
         try {
-          return Expressions.evaluate(expression, this.internalValues);
+          // return Expressions.evaluate(expression, this.internalValues);
+          console.log('no expressions yet');
+          return true;
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
@@ -194,9 +196,11 @@ export default {
     },
     evaluateValidationExpression(column, values) {
       try {
-        if (!Expressions.evaluate(column.validation, values)) {
-          return `Applying validation rule returned error: ${column.validation}`;
-        }
+        // if (!Expressions.evaluate(column.validation, values)) {
+        //  return `Applying validation rule returned error: ${column.validation}`;
+        // }
+        console.log('no expressions yet');
+        return undefined;
       } catch (error) {
         return "Invalid validation expression";
       }
