@@ -55,11 +55,32 @@
                 }}%
               </h1>
               <ul>
-                <li>Fluid: {{ sampleTypeCounts["Fluid"] }}</li>
                 <li>
-                  Genetic material: {{ sampleTypeCounts["Genetic material"] }}
+                  Fluid:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Fluid"] / sampleTypesTotalCount) * 100
+                    )
+                  }}%
                 </li>
-                <li>Tissue: {{ sampleTypeCounts["Tissue"] }}</li>
+                <li>
+                  Genetic:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Genetic material"] /
+                        sampleTypesTotalCount) *
+                        100
+                    )
+                  }}%
+                </li>
+                <li>
+                  Tissue:
+                  {{
+                    Math.round(
+                      (sampleTypeCounts["Tissue"] / sampleTypesTotalCount) * 100
+                    )
+                  }}%
+                </li>
               </ul>
             </div>
           </IconCard>
@@ -68,9 +89,13 @@
             <div class="card-text">
               <h1 class="text-center" style="color: white">spacer</h1>
               <ul>
-                <li v-for="type in Object.keys(typeCounts)" :key="type">
+                <li v-for="type in Object.keys(designTypeCounts)" :key="type">
                   {{ type }}:
-                  {{ Math.round((typeCounts[type] / typesTotalCount) * 100) }}%
+                  {{
+                    Math.round(
+                      (designTypeCounts[type] / designTypesTotalCount) * 100
+                    )
+                  }}%
                 </li>
               </ul>
             </div>
@@ -163,7 +188,7 @@ export default {
       participantCount: 0,
       participantPercentageAboveOneThousand: 0,
       percentageLongitudinalStudies: 0,
-      typeCounts: {},
+      designTypeCounts: {},
       dataCategoriesCounts: 0,
       biologicalSamplesCounts: 0,
       sampleTypeCounts: {
@@ -183,8 +208,14 @@ export default {
     },
   },
   computed: {
-    typesTotalCount() {
-      return Object.values(this.typeCounts).reduce(
+    designTypesTotalCount() {
+      return Object.values(this.designTypeCounts).reduce(
+        (total, count) => total + count,
+        0
+      );
+    },
+    sampleTypesTotalCount() {
+      return Object.values(this.sampleTypeCounts).reduce(
         (total, count) => total + count,
         0
       );
@@ -219,21 +250,20 @@ export default {
           100
       );
 
-      this.typeCounts = resp.Cohorts.filter((c) => c.collectionType).reduce(
-        (typeCounts, c) => {
-          c.collectionType.forEach((collectionType) => {
-            const type = collectionType.name;
-            if (typeCounts[type] >= 0) {
-              typeCounts[type] = typeCounts[type] + 1;
-            } else {
-              typeCounts[type] = 0;
-            }
-          });
+      this.designTypeCounts = resp.Cohorts.filter(
+        (c) => c.collectionType
+      ).reduce((count, c) => {
+        c.collectionType.forEach((collectionType) => {
+          const type = collectionType.name;
+          if (count[type] >= 0) {
+            count[type] = count[type] + 1;
+          } else {
+            count[type] = 0;
+          }
+        });
 
-          return typeCounts;
-        },
-        {}
-      );
+        return count;
+      }, {});
 
       // total number of selected dataCategories
       this.dataCategoriesCounts = resp.Cohorts.reduce((total, cohort) => {
