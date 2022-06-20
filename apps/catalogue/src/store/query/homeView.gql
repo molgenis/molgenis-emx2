@@ -30,6 +30,9 @@ query {
       dataCategories {
         name
       }
+      sampleCategories {
+        name
+      }
     }
   }
 }
