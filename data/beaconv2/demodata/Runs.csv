@@ -1,0 +1,5 @@
+id,biosampleId,individualId,runDate,librarySource,librarySelection,libraryStrategy,libraryLayout,platform,platformModel
+SRR10903401,Sample0001,Ind001,01-02-2019,genomic source,cDNA method,WGS strategy,paired-end layout,PacBio platform,PacBio RS II
+SRR10903402,Sample0002,Ind002,02-01-2020,transcriptomic source,DNAse method,RNA-Seq strategy,single-end layout,Illumina platform,Illumina NextSeq 2000
+SRR10903403,Sample0002,Ind002,01-02-2021,genomic source,cDNA method,WGS strategy,paired-end layout,PacBio platform,PacBio RS II
+SRR10903404,Sample0001,Ind001,02-01-2022,transcriptomic source,DNAse method,RNA-Seq strategy,single-end layout,Illumina platform,Illumina NextSeq 2000

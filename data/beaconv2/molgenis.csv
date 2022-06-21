@@ -59,3 +59,14 @@ IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.or
 IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
 IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_P355,E.g. Per Millimeter
 IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
+Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
+Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
+Runs,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
+Runs,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
+Runs,,runDate,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,E.g. 2021-10-18
+Runs,,librarySource,ontology,,,,LibrarySource,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source
+Runs,,librarySelection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method
+Runs,,libraryStrategy,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001973,E.g. WGS strategy
+Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,E.g. paired-end layout
+Runs,,platform,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,E.g. PacBio platform
+Runs,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,E.g. Illumina HiSeq X Ten
