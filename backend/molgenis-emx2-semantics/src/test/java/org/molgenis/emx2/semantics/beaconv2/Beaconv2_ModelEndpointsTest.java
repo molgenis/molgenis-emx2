@@ -321,7 +321,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 4,"));
     assertTrue(
         json.contains("\"librarySource\" : {\n" + "              \"id\" : \"GENEPIO:0001966\","));
-    assertEquals(3432, json.length());
+    assertEquals(3388, json.length());
   }
 
   @Test
@@ -349,6 +349,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertFalse(json.contains("\"id\" : \"SRR10903401\","));
     assertFalse(json.contains("\"id\" : \"SRR10903402\","));
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
-    assertEquals(1534, json.length());
+    assertEquals(1523, json.length());
   }
 }
