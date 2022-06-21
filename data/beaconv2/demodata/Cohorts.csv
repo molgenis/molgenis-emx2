@@ -1,3 +1,3 @@
 cohortId,cohortName,cohortType,cohortDesign,cohortSize,inclusionCriteria_ageRange_start_iso8601duration,inclusionCriteria_ageRange_end_iso8601duration,locations,genders,cohortDataTypes
-cohort0001,GCAT Genomes for Life,study-defined,"longitudinal study design, twin study design",20000,P18Y,P40Y,"Spain, France","assigned female at birth, assigned male at birth","Dataset, Sound, Still Image"
-cohort0002,Lifelines,study-defined,"longitudinal study design, population based study design",167000,P0Y,P100Y,"Netherlands (the)","assigned female at birth, assigned male at birth, assigned nonbinary at birth","Dataset, Text, Still Image"
+Cohort0001,GCAT Genomes for Life,study-defined,"longitudinal study design, twin study design",20000,P18Y,P40Y,"Spain, France","assigned female at birth, assigned male at birth","Dataset, Sound, Still Image"
+Cohort0002,Lifelines,study-defined,"longitudinal study design, population based study design",167000,P0Y,P100Y,"Netherlands (the)","assigned female at birth, assigned male at birth, assigned nonbinary at birth","Dataset, Text, Still Image"

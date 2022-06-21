@@ -128,7 +128,7 @@ public class Beaconv2_ModelEndpointsTest {
     Analyses a = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(a);
     assertTrue(json.contains("\"resultsCount\" : 4,"));
-    assertEquals(2604, json.length());
+    assertEquals(2628, json.length());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(a);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1341, json.length());
+    assertEquals(1347, json.length());
   }
 
   @Test
@@ -166,13 +166,13 @@ public class Beaconv2_ModelEndpointsTest {
                                       "procedureCode" : {
                                         "id" : "OBI:0002654",
                                         "label" : "needle biopsy\""""));
-    assertEquals(2121, json.length());
+    assertEquals(2103, json.length());
   }
 
   @Test
   public void testBiosamples_NoHits() throws Exception {
     Request request = mock(Request.class);
-    when(request.queryParams("id")).thenReturn("sample-example-0003");
+    when(request.queryParams("id")).thenReturn("Sample0003");
     Biosamples b = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(b);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
@@ -182,12 +182,12 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testBiosamples_IdQuery() throws Exception {
     Request request = mock(Request.class);
-    when(request.queryParams("id")).thenReturn("sample-example-0002");
+    when(request.queryParams("id")).thenReturn("Sample0002");
     Biosamples b = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(b);
-    assertTrue(json.contains("\"id\" : \"sample-example-0002\","));
+    assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1523, json.length());
+    assertEquals(1514, json.length());
   }
 
   @Test
@@ -202,7 +202,7 @@ public class Beaconv2_ModelEndpointsTest {
             "response" : {
                 "collections" : [
                   {
-                    "cohortId" : "cohort0001","""));
+                    "cohortId" : "Cohort0001","""));
     assertTrue(
         json.contains(
             """
@@ -220,7 +220,7 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testCohorts_NoHits() throws Exception {
     Request request = mock(Request.class);
-    when(request.queryParams("cohortId")).thenReturn("cohort0003");
+    when(request.queryParams("cohortId")).thenReturn("Cohort0003");
     Cohorts c = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
     String json = JsonUtil.getWriter().writeValueAsString(c);
     assertTrue(
@@ -235,11 +235,11 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testCohorts_IdQuery() throws Exception {
     Request request = mock(Request.class);
-    when(request.queryParams("cohortId")).thenReturn("cohort0001");
+    when(request.queryParams("cohortId")).thenReturn("Cohort0001");
     Cohorts c = new Cohorts(request, List.of(beaconSchema.getTable("Cohorts")));
     String json = JsonUtil.getWriter().writeValueAsString(c);
-    assertTrue(json.contains("\"cohortId\" : \"cohort0001\","));
-    assertFalse(json.contains("\"cohortId\" : \"cohort0002\","));
+    assertTrue(json.contains("\"cohortId\" : \"Cohort0001\","));
+    assertFalse(json.contains("\"cohortId\" : \"Cohort0002\","));
     assertEquals(2163, json.length());
   }
 
