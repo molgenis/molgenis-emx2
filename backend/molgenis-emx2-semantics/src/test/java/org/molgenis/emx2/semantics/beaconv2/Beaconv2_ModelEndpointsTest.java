@@ -214,7 +214,7 @@ public class Beaconv2_ModelEndpointsTest {
                       {
                         "id" : "ISO3166:ES",
                         "label" : "Spain\""""));
-    assertEquals(3627, json.length());
+    assertEquals(3353, json.length());
   }
 
   @Test
@@ -240,7 +240,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     assertTrue(json.contains("\"cohortId\" : \"Cohort0001\","));
     assertFalse(json.contains("\"cohortId\" : \"Cohort0002\","));
-    assertEquals(2163, json.length());
+    assertEquals(2030, json.length());
   }
 
   @Test
