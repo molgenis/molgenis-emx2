@@ -67,6 +67,6 @@ Runs,,runDate,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,E.g. 
 Runs,,librarySource,ontology,,,,LibrarySource,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source
 Runs,,librarySelection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method
 Runs,,libraryStrategy,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001973,E.g. WGS strategy
-Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,E.g. paired-end layout
+Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE
 Runs,,platform,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,E.g. PacBio platform
 Runs,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,E.g. Illumina HiSeq X Ten
