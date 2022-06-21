@@ -75,13 +75,13 @@ public class IndividualsResponse {
       }
 
       if (individualsItemList.size() > 0) {
-        IndividualsResultSets aSet =
+        IndividualsResultSets individualsResultSets =
             new IndividualsResultSets(
                 table.getSchema().getName(),
                 individualsItemList.size(),
                 individualsItemList.toArray(
                     new IndividualsResultSetsItem[individualsItemList.size()]));
-        resultSetsList.add(aSet);
+        resultSetsList.add(individualsResultSets);
       }
     }
     this.resultSets = resultSetsList.toArray(new IndividualsResultSets[resultSetsList.size()]);
