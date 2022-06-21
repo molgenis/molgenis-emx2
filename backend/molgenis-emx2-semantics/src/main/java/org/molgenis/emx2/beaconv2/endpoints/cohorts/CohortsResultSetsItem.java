@@ -9,7 +9,7 @@ public class CohortsResultSetsItem {
   private String cohortId;
   private String cohortName;
   private String cohortType;
-  private OntologyTerm[] cohortDesign;
+  private OntologyTerm cohortDesign;
   private Integer cohortSize;
   private InclusionCriteria inclusionCriteria;
   private OntologyTerm[] locations;
@@ -28,7 +28,7 @@ public class CohortsResultSetsItem {
     this.cohortType = cohortType;
   }
 
-  public void setCohortDesign(OntologyTerm[] cohortDesign) {
+  public void setCohortDesign(OntologyTerm cohortDesign) {
     this.cohortDesign = cohortDesign;
   }
 
