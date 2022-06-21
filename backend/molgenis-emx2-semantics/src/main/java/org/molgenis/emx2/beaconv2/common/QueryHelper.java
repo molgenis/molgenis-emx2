@@ -56,7 +56,8 @@ public class QueryHelper {
     OntologyTerm[] result = new OntologyTerm[mapList.size()];
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
-      ontologyTerm.setId(mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
+      ontologyTerm.setId(
+          mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
       ontologyTerm.setLabel((String) mapList.get(i).get("name"));
       result[i] = ontologyTerm;
     }

@@ -79,8 +79,8 @@ public class CsvApi {
     response.type(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     response.header(
-            "Content-Disposition",
-            "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_ " + date + ".csv\"");
     response.status(200);
     return writer.toString();
   }
