@@ -309,4 +309,43 @@ public class Beaconv2_ModelEndpointsTest {
               }"""));
     assertEquals(728, json.length());
   }
+
+  @Test
+  public void testRuns_NoParams() throws Exception {
+    Request request = mock(Request.class);
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    String json = JsonUtil.getWriter().writeValueAsString(runs);
+    assertTrue(json.contains("\"resultsCount\" : 4,"));
+    assertTrue(
+        json.contains("\"librarySource\" : {\n" + "              \"id\" : \"GENEPIO:0001966\","));
+    assertEquals(3432, json.length());
+  }
+
+  @Test
+  public void testRuns_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("SRR10903405");
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    String json = JsonUtil.getWriter().writeValueAsString(runs);
+    assertTrue(
+        json.contains(
+            """
+                    "response" : {
+                        "resultSets" : [ ]
+                      }"""));
+    assertEquals(728, json.length());
+  }
+
+  @Test
+  public void testRuns_IdQuery() throws Exception {
+    Request request = mock(Request.class);
+    when(request.queryParams("id")).thenReturn("SRR10903403");
+    Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
+    String json = JsonUtil.getWriter().writeValueAsString(runs);
+    assertTrue(json.contains("\"id\" : \"SRR10903403\","));
+    assertFalse(json.contains("\"id\" : \"SRR10903401\","));
+    assertFalse(json.contains("\"id\" : \"SRR10903402\","));
+    assertFalse(json.contains("\"id\" : \"SRR10903404\","));
+    assertEquals(1534, json.length());
+  }
 }
