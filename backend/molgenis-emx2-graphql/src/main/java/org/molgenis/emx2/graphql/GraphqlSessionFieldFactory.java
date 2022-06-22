@@ -1,7 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapToSettings;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
@@ -105,7 +105,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition userQueryField(Database database, Schema schema) {
+  public GraphQLFieldDefinition sessionQueryField(Database database, Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_session")
         .type(
@@ -142,7 +142,7 @@ public class GraphqlSessionFieldFactory {
               result.put(SCHEMAS, database.getSchemaNames());
               result.put(
                   SETTINGS,
-                  mapToSettings(database.getUser(database.getActiveUser()).getSettings()));
+                  mapSettingsToGraphql(database.getUser(database.getActiveUser()).getSettings()));
               result.put(
                   TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
               return result;

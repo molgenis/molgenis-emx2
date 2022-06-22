@@ -3,20 +3,9 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <a
-          href="#"
-          @click.prevent="showChangePasswordForm = true"
-          class="text-light"
-        >
+        <a href="#" @click.prevent="$emit('showAccount')" class="text-light">
           Hi {{ session.email }}</a
         >&nbsp;
-        <MolgenisAccount
-          v-if="showChangePasswordForm"
-          :user="session.email"
-          :token="session.token"
-          :error="error"
-          @cancel="showChangePasswordForm = false"
-        />
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
@@ -54,12 +43,11 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import MolgenisAccount from "./MolgenisAccount.vue";
 
 import { request } from "../../client/client.js";
 
 const query = `{
-  _session { email, roles, schemas, token },
+  _session { email, roles, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
@@ -70,7 +58,6 @@ export default {
     ButtonOutline,
     MolgenisSignin,
     SignupForm,
-    MolgenisAccount,
     Spinner,
     ButtonAlt,
   },

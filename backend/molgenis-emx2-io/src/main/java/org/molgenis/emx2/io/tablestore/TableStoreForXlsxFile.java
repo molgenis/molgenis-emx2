@@ -7,9 +7,12 @@ import com.monitorjbl.xlsx.StreamingReader;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
@@ -35,39 +38,37 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
-
+      // streaming workbook
       if (!Files.exists(excelFilePath)) {
-        try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
-            Workbook wb = new SXSSFWorkbook(100)) {
-          if (rows.iterator().hasNext()) {
-            writeRowsToSheet(name, rows, wb);
-          } else {
-            writeHeaderOnlyToSheet(name, columnNames, wb);
-          }
-          wb.write(out);
-        }
+        wb = new SXSSFWorkbook(100);
       } else {
-        Workbook wb;
-        try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
-          wb = WorkbookFactory.create(inputStream);
-          if (rows.iterator().hasNext()) {
-            writeRowsToSheet(name, rows, wb);
-          } else {
-            writeHeaderOnlyToSheet(name, columnNames, wb);
-          }
-        }
-        try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
-          wb.write(outputStream);
-        } finally {
-          this.cache = null;
-          wb.close();
-        }
+        // move to a temp file so we can merge result into the original file location
+        Path temp =
+            Files.move(
+                excelFilePath,
+                Files.createTempFile("copy", ".xlsx"),
+                StandardCopyOption.REPLACE_EXISTING);
+        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), 100);
       }
-    } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe);
+      if (rows.iterator().hasNext()) {
+        writeRowsToSheet(name, rows, wb);
+      } else {
+        writeHeaderOnlyToSheet(name, columnNames, wb);
+      }
+      // write contents to a temp file and overwrite original
+      try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
+        wb.write(outputStream);
+      } finally {
+        wb.close();
+      }
+    } catch (Exception ife) {
+      throw new MolgenisException("Writing of excel failed", ife);
+    } finally {
+      this.cache = null;
     }
   }
 
@@ -79,7 +80,8 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeRowsToSheet(String name, Iterable<Row> rows, Workbook wb) {
+  private void writeRowsToSheet(String name, Iterable<Row> rows, SXSSFWorkbook wb)
+      throws IOException {
 
     // get the row columns
     Set<String> columnNames = new LinkedHashSet<>();
@@ -88,7 +90,9 @@ public class TableStoreForXlsxFile implements TableStore {
     }
 
     // create the sheet
-    Sheet sheet = wb.createSheet(name);
+    SXSSFSheet sheet = wb.createSheet(name);
+    // buffer the row so it gets flushed
+    sheet.setRandomAccessWindowSize(wb.getRandomAccessWindowSize());
     Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
     int rowNum = 0;
 
@@ -115,6 +119,7 @@ public class TableStoreForXlsxFile implements TableStore {
       }
       rowNum++;
     }
+    sheet.flushRows();
   }
 
   private void cache() {

@@ -69,19 +69,19 @@
 </template>
 
 <script>
-import {request} from 'graphql-request';
+import { request } from "graphql-request";
 
-import SchemaCreateModal from './SchemaCreateModal';
-import SchemaDeleteModal from './SchemaDeleteModal';
-import SchemaEditModal from './SchemaEditModal';
+import SchemaCreateModal from "./SchemaCreateModal";
+import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaEditModal from "./SchemaEditModal";
 import {
   IconAction,
   IconBar,
   IconDanger,
   Spinner,
   MessageWarning,
-  InputSearch
-} from 'molgenis-components';
+  InputSearch,
+} from "molgenis-components";
 
 export default {
   components: {
@@ -93,10 +93,10 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
-    InputSearch
+    InputSearch,
   },
   props: {
-    session: Object
+    session: Object,
   },
   data: function () {
     return {
@@ -107,7 +107,7 @@ export default {
       showEditSchema: false,
       editDescription: null,
       graphqlError: null,
-      search: null
+      search: null,
     };
   },
   computed: {
@@ -115,9 +115,9 @@ export default {
       return this.schemasFilteredAndSorted.length;
     },
     schemasFilteredAndSorted() {
-      let filtered = this.schemas
+      let filtered = this.schemas;
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(' ');
+        let terms = this.search.toLowerCase().split(" ");
         filtered = this.schemas.filter((s) =>
           terms.every(
             (v) =>
@@ -127,7 +127,7 @@ export default {
         );
       }
       return filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    },
   },
   created() {
     this.getSchemaList();
@@ -158,16 +158,16 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request('graphql', '{Schemas{name description}}')
+      request("graphql", "{_schemas{name description}}")
         .then((data) => {
-          this.schemas = data.Schemas;
+          this.schemas = data._schemas;
           this.loading = false;
         })
         .catch(
           (error) =>
-            (this.graphqlError = 'internal server graphqlError' + error)
+            (this.graphqlError = "internal server graphqlError" + error)
         );
-    }
-  }
+    },
+  },
 };
 </script>

@@ -12,8 +12,8 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.User;
 
-public class GraphqlAdminFieldFactory {
-  private GraphqlAdminFieldFactory() {
+public class GraphlAdminFieldFactory {
+  private GraphlAdminFieldFactory() {
     // hide constructor
   }
 
@@ -37,7 +37,7 @@ public class GraphqlAdminFieldFactory {
   public static GraphQLFieldDefinition queryAdminField(Database db) {
     GraphQLOutputType adminType =
         GraphQLObjectType.newObject()
-            .name("_AdminType")
+            .name("MolgenisAdmin")
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(USERS)
@@ -64,7 +64,7 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(USERS)) {
                   result.put(USERS, getUsers(selectedField, db));
                 }
-                if (selectedField.getName().equals(USERS)) {
+                if (selectedField.getName().equals("userCount")) {
                   result.put("userCount", db.countUsers());
                 }
               }
@@ -83,7 +83,7 @@ public class GraphqlAdminFieldFactory {
       return List.of(toGraphqlUser(db.getUser(email)));
     } else {
       return db.getUsers(limit, offset).stream()
-          .map(GraphqlAdminFieldFactory::toGraphqlUser)
+          .map(GraphlAdminFieldFactory::toGraphqlUser)
           .toList();
     }
   }
@@ -91,11 +91,11 @@ public class GraphqlAdminFieldFactory {
   private static Map<String, Object> toGraphqlUser(User user) {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
-    result.put(SETTINGS, mapToSettings(user.getSettings()));
+    result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
     return result;
   }
 
-  public static Object mapToSettings(Map<String, String> settings) {
+  public static Object mapSettingsToGraphql(Map<String, String> settings) {
     return settings.entrySet().stream()
         .map(entry -> Map.of(KEY, entry.getKey(), VALUE, entry.getValue()))
         .toList();

@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
-import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapToSettings;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -36,7 +36,7 @@ public class GraphqlSchemaFieldFactory {
           .build();
   public static final GraphQLType outputSettingsType =
       new GraphQLObjectType.Builder()
-          .name("MolgenisSettingsType")
+          .name("MolgenisSetting")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -191,7 +191,7 @@ public class GraphqlSchemaFieldFactory {
           .build();
   private static final GraphQLObjectType outputSchemaType =
       new GraphQLObjectType.Builder()
-          .name("MolgenisSchemaMetaType")
+          .name("MolgenisSchema")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -363,8 +363,8 @@ public class GraphqlSchemaFieldFactory {
       }
       result.put(ROLES, roles);
 
-      // add settings
-      result.put(SETTINGS, mapToSettings((schema.getMetadata().getSettings())));
+      // add settings for the schema
+      result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
 
       // add name
       result.put(NAME, schema.getMetadata().getName());

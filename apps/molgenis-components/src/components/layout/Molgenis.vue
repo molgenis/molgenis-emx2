@@ -7,14 +7,26 @@
         :items="menu"
         :session="session"
       >
-        <MolgenisSession v-model="session" :key="timestamp" />
+        <MolgenisSession
+          v-model="session"
+          :key="timestamp"
+          @showAccount="showAccount = !showAccount"
+        />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
         :crumbs="crumbs"
         :dropdown="schemaUrlsForCrumbs"
       />
-      <div class="container-fluid p-3" style="padding-bottom: 50px">
+      <MolgenisAccount
+        v-if="showAccount"
+        :user="session.email"
+        :token="session.token"
+        :settings="session.settings"
+        :error="error"
+        @cancel="showChangePasswordForm = false"
+      />
+      <div v-else class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
         <slot />
       </div>
@@ -44,6 +56,8 @@ import MolgenisSession from "./MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 
+import MolgenisAccount from "./MolgenisAccount.vue";
+
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
  */
@@ -53,6 +67,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
+    MolgenisAccount,
   },
   props: {
     menuItems: {
@@ -98,6 +113,7 @@ export default {
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
+      showAccount: false,
     };
   },
   computed: {
@@ -184,7 +200,9 @@ export default {
         {label:'My movies',href:'http://youtube.com'}
      ]" title="My title" v-model="molgenis">
     <template>
-      <p>Some contents and I can see the molgenis state via v-model = {{ JSON.stringify(molgenis) }}</p>
+      <p>Some contents and I can see the molgenis state via v-model =
+      <div>{{ JSON.stringify(molgenis) }}</div>
+      </p>
     </template>
   </Molgenis>
 </template>
