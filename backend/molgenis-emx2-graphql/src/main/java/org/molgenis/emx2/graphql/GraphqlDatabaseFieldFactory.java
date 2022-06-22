@@ -28,7 +28,6 @@ public class GraphqlDatabaseFieldFactory {
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .build();
-  public static final String DATABASE_SETTINGS = "databaseSettings";
 
   public GraphqlDatabaseFieldFactory() {
     // no instances
@@ -213,9 +212,7 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
-            GraphQLArgument.newArgument()
-                .name(DATABASE_SETTINGS)
-                .type(GraphQLList.list(inputSettingsType)))
+            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
@@ -224,9 +221,7 @@ public class GraphqlDatabaseFieldFactory {
                     try {
                       changeUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       changeSettings(
-                          db,
-                          dataFetchingEnvironment.getArgument(DATABASE_SETTINGS),
-                          messageBuilder);
+                          db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
@@ -242,9 +237,7 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
-            GraphQLArgument.newArgument()
-                .name(DATABASE_SETTINGS)
-                .type(GraphQLList.list(inputSettingsType)))
+            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();

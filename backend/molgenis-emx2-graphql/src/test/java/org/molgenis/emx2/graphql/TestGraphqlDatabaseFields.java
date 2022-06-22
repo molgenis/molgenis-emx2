@@ -47,12 +47,12 @@ public class TestGraphqlDatabaseFields {
     }
 
     assertNull(database.getSchema(schemaName + "B"));
-    String result = execute("{Schemas{name}}").at("/data/Schemas").toString();
+    String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertFalse(result.contains(schemaName + "B"));
 
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
     assertNotNull(database.getSchema(schemaName + "B"));
-    result = execute("{Schemas{name}}").at("/data/Schemas").toString();
+    result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
     execute("mutation{deleteSchema(name:\"" + schemaName + "B\"){message}}");
