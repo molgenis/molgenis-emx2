@@ -74,10 +74,8 @@ public class GenomicVariantsResponse {
       if (qReferenceName == null
           && qStart == null
           && qEnd == null
-          && qGeneId == null
           && qReferenceBases == null
-          && qAlternateBases == null
-          && qGeneId == null) {
+          && qAlternateBases == null) {
         genomicQueryType = GenomicQueryType.NO_REQUEST_PARAMS;
       } else {
         throw new Exception(
