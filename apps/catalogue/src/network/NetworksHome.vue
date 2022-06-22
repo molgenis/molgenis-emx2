@@ -160,7 +160,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-img-top {
   width: 100%;
   object-fit: contain;

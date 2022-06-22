@@ -30,16 +30,32 @@ export function flattenObject(object) {
   }
 }
 
-export function getPrimaryKey(row, tableMetadata) {
+export function getPrimaryKey(row, tableMetaData) {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetadata) {
+  if (!row["mg_insertedOn"] || !tableMetaData) {
     return null;
   } else {
-    return tableMetadata.columns?.reduce((accum, column) => {
+    return tableMetaData.columns?.reduce((accum, column) => {
       if (column.key === 1 && row[column.id]) {
         accum[column.id] = row[column.id];
       }
       return accum;
     }, {});
   }
+}
+
+export function deepClone(original) {
+  // node js may not have structuredClone function, then fallback to deep clone via JSON
+  return typeof structuredClone === "function"
+    ? structuredClone(original)
+    : JSON.parse(JSON.stringify(original));
+}
+
+export function filterObject(object, filter) {
+  return Object.keys(object).reduce((accum, key) => {
+    if (filter(key)) {
+      accum[key] = object[key];
+    }
+    return accum;
+  }, {});
 }

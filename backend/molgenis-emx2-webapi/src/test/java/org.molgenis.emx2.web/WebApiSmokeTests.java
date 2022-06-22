@@ -6,7 +6,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.sql.SqlDatabase.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,9 +39,10 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
   private static Schema schema;
-  public static String SESSION_ID; // to toss around a session for the tests
+  final String CSV_TEST_SCHEMA = "pet store csv";
 
   @BeforeClass
   public static void before() throws IOException {
@@ -77,6 +82,11 @@ public class WebApiSmokeTests {
             .sessionId();
   }
 
+  @AfterClass
+  public static void after() {
+    MolgenisWebservice.stop();
+  }
+
   @Test
   public void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
@@ -87,13 +97,7 @@ public class WebApiSmokeTests {
     db.dropCreateSchema("pet store zip");
 
     // download zip contents of old schema
-    byte[] zipContents =
-        given()
-            .sessionId(SESSION_ID)
-            .accept(ACCEPT_ZIP)
-            .when()
-            .get("/pet store/api/zip")
-            .asByteArray();
+    byte[] zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip");
 
     // upload zip contents into new schema
     File zipFile = createTempFile(zipContents, ".zip");
@@ -117,6 +121,78 @@ public class WebApiSmokeTests {
 
     // delete the new schema
     db.dropSchema("pet store zip");
+  }
+
+  @Test
+  public void testCsvApi_csvUploadDownload() throws IOException {
+    // create a new schema for complete csv data round trip
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    // download csv metadata and data from existing schema
+    byte[] contentsMeta = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv");
+    byte[] contentsCategoryData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Category");
+    byte[] contentsOrderData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Order");
+    byte[] contentsPetData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Pet");
+    byte[] contentsUserData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/User");
+    byte[] contentsTagData = getContentAsByteArray(ACCEPT_CSV, "/pet store/api/csv/Tag");
+
+    // create tmp files for csv metadata and data
+    File contentsMetaFile = createTempFile(contentsMeta, ".csv");
+    File contentsCategoryDataFile = createTempFile(contentsCategoryData, ".csv");
+    File contentsOrderDataFile = createTempFile(contentsOrderData, ".csv");
+    File contentsPetDataFile = createTempFile(contentsPetData, ".csv");
+    File contentsUserDataFile = createTempFile(contentsUserData, ".csv");
+    File contentsTagDataFile = createTempFile(contentsTagData, ".csv");
+
+    // upload csv metadata and data into the new schema
+    // here we use 'body' (instead of 'multiPart' in e.g. testCsvApi_zipUploadDownload) because csv,
+    // json and yaml import is submitted in the request body
+    acceptFileUpload(contentsMetaFile, "molgenis");
+    acceptFileUpload(contentsCategoryDataFile, "Category");
+    acceptFileUpload(contentsTagDataFile, "Tag");
+    acceptFileUpload(contentsPetDataFile, "Pet");
+    acceptFileUpload(contentsOrderDataFile, "Order");
+    acceptFileUpload(contentsUserDataFile, "User");
+
+    // download csv from the new schema
+    String contentsMetaNew = getContentAsString("/api/csv");
+    String contentsCategoryDataNew = getContentAsString("/api/csv/Category");
+    String contentsOrderDataNew = getContentAsString("/api/csv/Order");
+    String contentsPetDataNew = getContentAsString("/api/csv/Pet");
+    String contentsUserDataNew = getContentAsString("/api/csv/User");
+    String contentsTagDataNew = getContentAsString("/api/csv/Tag");
+
+    // test if existing and new schema are equal
+    assertEquals(new String(contentsMeta), contentsMetaNew);
+    assertEquals(new String(contentsCategoryData), contentsCategoryDataNew);
+    assertEquals(new String(contentsOrderData), contentsOrderDataNew);
+    assertEquals(new String(contentsPetData), contentsPetDataNew);
+    assertEquals(new String(contentsUserData), contentsUserDataNew);
+    assertEquals(new String(contentsTagData), contentsTagDataNew);
+  }
+
+  private void acceptFileUpload(File content, String table) {
+    given()
+        .sessionId(SESSION_ID)
+        .body(content)
+        .header("fileName", table)
+        .when()
+        .post("/" + CSV_TEST_SCHEMA + "/api/csv")
+        .then()
+        .statusCode(200);
+  }
+
+  private String getContentAsString(String path) {
+    return given()
+        .sessionId(SESSION_ID)
+        .accept(ACCEPT_CSV)
+        .when()
+        .get("/" + CSV_TEST_SCHEMA + path)
+        .asString();
+  }
+
+  private byte[] getContentAsByteArray(String fileType, String path) {
+    return given().sessionId(SESSION_ID).accept(fileType).when().get(path).asByteArray();
   }
 
   @Test
@@ -172,13 +248,7 @@ public class WebApiSmokeTests {
     db.dropCreateSchema("pet store excel");
 
     // download excel contents from schema
-    byte[] excelContents =
-        given()
-            .sessionId(SESSION_ID)
-            .accept(ACCEPT_EXCEL)
-            .when()
-            .get("/pet store/api/excel")
-            .asByteArray();
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
     File excelFile = createTempFile(excelContents, ".xlsx");
 
     // upload excel into new schema
@@ -543,10 +613,5 @@ public class WebApiSmokeTests {
   @Test
   public void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
-  }
-
-  @AfterClass
-  public static void after() {
-    MolgenisWebservice.stop();
   }
 }
