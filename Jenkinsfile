@@ -8,9 +8,9 @@ pipeline {
     environment {
         DOCKER_CONFIG = "/root/.docker"
         CHART_VERSION = "8.73.1"
-        MOLGENIS_POSTGRES_USER = 'molgenis_admin'
-        MOLGENIS_POSTGRES_PASS = 'molgenis_admin'
-        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenisdb'
+        MOLGENIS_POSTGRES_USER = 'molgenis'
+        MOLGENIS_POSTGRES_PASS = 'molgenis'
+        MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenis'
     }
     stages {
         stage('Prepare') {
@@ -39,6 +39,8 @@ pipeline {
                     sh 'git config url.https://.insteadOf git://'
                     sh "mkdir -p ${DOCKER_CONFIG}"
                     sh "echo '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "apt-get update && apt-get install postgresql-client -y"
+                    sh "psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql"
                 }
                 dir("${JENKINS_AGENT_WORKDIR}/.m2") {
                     stash includes: 'settings.xml', name: 'maven-settings'
