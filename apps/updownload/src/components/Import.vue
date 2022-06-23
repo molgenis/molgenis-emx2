@@ -106,7 +106,6 @@ import {
   MessageSuccess,
   MessageWarning,
   Molgenis,
-  Spinner,
 } from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import Task from "./Task";
@@ -119,7 +118,6 @@ export default {
     MessageError,
     MessageSuccess,
     MessageWarning,
-    Spinner,
     Molgenis,
     Task,
   },
@@ -139,9 +137,10 @@ export default {
   computed: {
     tablesHash() {
       if (this.tables) {
-        this.tables.map((t) => t.name).join("-");
+        return this.tables.map((table) => table.name).join("-");
+      } else {
+        return null;
       }
-      return null;
     },
   },
   methods: {
@@ -198,30 +197,39 @@ export default {
       this.error = null;
       this.success = null;
       this.loading = true;
-      //upload file contents
-      let type = this.file.name.split(".").pop();
+      const splitFileName = this.file.name.split(".");
+      const fileName = splitFileName[0];
+      const type = splitFileName[splitFileName.length - 1];
       if (["csv", "json", "yaml"].includes(type)) {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.readAsText(this.file);
-        let url = "/" + this.schema + "/api/" + type;
-        let _this = this;
-        reader.onload = function () {
-          fetch(url, { method: "POST", body: reader.result })
+        reader.onload = () => {
+          const url = `/${this.schema}/api/${type}`;
+          const options = {
+            method: "POST",
+            body: reader.result,
+            headers: { fileName: fileName },
+          };
+          fetch(url, options)
             .then((response) => {
-              response.text().then((successText) => {
-                _this.success = successText;
-                _this.error = null;
-              });
+              if (response.ok) {
+                response.text().then((successText) => {
+                  this.success = successText;
+                  this.error = null;
+                });
+              } else {
+                response.json().then((error) => {
+                  this.success = null;
+                  this.error = error.errors[0].message;
+                });
+              }
             })
             .catch((error) => {
-              error.text().then((errorText) => {
-                _this.success = null;
-                _this.error = "Failed: " + errorText;
-              });
+              this.error = error;
             })
             .finally(() => {
-              _this.file = null;
-              _this.loading = false;
+              this.file = null;
+              this.loading = false;
               this.loadSchema();
             });
         };

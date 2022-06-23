@@ -117,7 +117,8 @@ export default {
      *  */
     canEdit: {
       type: Boolean,
-      default: false,
+      required: false,
+      default: () => false,
     },
   },
   data() {
@@ -156,13 +157,13 @@ export default {
   methods: {
     getPrimaryKey,
     async reload () {
-      this.data = await this.client.fetchTableDataValues(this.tableName);
+      this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
     }
   },
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
-    this.data = await this.client.fetchTableDataValues(this.tableName);
+    this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
   },
 };
 </script>
