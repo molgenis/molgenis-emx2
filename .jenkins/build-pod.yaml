@@ -3,17 +3,6 @@ kind: Pod
 metadata:
   name: jenkins-agent
 spec:
-  initContainers:
-    - name: initdb
-      image: busybox
-      command:
-        - wget
-        - "-O"
-        - "/docker-entrypoint-initdb.d/initdb.sql"
-        - https://raw.githubusercontent.com/molgenis/molgenis-emx2/master/.docker/initdb.sql
-      volumeMounts:
-        - name: postgres-initdb
-          mountPath: /docker-entrypoint-initdb.d
   containers:
     - name: java
       image: gradle:jdk17
@@ -41,9 +30,6 @@ spec:
           value: postgres
         - name: POSTGRES_DB
           value: postgres
-      volumeMounts:
-        - name: postgres-initdb
-          mountPath: /docker-entrypoint-initdb.d
   volumes:
     - name: postgres-initdb
       emptyDir: {}
