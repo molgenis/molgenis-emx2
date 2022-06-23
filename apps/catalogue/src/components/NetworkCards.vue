@@ -52,7 +52,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-footer {
   border: none;
   position: absolute;

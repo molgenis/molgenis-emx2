@@ -26,7 +26,7 @@
                 name: 'NetworkCohortDetailView',
                 params: { network: network, pid: cohort.pid },
               }"
-              class="btn btn-outline-primary bg-white float-right"
+              class="btn btn-outline-primary float-right"
             >
               View details
             </RouterLink>
@@ -126,6 +126,9 @@ export default {
       }
       return filter;
     },
+  },
+  created() {
+    this.limit = 1000;
   },
 };
 </script>

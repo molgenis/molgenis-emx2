@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div>
       <div>
         <div v-if="count > maxNum">
@@ -9,12 +15,14 @@
             :label="flattenObject(item)"
             @click="deselect(key)"
           />
-          <div>
-            <ButtonAlt class="pl-1" icon="fa fa-clear" @click="clearValue">
-              clear selection
-            </ButtonAlt>
-          </div>
         </div>
+        <ButtonAlt
+          v-if="value && value.length"
+          class="pl-1"
+          @click="clearValue"
+        >
+          clear selection
+        </ButtonAlt>
       </div>
       <div
         :class="
@@ -35,6 +43,7 @@
             v-model="selection"
             @change="emitSelection"
             class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
@@ -53,6 +62,7 @@
         <template v-slot:body>
           <TableSearch
             :selection.sync="selection"
+            @update:selection="$emit('input', $event)"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
@@ -210,7 +220,7 @@ export default {
         graphqlURL="/pet store/graphql"
         multipleColumns
       />
-      Selection: {{ value }}
+      Selection: {{ multiColumnValue }}
     </DemoItem>
   </div>
 </template>

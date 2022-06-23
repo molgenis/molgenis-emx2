@@ -17,11 +17,13 @@
                 theme: 'Theme',
                 menu: 'Menu',
                 pages: 'Pages',
+                settings: 'Advanced settings'
               }"
+              :key="key"
             >
               <router-link
                 class="nav-link"
-                :class="{ active: selected == label }"
+                :class="{ active: selected == label, 'text-danger': key === 'settings' }"
                 :to="key"
                 >{{ label }}
               </router-link>
@@ -40,7 +42,7 @@
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import { Molgenis } from "molgenis-components";
 
 export default {
   components: {

@@ -16,7 +16,7 @@
             :graphqlURL="graphqlURL"
             :label="column.name"
             :pkey="getPkey(value)"
-            :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+            :readonly="column.readonly || (pkey && column.key === 1 && !clone)"
             :refBack="column.refBack"
             :refBackType="getRefBackType(column)"
             :refLabel="column.refLabel"

@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id + '-from'" :label="label" :description="description">
+  <FormGroup
+    :id="id + '-from'"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <InputGroup class="d-flex">
       <template v-slot:prepend>
         <slot name="prepend"></slot>

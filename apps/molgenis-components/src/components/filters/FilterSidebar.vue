@@ -11,6 +11,8 @@
         :conditions="filters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
+        :tableName="filter.tableName"
+        :graphqlURL="filter.graphqlURL"
       />
     </FilterContainer>
   </div>
@@ -59,7 +61,7 @@ export default {
       <div class="col-4">
         <FilterSidebar :filters="filters" @updateFilters="onUpdate"/>
       </div>
-      <div class="col-auto">
+      <div class="col-8">
         <FilterWells :filters="filters" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
@@ -79,11 +81,13 @@ export default {
             conditions: ["test123"]
           },
           {
-            name: "variables",
+            name: "pets",
             columnType: "REF",
-            refTable: "Variables",
             showFilter: true,
-            conditions: []
+            expanded: true,
+            conditions: [],
+            tableName: "Pet",
+            graphqlURL: "/pet store/graphql"
           },
           {
             name: "quantity",
@@ -117,10 +121,11 @@ export default {
           },
           {
             name: "tags",
-            refTable: "Tag",
             columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
-            conditions: []
+            conditions: [],
+            tableName: "Tag",
+            graphqlURL: "/pet store/graphql"
           },
         ],
       };

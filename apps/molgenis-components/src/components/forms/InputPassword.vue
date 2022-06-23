@@ -1,5 +1,10 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <input
       :id="id"
       :name="name"
@@ -9,6 +14,7 @@
       class="form-control"
       :aria-describedby="id"
       :placeholder="label"
+      :class="{ 'is-invalid': errorMessage }"
     />
   </FormGroup>
 </template>

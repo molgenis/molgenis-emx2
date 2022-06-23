@@ -74,7 +74,7 @@ public class TestCreateForeignKeys {
         schema.create(
             table("B")
                 .add(column("ID").setType(INT).setPkey())
-                .add(column(refFromBToA).setType(REF).setRefTable("A")));
+                .add(column(refFromBToA).setType(REF).setRefTable("A").setRequired(true)));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
@@ -82,7 +82,16 @@ public class TestCreateForeignKeys {
     Row bErrorRow = new Row().setInt("ID", 3).set(refFromBToA, updateValue);
     try {
       bTable.insert(bErrorRow);
-      fail("insert should fail because value is missing");
+      fail("insert should fail because value is not in other table");
+    } catch (Exception e) {
+      System.out.println("insert exception correct: \n" + e);
+    }
+
+    // insert null should fail
+    bErrorRow = new Row().setInt("ID", 3).set(refFromBToA, null);
+    try {
+      bTable.insert(bErrorRow);
+      fail("insert should fail because value is null");
     } catch (Exception e) {
       System.out.println("insert exception correct: \n" + e);
     }

@@ -1,5 +1,11 @@
 <template>
-  <FormGroup :id="id" :label="label" :description="description">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div>
       <div>
         <ButtonAlt
@@ -23,15 +29,19 @@
           :key="index"
         >
           <input
-            :id="`${id}-${row.name}`"
+            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
             :name="id"
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
             @change="$emit('input', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
           />
-          <label class="form-check-label" :for="`${id}-${row.name}`">
+          <label
+            class="form-check-label"
+            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
+          >
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
@@ -75,15 +85,8 @@ import ButtonAlt from "./ButtonAlt.vue";
 import { flattenObject, getPrimaryKey } from "../utils";
 
 export default {
+  name: "InputRef",
   extends: BaseInput,
-  data: function () {
-    return {
-      showSelect: false,
-      data: [],
-      count: 0,
-      tableMetaData: null,
-    };
-  },
   components: {
     TableSearch,
     LayoutModal,
@@ -102,6 +105,14 @@ export default {
       type: String,
       required: true,
     },
+  },
+  data: function () {
+    return {
+      showSelect: false,
+      data: [],
+      count: 0,
+      tableMetaData: null,
+    };
   },
   computed: {
     title() {
