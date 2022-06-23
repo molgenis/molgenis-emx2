@@ -31,7 +31,7 @@ public class TestLoaders {
   @Test
   public void testBeaconv2Loader() {
     AvailableDataModels.BEACON_V2.install(beaconv2Schema, true);
-    assertEquals(24, beaconv2Schema.getTableNames().size());
+    assertEquals(32, beaconv2Schema.getTableNames().size());
   }
 
   @Test
