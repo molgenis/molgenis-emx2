@@ -47,7 +47,6 @@ export default {
         exclude: /node_modules/,
         loader: "webpack-graphql-loader",
       });
-      config.resolve.symlinks = false;
     },
   },
 
