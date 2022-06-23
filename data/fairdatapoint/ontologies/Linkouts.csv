@@ -1,0 +1,3 @@
+name,definition,codesystem,code,ontologyTermURI
+patient registry data,"A data set of collected secondary data related to patients with a specific diagnosis, condition, or procedure and plays an important role in post marketing surveillance of pharmaceuticals.",OMIABIS,0001002,http://purl.obolibrary.org/obo/OMIABIS_0001002
+Rare Disorder,"A disease that affects fewer than 200,000 people in the United States. [Definition Source: NCI]",NCIT,C4873,http://purl.obolibrary.org/obo/NCIT_C4873

@@ -1,0 +1,2 @@
+identifier,title,conformsTo,license,hasVersion,issued,modified,rights,description,accessURL,downloadURL,mediaType,format,byteSize
+ERN-FAKE_FDP_Distribution,ERN-FAKE Patient Registry Distribution,https://www.w3.org/TR/vocab-dcat-2/,http://rdflicense.appspot.com/rdflicense/UNKNOWN,0.1,2021-12-10,2021-12-10,restricted,ERN-FAKE Patient Registry Distribution implemented in MOLGENIS,https://fake.molgeniscloud.org,https://fake.molgeniscloud.org,MOLGENIS Data,"GUI, XLSX, CSV, REST, JSON+LD, TTL, ZIP",0

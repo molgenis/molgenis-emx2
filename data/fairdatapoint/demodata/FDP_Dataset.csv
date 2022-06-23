@@ -1,0 +1,2 @@
+identifier,title,description,conformsTo,publisher,hasVersion,metadataIssued,modified,language,license,rights,theme,contactPoint,keyword,landingPage,distribution
+ERN-FAKE_FDP_Dataset,ERN-FAKE Patient Registry Dataset,ERN-FAKE Patient Registry Dataset implemented in MOLGENIS,https://www.w3.org/TR/vocab-dcat-2/,molgenis,0.1,2021-12-10,2021-12-10,English,http://rdflicense.appspot.com/rdflicense/UNKNOWN,restricted,"patient registry data,Rare Disorder",https://ern-fake.eu/,Rare and/or complex anomalies and disorders,https://fake.molgeniscloud.org,ERN-FAKE_FDP_Distribution
