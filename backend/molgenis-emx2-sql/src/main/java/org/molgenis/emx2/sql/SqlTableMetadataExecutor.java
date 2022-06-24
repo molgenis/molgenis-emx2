@@ -189,6 +189,13 @@ class SqlTableMetadataExecutor {
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
+      // drop audit trigger
+      jooq.execute(
+          AuditUtils.buildAuditTriggerRemove(table.getSchema().getName(), table.getTableName()));
+      jooq.execute(
+          AuditUtils.buildProcessAuditFunctionRemove(
+              table.getSchema().getName(), table.getTableName()));
+
       // drop all triggers from all columns
       for (Column c : table.getStoredColumns()) {
         executeRemoveColumn(jooq, c);

@@ -214,6 +214,8 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
+      // remove audit table
+      db.getJooq().dropTableIfExists("mg_changelog");
       // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles
