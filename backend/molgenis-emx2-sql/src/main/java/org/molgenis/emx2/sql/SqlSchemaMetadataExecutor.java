@@ -12,7 +12,6 @@ import static org.molgenis.emx2.Privileges.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jooq.CreateTableColumnStep;
 import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -70,20 +69,16 @@ class SqlSchemaMetadataExecutor {
 
     // make admin owner
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
-    
+
     // grant the permissions
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     // create change log table
-    try (CreateTableColumnStep t =
-        db.getJooq().createTableIfNotExists(table(name(schema.getName(), "mg_changelog")))) {
-        t.columns(OPERATION, STAMP, USERID, OLD, NEW).execute();
-      }
-    
-    } catch (DataAccessException e) {
-      throw new SqlMolgenisException("Schema create failed", e);
-    }
+    db.getJooq()
+        .createTableIfNotExists(table(name(schema.getName(), "mg_changelog")))
+        .columns(OPERATION, STAMP, USERID, OLD, NEW)
+        .execute();
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
