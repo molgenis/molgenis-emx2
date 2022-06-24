@@ -136,10 +136,9 @@ public class MetadataUtils {
     } else {
       Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
-        Integer version = result.get(0).get(VERSION);
         try {
           // in previous version this was a string so might not be integer
-          return version;
+          return result.get(0).get(VERSION);
         } catch (ClassCastException e) {
           // this is to handle the legacy systems: before Migration system we used version string of
           // software
