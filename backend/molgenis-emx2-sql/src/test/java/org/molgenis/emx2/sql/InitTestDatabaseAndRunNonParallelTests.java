@@ -26,6 +26,15 @@ public class InitTestDatabaseAndRunNonParallelTests {
   }
 
   @Test
+  public void testMigration5() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+
+    DSLContext jooq = database.getJooq();
+
+    executeMigrationFile(database, "migration5.sql", "database migration: create change log table");
+  }
+
+  @Test
   public void testMigration2() {
     SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     database.dropCreateSchema("TestMigrations");

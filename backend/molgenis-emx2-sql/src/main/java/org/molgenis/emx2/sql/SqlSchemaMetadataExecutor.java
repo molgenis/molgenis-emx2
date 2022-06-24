@@ -1,11 +1,18 @@
 package org.molgenis.emx2.sql;
 
+import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.SQLDataType.CHAR;
+import static org.jooq.impl.SQLDataType.JSON;
+import static org.jooq.impl.SQLDataType.TIMESTAMP;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Privileges.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jooq.CreateTableColumnStep;
 import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -13,6 +20,13 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
+
+  private static final org.jooq.Field OPERATION = field(name("operation"), CHAR(1).nullable(false));
+  private static final org.jooq.Field STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
+  private static final org.jooq.Field USERID = field(name("userid"), VARCHAR.nullable(false));
+  private static final org.jooq.Field OLD = field(name("old"), JSON.nullable(true));
+  private static final org.jooq.Field NEW = field(name("new"), JSON.nullable(true));
+
   private SqlSchemaMetadataExecutor() {
     // hide
   }
@@ -61,6 +75,12 @@ class SqlSchemaMetadataExecutor {
       db.getJooq()
           .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
       db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
+
+      // create change log table
+      try (CreateTableColumnStep t =
+          db.getJooq().createTableIfNotExists(table(name(schema.getName(), "mg_changelog")))) {
+        t.columns(OPERATION, STAMP, USERID, OLD, NEW).execute();
+      }
     } catch (DataAccessException e) {
       throw new SqlMolgenisException("Schema create failed", e);
     }
