@@ -43,4 +43,16 @@ public class AuditUtilsTest {
             """;
     assertEquals(expectedTrigger.strip(), AuditUtils.buildAuditTrigger("pet store", "Pet").strip());
   }
+
+  @Test
+  public void testBuildAuditTriggerWithSpaceInTableName() {
+    String expectedTrigger =
+        """
+              CREATE TRIGGER My_pets_audit
+              AFTER INSERT OR UPDATE OR DELETE ON "pet store"."My pets"
+                  FOR EACH ROW EXECUTE FUNCTION process_My_pets_audit();
+                """;
+    assertEquals(
+        expectedTrigger.strip(), AuditUtils.buildAuditTrigger("pet store", "My pets").strip());
+  }
 }
