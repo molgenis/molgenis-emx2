@@ -18,7 +18,7 @@ export default {
       { rel: "stylesheet", href: "theme.css" },
     ],
     script: [
-      {  src: "https://unpkg.com/@molgenis/expressions" },
+      {  src: "https://unpkg.com/@molgenis/expressions", crossorigin="anonymous" },
     ],
   },
 
