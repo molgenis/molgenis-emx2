@@ -111,7 +111,7 @@ Databanks,,standardOperatingProcedures,bool,,,,,,,,,Is there a standard operatin
 Databanks,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
 Databanks,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted."
 Databanks,,dataController,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank.
-RWEresources,,governanceDetails,,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
+RWEresources,,governanceDetails,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
 RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed for a DAP to publish the results of a study using the data
 RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
 RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
