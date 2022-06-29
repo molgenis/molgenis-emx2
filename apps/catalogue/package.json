@@ -13,7 +13,7 @@
     "graphql-request": "3.7.0",
     "vue": "2.6.14",
     "vue-router": "3.5.4",
-    "vue-tabler-icons": "1.13.0",
+    "vue-tabler-icons": "2.6.0",
     "vuex": "3.6.2"
   },
   "browserslist": [
