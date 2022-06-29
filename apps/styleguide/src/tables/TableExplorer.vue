@@ -124,7 +124,7 @@
           <TableMolgenis
             v-if="!loading && view == View.TABLE"
             :selection.sync="selectedItems"
-            :columns.sync="columns"
+            :columns.sync="columnscolumns"
             :table-metadata="tableMetadata"
             :data="data"
             :showSelect="showSelect"
