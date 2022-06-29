@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.jooq.CreateTableColumnStep;
+import org.jooq.CreateTableElementListStep;
 import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
+
   private static final Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
   private static final String MOLGENIS = "MOLGENIS";
@@ -135,10 +136,9 @@ public class MetadataUtils {
     } else {
       Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
-        Integer version = result.get(0).get(VERSION);
         try {
           // in previous version this was a string so might not be integer
-          return version;
+          return result.get(0).get(VERSION);
         } catch (ClassCastException e) {
           // this is to handle the legacy systems: before Migration system we used version string of
           // software
@@ -158,96 +158,96 @@ public class MetadataUtils {
       j.transaction(
           config -> {
             DSLContext jooq = config.dsl();
-            try (DDLQuery step = jooq.createSchemaIfNotExists(MOLGENIS)) {
-              step.execute();
-              jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
-              jooq.execute(
-                  "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC",
-                  name(MOLGENIS));
-            }
+            DDLQuery step = jooq.createSchemaIfNotExists(MOLGENIS);
+            step.execute();
+            jooq.execute("GRANT USAGE ON SCHEMA {0} TO PUBLIC", name(MOLGENIS));
+            jooq.execute(
+                "ALTER DEFAULT PRIVILEGES IN SCHEMA {0} GRANT ALL ON  TABLES  TO PUBLIC",
+                name(MOLGENIS));
 
             // set version
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(VERSION_METADATA)) {
-              t.columns(VERSION_ID, VERSION).constraints(primaryKey(VERSION_ID)).execute();
+            CreateTableElementListStep t = jooq.createTableIfNotExists(VERSION_METADATA);
+            t.columns(VERSION_ID, VERSION).constraints(primaryKey(VERSION_ID)).execute();
+
+            t = jooq.createTableIfNotExists(SCHEMA_METADATA);
+            t.columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
+                .constraint(primaryKey(TABLE_SCHEMA))
+                .execute();
+
+            jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
+
+            jooq.execute(
+                "DROP POLICY IF EXISTS {0} ON {1}",
+                name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
+            jooq.execute(
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Viewer'),'MEMBER'))",
+                name(SCHEMA_METADATA.getName() + "_POLICY"),
+                SCHEMA_METADATA,
+                MG_ROLE_PREFIX,
+                TABLE_SCHEMA,
+                SCHEMA_DESCRIPTION);
+
+            t = jooq.createTableIfNotExists(TABLE_METADATA);
+            int result =
+                t.columns(
+                        TABLE_SCHEMA,
+                        TABLE_NAME,
+                        TABLE_INHERITS,
+                        TABLE_IMPORT_SCHEMA,
+                        TABLE_DESCRIPTION,
+                        TABLE_SEMANTICS,
+                        TABLE_TYPE)
+                    .constraints(
+                        primaryKey(TABLE_SCHEMA, TABLE_NAME),
+                        foreignKey(TABLE_SCHEMA)
+                            .references(SCHEMA_METADATA)
+                            .onUpdateCascade()
+                            .onDeleteCascade())
+                    .execute();
+            if (result > 0) {
+              createRowLevelPermissions(jooq, TABLE_METADATA);
             }
 
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SCHEMA_METADATA)) {
-              t.columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
-                  .constraint(primaryKey(TABLE_SCHEMA))
-                  .execute();
-
-              jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", SCHEMA_METADATA);
-
-              jooq.execute(
-                  "DROP POLICY IF EXISTS {0} ON {1}",
-                  name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
-              jooq.execute(
-                  "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Viewer'),'MEMBER'))",
-                  name(SCHEMA_METADATA.getName() + "_POLICY"),
-                  SCHEMA_METADATA,
-                  MG_ROLE_PREFIX,
-                  TABLE_SCHEMA,
-                  SCHEMA_DESCRIPTION);
-            }
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(TABLE_METADATA)) {
-              int result =
-                  t.columns(
-                          TABLE_SCHEMA,
-                          TABLE_NAME,
-                          TABLE_INHERITS,
-                          TABLE_IMPORT_SCHEMA,
-                          TABLE_DESCRIPTION,
-                          TABLE_SEMANTICS,
-                          TABLE_TYPE)
-                      .constraints(
-                          primaryKey(TABLE_SCHEMA, TABLE_NAME),
-                          foreignKey(TABLE_SCHEMA)
-                              .references(SCHEMA_METADATA)
-                              .onUpdateCascade()
-                              .onDeleteCascade())
-                      .execute();
-              if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
-            }
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(COLUMN_METADATA)) {
-              int result =
-                  t.columns(
-                          TABLE_SCHEMA,
-                          TABLE_NAME,
-                          COLUMN_NAME,
-                          COLUMN_TYPE,
-                          COLUMN_KEY,
-                          COLUMN_POSITION,
-                          COLUMN_REQUIRED,
-                          COLUMN_REF_SCHEMA,
-                          COLUMN_REF_TABLE,
-                          COLUMN_REF_LINK,
-                          COLUMN_REF_LABEL,
-                          COLUMN_REF_BACK,
-                          COLUMN_VALIDATION,
-                          COLUMN_COMPUTED,
-                          COLUMN_INDEXED,
-                          COLUMN_CASCADE,
-                          COLUMN_DESCRIPTION,
-                          COLUMN_SEMANTICS,
-                          COLUMN_VISIBLE)
-                      .constraints(
-                          primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
-                          foreignKey(TABLE_SCHEMA, TABLE_NAME)
-                              .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
-                              .onUpdateCascade()
-                              .onDeleteCascade())
-                      .execute();
-              if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
-            }
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(USERS_METADATA)) {
-              t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+            t = jooq.createTableIfNotExists(COLUMN_METADATA);
+            result =
+                t.columns(
+                        TABLE_SCHEMA,
+                        TABLE_NAME,
+                        COLUMN_NAME,
+                        COLUMN_TYPE,
+                        COLUMN_KEY,
+                        COLUMN_POSITION,
+                        COLUMN_REQUIRED,
+                        COLUMN_REF_SCHEMA,
+                        COLUMN_REF_TABLE,
+                        COLUMN_REF_LINK,
+                        COLUMN_REF_LABEL,
+                        COLUMN_REF_BACK,
+                        COLUMN_VALIDATION,
+                        COLUMN_COMPUTED,
+                        COLUMN_INDEXED,
+                        COLUMN_CASCADE,
+                        COLUMN_DESCRIPTION,
+                        COLUMN_SEMANTICS,
+                        COLUMN_VISIBLE)
+                    .constraints(
+                        primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
+                        foreignKey(TABLE_SCHEMA, TABLE_NAME)
+                            .references(TABLE_METADATA, TABLE_SCHEMA, TABLE_NAME)
+                            .onUpdateCascade()
+                            .onDeleteCascade())
+                    .execute();
+            if (result > 0) {
+              createRowLevelPermissions(jooq, COLUMN_METADATA);
             }
 
-            try (CreateTableColumnStep t = jooq.createTableIfNotExists(SETTINGS_METADATA)) {
-              t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-                  .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
-                  .execute();
-            }
+            t = jooq.createTableIfNotExists(USERS_METADATA);
+            t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
+
+            t = jooq.createTableIfNotExists(SETTINGS_METADATA);
+            t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
+                .constraint(primaryKey(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME))
+                .execute();
           });
 
       logger.info("INITIALIZING MOLGENIS METADATA SCHEMA COMPLETE");
@@ -307,11 +307,11 @@ public class MetadataUtils {
   protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
     List<Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
     List<SchemaInfo> schemaInfos = new ArrayList<>();
-    for (Record record : schemaInfoRecords) {
+    for (Record infoRecord : schemaInfoRecords) {
       schemaInfos.add(
           new SchemaInfo(
-              record.get(TABLE_SCHEMA, String.class),
-              record.get(SCHEMA_DESCRIPTION, String.class)));
+              infoRecord.get(TABLE_SCHEMA, String.class),
+              infoRecord.get(SCHEMA_DESCRIPTION, String.class)));
     }
     return schemaInfos;
   }
@@ -657,7 +657,9 @@ public class MetadataUtils {
   public static void setUserPassword(DSLContext jooq, String user, String password) {
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_PASS)
-        .values(user, String.valueOf(field("crypt({0}, gen_salt('bf'))", password)))
+        .values(
+            field("{0}", String.class, user),
+            field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
         .doUpdate()
         .set(USER_PASS, field("crypt({0}, gen_salt('bf'))", String.class, password))

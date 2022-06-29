@@ -3,7 +3,7 @@
     <i class="fa-li fa" :class="icon"></i>
     {{ task.description }}
     <ul class="fa-ul">
-      <task :task="subtask" v-for="(subtask, id) in task.steps" :key="id" />
+      <task :task="subtask" v-for="(subtask, id) in task.subTasks" :key="id" />
     </ul>
   </li>
 </template>
