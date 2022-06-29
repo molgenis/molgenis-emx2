@@ -1,100 +1,125 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.SQLDataType.*;
+import static org.jooq.impl.DSL.count;
+import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.foreignKey;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.primaryKey;
+import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.SQLDataType.BOOLEAN;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 
-import java.util.*;
-import org.jooq.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.jooq.CreateTableElementListStep;
+import org.jooq.DDLQuery;
+import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
-import org.molgenis.emx2.*;
+import org.jooq.Result;
+import org.jooq.Table;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.SchemaInfo;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Setting;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MetadataUtils {
-  private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
+
+  private static final Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
 
   private static final String MOLGENIS = "MOLGENIS";
   private static final String NOT_PROVIDED = "NOT_PROVIDED";
   // tables
-  private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
-  private static final org.jooq.Table SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
-  private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
-  private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
-  private static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
-  private static final org.jooq.Table SETTINGS_METADATA =
-      table(name(MOLGENIS, "settings_metadata"));
+  private static final Table<Record> VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
+  private static final Table<Record> SCHEMA_METADATA = table(name(MOLGENIS, "schema_metadata"));
+  private static final Table<Record> TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
+  private static final Table<Record> COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
+  private static final Table<Record> USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  private static final Table<Record> SETTINGS_METADATA = table(name(MOLGENIS, "settings_metadata"));
 
   // version
-  private static final org.jooq.Field VERSION_ID = field(name("id"), INTEGER.nullable(false));
-  private static final org.jooq.Field VERSION = field(name("version"), INTEGER.nullable(false));
+  private static final Field<Integer> VERSION_ID = field(name("id"), INTEGER.nullable(false));
+  private static final Field<Integer> VERSION = field(name("version"), INTEGER.nullable(false));
 
   // table
-  private static final org.jooq.Field TABLE_SCHEMA =
+  private static final Field<String> TABLE_SCHEMA =
       field(name("table_schema"), VARCHAR.nullable(false));
-  private static final org.jooq.Field SCHEMA_DESCRIPTION =
+  private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TABLE_NAME =
+  private static final Field<String> TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
-  private static final org.jooq.Field TABLE_INHERITS =
+  private static final Field<String> TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TABLE_IMPORT_SCHEMA =
+  private static final Field<String> TABLE_IMPORT_SCHEMA =
       field(name("import_schema"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TABLE_DESCRIPTION =
+  private static final Field<String> TABLE_DESCRIPTION =
       field(name("table_description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field TABLE_SEMANTICS =
+  private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
-  private static final org.jooq.Field TABLE_TYPE =
-      field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
 
   // column
-  private static final org.jooq.Field COLUMN_NAME =
+  private static final Field<String> COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
-  private static final org.jooq.Field COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
-  private static final org.jooq.Field COLUMN_POSITION = field(name("position"), INTEGER);
-  private static final org.jooq.Field COLUMN_DESCRIPTION =
+  private static final Field<Integer> COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
+  private static final Field<Integer> COLUMN_POSITION = field(name("position"), INTEGER);
+  private static final Field<String> COLUMN_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_VISIBLE =
+  private static final Field<String> COLUMN_VISIBLE =
       field(name("visible"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_SEMANTICS =
+  private static final Field<String[]> COLUMN_SEMANTICS =
       field(name("columnSemantics"), VARCHAR.nullable(true).getArrayType());
-  private static final org.jooq.Field COLUMN_TYPE =
+  private static final Field<String> COLUMN_TYPE =
       field(name("columnType"), VARCHAR.nullable(false));
-  private static final org.jooq.Field COLUMN_REQUIRED =
+  private static final Field<Boolean> COLUMN_REQUIRED =
       field(name("required"), BOOLEAN.nullable(false));
-  private static final org.jooq.Field COLUMN_REF_TABLE =
+  private static final Field<String> COLUMN_REF_TABLE =
       field(name("ref_table"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_REF_SCHEMA =
+  private static final Field<String> COLUMN_REF_SCHEMA =
       field(name("ref_schema"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_REF_LINK =
+  private static final Field<String> COLUMN_REF_LINK =
       field(name("ref_link"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_REF_LABEL =
+  private static final Field<String> COLUMN_REF_LABEL =
       field(name("refLabel"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_REF_BACK =
+  private static final Field<String> COLUMN_REF_BACK =
       field(name("refBack"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_VALIDATION =
+  private static final Field<String> COLUMN_VALIDATION =
       field(name("validation"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_COMPUTED =
+  private static final Field<String> COLUMN_COMPUTED =
       field(name("computed"), VARCHAR.nullable(true));
-  private static final org.jooq.Field COLUMN_INDEXED =
+  private static final Field<Boolean> COLUMN_INDEXED =
       field(name("indexed"), BOOLEAN.nullable(true));
-  private static final org.jooq.Field COLUMN_CASCADE =
+  private static final Field<Boolean> COLUMN_CASCADE =
       field(name("cascade"), BOOLEAN.nullable(true));
 
   // users
-  private static final org.jooq.Field USER_NAME = field(name("username"), VARCHAR);
-  private static final org.jooq.Field USER_PASS = field(name("password"), VARCHAR);
+  private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
+  private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
 
   // settings
-  private static final org.jooq.Field SETTINGS_NAME =
-      field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
-  private static final org.jooq.Field SETTINGS_TABLE_NAME =
+  private static final Field<String> SETTINGS_NAME = field(name(Constants.SETTINGS_NAME), VARCHAR);
+  private static final Field<String> SETTINGS_TABLE_NAME =
       field(
           name(TABLE_NAME.getName()),
           VARCHAR.nullable(true)); // note table might be null in case of schema
-  private static final org.jooq.Field SETTINGS_VALUE =
-      field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
+  private static final Field<String> SETTINGS_VALUE =
+      field(name(Constants.SETTINGS_VALUE), VARCHAR);
 
   private MetadataUtils() {
     // to hide the public constructor
@@ -103,21 +128,17 @@ public class MetadataUtils {
   /**
    * Returns version number. Returns -1 if metadata does not exist (i.e. MOLGENIS schema does not
    * exist)
-   *
-   * @param jooq
-   * @return
    */
   protected static Integer getVersion(DSLContext jooq) {
     if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
       // schema does not exist
       return -1;
     } else {
-      Result<org.jooq.Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
+      Result<Record> result = jooq.selectFrom(VERSION_METADATA).fetch();
       if (result.size() > 0) {
-        Object version = result.get(0).get(VERSION);
         try {
           // in previous version this was a string so might not be integer
-          return (Integer) version;
+          return result.get(0).get(VERSION);
         } catch (ClassCastException e) {
           // this is to handle the legacy systems: before Migration system we used version string of
           // software
@@ -183,7 +204,9 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
-            if (result > 0) createRowLevelPermissions(jooq, TABLE_METADATA);
+            if (result > 0) {
+              createRowLevelPermissions(jooq, TABLE_METADATA);
+            }
 
             t = jooq.createTableIfNotExists(COLUMN_METADATA);
             result =
@@ -214,7 +237,9 @@ public class MetadataUtils {
                             .onUpdateCascade()
                             .onDeleteCascade())
                     .execute();
-            if (result > 0) createRowLevelPermissions(jooq, COLUMN_METADATA);
+            if (result > 0) {
+              createRowLevelPermissions(jooq, COLUMN_METADATA);
+            }
 
             t = jooq.createTableIfNotExists(USERS_METADATA);
             t.columns(USER_NAME, USER_PASS).constraint(primaryKey(USER_NAME)).execute();
@@ -229,13 +254,13 @@ public class MetadataUtils {
     }
   }
 
-  private static void createRowLevelPermissions(DSLContext jooq, org.jooq.Table table) {
+  private static void createRowLevelPermissions(DSLContext jooq, Table<Record> table) {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     // we record the role name in as a column 'table_rls_manager' and 'table_rls_viewer' and use
     // this to enforce policy of being able to change vs view table.
     jooq.execute(
         "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2} || {3} || '/"
-            + Privileges.MANAGER.toString()
+            + Privileges.MANAGER
             + "', 'member'))",
         name("TABLE_RLS_" + Privileges.MANAGER),
         table,
@@ -280,23 +305,19 @@ public class MetadataUtils {
   }
 
   protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
-    List<org.jooq.Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
+    List<Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
     List<SchemaInfo> schemaInfos = new ArrayList<>();
-    for (org.jooq.Record record : schemaInfoRecords) {
+    for (Record infoRecord : schemaInfoRecords) {
       schemaInfos.add(
           new SchemaInfo(
-              record.get(TABLE_SCHEMA, String.class),
-              record.get(SCHEMA_DESCRIPTION, String.class)));
+              infoRecord.get(TABLE_SCHEMA, String.class),
+              infoRecord.get(SCHEMA_DESCRIPTION, String.class)));
     }
     return schemaInfos;
   }
 
   protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
-    org.jooq.Record tableRecord =
-        jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
-    if (tableRecord == null) {
-      return schema;
-    }
+    jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
     return schema;
   }
 
@@ -323,14 +344,14 @@ public class MetadataUtils {
               table.getImportSchema(),
               table.getDescription(),
               table.getSemantics(),
-              table.getTableType())
+              Objects.toString(table.getTableType(), null))
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_INHERITS, table.getInherit())
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescription())
           .set(TABLE_SEMANTICS, table.getSemantics())
-          .set(TABLE_TYPE, table.getTableType())
+          .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of table metadata failed", e);
@@ -346,7 +367,7 @@ public class MetadataUtils {
 
   protected static List<User> loadUsers(DSLContext jooq, int limit, int offset) {
     List<User> users = new ArrayList<>();
-    for (Object username :
+    for (String username :
         jooq.select(USER_NAME)
             .from(USERS_METADATA)
             .orderBy(USER_NAME)
@@ -354,11 +375,12 @@ public class MetadataUtils {
             .offset(offset)
             .fetch()
             .getValues(USER_NAME)) {
-      users.add(new User((String) username));
+      users.add(new User(username));
     }
     return users;
   }
 
+  @SuppressWarnings("ConstantConditions")
   public static int countUsers(DSLContext jooq) {
     return jooq.select(count()).from(USERS_METADATA).fetchOne(count());
   }
@@ -367,32 +389,32 @@ public class MetadataUtils {
     try {
       Map<String, TableMetadata> result = new LinkedHashMap<>();
       // tables
-      List<org.jooq.Record> tableRecords =
+      List<Record> tableRecords =
           jooq.selectFrom(TABLE_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetch();
       // settings
-      List<org.jooq.Record> settingRecords =
+      List<Record> settingRecords =
           jooq.selectFrom(SETTINGS_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.notEqual(NOT_PROVIDED))
               .fetch();
       // columns
-      List<org.jooq.Record> columnRecords =
+      List<Record> columnRecords =
           jooq.selectFrom(COLUMN_METADATA)
               .where(TABLE_SCHEMA.eq(schema.getName()))
               .orderBy(COLUMN_POSITION.asc())
               .fetch();
 
-      for (org.jooq.Record r : tableRecords) {
+      for (Record r : tableRecords) {
         TableMetadata table = recordToTable(r);
         result.put(table.getTableName(), table);
       }
 
-      for (org.jooq.Record r : settingRecords) {
+      for (Record r : settingRecords) {
         result
             .get(r.get(SETTINGS_TABLE_NAME, String.class))
             .setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
       }
 
-      for (org.jooq.Record r : columnRecords) {
+      for (Record r : columnRecords) {
         result.get(r.get(TABLE_NAME, String.class)).add(recordToColumn(r));
       }
       return result.values();
@@ -401,20 +423,21 @@ public class MetadataUtils {
     }
   }
 
+  @SuppressWarnings("ConstantConditions")
   protected static TableMetadata loadTable(DSLContext jooq, String schemaName, String tableName) {
-    org.jooq.Record tableRecord =
+    Record tableRecord =
         jooq.selectFrom(TABLE_METADATA)
             .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
             .orderBy(TABLE_NAME)
             .fetchOne();
 
-    List<org.jooq.Record> columnRecords =
+    List<Record> columnRecords =
         jooq.selectFrom(COLUMN_METADATA)
             .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
             .orderBy(COLUMN_POSITION.asc())
             .fetch();
 
-    List<org.jooq.Record> settingRecords =
+    List<Record> settingRecords =
         jooq.selectFrom(SETTINGS_METADATA)
             .where(
                 TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)),
@@ -422,17 +445,17 @@ public class MetadataUtils {
             .fetch();
 
     TableMetadata table = recordToTable(tableRecord);
-    for (org.jooq.Record r : columnRecords) {
+    for (Record r : columnRecords) {
       table.add(recordToColumn(r));
     }
-    for (org.jooq.Record r : settingRecords) {
+    for (Record r : settingRecords) {
       table.setSetting(r.get(SETTINGS_NAME, String.class), r.get(SETTINGS_VALUE, String.class));
     }
 
     return table;
   }
 
-  private static TableMetadata recordToTable(org.jooq.Record r) {
+  private static TableMetadata recordToTable(Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
     table.setInherit(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
@@ -483,7 +506,7 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getName(),
-            column.getColumnType(),
+            Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
             column.isRequired(),
@@ -501,7 +524,7 @@ public class MetadataUtils {
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(COLUMN_TYPE, column.getColumnType())
+        .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
         .set(COLUMN_REQUIRED, column.isRequired())
@@ -530,7 +553,7 @@ public class MetadataUtils {
   }
 
   protected static Map<String, String> loadSettings(DSLContext jooq, SchemaMetadata schema) {
-    List<org.jooq.Record> settingRecords =
+    List<Record> settingRecords =
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(schema.getName()), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
@@ -542,7 +565,7 @@ public class MetadataUtils {
    * Table)
    */
   protected static Map<String, String> loadSettings(DSLContext jooq) {
-    List<org.jooq.Record> settingRecords =
+    List<Record> settingRecords =
         jooq.selectFrom(SETTINGS_METADATA)
             .where(TABLE_SCHEMA.eq(NOT_PROVIDED), SETTINGS_TABLE_NAME.eq(NOT_PROVIDED))
             .fetch();
@@ -611,7 +634,7 @@ public class MetadataUtils {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
   }
 
-  private static Column recordToColumn(org.jooq.Record col) {
+  private static Column recordToColumn(Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
@@ -634,15 +657,17 @@ public class MetadataUtils {
   public static void setUserPassword(DSLContext jooq, String user, String password) {
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, USER_PASS)
-        .values(user, field("crypt({0}, gen_salt('bf'))", password))
+        .values(
+            field("{0}", String.class, user),
+            field("crypt({0}, gen_salt('bf'))", String.class, password))
         .onConflict(USER_NAME)
         .doUpdate()
-        .set(USER_PASS, field("crypt({0}, gen_salt('bf'))", password))
+        .set(USER_PASS, field("crypt({0}, gen_salt('bf'))", String.class, password))
         .execute();
   }
 
   public static boolean checkUserPassword(DSLContext jooq, String username, String password) {
-    org.jooq.Record result =
+    Record result =
         jooq.select(field("{0} = crypt({1}, {0})", USER_PASS, password).as("matches"))
             .from(USERS_METADATA)
             .where(field(USER_NAME).eq(username))
@@ -660,6 +685,7 @@ public class MetadataUtils {
         .execute();
   }
 
+  @SuppressWarnings("ConstantConditions")
   public static int getMaxPosition(DSLContext jooq, String schemaName) {
     Integer result =
         jooq.select(max(COLUMN_POSITION).as(COLUMN_POSITION.getName()))
@@ -667,10 +693,6 @@ public class MetadataUtils {
             .where(TABLE_SCHEMA.eq(schemaName))
             .fetchOne()
             .get(COLUMN_POSITION.getName(), Integer.class);
-    if (result == null) {
-      return 0;
-    } else {
-      return result;
-    }
+    return Objects.requireNonNullElse(result, 0);
   }
 }
