@@ -12,9 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskServiceInMemory implements TaskService {
+
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
-  private ExecutorService executorService;
-  private Map<String, Task> tasks = new LinkedHashMap<>();
+  private final ExecutorService executorService;
+  private final Map<String, Task> tasks = new LinkedHashMap<>();
 
   public TaskServiceInMemory() {
     executorService =
@@ -55,10 +56,7 @@ public class TaskServiceInMemory implements TaskService {
             toBeDeleted.add(key);
           }
         });
-    toBeDeleted.forEach(
-        key -> {
-          tasks.remove(key);
-        });
+    toBeDeleted.forEach(tasks::remove);
   }
 
   @Override
@@ -69,7 +67,9 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void removeTask(String id) {
-    if (id == null) return;
+    if (id == null) {
+      return;
+    }
     id = id.replaceAll("[\n|\r|\t]", "_"); // sanitize
 
     Task task = getTask(id);
@@ -94,5 +94,10 @@ public class TaskServiceInMemory implements TaskService {
         removeTask(id);
       }
     }
+  }
+
+  @Override
+  public void updateTask(Task task) {
+    throw new UnsupportedOperationException();
   }
 }
