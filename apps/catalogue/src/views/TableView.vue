@@ -32,14 +32,13 @@
     >
       {{ table.dataDictionary.version }}
     </RouterLink>
-    <h1>Table: {{ table.name }}</h1>
+    <h1>{{ labelPrefix }} Table: {{ table.name }}</h1>
     <p>{{ table.description ? table.description : "Description: N/A" }}</p>
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
     <h6>Mappings/ETLs</h6>
     <ul v-if="table.mappings">
       <li v-for="(m, index) in table.mappings" :key="index">
-        {{ tableName == "SourceTables" ? "To" : "From" }}:
         <RouterLink
           :to="{
             name: 'tablemapping',
@@ -54,9 +53,9 @@
           }"
         >
           <span>
-            {{ m.fromDataDictionary.resource.pid }} - Version:
-            {{ m.fromDataDictionary.version }} - Table:
-            {{ m.fromTable.name }}
+            {{ m.fromDataDictionary.resource.pid }}
+            - Version: {{ m.fromDataDictionary.version }} - Table:
+            {{ m.toTable.name }}
           </span>
         </RouterLink>
       </li>
@@ -115,6 +114,15 @@ export default {
     resourceType() {
       if (this.table.dataDictionary) {
         return this.table.dataDictionary.resource.mg_tableclass.split(".")[1];
+      }
+    },
+    labelPrefix() {
+      if (this.tableName === "SourceTables") {
+        return "Source";
+      } else if (this.tableName === "TargetTables") {
+        return "Target";
+      } else {
+        return "";
       }
     },
   },
