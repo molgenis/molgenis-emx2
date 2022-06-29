@@ -1,10 +1,20 @@
 package org.molgenis.emx2.tasks;
 
-import static org.molgenis.emx2.tasks.TaskStatus.*;
+import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
+import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
+import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
+import static org.molgenis.emx2.tasks.TaskStatus.SKIPPED;
+import static org.molgenis.emx2.tasks.TaskStatus.WAITING;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.UUID;
 import java.util.function.Consumer;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
@@ -15,6 +25,7 @@ import org.slf4j.LoggerFactory;
  * insert/upload tasks.
  */
 public class Task implements Runnable, Iterable<Task> {
+
   // some unique id
   private final String id = UUID.randomUUID().toString();
   // for the toString method
@@ -34,7 +45,8 @@ public class Task implements Runnable, Iterable<Task> {
   // end time to calculate run time
   long endTimeMilliseconds;
   // subtasks/steps in this task
-  private List<Task> subTasks = new ArrayList<>();
+  String log;
+  private final List<Task> subTasks = new ArrayList<>();
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
   private boolean strict = false;
@@ -77,7 +89,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public Integer getProgress() {
-    if (RUNNING.equals(status)) return progress;
+    if (RUNNING.equals(status)) {
+      return progress;
+    }
     return null;
   }
 
@@ -89,27 +103,30 @@ public class Task implements Runnable, Iterable<Task> {
   public String getDescription() {
     String message = description;
     switch (status) {
-      case WAITING:
+      case WAITING -> {
         if (getDuration() > 0) {
           message += " for " + getDuration() + "ms";
         }
         return message;
-      case RUNNING:
+      }
+      case RUNNING -> {
         if (getDuration() > 0) {
           message += " for " + getDuration() + "ms";
           if (getProgress() != null && getProgress() > 0) {
-            message += " at " + 1000 * getProgress() / getDuration() + " items/sec";
+            message += " at " + 1000L * getProgress() / getDuration() + " items/sec";
           }
         }
         return message;
-      default:
+      }
+      default -> {
         if (getDuration() > 0) {
           message += " in " + getDuration() + "ms";
           if (getTotal() != null && getTotal() > 0) {
-            message += " (" + 1000 * getTotal() / getDuration() + " items/sec)";
+            message += " (" + 1000L * getTotal() / getDuration() + " items/sec)";
           }
         }
         return message;
+      }
     }
   }
 
@@ -201,17 +218,17 @@ public class Task implements Runnable, Iterable<Task> {
   public void run() {}
 
   @Override
-  public Iterator iterator() {
+  public Iterator<Task> iterator() {
     return this.subTasks.iterator();
   }
 
   @Override
-  public void forEach(Consumer action) {
+  public void forEach(Consumer<? super Task> action) {
     this.subTasks.forEach(action);
   }
 
   @Override
-  public Spliterator spliterator() {
+  public Spliterator<Task> spliterator() {
     return this.subTasks.spliterator();
   }
 
@@ -233,9 +250,12 @@ public class Task implements Runnable, Iterable<Task> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Task)) return false;
-    Task task = (Task) o;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Task task)) {
+      return false;
+    }
     return startTimeMilliseconds == task.startTimeMilliseconds
         && endTimeMilliseconds == task.endTimeMilliseconds
         && strict == task.strict
