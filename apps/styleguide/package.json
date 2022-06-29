@@ -16,7 +16,7 @@
     "@molgenis/expressions": "0.21.2",
     "core-js": "3.23.3",
     "graphql": "16.5.0",
-    "graphql-request": "3.7.0",
+    "graphql-request": "4.3.0",
     "object-path": "0.11.8",
     "recursive-iterator": "3.3.0",
     "v-click-outside": "3.2.0",
