@@ -126,7 +126,7 @@ public class BeaconApi {
     return getWriter().writeValueAsString(new GenomicVariants(request, tables));
   }
 
-  private static List<Table> getTableFromAllSchemas(String tableName, Request request) {
+  static List<Table> getTableFromAllSchemas(String tableName, Request request) {
     List<Table> tables = new ArrayList<>();
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
     for (String sn : schemaNames) {
