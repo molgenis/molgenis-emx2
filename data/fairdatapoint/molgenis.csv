@@ -1,75 +1,41 @@
-tableName,columnName,semantics,key,columnType,refTable,nullable
-FDP,,"http://www.re3data.org/schema/3-0#repository, http://www.w3.org/ns/dcat#Resource",,,,
-FDP,identifier,http://rdf.biosemantics.org/ontologies/fdp-o#metadataIdentifier,1,STRING,,FALSE
-FDP,label,http://www.w3.org/2000/01/rdf-schema#label,,STRING,,TRUE
-FDP,title,http://purl.org/dc/terms/title,,STRING,,TRUE
-FDP,hasVersion,http://purl.org/dc/terms/hasVersion,,STRING,,TRUE
-FDP,description,http://purl.org/dc/terms/description,,TEXT,,TRUE
-FDP,publisher,http://purl.org/dc/terms/publisher,,REF,FDP_Publisher,TRUE
-FDP,language,http://purl.org/dc/terms/language,,ONTOLOGY,Languages,TRUE
-FDP,license,http://purl.org/dc/terms/license,,STRING,,TRUE
-FDP,alternative,http://purl.org/dc/terms/alternative,,STRING,,TRUE
-FDP,conformsTo,http://purl.org/dc/terms/conformsTo,,STRING,,TRUE
-FDP,rights,http://purl.org/dc/terms/rights,,REF,FDP_RightsStatement,TRUE
-FDP,issued,http://purl.org/dc/terms/issued,,DATE,,TRUE
-FDP,modified,http://purl.org/dc/terms/modified,,DATE,,TRUE
-FDP,institution,http://www.re3data.org/schema/3-0#institution,,STRING,,TRUE
-FDP,repositoryContact,http://www.re3data.org/schema/3-0#repositoryContact,,STRING,,TRUE
-FDP,repositoryType,http://www.re3data.org/schema/3-0#repositoryType,,STRING,,TRUE
-FDP,api,http://www.re3data.org/schema/3-0#api,,STRING,,TRUE
-FDP,certificate,http://www.re3data.org/schema/3-0#certificate,,STRING,,TRUE
-FDP,dataCatalog,http://www.re3data.org/schema/3-0#dataCatalog,,REF_ARRAY,FDP_Catalog,TRUE
-FDP,country,http://www.re3data.org/schema/3-0#country,,ONTOLOGY,Countries,TRUE
-FDP_Catalog,,,,,,
-FDP_Catalog,identifier,,1,STRING,,FALSE
-FDP_Catalog,title,http://purl.org/dc/terms/title,,STRING,,TRUE
-FDP_Catalog,hasVersion,http://purl.org/dc/terms/hasVersion,,STRING,,TRUE
-FDP_Catalog,publisher,http://purl.org/dc/terms/publisher,,REF,FDP_Publisher,TRUE
-FDP_Catalog,description,http://purl.org/dc/terms/description,,TEXT,,TRUE
-FDP_Catalog,language,http://purl.org/dc/terms/language,,ONTOLOGY,Languages,TRUE
-FDP_Catalog,license,http://purl.org/dc/terms/license,,STRING,,TRUE
-FDP_Catalog,conformsTo,http://purl.org/dc/terms/conformsTo,,STRING,,TRUE
-FDP_Catalog,rights,http://purl.org/dc/terms/rights,,REF,FDP_RightsStatement,TRUE
-FDP_Catalog,issued,http://purl.org/dc/terms/issued,,DATE,,TRUE
-FDP_Catalog,modified,http://purl.org/dc/terms/modified,,DATE,,TRUE
-FDP_Catalog,homepage,http://xmlns.com/foaf/0.1/homepage,,STRING,,TRUE
-FDP_Catalog,dataset,http://www.w3.org/ns/dcat#dataset,,REF_ARRAY,FDP_Dataset,TRUE
-FDP_Catalog,themeTaxonomy,http://www.w3.org/ns/dcat#themeTaxonomy,,ONTOLOGY_ARRAY,Linkouts,TRUE
-FDP_Dataset,,,,,,
-FDP_Dataset,identifier,,1,STRING,,FALSE
-FDP_Dataset,title,http://purl.org/dc/terms/title,,STRING,,TRUE
-FDP_Dataset,publisher,http://purl.org/dc/terms/publisher,,REF,FDP_Publisher,TRUE
-FDP_Dataset,hasVersion,http://purl.org/dc/terms/hasVersion,,STRING,,TRUE
-FDP_Dataset,description,http://purl.org/dc/terms/description,,TEXT,,TRUE
-FDP_Dataset,conformsTo,http://purl.org/dc/terms/conformsTo,,STRING,,TRUE
-FDP_Dataset,modified,http://purl.org/dc/terms/modified,,DATE,,TRUE
-FDP_Dataset,language,http://purl.org/dc/terms/language,,ONTOLOGY,Languages,TRUE
-FDP_Dataset,license,http://purl.org/dc/terms/license,,STRING,,TRUE
-FDP_Dataset,rights,http://purl.org/dc/terms/rights,,REF,FDP_RightsStatement,TRUE
-FDP_Dataset,metadataIssued,http://purl.org/dc/terms/issued,,DATE,,TRUE
-FDP_Dataset,distribution,http://www.w3.org/ns/dcat#distribution,,REF_ARRAY,FDP_Distribution,TRUE
-FDP_Dataset,theme,http://www.w3.org/ns/dcat#theme,,ONTOLOGY_ARRAY,Linkouts,TRUE
-FDP_Dataset,contactPoint,http://www.w3.org/ns/dcat#contactPoint,,STRING,,TRUE
-FDP_Dataset,keyword,http://www.w3.org/ns/dcat#keyword,,STRING,,TRUE
-FDP_Dataset,landingPage,http://www.w3.org/ns/dcat#landingPage,,STRING,,TRUE
-FDP_Distribution,,,,,,
-FDP_Distribution,identifier,,1,STRING,,FALSE
-FDP_Distribution,title,http://purl.org/dc/terms/title,,STRING,,TRUE
-FDP_Distribution,conformsTo,http://purl.org/dc/terms/conformsTo,,STRING,,TRUE
-FDP_Distribution,license,http://purl.org/dc/terms/license,,STRING,,TRUE
-FDP_Distribution,hasVersion,http://purl.org/dc/terms/hasVersion,,STRING,,TRUE
-FDP_Distribution,issued,http://purl.org/dc/terms/issued,,DATE,,TRUE
-FDP_Distribution,modified,http://purl.org/dc/terms/modified,,DATE,,TRUE
-FDP_Distribution,rights,http://purl.org/dc/terms/rights,,REF,FDP_RightsStatement,TRUE
-FDP_Distribution,description,http://purl.org/dc/terms/description,,STRING,,TRUE
-FDP_Distribution,accessURL,http://www.w3.org/ns/dcat#accessURL,,STRING,,TRUE
-FDP_Distribution,downloadURL,http://www.w3.org/ns/dcat#downloadURL,,STRING,,TRUE
-FDP_Distribution,mediaType,http://www.w3.org/ns/dcat#mediaType,,STRING,,TRUE
-FDP_Distribution,format,http://www.w3.org/ns/dcat#format,,STRING,,TRUE
-FDP_Distribution,byteSize,http://www.w3.org/ns/dcat#byteSize,,INT,,TRUE
-FDP_Publisher,,,,,,
-FDP_Publisher,identifier,,1,STRING,,FALSE
-FDP_Publisher,label,http://xmlns.com/foaf/0.1/name,,STRING,,TRUE
-FDP_RightsStatement,,,,,,
-FDP_RightsStatement,identifier,,1,STRING,,FALSE
-FDP_RightsStatement,description,http://purl.org/dc/terms/description,,STRING,,TRUE
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+FDP_Catalog,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,FAIR Data Point catalog entries.
+FDP_Catalog,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the catalog.
+FDP_Catalog,,title,string,,,,,,,,http://purl.org/dc/terms/title,Name of the catalog with the language tag.
+FDP_Catalog,,hasVersion,string,,,,,,,,http://purl.org/dc/terms/hasVersion,Version of the catalog.
+FDP_Catalog,,description,string,,,,,,,,http://purl.org/dc/terms/description,Description of the catalog with the language tag.
+FDP_Catalog,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The entity(ies) (person or organization) responsible for the catalog.
+FDP_Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.
+FDP_Catalog,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.
+FDP_Catalog,,themeTaxonomy,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.
+FDP_Catalog,,hasPart,ref_array,,,,FDP_Dataset,,,,http://purl.org/dc/terms/hasPart,The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.
+FDP_Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,FAIR Data Point dataset entries.
+FDP_Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.
+FDP_Dataset,,distribution,string,,,,,,,,http://purl.org/dc/terms/distribution,Name of a table within this EMX2 schema to denote available dataset distributions.
+FDP_Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.
+FDP_Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.
+FDP_Dataset,,spatialResolutionInMeters,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,Minimum spatial separation resolvable in a dataset, measured in meters.
+FDP_Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.
+FDP_Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.
+FDP_Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,An activity that generated, or provides the business context for, the creation of the dataset.
+FDP_Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.
+FDP_Dataset,,contactPoint,string,,,,,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].
+FDP_Dataset,,creator,string,,,,,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.
+FDP_Dataset,,description,string,,,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.
+FDP_Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.
+FDP_Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.
+FDP_Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.
+FDP_Dataset,,keyword,string,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.
+FDP_Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.
+FDP_Dataset,,license,string,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.
+FDP_Dataset,,language,string,,,,,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.
+FDP_Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.
+FDP_Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.
+FDP_Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.
+FDP_Dataset,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
+FDP_Dataset,,issued,string,,,,,,,,http://purl.org/dc/terms/issued,Date of formal issuance (e.g., publication) of the item.
+FDP_Dataset,,theme,string,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
+FDP_Dataset,,title,string,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.
+FDP_Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
+FDP_Dataset,,modified,string,,,,,,,,http://purl.org/dc/terms/modified,Most recent date on which the item was changed, updated or modified.
+FDP_Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource

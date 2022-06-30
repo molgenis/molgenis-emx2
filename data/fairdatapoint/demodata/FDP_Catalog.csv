@@ -1,2 +1,3 @@
-identifier,title,description,conformsTo,issued,modified,hasVersion,publisher,language,license,rights,homepage,themeTaxonomy,dataset
-ERN-FAKE_FDP_Catalog,ERN-FAKE Patient Registry Catalogue,ERN-FAKE Patient Registry Catalogue implemented in MOLGENIS,https://www.w3.org/TR/vocab-dcat-2/,2021-12-10,2021-12-10,0.1,molgenis,English,http://rdflicense.appspot.com/rdflicense/UNKNOWN,restricted,https://fake.molgeniscloud.org,"patient registry data,Rare Disorder",ERN-FAKE_FDP_Dataset
+id,title,hasVersion,description,publisher,language,license,themeTaxonomy,hasPart
+catalogId01,catalogTitle01,catalogHasVersion01,catalogDescription01,catalogPublisher01,"English,Dutch; Flemish",https://www.gnu.org/licenses/lgpl-3.0.rdf,http://purl.obolibrary.org/obo/NCIT_C71899,"datasetId01,datasetId02"
+catalogId02,catalogTitle02,catalogHasVersion02,catalogDescription02,catalogPublisher02,"English,French",https://www.gnu.org/licenses/lgpl-3.0.rdf,http://semanticscience.org/resource/SIO_001241,"datasetId02,datasetId03"
