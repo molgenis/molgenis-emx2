@@ -283,6 +283,7 @@ public class TestGrantRolesToUsers {
 
     // proof user can drop
     database.becomeAdmin(); // reset to admin
+    database.dropSchema(s1.getName()); // clean up
     database.dropSchema(s2.getName()); // clean up
     database.removeUser(USER);
   }
