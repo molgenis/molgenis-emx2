@@ -1,5 +1,14 @@
 <template>
   <div class="container bg-white" id="_top" v-if="resourceData">
+    <RowButtonEdit
+      v-if="canEdit"
+      class="float-right pt-1"
+      :table="table"
+      :graphqlURL="graphqlURL"
+      :pkey="primaryTableKey"
+      @close="reload"
+    />
+
     <ButtonAlt @click="toggleNA" class="float-right text-white">
       {{ hideNA ? "Show" : "Hide" }} empty fields (N/A)
     </ButtonAlt>
@@ -40,7 +49,7 @@
 </style>
 
 <script>
-import { TableMixin, ButtonAlt } from "@mswertz/emx2-styleguide";
+import { TableMixin, ButtonAlt, RowButtonEdit } from "@mswertz/emx2-styleguide";
 import ResourceHeader from "../components/ResourceHeader";
 import SectionIndex from "../components/detailView/SectionIndex";
 import SectionCard from "../components/detailView/SectionCard";
@@ -51,6 +60,7 @@ export default {
   components: {
     ResourceHeader,
     ButtonAlt,
+    RowButtonEdit,
     SectionIndex,
     SectionCard,
   },
