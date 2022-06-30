@@ -104,8 +104,12 @@ public class GenomicVariantsResponse {
               and(
                   f("position_start", EQUALS, qStart),
                   f("position_refseqId", EQUALS, qReferenceName),
-                  f("referenceBases", EQUALS, qReferenceBases)),
-              f("alternateBases", EQUALS, qAlternateBases));
+                  or(
+                      f("referenceBases", EQUALS, qReferenceBases.toLowerCase()),
+                      f("referenceBases", EQUALS, qReferenceBases.toUpperCase())),
+                  or(
+                      f("alternateBases", EQUALS, qAlternateBases.toLowerCase()),
+                      f("alternateBases", EQUALS, qAlternateBases.toUpperCase()))));
 
           // todo optional parameter: datasetIds
           // todo optional parameter: filters
