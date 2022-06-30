@@ -23,23 +23,14 @@ public class QueryHelper {
    */
   public static void selectColumns(Table table, Query query) throws Exception {
     for (Column column : table.getMetadata().getColumns()) {
-      if (column.isOntology()) {
+      if (column.isOntology() || column.isReference()) {
         List<Column> ontoRefCols =
-            column.getRefTable().getColumns().stream()
-                .filter(
-                    colDef ->
-                        colDef.getName().equals("name")
-                            || colDef.getName().equals("code")
-                            || colDef.getName().equals("codesystem"))
-                .collect(Collectors.toList());
+            column.getRefTable().getColumns().stream().collect(Collectors.toList());
         ArrayList<String> colNames = new ArrayList<>();
         for (Column ontoRefCol : ontoRefCols) {
           colNames.add(ontoRefCol.getName());
         }
         query.select(new SelectColumn(column.getName(), colNames));
-      } else if (column.isReference()) {
-        throw new Exception(
-            "Reference datatypes (except ontology) not yet supported in Biosamples");
       } else {
         query.select(s(column.getName()));
       }
