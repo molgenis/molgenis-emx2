@@ -46,10 +46,6 @@
 .labelcontainer:hover .tooltip {
   visibility: visible;
 }
-
-.mg-edit-resource-btn {
-  color: white !important
-}
 </style>
 
 <script>
