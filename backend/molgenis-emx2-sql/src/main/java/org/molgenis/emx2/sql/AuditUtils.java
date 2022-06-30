@@ -2,6 +2,10 @@ package org.molgenis.emx2.sql;
 
 public class AuditUtils {
 
+  private AuditUtils() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static String buildProcessAuditFunction(String schemaName, String tableName) {
     return """
             CREATE OR REPLACE FUNCTION "%1$s"."process_%3$s_audit"() RETURNS TRIGGER AS $%3$s_audit$
