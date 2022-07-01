@@ -4,7 +4,9 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -25,6 +27,9 @@ public class FAIRDataPointDistribution {
   public String getResult() {
     return result;
   }
+
+  public static Set<String> FORMATS =
+      new HashSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
 
   /**
    * E.g.
@@ -48,11 +53,7 @@ public class FAIRDataPointDistribution {
     }
 
     format = format.toLowerCase();
-    if (!format.equals("jsonld")
-        && !format.equals("ttl")
-        && !format.equals("csv")
-        && !format.equals("excel")
-        && !format.equals("zip")) {
+    if (!FORMATS.contains(format)) {
       throw new Exception("Format unknown. Use 'jsonld', 'ttl', 'csv', 'excel' or 'zip'.");
     }
 
