@@ -251,4 +251,284 @@ public class FAIRDataPointProfile {
 		      sh:maxCount 1 ;
 		      sh:minCount 1 ;
 		    ].""";
+
+  public static final String DCAT_PREFIXES =
+      """
+			@prefix : <http://data.europa.eu/r5r#> .
+			@prefix adms: <http://www.w3.org/ns/adms#> .
+			@prefix dash: <http://datashapes.org/dash#> .
+			@prefix dc: <http://purl.org/dc/elements/1.1/> .
+			@prefix dcat: <http://www.w3.org/ns/dcat#> .
+			@prefix dct: <http://purl.org/dc/terms/> .
+			@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+			@prefix org: <http://www.w3.org/ns/org#> .
+			@prefix owl: <http://www.w3.org/2002/07/owl#> .
+			@prefix prov: <http://www.w3.org/ns/prov#> .
+			@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+			@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+			@prefix schema: <http://schema.org/> .
+			@prefix sh: <http://www.w3.org/ns/shacl#> .
+			@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+			@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+			@prefix spdx: <http://spdx.org/rdf/terms#> .
+			@prefix tosh: <http://topbraid.org/tosh#> .
+			@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+			@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+			@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+			""";
+
+  /*
+  As defined by https://github.com/SEMICeu/dcat-ap_shacl/blob/master/shacl/dcat-ap.shapes.ttl
+  	*/
+  public static final String DATASET_SHACL =
+      DCAT_PREFIXES
+          + """
+		  dcat:Dataset
+		    rdf:type sh:NodeShape ;
+		    sh:property [
+		        sh:path dct:accrualPeriodicity ;
+		              sh:nodeKind sh:IRI ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:accessRights ;
+		        sh:class dct:RightsStatement ;
+		        sh:maxCount 1 ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:accrualPeriodicity ;
+		        sh:class dct:Frequency ;
+		        sh:maxCount 1 ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:conformsTo ;
+		        sh:class dct:Standard ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:description ;
+		        sh:minCount 1 ;
+		              sh:nodeKind sh:Literal ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:hasVersion ;
+		        sh:class dcat:Dataset ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:isVersionOf ;
+		        sh:class dcat:Dataset ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:issued ;
+		        sh:maxCount 1 ;
+		              sh:severity sh:Violation ;
+		        sh:shape :DateOrDateTimeDataType ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:language ;
+		              sh:nodeKind sh:IRI ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:modified ;
+		        sh:maxCount 1 ;
+		              sh:severity sh:Violation ;
+		        sh:shape :DateOrDateTimeDataType ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:provenance ;
+		        sh:class dct:ProvenanceStatement ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:publisher ;
+		        sh:class foaf:Agent ;
+		        sh:maxCount 1 ;
+		              sh:nodeKind sh:IRI ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:relation ;
+		        sh:nodeKind sh:IRI ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:source ;
+		        sh:class dcat:Dataset ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:spatial ;
+		        sh:class dct:Location ;
+		              sh:nodeKind sh:IRI ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:temporal ;
+		        sh:class dct:PeriodOfTime ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:title ;
+		        sh:minCount 1 ;
+		              sh:nodeKind sh:Literal ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		      sh:property [
+		        sh:path dcat:theme ;
+		              sh:nodeKind sh:IRI ;
+		      ] ;
+		    sh:property [
+		        sh:path dct:type ;
+		        sh:class skos:Concept ;
+		        sh:maxCount 1 ;
+		              sh:nodeKind sh:IRI ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path owl:versionInfo ;
+		        sh:maxCount 1 ;
+		              sh:nodeKind sh:Literal ;
+		        sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path adms:identifier ;
+		        sh:class adms:Identifier ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path adms:sample ;
+		        sh:class dcat:Distribution ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dcat:contactPoint ;
+		        sh:class vcard:Kind ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dcat:distribution ;
+		        sh:class dcat:Distribution ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dcat:landingPage ;
+		        sh:class foaf:Document ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path dcat:theme ;
+		        sh:class skos:Concept ;
+		              sh:severity sh:Violation ;
+		      ] ;
+		    sh:property [
+		        sh:path foaf:page ;
+		        sh:class foaf:Document ;
+		              sh:severity sh:Violation ;
+		      ].""";
+
+  /*
+  As defined by https://github.com/SEMICeu/dcat-ap_shacl/blob/master/shacl/dcat-ap.shapes.ttl
+  */
+  public static final String DISTRIBUTION_SHACL =
+      DCAT_PREFIXES
+          + """
+			dcat:Distribution
+			  rdf:type sh:NodeShape ;
+			  sh:property [
+			      sh:path dct:conformsTo ;
+			            sh:nodeKind sh:BlankNodeOrIRI ;
+			      sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:description ;
+			            sh:nodeKind sh:Literal ;
+			      sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:format ;
+			      sh:class dct:MediaTypeOrExtent ;
+			      sh:maxCount 1 ;
+			            sh:nodeKind sh:IRI ;
+			      sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:issued ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			      sh:node :DateOrDateTimeDataType ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:language ;
+			      sh:class dct:LinguisticSystem ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:license ;
+			      sh:class dct:LicenseDocument ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:modified ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			      sh:node :DateOrDateTimeDataType ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:rights ;
+			      sh:class dct:RightsStatement ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dct:title ;
+			            sh:nodeKind sh:Literal ;
+			      sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path spdx:checksum ;
+			      sh:class spdx:Checksum ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path adms:status ;
+			      sh:class skos:Concept ;
+			      sh:maxCount 1 ;
+			            sh:nodeKind sh:IRI ;
+			      sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dcat:accessURL ;
+			      sh:nodeKind sh:IRI ;
+			      sh:minCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dcat:byteSize ;
+			      sh:datatype xsd:decimal ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dcat:downloadURL ;
+			      sh:nodeKind sh:IRI ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path dcat:mediaType ;
+			      sh:class dct:MediaTypeOrExtent ;
+			      sh:maxCount 1 ;
+			            sh:severity sh:Violation ;
+			    ] ;
+			  sh:property [
+			      sh:path foaf:page ;
+			      sh:class foaf:Document ;
+			            sh:severity sh:Violation ;
+			    ].""";
 }
