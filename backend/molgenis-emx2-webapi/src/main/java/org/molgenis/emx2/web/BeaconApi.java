@@ -139,6 +139,19 @@ public class BeaconApi {
     return tables;
   }
 
+  static List<Schema> getSchemasHavingTable(String tableName, Request request) {
+    List<Schema> schemas = new ArrayList<>();
+    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    for (String sn : schemaNames) {
+      Schema schema = sessionManager.getSession(request).getDatabase().getSchema(sn);
+      Table t = schema.getTable(tableName);
+      if (t != null) {
+        schemas.add(schema);
+      }
+    }
+    return schemas;
+  }
+
   private static String postDatasets(Request request, Response response)
       throws JsonProcessingException {
     // should parse body into
