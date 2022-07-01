@@ -1,16 +1,13 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.BeaconApi.getTableFromAllSchemas;
+import static org.molgenis.emx2.web.BeaconApi.getSchemasHavingTable;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 
 import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPoint;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution;
-import org.molgenis.emx2.fairdatapoint.FAIRDataPointProfile;
+import org.molgenis.emx2.fairdatapoint.*;
 import spark.Request;
 import spark.Response;
 
@@ -21,17 +18,40 @@ public class FAIRDataPointApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
+
+    // the four FDP layers
     get("/api/fdp", FAIRDataPointApi::getFDP);
+    get("/api/fdp/catalog/:schema/:id", FAIRDataPointApi::getCatalog);
+    get("/api/fdp/dataset/:schema/:id", FAIRDataPointApi::getDataset);
+    get("/api/fdp/distribution/:schema/:table/:format", FAIRDataPointApi::getDistribution);
+
+    // corresponding profiles
     get("/api/fdp/profile", FAIRDataPointApi::getFDPProfile);
     get("/api/fdp/catalog/profile", FAIRDataPointApi::getCatalogProfile);
-    get("/api/fdp/catalog/:schema/:id", FAIRDataPointApi::getCatalog);
-
-    get("/api/fdp/distribution/:schema/:table/:format", FAIRDataPointApi::getDistribution);
+    get("/api/fdp/dataset/profile", FAIRDataPointApi::getDatasetProfile);
+    get("/api/fdp/distribution/profile", FAIRDataPointApi::getDistributionProfile);
   }
 
   private static String getFDP(Request request, Response res) throws Exception {
-    List<Table> tables = getTableFromAllSchemas("FDP_Catalog", request);
-    return new FAIRDataPoint(request, tables).getResult();
+    List<Schema> schemas = getSchemasHavingTable("FDP_Catalog", request);
+    return new FAIRDataPoint(request, schemas).getResult();
+  }
+
+  private static String getCatalog(Request request, Response res) throws Exception {
+    Schema schema = getSchema(request);
+    Table table = schema.getTable("FDP_Catalog");
+    return new FAIRDataPointCatalog(request, table).getResult();
+  }
+
+  private static String getDataset(Request request, Response res) throws Exception {
+    Schema schema = getSchema(request);
+    Table table = schema.getTable("FDP_Dataset");
+    return new FAIRDataPointDataset(request, table).getResult();
+  }
+
+  private static String getDistribution(Request request, Response res) throws Exception {
+    return new FAIRDataPointDistribution(request, sessionManager.getSession(request).getDatabase())
+        .getResult();
   }
 
   private static String getFDPProfile(Request request, Response res) throws Exception {
@@ -42,14 +62,11 @@ public class FAIRDataPointApi {
     return FAIRDataPointProfile.CATALOG_SHACL;
   }
 
-  private static String getCatalog(Request request, Response res) throws Exception {
-    Schema schema = getSchema(request);
-    Table table = schema.getTable("FDP_Catalog");
-    return new FAIRDataPointCatalog(request, table).getResult();
+  private static String getDatasetProfile(Request request, Response res) throws Exception {
+    return FAIRDataPointProfile.DATASET_SHACL;
   }
 
-  private static String getDistribution(Request request, Response res) throws Exception {
-    return new FAIRDataPointDistribution(request, sessionManager.getSession(request).getDatabase())
-        .getResult();
+  private static String getDistributionProfile(Request request, Response res) throws Exception {
+    return FAIRDataPointProfile.DISTRIBUTION_SHACL;
   }
 }
