@@ -20,6 +20,10 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import spark.Request;
 
 public class FAIRDataPointCatalog {
+
+  // todo: deal with null values
+  // todo: double check cardinality
+
   /*
        builder.add(root, DCTERMS.HAS_VERSION, "1.0" + "^^" + XSD.FLOAT);
   */
@@ -46,18 +50,31 @@ public class FAIRDataPointCatalog {
     return result;
   }
 
-  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+  /**
+   * schemaName -> List of Map{key, value} for each FDP_Catalog record
+   *
+   * @param schemas
+   * @param id
+   * @return
+   * @throws Exception
+   */
+  public static Map<String, List<Map<String, Object>>> getFDPCatalogRecords(
+      List<Schema> schemas, String id) throws Exception {
+    Map<String, List<Map<String, Object>>> allCatalogsFromJSON = new HashMap<>();
+    for (Schema schema : schemas) {
+      List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
+      allCatalogsFromJSON.put(schema.getName(), catalogsFromJSON);
+    }
+    return allCatalogsFromJSON;
+  }
 
-    String id = request.params("id");
-    Schema schema = fdpCatalogTable.getSchema();
-
+  public static List<Map<String, Object>> getFDPCatalogRecords(Schema schema, String id)
+      throws Exception {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
             "{FDP__Catalog"
-                + "(filter:{id: {equals:\""
-                + id
-                + "\"}})"
+                + (id != null ? "(filter:{id: {equals:\"" + id + "\"}})" : "")
                 + "{"
                 + "id,"
                 + "title,"
@@ -75,8 +92,20 @@ public class FAIRDataPointCatalog {
     List<Map<String, Object>> catalogsFromJSON =
         (List<Map<String, Object>>)
             ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
-    if (catalogsFromJSON != null && catalogsFromJSON.size() != 1) {
-      throw new Exception("Bad number of catalog results");
+    System.out.println("## found: catalogsFromJSON size: " + catalogsFromJSON.size());
+
+    return catalogsFromJSON;
+  }
+
+  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+
+    String id = request.params("id");
+    Schema schema = fdpCatalogTable.getSchema();
+
+    List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
+    if (catalogsFromJSON.size() != 1) {
+      throw new Exception(
+          "Expected to find exactly 1 catalog but found " + catalogsFromJSON.size());
     }
     Map catalogFromJSON = catalogsFromJSON.get(0);
 
@@ -160,7 +189,8 @@ public class FAIRDataPointCatalog {
     builder.add(accessRights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
-    builder.add(root, FOAF.HOMEPAGE, iri(appUrl + "/" + schema.getName() + "/tables/#/FDP_Catalog"));
+    builder.add(
+        root, FOAF.HOMEPAGE, iri(appUrl + "/" + schema.getName() + "/tables/#/FDP_Catalog"));
 
     // Write model
     Model model = builder.build();
@@ -191,7 +221,7 @@ public class FAIRDataPointCatalog {
    * @param item
    * @return
    */
-  public ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
+  public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
     System.out.println("### obj = " + object);
     for (Map map : object) {
