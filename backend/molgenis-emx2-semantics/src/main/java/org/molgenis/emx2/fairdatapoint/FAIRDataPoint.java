@@ -20,10 +20,13 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.Schema;
 import spark.Request;
 
 public class FAIRDataPoint {
+
+  // todo: deal with null values
+  // todo: double check cardinality
 
   private String result;
 
@@ -31,7 +34,15 @@ public class FAIRDataPoint {
     return result;
   }
 
-  public FAIRDataPoint(Request request, List<Table> tables) throws Exception {
+  public FAIRDataPoint(Request request, List<Schema> schemas) throws Exception {
+    // get all FDP_Catalog records from all of the supplied tables
+    if (schemas.size() == 0) {
+      throw new Exception("No data available");
+    }
+
+    Map<String, List<Map<String, Object>>> allCatalogFromJSON =
+        FAIRDataPointCatalog.getFDPCatalogRecords(schemas, null);
+
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();
     prefixToNamespace.put("dcterms", "http://purl.org/dc/terms/");
@@ -101,10 +112,12 @@ public class FAIRDataPoint {
         iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
         iri("https://w3id.org/fdp/fdp-o#metadataCatalog"));
     builder.add(catalog, iri("http://www.w3.org/ns/ldp#membershipResource"), root);
-    for (Table table : tables) {
-      IRI catalogIRI = iri(catalog + "/" + table.getSchema().getName());
-      builder.add(catalog, iri("http://www.w3.org/ns/ldp#contains"), catalogIRI);
-      builder.add(root, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIRI);
+    for (String schemaName : allCatalogFromJSON.keySet()) {
+      for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
+        IRI catalogIRI = iri(catalog + "/" + schemaName + "/" + map.get("id"));
+        builder.add(catalog, iri("http://www.w3.org/ns/ldp#contains"), catalogIRI);
+        builder.add(root, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIRI);
+      }
     }
 
     /*
@@ -134,8 +147,11 @@ public class FAIRDataPoint {
     builder.add(vcard, VCARD4.HAS_URL, "https://molgenis.org/");
     builder.add(root, DCAT.KEYWORD, "MOLGENIS");
     builder.add(root, DCAT.KEYWORD, "Data platform");
-    for (Table table : tables) {
-      builder.add(root, DCAT.THEME, "TODO - THEME_TAXONOMY FROM TABLE"); // todo
+    for (String schemaName : allCatalogFromJSON.keySet()) {
+      for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
+        // "inherit" themeTaxonomy to Metadata Service theme
+        builder.add(root, DCAT.THEME, map.get("themeTaxonomy")); // todo overlap?
+      }
     }
     builder.add(root, DCAT.ENDPOINT_DESCRIPTION, openAPI);
     builder.add(
