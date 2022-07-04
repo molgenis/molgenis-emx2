@@ -9,17 +9,20 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Privileges.*;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
+import org.jooq.JSONB;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
 
+  private static final String MG_CHANGLOG = "mg_changelog";
   private static final org.jooq.Field OPERATION = field(name("operation"), CHAR(1).nullable(false));
   private static final org.jooq.Field STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
   private static final org.jooq.Field USERID = field(name("userid"), VARCHAR.nullable(false));
@@ -76,7 +79,7 @@ class SqlSchemaMetadataExecutor {
 
     // create change log table
     db.getJooq()
-        .createTableIfNotExists(table(name(schema.getName(), "mg_changelog")))
+        .createTableIfNotExists(table(name(schema.getName(), MG_CHANGLOG)))
         .columns(OPERATION, STAMP, USERID, OLD, NEW)
         .execute();
 
@@ -175,6 +178,26 @@ class SqlSchemaMetadataExecutor {
     }
 
     return members;
+  }
+
+  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema) {
+    List<Record> result =
+        jooq.select(OPERATION, STAMP, USERID, OLD, NEW)
+            .from(table(name(schema.getName(), MG_CHANGLOG)))
+            .limit(100)
+            .fetch();
+
+    return result.stream()
+        .map(
+            r -> {
+              char operation = r.getValue(OPERATION, char.class);
+              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+              String userId = r.getValue(USERID, String.class);
+              JSONB oldRowData = r.getValue(OLD, JSONB.class);
+              JSONB newRowData = r.getValue(NEW, JSONB.class);
+              return new Change(operation, stamp, userId, oldRowData, newRowData);
+            })
+        .collect(Collectors.toList());
   }
 
   static void executeRemoveMembers(SqlDatabase db, String schemaName, List<Member> members) {

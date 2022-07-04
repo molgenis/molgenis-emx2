@@ -43,6 +43,21 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.VALUE)
                   .type(Scalars.GraphQLString))
           .build();
+  static final GraphQLType changesMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("ChangesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OPERATION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(OLD).type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(NEW).type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLInputObjectType inputDropColumnType =
       new GraphQLInputObjectType.Builder()
           .name("DropColumnInput")
@@ -452,6 +467,13 @@ public class GraphqlSchemaFieldFactory {
         .name("_schema")
         .type(outputMetadataType)
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
+  }
+
+  public GraphQLFieldDefinition.Builder changeLogQuery(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_changes")
+        .type(GraphQLList.list(changesMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> schema.getChanges());
   }
 
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
