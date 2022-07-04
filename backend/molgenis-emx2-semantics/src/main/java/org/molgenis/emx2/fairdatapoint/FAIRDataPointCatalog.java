@@ -223,7 +223,6 @@ public class FAIRDataPointCatalog {
    */
   public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
-    System.out.println("### obj = " + object);
     for (Map map : object) {
       IRI iri = iri((String) map.get(item));
       values.add(iri);

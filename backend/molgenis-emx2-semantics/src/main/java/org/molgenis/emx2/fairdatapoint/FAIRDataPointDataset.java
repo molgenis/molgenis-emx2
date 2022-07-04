@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution.FORMATS;
 
@@ -16,9 +17,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
-import org.eclipse.rdf4j.model.vocabulary.DCAT;
-import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
@@ -32,6 +31,7 @@ public class FAIRDataPointDataset {
 
   // todo: deal with null values
   // todo: double check cardinality
+  // todo: check data types (int, date, hyperlinks etc)
 
   /*
   todo
@@ -81,16 +81,14 @@ public class FAIRDataPointDataset {
                 + "keyword,"
                 + "landingPage,"
                 + "license,"
-                + "language,"
+                + "language{ontologyTermURI},"
                 + "relation,"
                 + "rights,"
                 + "qualifiedRelation,"
                 + "publisher,"
-                + "issued,"
                 + "theme,"
                 + "title,"
                 + "type,"
-                + "modified,"
                 + "qualifiedAttribution,"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
@@ -125,6 +123,9 @@ public class FAIRDataPointDataset {
     }
 
     IRI reqUrl = iri(request.url());
+    System.out.println("request.uri() = " + request.uri()); // e.g. /api/fdp/dataset/rd3/datasetId01
+    System.out.println("request.contextPath() = " + request.contextPath());
+
     // todo this can fail with repeated slashes? deal with/escape whitespaces?
     IRI root =
         iri(
@@ -146,13 +147,46 @@ public class FAIRDataPointDataset {
 
     builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
 
-    // todo implement the other properties from https://www.w3.org/TR/vocab-dcat-2/#Class:Dataset
-
     ArrayList<IRI> spatials =
         extractItemAsIRI((List<Map>) datasetFromJSON.get("spatial"), "ontologyTermURI");
     for (IRI spatial : spatials) {
       builder.add(reqUrl, DCTERMS.SPATIAL, spatial);
     }
+
+    builder.add(
+        reqUrl,
+        DCAT.SPATIAL_RESOLUTION_IN_METERS,
+        literal((double) datasetFromJSON.get("spatialResolutionInMeters")));
+
+    builder.add(reqUrl, DCTERMS.TEMPORAL, datasetFromJSON.get("temporal"));
+    builder.add(reqUrl, DCAT.TEMPORAL_RESOLUTION, datasetFromJSON.get("temporalResolution"));
+    builder.add(reqUrl, PROV.WAS_GENERATED_BY, datasetFromJSON.get("wasGeneratedBy"));
+    builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, datasetFromJSON.get("accessRights"));
+    builder.add(reqUrl, DCAT.CONTACT_POINT, datasetFromJSON.get("contactPoint"));
+    builder.add(reqUrl, DCTERMS.CREATOR, datasetFromJSON.get("creator"));
+    builder.add(reqUrl, DCTERMS.DESCRIPTION, datasetFromJSON.get("description"));
+    builder.add(reqUrl, ODRL2.HAS_POLICY, datasetFromJSON.get("description"));
+    builder.add(reqUrl, DCTERMS.IDENTIFIER, datasetFromJSON.get("id"));
+    builder.add(reqUrl, DCTERMS.IS_REFERENCED_BY, datasetFromJSON.get("isReferencedBy"));
+    builder.add(reqUrl, DCAT.KEYWORD, datasetFromJSON.get("keyword"));
+    builder.add(reqUrl, DCAT.LANDING_PAGE, datasetFromJSON.get("landingPage"));
+    builder.add(reqUrl, DCTERMS.LICENSE, datasetFromJSON.get("license"));
+    ArrayList<IRI> languages =
+        extractItemAsIRI((List<Map>) datasetFromJSON.get("language"), "ontologyTermURI");
+    for (IRI language : languages) {
+      builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+    }
+    builder.add(reqUrl, DCTERMS.RELATION, datasetFromJSON.get("relation"));
+    builder.add(reqUrl, DCTERMS.RIGHTS, datasetFromJSON.get("rights"));
+    builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
+    builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
+    builder.add(reqUrl, DCTERMS.ISSUED, datasetFromJSON.get("mg_insertedOn"));
+    builder.add(reqUrl, DCAT.THEME, datasetFromJSON.get("theme"));
+    builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
+    builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
+    builder.add(reqUrl, DCTERMS.MODIFIED, datasetFromJSON.get("mg_updatedOn"));
+    builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
+
 
     // Write model
     Model model = builder.build();
