@@ -78,10 +78,18 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
     // create change log table
+    org.jooq.Table<Record> changelogTable = table(name(schema.getName(), MG_CHANGLOG));
     db.getJooq()
-        .createTableIfNotExists(table(name(schema.getName(), MG_CHANGLOG)))
+        .createTableIfNotExists(changelogTable)
         .columns(OPERATION, STAMP, USERID, OLD, NEW)
         .execute();
+
+    // grant rights to all to insert into change log, only admin and owner can read
+    db.getJooq()
+        .execute(
+            "GRANT INSERT ON {0} TO {1}, {2}, {3}",
+            changelogTable, name(editor), name(manager), name(member));
+    db.getJooq().execute("GRANT SELECT ON {0} TO {1}", changelogTable, name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
