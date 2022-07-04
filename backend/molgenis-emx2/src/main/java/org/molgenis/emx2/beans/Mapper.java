@@ -1,14 +1,17 @@
 package org.molgenis.emx2.beans;
 
+import static java.lang.String.format;
 import static org.molgenis.emx2.Column.column;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
@@ -19,40 +22,85 @@ public class Mapper {
     // hides public constructor
   }
 
-  public static Row[] map(Object... beans)
-      throws InvocationTargetException, IllegalAccessException {
+  public static Row[] map(Object... beans) {
     ArrayList<Row> rows = new ArrayList<>();
-    for (Object b : beans) {
-      Class<?> c = b.getClass();
-      Method[] methods = c.getDeclaredMethods();
+    for (Object object : beans) {
+      Class<?> c = object.getClass();
+      Method[] methods = c.getMethods();
       Map<String, Object> values = new LinkedHashMap<>();
 
-      for (Method m : methods) {
-        if (m.getName().startsWith("get") && m.getParameterCount() == 0) {
-          values.put(m.getName().substring(3), m.invoke(b));
-        }
-      }
+      Arrays.stream(methods)
+          .filter(m -> m.getName().startsWith("get"))
+          .filter(m -> !m.getName().equals("getClass"))
+          .filter(m -> m.getParameterCount() == 0)
+          .forEach(m -> values.put(setterNameToColumnName(m), invoke(m, object)));
 
       rows.add(new Row(values));
     }
-    return rows.toArray(new Row[rows.size()]);
+    return rows.toArray(new Row[0]);
   }
 
-  public static <E> E map(Class<E> klazz, Row row)
-      throws NoSuchMethodException, InvocationTargetException, IllegalAccessException,
-          InstantiationException {
-    E e = klazz.getConstructor().newInstance();
+  public static <E> E map(Class<E> klazz, Row row) {
+    E object = construct(klazz);
+    Method[] methods = klazz.getMethods();
     Map<String, Object> values = row.getValueMap();
-    for (String name : row.getColumnNames()) {
-      Object value = values.get(name);
-      if (value != null) {
-        Method m =
-            klazz.getMethod(
-                "set" + name.substring(0, 1).toUpperCase() + name.substring(1), value.getClass());
-        m.invoke(e, values.get(name));
-      }
+    Arrays.stream(methods)
+        .filter(m -> m.getName().startsWith("set"))
+        .filter(m -> m.getParameterCount() == 1)
+        .forEach(
+            m -> {
+              var fieldName = setterNameToColumnName(m);
+              var value = mapColumn(m, values.get(fieldName));
+              invoke(m, object, value);
+            });
+
+    return object;
+  }
+
+  private static String lowerFirstChar(String string) {
+    return Character.toLowerCase(string.charAt(0)) + string.substring(1);
+  }
+
+  private static String setterNameToColumnName(Method method) {
+    return lowerFirstChar(method.getName().substring(3));
+  }
+
+  private static Object mapColumn(Method method, Object value) {
+    var parameterType = method.getParameters()[0].getType();
+    if (parameterType != null && parameterType.isEnum()) {
+      mapEnumColumn(method, value, parameterType);
     }
-    return e;
+    return value;
+  }
+
+  private static void mapEnumColumn(Method method, Object value, Class<?> enumType) {
+    try {
+      Method valueOf = enumType.getMethod("valueOf", String.class);
+      invoke(valueOf, null, value.toString());
+    } catch (NoSuchMethodException e) {
+      throw new MolgenisException(
+          format("Error mapping string to Enum: %s", setterNameToColumnName(method)), e);
+    }
+  }
+
+  private static <E> E construct(Class<E> cls) {
+    try {
+      return cls.getConstructor().newInstance();
+    } catch (InstantiationException
+        | IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException e) {
+      throw new MolgenisException(format("Error instantiating object: %s", cls.getName()), e);
+    }
+  }
+
+  private static Object invoke(Method method, Object object, Object... values) {
+    try {
+        return method.invoke(object, values);
+    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+      throw new MolgenisException(
+          format("Error calling %s.%s", method.getDeclaringClass().getName(), method.getName()), e);
+    }
   }
 
   public static TableMetadata map(Class<?> klazz) {
