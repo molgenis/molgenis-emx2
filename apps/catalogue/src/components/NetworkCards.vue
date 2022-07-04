@@ -1,15 +1,15 @@
 <template>
   <div class="card p-4 w-100">
-    <div class="image-container">
-      <img
-          :src="
-            network.logo.url
-              ? network.logo.url
-              : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-          "
-          alt="..."
-      />
-    </div>
+    <img
+      :src="
+        network.logo.url
+          ? network.logo.url
+          : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+      "
+      class="card-img-top"
+      style="height: 4em"
+      alt="..."
+    />
     <div class="card-body">
       <h5 class="card-title">{{ network.pid }}</h5>
       <p v-if="network.description && network.description.trim().length > 0">
@@ -57,13 +57,5 @@ export default {
   border: none;
   position: absolute;
   bottom: 0;
-}
-.image-container {
-  height: 4em;
-  display: flex;
-  justify-content: center;
-}
-.image-container > img {
-  height:100%;
 }
 </style>
