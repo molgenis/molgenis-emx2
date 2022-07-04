@@ -28,14 +28,12 @@ FDP_Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedB
 FDP_Dataset,,keyword,string,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.
 FDP_Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.
 FDP_Dataset,,license,string,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.
-FDP_Dataset,,language,string,,,,,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.
+FDP_Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.
 FDP_Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.
 FDP_Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.
 FDP_Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.
 FDP_Dataset,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
-FDP_Dataset,,issued,string,,,,,,,,http://purl.org/dc/terms/issued,Date of formal issuance (e.g., publication) of the item.
 FDP_Dataset,,theme,string,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
 FDP_Dataset,,title,string,,,,,,,,http://purl.org/dc/terms/title,A name given to the record.
 FDP_Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
-FDP_Dataset,,modified,string,,,,,,,,http://purl.org/dc/terms/modified,Most recent date on which the item was changed, updated or modified.
 FDP_Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource
