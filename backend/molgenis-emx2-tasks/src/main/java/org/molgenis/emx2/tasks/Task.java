@@ -17,6 +17,7 @@ import java.util.Spliterator;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Persistable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +25,10 @@ import org.slf4j.LoggerFactory;
  * For documenting processes that consist of multiple steps and elements. For example. batch
  * insert/upload tasks.
  */
-public class Task implements Runnable, Iterable<Task> {
+public class Task implements Runnable, Iterable<Task>, Persistable<Task> {
 
   // some unique id
-  private final String id = UUID.randomUUID().toString();
+  private String id = UUID.randomUUID().toString();
   // for the toString method
   private static final ObjectMapper mapper =
       new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -50,6 +51,9 @@ public class Task implements Runnable, Iterable<Task> {
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
   private boolean strict = false;
+  private Consumer<Task> updateCallback;
+
+  public Task() {}
 
   public Task(String description) {
     Objects.requireNonNull(description, "description cannot be null");
@@ -65,6 +69,10 @@ public class Task implements Runnable, Iterable<Task> {
   public Task(String description, boolean strict) {
     this(description);
     this.strict = strict;
+  }
+
+  public void setUpdateCallback(Consumer<Task> callback) {
+    this.updateCallback = callback;
   }
 
   public Task addSubTask(String message) {
@@ -97,6 +105,7 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setProgress(int progress) {
     this.progress = progress;
+    update();
     return this;
   }
 
@@ -131,8 +140,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public Task setDescription(String description) {
-    Objects.requireNonNull(description, "description cannot be null");
+    //    Objects.requireNonNull(description, "description cannot be null");
     this.description = description;
+    update();
     return this;
   }
 
@@ -149,6 +159,7 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setTotal(int total) {
     this.total = total;
+    update();
     return this;
   }
 
@@ -156,6 +167,7 @@ public class Task implements Runnable, Iterable<Task> {
     this.startTimeMilliseconds = System.currentTimeMillis();
     this.status = RUNNING;
     this.logger.info(getDescription() + ": started");
+    update();
     return this;
   }
 
@@ -163,12 +175,14 @@ public class Task implements Runnable, Iterable<Task> {
     this.status = COMPLETED;
     this.endTimeMilliseconds = System.currentTimeMillis();
     this.logger.info(getDescription());
+    update();
     return this;
   }
 
   public Task complete(String description) {
     this.setDescription(description);
     complete();
+    update();
     return this;
   }
 
@@ -177,6 +191,7 @@ public class Task implements Runnable, Iterable<Task> {
     this.complete();
     this.status = ERROR;
     logger.error(message);
+    update();
     throw new MolgenisException(message);
   }
 
@@ -191,27 +206,32 @@ public class Task implements Runnable, Iterable<Task> {
   public Task setStatus(TaskStatus status) {
     Objects.requireNonNull(status, "status can not be null");
     this.status = status;
+    update();
     return this;
   }
 
   public void setSkipped(String description) {
     this.setSkipped();
     this.setDescription(description);
+    update();
   }
 
   public void setSkipped() {
     this.complete();
     this.setStatus(SKIPPED);
+    update();
   }
 
   public void setError() {
     this.complete();
     this.setStatus(ERROR);
+    update();
   }
 
   public void setError(String description) {
     this.setError();
     this.setDescription(description);
+    update();
   }
 
   @Override
@@ -248,6 +268,10 @@ public class Task implements Runnable, Iterable<Task> {
     return id;
   }
 
+  public void setId(String id) {
+    this.id = id;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -279,5 +303,11 @@ public class Task implements Runnable, Iterable<Task> {
         endTimeMilliseconds,
         subTasks,
         strict);
+  }
+
+  private void update() {
+    if (updateCallback != null) {
+      updateCallback.accept(this);
+    }
   }
 }
