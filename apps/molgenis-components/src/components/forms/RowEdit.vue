@@ -24,7 +24,6 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import Expressions from "@molgenis/expressions";
 import constants from "../constants";
 import { getPrimaryKey, deepClone } from "../utils";
 
@@ -123,15 +122,20 @@ export default {
       );
     },
     visible(expression, columnId) {
-      if (expression) {
+      // eslint-disable-next-line no-undef
+      if (typeof Expressions !== 'undefined' && expression) {
         try {
+          // eslint-disable-next-line no-undef
           return Expressions.evaluate(expression, this.internalValues);
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
-      } else {
-        return true;
+      } else if (expression) {
+        console.error(
+          "No 'Expressions' object found in global scope, visible expression will always be 'true'"
+        );
       }
+      return true;
     },
     validateTable() {
       this.tableMetaData?.columns.forEach((column) => {
@@ -193,12 +197,22 @@ export default {
       return emails.find((email) => !this.isValidEmail(email));
     },
     evaluateValidationExpression(column, values) {
-      try {
-        if (!Expressions.evaluate(column.validation, values)) {
-          return `Applying validation rule returned error: ${column.validation}`;
+      // eslint-disable-next-line no-undef
+      if (typeof Expressions !== 'undefined') {
+        try {
+          // eslint-disable-next-line no-undef
+          if (!Expressions.evaluate(column.validation, values)) {
+            return `Applying validation rule returned error: ${column.validation}`;
+          }
+          return undefined;
+        } catch (error) {
+          return "Invalid validation expression";
         }
-      } catch (error) {
-        return "Invalid validation expression";
+      } else {
+        console.error(
+          "No 'Expressions' object found in global scope, evaluation is skipped"
+        );
+        return undefined;
       }
     },
     isRefLinkWithoutOverlap(column, tableMetaData, values) {

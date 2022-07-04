@@ -1,9 +1,9 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-graphql')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.0.2'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.0.2'
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.0.2'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.0.3'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:4.0.3'
+    implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:4.0.3'
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-io')
