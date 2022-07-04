@@ -30,7 +30,7 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public Set<String> getJobIds() {
+  public Set<String> getTaskIds() {
     return tasks.keySet();
   }
 
@@ -89,7 +89,7 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void clear() {
-    for (String id : getJobIds()) {
+    for (String id : getTaskIds()) {
       if (!getTask(id).getStatus().equals(RUNNING)) {
         removeTask(id);
       }

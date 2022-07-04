@@ -14,7 +14,7 @@ public class TestTask {
     System.out.println("Starting ...");
 
     // purge doesn't change
-    Assert.assertEquals(1, taskService.getJobIds().size());
+    Assert.assertEquals(1, taskService.getTaskIds().size());
 
     while (!TaskStatus.COMPLETED.equals(taskService.getTask(id).getStatus())) {
       Thread.sleep(50);
@@ -23,11 +23,11 @@ public class TestTask {
     System.out.println("Completed ...");
     System.out.println(task);
 
-    Assert.assertEquals(1, taskService.getJobIds().size());
+    Assert.assertEquals(1, taskService.getTaskIds().size());
 
     // purge after complete removes
     taskService.removeOlderThan(0);
-    Assert.assertEquals(0, taskService.getJobIds().size());
+    Assert.assertEquals(0, taskService.getTaskIds().size());
 
     taskService.shutdown();
   }

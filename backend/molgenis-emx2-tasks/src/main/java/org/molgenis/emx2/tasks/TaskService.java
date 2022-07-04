@@ -6,7 +6,7 @@ import java.util.Set;
 public interface TaskService {
   String submit(Task task);
 
-  Set<String> getJobIds();
+  Set<String> getTaskIds();
 
   Task getTask(String id);
 
@@ -19,4 +19,6 @@ public interface TaskService {
   void removeTask(String id);
 
   void clear();
+
+  void updateTask(Task task);
 }
