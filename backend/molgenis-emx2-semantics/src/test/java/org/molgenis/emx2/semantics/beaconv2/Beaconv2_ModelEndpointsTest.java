@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.endpoints.*;
-import org.molgenis.emx2.datamodels.Beaconv2Loader;
+import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
@@ -23,8 +23,8 @@ public class Beaconv2_ModelEndpointsTest {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    beaconSchema = database.dropCreateSchema("beacon_v2");
-    Beaconv2Loader b2l = new Beaconv2Loader();
+    beaconSchema = database.dropCreateSchema("fairdatahub");
+    FAIRDataHubLoader b2l = new FAIRDataHubLoader();
     b2l.load(beaconSchema, true);
   }
 
@@ -62,7 +62,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1394, json.length());
+    assertEquals(1396, json.length());
   }
 
   @Test
@@ -91,7 +91,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertEquals(1862, json.length());
+    assertEquals(1864, json.length());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
-    assertEquals(2330, json.length());
+    assertEquals(2332, json.length());
   }
 
   @Test
@@ -119,7 +119,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertEquals(1394, json.length());
+    assertEquals(1396, json.length());
   }
 
   @Test
@@ -128,7 +128,7 @@ public class Beaconv2_ModelEndpointsTest {
     Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"resultsCount\" : 4,"));
-    assertEquals(2628, json.length());
+    assertEquals(2630, json.length());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
     assertTrue(json.contains("\"id\" : \"A03\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1347, json.length());
+    assertEquals(1349, json.length());
   }
 
   @Test
@@ -166,7 +166,7 @@ public class Beaconv2_ModelEndpointsTest {
                                       "procedureCode" : {
                                         "id" : "OBI:0002654",
                                         "label" : "needle biopsy\""""));
-    assertEquals(2103, json.length());
+    assertEquals(2105, json.length());
   }
 
   @Test
@@ -187,7 +187,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
     assertTrue(json.contains("\"id\" : \"Sample0002\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1514, json.length());
+    assertEquals(1516, json.length());
   }
 
   @Test
@@ -251,7 +251,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(individuals);
     assertTrue(json.contains("\"id\" : \"Ind001\","));
     assertTrue(json.contains("\"id\" : \"Ind002\","));
-    assertEquals(5916, json.length());
+    assertEquals(5918, json.length());
   }
 
   @Test
@@ -294,7 +294,7 @@ public class Beaconv2_ModelEndpointsTest {
             "observationMoment" : {
                               "age" : {
                                 "iso8601duration" : "P75Y9M11D\""""));
-    assertEquals(3406, json.length());
+    assertEquals(3408, json.length());
   }
 
   @Test
@@ -321,7 +321,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 4,"));
     assertTrue(
         json.contains("\"librarySource\" : {\n" + "              \"id\" : \"GENEPIO:0001966\","));
-    assertEquals(3388, json.length());
+    assertEquals(3390, json.length());
   }
 
   @Test
@@ -349,6 +349,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertFalse(json.contains("\"id\" : \"SRR10903401\","));
     assertFalse(json.contains("\"id\" : \"SRR10903402\","));
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
-    assertEquals(1523, json.length());
+    assertEquals(1525, json.length());
   }
 }
