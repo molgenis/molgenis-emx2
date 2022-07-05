@@ -23,6 +23,8 @@ public class FAIRDataPointCatalog {
 
   // todo: deal with null values
   // todo: double check cardinality
+  // todo there must be at least one 'hasPart' reference! if not, don't present the catalog?
+  // in addition: make sure these do not appear at root endpoint either?
 
   /*
        builder.add(root, DCTERMS.HAS_VERSION, "1.0" + "^^" + XSD.FLOAT);
@@ -92,8 +94,6 @@ public class FAIRDataPointCatalog {
     List<Map<String, Object>> catalogsFromJSON =
         (List<Map<String, Object>>)
             ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
-    System.out.println("## found: catalogsFromJSON size: " + catalogsFromJSON.size());
-
     return catalogsFromJSON;
   }
 
@@ -149,7 +149,6 @@ public class FAIRDataPointCatalog {
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
     builder.add(root, DCTERMS.LICENSE, iri((String) catalogFromJSON.get("license")));
-    // todo there must be at least one! if not, error.
     ArrayList<IRI> datasetIRIs =
         extractDatasetIRIs(catalogFromJSON.get("hasPart"), root, schema.getName());
     for (IRI datasetIRI : datasetIRIs) {
@@ -171,13 +170,19 @@ public class FAIRDataPointCatalog {
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
     */
-    builder.add(reqUrl, DCTERMS.HAS_VERSION, catalogFromJSON.get("hasVersion"));
-    builder.add(reqUrl, DCTERMS.DESCRIPTION, catalogFromJSON.get("description"));
-    ArrayList<IRI> languages =
-        extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
-    for (IRI language : languages) {
-      builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+    if (catalogFromJSON.get("hasVersion") != null)
+      builder.add(reqUrl, DCTERMS.HAS_VERSION, catalogFromJSON.get("hasVersion"));
+
+    if (catalogFromJSON.get("description") != null)
+      builder.add(reqUrl, DCTERMS.DESCRIPTION, catalogFromJSON.get("description"));
+
+    if (catalogFromJSON.get("language") != null){
+      ArrayList<IRI> languages = extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
+      for (IRI language : languages) {
+        builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+      }
     }
+
     builder.add(root, DCTERMS.ISSUED, catalogFromJSON.get("mg_insertedOn"));
     builder.add(root, DCTERMS.MODIFIED, catalogFromJSON.get("mg_updatedOn"));
     BNode rights = vf.createBNode();
