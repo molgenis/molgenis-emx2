@@ -1,0 +1,81 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+Version,,,,,,,,,,,,2.3
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Models,Resources,,,,,,,,,,,Common Data Element models and Harmonization models
+Resources,,pid,,1,TRUE,,,,,,,Persistent identifier for this resource
+Resources,,name,,2,TRUE,,,,,,,Name of resource used in European projects
+CollectionEvents,,,,,,,,,,,,Definition of a data collection event for a resource
+CollectionEvents,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of
+CollectionEvents,,name,,1,TRUE,,,,,,,Name of the collection event
+CollectionEvents,,description,,,,,,,,,,Description of the collection event
+CollectionEvents,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
+CollectionEvents,,startYear,ref,,,CatalogueOntologies,Years,,,,,Start year of data collection
+CollectionEvents,,startMonth,ref,,,CatalogueOntologies,Months,,,,,Start month of data collection
+CollectionEvents,,endYear,ref,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing
+CollectionEvents,,endMonth,ref,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing
+CollectionEvents,,ageGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups included in this data collection event
+CollectionEvents,,numberOfParticipants,int,,,,,,,,,Number of participants sampled in this data collection event
+CollectionEvents,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
+CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCategories,,,,,Methods of data collection used in this collection event
+CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
+CollectionEvents,,standardizedTools,ref_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
+CollectionEvents,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
+Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
+Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
+Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
+Subcohorts,,description,text,,,,,,,,,Subcohort description
+Subcohorts,,numberOfParticipants,int,,,,,,,,,Number of participants in this subcohort
+Subcohorts,,inclusionStart,int,,,,,,,,,Year of first included participant
+Subcohorts,,inclusionEnd,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
+Subcohorts,,ageGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups within this subcohort
+Subcohorts,,mainMedicalCondition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
+Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from
+Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from
+Subcohorts,,inclusionCriteria,text,,,,,,,,,Other inclusion criteria applied to this subcohort
+Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
+Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
+TargetDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for common data model
+TargetDataDictionaries,,resource,ref,1,TRUE,,Models,,,,,Link to the resource of which contents has been released
+TargetDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
+TargetDataDictionaries,,tables,refback,,,,TargetTables,,dataDictionary,,,tables part of this data dictionary
+TargetDataDictionaries,,models,ref_array,,,,Models,,,,,existing data models that are used to produce this data dictionary
+TargetDataDictionaries,,date,date,,,,,,,,,date of creation
+TargetDataDictionaries,,description,text,,,,,,,,,notes specific to this data dictionary
+AllTargetVariables,,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead"
+AllTargetVariables,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,data dictionary of the target model
+AllTargetVariables,,table,ref,1,TRUE,,TargetTables,dataDictionary,,,,table this variable is part of
+AllTargetVariables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
+AllTargetVariables,,label,,,,,,,,,,
+AllTargetVariables,,collectionEvent,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+TargetVariables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
+TargetVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
+TargetVariables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
+TargetVariables,,references,ref,,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
+TargetVariables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
+TargetVariables,,description,text,,,,,,,,,
+TargetVariables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
+TargetVariables,,exampleValues,string_array,,,,,,,,,
+TargetVariables,,permittedValues,refback,,,,TargetVariableValues,,variable,,,
+TargetVariables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
+TargetVariables,,repeats,refback,,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
+TargetVariables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
+TargetVariables,,notes,text,,,,,,,,,Any other information on this variable
+RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
+RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
+TargetTables,,,,,,,,,,,,Definition of a table within a (common) data model
+TargetTables,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,resource + version this table is defined for
+TargetTables,,name,,1,TRUE,,,,,,,unique table name in the model
+TargetTables,,label,,,,,,,,,,short human readible description
+TargetTables,,unitOfObservation,ref,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
+TargetTables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
+TargetTables,,description,text,,,,,,,,,description of the role/function of this table
+TargetTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
+TargetVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
+TargetVariableValues,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
+TargetVariableValues,,variable,ref,1,TRUE,,TargetVariables,dataDictionary,,,,e.g. PATO
+TargetVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
+TargetVariableValues,,label,,,TRUE,,,,,,,
+TargetVariableValues,,order,int,,,,,,,,,
+TargetVariableValues,,isMissing,bool,,,,,,,,,
+TargetVariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
