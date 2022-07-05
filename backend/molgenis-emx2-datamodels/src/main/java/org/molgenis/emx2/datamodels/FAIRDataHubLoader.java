@@ -7,23 +7,23 @@ import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 
-public class Beaconv2Loader implements AvailableDataModels.DataModelLoader {
+public class FAIRDataHubLoader implements AvailableDataModels.DataModelLoader {
 
   @Override
   public void load(Schema schema, boolean includeDemoData) {
 
     // create Beacon v2 + FAIR Data Point schema (which will create tables in ontology schema)
-    createSchema(schema, "beaconv2/molgenis.csv");
-    createSchema(schema, "fairdatapoint/molgenis.csv");
+    createSchema(schema, "fairdatahub/beaconv2/molgenis.csv");
+    createSchema(schema, "fairdatahub/fairdatapoint/molgenis.csv");
 
     // load ontologies
-    MolgenisIO.fromClasspathDirectory("beaconv2/ontologies", schema, false);
-    MolgenisIO.fromClasspathDirectory("fairdatapoint/ontologies", schema, false);
+    MolgenisIO.fromClasspathDirectory("fairdatahub/beaconv2/ontologies", schema, false);
+    MolgenisIO.fromClasspathDirectory("fairdatahub/fairdatapoint/ontologies", schema, false);
 
     // optionally, load demo data
     if (includeDemoData) {
-      MolgenisIO.fromClasspathDirectory("beaconv2/demodata", schema, false);
-      MolgenisIO.fromClasspathDirectory("fairdatapoint/demodata", schema, false);
+      MolgenisIO.fromClasspathDirectory("fairdatahub/beaconv2/demodata", schema, false);
+      MolgenisIO.fromClasspathDirectory("fairdatahub/fairdatapoint/demodata", schema, false);
     }
   }
 
@@ -32,7 +32,7 @@ public class Beaconv2Loader implements AvailableDataModels.DataModelLoader {
         Emx2.fromRowList(
             CsvTableReader.read(
                 new InputStreamReader(
-                    Beaconv2Loader.class.getClassLoader().getResourceAsStream(path))));
+                    FAIRDataHubLoader.class.getClassLoader().getResourceAsStream(path))));
     schema.migrate(metadata);
   }
 }

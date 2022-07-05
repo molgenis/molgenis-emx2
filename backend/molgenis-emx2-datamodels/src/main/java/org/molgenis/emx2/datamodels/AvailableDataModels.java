@@ -8,7 +8,7 @@ public enum AvailableDataModels {
   DATA_CATALOGUE(new DataCatalogueLoader()),
   DATA_CATALOGUE_STAGING(new DataCatalogueStagingLoader()),
   PET_STORE(new PetStoreLoader()),
-  BEACON_V2(new Beaconv2Loader());
+  FAIR_DATA_HUB(new FAIRDataHubLoader());
 
   private DataModelLoader installer;
 

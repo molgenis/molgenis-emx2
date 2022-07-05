@@ -187,7 +187,6 @@ public class FAIRDataPointDataset {
     builder.add(reqUrl, DCTERMS.MODIFIED, datasetFromJSON.get("mg_updatedOn"));
     builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
 
-
     // Write model
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
