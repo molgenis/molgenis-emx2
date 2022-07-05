@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
-import org.jooq.JSONB;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
@@ -201,8 +200,8 @@ class SqlSchemaMetadataExecutor {
               char operation = r.getValue(OPERATION, char.class);
               Timestamp stamp = r.getValue(STAMP, Timestamp.class);
               String userId = r.getValue(USERID, String.class);
-              JSONB oldRowData = r.getValue(OLD, JSONB.class);
-              JSONB newRowData = r.getValue(NEW, JSONB.class);
+              String oldRowData = r.getValue(OLD, String.class);
+              String newRowData = r.getValue(NEW, String.class);
               return new Change(operation, stamp, userId, oldRowData, newRowData);
             })
         .collect(Collectors.toList());
