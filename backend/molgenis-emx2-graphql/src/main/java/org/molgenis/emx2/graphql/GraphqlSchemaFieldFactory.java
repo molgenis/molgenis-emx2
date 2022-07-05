@@ -54,8 +54,14 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(OLD).type(Scalars.GraphQLString))
-          .field(GraphQLFieldDefinition.newFieldDefinition().name(NEW).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OLD_ROW_DATA)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(NEW_ROW_DATA)
+                  .type(Scalars.GraphQLString))
           .build();
 
   private static final GraphQLInputObjectType inputDropColumnType =
