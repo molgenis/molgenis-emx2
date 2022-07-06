@@ -96,7 +96,7 @@ public class Mapper {
 
   private static Object invoke(Method method, Object object, Object... values) {
     try {
-        return method.invoke(object, values);
+      return method.invoke(object, values);
     } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
       throw new MolgenisException(
           format("Error calling %s.%s", method.getDeclaringClass().getName(), method.getName()), e);
