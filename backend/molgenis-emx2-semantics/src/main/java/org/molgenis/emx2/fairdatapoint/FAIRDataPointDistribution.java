@@ -3,10 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -20,6 +17,8 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Database;
 import spark.Request;
 
+// todo: check/add/cleanup prefixes
+
 public class FAIRDataPointDistribution {
 
   private String result;
@@ -29,7 +28,7 @@ public class FAIRDataPointDistribution {
   }
 
   public static Set<String> FORMATS =
-      new HashSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
+      new TreeSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
 
   /**
    * E.g.
