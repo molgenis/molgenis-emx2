@@ -30,6 +30,7 @@ import spark.Request;
 public class FAIRDataPointDataset {
 
   // todo: deal with null values
+  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
   // todo: check data types (int, date, hyperlinks etc)
 

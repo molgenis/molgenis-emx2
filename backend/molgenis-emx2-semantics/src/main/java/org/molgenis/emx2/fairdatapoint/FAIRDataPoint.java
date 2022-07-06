@@ -26,6 +26,7 @@ import spark.Request;
 public class FAIRDataPoint {
 
   // todo: deal with null values
+  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
   // todo: if there are no FDP_Catalogs in the database, the 'catalog' (starting at RDF.TYPE =
   // LDP.DIRECT_CONTAINER) should not be available at all

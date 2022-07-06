@@ -22,6 +22,7 @@ import spark.Request;
 public class FAIRDataPointCatalog {
 
   // todo: deal with null values
+  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
   // todo there must be at least one 'hasPart' reference! if not, don't present the catalog?
   // in addition: make sure these do not appear at root endpoint either?
