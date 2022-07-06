@@ -191,9 +191,9 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               String id = dataFetchingEnvironment.getArgument(TASK_ID);
               if (id != null) {
-                return List.of(taskService.getTask(id));
+                return List.of(taskService.getTaskInfo(id));
               }
-              return taskService.listTasks();
+              return taskService.listTaskInfos();
             })
         .build();
   }

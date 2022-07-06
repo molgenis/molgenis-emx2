@@ -8,9 +8,9 @@ public interface TaskService {
 
   Set<String> getTaskIds();
 
-  Task getTask(String id);
+  TaskInfo getTaskInfo(String id);
 
-  Collection<Task> listTasks();
+  Collection<TaskInfo> listTaskInfos();
 
   void removeOlderThan(long milliseconds);
 
@@ -20,5 +20,5 @@ public interface TaskService {
 
   void clear();
 
-  void updateTask(Task task);
+  void updateTaskInfo(TaskInfo taskInfo);
 }

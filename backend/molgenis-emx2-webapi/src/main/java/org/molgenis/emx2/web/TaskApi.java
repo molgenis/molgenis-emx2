@@ -1,8 +1,10 @@
 package org.molgenis.emx2.web;
 
+import static java.lang.String.format;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.delete;
 import static spark.Spark.get;
+import static spark.Spark.post;
 
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
@@ -14,7 +16,7 @@ import spark.Response;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServiceInMemory();
+  public static TaskService taskService = new TaskServicePersisted("tasks");
 
   public static void create() {
     get("/api/tasks", TaskApi::listTasks);
@@ -43,6 +45,14 @@ public class TaskApi {
     // convenient delete
     delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
     get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
+
+    // TODO remove
+    post("/api/tasks/dummy", TaskApi::runDummy);
+  }
+
+  private static Void runDummy(Request request, Response response) {
+    submit(new DummyTask());
+    return null;
   }
 
   private static String clearTasks(Request request, Response response) {
@@ -65,16 +75,16 @@ public class TaskApi {
     if (request.params("schema") == null || getSchema(request) != null) {
 
       String clearUrl = "/" + request.params("schema") + "/api/tasks/clear";
-      String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
+      String result = format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
-      for (String id : taskService.getJobIds()) {
-        Task task = taskService.getTask(id);
+      for (String id : taskService.getTaskIds()) {
+        TaskInfo task = taskService.getTaskInfo(id);
         String getUrl = "/" + request.params("schema") + "/api/task/" + id;
         String deleteUrl = getUrl + "/delete";
         result +=
-            String.format(
+            format(
                 "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
-                id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
+                id, task.description, task.status, getUrl, deleteUrl);
       }
       result += "]}";
       return result;
@@ -84,9 +94,10 @@ public class TaskApi {
 
   private static String getTask(Request request, Response response) {
     if (getSchema(request) != null) {
-      Task step = taskService.getTask(request.params("id"));
+      final var id = request.params("id");
+      TaskInfo step = taskService.getTaskInfo(id);
       if (step == null) {
-        step = new Task("Task unknown").setStatus(TaskStatus.UNKNOWN);
+        throw new MolgenisException(format("Unknown task: %s", id));
       }
       return step.toString();
     }

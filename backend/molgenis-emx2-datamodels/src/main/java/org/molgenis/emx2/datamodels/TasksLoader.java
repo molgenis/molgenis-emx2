@@ -11,7 +11,7 @@ import org.molgenis.emx2.Schema;
 
 public class TasksLoader implements AvailableDataModels.DataModelLoader {
 
-  private static final String TASKS = "tasks";
+  private static final String TASKS = "taskInfo";
 
   // columns
   private static final String ID = "id";
