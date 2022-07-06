@@ -176,8 +176,9 @@ public class FAIRDataPointCatalog {
     if (catalogFromJSON.get("description") != null)
       builder.add(reqUrl, DCTERMS.DESCRIPTION, catalogFromJSON.get("description"));
 
-    if (catalogFromJSON.get("language") != null){
-      ArrayList<IRI> languages = extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
+    if (catalogFromJSON.get("language") != null) {
+      ArrayList<IRI> languages =
+          extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
