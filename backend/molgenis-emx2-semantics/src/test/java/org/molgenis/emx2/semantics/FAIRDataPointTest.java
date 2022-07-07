@@ -27,9 +27,9 @@ public class FAIRDataPointTest {
     database = TestDatabaseFactory.getTestDatabase();
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
     Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2");
-    FAIRDataHubLoader b2l = new FAIRDataHubLoader();
-    b2l.load(fairDataHub_nr1, true);
-    b2l.load(fairDataHub_nr2, true);
+    FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
+    fairDataHubLoader.load(fairDataHub_nr1, true);
+    fairDataHubLoader.load(fairDataHub_nr2, true);
     fairDataHubSchemas = new Schema[2];
     fairDataHubSchemas[0] = fairDataHub_nr1;
     fairDataHubSchemas[1] = fairDataHub_nr2;
