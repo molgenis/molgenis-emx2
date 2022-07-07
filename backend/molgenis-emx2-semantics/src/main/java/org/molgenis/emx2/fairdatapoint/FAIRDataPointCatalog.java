@@ -62,17 +62,18 @@ public class FAIRDataPointCatalog {
    * @throws Exception
    */
   public static Map<String, List<Map<String, Object>>> getFDPCatalogRecords(
-      List<Schema> schemas, String id) throws Exception {
+      String id, Schema... schemas) {
     Map<String, List<Map<String, Object>>> allCatalogsFromJSON = new HashMap<>();
     for (Schema schema : schemas) {
       List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
-      allCatalogsFromJSON.put(schema.getName(), catalogsFromJSON);
+      if (catalogsFromJSON != null) {
+        allCatalogsFromJSON.put(schema.getName(), catalogsFromJSON);
+      }
     }
     return allCatalogsFromJSON;
   }
 
-  public static List<Map<String, Object>> getFDPCatalogRecords(Schema schema, String id)
-      throws Exception {
+  public static List<Map<String, Object>> getFDPCatalogRecords(Schema schema, String id) {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
@@ -92,10 +93,12 @@ public class FAIRDataPointCatalog {
                 + "mg_updatedOn"
                 + "}}");
     Map<String, Object> result = executionResult.toSpecification();
-    List<Map<String, Object>> catalogsFromJSON =
-        (List<Map<String, Object>>)
-            ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
-    return catalogsFromJSON;
+    if (result.containsKey("data")) {
+      return (List<Map<String, Object>>)
+          ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
+    } else {
+      return null;
+    }
   }
 
   public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
