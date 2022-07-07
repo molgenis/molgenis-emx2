@@ -1,6 +1,9 @@
 package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -14,7 +17,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
-import org.molgenis.emx2.Database;
+import org.molgenis.emx2.*;
 import spark.Request;
 
 // todo: check/add/cleanup prefixes
@@ -62,6 +65,18 @@ public class FAIRDataPointDistribution {
 
     if (database.getSchema(schema).getTable(table) == null) {
       throw new Exception("Table unknown.");
+    }
+
+    // don't trust user: check if distribution is really part of a dataset
+    Schema schemaObj = database.getSchema(schema);
+    Table datasets = schemaObj.getTable("FDP_Dataset");
+    Query query = datasets.query();
+    query.select(s("distribution"));
+    query.where(f("distribution", EQUALS, table));
+    List<Row> rows = query.retrieveRows();
+    if (rows.size() == 0) {
+      throw new Exception(
+          "Requested table distribution exists within schema, but is not part of any dataset in the schema and is therefore not retrievable.");
     }
 
     // All prefixes and namespaces
