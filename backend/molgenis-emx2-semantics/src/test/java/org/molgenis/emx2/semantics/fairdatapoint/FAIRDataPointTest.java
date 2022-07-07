@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.semantics.fairdatapoint;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
