@@ -139,6 +139,10 @@ public class FAIRDataPointDataset {
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
 
     String distribution = (String) datasetFromJSON.get("distribution");
+    if (!schema.getTableNames().contains(distribution)) {
+      throw new Exception(
+          "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
+    }
     for (String format : FORMATS) {
       builder.add(
           reqUrl,
