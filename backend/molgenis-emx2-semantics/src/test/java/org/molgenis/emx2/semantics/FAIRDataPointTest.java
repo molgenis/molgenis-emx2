@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -22,7 +20,7 @@ import spark.Request;
 public class FAIRDataPointTest {
 
   static Database database;
-  static List<Schema> fairDataHubSchemas;
+  static Schema[] fairDataHubSchemas;
 
   @BeforeClass
   public static void setup() {
@@ -32,9 +30,9 @@ public class FAIRDataPointTest {
     FAIRDataHubLoader b2l = new FAIRDataHubLoader();
     b2l.load(fairDataHub_nr1, true);
     b2l.load(fairDataHub_nr2, true);
-    fairDataHubSchemas = new ArrayList<>();
-    fairDataHubSchemas.add(fairDataHub_nr1);
-    fairDataHubSchemas.add(fairDataHub_nr2);
+    fairDataHubSchemas = new Schema[2];
+    fairDataHubSchemas[0] = fairDataHub_nr1;
+    fairDataHubSchemas[1] = fairDataHub_nr2;
   }
 
   @Test
@@ -70,7 +68,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01");
     when(request.params("id")).thenReturn("catalogId01");
     FAIRDataPointCatalog fairDataPointCatalog =
-        new FAIRDataPointCatalog(request, fairDataHubSchemas.get(0).getTable("FDP_Catalog"));
+        new FAIRDataPointCatalog(request, fairDataHubSchemas[0].getTable("FDP_Catalog"));
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
@@ -92,7 +90,7 @@ public class FAIRDataPointTest {
         .thenReturn("http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01");
     when(request.params("id")).thenReturn("datasetId01");
     FAIRDataPointDataset fairDataPointDataset =
-        new FAIRDataPointDataset(request, fairDataHubSchemas.get(0).getTable("FDP_Dataset"));
+        new FAIRDataPointDataset(request, fairDataHubSchemas[0].getTable("FDP_Dataset"));
     String result = fairDataPointDataset.getResult();
     assertTrue(
         result.contains(

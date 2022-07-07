@@ -139,7 +139,7 @@ public class BeaconApi {
     return tables;
   }
 
-  static List<Schema> getSchemasHavingTable(String tableName, Request request) {
+  static Schema[] getSchemasHavingTable(String tableName, Request request) {
     List<Schema> schemas = new ArrayList<>();
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
     for (String sn : schemaNames) {
@@ -149,7 +149,7 @@ public class BeaconApi {
         schemas.add(schema);
       }
     }
-    return schemas;
+    return (Schema[]) schemas.toArray();
   }
 
   private static String postDatasets(Request request, Response response)

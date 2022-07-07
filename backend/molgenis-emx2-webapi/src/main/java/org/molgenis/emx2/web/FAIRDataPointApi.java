@@ -36,7 +36,7 @@ public class FAIRDataPointApi {
   }
 
   private static String getFDP(Request request, Response res) throws Exception {
-    List<Schema> schemas = getSchemasHavingTable("FDP_Catalog", request);
+    Schema[] schemas = getSchemasHavingTable("FDP_Catalog", request);
     return new FAIRDataPoint(request, schemas).getResult();
   }
 

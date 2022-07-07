@@ -37,14 +37,14 @@ public class FAIRDataPoint {
     return result;
   }
 
-  public FAIRDataPoint(Request request, List<Schema> schemas) throws Exception {
+  public FAIRDataPoint(Request request, Schema... schemas) throws Exception {
     // get all FDP_Catalog records from all of the supplied tables
-    if (schemas.size() == 0) {
+    if (schemas.length == 0) {
       throw new Exception("No data available");
     }
 
     Map<String, List<Map<String, Object>>> allCatalogFromJSON =
-        FAIRDataPointCatalog.getFDPCatalogRecords(schemas, null);
+        FAIRDataPointCatalog.getFDPCatalogRecords(null, schemas);
 
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();
@@ -104,22 +104,24 @@ public class FAIRDataPoint {
         root,
         iri("https://w3id.org/fdp/fdp-o#conformsToFdpSpec"),
         iri("https://specs.fairdatapoint.org/v1.0"));
-    builder.add(catalog, RDF.TYPE, LDP.DIRECT_CONTAINER);
-    builder.add(catalog, DCTERMS.TITLE, "Catalogs");
-    builder.add(
-        catalog,
-        iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
-        iri("http://www.re3data.org/schema/3-0#dataCatalog"));
-    builder.add(
-        catalog,
-        iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
-        iri("https://w3id.org/fdp/fdp-o#metadataCatalog"));
-    builder.add(catalog, iri("http://www.w3.org/ns/ldp#membershipResource"), root);
-    for (String schemaName : allCatalogFromJSON.keySet()) {
-      for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
-        IRI catalogIRI = iri(catalog + "/" + schemaName + "/" + map.get("id"));
-        builder.add(catalog, iri("http://www.w3.org/ns/ldp#contains"), catalogIRI);
-        builder.add(root, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIRI);
+    if (allCatalogFromJSON.size() != 0) {
+      builder.add(catalog, RDF.TYPE, LDP.DIRECT_CONTAINER);
+      builder.add(catalog, DCTERMS.TITLE, "Catalogs");
+      builder.add(
+          catalog,
+          iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
+          iri("http://www.re3data.org/schema/3-0#dataCatalog"));
+      builder.add(
+          catalog,
+          iri("http://www.w3.org/ns/ldp#hasMemberRelation"),
+          iri("https://w3id.org/fdp/fdp-o#metadataCatalog"));
+      builder.add(catalog, iri("http://www.w3.org/ns/ldp#membershipResource"), root);
+      for (String schemaName : allCatalogFromJSON.keySet()) {
+        for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
+          IRI catalogIRI = iri(catalog + "/" + schemaName + "/" + map.get("id"));
+          builder.add(catalog, iri("http://www.w3.org/ns/ldp#contains"), catalogIRI);
+          builder.add(root, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIRI);
+        }
       }
     }
 
