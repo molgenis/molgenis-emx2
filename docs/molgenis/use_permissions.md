@@ -46,6 +46,12 @@ MOLGENIS_OIDC_DISCOVERY_URI // location of authentication provider (with path to
 MOLGENIS_OIDC_CALLBACK_URL // public available endpoint for molgenis service to handle the login action ( https://[public server location]/_callback, note the '_callback' is added by the molgenis server )
 ```
 
+#### note: if oidc was previously disabled 
+- signin to the emx2 server as Admin
+- go to the settings app ( .../apps/central/#/admin/settings)
+- and change the ```isOidcEnabled``` setting from ```false``` to ```true``` 
+
+
 ### The OIDC provider must return a valid ```email``` field ( also known as claim ) as part of the oidc profile response.
 
 If a user with the given email is already known in the emx system the the oidc user will be logged in as this user. If
