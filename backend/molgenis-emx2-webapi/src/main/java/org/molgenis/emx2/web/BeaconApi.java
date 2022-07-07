@@ -149,7 +149,9 @@ public class BeaconApi {
         schemas.add(schema);
       }
     }
-    return (Schema[]) schemas.toArray();
+    Schema[] schemaArr = new Schema[schemas.size()];
+    schemaArr = schemas.toArray(schemaArr);
+    return schemaArr;
   }
 
   private static String postDatasets(Request request, Response response)
