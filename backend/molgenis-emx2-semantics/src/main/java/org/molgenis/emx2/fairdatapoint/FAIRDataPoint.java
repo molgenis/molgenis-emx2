@@ -25,11 +25,7 @@ import spark.Request;
 
 public class FAIRDataPoint {
 
-  // todo: deal with null values
-  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
-  // todo: if there are no FDP_Catalogs in the database, the 'catalog' (starting at RDF.TYPE =
-  // LDP.DIRECT_CONTAINER) should not be available at all
 
   private String result;
 
@@ -55,6 +51,10 @@ public class FAIRDataPoint {
     prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
     prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
     prefixToNamespace.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+    prefixToNamespace.put("vc", "http://www.w3.org/2006/vcard/ns#");
+    prefixToNamespace.put("obo", "http://purl.obolibrary.org/obo/");
+    prefixToNamespace.put("r3d", "http://www.re3data.org/schema/3-0#");
+    prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -134,7 +134,7 @@ public class FAIRDataPoint {
         "FAIR Data Point hosted by MOLGENIS-EMX2 at "
             + root
             + ". This implementation follows the FAIR Data Point Working Draft, 23 August 2021 at https://specs.fairdatapoint.org/.");
-    builder.add(root, DCTERMS.LANGUAGE, iri("http://www.lexvo.org/data/iso639-3/eng"));
+    builder.add(root, DCTERMS.LANGUAGE, iri("http://lexvo.org/id/iso639-3/eng"));
     BNode rights = vf.createBNode();
     builder.add(root, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
@@ -170,7 +170,7 @@ public class FAIRDataPoint {
     builder.add(
         root,
         iri("https://w3id.org/fdp/fdp-o#uiLanguage"),
-        iri("http://www.lexvo.org/data/iso639-3/eng"));
+        iri("http://lexvo.org/id/iso639-3/eng"));
     builder.add(root, iri("https://w3id.org/fdp/fdp-o#hasSoftwareVersion"), version);
     builder.add(
         root,
