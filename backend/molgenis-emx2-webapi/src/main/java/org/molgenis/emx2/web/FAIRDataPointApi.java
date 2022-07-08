@@ -4,14 +4,12 @@ import static org.molgenis.emx2.web.BeaconApi.getSchemasHavingTable;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.get;
 
-import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.fairdatapoint.*;
 import spark.Request;
 import spark.Response;
 
-// is a beacon on level of database, schema or table?
 public class FAIRDataPointApi {
 
   private static MolgenisSessionManager sessionManager;
