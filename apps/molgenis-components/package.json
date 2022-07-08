@@ -37,6 +37,8 @@
     "vitest": "0.15.1",
     "vite": "2.9.13",
     "vue-router": "3.5.4",
-    "vue-scrollto": "2.20.0"
+    "vue-scrollto": "2.20.0",
+    "vue-server-renderer": "2.6.14",
+    "vue-template-compiler": "2.6.14"
   }
 }
