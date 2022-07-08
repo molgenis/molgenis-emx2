@@ -86,6 +86,9 @@ public class FAIRDataPointCatalog {
     Schema schema = fdpCatalogTable.getSchema();
 
     List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
+    if (catalogsFromJSON == null) {
+      throw new Exception("catalogsFromJSON is null");
+    }
     if (catalogsFromJSON.size() != 1) {
       throw new Exception(
           "Expected to find exactly 1 catalog but found " + catalogsFromJSON.size());

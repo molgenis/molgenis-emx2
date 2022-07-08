@@ -45,7 +45,10 @@ public class FAIRDataPointDataset {
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
     List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
-    if (datasetsFromJSON != null && datasetsFromJSON.size() != 1) {
+    if (datasetsFromJSON == null) {
+      throw new Exception("datasetsFromJSON is null");
+    }
+    if (datasetsFromJSON.size() != 1) {
       throw new Exception("Bad number of dataset results");
     }
     Map<String, Object> datasetFromJSON = datasetsFromJSON.get(0);
