@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 public class ISO8601duration {
   private String iso8601duration;
 
+  /**
+   * Constructor (behaves like a setter because there is only 1 variable...)
+   * @param value
+   */
   public ISO8601duration(String value) {
     this.iso8601duration = value;
   }
