@@ -80,7 +80,7 @@ public class LinkedDataService {
           }
           // add to select
           q.select(s(c.getName(), s(refId.get(0).getName())));
-        } else if (c.isReference() && c.isOntology()) {
+        } else if (c.isOntology()) {
           Column ontoRefCol =
               c.getRefTable().getColumns().stream()
                   .filter(r -> r.getName().equals("ontologyTermURI"))
@@ -152,7 +152,7 @@ public class LinkedDataService {
             final String prefix = prefixTemp;
             if (c.isRef() && !c.isOntology()) {
               row.put(c.getName(), ((Map<String, Object>) row.get(c.getName())).get(ref.getName()));
-            } else if (c.isRef() && c.isOntology()) {
+            } else if (c.isOntology()) {
               row.put(
                   c.getName(), ((Map<String, Object>) row.get(c.getName())).get("ontologyTermURI"));
             } else {

@@ -22,15 +22,19 @@ public class Beaconv2_EntryTypesTest {
     // header
     assertTrue(
         json.contains(
-            "  \"meta\" : {\n"
-                + "    \"beaconId\" : \"org.molgenis.beaconv2\",\n"
-                + "    \"apiVersion\" : \"v2.0.0-draft.4\",\n"
-                + "    \"$schema\" : \"../beaconInfoResponse.json\","));
+                """
+                        "meta" : {
+                          "beaconId" : "org.molgenis.beaconv2",
+                          "apiVersion" : "v2.0.0-draft.4",
+                          "$schema" : "../beaconInfoResponse.json",""".indent(2)));
 
     // returned schema in response
     assertTrue(
         json.contains(
-            "    \"returnedSchemas\" : [\n" + "      {\n" + "        \"entityType\" : \"entry\","));
+                """
+                        "returnedSchemas" : [
+                          {
+                            "entityType" : "entry",""".indent(4)));
     assertTrue(
         json.contains(
             "  \"response\" : {\n"
@@ -39,39 +43,46 @@ public class Beaconv2_EntryTypesTest {
     // entry types
     assertTrue(
         json.contains(
-            "      \"analysis\" : {\n"
-                + "        \"id\" : \"analysis\",\n"
-                + "        \"name\" : \"Bioinformatics analysis\","));
+                """
+                        "analysis" : {
+                          "id" : "analysis",
+                          "name" : "Bioinformatics analysis",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"biosample\" : {\n"
-                + "        \"id\" : \"biosample\",\n"
-                + "        \"name\" : \"Biological Sample\","));
+                """
+                        "biosample" : {
+                          "id" : "biosample",
+                          "name" : "Biological Sample",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"cohort\" : {\n"
-                + "        \"id\" : \"cohort\",\n"
-                + "        \"name\" : \"Cohort\","));
+                """
+                        "cohort" : {
+                          "id" : "cohort",
+                          "name" : "Cohort",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"dataset\" : {\n"
-                + "        \"id\" : \"dataset\",\n"
-                + "        \"name\" : \"Dataset\","));
+                """
+                        "dataset" : {
+                          "id" : "dataset",
+                          "name" : "Dataset",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"genomicVariant\" : {\n"
-                + "        \"id\" : \"genomicVariant\",\n"
-                + "        \"name\" : \"Genomic Variants\","));
+                """
+                        "genomicVariant" : {
+                          "id" : "genomicVariant",
+                          "name" : "Genomic Variants",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"individual\" : {\n"
-                + "        \"id\" : \"individual\",\n"
-                + "        \"name\" : \"Individual\","));
+                """
+                        "individual" : {
+                          "id" : "individual",
+                          "name" : "Individual",""".indent(6)));
     assertTrue(
         json.contains(
-            "      \"run\" : {\n"
-                + "        \"id\" : \"run\",\n"
-                + "        \"name\" : \"Sequencing run\","));
+                """
+                        "run" : {
+                          "id" : "run",
+                          "name" : "Sequencing run",""".indent(6)));
 
     // ontologies
     assertTrue(json.contains("\"id\" : \"edam:operation_2945\","));

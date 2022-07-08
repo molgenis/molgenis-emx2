@@ -13,14 +13,6 @@ public class DatasetsResponse {
   public DatasetsResponse(Request request, java.util.Collection<String> schemaNames) {
     List<Collection> cList = new ArrayList<>();
 
-    //    for (Table t : schema.getTablesSorted()) {
-    //      Collection c =
-    //          new Collection(
-    //              t.getName(), t.getName(), "2022-01-01T00:00:00+00:00",
-    // "2022-01-01T00:00:00+00:00");
-    //      cList.add(c);
-    //    }
-
     for (String schema : schemaNames) {
       Collection c =
           new Collection(schema, schema, "2022-01-01T00:00:00+00:00", "2022-01-01T00:00:00+00:00");
