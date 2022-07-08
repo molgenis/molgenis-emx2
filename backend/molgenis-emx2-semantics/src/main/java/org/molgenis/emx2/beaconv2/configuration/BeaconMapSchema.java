@@ -6,7 +6,6 @@ public class BeaconMapSchema {
 
   public static class EndPoint {
     String entryType;
-    // wow, that is heavy
     String openAPIEndpointsDefinition;
     String rootUrl;
     String singleEntryUrl;

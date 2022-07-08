@@ -28,37 +28,4 @@ public class EntryType {
     this.defaultSchema = new DefaultSchema(entryTypeSingular, entryTypePlural);
     this.ontologyTermForThisType = new OntologyTermForThisType(ontologyId, ontologyLabel);
   }
-
-  // todo make richer? e.g.
-  //  Map<String, String> aCollectionOf =
-  //      new HashMap<String, String>() {
-  //        {
-  //          put("id", "genomicVariant");
-  //          put("name", "Genomic Variants");
-  //        }
-  //      };
-
-  /*
-   String schema;
-  String id;
-  String name;
-  String description;
-  OntologyTerm ontologyTermForThisType;
-  String partOfSpecification;
-  ReferenceToAnSchema defaultSchema;
-  ReferenceToAnSchema[] additionallySupportedSchemas;
-  BasicElement[] aCollectionOfaCollectionOf;
-  String filteringTerms;
-  boolean nonFilteredQueriesAllowed;
-
-  public static class BasicElement {
-    String id;
-    String name;
-  }
-
-  public static class ReferenceToAnSchema {
-    String referenceToSchemaDefinition;
-    String schemaVersion;
-  }
-   */
 }

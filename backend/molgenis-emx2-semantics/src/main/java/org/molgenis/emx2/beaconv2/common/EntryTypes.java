@@ -61,7 +61,4 @@ public class EntryTypes {
           "The valid and completed operation of a high-throughput sequencing instrument for a single sequencing process. ",
           "NCIT:C148088",
           "Sequencing run");
-
-  // TODO: others e.g. genomic variant that follow the same structure as ConfigurationDataset
-  // except for aCollectionOf in Dataset that announces the presence of these 'others'
 }
