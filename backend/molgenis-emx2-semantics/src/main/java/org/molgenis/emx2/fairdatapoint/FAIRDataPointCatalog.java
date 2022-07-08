@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
+import static org.eclipse.rdf4j.model.util.Values.literal;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -22,29 +23,7 @@ import spark.Request;
 public class FAIRDataPointCatalog {
 
   // todo: deal with null values
-  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
-  // todo there must be at least one 'hasPart' reference! if not, don't present the catalog?
-  // in addition: make sure these do not appear at root endpoint either?
-
-  /*
-       builder.add(root, DCTERMS.HAS_VERSION, "1.0" + "^^" + XSD.FLOAT);
-  */
-
-  /*
-   automatic fields:
-  conformsTo -> refer to SHACL
-  isPartOf -> refer to FDP root location
-  hasPart -> follow REF_ARRAY to Dataset
-  metadataIdentifier -> URL for this Catalog, /api/fdp/catalog/{schema}}/{catalogid}}
-  rights -> defer to per dataset
-  accessRights -> defer to per dataset
-  issued & metadataIssued-> from row (meta)data mg_insertedOn
-  modified & metadataModified -> from row (meta)data mg_updatedOn
-  homepage -> link to GUI for Catalog record
-
-    */
-
   // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
   private String result;
@@ -119,9 +98,9 @@ public class FAIRDataPointCatalog {
     prefixToNamespace.put("dcat", "http://www.w3.org/ns/dcat#");
     prefixToNamespace.put("foaf", "http://xmlns.com/foaf/0.1/");
     prefixToNamespace.put("xsd", "http://www.w3.org/2001/XMLSchema#");
-    prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
     prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
-    prefixToNamespace.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+    prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
+    prefixToNamespace.put("obo", "http://purl.obolibrary.org/obo/");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -165,11 +144,11 @@ public class FAIRDataPointCatalog {
     builder.add(
         root,
         iri("https://w3id.org/fdp/fdp-o#metadataIssued"),
-        catalogFromJSON.get("mg_insertedOn"));
+        literal((String) catalogFromJSON.get("mg_insertedOn"), XSD.DATETIME));
     builder.add(
         root,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
-        catalogFromJSON.get("mg_updatedOn"));
+        literal((String) catalogFromJSON.get("mg_updatedOn"), XSD.DATETIME));
 
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
@@ -188,8 +167,12 @@ public class FAIRDataPointCatalog {
       }
     }
 
-    builder.add(root, DCTERMS.ISSUED, catalogFromJSON.get("mg_insertedOn"));
-    builder.add(root, DCTERMS.MODIFIED, catalogFromJSON.get("mg_updatedOn"));
+    builder.add(
+        root, DCTERMS.ISSUED, literal((String) catalogFromJSON.get("mg_insertedOn"), XSD.DATETIME));
+    builder.add(
+        root,
+        DCTERMS.MODIFIED,
+        literal((String) catalogFromJSON.get("mg_updatedOn"), XSD.DATETIME));
     BNode rights = vf.createBNode();
     builder.add(root, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
