@@ -8,6 +8,7 @@ public class ISO8601duration {
 
   /**
    * Constructor (behaves like a setter because there is only 1 variable...)
+   *
    * @param value
    */
   public ISO8601duration(String value) {

@@ -12,5 +12,4 @@ public class DatasetsMeta extends Meta {
   public DatasetsMeta(String $schema, String entityType) {
     super($schema, entityType);
   }
-
 }
