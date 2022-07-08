@@ -21,7 +21,7 @@ public class FAIRDataPointNoCatalogsTest {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_baddistribution");
+    fairDataHub_nocatalogs = database.dropCreateSchema("fairDataHub_nocatalogs");
     FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
     fairDataHubLoader.load(fairDataHub_nocatalogs, true);
     fairDataHub_nocatalogs.dropTable("FDP_Catalog");
