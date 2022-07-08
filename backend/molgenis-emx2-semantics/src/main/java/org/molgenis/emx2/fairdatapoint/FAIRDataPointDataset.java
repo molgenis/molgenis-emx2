@@ -44,53 +44,11 @@ public class FAIRDataPointDataset {
 
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
-
-    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
-    ExecutionResult executionResult =
-        grapql.execute(
-            "{FDP__Dataset"
-                + "(filter:{id: {equals:\""
-                + id
-                + "\"}})"
-                + "{"
-                + "id,"
-                + "distribution,"
-                + "accrualPeriodicity,"
-                + "spatial{ontologyTermURI},"
-                + "spatialResolutionInMeters,"
-                + "temporal,"
-                + "temporalResolution,"
-                + "wasGeneratedBy,"
-                + "accessRights,"
-                + "contactPoint,"
-                + "creator,"
-                + "description,"
-                + "hasPolicy,"
-                + "identifier,"
-                + "isReferencedBy,"
-                + "keyword,"
-                + "landingPage,"
-                + "license,"
-                + "language{ontologyTermURI},"
-                + "relation,"
-                + "rights,"
-                + "qualifiedRelation,"
-                + "publisher,"
-                + "theme,"
-                + "title,"
-                + "type,"
-                + "qualifiedAttribution,"
-                + "mg_insertedOn,"
-                + "mg_updatedOn"
-                + "}}");
-    Map<String, Object> result = executionResult.toSpecification();
-    List<Map<String, Object>> datasetsFromJSON =
-        (List<Map<String, Object>>)
-            ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset");
+    List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
     if (datasetsFromJSON != null && datasetsFromJSON.size() != 1) {
       throw new Exception("Bad number of dataset results");
     }
-    Map datasetFromJSON = datasetsFromJSON.get(0);
+    Map<String, Object> datasetFromJSON = datasetsFromJSON.get(0);
 
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();
@@ -112,8 +70,6 @@ public class FAIRDataPointDataset {
     }
 
     IRI reqUrl = iri(request.url());
-    System.out.println("request.uri() = " + request.uri()); // e.g. /api/fdp/dataset/rd3/datasetId01
-    System.out.println("request.contextPath() = " + request.contextPath());
 
     // todo this can fail with repeated slashes? deal with/escape whitespaces?
     IRI root =
@@ -189,5 +145,55 @@ public class FAIRDataPointDataset {
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     this.result = stringWriter.toString();
+  }
+
+  public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
+    GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    ExecutionResult executionResult =
+        grapql.execute(
+            "{FDP__Dataset"
+                + "(filter:{"
+                + idField
+                + ": {equals:\""
+                + id
+                + "\"}})"
+                + "{"
+                + "id,"
+                + "distribution,"
+                + "accrualPeriodicity,"
+                + "spatial{ontologyTermURI},"
+                + "spatialResolutionInMeters,"
+                + "temporal,"
+                + "temporalResolution,"
+                + "wasGeneratedBy,"
+                + "accessRights,"
+                + "contactPoint,"
+                + "creator,"
+                + "description,"
+                + "hasPolicy,"
+                + "identifier,"
+                + "isReferencedBy,"
+                + "keyword,"
+                + "landingPage,"
+                + "license,"
+                + "language{ontologyTermURI},"
+                + "relation,"
+                + "rights,"
+                + "qualifiedRelation,"
+                + "publisher,"
+                + "theme,"
+                + "title,"
+                + "type,"
+                + "qualifiedAttribution,"
+                + "mg_insertedOn,"
+                + "mg_updatedOn"
+                + "}}");
+    Map<String, Object> result = executionResult.toSpecification();
+    if (result.get("data") == null
+        || ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset") == null) {
+      return new ArrayList<>();
+    }
+    return (List<Map<String, Object>>)
+        ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset");
   }
 }
