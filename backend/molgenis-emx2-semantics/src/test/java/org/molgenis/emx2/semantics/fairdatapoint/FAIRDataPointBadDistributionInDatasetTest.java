@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Random;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -54,8 +55,9 @@ public class FAIRDataPointBadDistributionInDatasetTest {
 
     // set distribution to a value that does NOT corresepond to a table
     Table table = fairDataHub_baddistribution.getTable("FDP_Dataset");
+    Random random = new Random();
     for (Row row : table.retrieveRows()) {
-      row.set("distribution", "something_quite_wrong");
+      row.set("distribution", "something_quite_wrong_" + random.nextInt());
       table.update(row);
     }
 

@@ -58,7 +58,7 @@ public class FAIRDataPointTest {
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
                 .indent(2)));
-    assertEquals(4082, result.length());
+    assertEquals(3999, result.length());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class FAIRDataPointTest {
             dcterms:rights [ a dcterms:RightsStatement;
                   dcterms:description "Rights are provided on a per-dataset basis."
                 ];"""));
-    assertEquals(1812, result.length());
+    assertEquals(1773, result.length());
   }
 
   @Test
@@ -104,11 +104,9 @@ public class FAIRDataPointTest {
                     dcterms:accrualPeriodicity "datasetAccrualPeriodicity01";
                       dcterms:spatial <https://www.iso.org/obp/ui/#iso:code:3166:FR>, <https://www.iso.org/obp/ui/#iso:code:3166:ES>;
                       dcat:spatialResolutionInMeters 1.0E1;"""));
-    assertTrue(
-        result.contains(
-            "dcterms:language <http://www.lexvo.org/data/iso639-3/dut>, <http://www.lexvo.org/data/iso639-3/eng>;"));
+    assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2211, result.length());
+    assertEquals(2053, result.length());
   }
 
   @Test
@@ -125,13 +123,15 @@ public class FAIRDataPointTest {
     assertTrue(
         result.contains(
             """
-            <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
-              dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
-              dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080/ for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
-              dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
-              dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
-              dcterms:format "ttl";
-              dcterms:conformsTo <https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution> ."""));
-    assertEquals(813, result.length());
+                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
+                  dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
+                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080/ for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
+                  dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
+                  dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
+                  dcterms:format "ttl";"""));
+    // timestamps may have different number of digits, e.g. 2022-07-08T12:10:54.78708 vs
+    // 2022-07-08T12:11:43.472675
+    assertTrue(result.length() > 970);
+    assertTrue(result.length() < 980);
   }
 }
