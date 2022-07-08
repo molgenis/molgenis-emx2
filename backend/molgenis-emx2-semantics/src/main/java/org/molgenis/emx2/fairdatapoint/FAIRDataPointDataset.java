@@ -29,21 +29,10 @@ import spark.Request;
 
 public class FAIRDataPointDataset {
 
-  // todo: deal with null values
-  // todo: check/add/cleanup prefixes
   // todo: double check cardinality
   // todo: check data types (int, date, hyperlinks etc)
-
-  /*
-  todo
-  automatic fields: identifier
-
-  FDP_Dataset,,distribution,string [=table name, expanded by Dataset endpoint to a full list of possible dcat:Distributions]
-
-
-   */
-
-  // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
+  // todo odrl:Policy object instead of String? see
+  // https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
   private String result;
 
@@ -107,11 +96,10 @@ public class FAIRDataPointDataset {
     Map<String, String> prefixToNamespace = new HashMap<>();
     prefixToNamespace.put("dcterms", "http://purl.org/dc/terms/");
     prefixToNamespace.put("dcat", "http://www.w3.org/ns/dcat#");
-    prefixToNamespace.put("foaf", "http://xmlns.com/foaf/0.1/");
     prefixToNamespace.put("xsd", "http://www.w3.org/2001/XMLSchema#");
-    prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
-    prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
-    prefixToNamespace.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+    prefixToNamespace.put("prov", "http://www.w3.org/ns/prov#");
+    prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
+    prefixToNamespace.put("odrl", "http://www.w3.org/ns/odrl/2/");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -133,8 +121,6 @@ public class FAIRDataPointDataset {
             reqUrl
                 .toString()
                 .replace("/dataset/" + fdpDataseTable.getSchema().getName() + "/" + id, ""));
-    IRI profile = iri(root + "/dataset/profile");
-    IRI appUrl = iri(root.toString().replace("/api/fdp", ""));
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
 
@@ -146,7 +132,7 @@ public class FAIRDataPointDataset {
     for (String format : FORMATS) {
       builder.add(
           reqUrl,
-          DCAT.DISTRIBUTION, // todo table name
+          DCAT.DISTRIBUTION,
           iri(root + "/distribution/" + schema.getName() + "/" + distribution + "/" + format));
     }
 
@@ -185,11 +171,17 @@ public class FAIRDataPointDataset {
     builder.add(reqUrl, DCTERMS.RIGHTS, datasetFromJSON.get("rights"));
     builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
     builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
-    builder.add(reqUrl, DCTERMS.ISSUED, datasetFromJSON.get("mg_insertedOn"));
+    builder.add(
+        reqUrl,
+        DCTERMS.ISSUED,
+        literal((String) datasetFromJSON.get("mg_insertedOn"), XSD.DATETIME));
     builder.add(reqUrl, DCAT.THEME, datasetFromJSON.get("theme"));
     builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
     builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
-    builder.add(reqUrl, DCTERMS.MODIFIED, datasetFromJSON.get("mg_updatedOn"));
+    builder.add(
+        reqUrl,
+        DCTERMS.MODIFIED,
+        literal((String) datasetFromJSON.get("mg_updatedOn"), XSD.DATETIME));
     builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
 
     // Write model
