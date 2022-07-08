@@ -35,7 +35,7 @@
     "@vitejs/plugin-vue": "2.3.3",
     "cross-env": "7.0.3",
     "vitest": "0.15.1",
-    "vite": "2.9.13",
+    "vite": "2.9.14",
     "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0"
   }
