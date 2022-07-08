@@ -1,9 +1,8 @@
 package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
+import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset.queryDataset;
 
 import java.io.StringWriter;
 import java.util.*;
@@ -20,8 +19,6 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
 import spark.Request;
 
-// todo: check/add/cleanup prefixes
-
 public class FAIRDataPointDistribution {
 
   private String result;
@@ -34,11 +31,8 @@ public class FAIRDataPointDistribution {
       new TreeSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
 
   /**
-   * E.g.
-   *
-   * <p>http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
-   *
-   * <p>todo prevent tables from being access that are not part of a Dataset via refback!
+   * Access a dataset distribution by a combination of schema, table, and format. Example:
+   * http://localhost:8080/api/fdp/distribution/rd3/Analyses/jsonld
    *
    * @param request
    * @param database
@@ -69,22 +63,21 @@ public class FAIRDataPointDistribution {
 
     // don't trust user: check if distribution is really part of a dataset
     Schema schemaObj = database.getSchema(schema);
-    Table datasets = schemaObj.getTable("FDP_Dataset");
-    Query query = datasets.query();
-    query.select(s("distribution"));
-    query.where(f("distribution", EQUALS, table));
-    List<Row> rows = query.retrieveRows();
-    if (rows.size() == 0) {
+    List<Map<String, Object>> datasetsFromJSON = queryDataset(schemaObj, "distribution", table);
+    if (datasetsFromJSON.size() == 0) {
       throw new Exception(
           "Requested table distribution exists within schema, but is not part of any dataset in the schema and is therefore not retrievable.");
     }
+    if (datasetsFromJSON.size() > 1) {
+      throw new Exception(
+          "Reference in dataset to table distribution is not unique (was secondary key removed?), cannot pinpoint source.");
+    }
+    Map sourceDataset = datasetsFromJSON.get(0);
 
     // All prefixes and namespaces
     Map<String, String> prefixToNamespace = new HashMap<>();
     prefixToNamespace.put("dcterms", "http://purl.org/dc/terms/");
     prefixToNamespace.put("dcat", "http://www.w3.org/ns/dcat#");
-    prefixToNamespace.put("xsd", "http://www.w3.org/2001/XMLSchema#");
-    prefixToNamespace.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -157,15 +150,16 @@ public class FAIRDataPointDistribution {
     }
 
     builder.add(reqURL, DCTERMS.FORMAT, format);
-
-    // builder.add(fullURL, DCTERMS.ISSUED, ); todo: inherit from Dataset
-    // builder.add(fullURL, DCTERMS.MODIFIED, ); todo: inherit from Dataset
-    // builder.add(fullURL, DCTERMS.LICENSE, ); todo: inherit from Dataset
-    // builder.add(fullURL, DCTERMS.ACCESS_RIGHTS, ); todo: inherit from Dataset
-    // builder.add(fullURL, DCTERMS.RIGHTS, ); todo: inherit from Dataset
     builder.add(
-        reqURL, DCTERMS.CONFORMS_TO, iri("https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution"));
-
+        reqURL, DCTERMS.ISSUED, literal((String) sourceDataset.get("mg_insertedOn"), XSD.DATETIME));
+    builder.add(
+        reqURL,
+        DCTERMS.MODIFIED,
+        literal((String) sourceDataset.get("mg_updatedOn"), XSD.DATETIME));
+    builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
+    builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
+    builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
+    builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
     // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
     // Write model
