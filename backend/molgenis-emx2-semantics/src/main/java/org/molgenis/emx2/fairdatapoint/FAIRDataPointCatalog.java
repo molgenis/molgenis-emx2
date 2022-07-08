@@ -147,11 +147,11 @@ public class FAIRDataPointCatalog {
     builder.add(
         root,
         iri("https://w3id.org/fdp/fdp-o#metadataIssued"),
-        literal((String) catalogFromJSON.get("mg_insertedOn"), XSD.DATETIME));
+        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(
         root,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
-        literal((String) catalogFromJSON.get("mg_updatedOn"), XSD.DATETIME));
+        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
 
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
@@ -171,11 +171,13 @@ public class FAIRDataPointCatalog {
     }
 
     builder.add(
-        root, DCTERMS.ISSUED, literal((String) catalogFromJSON.get("mg_insertedOn"), XSD.DATETIME));
+        root,
+        DCTERMS.ISSUED,
+        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(
         root,
         DCTERMS.MODIFIED,
-        literal((String) catalogFromJSON.get("mg_updatedOn"), XSD.DATETIME));
+        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     BNode rights = vf.createBNode();
     builder.add(root, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);

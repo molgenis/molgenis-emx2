@@ -151,11 +151,13 @@ public class FAIRDataPointDistribution {
 
     builder.add(reqURL, DCTERMS.FORMAT, format);
     builder.add(
-        reqURL, DCTERMS.ISSUED, literal((String) sourceDataset.get("mg_insertedOn"), XSD.DATETIME));
+        reqURL,
+        DCTERMS.ISSUED,
+        literal(((String) sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(
         reqURL,
         DCTERMS.MODIFIED,
-        literal((String) sourceDataset.get("mg_updatedOn"), XSD.DATETIME));
+        literal(((String) sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
     builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
     builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));

@@ -80,7 +80,7 @@ public class FAIRDataPointTest {
             dcterms:rights [ a dcterms:RightsStatement;
                   dcterms:description "Rights are provided on a per-dataset basis."
                 ];"""));
-    assertEquals(1773, result.length());
+    assertEquals(1745, result.length());
   }
 
   @Test
@@ -106,7 +106,7 @@ public class FAIRDataPointTest {
                       dcat:spatialResolutionInMeters 1.0E1;"""));
     assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2053, result.length());
+    assertEquals(2039, result.length());
   }
 
   @Test
@@ -129,9 +129,6 @@ public class FAIRDataPointTest {
                   dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
                   dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
                   dcterms:format "ttl";"""));
-    // timestamps may have different number of digits, e.g. 2022-07-08T12:10:54.78708 vs
-    // 2022-07-08T12:11:43.472675
-    assertTrue(result.length() > 970);
-    assertTrue(result.length() < 980);
+    assertEquals(961, result.length());
   }
 }

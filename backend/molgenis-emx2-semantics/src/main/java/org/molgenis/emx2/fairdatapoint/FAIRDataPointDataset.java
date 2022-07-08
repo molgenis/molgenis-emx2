@@ -133,14 +133,14 @@ public class FAIRDataPointDataset {
     builder.add(
         reqUrl,
         DCTERMS.ISSUED,
-        literal((String) datasetFromJSON.get("mg_insertedOn"), XSD.DATETIME));
+        literal(((String) datasetFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqUrl, DCAT.THEME, datasetFromJSON.get("theme"));
     builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
     builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
     builder.add(
         reqUrl,
         DCTERMS.MODIFIED,
-        literal((String) datasetFromJSON.get("mg_updatedOn"), XSD.DATETIME));
+        literal(((String) datasetFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
 
     // Write model
