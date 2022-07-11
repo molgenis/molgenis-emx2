@@ -124,7 +124,7 @@ public class MolgenisWebservice {
     exception(
         Exception.class,
         (e, req, res) -> {
-          logger.error(e.getMessage());
+          logger.error(e.getMessage(), e);
           res.status(400);
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
