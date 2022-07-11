@@ -1,11 +1,13 @@
 package org.molgenis.emx2.web;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
+import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
@@ -74,26 +76,33 @@ public class TaskApi {
   private static String listTasks(Request request, Response response) {
     if (request.params("schema") == null || getSchema(request) != null) {
 
-      String clearUrl = "/" + request.params("schema") + "/api/tasks/clear";
+      final var schema = request.params("schema");
+      String clearUrl = "/" + schema + "/api/tasks/clear";
       String result = format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
-      for (String id : taskService.getTaskIds()) {
-        TaskInfo task = taskService.getTaskInfo(id);
-        String getUrl = "/" + request.params("schema") + "/api/task/" + id;
-        String deleteUrl = getUrl + "/delete";
-        result +=
-            format(
-                "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
-                id, task.description, task.status, getUrl, deleteUrl);
-      }
+      result += taskService.listTaskInfos()
+          .stream()
+          .map(info -> taskInfoToJson(info, schema))
+          .collect(joining(","));
+
       result += "]}";
       return result;
     }
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
+  private static String taskInfoToJson(TaskInfo taskInfo, String schema) {
+    String getUrl = "/" + schema + "/api/task/" + taskInfo.id;
+    String deleteUrl = getUrl + "/delete";
+    //TODO can't this be mapped automatically instead of doing it ourselves?
+    return format(
+        "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
+        taskInfo.id, taskInfo.description, taskInfo.status, getUrl, deleteUrl);
+  }
+
+
   private static String getTask(Request request, Response response) {
-    if (getSchema(request) != null) {
+    if (request.params("schema") == null || getSchema(request) != null) {
       final var id = request.params("id");
       TaskInfo step = taskService.getTaskInfo(id);
       if (step == null) {
