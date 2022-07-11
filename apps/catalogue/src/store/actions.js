@@ -121,7 +121,7 @@ export default {
             label
             order
             isMissing
-            ontologyTermIRI
+            ontologyTermURI
           }
           repeats {
             name
