@@ -1,7 +1,7 @@
 <template>
   <ButtonDropdown :icon="icon" :label="label" v-slot="scope">
-    <form class="px-4 py-3" style="min-width: 15rem;">
-        <IconAction icon="times" @click="scope.close" class="float-right" />
+    <form class="px-4 py-3" style="min-width: 15rem">
+      <IconAction icon="times" @click="scope.close" class="float-right" />
       <h6>
         {{ label }}
       </h6>
@@ -50,22 +50,22 @@ export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },
   props: {
     label: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     icon: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     columns: Array,
-    exclude: { 
-        type: Array,
-         default: () => []
+    exclude: {
+      type: Array,
+      default: () => [],
     },
     checkAttribute: String,
-    defaultValue: { 
-        type: Boolean, 
-        default: false 
+    defaultValue: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
@@ -109,45 +109,45 @@ export default {
 
 <docs>
 <template>
-    <demo-item>
-        <ShowHide 
-          label="filters" 
-          icon="filter" 
-          checkAttribute="showFilter"
-          :columns.sync="columns"
-          :exclude="['HEADING', 'FILE']"
-          @update:columns="onUpdateColumns"
-        />
+  <demo-item>
+    <ShowHide
+      label="filters"
+      icon="filter"
+      checkAttribute="showFilter"
+      :columns.sync="columns"
+      :exclude="['HEADING', 'FILE']"
+      @update:columns="onUpdateColumns"
+    />
 
-        <ShowHide 
-          class="ml-2"
-          label="columns" 
-          icon="columns" 
-          checkAttribute="showColumn"
-          :columns.sync="columns"
-          :defaultValue="true"
-          @update:columns="onUpdateColumns"
-        />
-    </demo-item>
+    <ShowHide
+      class="ml-2"
+      label="columns"
+      icon="columns"
+      checkAttribute="showColumn"
+      :columns.sync="columns"
+      :defaultValue="true"
+      @update:columns="onUpdateColumns"
+    />
+  </demo-item>
 </template>
 
 <script>
- export default {
-    data: function () {
-      return {
-        columns: []
-      }
+export default {
+  data: function () {
+    return {
+      columns: [],
+    };
+  },
+  methods: {
+    onUpdateColumns() {
+      console.log("onUpdateColumns");
     },
-    methods: {
-      onUpdateColumns () {
-        console.log('onUpdateColumns')
-      }
-    },
-    mounted: async function () {
-      const client = this.$Client.newClient( "/pet store/graphql");
-      const tableMetaData = await client.fetchTableMetaData("Pet");
-      this.columns = tableMetaData.columns
-    }
-  }
+  },
+  mounted: async function () {
+    const client = this.$Client.newClient("/pet store/graphql");
+    const tableMetaData = await client.fetchTableMetaData("Pet");
+    this.columns = tableMetaData.columns;
+  },
+};
 </script>
-</docs>
+</docs
