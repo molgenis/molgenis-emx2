@@ -168,8 +168,27 @@ application {
 
 jar {
     reproducibleFileOrder = true
+
+    // Needed to deal with other duplicate resources in META-INF
+    duplicatesStrategy = 'exclude'
+
+    // Adapted from: https://gist.github.com/lukhnos/31abbea7492d06179ecb
+    doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+
+        // Copy and merge all service files from deps to buildDir
+        for(file in configurations.runtimeClasspath) {
+            zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+                new File(serviceDir, f.name) << f.getText("UTF-8")
+            }
+        }
+    }
+
     manifest {
         attributes(
+                "Main-Class": javaMainClass,
                 'Specification-Version': project.version.toString(),
                 'Implementation-Version': getGitHash(),
                 'Created-By': "Gradle ${gradle.gradleVersion}",
@@ -177,6 +196,14 @@ jar {
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
+
+    // Don't let Gradle merge service files
+    from(configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/services/*'
+    }
+
+    // Include merged service files from the buildDir
+    from fileTree(buildDir).matching{ include 'META-INF/services/*' }
 }
 
 task cleandb(type: JavaExec) {
