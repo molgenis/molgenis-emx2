@@ -14,7 +14,7 @@ query TargetVariables($filter: TargetVariablesFilter) {
             label
             order
             isMissing
-            ontologyTermIRI
+            ontologyTermURI
         }
         mappings {
             syntax

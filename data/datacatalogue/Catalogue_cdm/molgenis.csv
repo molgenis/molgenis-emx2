@@ -23,7 +23,7 @@ VariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 VariableValues,,label,,,TRUE,,,,,,,
 VariableValues,,order,int,,,,,,,,,
 VariableValues,,isMissing,bool,,,,,,,,,
-VariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
+VariableValues,,ontologyTermURI,,,,,,,,,,reference to ontology term that defines this categorical value
 Variables,AllVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 Variables,,label,,,,,,,,,,
 Variables,,format,ref,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"

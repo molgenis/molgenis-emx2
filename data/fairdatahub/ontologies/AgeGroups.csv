@@ -1,0 +1,23 @@
+name,definition,codesystem,code,ontologyTermURI
+Healthy Term Newborn,Healthy Term Newborn,NCIT,C114930,http://purl.obolibrary.org/obo/NCIT_C114930
+Healthy Preterm Newborn,Healthy Preterm Newborn,NCIT,C114931,http://purl.obolibrary.org/obo/NCIT_C114931
+Late Preterm Infant,Late Preterm Infant,NCIT,C114938,http://purl.obolibrary.org/obo/NCIT_C114938
+Extremely Preterm Infant,Extremely Preterm Infant,NCIT,C114939,http://purl.obolibrary.org/obo/NCIT_C114939
+Postterm Infant,Postterm Infant,NCIT,C114947,http://purl.obolibrary.org/obo/NCIT_C114947
+Newborn,Newborn,NCIT,C16731,http://purl.obolibrary.org/obo/NCIT_C16731
+Adolescent,Adolescent,NCIT,C27954,http://purl.obolibrary.org/obo/NCIT_C27954
+Infant And Toddler,Infant And Toddler,NCIT,C49643,http://purl.obolibrary.org/obo/NCIT_C49643
+Very Preterm Infant,Very Preterm Infant,NCIT,C118677,http://purl.obolibrary.org/obo/NCIT_C118677
+School Age Child,School Age Child,NCIT,C85405,http://purl.obolibrary.org/obo/NCIT_C85405
+Moderate to Late Preterm Infant,Moderate to Late Preterm Infant,NCIT,C128042,http://purl.obolibrary.org/obo/NCIT_C128042
+Preterm Infant,Preterm Infant,NCIT,C49642,http://purl.obolibrary.org/obo/NCIT_C49642
+Children 2-11 Years Old,Children 2-11 Years Old,NCIT,C49683,http://purl.obolibrary.org/obo/NCIT_C49683
+Adult 18-65 Years Old,Adult 18-65 Years Old,NCIT,C49685,http://purl.obolibrary.org/obo/NCIT_C49685
+Elderly,Elderly,NCIT,C16268,http://purl.obolibrary.org/obo/NCIT_C16268
+Child,Child,NCIT,C16423,http://purl.obolibrary.org/obo/NCIT_C16423
+Adult,Adult,NCIT,C17600,http://purl.obolibrary.org/obo/NCIT_C17600
+Infant,Infant,NCIT,C27956,http://purl.obolibrary.org/obo/NCIT_C27956
+Term Infant,Term Infant,NCIT,C89333,http://purl.obolibrary.org/obo/NCIT_C89333
+Toddler,Toddler,NCIT,C89342,http://purl.obolibrary.org/obo/NCIT_C89342
+Young Adult,Young Adult,NCIT,C91107,http://purl.obolibrary.org/obo/NCIT_C91107
+Middle Adult,Middle Adult,NCIT,C91108,http://purl.obolibrary.org/obo/NCIT_C91108

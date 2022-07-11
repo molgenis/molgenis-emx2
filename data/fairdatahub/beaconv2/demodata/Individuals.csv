@@ -1,0 +1,3 @@
+id,sex,ethnicity,geographicOrigin,diseases,measures
+Ind001,assigned female at birth,Luxembourgish,Switzerland,"Ind001_Dis001,Ind001_Dis002",Ind001_Meas001
+Ind002,assigned male at birth,Dutch,Slovenia,Ind002_Dis002,"Ind002_Meas001,Ind002_Meas002"
