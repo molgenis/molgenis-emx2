@@ -1,9 +1,9 @@
-//package org.molgenis.emx2.tasks;
+// package org.molgenis.emx2.tasks;
 //
-//import org.junit.Assert;
-//import org.junit.Test;
+// import org.junit.Assert;
+// import org.junit.Test;
 //
-//public class TestTask {
+// public class TestTask {
 //
 //  @Test
 //  public void test1() throws InterruptedException {
@@ -31,4 +31,4 @@
 //
 //    taskService.shutdown();
 //  }
-//}
+// }
