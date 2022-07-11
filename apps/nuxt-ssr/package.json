@@ -18,6 +18,9 @@
     "webpack-graphql-loader": "1.0.2"
   },
   "devDependencies": {
-    "@nuxtjs/proxy": "2.1.0"
+    "@nuxtjs/proxy": "2.1.0",
+    "vue": "2.6.14",
+    "vue-server-renderer": "2.6.14",
+    "vue-template-compiler": "2.6.14"
   }
 }

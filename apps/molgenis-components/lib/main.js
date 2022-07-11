@@ -91,6 +91,8 @@ import VueTemplate from "../src/components/layout/VueTemplate.vue";
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
 import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
+import RowButton from "../src/components/tables/RowButton.vue"
+import ShowHide from "../src/components/tables/ShowHide.vue"
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
 
@@ -189,6 +191,8 @@ export {
   ReadMore,
   ShowMore,
   Pagination,
+  RowButton,
+  ShowHide,
   FileDisplay,
   ListDisplay,
   ObjectDisplay,

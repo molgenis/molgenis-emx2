@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
@@ -100,6 +101,8 @@ public class MolgenisWebservice {
     TaskApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
+    BeaconApi.create(sessionManager);
+    FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
 
     get(
@@ -124,7 +127,7 @@ public class MolgenisWebservice {
     exception(
         Exception.class,
         (e, req, res) -> {
-          logger.error(e.getMessage());
+          logger.error(e.getMessage(), e);
           res.status(400);
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
@@ -239,5 +242,9 @@ public class MolgenisWebservice {
         .getSession(request)
         .getDatabase()
         .getSchema(sanitize(request.params(SCHEMA)));
+  }
+
+  public static Collection<String> getSchemaNames(Request request) {
+    return sessionManager.getSession(request).getDatabase().getSchemaNames();
   }
 }

@@ -1,0 +1,3 @@
+id,biosampleStatus,sampleOriginType,collectionMoment,collectionDate,obtentionProcedure
+Sample0001,abnormal sample,post mortem specimen,P32Y6M1D,2020-09-11,needle biopsy
+Sample0002,reference sample,tongue swab specimen,P31Y5M2D,2021-04-12,surgical biopsy

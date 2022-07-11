@@ -17,21 +17,28 @@
     "dev": "cross-env CLEAR_GEN_FOLDERS=on vite",
     "build": "cross-env SHOW_CASE=off vite build",
     "build-showcase": "cross-env SHOW_CASE=on vite build ",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test-ci": "vitest run",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@vue/compiler-sfc": "3.2.37",
     "axios": "0.27.2",
+    "popper.js": "1.16.1",
     "v-click-outside": "3.2.0",
-    "vite-plugin-vue2": "1.9.3",
+    "vite-plugin-vue2": "2.0.1",
     "vue": "2.6.14",
     "vue-flatpickr-component": "8.1.7"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "2.3.3",
     "cross-env": "7.0.3",
+    "vitest": "0.15.1",
     "vite": "2.9.13",
     "vue-router": "3.5.4",
-    "vue-scrollto": "2.20.0"
+    "vue-scrollto": "2.20.0",
+    "vue-server-renderer": "2.6.14",
+    "vue-template-compiler": "2.6.14"
   }
 }

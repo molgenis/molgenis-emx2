@@ -9,6 +9,7 @@ FROM node:lts-gallium
 COPY ./nuxt-ssr /app/nuxt-ssr
 COPY ./molgenis-components /app/molgenis-components
 COPY ssr-package.json /app
+COPY yarn.lock /app
 
 WORKDIR /app
 
@@ -20,6 +21,8 @@ RUN yarn install
 
 ## Make the components css available to the nuxt server
 COPY ./molgenis-components/dist/style.css /app/nuxt-ssr/assets/css
+
+COPY yarn.lock /app/nuxt-ssr
 
 WORKDIR /app/nuxt-ssr
 
