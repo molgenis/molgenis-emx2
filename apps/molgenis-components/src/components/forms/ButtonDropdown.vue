@@ -1,5 +1,5 @@
 <template>
-  <span class="dropdown">
+  <span >
     <button
       type="button"
       ref="showInputButton"
