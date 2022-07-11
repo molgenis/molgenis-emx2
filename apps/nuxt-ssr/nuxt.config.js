@@ -18,7 +18,7 @@ export default {
       { rel: "stylesheet", href: "theme.css" },
     ],
     script: [
-      {  src: "https://unpkg.com/@molgenis/expressions" },
+      {  src: "/js/expressions/0.21.2/expressions.js" },
     ],
   },
 
@@ -60,6 +60,7 @@ export default {
   },
   proxy: {
     "/apps/central/theme.css": `${BACKEND_LOCATION}`,
+    "/js/expressions/0.21.2/expressions.js": `${BACKEND_LOCATION}`,
     "/**/theme.css": {
       target: `${BACKEND_LOCATION}`,
       pathRewrite: (path) => {
