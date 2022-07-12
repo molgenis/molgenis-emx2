@@ -1,5 +1,6 @@
 package org.molgenis.emx2.datamodels;
 
+import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGHUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader.CATALOGUE_ONTOLOGIES;
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader.createSchema;
 
@@ -9,7 +10,7 @@ import org.molgenis.emx2.io.MolgenisIO;
 
 public class DataCatalogueNetworkStagingLoader implements AvailableDataModels.DataModelLoader {
 
-  static final String SHARED_SCHEMA = "SharedSchema";
+  static final String SHARED_STAGING = "SharedStaging";
 
   @Override
   public void load(Schema schema, boolean includeDemoData) {
@@ -20,9 +21,15 @@ public class DataCatalogueNetworkStagingLoader implements AvailableDataModels.Da
       ontologySchema = db.createSchema(CATALOGUE_ONTOLOGIES);
     }
 
-    Schema sharedSchema = db.getSchema(SHARED_SCHEMA);
+    Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGHUE);
+    if (dataCatalogueSchema == null) {
+      dataCatalogueSchema = db.createSchema(DATA_CATALOGHUE);
+      createSchema(dataCatalogueSchema, "datacatalogue/molgenis.csv");
+    }
+
+    Schema sharedSchema = db.getSchema(SHARED_STAGING);
     if (sharedSchema == null) {
-      sharedSchema = db.createSchema(SHARED_SCHEMA);
+      sharedSchema = db.createSchema(SHARED_STAGING);
       // create the shared schema
       createSchema(sharedSchema, "datacatalogue/stagingShared/molgenis.csv");
     }
