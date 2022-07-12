@@ -71,7 +71,6 @@ export default {
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
     defaultValue: Object,
-    context: Object,
   },
   components: {
     LayoutForm,
