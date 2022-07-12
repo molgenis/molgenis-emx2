@@ -71,6 +71,7 @@ export default {
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
     defaultValue: Object,
+    context: Object,
   },
   components: {
     LayoutForm,
@@ -277,7 +278,12 @@ export default {
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
           // primary skip (key=1) key in case of clone
-          if (data[column.id] && (!this.clone || column.key != 1)) {
+          if (
+            data[column.id] &&
+            (!this.clone ||
+              column.key != 1 ||
+              (this.clone && column.key == 1 && column.refTable))
+          ) {
             defaultValue[column.id] = data[column.id];
           }
         });
