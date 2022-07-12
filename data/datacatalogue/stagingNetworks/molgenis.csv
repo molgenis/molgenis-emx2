@@ -9,16 +9,16 @@ CollectionEvents,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection ev
 CollectionEvents,,name,,1,TRUE,,,,,,,Name of the collection event
 CollectionEvents,,description,,,,,,,,,,Description of the collection event
 CollectionEvents,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
-CollectionEvents,,startYear,ref,,,CatalogueOntologies,Years,,,,,Start year of data collection
-CollectionEvents,,startMonth,ref,,,CatalogueOntologies,Months,,,,,Start month of data collection
-CollectionEvents,,endYear,ref,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing
-CollectionEvents,,endMonth,ref,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing
+CollectionEvents,,startYear,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection
+CollectionEvents,,startMonth,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection
+CollectionEvents,,endYear,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing
+CollectionEvents,,endMonth,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing
 CollectionEvents,,ageGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups included in this data collection event
 CollectionEvents,,numberOfParticipants,int,,,,,,,,,Number of participants sampled in this data collection event
 CollectionEvents,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
 CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCategories,,,,,Methods of data collection used in this collection event
 CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
-CollectionEvents,,standardizedTools,ref_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
+CollectionEvents,,standardizedTools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
 CollectionEvents,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
@@ -67,7 +67,7 @@ TargetTables,,,,,,,,,,,,Definition of a table within a (common) data model
 TargetTables,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,resource + version this table is defined for
 TargetTables,,name,,1,TRUE,,,,,,,unique table name in the model
 TargetTables,,label,,,,,,,,,,short human readible description
-TargetTables,,unitOfObservation,ref,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
+TargetTables,,unitOfObservation,ontology,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
 TargetTables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 TargetTables,,description,text,,,,,,,,,description of the role/function of this table
 TargetTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table

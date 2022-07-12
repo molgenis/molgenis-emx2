@@ -35,7 +35,7 @@ public class DataCatalogueNetworkStagingLoader implements AvailableDataModels.Da
     }
 
     // create the schema
-    createSchema(schema, "datacatalogue/networksStaging/molgenis.csv");
+    createSchema(schema, "datacatalogue/stagingNetworks/molgenis.csv");
 
     // load data into ontology schema
     MolgenisIO.fromClasspathDirectory("datacatalogue/CatalogueOntologies", ontologySchema, false);

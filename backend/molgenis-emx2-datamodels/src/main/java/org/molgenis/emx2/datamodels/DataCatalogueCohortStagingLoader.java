@@ -16,15 +16,15 @@ public class DataCatalogueCohortStagingLoader implements AvailableDataModels.Dat
     // create ontology schema
     Database db = schema.getDatabase();
 
+    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
+    if (ontologySchema == null) {
+      ontologySchema = db.createSchema(CATALOGUE_ONTOLOGIES);
+    }
+
     Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGHUE);
     if (dataCatalogueSchema == null) {
       dataCatalogueSchema = db.createSchema(DATA_CATALOGHUE);
       createSchema(dataCatalogueSchema, "datacatalogue/molgenis.csv");
-    }
-
-    Schema ontologySchema = db.getSchema(CATALOGUE_ONTOLOGIES);
-    if (ontologySchema == null) {
-      ontologySchema = db.createSchema(CATALOGUE_ONTOLOGIES);
     }
 
     Schema sharedSchema = db.getSchema(SHARED_STAGING);
