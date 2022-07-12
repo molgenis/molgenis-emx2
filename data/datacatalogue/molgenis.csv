@@ -253,7 +253,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
-Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project",
+Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project"
 Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
