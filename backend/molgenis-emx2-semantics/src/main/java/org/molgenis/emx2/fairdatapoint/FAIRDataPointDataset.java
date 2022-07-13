@@ -121,7 +121,9 @@ public class FAIRDataPointDataset {
     builder.add(reqUrl, ODRL2.HAS_POLICY, datasetFromJSON.get("description"));
     builder.add(reqUrl, DCTERMS.IDENTIFIER, datasetFromJSON.get("id"));
     builder.add(reqUrl, DCTERMS.IS_REFERENCED_BY, datasetFromJSON.get("isReferencedBy"));
-    builder.add(reqUrl, DCAT.KEYWORD, datasetFromJSON.get("keyword"));
+    for (String keyword : (List<String>) datasetFromJSON.get("keyword")) {
+      builder.add(reqUrl, DCAT.KEYWORD, keyword);
+    }
     builder.add(reqUrl, DCAT.LANDING_PAGE, datasetFromJSON.get("landingPage"));
     builder.add(reqUrl, DCTERMS.LICENSE, datasetFromJSON.get("license"));
     ArrayList<IRI> languages =
@@ -137,7 +139,9 @@ public class FAIRDataPointDataset {
         reqUrl,
         DCTERMS.ISSUED,
         literal(((String) datasetFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(reqUrl, DCAT.THEME, datasetFromJSON.get("theme"));
+    for (IRI themeIRI : hyperlinkArrayToIRIList((List<String>) datasetFromJSON.get("theme"))) {
+      builder.add(reqUrl, DCAT.THEME, themeIRI);
+    }
     builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
     builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
     builder.add(
@@ -212,5 +216,20 @@ public class FAIRDataPointDataset {
     }
     return (List<Map<String, Object>>)
         ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset");
+  }
+
+  /**
+   * Convert EMX2 hyperlink_array to a list of IRIs
+   *
+   * @param object
+   * @return
+   */
+  public static ArrayList<IRI> hyperlinkArrayToIRIList(List<String> object) {
+    ArrayList<IRI> values = new ArrayList<>();
+    for (String hyperlink : object) {
+      IRI iri = iri(hyperlink);
+      values.add(iri);
+    }
+    return values;
   }
 }
