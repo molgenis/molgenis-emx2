@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChanges;
+import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -307,5 +308,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public List<Change> getChanges() {
     return executeGetChanges(getJooq(), this);
+  }
+
+  public Integer getChangesCount() {
+    return executeGetChangesCount(getJooq(), this);
   }
 }

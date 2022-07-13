@@ -482,6 +482,13 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(dataFetchingEnvironment -> schema.getChanges());
   }
 
+  public GraphQLFieldDefinition.Builder changeLogCountQuery(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_changesCount")
+        .type(Scalars.GraphQLInt)
+        .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
+  }
+
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")

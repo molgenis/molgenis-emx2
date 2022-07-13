@@ -207,6 +207,10 @@ class SqlSchemaMetadataExecutor {
         .collect(Collectors.toList());
   }
 
+  static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
+    return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
+  }
+
   static void executeRemoveMembers(SqlDatabase db, String schemaName, List<Member> members) {
     try {
       SqlSchema schema = db.getSchema(schemaName);

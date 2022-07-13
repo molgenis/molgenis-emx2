@@ -363,4 +363,9 @@ public class SqlSchema implements Schema {
   public List<Change> getChanges() {
     return metadata.getChanges();
   }
+
+  @Override
+  public Integer getChangesCount() {
+    return metadata.getChangesCount();
+  }
 }

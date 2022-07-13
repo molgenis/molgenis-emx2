@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Changes</h1>
+    <p v-if="changesCount">{{changesCount}} changes where made</p>
     <table-display :columns="columns" :rows="changes" />
   </div>
 </template>
@@ -22,18 +23,20 @@ export default {
         { name: "newRowData", label: "New" },
       ],
       changes: [],
+      changesCount: null
     };
   },
   methods: {
     async fetchChanges() {
       const resp = await request(
         "graphql",
-        `{_changes {operation, stamp, userId, oldRowData, newRowData}}`
+        `{_changes {operation, stamp, userId, oldRowData, newRowData} _changesCount}`
       );
       this.changes = resp._changes
         .map(this.formatOperation)
         .map(this.formatDateTime)
         .map(this.formatRowData);
+      this.changesCount = resp._changesCount
     },
     formatOperation(change) {
       if (change.operation === "I") {

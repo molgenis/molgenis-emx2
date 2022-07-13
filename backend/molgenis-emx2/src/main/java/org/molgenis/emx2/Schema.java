@@ -56,4 +56,6 @@ public interface Schema {
   String getName();
 
   List<Change> getChanges();
+
+  Integer getChangesCount();
 }
