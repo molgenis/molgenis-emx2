@@ -67,7 +67,7 @@ public class FAIRDataPointCatalog {
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
-                + "hasPart{id},"
+                + "dataset{id},"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
                 + "}}");
@@ -103,7 +103,7 @@ public class FAIRDataPointCatalog {
     prefixToNamespace.put("xsd", "http://www.w3.org/2001/XMLSchema#");
     prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
     prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
-    prefixToNamespace.put("obo", "http://purl.obolibrary.org/obo/");
+    prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -124,6 +124,7 @@ public class FAIRDataPointCatalog {
                 .replace("/catalog/" + fdpCatalogTable.getSchema().getName() + "/" + id, ""));
     IRI profile = iri(root + "/catalog/profile");
     IRI appUrl = iri(root.toString().replace("/api/fdp", ""));
+    IRI dataset = iri(root + "/dataset");
 
     /*
     Required by FDP specification (https://specs.fairdatapoint.org/)
@@ -136,9 +137,10 @@ public class FAIRDataPointCatalog {
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
     builder.add(root, DCTERMS.LICENSE, iri((String) catalogFromJSON.get("license")));
     ArrayList<IRI> datasetIRIs =
-        extractDatasetIRIs(catalogFromJSON.get("hasPart"), root, schema.getName());
+        extractDatasetIRIs(catalogFromJSON.get("dataset"), root, schema.getName());
     for (IRI datasetIRI : datasetIRIs) {
-      builder.add(reqUrl, DCTERMS.HAS_PART, datasetIRI);
+      // not 'Dataset' (class) but 'dataset' (predicate)
+      builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
     }
     builder.add(root, DCTERMS.CONFORMS_TO, profile);
     builder.add(root, DCTERMS.IS_PART_OF, root);
@@ -152,6 +154,13 @@ public class FAIRDataPointCatalog {
         root,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
         literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+    builder.add(dataset, RDF.TYPE, LDP.DIRECT_CONTAINER);
+    builder.add(dataset, DCTERMS.TITLE, "Datasets");
+    builder.add(dataset, LDP.MEMBERSHIP_RESOURCE, reqUrl);
+    builder.add(dataset, LDP.HAS_MEMBER_RELATION, DCAT.DATASET);
+    for (IRI datasetIRI : datasetIRIs) {
+      builder.add(dataset, LDP.CONTAINS, datasetIRI);
+    }
 
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
