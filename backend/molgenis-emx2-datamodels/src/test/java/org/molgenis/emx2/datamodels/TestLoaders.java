@@ -25,7 +25,8 @@ public class TestLoaders {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    dataCatalogue = database.dropCreateSchema("DataCatalogue");
+    dataCatalogue =
+        database.dropCreateSchema("catalogue"); // staging catalogues will create 'DataCatalogue'
     cohortStaging = database.dropCreateSchema("CohortStaging");
     networkStaging = database.dropCreateSchema("NetworkStaging");
     fairDataHubSchema = database.dropCreateSchema("FAIRDataHubTest");

@@ -8,7 +8,7 @@ import org.molgenis.emx2.Schema;
 
 public class DataCatalogueCohortStagingLoader implements AvailableDataModels.DataModelLoader {
 
-  static String DATA_CATALOGHUE = "DataCatalogue";
+  static String DATA_CATALOGUE = "DataCatalogue";
 
   @Override
   public void load(Schema schema, boolean includeDemoData) {
@@ -20,9 +20,9 @@ public class DataCatalogueCohortStagingLoader implements AvailableDataModels.Dat
 
   static void createSharedSchema(Database db) {
     // create DataCatalogue and CatalogueOntologies
-    Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGHUE);
+    Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGUE);
     if (dataCatalogueSchema == null) {
-      new DataCatalogueLoader().load(db.createSchema(DATA_CATALOGHUE), false);
+      new DataCatalogueLoader().load(db.createSchema(DATA_CATALOGUE), false);
     }
 
     Schema sharedSchema = db.getSchema(SHARED_STAGING);
