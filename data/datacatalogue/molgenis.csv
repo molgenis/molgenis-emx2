@@ -253,7 +253,7 @@ Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographica
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
-Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project",
+Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project"
 Networks,,datasources,ref_array,,,,Datasources,,,,,
 Networks,,databanks,ref_array,,,,Databanks,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,
@@ -354,7 +354,7 @@ SourceVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 SourceVariableValues,,label,,,TRUE,,,,,,,
 SourceVariableValues,,order,int,,,,,,,,,
 SourceVariableValues,,isMissing,bool,,,,,,,,,
-SourceVariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
+SourceVariableValues,,ontologyTermURI,,,,,,,,,,reference to ontology term that defines this categorical value
 TargetVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
 TargetVariableValues,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
 TargetVariableValues,,variable,ref,1,TRUE,,TargetVariables,dataDictionary,,,,e.g. PATO
@@ -362,7 +362,7 @@ TargetVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 TargetVariableValues,,label,,,TRUE,,,,,,,
 TargetVariableValues,,order,int,,,,,,,,,
 TargetVariableValues,,isMissing,bool,,,,,,,,,
-TargetVariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
+TargetVariableValues,,ontologyTermURI,,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
 VariableMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,
 VariableMappings,,fromTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,

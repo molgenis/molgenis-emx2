@@ -1,0 +1,46 @@
+name,definition,codesystem,code,ontologyTermURI
+454 Genome Sequence 20,454 Genome Sequence 20,OBI,0000689,http://purl.obolibrary.org/obo/OBI_0000689
+AB SOLiD System,AB SOLiD System,OBI,0000696,http://purl.obolibrary.org/obo/OBI_0000696
+454 Genome Sequencer FLX,454 Genome Sequencer FLX,OBI,0000702,http://purl.obolibrary.org/obo/OBI_0000702
+Illumina Genome Analyzer II,Illumina Genome Analyzer II,OBI,0000703,http://purl.obolibrary.org/obo/OBI_0000703
+HeliScope Single Molecule Sequencer,HeliScope Single Molecule Sequencer,OBI,0000717,http://purl.obolibrary.org/obo/OBI_0000717
+Genome Analyzer IIx,Genome Analyzer IIx,OBI,0002000,http://purl.obolibrary.org/obo/OBI_0002000
+Illumina HiSeq 2000,Illumina HiSeq 2000,OBI,0002001,http://purl.obolibrary.org/obo/OBI_0002001
+Illumina HiSeq 2500,Illumina HiSeq 2500,OBI,0002002,http://purl.obolibrary.org/obo/OBI_0002002
+MiSeq,MiSeq,OBI,0002003,http://purl.obolibrary.org/obo/OBI_0002003
+SOLiD 3 Plus System,SOLiD 3 Plus System,OBI,0002007,http://purl.obolibrary.org/obo/OBI_0002007
+PacBio RS II,PacBio RS II,OBI,0002012,http://purl.obolibrary.org/obo/OBI_0002012
+NextSeq 500,NextSeq 500,OBI,0002021,http://purl.obolibrary.org/obo/OBI_0002021
+Illumina HiSeq 1000,Illumina HiSeq 1000,OBI,0002022,http://purl.obolibrary.org/obo/OBI_0002022
+SOLiD 4 System,SOLiD 4 System,OBI,0002024,http://purl.obolibrary.org/obo/OBI_0002024
+Genome Analyzer IIe,Genome Analyzer IIe,OBI,0002027,http://purl.obolibrary.org/obo/OBI_0002027
+Illumina HiSeq 3000,Illumina HiSeq 3000,OBI,0002048,http://purl.obolibrary.org/obo/OBI_0002048
+Illumina HiSeq 4000,Illumina HiSeq 4000,OBI,0002049,http://purl.obolibrary.org/obo/OBI_0002049
+SOLiD 4hq System,SOLiD 4hq System,GENEPIO,0001928,http://purl.obolibrary.org/obo/GENEPIO_0001928
+SOLiD 5500,SOLiD 5500,GENEPIO,0001929,http://purl.obolibrary.org/obo/GENEPIO_0001929
+SOLiD 5500xl,SOLiD 5500xl,GENEPIO,0001930,http://purl.obolibrary.org/obo/GENEPIO_0001930
+SOLiD PI System,SOLiD PI System,GENEPIO,0001931,http://purl.obolibrary.org/obo/GENEPIO_0001931
+SOLiD System 2.0,SOLiD System 2.0,GENEPIO,0001932,http://purl.obolibrary.org/obo/GENEPIO_0001932
+SOLiD System 3.0,SOLiD System 3.0,GENEPIO,0001933,http://purl.obolibrary.org/obo/GENEPIO_0001933
+Ion Torrent PGM,Ion Torrent PGM,GENEPIO,0001935,http://purl.obolibrary.org/obo/GENEPIO_0001935
+454 Genome Sequencer FLX Titanium,454 Genome Sequencer FLX Titanium,GENEPIO,0001936,http://purl.obolibrary.org/obo/GENEPIO_0001936
+454 Genome Sequencer,454 Genome Sequencer,GENEPIO,0001937,http://purl.obolibrary.org/obo/GENEPIO_0001937
+454 Genome Sequencer Junior,454 Genome Sequencer Junior,GENEPIO,0001938,http://purl.obolibrary.org/obo/GENEPIO_0001938
+Illumina HiSeq Sequencer,Illumina HiSeq Sequencer,GENEPIO,0001939,http://purl.obolibrary.org/obo/GENEPIO_0001939
+Illumina HiSeq X Five,Illumina HiSeq X Five,FG,0000004,https://w3id.org/fair-genomes/resource/FG_0000004
+Illumina HiSeq X Ten,Illumina HiSeq X Ten,FG,0000005,https://w3id.org/fair-genomes/resource/FG_0000005
+Illumina MiniSeq,Illumina MiniSeq,FG,0000006,https://w3id.org/fair-genomes/resource/FG_0000006
+Illumina iSeq 100,Illumina iSeq 100,FG,0000007,https://w3id.org/fair-genomes/resource/FG_0000007
+Illumina NextSeq 550,Illumina NextSeq 550,FG,0000008,https://w3id.org/fair-genomes/resource/FG_0000008
+Illumina NextSeq 2000,Illumina NextSeq 2000,FG,0000009,https://w3id.org/fair-genomes/resource/FG_0000009
+Illumina NovaSeq 6000,Illumina NovaSeq 6000,FG,0000010,https://w3id.org/fair-genomes/resource/FG_0000010
+Illumina NextSeq 1000,Illumina NextSeq 1000,FG,0000011,https://w3id.org/fair-genomes/resource/FG_0000011
+Illumina NextSeq 550Dx,Illumina NextSeq 550Dx,FG,0000012,https://w3id.org/fair-genomes/resource/FG_0000012
+Illumina MiSeqDx,Illumina MiSeqDx,FG,0000013,https://w3id.org/fair-genomes/resource/FG_0000013
+Illumina MiSeq FGx,Illumina MiSeq FGx,FG,0000014,https://w3id.org/fair-genomes/resource/FG_0000014
+Oxford Nanopore GridION Mk1,Oxford Nanopore GridION Mk1,OBI,0002751,http://purl.obolibrary.org/obo/OBI_0002751
+Oxford Nanopore MinION,Oxford Nanopore MinION,OBI,0002750,http://purl.obolibrary.org/obo/OBI_0002750
+Oxford Nanopore PromethION,Oxford Nanopore PromethION,OBI,0002752,http://purl.obolibrary.org/obo/OBI_0002752
+PacBio Sequel,PacBio Sequel,OBI,0002632,http://purl.obolibrary.org/obo/OBI_0002632
+PacBio Sequel II,PacBio Sequel II,OBI,0002633,http://purl.obolibrary.org/obo/OBI_0002633
+Li-Cor 4300 DNA Analysis System,Li-Cor 4300 DNA Analysis System,OBI,0000710,http://purl.obolibrary.org/obo/OBI_0000710
