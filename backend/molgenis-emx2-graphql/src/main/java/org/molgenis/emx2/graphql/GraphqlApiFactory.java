@@ -232,7 +232,7 @@ public class GraphqlApiFactory {
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
     if ((schema.getRoleForActiveUser() != null
-            && schema.getRoleForActiveUser().equals(Privileges.MANAGER))
+            && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
         || schema.getDatabase().isAdmin()) {
       queryBuilder.field(schemaFields.changeLogQuery(schema));
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
