@@ -13,13 +13,13 @@ public class AuditUtilsTest {
                    BEGIN
                        IF (TG_OP = 'DELETE') THEN
                            INSERT INTO "pet store".mg_changelog
-                           SELECT 'D', now(), user, row_to_json(OLD.*), row_to_json(NEW.*);
+                           SELECT 'D', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                        ELSIF (TG_OP = 'UPDATE') THEN
                            INSERT INTO "pet store".mg_changelog
-                           SELECT 'U', now(), user, row_to_json(OLD.*), row_to_json(NEW.*);
+                           SELECT 'U', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                        ELSIF (TG_OP = 'INSERT') THEN
                            INSERT INTO "pet store".mg_changelog
-                           SELECT 'I', now(), user, row_to_json(OLD.*), row_to_json(NEW.*);
+                           SELECT 'I', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
                        END IF;
                        RETURN NULL; -- result is ignored since this is an AFTER trigger
                    END;

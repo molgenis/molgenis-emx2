@@ -17,6 +17,7 @@ export default {
     return {
       columns: [
         { name: "operation", label: "Action" },
+        { name: "tableName", label: "Table" },
         { name: "userId", label: "Who" },
         { name: "stamp", label: "When" },
         { name: "oldRowData", label: "Old" },
@@ -30,7 +31,7 @@ export default {
     async fetchChanges() {
       const resp = await request(
         "graphql",
-        `{_changes {operation, stamp, userId, oldRowData, newRowData} _changesCount}`
+        `{_changes {operation, stamp, userId, tableName, oldRowData, newRowData} _changesCount}`
       );
       this.changes = resp._changes
         .map(this.formatOperation)

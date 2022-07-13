@@ -11,6 +11,7 @@ IF NOT EXISTS (
       operation char(1) NOT NULL,
       stamp timestamp NOT NULL,
       userid text NOT NULL,
+      tablename text NOT NULL,
       old json,
       new json
     );
