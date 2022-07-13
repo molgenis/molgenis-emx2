@@ -67,7 +67,7 @@ public class FAIRDataPointCatalog {
                 + "language{ontologyTermURI},"
                 + "license,"
                 + "themeTaxonomy,"
-                + "hasPart{id},"
+                + "dataset{id},"
                 + "mg_insertedOn,"
                 + "mg_updatedOn"
                 + "}}");
@@ -138,9 +138,10 @@ public class FAIRDataPointCatalog {
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
     builder.add(root, DCTERMS.LICENSE, iri((String) catalogFromJSON.get("license")));
     ArrayList<IRI> datasetIRIs =
-        extractDatasetIRIs(catalogFromJSON.get("hasPart"), root, schema.getName());
+        extractDatasetIRIs(catalogFromJSON.get("dataset"), root, schema.getName());
     for (IRI datasetIRI : datasetIRIs) {
-      builder.add(reqUrl, DCTERMS.HAS_PART, datasetIRI);
+      // not 'Dataset' (class) but 'dataset' (predicate)
+      builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
     }
     builder.add(root, DCTERMS.CONFORMS_TO, profile);
     builder.add(root, DCTERMS.IS_PART_OF, root);
