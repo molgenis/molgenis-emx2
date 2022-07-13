@@ -26,15 +26,14 @@ import spark.Request;
 public class GenomicVariantsResponse {
 
   // annotation to print empty array as "[ ]" as required per Beacon spec
-  @JsonInclude(JsonInclude.Include.ALWAYS)
-  GenomicVariantsResultSets[] resultSets;
+  @JsonInclude() GenomicVariantsResultSets[] resultSets;
 
   // query parameters, ignore from output
-  @JsonIgnore private String qReferenceName;
-  @JsonIgnore private Long[] qStart;
-  @JsonIgnore private Long[] qEnd;
-  @JsonIgnore private String qReferenceBases;
-  @JsonIgnore private String qAlternateBases;
+  @JsonIgnore private final String qReferenceName;
+  @JsonIgnore private final Long[] qStart;
+  @JsonIgnore private final Long[] qEnd;
+  @JsonIgnore private final String qReferenceBases;
+  @JsonIgnore private final String qAlternateBases;
   @JsonIgnore private String qGeneId;
 
   public GenomicVariantsResponse(Request request, List<Table> genomicVariantTables)
@@ -99,55 +98,49 @@ public class GenomicVariantsResponse {
       selectColumns(table, query);
 
       switch (genomicQueryType) {
-        case SEQUENCE:
-          query.where(
-              and(
-                  f("position_start", EQUALS, qStart),
-                  f("position_refseqId", EQUALS, qReferenceName),
-                  or(
-                      f("referenceBases", EQUALS, qReferenceBases.toLowerCase()),
-                      f("referenceBases", EQUALS, qReferenceBases.toUpperCase())),
-                  or(
-                      f("alternateBases", EQUALS, qAlternateBases.toLowerCase()),
-                      f("alternateBases", EQUALS, qAlternateBases.toUpperCase()))));
+        case SEQUENCE -> query.where(
+            and(
+                f("position_start", EQUALS, qStart[0]),
+                f("position_refseqId", EQUALS, qReferenceName),
+                or(
+                    f("referenceBases", EQUALS, qReferenceBases.toLowerCase()),
+                    f("referenceBases", EQUALS, qReferenceBases.toUpperCase())),
+                or(
+                    f("alternateBases", EQUALS, qAlternateBases.toLowerCase()),
+                    f("alternateBases", EQUALS, qAlternateBases.toUpperCase()))));
 
           // todo optional parameter: datasetIds
           // todo optional parameter: filters
-          break;
-        case RANGE:
-          // "Range Query"
-          query.where(
-              or(
-                  and(
-                      f("position_start", BETWEEN, new Long[] {qStart[0], qEnd[0]}),
-                      f("position_refseqId", EQUALS, qReferenceName)),
-                  and(
-                      f("position_end", BETWEEN, new Long[] {qStart[0], qEnd[0]}),
-                      f("position_refseqId", EQUALS, qReferenceName))));
+        case RANGE ->
+        // "Range Query"
+        query.where(
+            or(
+                and(
+                    f("position_start", BETWEEN, (Object[]) new Long[] {qStart[0], qEnd[0]}),
+                    f("position_refseqId", EQUALS, qReferenceName)),
+                and(
+                    f("position_end", BETWEEN, (Object[]) new Long[] {qStart[0], qEnd[0]}),
+                    f("position_refseqId", EQUALS, qReferenceName))));
 
           // todo optional parameter: variantType OR alternateBases OR aminoacidChange
           // todo optional parameter: variantMinLength
           // todo optional parameter: variantMaxLength
-          break;
-        case BRACKET:
-          query.where(
-              and(
-                  f("position_start", BETWEEN, new Long[] {qStart[0], qStart[1]}),
-                  f("position_end", BETWEEN, new Long[] {qEnd[0], qEnd[1]}),
-                  f("position_refseqId", EQUALS, qReferenceName)));
+        case BRACKET -> query.where(
+            and(
+                f("position_start", BETWEEN, (Object[]) new Long[] {qStart[0], qStart[1]}),
+                f("position_end", BETWEEN, (Object[]) new Long[] {qEnd[0], qEnd[1]}),
+                f("position_refseqId", EQUALS, qReferenceName)));
 
           // todo optional parameter: variantType
 
-          break;
-        case GENEID:
-          // "GeneId Query"
-          query.where(f("geneId", EQUALS, qGeneId));
+        case GENEID ->
+        // "GeneId Query"
+        query.where(f("geneId", EQUALS, qGeneId));
 
           // todo: required parameter 'geneId'
           // todo optional parameter: variantType OR alternateBases OR aminoacidChange
           // todo optional parameter: variantMinLength
           // todo optional parameter: variantMaxLength
-          break;
       }
 
       List<GenomicVariantsResultSetsItem> genomicVariantsItemList = new ArrayList<>();
@@ -171,22 +164,15 @@ public class GenomicVariantsResponse {
             new GenomicVariantsResultSets(
                 table.getSchema().getName(),
                 genomicVariantsItemList.size(),
-                genomicVariantsItemList.toArray(
-                    new GenomicVariantsResultSetsItem[genomicVariantsItemList.size()]));
+                genomicVariantsItemList.toArray(new GenomicVariantsResultSetsItem[0]));
         resultSetsList.add(genomicVariantsResultSets);
       }
     }
 
-    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[resultSetsList.size()]);
+    this.resultSets = resultSetsList.toArray(new GenomicVariantsResultSets[0]);
   }
 
-  /**
-   * Helper function to extract coordinate long arrays from request
-   *
-   * @param request
-   * @param param
-   * @return
-   */
+  /** Helper function to extract coordinate long arrays from request */
   private Long[] parseCoordinatesFromRequest(Request request, String param) {
     String value = request.queryParams(param);
     if (value == null) {
