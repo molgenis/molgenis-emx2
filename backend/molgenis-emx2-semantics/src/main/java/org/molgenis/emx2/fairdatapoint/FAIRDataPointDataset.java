@@ -61,6 +61,7 @@ public class FAIRDataPointDataset {
     prefixToNamespace.put("prov", "http://www.w3.org/ns/prov#");
     prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
     prefixToNamespace.put("odrl", "http://www.w3.org/ns/odrl/2/");
+    prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
 
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
@@ -80,6 +81,7 @@ public class FAIRDataPointDataset {
             reqUrl
                 .toString()
                 .replace("/dataset/" + fdpDataseTable.getSchema().getName() + "/" + id, ""));
+    IRI distributionIRI = iri(root + "/distribution");
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
 
@@ -142,6 +144,17 @@ public class FAIRDataPointDataset {
         DCTERMS.MODIFIED,
         literal(((String) datasetFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
+
+    builder.add(distributionIRI, RDF.TYPE, LDP.DIRECT_CONTAINER);
+    builder.add(distributionIRI, DCTERMS.TITLE, "Distributions");
+    builder.add(distributionIRI, LDP.MEMBERSHIP_RESOURCE, reqUrl);
+    builder.add(distributionIRI, LDP.HAS_MEMBER_RELATION, DCAT.DISTRIBUTION);
+    for (String format : FORMATS) {
+      builder.add(
+          distributionIRI,
+          LDP.CONTAINS,
+          iri(root + "/distribution/" + schema.getName() + "/" + distribution + "/" + format));
+    }
 
     // Write model
     Model model = builder.build();
