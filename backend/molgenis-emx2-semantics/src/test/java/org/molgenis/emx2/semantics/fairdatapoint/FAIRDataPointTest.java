@@ -58,7 +58,7 @@ public class FAIRDataPointTest {
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
                 .indent(2)));
-    assertEquals(3999, result.length());
+    assertEquals(3775, result.length());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class FAIRDataPointTest {
             dcterms:rights [ a dcterms:RightsStatement;
                   dcterms:description "Rights are provided on a per-dataset basis."
                 ];"""));
-    assertEquals(2167, result.length());
+    assertEquals(2147, result.length());
   }
 
   @Test
@@ -106,7 +106,7 @@ public class FAIRDataPointTest {
                       dcat:spatialResolutionInMeters 1.0E1;"""));
     assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2725, result.length());
+    assertEquals(2791, result.length());
   }
 
   @Test

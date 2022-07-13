@@ -39,6 +39,6 @@ public class FAIRDataPointNoCatalogsTest {
     assertFalse(result.contains("ldp:hasMemberRelation"));
     assertFalse(result.contains("ldp:membershipResource"));
     assertFalse(result.contains("ldp:contains"));
-    assertEquals(2737, result.length());
+    assertEquals(2673, result.length());
   }
 }
