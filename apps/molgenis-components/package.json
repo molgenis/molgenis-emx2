@@ -28,7 +28,7 @@
     "popper.js": "1.16.1",
     "v-click-outside": "3.2.0",
     "vite-plugin-vue2": "2.0.1",
-    "vue": "2.6.14",
+    "vue": "2.7.5",
     "vue-flatpickr-component": "8.1.7"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "vite": "2.9.14",
     "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0",
-    "vue-server-renderer": "2.6.14",
-    "vue-template-compiler": "2.6.14"
+    "vue-server-renderer": "2.7.5",
+    "vue-template-compiler": "2.7.5"
   }
 }
