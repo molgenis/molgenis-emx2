@@ -93,7 +93,8 @@ public class FAIRDataPointDataset {
     for (String format : FORMATS) {
       builder.add(
           reqUrl,
-          DCAT.DISTRIBUTION,
+          // not 'Distribution' (class) but 'distribution' (predicate)
+          iri("http://www.w3.org/ns/dcat#distribution"),
           iri(root + "/distribution/" + schema.getName() + "/" + distribution + "/" + format));
     }
 
