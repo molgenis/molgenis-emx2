@@ -52,7 +52,6 @@ public class FAIRDataPoint {
     prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
     prefixToNamespace.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
     prefixToNamespace.put("vc", "http://www.w3.org/2006/vcard/ns#");
-    prefixToNamespace.put("obo", "http://purl.obolibrary.org/obo/");
     prefixToNamespace.put("r3d", "http://www.re3data.org/schema/3-0#");
     prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
 

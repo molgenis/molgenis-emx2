@@ -103,7 +103,6 @@ public class FAIRDataPointCatalog {
     prefixToNamespace.put("xsd", "http://www.w3.org/2001/XMLSchema#");
     prefixToNamespace.put("fdp-o", "https://w3id.org/fdp/fdp-o#");
     prefixToNamespace.put("lang", "http://lexvo.org/id/iso639-3/");
-    prefixToNamespace.put("obo", "http://purl.obolibrary.org/obo/");
     prefixToNamespace.put("ldp", "http://www.w3.org/ns/ldp#");
 
     // Main model builder
