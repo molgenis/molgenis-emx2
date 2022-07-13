@@ -20,24 +20,22 @@ const routes = [
 const components = import.meta.globEager("./components/**/*.vue");
 const generatedDocumentComponents = import.meta.globEager(
   "../gen-docs/**/*.vue"
-  );
-  
-  Object.entries(components).forEach(([path, definition]) => {
-    // Get name of component, based on filename
-    // "./components/Fruits.vue" will become "Fruits"
-    const componentName = path
+);
+
+Object.entries(components).forEach(([path, definition]) => {
+  // Get name of component, based on filename
+  // "./components/Fruits.vue" will become "Fruits"
+  const componentName = path
     .split("/")
     .pop()
     .replace(/\.\w+$/, "");
-    
-    // Register component on this Vue instance
-    app.component(componentName, definition.default);
-  });
-  
-  app.component("DemoItem", DemoItem);
-  app.component("Client", Client);
 
+  // Register component on this Vue instance
+  app.component(componentName, definition.default);
 });
+
+app.component("DemoItem", DemoItem);
+app.component("Client", Client);
 
 let docsMap = {};
 
@@ -64,7 +62,6 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
 app.config.globalProperties.$docsMap = docsMap;
 app.config.globalProperties.$Client = Client;
 app.config.globalProperties.$utils = utils;
-
 
 // Vue.use(VueRouter);
 // const router = new VueRouter({ routes });
@@ -94,4 +91,3 @@ app.use({
 //   router,
 //   render: (h) => h(App),
 // }).$mount("#app");
-

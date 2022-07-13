@@ -1,0 +1,72 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+GenomicVariations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2  GenomicVariation
+GenomicVariations,,variantInternalId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,E.g. 20:2447955..2447958c>g
+GenomicVariations,,variantType,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP
+GenomicVariations,,referenceBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,E.g. c
+GenomicVariations,,alternateBases,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000002,E.g. g
+GenomicVariations,,position_assemblyId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37
+GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 20
+GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955
+GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958
+GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN
+Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
+Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,E.g. Analysis012345
+Analyses,,aligner,string,,,,,,,,http://edamontology.org/operation_0292,E.g. bwa-0.7.8
+Analyses,,analysisDate,date,,,,,,,,http://purl.obolibrary.org/obo/date,E.g. 2021-10-17
+Analyses,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. S0001
+Analyses,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. P0001
+Analyses,,pipelineName,string,,,,,,,,http://edamontology.org/data_2531,E.g. Pipeline-panel-0001-v1
+Analyses,,pipelineRef,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17564,E.g. https://doi.org/10.48511/workflowhub.workflow.111.1
+Analyses,,runId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
+Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g. GATK4.0
+Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
+Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
+Biosamples,,biosampleStatus,ontology,,,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
+Biosamples,,sampleOriginType,ontology,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
+Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
+Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
+Biosamples,,obtentionProcedure,ontology,,,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
+Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
+Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001
+Cohorts,,cohortName,string,,,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
+Cohorts,,cohortType,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined"
+Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design
+Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000
+Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y
+Cohorts,,inclusionCriteria_ageRange_end_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001877,E.g. P40Y
+Cohorts,,locations,ontology_array,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001830,E.g. Spain
+Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,"E.g. assigned female at birth, assigned male at birth"
+Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image"
+Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
+Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
+Individuals,,sex,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,E.g. assigned female at birth
+Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
+Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland
+Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001
+Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001
+IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases
+IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001
+IndividualsDiseases,,diseaseCode,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C20587,E.g. Adult 18-65 Years Old
+IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false
+IndividualsDiseases,,severity,ontology,,,,DiseaseSeverity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
+IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset
+IndividualsMeasures,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Beacon v2 Individuals Measures
+IndividualsMeasures,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001121,E.g. Ind001_Meas001
+IndividualsMeasures,,assayCode,ontology,,,,AnalysesPerformed,,,,http://purl.obolibrary.org/obo/IAO_0000702,E.g. Metabolomics
+IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03
+IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count
+IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_P355,E.g. Per Millimeter
+IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
+Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
+Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
+Runs,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
+Runs,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
+Runs,,runDate,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,E.g. 2021-10-18
+Runs,,librarySource,ontology,,,,LibrarySource,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source
+Runs,,librarySelection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method
+Runs,,libraryStrategy,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001973,E.g. WGS strategy
+Runs,,libraryLayout,string,,,,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE
+Runs,,platform,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000071,E.g. PacBio platform
+Runs,,platformModel,ontology,,,,SequencingInstrumentModels,,,,http://purl.obolibrary.org/obo/GENEPIO_0001921,E.g. Illumina HiSeq X Ten

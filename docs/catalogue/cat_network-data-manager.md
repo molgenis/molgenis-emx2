@@ -113,7 +113,7 @@ insightful for those that are interested.
 | label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
 | order | The order in which the code list should appear | e.g. 1 |
 | isMissing | Whether this value indicates a missing field | TRUE or FALSE |
-| ontologyTermIRI | Reference to an ontology term that defines this categorical value | e.g. [http://purl.obolibrary.org/obo/DOID\_1094](http://purl.obolibrary.org/obo/DOID\_1094) |
+| ontologyTermURI | Reference to an ontology term that defines this categorical value | e.g. [http://purl.obolibrary.org/obo/DOID\_1094](http://purl.obolibrary.org/obo/DOID\_1094) |
 
 <sup>Table 4. Description of the columns that can be filled out for TargetVariableValues. * = mandatory</sup>
 

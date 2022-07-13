@@ -18,52 +18,48 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
-    try (DDLQuery step = db.getJooq().createSchema(schema.getName())) {
-      step.execute();
+    DDLQuery step = db.getJooq().createSchema(schema.getName());
+    step.execute();
 
-      String schemaName = schema.getName();
-      String member = getRolePrefix(schemaName) + VIEWER;
-      String editor = getRolePrefix(schemaName) + EDITOR;
-      String manager = getRolePrefix(schemaName) + MANAGER;
-      String owner = getRolePrefix(schemaName) + Privileges.OWNER;
+    String schemaName = schema.getName();
+    String member = getRolePrefix(schemaName) + VIEWER;
+    String editor = getRolePrefix(schemaName) + EDITOR;
+    String manager = getRolePrefix(schemaName) + MANAGER;
+    String owner = getRolePrefix(schemaName) + Privileges.OWNER;
 
-      db.addRole(member);
-      db.addRole(editor);
-      db.addRole(manager);
-      db.addRole(owner);
+    db.addRole(member);
+    db.addRole(editor);
+    db.addRole(manager);
+    db.addRole(owner);
 
-      // make editor also member
-      db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
+    // make editor also member
+    db.getJooq().execute("GRANT {0} TO {1}", name(member), name(editor));
 
-      // make manager also editor and member
-      db.getJooq()
-          .execute(
-              "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
+    // make manager also editor and member
+    db.getJooq()
+        .execute(
+            "GRANT {0},{1} TO {2} WITH ADMIN OPTION", name(member), name(editor), name(manager));
 
-      // make owner also editor, manager, member
-      db.getJooq()
-          .execute(
-              "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-              name(member), name(editor), name(manager), name(owner));
+    // make owner also editor, manager, member
+    db.getJooq()
+        .execute(
+            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
+            name(member), name(editor), name(manager), name(owner));
 
-      String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
-      String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
+    String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
+    String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
 
-      // make current user the owner
-      if (!sessionUser.equals(currentUser)) {
-        db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
-      }
-
-      // make admin owner
-      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
-
-      // grant the permissions
-      db.getJooq()
-          .execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
-      db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
-    } catch (DataAccessException e) {
-      throw new SqlMolgenisException("Schema create failed", e);
+    // make current user the owner
+    if (!sessionUser.equals(currentUser)) {
+      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
     }
+
+    // make admin owner
+    db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
+
+    // grant the permissions
+    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
+    db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
