@@ -51,7 +51,7 @@ public class FAIRDataPointBadDistributionInDatasetTest {
     String result = fairDataPointDataset.getResult();
     assertTrue(
         result.contains(
-            "dcat:Distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_baddistribution/Analyses/csv>,"));
+            "dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_baddistribution/Analyses/csv>,"));
 
     // set distribution to a value that does NOT corresepond to a table
     Table table = fairDataHub_baddistribution.getTable("FDP_Dataset");
