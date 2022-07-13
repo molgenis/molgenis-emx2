@@ -27,7 +27,7 @@ export default {
   methods: {
     async fetchChanges() {
       const resp = await request(
-        "/graphql",
+        "graphql",
         `{_changes {operation, stamp, userId, oldRowData, newRowData}}`
       );
       this.changes = resp._changes
