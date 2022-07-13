@@ -4,7 +4,6 @@ import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
 import static org.molgenis.emx2.tasks.TaskStatus.SKIPPED;
-import static org.molgenis.emx2.tasks.TaskStatus.WAITING;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Spliterator;
-import java.util.UUID;
 import java.util.function.Consumer;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
@@ -26,45 +24,26 @@ import org.slf4j.LoggerFactory;
  */
 public class Task implements Runnable, Iterable<Task> {
 
-  // some unique id
-  private final String id = UUID.randomUUID().toString();
   // for the toString method
   private static final ObjectMapper mapper =
       new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
   private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-  // human readable description
-  private String description;
-  // status of the tas
-  private TaskStatus status = WAITING;
-  // total size of the task, used for progress monitoring
-  private Integer total;
-  // position in the total size, if available, used for progress monitoring
-  private Integer progress;
-  // start time to measure run time
-  private long startTimeMilliseconds = System.currentTimeMillis();
-  // end time to calculate run time
-  long endTimeMilliseconds;
-  // subtasks/steps in this task
-  String log;
   private final List<Task> subTasks = new ArrayList<>();
-  // this parameter is used to indicate if steps should fail on unexpected state or should simply
-  // try to complete
-  private boolean strict = false;
+
+  private final TaskInfo info;
 
   public Task(String description) {
-    Objects.requireNonNull(description, "description cannot be null");
-    this.description = description;
+    info = TaskInfo.create(description);
   }
 
   public Task(String description, TaskStatus status) {
     this(description);
-    Objects.requireNonNull(status, "status cannot be null");
-    this.status = status;
+    this.info.status = status;
   }
 
   public Task(String description, boolean strict) {
     this(description);
-    this.strict = strict;
+    this.info.strict = strict;
   }
 
   public Task addSubTask(String message) {
@@ -84,25 +63,33 @@ public class Task implements Runnable, Iterable<Task> {
     this.subTasks.add(task);
   }
 
+  public String getId() {
+    return info.id;
+  }
+
+  public TaskInfo getInfo() {
+    return info;
+  }
+
   public List<Task> getSubTasks() {
     return Collections.unmodifiableList(subTasks);
   }
 
   public Integer getProgress() {
-    if (RUNNING.equals(status)) {
-      return progress;
+    if (RUNNING.equals(info.status)) {
+      return info.progress;
     }
     return null;
   }
 
   public Task setProgress(int progress) {
-    this.progress = progress;
+    this.info.progress = progress;
     return this;
   }
 
   public String getDescription() {
-    String message = description;
-    switch (status) {
+    String message = info.description;
+    switch (info.status) {
       case WAITING -> {
         if (getDuration() > 0) {
           message += " for " + getDuration() + "ms";
@@ -132,86 +119,86 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task setDescription(String description) {
     Objects.requireNonNull(description, "description cannot be null");
-    this.description = description;
+    info.description = description;
     return this;
   }
 
   public TaskStatus getStatus() {
-    return status;
+    return info.status;
   }
 
   public Integer getTotal() {
-    if (COMPLETED.equals(status)) {
-      return progress;
+    if (COMPLETED.equals(info.status)) {
+      return info.progress;
     }
-    return total;
+    return info.total;
   }
 
   public Task setTotal(int total) {
-    this.total = total;
+    info.total = total;
     return this;
   }
 
   public Task start() {
-    this.startTimeMilliseconds = System.currentTimeMillis();
-    this.status = RUNNING;
-    this.logger.info(getDescription() + ": started");
+    info.startTimeMilliseconds = System.currentTimeMillis();
+    info.status = RUNNING;
+    logger.info(getDescription() + ": started");
     return this;
   }
 
   public Task complete() {
-    this.status = COMPLETED;
-    this.endTimeMilliseconds = System.currentTimeMillis();
-    this.logger.info(getDescription());
+    info.status = COMPLETED;
+    info.endTimeMilliseconds = System.currentTimeMillis();
+    logger.info(getDescription());
     return this;
   }
 
   public Task complete(String description) {
-    this.setDescription(description);
+    setDescription(description);
     complete();
     return this;
   }
 
   public void completeWithError(String message) {
-    this.setDescription(message);
-    this.complete();
-    this.status = ERROR;
+    setDescription(message);
+    complete();
+    info.status = ERROR;
     logger.error(message);
     throw new MolgenisException(message);
   }
 
   public long getDuration() {
-    if (endTimeMilliseconds == 0) {
-      return System.currentTimeMillis() - startTimeMilliseconds;
+    if (info.endTimeMilliseconds == 0) {
+      return System.currentTimeMillis() - info.startTimeMilliseconds;
     } else {
-      return endTimeMilliseconds - startTimeMilliseconds;
+      return info.endTimeMilliseconds - info.startTimeMilliseconds;
     }
   }
 
   public Task setStatus(TaskStatus status) {
     Objects.requireNonNull(status, "status can not be null");
-    this.status = status;
+    info.status = status;
     return this;
   }
 
   public void setSkipped(String description) {
-    this.setSkipped();
-    this.setDescription(description);
+    setSkipped();
+    setDescription(description);
   }
 
   public void setSkipped() {
-    this.complete();
-    this.setStatus(SKIPPED);
+    complete();
+    setStatus(SKIPPED);
   }
 
   public void setError() {
-    this.complete();
-    this.setStatus(ERROR);
+    complete();
+    setStatus(ERROR);
   }
 
   public void setError(String description) {
-    this.setError();
-    this.setDescription(description);
+    setError();
+    setDescription(description);
   }
 
   @Override
@@ -219,21 +206,21 @@ public class Task implements Runnable, Iterable<Task> {
 
   @Override
   public Iterator<Task> iterator() {
-    return this.subTasks.iterator();
+    return subTasks.iterator();
   }
 
   @Override
   public void forEach(Consumer<? super Task> action) {
-    this.subTasks.forEach(action);
+    subTasks.forEach(action);
   }
 
   @Override
   public Spliterator<Task> spliterator() {
-    return this.subTasks.spliterator();
+    return subTasks.spliterator();
   }
 
   public boolean isStrict() {
-    return strict;
+    return info.strict;
   }
 
   public String toString() {
@@ -244,40 +231,5 @@ public class Task implements Runnable, Iterable<Task> {
     }
   }
 
-  public String getId() {
-    return id;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Task task)) {
-      return false;
-    }
-    return startTimeMilliseconds == task.startTimeMilliseconds
-        && endTimeMilliseconds == task.endTimeMilliseconds
-        && strict == task.strict
-        && id.equals(task.id)
-        && Objects.equals(description, task.description)
-        && status == task.status
-        && Objects.equals(total, task.total)
-        && Objects.equals(progress, task.progress)
-        && Objects.equals(subTasks, task.subTasks);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        id,
-        description,
-        status,
-        total,
-        progress,
-        startTimeMilliseconds,
-        endTimeMilliseconds,
-        subTasks,
-        strict);
-  }
+  // TODO equals & hashcode
 }

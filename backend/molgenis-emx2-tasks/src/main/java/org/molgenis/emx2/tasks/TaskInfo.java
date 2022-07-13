@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import static java.util.Objects.requireNonNull;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.table;
@@ -39,17 +40,31 @@ public class TaskInfo {
   @Column(name = "endTimeMilliseconds")
   public long endTimeMilliseconds;
 
+  // this parameter is used to indicate if steps should fail on unexpected state or should simply
+  // try to complete
   @Column(name = "strict")
   public boolean strict;
+
+  // TODO task type
+  // TODO log
 
   public TaskInfo() {}
 
   private TaskInfo(String id, String description) {
     this.id = id;
     this.description = description;
+
+    requireNonNull(id, "id can't be null");
+    requireNonNull(description, "description can't be null");
   }
 
   public static TaskInfo create(String description) {
     return new TaskInfo(UUID.randomUUID().toString(), description);
   }
+
+  public boolean isFinished() {
+    return status != TaskStatus.RUNNING && status != TaskStatus.WAITING;
+  }
+
+  //TODO equals & hashcode
 }

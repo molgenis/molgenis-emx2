@@ -19,6 +19,4 @@ public interface TaskService {
   void removeTask(String id);
 
   void clear();
-
-  void updateTaskInfo(TaskInfo taskInfo);
 }
