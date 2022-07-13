@@ -150,14 +150,6 @@ public class FAIRDataPoint {
     builder.add(vcard, VCARD4.INDIVIDUAL, "MOLGENIS support desk");
     builder.add(vcard, VCARD4.HAS_EMAIL, "molgenis-support@umcg.nl");
     builder.add(vcard, VCARD4.HAS_URL, "https://molgenis.org/");
-    builder.add(root, DCAT.KEYWORD, "MOLGENIS");
-    builder.add(root, DCAT.KEYWORD, "Data platform");
-    for (String schemaName : allCatalogFromJSON.keySet()) {
-      for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
-        // "inherit" themeTaxonomy to Metadata Service theme
-        builder.add(root, DCAT.THEME, map.get("themeTaxonomy")); // todo overlap?
-      }
-    }
     builder.add(root, DCAT.ENDPOINT_DESCRIPTION, openAPI);
     builder.add(
         root,
