@@ -52,5 +52,28 @@ public class TaskInfo {
     return status != TaskStatus.RUNNING && status != TaskStatus.WAITING;
   }
 
-  //TODO equals & hashcode
+  // TODO equals & hashcode
+
+  public Row toRow() {
+    return new Row(
+        ID, id,
+        DESCRIPTION, description,
+        STATUS, status.toString(),
+        TOTAL, total,
+        PROGRESS, progress,
+        START_TIME_MILLISECONDS, startTimeMilliseconds,
+        END_TIME_MILLISECONDS, endTimeMilliseconds,
+        STRICT, strict);
+  }
+
+  public static TaskInfo fromRow(Row row) {
+    var taskInfo = new TaskInfo(row.getString(ID), row.getString(DESCRIPTION));
+    taskInfo.status = TaskStatus.valueOf(row.getString(STATUS));
+    taskInfo.total = row.getInteger(TOTAL);
+    taskInfo.progress = row.getInteger(PROGRESS);
+    taskInfo.startTimeMilliseconds = ofNullable(row.getLong(START_TIME_MILLISECONDS)).orElse(0L);
+    taskInfo.endTimeMilliseconds = ofNullable(row.getLong(END_TIME_MILLISECONDS)).orElse(0L);
+    taskInfo.strict = row.getBoolean(STRICT);
+    return taskInfo;
+  }
 }
