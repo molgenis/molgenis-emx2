@@ -7,6 +7,7 @@ import DemoItem from "./DemoItem.vue";
 import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
+import * as utils from "./components/utils";
 
 const components = import.meta.globEager("./components/**/*.vue");
 const generatedDocumentComponents = import.meta.globEager(
@@ -54,6 +55,7 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
 // global variable
 Vue.prototype.$docsMap = docsMap;
 Vue.prototype.$Client = Client;
+Vue.prototype.$utils = utils;
 
 Vue.use(VueRouter);
 const router = new VueRouter({ routes });

@@ -9,7 +9,7 @@
         <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
           <span style="text-align: left; font-weight: normal">
-            <slot name="colheader" />
+            <slot name="rowcolheader" />
           </span>
         </th>
         <th
@@ -53,7 +53,7 @@
                 name="rowheader"
                 :row="row"
                 :metadata="tableMetadata"
-                :rowkey="getKey(row)"
+                :rowkey="getPrimaryKey(row, tableMetadata)"
               />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
@@ -97,6 +97,7 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import DataDisplayCell from "./DataDisplayCell.vue";
+import { getPrimaryKey } from "../utils";
 
 export default {
   components: { DataDisplayCell },
@@ -140,15 +141,11 @@ export default {
         }
       }
     },
-    getKey(row) {
-      let result = {};
-      this.columns
-        .filter((c) => c.key == 1)
-        .map((c) => (result[c.name] = row[c.name]));
-      return result;
+    getPrimaryKey(row) {
+      return getPrimaryKey(row, this.tableMetadata);
     },
     isSelected(row) {
-      let key = this.getKey(row);
+      let key = this.getPrimaryKey(row);
       let found = false;
       if (Array.isArray(this.selection)) {
         this.selection.forEach((s) => {
@@ -186,10 +183,10 @@ export default {
       this.$emit("column-click", column);
     },
     onRowClick(row) {
+      const key = this.getPrimaryKey(row);
       if (this.showSelect) {
         //deep copy
         let update = JSON.parse(JSON.stringify(this.selection));
-        let key = this.getKey(row);
         if (this.isSelected(row)) {
           /** when a row is deselected */
           update = update.filter(
@@ -197,15 +194,15 @@ export default {
               JSON.stringify(item, Object.keys(item).sort()) !==
               JSON.stringify(key, Object.keys(key).sort())
           );
-          this.$emit("deselect", this.getKey(row));
+          this.$emit("deselect", key);
         } else {
           /** when a row is selected */
-          update.push(this.getKey(row));
-          this.$emit("select", this.getKey(row));
+          update.push(key);
+          this.$emit("select", key);
         }
         this.$emit("update:selection", update);
       } else {
-        this.$emit("click", this.getKey(row));
+        this.$emit("click", key);
       }
     },
   },

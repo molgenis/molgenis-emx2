@@ -3,6 +3,7 @@
     <component
       v-if="typeToInput"
       :is="typeToInput"
+      :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
       v-on="$listeners"
     />
@@ -26,7 +27,9 @@ import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
+import InputRefBack from '../forms/InputRefBack.vue';
 import InputRefSelect from "../forms/InputRefSelect.vue"
+import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   HEADING: InputHeading,
@@ -40,6 +43,7 @@ const typeToInputMap = {
   BOOL: InputBoolean,
   DATE: InputDate,
   REF: InputRefSelect,
+  REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
   ONTOLOGY: InputOntology,
@@ -51,21 +55,22 @@ const typeToInputMap = {
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
-  ONTOLOGY_ARRAY: ArrayInput,
-  REF_ARRAY: ArrayInput,
+  ONTOLOGY_ARRAY: InputOntology,
+  REF_ARRAY: InputRefList,
 };
 
 export default {
   name: "FormInput",
   extends: BaseInput,
   props: {
-    inplace: {
-      type: Boolean,
-      default: false,
-    },
     columnType: {
       type: String,
       required: true,
+    },
+    inplace: {
+      type: Boolean,
+      required: false,
+      default: () => false,
     },
     description: {
       type: String,
@@ -84,8 +89,9 @@ export default {
       type: String,
     },
     pkey: {
-      type: String,
+      type: Object,
       required: false,
+      default: () => null,
     },
     refBack: {
       type: String,
@@ -94,6 +100,11 @@ export default {
     refBackType: {
       type: String,
       required: false,
+    },
+    refTablePrimaryKeyObject: {
+      type: Object,
+      required: false,
+      default: () => null,
     },
     refLabel: {
       type: String,
@@ -106,6 +117,11 @@ export default {
     tableName: {
       type: String,
       required: false,
+    },
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => true,
     },
   },
   components: {
@@ -123,8 +139,8 @@ export default {
     InputHeading,
     InputOntology,
     InputRef,
-    //  InputRefback
-    //  InputRefSelect
+    InputRefBack,
+    InputRefSelect
   },
   computed: {
     typeToInput() {

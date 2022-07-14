@@ -4,11 +4,16 @@ import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
@@ -50,10 +55,21 @@ public class CsvApi {
   }
 
   static String mergeMetadata(Request request, Response response) {
-    SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
-    getSchema(request).migrate(schema);
-    response.status(200);
-    return "add/update metadata success";
+    String fileName = request.headers("fileName");
+    boolean fileNameMatchesTable = getSchema(request).getTableNames().contains(fileName);
+
+    if (fileNameMatchesTable) {
+      // so we assume it isn't meta data
+      int count = MolgenisWebservice.getTable(request, fileName).save(getRowList(request));
+      response.status(200);
+      response.type(ACCEPT_CSV);
+      return "imported number of rows: " + count;
+    } else {
+      SchemaMetadata schema = Emx2.fromRowList(getRowList(request));
+      getSchema(request).migrate(schema);
+      response.status(200);
+      return "add/update metadata success";
+    }
   }
 
   static String getMetadata(Request request, Response response) throws IOException {

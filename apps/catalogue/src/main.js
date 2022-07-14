@@ -22,7 +22,7 @@ import NetworksHome from "./network/NetworksHome";
 import NetworkVariables from "./network/NetworkVariables";
 import NetworkCohorts from "./network/NetworkCohorts";
 import NetworkDetails from "./network/NetworkDetails";
-
+import HomeView from "./views/HomeView"
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
@@ -30,6 +30,7 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
+    { name: "Home", path: "/home", component: HomeView },
     {
       name: "Databanks",
       path: "/databanks",

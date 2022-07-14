@@ -48,6 +48,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    readonly: {
+      type: Boolean,
+      default: false,
+    },
+    errorMessage: {
+      type: String,
+      required: false,
+      default: () => null,
+    },
   },
   computed: {
     placeholderValue() {
