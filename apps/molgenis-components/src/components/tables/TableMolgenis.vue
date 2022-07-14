@@ -121,7 +121,7 @@ export default {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns.filter((c) => c.columnType != "HEADING");
+      return this.columns ? this.columns.filter((c) => c.columnType != "HEADING") : [];
     },
   },
   methods: {
