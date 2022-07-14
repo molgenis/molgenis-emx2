@@ -54,32 +54,37 @@ public class BeaconApi {
     //    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }
 
-  private static String getInfo(Request req, Response res) throws JsonProcessingException {
-
+  private static String getInfo(Request req, Response response) throws JsonProcessingException {
+    response.type("application/json");
     return getWriter().writeValueAsString(new Info());
   }
 
   private static String getServiceInfo(Request request, Response response)
       throws JsonProcessingException {
+    response.type("application/json");
     return getWriter().writeValueAsString(new Info());
   }
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
+    response.type("application/json");
     return getWriter().writeValueAsString(new Configuration());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
+    response.type("application/json");
     return getWriter().writeValueAsString(new Map(request));
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
+    response.type("application/json");
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
   private static String getFilteringTerms(Request request, Response response)
       throws JsonProcessingException {
+    response.type("application/json");
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
     // TODO handle skip and limit
@@ -88,6 +93,7 @@ public class BeaconApi {
 
   private static String getDatasets(Request request, Response response)
       throws JsonProcessingException {
+    response.type("application/json");
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
@@ -97,31 +103,37 @@ public class BeaconApi {
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("Analyses", request);
     return getWriter().writeValueAsString(new Analyses(request, tables));
   }
 
   private static String getBiosamples(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("Biosamples", request);
     return getWriter().writeValueAsString(new Biosamples(request, tables));
   }
 
   private static String getCohorts(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("Cohorts", request);
     return getWriter().writeValueAsString(new Cohorts(request, tables));
   }
 
   private static String getIndividuals(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
     return getWriter().writeValueAsString(new Individuals(request, tables));
   }
 
   private static String getRuns(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("Runs", request);
     return getWriter().writeValueAsString(new Runs(request, tables));
   }
 
   private static String getGenomicVariants(Request request, Response response) throws Exception {
+    response.type("application/json");
     List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
     return getWriter().writeValueAsString(new GenomicVariants(request, tables));
   }
