@@ -42,16 +42,11 @@
 </template>
 
 <script>
-/** Data table. Has also option to have row selection. Selection events must be handled outside this view. */
 export default {
   props: {
-    /** the column names */
     columns: Array,
-    /** list of rows matching column names */
     rows: Array,
-    /** set to create select boxes that will yield this columns value when selected. */
     selectColumn: String,
-    /** default value */
     defaultValue: Array,
   },
   data: function () {
@@ -115,13 +110,11 @@ export default {
     onRowClick(row) {
       if (this.selectColumn) {
         if (this.isSelected(row)) {
-          /** when a row is deselected */
           this.selectedItems = this.selectedItems.filter(
               (item) => item !== row[this.selectColumn]
           );
           this.$emit("deselect", row[this.selectColumn]);
         } else {
-          /** when a row is selected */
           this.selectedItems.push(row[this.selectColumn]);
           this.$emit("select", row[this.selectColumn]);
         }
