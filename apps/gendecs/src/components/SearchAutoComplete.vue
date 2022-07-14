@@ -69,7 +69,7 @@ export default {
       type: Boolean,
       default: false,
     },
-  }, // TODO add watcher for automatic emitting?
+  },
   data() {
     return {
       hpoTerms: [""],
