@@ -108,8 +108,8 @@ public class Task implements Runnable, Iterable<Task> {
       default -> {
         if (getDuration() > 0) {
           message += " in " + getDuration() + "ms";
-          if (getTotal() != null && getTotal() > 0) {
-            message += " (" + 1000L * getTotal() / getDuration() + " items/sec)";
+          if (info.total != null && info.total > 0) {
+            message += " (" + 1000L * info.total / getDuration() + " items/sec)";
           }
         }
         return message;
@@ -121,17 +121,6 @@ public class Task implements Runnable, Iterable<Task> {
     Objects.requireNonNull(description, "description cannot be null");
     info.description = description;
     return this;
-  }
-
-  public TaskStatus getStatus() {
-    return info.status;
-  }
-
-  public Integer getTotal() {
-    if (COMPLETED.equals(info.status)) {
-      return info.progress;
-    }
-    return info.total;
   }
 
   public Task setTotal(int total) {

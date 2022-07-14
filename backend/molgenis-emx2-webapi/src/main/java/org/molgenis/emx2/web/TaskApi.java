@@ -7,7 +7,6 @@ import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
-import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
 import spark.Request;
@@ -18,7 +17,7 @@ import spark.Response;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServicePersisted("tasks");
+  public static TaskService taskService = new TaskServicePersisted();
 
   public static void create() {
     get("/api/tasks", TaskApi::listTasks);
@@ -80,10 +79,10 @@ public class TaskApi {
       String clearUrl = "/" + schema + "/api/tasks/clear";
       String result = format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
 
-      result += taskService.listTaskInfos()
-          .stream()
-          .map(info -> taskInfoToJson(info, schema))
-          .collect(joining(","));
+      result +=
+          taskService.listTaskInfos().stream()
+              .map(info -> taskInfoToJson(info, schema))
+              .collect(joining(","));
 
       result += "]}";
       return result;
@@ -94,12 +93,11 @@ public class TaskApi {
   private static String taskInfoToJson(TaskInfo taskInfo, String schema) {
     String getUrl = "/" + schema + "/api/task/" + taskInfo.id;
     String deleteUrl = getUrl + "/delete";
-    //TODO can't this be mapped automatically instead of doing it ourselves?
+    // TODO can't this be mapped automatically instead of doing it ourselves?
     return format(
         "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
         taskInfo.id, taskInfo.description, taskInfo.status, getUrl, deleteUrl);
   }
-
 
   private static String getTask(Request request, Response response) {
     if (request.params("schema") == null || getSchema(request) != null) {
