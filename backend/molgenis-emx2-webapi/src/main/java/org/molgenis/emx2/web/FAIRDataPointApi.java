@@ -34,40 +34,48 @@ public class FAIRDataPointApi {
   }
 
   private static String getFDP(Request request, Response res) throws Exception {
+    res.type("text/turtle");
     Schema[] schemas = getSchemasHavingTable("FDP_Catalog", request);
     return new FAIRDataPoint(request, schemas).getResult();
   }
 
   private static String getCatalog(Request request, Response res) throws Exception {
+    res.type("text/turtle");
     Schema schema = getSchema(request);
     Table table = schema.getTable("FDP_Catalog");
     return new FAIRDataPointCatalog(request, table).getResult();
   }
 
   private static String getDataset(Request request, Response res) throws Exception {
+    res.type("text/turtle");
     Schema schema = getSchema(request);
     Table table = schema.getTable("FDP_Dataset");
     return new FAIRDataPointDataset(request, table).getResult();
   }
 
   private static String getDistribution(Request request, Response res) throws Exception {
+    res.type("text/turtle");
     return new FAIRDataPointDistribution(request, sessionManager.getSession(request).getDatabase())
         .getResult();
   }
 
-  private static String getFDPProfile(Request request, Response res) throws Exception {
+  private static String getFDPProfile(Request request, Response res) {
+    res.type("text/turtle");
     return FAIRDataPointProfile.FDP_SHACL;
   }
 
-  private static String getCatalogProfile(Request request, Response res) throws Exception {
+  private static String getCatalogProfile(Request request, Response res) {
+    res.type("text/turtle");
     return FAIRDataPointProfile.CATALOG_SHACL;
   }
 
-  private static String getDatasetProfile(Request request, Response res) throws Exception {
+  private static String getDatasetProfile(Request request, Response res) {
+    res.type("text/turtle");
     return FAIRDataPointProfile.DATASET_SHACL;
   }
 
-  private static String getDistributionProfile(Request request, Response res) throws Exception {
+  private static String getDistributionProfile(Request request, Response res) {
+    res.type("text/turtle");
     return FAIRDataPointProfile.DISTRIBUTION_SHACL;
   }
 }
