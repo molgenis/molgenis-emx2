@@ -3,8 +3,10 @@
     <div id="titlediv">
       <h1>Welcome to the Genomics viewer of GenDecS</h1>
       <p>This page contains the genomics viewer prototype of GenDecS. Here you can enter
-        a HPO root-term/phenotype. The entered HPO term (and it's associates) is/are matched with the
-        patient data from the file: {{ this.vcffile }}. If a result is found a "match found!" message will
+        a HPO term/phenotype and find the associated variants.
+        <br> The entered HPO term (and it's associates) is/are matched with the
+        patient data from the file: {{ this.vcffile }}.
+        <br> If a result is found a "match found!" message will
         appear together with a table containing the matched variants. If no match is found a "no match found"
         message will show.
       </p>
@@ -56,7 +58,7 @@
           <p id="match-message">
             <span v-for="hpoObject in this.selectedHpoTerms"> {{ hpoObject.term }}, </span>
             resulted in zero matches.
-            Maybe try another HPO term or search with parents and or children </p>
+            Maybe try another HPO term or search with the less specific option. </p>
         </div>
       </div>
     </div>
@@ -210,11 +212,10 @@ export default {
       let hpoTermsToMatch = splitInfoLine[splitInfoLine.length - 2].replace("[", "").replace("]","").split(",");
       let termIndex = [];
       let matchedTerms = [];
-
       for (let i = 0; i < hpoTermsToMatch.length; i++) {
         let currentHpoTerm = hpoTermsToMatch[i].trim().replace(";", ",");
 
-          for (let j = 0; j < termsEntered; j++) {
+        for (let j = 0; j < termsEntered; j++) {
             if (this.selectedHpoTerms[j].term === currentHpoTerm ||
               this.selectedHpoTerms[j].parents.includes(currentHpoTerm) ||
               this.selectedHpoTerms[j].children.includes(currentHpoTerm))  {
@@ -260,7 +261,6 @@ export default {
       this.fileData[property].Diseases = diseaseIds;
       this.fileData[property].Gene = [gene];
       this.fileData[property].HGVS = splitInfoLine[10];
-      this.fileData[property].Information = splitInfoLine.slice(0, splitInfoLine.length - 3).toString().replaceAll(",", "|");
       this.matchedVariants.push(this.fileData[property]);
 
       termIndex = [];
@@ -319,7 +319,7 @@ export default {
         hpoIds.push(hpoId.replace(":", "_"));
       }
       this.hpoIds = hpoIds;
-
+      console.log(this.hpoIds);
       await this.getHpoAssociates(this.hpoIds);
       this.searchAssociates = [];
     },
@@ -329,6 +329,9 @@ export default {
         alert("Please make sure to submit 1 or multiple HPO terms");
       } else {
         this.loading = true;
+        if (this.fileData == null) {
+          this.fileData = await this.getVariantData();
+        }
         this.foundMatch = false;
 
         await this.addHpoAssociates();
@@ -355,32 +358,33 @@ export default {
 
 <style scoped>
 #wrapper {
-  overflow: hidden; /* add this to contain floated children */
+  overflow: hidden;
 }
 #searchdiv {
-  width: 70%;
+  width: 80%;
   margin: 0 auto;
   padding: 10px;
 }
 #bottemdiv {
   width: 100%;
   float:left;
-  padding: 10px;
   text-align: center;
 }
 #titlediv {
   width: 100%;
   float: left;
   padding: 10px;
+  text-align: center;
 }
 h1{
   text-align: center;
 }
 .results {
   padding: 10px;
+  width: 80%;
+  margin: 0 auto;
 }
 #match-message {
-  /*width: 75%;*/
   margin: 0 auto;
 }
 </style>
