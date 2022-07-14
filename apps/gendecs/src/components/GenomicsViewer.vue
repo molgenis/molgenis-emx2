@@ -107,8 +107,15 @@ export default {
     addHpoResult(selectedHpoTerms) {
       for (let i = 0; i < selectedHpoTerms.length; i++) {
         let hpoObject = {"term" : "", "parents" : [], "children" : []};
-        hpoObject.term = selectedHpoTerms[i];
-        this.selectedHpoTerms.push(hpoObject);
+        if(this.selectedHpoTerms.length > 0) {
+          if (!this.selectedHpoTerms[i].term.includes(selectedHpoTerms)) {
+            hpoObject.term = selectedHpoTerms[i];
+            this.selectedHpoTerms.push(hpoObject);
+          }
+        } else {
+          hpoObject.term = selectedHpoTerms[i];
+          this.selectedHpoTerms.push(hpoObject);
+        }
       }
     },
     /**
