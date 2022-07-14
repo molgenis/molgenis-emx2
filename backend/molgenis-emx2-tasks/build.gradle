@@ -1,7 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-sql')
-    implementation 'org.eclipse.persistence:jakarta.persistence:2.2.3'
 }
 
 repositories {

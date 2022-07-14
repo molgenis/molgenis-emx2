@@ -1,48 +1,34 @@
 package org.molgenis.emx2.tasks;
 
 import static java.util.Objects.requireNonNull;
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.table;
+import static java.util.Optional.ofNullable;
 
 import java.util.UUID;
-import javax.persistence.Column;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Table;
+import org.molgenis.emx2.Row;
 
 public class TaskInfo {
 
-  public static final Table<Record> TABLE = table(name("tasks", "taskInfo"));
+  public static final String TABLE_NAME = "taskInfo";
 
-  public static final Field<String> ID = field("id", String.class);
-  public static final Field<String> DESCRIPTION = field("description", String.class);
-  public static final Field<String> STATUS = field("status", String.class);
+  public static final String ID = "id";
+  public static final String DESCRIPTION = "description";
+  public static final String STATUS = "status";
+  public static final String TOTAL = "total";
+  public static final String PROGRESS = "progress";
+  public static final String START_TIME_MILLISECONDS = "startTimeMilliseconds";
+  public static final String END_TIME_MILLISECONDS = "endTimeMilliseconds";
+  public static final String LOG = "log";
+  public static final String STRICT = "strict";
 
-  @Column(name = "id", nullable = false)
   public String id;
-
-  @Column(name = "description", nullable = false)
   public String description;
-
-  @Column(name = "status", nullable = false)
   public TaskStatus status = TaskStatus.WAITING;
-
-  @Column(name = "total")
   public Integer total;
-
-  @Column(name = "progress")
   public Integer progress = 0;
-
-  @Column(name = "startTimeMilliseconds")
   public long startTimeMilliseconds;
-
-  @Column(name = "endTimeMilliseconds")
   public long endTimeMilliseconds;
-
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
-  @Column(name = "strict")
   public boolean strict;
 
   // TODO task type
