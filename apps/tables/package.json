@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@mswertz/emx2-styleguide": "*",
     "core-js": "3.23.4",
     "graphql-request": "4.3.0",
     "vue": "2.6.14",

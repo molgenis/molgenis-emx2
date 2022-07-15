@@ -46,6 +46,7 @@
           :table="table"
           :graphqlURL="graphqlURL"
           :pkey="getPkey(slotProps.row)"
+          :refBack="refBack"
           @close="reload"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
