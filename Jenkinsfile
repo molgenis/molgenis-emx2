@@ -16,7 +16,9 @@ pipeline {
         stage('Prepare') {
             when {
                 anyOf {
-                    changeRequest()
+                    expression {
+                        env.CHANGE_ID && env.BRANCH_NAME.startsWith("PR-")
+                    }
                     branch 'master'
                 }
             }
@@ -58,8 +60,8 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                anyOf {
-                    changeRequest()
+                expression {
+                    env.CHANGE_ID && env.BRANCH_NAME.startsWith("PR-")
                 }
             }
             environment {
@@ -99,9 +101,7 @@ pipeline {
         }
         stage('Master') {
             when {
-                allOf {
-                    branch 'master'
-                }
+                branch 'master'
             }
             steps {
                 container('java') {
