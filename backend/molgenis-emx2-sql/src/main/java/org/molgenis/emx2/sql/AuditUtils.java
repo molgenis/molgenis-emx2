@@ -1,5 +1,8 @@
 package org.molgenis.emx2.sql;
 
+import java.util.Arrays;
+import org.molgenis.emx2.Database;
+
 public class AuditUtils {
 
   private AuditUtils() {
@@ -51,6 +54,16 @@ public class AuditUtils {
             DROP FUNCTION IF EXISTS "%1$s"."process_%2$s_audit"() CASCADE
             """
         .formatted(schemaName, AuditUtils.buildFunctionName(tableName));
+  }
+
+  public static boolean isChangeSchema(Database db, String schemaName) {
+    if (db.getSettingValue("CHANGELOG_SCHEMAS") != null) {
+      return Arrays.stream(db.getSettingValue("CHANGELOG_SCHEMAS").split(","))
+          .map(String::trim)
+          .anyMatch(s -> s.contains(schemaName));
+    } else {
+      return false;
+    }
   }
 
   private static String buildFunctionName(String tableName) {

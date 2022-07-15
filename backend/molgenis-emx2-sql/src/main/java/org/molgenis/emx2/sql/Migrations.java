@@ -44,9 +44,11 @@ public class Migrations {
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
-          if (version < 5)
-            executeMigrationFile(
-                tdb, "migration5.sql", "database migration: add mg_changelog for each schema");
+          // todo skio for now in favor of feature flag
+          //          if (version < 5)
+          //            executeMigrationFile(
+          //                tdb, "migration5.sql", "database migration: add mg_changelog for each
+          // schema");
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.

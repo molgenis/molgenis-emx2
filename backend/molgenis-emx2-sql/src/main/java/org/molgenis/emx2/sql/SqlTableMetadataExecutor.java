@@ -82,11 +82,14 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    // setup trigger processing function
-    jooq.execute(AuditUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
+    if (AuditUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+      // setup trigger processing function
+      jooq.execute(
+          AuditUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
 
-    // set audit trigger, logs insert, update and delete actions on table
-    jooq.execute(AuditUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
+      // set audit trigger, logs insert, update and delete actions on table
+      jooq.execute(AuditUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
+    }
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {
