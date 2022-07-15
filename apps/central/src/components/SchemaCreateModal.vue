@@ -114,7 +114,7 @@ export default {
       schemaName: null,
       schemaDescription: null,
       template: null,
-      templates: [null, "PET_STORE", "DATA_CATALOGUE", "FAIR_DATA_HUB"],
+      templates: [null, "PET_STORE", "DATA_CATALOGUE", "FAIR_DATA_HUB", "DATA_CATALOGUE_COHORT_STAGING","DATA_CATALOGUE_NETWORK_STAGING"],
       includeDemoData: false,
     };
   },
