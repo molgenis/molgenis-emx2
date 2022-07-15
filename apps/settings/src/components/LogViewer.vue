@@ -41,7 +41,7 @@ export default {
     },
     formatOperation(change) {
       if (change.operation === "I") {
-        change.operation = "create";
+        change.operation = "insert";
       } else if (change.operation === "U") {
         change.operation = "update";
       } else if (change.operation === "D") {
