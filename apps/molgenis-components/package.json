@@ -32,10 +32,10 @@
     "vue-flatpickr-component": "8.1.7"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "2.3.3",
+    "@vitejs/plugin-vue": "3.0.0",
     "cross-env": "7.0.3",
     "vitest": "0.18.0",
-    "vite": "2.9.14",
+    "vite": "3.0.0",
     "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0",
     "vue-server-renderer": "2.6.14",
