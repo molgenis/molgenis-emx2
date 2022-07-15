@@ -209,7 +209,7 @@ class SqlSchemaMetadataExecutor {
               String newRowData = r.getValue(NEW, String.class);
               return new Change(operation, stamp, userId, tableName, oldRowData, newRowData);
             })
-        .collect(Collectors.toList());
+        .toList();
   }
 
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
@@ -254,7 +254,7 @@ class SqlSchemaMetadataExecutor {
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
       // remove audit table
-      db.getJooq().dropTableIfExists("mg_changelog");
+      db.getJooq().dropTableIfExists(MG_CHANGLOG);
       // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles

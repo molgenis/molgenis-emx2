@@ -44,7 +44,7 @@ public class Migrations {
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
-          // todo skio for now in favor of feature flag
+          // todo skip for now in favor of feature flag
           //          if (version < 5)
           //            executeMigrationFile(
           //                tdb, "migration5.sql", "database migration: add mg_changelog for each
