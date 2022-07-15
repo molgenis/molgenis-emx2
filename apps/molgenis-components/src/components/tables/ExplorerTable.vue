@@ -77,7 +77,13 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0"></div>
+      <div v-if="countFilters" class="col-3 pl-0">
+        <FilterSidebar
+          :filters.sync="columns"
+          @update:filters="emitConditions"
+          :graphqlURL="graphqlURL"
+        />
+      </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
@@ -181,6 +187,8 @@ import InputSelect from "../forms/InputSelect.vue";
 import SelectionBox from "./SelectionBox.vue";
 import Spinner from "../layout/Spinner.vue";
 import TableMolgenis from "./TableMolgenis.vue";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -196,13 +204,15 @@ export default {
     SelectionBox,
     Spinner,
     TableMolgenis,
+    FilterSidebar,
+    FilterWells,
   },
   data() {
     return {
       tableMetadata: null,
       dataRows: [],
       client: null,
-      columns: null,
+      columns: [],
       searchTerms: null,
       count: null,
       page: null,
@@ -224,7 +234,7 @@ export default {
     },
     graphqlURL: {
       type: String,
-      default: "graphql",
+      default: () => "graphql",
     },
     value: {
       type: Array,
@@ -293,6 +303,51 @@ export default {
         ? this.columns.filter((f) => f.showFilter).length
         : null;
     },
+    graphqlFilter() {
+      let filter = this.filter ? this.filter : {};
+      if (this.columns) {
+        this.columns.forEach((col) => {
+          let conditions = Array.isArray(col.conditions)
+            ? col.conditions.filter((f) => f !== "" && f != undefined)
+            : [];
+          if (conditions.length > 0) {
+            if (
+              col.columnType.startsWith("STRING") ||
+              col.columnType.startsWith("TEXT")
+            ) {
+              filter[col.id] = { like: col.conditions };
+            } else if (col.columnType.startsWith("BOOL")) {
+              filter[col.id] = { equals: col.conditions };
+            } else if (
+              col.columnType.startsWith("REF") ||
+              col.columnType.startsWith("ONTOLOGY")
+            ) {
+              filter[col.id] = { equals: col.conditions };
+            } else if (
+              [
+                "DECIMAL",
+                "DECIMAL_ARRAY",
+                "INT",
+                "INT_ARRAY",
+                "DATE",
+                "DATE_ARRAY",
+              ].includes(col.columnType)
+            ) {
+              filter[col.id] = {
+                between: conditions.flat(),
+              };
+            } else {
+              alert(
+                "filter unsupported for column type '" +
+                  col.columnType +
+                  "' (please report a bug)"
+              );
+            }
+          }
+        });
+      }
+      return filter;
+    },
   },
   methods: {
     toggleView() {
@@ -342,7 +397,7 @@ export default {
       this.$emit("update:conditions", result);
     },
     setLimit(limit) {
-      const limitNumber = parseInt(limit)
+      const limitNumber = parseInt(limit);
       this.limit = limitNumber;
       this.page = 1;
       this.$emit("update:showLimit", limitNumber);
@@ -366,7 +421,6 @@ export default {
         this.tableMetadata = await this.client
           .fetchTableMetaData(this.tableName)
           .catch(this.handleError);
-        this.columns = this.tableMetadata.columns;
       }
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
@@ -402,6 +456,7 @@ export default {
       this.limit = this.showLimit;
     },
     tableMetadata() {
+      console.log('table meta data watch')
       this.page = this.showPage;
       this.limit = this.showLimit;
       this.orderByColumn = this.showOrderBy;
@@ -444,7 +499,7 @@ export default {
           if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
             this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
           } else {
-            delete c.conditions;
+            c.conditions = [];
           }
         });
         //table settings

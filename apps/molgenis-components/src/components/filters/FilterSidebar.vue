@@ -11,8 +11,8 @@
         :conditions="filters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
-        :tableName="filter.tableName"
-        :graphqlURL="filter.graphqlURL"
+        :tableName="filter.refTable"
+        :graphqlURL="graphqlURL"
       />
     </FilterContainer>
   </div>
@@ -36,6 +36,10 @@ export default {
   },
   props: {
     filters: Array,
+    graphqlURL: {
+      type: String,
+      default: () => "graphql",
+    },
   },
   computed: {
     visibleFilters() {
@@ -59,10 +63,10 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" @updateFilters="onUpdate"/>
+        <FilterSidebar :filters="filters" graphqlURL="/pet store/graphql" @updateFilters="onUpdate"/>
       </div>
       <div class="col-8">
-        <FilterWells :filters="filters" @updateFilters="onUpdate"/>
+        <FilterWells :filters="filters" graphqlURL="/pet store/graphql" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
     </div>
@@ -86,8 +90,7 @@ export default {
             showFilter: true,
             expanded: true,
             conditions: [],
-            tableName: "Pet",
-            graphqlURL: "/pet store/graphql"
+            refTable: "Pet",
           },
           {
             name: "quantity",
@@ -124,8 +127,7 @@ export default {
             columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
             conditions: [],
-            tableName: "Tag",
-            graphqlURL: "/pet store/graphql"
+            refTable: "Tag",
           },
         ],
       };
