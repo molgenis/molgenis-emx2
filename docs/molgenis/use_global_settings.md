@@ -11,3 +11,9 @@ Settings currently supported:
 
 Currently you can use the admin menu to view the users currently registered in the system. In addition you can create a
 new user and/or set a user password.
+
+## Changelog 
+A feature flag is used to enable the changelog feature
+By adding a setting with key ```CHANGELOG_SCHEMAS``` to the system admin settings a list of schemas can set.
+When a schema is created with a name that is on the ```CHANGELOG_SCHEMAS``` list, a changelog in created and maintained. 
+The schema settings view has a tab that show a list of the changes.
