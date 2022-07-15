@@ -13,7 +13,7 @@ import spark.Response;
 public class FAIRDataPointApi {
 
   private static MolgenisSessionManager sessionManager;
-  private static final String TEXT_TURTLE_MIME_TYPE = "text/turtle";
+  static final String TEXT_TURTLE_MIME_TYPE = "text/turtle";
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.FAIRDataPointApi.TEXT_TURTLE_MIME_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
@@ -17,6 +18,7 @@ import spark.Response;
 public class LinkedDataFragmentsApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
+  private static final String APPLICATION_JSON_LD_MIME_TYPE = "application/ld+json";
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -27,6 +29,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String jsonldTable(Request request, Response response) {
+    response.type(APPLICATION_JSON_LD_MIME_TYPE);
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForTable(table, new PrintWriter(sw));
@@ -34,6 +37,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String jsonld(Request request, Response response) {
+    response.type(APPLICATION_JSON_LD_MIME_TYPE);
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForSchema(schema, new PrintWriter(sw));
@@ -41,6 +45,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String ttl(Request request, Response response) {
+    response.type(TEXT_TURTLE_MIME_TYPE);
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getTtlForSchema(schema, new PrintWriter(sw));
@@ -48,6 +53,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String ttlTable(Request request, Response response) {
+    response.type(TEXT_TURTLE_MIME_TYPE);
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getTtlForTable(table, new PrintWriter(sw));
