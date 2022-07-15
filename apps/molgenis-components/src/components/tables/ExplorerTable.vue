@@ -1,5 +1,6 @@
 <template>
   <div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <h1 v-if="showHeader">{{ tableName }} Explorer</h1>
 
     <p v-if="showHeader && tableMetadata">
@@ -205,10 +206,15 @@ export default {
       searchTerms: null,
       count: null,
       page: null,
+      limit:
+        this.view === View.TABLE || this.view === View.TABLE
+          ? this.showLimit
+          : 1,
       view: View.TABLE,
       loading: false,
       selectedItems: [],
       orderByColumn: null,
+      graphqlError: null,
     };
   },
   props: {
@@ -263,9 +269,6 @@ export default {
       type: String,
       default: () => "ASC",
     },
-    /**
-     * if table (that has a column that is referred to by this table) can be edited
-     *  */
     canEdit: {
       type: Boolean,
       required: false,
@@ -289,11 +292,6 @@ export default {
       return this.columns
         ? this.columns.filter((f) => f.showFilter).length
         : null;
-    },
-    limit() {
-      return this.view === View.TABLE || this.view === View.TABLE
-        ? this.showLimit
-        : 1;
     },
   },
   methods: {
@@ -344,20 +342,124 @@ export default {
       this.$emit("update:conditions", result);
     },
     setLimit(limit) {
-      this.limit = limit;
+      const limitNumber = parseInt(limit)
+      this.limit = limitNumber;
       this.page = 1;
-      this.$emit("update:showLimit", limit);
+      this.$emit("update:showLimit", limitNumber);
+    },
+    handleError(error) {
+      if (Array.isArray(error.response.errors)) {
+        this.graphqlError = error.response.errors[0].message;
+      } else {
+        this.graphqlError = error;
+      }
+      this.loading = false;
+    },
+    async reload() {
+      this.loading = true;
+      this.graphqlError = null;
+
+      if (!this.client) {
+        this.client = Client.newClient(this.graphqlURL);
+      }
+      if (!this.tableMetadata) {
+        this.tableMetadata = await this.client
+          .fetchTableMetaData(this.tableName)
+          .catch(this.handleError);
+        this.columns = this.tableMetadata.columns;
+      }
+      const dataResponse = await this.client
+        .fetchTableData(this.tableName, {
+          filter: this.graphqlFilter,
+          orderby: this.orderByObject,
+        })
+        .catch(this.handleError);
+
+      this.dataRows = dataResponse[this.tableName];
+      this.count = dataResponse[this.tableName + "_agg"]["count"];
+      this.loading = false;
+    },
+  },
+  watch: {
+    page() {
+      this.loading = true;
+      this.offset = this.limit * (this.page - 1);
+      this.$emit("update:showPage", this.page);
+      this.reload();
+    },
+    showOrderBy() {
+      this.orderByColumn = this.showOrderBy;
+      this.$emit("update:showOrderBy", this.showOrderBy);
+    },
+    showOrder() {
+      this.order = this.showOrder;
+      this.$emit("update:showOrder", this.showOrder);
+    },
+    showPage() {
+      this.page = this.showPage;
+    },
+    showLimit() {
+      this.limit = this.showLimit;
+    },
+    tableMetadata() {
+      this.page = this.showPage;
+      this.limit = this.showLimit;
+      this.orderByColumn = this.showOrderBy;
+      this.order = this.showOrder;
+      if (this.columns.length === 0) {
+        this.columns.push(...this.tableMetadata.columns);
+        // //init settings
+        this.columns.forEach((c) => {
+          //show columns
+          if (this.showColumns && this.showColumns.length > 0) {
+            if (this.showColumns.includes(c.name)) {
+              c.showColumn = true;
+            } else {
+              c.showColumn = false;
+            }
+          } else {
+            //default we show all non mg_ columns
+            if (!c.name.startsWith("mg_")) {
+              c.showColumn = true;
+            } else {
+              c.showColumn = false;
+            }
+          }
+          //show filters
+          if (this.showFilters && this.showFilters.length > 0) {
+            if (this.showFilters.includes(c.name)) {
+              c.showFilter = true;
+            } else {
+              c.showFilter = false;
+            }
+          } else {
+            //default we hide all filters
+            c.showFilter = false;
+          }
+        });
+        if (this.showView) {
+          this.view = this.showView;
+        }
+        this.columns.forEach((c) => {
+          if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
+            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
+          } else {
+            delete c.conditions;
+          }
+        });
+        //table settings
+        if (this.tableMetadata.settings) {
+          this.tableMetadata.settings.forEach((s) => {
+            if (s.key == "cardTemplate") this.cardTemplate = s.value;
+            if (s.key == "recordTemplate") this.recordTemplate = s.value;
+          });
+        }
+      }
+      this.reload();
     },
   },
   mounted: async function () {
-    this.loading = true;
-    this.client = Client.newClient(this.graphqlURL);
-    this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
-    this.columns = this.tableMetadata.columns;
-    this.dataRows = await this.client.fetchTableDataValues(this.tableName, {
-      filter: this.graphqlFilter,
-    });
-    this.loading = false;
+    await this.reload();
   },
 };
 </script>
