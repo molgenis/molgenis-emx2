@@ -11,6 +11,7 @@ import static org.molgenis.emx2.Privileges.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
@@ -191,6 +192,9 @@ class SqlSchemaMetadataExecutor {
   }
 
   static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema) {
+    if (!AuditUtils.isChangeSchema(schema.getDatabase(), schema.getName())) {
+      return Collections.emptyList();
+    }
     List<Record> result =
         jooq.select(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
             .from(table(name(schema.getName(), MG_CHANGLOG)))
