@@ -231,6 +231,12 @@ public class GraphqlApiFactory {
     queryBuilder.field(schemaFields.settingsQuery(schema));
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
+    if ((schema.getRoleForActiveUser() != null
+            && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
+        || schema.getDatabase().isAdmin()) {
+      queryBuilder.field(schemaFields.changeLogQuery(schema));
+      queryBuilder.field(schemaFields.changeLogCountQuery(schema));
+    }
 
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
