@@ -7,7 +7,10 @@ Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicab
 Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
 Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
 Institutions,,website,,,,,,,,,,Link to the homepage of this institution
-Institutions,,partnerIn,refback,,,,Resources,,institution,,,List of partner roles this institution has in various resources
+Institutions,,networks,refback,,,,Networks,,institution,,,"Is the institution a member of an existing research network or consortium? If so, provide a list of the names of the networks or consortia the institution participates in."
+Institutions,,cohorts,refback,,,,Cohorts,,institution,,,"Cohorts that this institution is involved in"
+Institutions,,databanks,refback,,,,Databanks,,institution,,,"Databanks that this institution is involved in"
+Institutions,,datasources,refback,,,,Datasources,,institution,,,"Datasources that this institution is involved in"
 Institutions,,logo,file,,,,,,,,,Institution logo
 Institutions,,providerOf,refback,,,,DAPs,,institution,,,"Query that lists all resources (datasources, databanks, cohorts, networks) that this institution is access provider of"
 Institutions,,studies,refback,,,,Studies,,leadInstitution,,,List of studies this intsitution is involved in
@@ -39,7 +42,10 @@ Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing
 Studies,,type,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
 Databanks,,databankFamily,ontology,,,CatalogueOntologies,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,,"If 'other' selected above, describe the type of data bank"
-Resources,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this resource
+Cohorts,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this cohort
+Databanks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this databank
+Datasources,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this datasource
+Networks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this network
 Studies,,contactName,,,,,,,,,,Name of institution contact for study
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 Resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
