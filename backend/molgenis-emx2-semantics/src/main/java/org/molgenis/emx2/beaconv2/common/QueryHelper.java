@@ -14,8 +14,7 @@ import org.molgenis.emx2.Table;
 public class QueryHelper {
 
   /**
-   * Select query columns from table, including OntologyTerm sub columns. For ontologyTerm the name,
-   * code and codesystem are added to the select. These are needed for the Beacon response.
+   * Select query columns from table, including the columns of any reference.
    *
    * @param table
    * @param query
