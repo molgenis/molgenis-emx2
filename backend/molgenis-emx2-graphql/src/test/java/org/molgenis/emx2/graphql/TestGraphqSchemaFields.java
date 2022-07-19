@@ -1,6 +1,8 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
@@ -20,12 +22,17 @@ import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.TaskServicePersisted;
 
 public class TestGraphqSchemaFields {
 
@@ -40,7 +47,7 @@ public class TestGraphqSchemaFields {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
     new PetStoreLoader().load(schema, true);
-    taskService = new TaskServiceInMemory();
+    taskService = new TaskServicePersisted();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
 

@@ -1,6 +1,10 @@
 package org.molgenis.emx2.graphql;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
@@ -19,7 +23,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.molgenis.emx2.tasks.TaskServicePersisted;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
@@ -32,7 +36,7 @@ public class TestGraphqlDatabaseFields {
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    taskService = new TaskServiceInMemory();
+    taskService = new TaskServicePersisted();
     Schema schema = database.dropCreateSchema(schemaName);
     new PetStoreLoader().load(schema, false);
     grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
