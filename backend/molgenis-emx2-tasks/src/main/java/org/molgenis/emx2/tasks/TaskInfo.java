@@ -52,6 +52,10 @@ public class TaskInfo {
     return status != TaskStatus.RUNNING && status != TaskStatus.WAITING;
   }
 
+  public boolean isOlderThan(long milliseconds) {
+    return endTimeMilliseconds <= System.currentTimeMillis() - milliseconds;
+  }
+
   // TODO equals & hashcode
 
   public Row toRow() {

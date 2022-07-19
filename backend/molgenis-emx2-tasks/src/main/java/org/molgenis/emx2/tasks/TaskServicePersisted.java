@@ -62,7 +62,17 @@ public class TaskServicePersisted implements TaskService {
   }
 
   @Override
-  public void removeOlderThan(long milliseconds) {}
+  public void removeOlderThan(long milliseconds) {
+    var rowsToDelete =
+        tasksTable.retrieveRows().stream()
+            .map(TaskInfo::fromRow)
+            .filter(TaskInfo::isFinished)
+            .filter(taskInfo -> taskInfo.isOlderThan(milliseconds))
+            .map(TaskInfo::toRow)
+            .toList();
+
+    tasksTable.delete(rowsToDelete);
+  }
 
   @Override
   public void shutdown() {
@@ -90,8 +100,8 @@ public class TaskServicePersisted implements TaskService {
       return;
     }
 
-    var tasks = activeTasks.values().stream().map(TaskInfo::toRow).toList();
-    tasksTable.update(tasks);
+    var taskInfos = activeTasks.values().stream().map(TaskInfo::toRow).toList();
+    tasksTable.update(taskInfos);
     activeTasks.values().removeIf(TaskInfo::isFinished);
   }
 }
