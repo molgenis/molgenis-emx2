@@ -22,6 +22,7 @@ RUN yarn install
 ## Make the components css available to the nuxt server
 COPY ./molgenis-components/dist/style.css /app/nuxt-ssr/assets/css
 
+## Copy the same lock file used in main build to ssr build context
 COPY yarn.lock /app/nuxt-ssr
 
 WORKDIR /app/nuxt-ssr

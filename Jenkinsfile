@@ -91,9 +91,7 @@ pipeline {
         }
         stage('Master') {
             when {
-                allOf {
-                    branch 'master'
-                }
+                branch 'master'
             }
             steps {
                 container('java') {

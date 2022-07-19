@@ -20,6 +20,7 @@ import spark.Response;
 public class BeaconApi {
 
   private static MolgenisSessionManager sessionManager;
+  private static final String APPLICATION_JSON_MIME_TYPE = "application/json";
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -54,32 +55,37 @@ public class BeaconApi {
     //    post("/:schema/api/beacon/datasets/:table", BeaconApi::postDatasetsForTable);
   }
 
-  private static String getInfo(Request req, Response res) throws JsonProcessingException {
-
+  private static String getInfo(Request req, Response response) throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     return getWriter().writeValueAsString(new Info());
   }
 
   private static String getServiceInfo(Request request, Response response)
       throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     return getWriter().writeValueAsString(new Info());
   }
 
   private static Object getConfiguration(Request request, Response response)
       throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     return getWriter().writeValueAsString(new Configuration());
   }
 
   private static Object getMap(Request request, Response response) throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     return getWriter().writeValueAsString(new Map(request));
   }
 
   private static Object getEntryTypes(Request request, Response response)
       throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     return getWriter().writeValueAsString(new EntryTypes());
   }
 
   private static String getFilteringTerms(Request request, Response response)
       throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
     // TODO handle skip and limit
@@ -88,6 +94,7 @@ public class BeaconApi {
 
   private static String getDatasets(Request request, Response response)
       throws JsonProcessingException {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     String skip = request.queryParams("skip");
     String limit = request.queryParams("limit");
 
@@ -97,31 +104,37 @@ public class BeaconApi {
   }
 
   private static String getAnalyses(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Analyses", request);
     return getWriter().writeValueAsString(new Analyses(request, tables));
   }
 
   private static String getBiosamples(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Biosamples", request);
     return getWriter().writeValueAsString(new Biosamples(request, tables));
   }
 
   private static String getCohorts(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Cohorts", request);
     return getWriter().writeValueAsString(new Cohorts(request, tables));
   }
 
   private static String getIndividuals(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
     return getWriter().writeValueAsString(new Individuals(request, tables));
   }
 
   private static String getRuns(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Runs", request);
     return getWriter().writeValueAsString(new Runs(request, tables));
   }
 
   private static String getGenomicVariants(Request request, Response response) throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("GenomicVariations", request);
     return getWriter().writeValueAsString(new GenomicVariants(request, tables));
   }
