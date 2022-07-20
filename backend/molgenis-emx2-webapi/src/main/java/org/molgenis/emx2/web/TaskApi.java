@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.joining;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.delete;
 import static spark.Spark.get;
-import static spark.Spark.post;
 
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.*;
@@ -46,14 +45,6 @@ public class TaskApi {
     // convenient delete
     delete("/:schema/:app/api/task/:id", TaskApi::deleteTask);
     get("/:schema/:app/api/task/:id/delete", TaskApi::deleteTask);
-
-    // TODO remove
-    post("/api/tasks/dummy", TaskApi::runDummy);
-  }
-
-  private static Void runDummy(Request request, Response response) {
-    submit(new DummyTask());
-    return null;
   }
 
   private static String clearTasks(Request request, Response response) {
@@ -91,12 +82,12 @@ public class TaskApi {
   }
 
   private static String taskInfoToJson(TaskInfo taskInfo, String schema) {
-    String getUrl = "/" + schema + "/api/task/" + taskInfo.id;
+    String getUrl = "/" + schema + "/api/task/" + taskInfo.getId();
     String deleteUrl = getUrl + "/delete";
     // TODO can't this be mapped automatically instead of doing it ourselves?
     return format(
         "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
-        taskInfo.id, taskInfo.description, taskInfo.status, getUrl, deleteUrl);
+        taskInfo.getId(), taskInfo.getDescription(), taskInfo.getStatus(), getUrl, deleteUrl);
   }
 
   private static String getTask(Request request, Response response) {

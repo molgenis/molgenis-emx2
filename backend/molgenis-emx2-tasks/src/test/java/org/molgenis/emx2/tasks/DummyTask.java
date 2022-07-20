@@ -25,7 +25,7 @@ public class DummyTask extends Task {
         } catch (InterruptedException e) {
           throw new MolgenisException("Error", e);
         }
-        t.setProgress(item);
+        t.getInfo().setProgress(item);
       }
       t.complete();
     }

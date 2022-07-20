@@ -2,6 +2,7 @@ package org.molgenis.emx2.tasks;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
+import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
 
 import java.util.UUID;
 import org.molgenis.emx2.Row;
@@ -20,16 +21,16 @@ public class TaskInfo {
   public static final String LOG = "log";
   public static final String STRICT = "strict";
 
-  public String id;
-  public String description;
-  public TaskStatus status = TaskStatus.WAITING;
-  public Integer total;
-  public Integer progress = 0;
-  public long startTimeMilliseconds;
-  public long endTimeMilliseconds;
+  private String id;
+  private String description;
+  private TaskStatus status = TaskStatus.WAITING;
+  private Integer total;
+  private int progress;
+  private long startTimeMilliseconds;
+  private long endTimeMilliseconds;
   // this parameter is used to indicate if steps should fail on unexpected state or should simply
   // try to complete
-  public boolean strict;
+  private boolean strict;
 
   // TODO task type
   // TODO log
@@ -42,6 +43,104 @@ public class TaskInfo {
 
     requireNonNull(id, "id can't be null");
     requireNonNull(description, "description can't be null");
+  }
+
+  public String getDescription() {
+    String message = description;
+    switch (status) {
+      case WAITING -> {
+        if (getDuration() > 0) {
+          message += " for " + getDuration() + "ms";
+        }
+        return message;
+      }
+      case RUNNING -> {
+        if (getDuration() > 0) {
+          message += " for " + getDuration() + "ms";
+          if (getProgress() != null && getProgress() > 0) {
+            message += " at " + 1000L * getProgress() / getDuration() + " items/sec";
+          }
+        }
+        return message;
+      }
+      default -> {
+        if (getDuration() > 0) {
+          message += " in " + getDuration() + "ms";
+          if (total != null && total > 0) {
+            message += " (" + 1000L * total / getDuration() + " items/sec)";
+          }
+        }
+        return message;
+      }
+    }
+  }
+
+  public long getDuration() {
+    if (endTimeMilliseconds == 0) {
+      return System.currentTimeMillis() - startTimeMilliseconds;
+    } else {
+      return endTimeMilliseconds - startTimeMilliseconds;
+    }
+  }
+
+  public Integer getProgress() {
+    return progress;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public TaskStatus getStatus() {
+    return status;
+  }
+
+  public Integer getTotal() {
+    return total;
+  }
+
+  public long getStartTimeMilliseconds() {
+    return startTimeMilliseconds;
+  }
+
+  public long getEndTimeMilliseconds() {
+    return endTimeMilliseconds;
+  }
+
+  public boolean isStrict() {
+    return strict;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setStatus(TaskStatus status) {
+    this.status = status;
+  }
+
+  public void setTotal(Integer total) {
+    this.total = total;
+  }
+
+  public void setProgress(int progress) {
+    this.progress = progress;
+  }
+
+  public void setStartTimeMilliseconds(long startTimeMilliseconds) {
+    this.startTimeMilliseconds = startTimeMilliseconds;
+  }
+
+  public void setEndTimeMilliseconds(long endTimeMilliseconds) {
+    this.endTimeMilliseconds = endTimeMilliseconds;
+  }
+
+  public void setStrict(boolean strict) {
+    this.strict = strict;
   }
 
   public static TaskInfo create(String description) {

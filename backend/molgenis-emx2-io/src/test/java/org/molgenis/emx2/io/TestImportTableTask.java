@@ -35,6 +35,7 @@ public class TestImportTableTask {
             .get(0)
             .getSubTasks()
             .get(0)
+            .getInfo()
             .getDescription()
             .contains("colerror"));
 

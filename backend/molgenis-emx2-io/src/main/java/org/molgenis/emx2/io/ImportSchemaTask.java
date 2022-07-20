@@ -45,13 +45,13 @@ public class ImportSchemaTask extends Task {
             Schema s = db.getSchema(schema.getName());
 
             if (!filter.equals(Filter.DATA_ONLY)) {
-              Task metadataTask = new ImportMetadataTask(s, tableStore, isStrict());
+              Task metadataTask = new ImportMetadataTask(s, tableStore, info.isStrict());
               this.addSubTask(metadataTask);
               metadataTask.run();
             }
 
             if (!filter.equals(Filter.METADATA_ONLY)) {
-              Task dataTask = new ImportDataTask(s, tableStore, isStrict());
+              Task dataTask = new ImportDataTask(s, tableStore, info.isStrict());
               this.addSubTask(dataTask);
               dataTask.run();
             }

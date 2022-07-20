@@ -37,7 +37,7 @@ public class ImportDataTask extends Task {
     // create task for the import, including subtasks for each sheet
     for (Table table : schema.getTablesSorted()) {
       if (tableStore.containsTable(table.getName())) {
-        ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
+        ImportTableTask importTableTask = new ImportTableTask(tableStore, table, info.isStrict());
         this.addSubTask(importTableTask);
         importTableTask.run();
         skipped = false;

@@ -30,7 +30,7 @@ public class Task implements Runnable, Iterable<Task> {
   private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   private final List<Task> subTasks = new ArrayList<>();
 
-  private final TaskInfo info;
+  protected final TaskInfo info;
 
   public Task(String description) {
     info = TaskInfo.create(description);
@@ -38,12 +38,12 @@ public class Task implements Runnable, Iterable<Task> {
 
   public Task(String description, TaskStatus status) {
     this(description);
-    this.info.status = status;
+    this.info.setStatus(status);
   }
 
   public Task(String description, boolean strict) {
     this(description);
-    this.info.strict = strict;
+    this.info.setStrict(strict);
   }
 
   public Task addSubTask(String message) {
@@ -71,119 +71,52 @@ public class Task implements Runnable, Iterable<Task> {
     return Collections.unmodifiableList(subTasks);
   }
 
-  public Integer getProgress() {
-    if (RUNNING.equals(info.status)) {
-      return info.progress;
-    }
-    return null;
-  }
-
-  public Task setProgress(int progress) {
-    this.info.progress = progress;
-    return this;
-  }
-
-  public String getDescription() {
-    String message = info.description;
-    switch (info.status) {
-      case WAITING -> {
-        if (getDuration() > 0) {
-          message += " for " + getDuration() + "ms";
-        }
-        return message;
-      }
-      case RUNNING -> {
-        if (getDuration() > 0) {
-          message += " for " + getDuration() + "ms";
-          if (getProgress() != null && getProgress() > 0) {
-            message += " at " + 1000L * getProgress() / getDuration() + " items/sec";
-          }
-        }
-        return message;
-      }
-      default -> {
-        if (getDuration() > 0) {
-          message += " in " + getDuration() + "ms";
-          if (info.total != null && info.total > 0) {
-            message += " (" + 1000L * info.total / getDuration() + " items/sec)";
-          }
-        }
-        return message;
-      }
-    }
-  }
-
-  public Task setDescription(String description) {
-    Objects.requireNonNull(description, "description cannot be null");
-    info.description = description;
-    return this;
-  }
-
-  public Task setTotal(int total) {
-    info.total = total;
-    return this;
-  }
-
   public Task start() {
-    info.startTimeMilliseconds = System.currentTimeMillis();
-    info.status = RUNNING;
-    logger.info(getDescription() + ": started");
+    info.setStartTimeMilliseconds(System.currentTimeMillis());
+    info.setStatus(RUNNING);
+    logger.info(info.getDescription() + ": started");
     return this;
   }
 
   public Task complete() {
-    info.status = COMPLETED;
-    info.endTimeMilliseconds = System.currentTimeMillis();
-    logger.info(getDescription());
+    info.setStatus(COMPLETED);
+    info.setEndTimeMilliseconds(System.currentTimeMillis());
+    logger.info(info.getDescription());
     return this;
   }
 
   public Task complete(String description) {
-    setDescription(description);
+    info.setDescription(description);
     complete();
     return this;
   }
 
   public void completeWithError(String message) {
-    setDescription(message);
+    info.setDescription(message);
     complete();
-    info.status = ERROR;
+    info.setStatus(ERROR);
     logger.error(message);
     throw new MolgenisException(message);
   }
 
-  public long getDuration() {
-    if (info.endTimeMilliseconds == 0) {
-      return System.currentTimeMillis() - info.startTimeMilliseconds;
-    } else {
-      return info.endTimeMilliseconds - info.startTimeMilliseconds;
-    }
-  }
-
-  public Task setStatus(TaskStatus status) {
-    Objects.requireNonNull(status, "status can not be null");
-    info.status = status;
-    return this;
-  }
-
   public void setSkipped(String description) {
     setSkipped();
-    setDescription(description);
+    info.setDescription(description);
   }
 
   public void setSkipped() {
     complete();
-    setStatus(SKIPPED);
+    info.setStatus(SKIPPED);
   }
 
   public void setError() {
     complete();
-    setStatus(ERROR);
+    info.setStatus(ERROR);
   }
 
   public void setError(String description) {
     setError();
-    setDescription(description);
+    info.setDescription(description);
   }
 
   @Override
@@ -202,10 +135,6 @@ public class Task implements Runnable, Iterable<Task> {
   @Override
   public Spliterator<Task> spliterator() {
     return subTasks.spliterator();
-  }
-
-  public boolean isStrict() {
-    return info.strict;
   }
 
   public String toString() {

@@ -24,23 +24,23 @@ public class ImportTableTask extends Task {
 
   @Override
   public void run() {
-    this.start();
+    start();
 
     // validate uniqueness of the keys in the set
-    this.setDescription(
+    info.setDescription(
         "Table " + table.getName() + ": Counting rows & checking that all key columns are unique");
     source.processTable(table.getName(), new ValidatePkeyProcessor(table.getMetadata(), this));
 
     // execute the actual loading, we can use index to find the size
-    this.setTotal(this.getProgress());
-    this.setDescription("Importing rows into " + table.getName());
+    info.setTotal(info.getProgress());
+    info.setDescription("Importing rows into " + table.getName());
     source.processTable(table.getName(), new ImportRowProcesssor(table, this));
 
     // done
-    if (getProgress() > 0) {
-      this.complete(String.format("Imported %s %s", getProgress(), table.getName()));
+    if (info.getProgress() > 0) {
+      complete(String.format("Imported %s %s", info.getProgress(), table.getName()));
     } else {
-      this.setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
+      setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
     }
   }
 
@@ -60,14 +60,14 @@ public class ImportTableTask extends Task {
     @Override
     public void process(Iterator<Row> iterator, TableStore source) {
 
-      task.setProgress(0);
+      task.getInfo().setProgress(0);
       int index = 0;
 
       while (iterator.hasNext()) {
         Row row = iterator.next();
 
         // column warning
-        if (task.getProgress() == 0) {
+        if (task.getInfo().getProgress() == 0) {
           List<String> columnNames =
               metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
           warningColumns =
@@ -75,7 +75,7 @@ public class ImportTableTask extends Task {
                   .filter(name -> !columnNames.contains(name))
                   .collect(Collectors.toSet());
           if (!warningColumns.isEmpty()) {
-            if (task.isStrict()) {
+            if (task.getInfo().isStrict()) {
               throw new MolgenisException(
                   "Found unknown columns "
                       + warningColumns
@@ -107,7 +107,7 @@ public class ImportTableTask extends Task {
         } else {
           keys.add(keyValue);
         }
-        task.setProgress(++index);
+        task.getInfo().setProgress(++index);
       }
       if (!duplicates.isEmpty()) {
         task.completeWithError(
@@ -128,7 +128,7 @@ public class ImportTableTask extends Task {
 
     @Override
     public void process(Iterator<Row> iterator, TableStore source) {
-      task.setProgress(0); // for the progress monitoring
+      task.getInfo().setProgress(0); // for the progress monitoring
       int index = 0;
       List<Row> batch = new ArrayList<>();
       List<Column> columns = table.getMetadata().getColumns();
@@ -148,16 +148,20 @@ public class ImportTableTask extends Task {
         index++;
         if (batch.size() >= 1000) {
           table.save(batch);
-          task.setProgress(index);
-          task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+          task.getInfo().setProgress(index);
+          task.getInfo()
+              .setDescription(
+                  "Imported " + task.getInfo().getProgress() + " rows into " + table.getName());
           batch.clear();
         }
       }
       // remaining
       if (!batch.isEmpty()) {
         table.save(batch);
-        task.setProgress(index);
-        task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+        task.getInfo().setProgress(index);
+        task.getInfo()
+            .setDescription(
+                "Imported " + task.getInfo().getProgress() + " rows into " + table.getName());
       }
     }
   }

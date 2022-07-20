@@ -38,9 +38,9 @@ public class TaskServicePersisted implements TaskService {
   @Override
   public String submit(Task task) {
     tasksTable.insert(task.getInfo().toRow());
-    activeTasks.put(task.getInfo().id, task.getInfo());
+    activeTasks.put(task.getInfo().getId(), task.getInfo());
     taskExecutor.submit(task);
-    return task.getInfo().id;
+    return task.getInfo().getId();
   }
 
   @Override
