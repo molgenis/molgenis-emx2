@@ -20,8 +20,8 @@ public class RDFApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
-    get("/:schema/api/rdf/:format", RDFApi::rdfForSchema);
-    get("/:schema/api/rdf/:format/:table", RDFApi::rdfForTable);
+    get("/:schema/api/rdf", RDFApi::rdfForSchema);
+    get("/:schema/api/rdf/:table", RDFApi::rdfForTable);
   }
 
   private static String rdfForSchema(Request request, Response response) {
