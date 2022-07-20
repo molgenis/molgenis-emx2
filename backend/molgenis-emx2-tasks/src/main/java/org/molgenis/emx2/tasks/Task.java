@@ -63,10 +63,6 @@ public class Task implements Runnable, Iterable<Task> {
     this.subTasks.add(task);
   }
 
-  public String getId() {
-    return info.id;
-  }
-
   public TaskInfo getInfo() {
     return info;
   }

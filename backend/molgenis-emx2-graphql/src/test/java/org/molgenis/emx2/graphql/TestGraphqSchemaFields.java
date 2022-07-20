@@ -527,7 +527,7 @@ public class TestGraphqSchemaFields {
     assertTrue(
         execute(
                 "{_tasks(id:\""
-                    + task.getId()
+                    + task.getInfo().id
                     + "\"){id,description,status,subTasks{id,description,status,subTasks{id,description,status}}}}")
             .at("/_tasks/0/description")
             .textValue()
