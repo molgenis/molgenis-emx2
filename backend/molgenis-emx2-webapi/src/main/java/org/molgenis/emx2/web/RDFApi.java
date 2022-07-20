@@ -20,26 +20,21 @@ public class RDFApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
-    get("/:schema/api/rdf", RDFApi::rdfSchema);
-    get("/:schema/api/rdf/:format/:table", RDFApi::rdfTable);
+    get("/:schema/api/rdf/:format", RDFApi::rdfForSchema);
+    get("/:schema/api/rdf/:format/:table", RDFApi::rdfForTable);
   }
 
-  private static String rdfSchema(Request request, Response response) {
+  private static String rdfForSchema(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForSchema(schema, new PrintWriter(sw));
+    RDFService.getRdfForSchema(schema, new PrintWriter(sw), request, response);
     return sw.getBuffer().toString();
   }
 
-  private static String rdfTable(Request request, Response response) {
+  private static String rdfForTable(Request request, Response response) {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     RDFService.getRdfForTable(table, new PrintWriter(sw), request, response);
     return sw.getBuffer().toString();
   }
-
-  // should deliver resource on resource URI
-  // should deliver a complete dump
-  // future: deliver fragements filtered on subject, predicate, object
-
 }
