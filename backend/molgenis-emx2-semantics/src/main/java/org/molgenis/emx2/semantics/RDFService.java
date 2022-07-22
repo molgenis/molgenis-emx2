@@ -31,13 +31,12 @@ import spark.Response;
 
 /**
  * Nomenclature used from:
+ *
  * <ul>
- *     <li>SIO (http://semanticscience.org)</li>
- *     <li>RDF Data Cube (https://www.w3.org/TR/vocab-data-cube)</li>
- *     <li>OWL, RDF, RDFS</li>
+ *   <li>SIO (http://semanticscience.org)
+ *   <li>RDF Data Cube (https://www.w3.org/TR/vocab-data-cube)
+ *   <li>OWL, RDF, RDFS
  * </ul>
- *
- *
  */
 public class RDFService {
   private static ObjectMapper jsonMapper =
@@ -170,7 +169,8 @@ public class RDFService {
         builder.add(tableContext, RDFS.ISDEFINEDBY, iri(tableSemantics));
       }
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      builder.add(tableContext, RDFS.ISDEFINEDBY, iri("http://purl.obolibrary.org/obo/NCIT_C48697"));
+      builder.add(
+          tableContext, RDFS.ISDEFINEDBY, iri("http://purl.obolibrary.org/obo/NCIT_C48697"));
     }
     builder.add(tableContext, RDFS.LABEL, table.getName());
     if (table.getMetadata().getTableType() == TableType.DATA) {
@@ -180,7 +180,8 @@ public class RDFService {
     }
   }
 
-  // todo: unit is missing (which would also be a sdmx-attribute:unitMeasure, typed as an qb:AttributeProperty)
+  // todo: unit is missing (which would also be a sdmx-attribute:unitMeasure, typed as an
+  // qb:AttributeProperty)
   public static void describeColumns(ModelBuilder builder, Table table, IRI schemaContext)
       throws Exception {
     IRI tableContext = iri(schemaContext + "/" + table.getName());
@@ -208,8 +209,8 @@ public class RDFService {
     }
   }
 
-  public static void describeValues(
-      ModelBuilder builder, Table table, IRI schemaContext) throws Exception {
+  public static void describeValues(ModelBuilder builder, Table table, IRI schemaContext)
+      throws Exception {
     Map<String, Column> columnMap = new HashMap<>();
     for (Column c : table.getMetadata().getColumns()) {
       columnMap.put(c.getName(), c);
