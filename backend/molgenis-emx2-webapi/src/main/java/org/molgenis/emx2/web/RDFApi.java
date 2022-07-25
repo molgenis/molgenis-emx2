@@ -6,6 +6,7 @@ import static spark.Spark.get;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.semantics.RDFService;
@@ -22,6 +23,7 @@ public class RDFApi {
     sessionManager = sm;
     get("/:schema/api/rdf", RDFApi::rdfForSchema);
     get("/:schema/api/rdf/:table", RDFApi::rdfForTable);
+    get("/api/rdfdump", RDFApi::rdfDump);
   }
 
   private static String rdfForSchema(Request request, Response response) {
@@ -35,6 +37,14 @@ public class RDFApi {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     RDFService.getRdfForTable(table, new PrintWriter(sw), request, response);
+    return sw.getBuffer().toString();
+  }
+
+  // todo make streaming (also the other endpoints)
+  private static String rdfDump(Request request, Response response) {
+    Database database = getSchema(request).getDatabase();
+    StringWriter sw = new StringWriter();
+    RDFService.getRdfDatabaseDump(database, new PrintWriter(sw), request, response);
     return sw.getBuffer().toString();
   }
 }
