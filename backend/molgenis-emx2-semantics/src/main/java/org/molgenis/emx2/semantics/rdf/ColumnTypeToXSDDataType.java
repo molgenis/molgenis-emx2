@@ -1,4 +1,4 @@
-package org.molgenis.emx2.semantics;
+package org.molgenis.emx2.semantics.rdf;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.XSD;
