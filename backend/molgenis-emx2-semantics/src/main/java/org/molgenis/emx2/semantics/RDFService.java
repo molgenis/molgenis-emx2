@@ -2,8 +2,8 @@ package org.molgenis.emx2.semantics;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.molgenis.emx2.semantics.rdf.ColumnToRDF.describeColumns;
-import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
 import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
+import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
 import static org.molgenis.emx2.semantics.rdf.TableToRDF.describeTable;
 import static org.molgenis.emx2.semantics.rdf.ValueToRDF.describeValues;
 
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -44,7 +43,6 @@ public class RDFService {
           .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
           .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
 
-
   private RDFService() {
     // hidden
   }
@@ -61,14 +59,17 @@ public class RDFService {
   public static void getRdfForTable(
       Table table, PrintWriter writer, Request request, Response response) {
     try {
+      RDFFormat applicationOntologyFormat;
       if (request.queryParams("format") == null) {
-        throw new Exception("Format not specified. Use any of: " + RDF_FILE_FORMATS.keySet());
+        // defaulting to TTL
+        applicationOntologyFormat = RDFFormat.TURTLE;
+      } else {
+        String format = request.queryParams("format");
+        if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+          throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
+        }
+        applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
       }
-      String format = request.queryParams("format");
-      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-        throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-      }
-      RDFFormat applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
       response.type(applicationOntologyFormat.getDefaultMIMEType());
 
       IRI schemaContext =
@@ -110,15 +111,18 @@ public class RDFService {
   public static void getRdfForSchema(
       Schema schema, PrintWriter printWriter, Request request, Response response) {
     try {
+      RDFFormat applicationOntologyFormat;
       if (request.queryParams("format") == null) {
-        throw new Exception(
-            "Format not specified (using ?format=x). Use any of: " + RDF_FILE_FORMATS.keySet());
+        // defaulting to TTL
+        applicationOntologyFormat = RDFFormat.TURTLE;
+      } else {
+        String format = request.queryParams("format");
+        if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+          throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
+        }
+        applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
       }
-      String format = request.queryParams("format");
-      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-        throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-      }
-      RDFFormat applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
+
       response.type(applicationOntologyFormat.getDefaultMIMEType());
 
       ModelBuilder builder = new ModelBuilder();
