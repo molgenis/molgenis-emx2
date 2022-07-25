@@ -11,9 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import org.eclipse.rdf4j.model.*;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -27,6 +25,7 @@ import spark.Response;
 // TODO check value types
 // TODO make sure no classes are used as predicates and vice versa
 // TODO: ontology tables need semantics to denote "what are these rows instances of?" (typeOf in FG)
+// TODO: units for values?
 
 /**
  * Nomenclature used from:
@@ -38,13 +37,45 @@ import spark.Response;
  * </ul>
  */
 public class RDFService {
-  private static ObjectMapper jsonMapper =
-      new ObjectMapper()
-          .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-          .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
 
-  private RDFService() {
-    // hidden
+  private ObjectMapper jsonMapper;
+  private ModelBuilder builder;
+  private WriterConfig config;
+  private RDFFormat rdfFormat;
+
+  /**
+   * Hidden constructor, used on-the-fly by static functions that handle requests.
+   *
+   * @param request
+   * @param response
+   */
+  private RDFService(Request request, Response response) throws Exception {
+
+    jsonMapper =
+        new ObjectMapper()
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+
+    if (request.queryParams("format") == null) {
+      this.rdfFormat = RDFFormat.TURTLE;
+    } else {
+      String format = request.queryParams("format");
+      if (!RDF_FILE_FORMATS.keySet().contains(format)) {
+        throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
+      }
+      this.rdfFormat = RDF_FILE_FORMATS.get(format);
+    }
+    response.type(this.rdfFormat.getDefaultMIMEType());
+
+    this.builder = new ModelBuilder();
+    this.config = new WriterConfig();
+    this.config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
+    this.builder.setNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    this.builder.setNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+    this.builder.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema#");
+    this.builder.setNamespace("owl", "http://www.w3.org/2002/07/owl#");
+    this.builder.setNamespace("sio", "http://semanticscience.org/resource/");
+    this.builder.setNamespace("qb", "http://purl.org/linked-data/cube#");
   }
 
   /**
@@ -59,43 +90,25 @@ public class RDFService {
   public static void getRdfForTable(
       Table table, PrintWriter writer, Request request, Response response) {
     try {
-      RDFFormat applicationOntologyFormat;
-      if (request.queryParams("format") == null) {
-        // defaulting to TTL
-        applicationOntologyFormat = RDFFormat.TURTLE;
-      } else {
-        String format = request.queryParams("format");
-        if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-          throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-        }
-        applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
-      }
-      response.type(applicationOntologyFormat.getDefaultMIMEType());
 
+      RDFService rdfService = new RDFService(request, response);
       IRI schemaContext =
           iri(request.url().substring(0, request.url().length() - table.getName().length() - 1));
+      rdfService.getBuilder().setNamespace("emx", schemaContext.stringValue() + "/");
 
-      ModelBuilder builder = new ModelBuilder();
-      ValueFactory vf = SimpleValueFactory.getInstance();
-      WriterConfig config = new WriterConfig();
-      config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-      builder.setNamespace("sio", "http://semanticscience.org/resource/");
-      builder.setNamespace("qb", "http://purl.org/linked-data/cube#");
-      builder.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema#");
-      builder.setNamespace("emx", schemaContext.stringValue() + "/");
+      describeSchema(rdfService.getBuilder(), table.getSchema(), schemaContext);
+      describeTable(rdfService.getBuilder(), table, schemaContext);
+      describeColumns(rdfService.getBuilder(), table, schemaContext);
+      describeValues(rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaContext);
 
-      describeSchema(builder, table.getSchema(), schemaContext);
-      describeTable(builder, table, schemaContext);
-      describeColumns(builder, table, schemaContext);
-      describeValues(jsonMapper, builder, table, schemaContext);
-
-      Model model = builder.build();
-      StringWriter stringWriter = new StringWriter();
-      Rio.write(model, stringWriter, applicationOntologyFormat, config);
-      writer.append(stringWriter.toString());
+      Rio.write(
+          rdfService.getBuilder().build(),
+          writer,
+          rdfService.getRdfFormat(),
+          rdfService.getConfig());
 
     } catch (Exception e) {
-      throw new MolgenisException("RDF export failed", e);
+      throw new MolgenisException("RDF export failed due to an exception.", e);
     }
   }
 
@@ -104,51 +117,34 @@ public class RDFService {
    * data.
    *
    * @param schema
-   * @param printWriter
+   * @param writer
    * @param request
    * @param response
    */
   public static void getRdfForSchema(
-      Schema schema, PrintWriter printWriter, Request request, Response response) {
+      Schema schema, PrintWriter writer, Request request, Response response) {
     try {
-      RDFFormat applicationOntologyFormat;
-      if (request.queryParams("format") == null) {
-        // defaulting to TTL
-        applicationOntologyFormat = RDFFormat.TURTLE;
-      } else {
-        String format = request.queryParams("format");
-        if (!RDF_FILE_FORMATS.keySet().contains(format)) {
-          throw new Exception("Format unknown. Use any of: " + RDF_FILE_FORMATS.keySet());
-        }
-        applicationOntologyFormat = RDF_FILE_FORMATS.get(format);
-      }
 
-      response.type(applicationOntologyFormat.getDefaultMIMEType());
-
-      ModelBuilder builder = new ModelBuilder();
-      WriterConfig config = new WriterConfig();
-      config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-      builder.setNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-      builder.setNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-      builder.setNamespace("owl", "http://www.w3.org/2002/07/owl#");
-      builder.setNamespace("sio", "http://semanticscience.org/resource/");
+      RDFService rdfService = new RDFService(request, response);
       IRI schemaContext = iri(request.url());
+      rdfService.getBuilder().setNamespace("emx", schemaContext.stringValue() + "/");
 
-      describeSchema(builder, schema, schemaContext);
+      describeSchema(rdfService.getBuilder(), schema, schemaContext);
       for (Table t : schema.getTablesSorted()) {
-        describeTable(builder, t, schemaContext);
+        describeTable(rdfService.getBuilder(), t, schemaContext);
       }
       for (Table t : schema.getTablesSorted()) {
-        describeColumns(builder, t, schemaContext);
+        describeColumns(rdfService.getBuilder(), t, schemaContext);
       }
 
-      Model model = builder.build();
-      StringWriter stringWriter = new StringWriter();
-      Rio.write(model, stringWriter, applicationOntologyFormat, config);
-      printWriter.append(stringWriter.toString());
+      Rio.write(
+          rdfService.getBuilder().build(),
+          writer,
+          rdfService.getRdfFormat(),
+          rdfService.getConfig());
 
     } catch (Exception e) {
-      throw new MolgenisException("RDF export failed", e);
+      throw new MolgenisException("RDF export failed due to an exception.", e);
     }
   }
 
@@ -166,5 +162,21 @@ public class RDFService {
     for (String schemaName : database.getSchemaNames()) {
       Schema schema = database.getSchema(schemaName);
     }
+  }
+
+  private ObjectMapper getJsonMapper() {
+    return jsonMapper;
+  }
+
+  private ModelBuilder getBuilder() {
+    return builder;
+  }
+
+  private WriterConfig getConfig() {
+    return config;
+  }
+
+  private RDFFormat getRdfFormat() {
+    return rdfFormat;
   }
 }
