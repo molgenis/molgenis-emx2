@@ -41,8 +41,7 @@ public class ValueToRDF {
       IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/row/" + pkValue);
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
-      builder.add(
-          rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
+      builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
       builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
       builder.add(
           rowContext, iri("http://purl.org/linked-data/cube#dataSet"), encodedIRI(tableContext));
