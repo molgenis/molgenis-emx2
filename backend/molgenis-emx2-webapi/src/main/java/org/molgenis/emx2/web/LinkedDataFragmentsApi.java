@@ -21,7 +21,9 @@ public class LinkedDataFragmentsApi {
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
     get("/:schema/api/jsonld", LinkedDataFragmentsApi::jsonld);
+    get("/:schema/api/ttl", LinkedDataFragmentsApi::ttl);
     get("/:schema/api/jsonld/:table", LinkedDataFragmentsApi::jsonldTable);
+    get("/:schema/api/ttl/:table", LinkedDataFragmentsApi::ttlTable);
   }
 
   private static String jsonldTable(Request request, Response response) {
@@ -35,6 +37,20 @@ public class LinkedDataFragmentsApi {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForSchema(schema, new PrintWriter(sw));
+    return sw.getBuffer().toString();
+  }
+
+  private static String ttl(Request request, Response response) {
+    Schema schema = getSchema(request);
+    StringWriter sw = new StringWriter();
+    LinkedDataService.getTtlForSchema(schema, new PrintWriter(sw));
+    return sw.getBuffer().toString();
+  }
+
+  private static String ttlTable(Request request, Response response) {
+    Table table = getTable(request);
+    StringWriter sw = new StringWriter();
+    LinkedDataService.getTtlForTable(table, new PrintWriter(sw));
     return sw.getBuffer().toString();
   }
 
