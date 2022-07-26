@@ -95,9 +95,15 @@ public class FAIRDataPointTest {
     assertTrue(
         result.contains(
             """
-                        dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
-                            <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>,
-                            <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;"""));
+                dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-jsonld>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-n3>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-nquads>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ntriples>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-trig>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ttl>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-xml>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>,
+                  <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;"""
+                .indent(2)));
     assertTrue(
         result.contains(
             """
@@ -106,7 +112,7 @@ public class FAIRDataPointTest {
                       dcat:spatialResolutionInMeters 1.0E1;"""));
     assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2791, result.length());
+    assertEquals(3959, result.length());
   }
 
   @Test
