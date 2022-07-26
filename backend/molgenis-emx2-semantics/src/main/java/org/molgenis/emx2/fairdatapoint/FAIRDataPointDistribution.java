@@ -8,8 +8,6 @@ import java.io.StringWriter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -28,7 +26,20 @@ public class FAIRDataPointDistribution {
   }
 
   public static Set<String> FORMATS =
-      new TreeSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
+      new TreeSet<>(
+          Set.of(
+              "csv",
+              "jsonld",
+              "ttl",
+              "excel",
+              "zip",
+              "rdf-ttl",
+              "rdf-n3",
+              "rdf-ntriples",
+              "rdf-nquads",
+              "rdf-xml",
+              "rdf-trig",
+              "rdf-jsonld"));
 
   /**
    * Access a dataset distribution by a combination of schema, table, and format. Example:
@@ -50,7 +61,7 @@ public class FAIRDataPointDistribution {
 
     format = format.toLowerCase();
     if (!FORMATS.contains(format)) {
-      throw new Exception("Format unknown. Use 'jsonld', 'ttl', 'csv', 'excel' or 'zip'.");
+      throw new Exception("Format unknown. Use any of: " + FORMATS);
     }
 
     if (database.getSchema(schema) == null) {
@@ -82,18 +93,16 @@ public class FAIRDataPointDistribution {
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
     RDFFormat applicationOntologyFormat = RDFFormat.TURTLE;
-    ValueFactory vf = SimpleValueFactory.getInstance();
     WriterConfig config = new WriterConfig();
     config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
     for (String prefix : prefixToNamespace.keySet()) {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
+    // fixme: not ok, see how encoding is done in RDF api
     schema = schema.replace(" ", "%20");
     table = table.replace(" ", "%20");
-
     IRI reqURL = iri(request.url());
-    // todo check if ok
     String appURL =
         reqURL
             .toString()
@@ -116,39 +125,59 @@ public class FAIRDataPointDistribution {
             + ", formatted as "
             + format
             + ".");
-    builder.add(reqURL, DCAT.DOWNLOAD_URL, iri(appURL + schema + "/api/" + format + "/" + table));
-
-    switch (format) {
-      case "jsonld":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/ld+json"));
-        break;
-      case "ttl":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/text/turtle"));
-        break;
-      case "csv":
-        builder.add(
-            reqURL, DCAT.MEDIA_TYPE, iri("https://www.iana.org/assignments/media-types/text/csv"));
-        break;
-      case "excel":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/vnd.ms-excel"));
-        break;
-      case "zip":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/zip"));
-        break;
+    if (format.equals("csv")
+        || format.equals("jsonld")
+        || format.equals("ttl")
+        || format.equals("excel")
+        || format.equals("zip")) {
+      builder.add(reqURL, DCAT.DOWNLOAD_URL, iri(appURL + schema + "/api/" + format + "/" + table));
+    } else {
+      // all "rdf-" flavours
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          iri(appURL + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
     }
 
+    String mediaType;
+    switch (format) {
+      case "csv":
+        mediaType = "https://www.iana.org/assignments/media-types/text/csv";
+        break;
+      case "jsonld":
+      case "rdf-jsonld":
+        mediaType = "https://www.iana.org/assignments/media-types/application/ld+json";
+        break;
+      case "ttl":
+      case "rdf-ttl":
+        mediaType = "https://www.iana.org/assignments/media-types/text/turtle";
+        break;
+      case "excel":
+        mediaType = "https://www.iana.org/assignments/media-types/application/vnd.ms-excel";
+        break;
+      case "zip":
+        mediaType = "https://www.iana.org/assignments/media-types/application/zip";
+        break;
+      case "rdf-n3":
+        mediaType = "https://www.iana.org/assignments/media-types/text/n3";
+        break;
+      case "rdf-ntriples":
+        mediaType = "https://www.iana.org/assignments/media-types/application/n-triples";
+        break;
+      case "rdf-nquads":
+        mediaType = "https://www.iana.org/assignments/media-types/application/n-quads";
+        break;
+      case "rdf-xml":
+        mediaType = "https://www.iana.org/assignments/media-types/application/rdf+xml";
+        break;
+      case "rdf-trig":
+        mediaType = "https://www.iana.org/assignments/media-types/application/trig";
+        break;
+      default:
+        throw new Exception("MIME Type could not be assigned");
+    }
+
+    builder.add(reqURL, DCAT.MEDIA_TYPE, iri(mediaType));
     builder.add(reqURL, DCTERMS.FORMAT, format);
     builder.add(
         reqURL,
