@@ -229,9 +229,8 @@ public class RDFService {
   /**
    * @param uriString
    * @return
-   * @throws URISyntaxException
    */
-  public static IRI encodedIRI(String uriString) throws URISyntaxException {
+  public static IRI encodedIRI(String uriString) {
     return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
   }
 
