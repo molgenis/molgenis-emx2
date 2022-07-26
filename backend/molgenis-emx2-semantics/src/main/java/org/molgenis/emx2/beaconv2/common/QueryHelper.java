@@ -17,10 +17,10 @@ public class QueryHelper {
    * Select query columns from table, including the columns of any reference.
    *
    * @param table
-   * @param query
    * @throws Exception
    */
-  public static void selectColumns(Table table, Query query) throws Exception {
+  public static Query selectColumns(Table table) {
+    Query query = table.query();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology() || column.isReference()) {
         List<Column> ontoRefCols =
@@ -30,10 +30,20 @@ public class QueryHelper {
           colNames.add(ontoRefCol.getName());
         }
         query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isFile()) {
+        ArrayList<String> colNames = new ArrayList<>();
+        colNames.add("id");
+        colNames.add("mimetype");
+        colNames.add("extension");
+        // skip contents, which is served by file api
+        query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isHeading()) {
+        // ignore headings, not part of rows
       } else {
         query.select(s(column.getName()));
       }
     }
+    return query;
   }
 
   /**
