@@ -10,74 +10,74 @@
           {{ tableMetadata.description }}
         </p>
         <div
-            class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
+          class="navbar pl-0 ml-0 shadow-none navbar-expand-lg justify-content-between mb-3 pt-3 bg-white"
         >
           <div class="btn-group">
             <ShowHide
-                class="navbar-nav"
-                :columns.sync="columns"
-                @update:columns="emitFilters"
-                checkAttribute="showFilter"
-                :exclude="['HEADING', 'FILE']"
-                label="filters"
-                icon="filter"
+              class="navbar-nav"
+              :columns.sync="columns"
+              @update:columns="emitFilters"
+              checkAttribute="showFilter"
+              :exclude="['HEADING', 'FILE']"
+              label="filters"
+              icon="filter"
             />
             <ShowHide
-                class="navbar-nav"
-                :columns.sync="columns"
-                @update:columns="emitColumns"
-                checkAttribute="showColumn"
-                label="columns"
-                icon="columns"
-                id="showColumn"
-                :defaultValue="true"
+              class="navbar-nav"
+              :columns.sync="columns"
+              @update:columns="emitColumns"
+              checkAttribute="showColumn"
+              label="columns"
+              icon="columns"
+              id="showColumn"
+              :defaultValue="true"
             />
             <ButtonDropdown label="download" icon="download" v-slot="scope">
               <IconAction
-                  icon="times"
-                  class="float-right"
-                  style="margin-top: -10px; margin-right: -10px"
-                  @click="scope.close"
+                icon="times"
+                class="float-right"
+                style="margin-top: -10px; margin-right: -10px"
+                @click="scope.close"
               />
               <h6>Download</h6>
               <ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt>
-              <br/>
+              <br />
               <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-              <br/>
+              <br />
               <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-              <br/>
+              <br />
               <ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt>
             </ButtonDropdown>
             <IconAction
-                class="ml-2"
-                label="view"
-                :icon="viewIcon"
-                @click="toggleView"
+              class="ml-2"
+              label="view"
+              :icon="viewIcon"
+              @click="toggleView"
             />
           </div>
-          <InputSearch class="navbar-nav" v-model="searchTerms"/>
+          <InputSearch class="navbar-nav" v-model="searchTerms" />
           <Pagination
-              class="navbar-nav"
-              v-model="page"
-              :limit="limit"
-              :count="count"
+            class="navbar-nav"
+            v-model="page"
+            :limit="limit"
+            :count="count"
           />
           <div class="btn-group m-0" v-if="view != View.RECORD">
             <span class="btn">Rows per page:</span>
             <InputSelect
-                :value="limit"
-                :options="[10, 20, 50, 100]"
-                :clear="false"
-                @input="setlimit($event)"
-                class="mb-0"
+              :value="limit"
+              :options="[10, 20, 50, 100]"
+              :clear="false"
+              @input="setlimit($event)"
+              class="mb-0"
             />
-            <SelectionBox v-if="showSelect" :selection.sync="selectedItems"/>
+            <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
             <TableSettings
-                v-if="canManage"
-                :tableName="table"
-                :cardTemplate.sync="cardTemplate"
-                :recordTemplate.sync="recordTemplate"
-                :graphqlURL="graphqlURL"
+              v-if="canManage"
+              :tableName="table"
+              :cardTemplate.sync="cardTemplate"
+              :recordTemplate.sync="recordTemplate"
+              :graphqlURL="graphqlURL"
             />
             <TruncateButton v-if="canManage" :table="table" :graphqlURL="graphqlURL" @close="reload"/>
           </div>
@@ -86,90 +86,90 @@
       <div class="d-flex">
         <div v-if="countFilters" class="col-3 pl-0">
           <FilterSidebar
-              :filters.sync="columns"
-              @update:filters="emitConditions"
-              :graphqlURL="graphqlURL"
+            :filters.sync="columns"
+            @update:filters="emitConditions"
+            :graphqlURL="graphqlURL"
           />
         </div>
         <div
-            class="flex-grow-1 pr-0 pl-0"
-            :class="countFilters > 0 ? 'col-9' : 'col-12'"
+          class="flex-grow-1 pr-0 pl-0"
+          :class="countFilters > 0 ? 'col-9' : 'col-12'"
         >
           <FilterWells
-              :filters.sync="columns"
-              @update:filters="emitConditions"
-              class="border-top pt-3 pb-3"
+            :filters.sync="columns"
+            @update:filters="emitConditions"
+            class="border-top pt-3 pb-3"
           />
           <div v-if="loading">
-            <Spinner/>
+            <Spinner />
           </div>
           <TableCards
-              v-if="!loading && view == View.CARDS"
-              :data="data"
-              :columns="columns"
-              :table-name="table"
-              @reload="reload"
-              :canEdit="canEdit"
-              @click="$emit('click', $event)"
-              :template="cardTemplate"
+            v-if="!loading && view == View.CARDS"
+            :data="data"
+            :columns="columns"
+            :table-name="table"
+            @reload="reload"
+            :canEdit="canEdit"
+            @click="$emit('click', $event)"
+            :template="cardTemplate"
           />
           <RecordCard
-              v-if="!loading && view == View.RECORD"
-              :data="data"
-              :table-name="table"
-              :columns="columns"
-              :canEdit="canEdit"
-              @click="$emit('click', $event)"
-              :template="recordTemplate"
+            v-if="!loading && view == View.RECORD"
+            :data="data"
+            :table-name="table"
+            :columns="columns"
+            :canEdit="canEdit"
+            @click="$emit('click', $event)"
+            :template="recordTemplate"
           />
           <TableMolgenis
-              v-if="!loading && view == View.TABLE"
-              :selection.sync="selectedItems"
-              :columns.sync="columns"
-              :table-metadata="tableMetadata"
-              :data="data"
-              :showSelect="showSelect"
-              @column-click="onColumnClick"
-              @click="$emit('click', $event)"
+            v-if="!loading && view == View.TABLE"
+            :selection.sync="selectedItems"
+            :columns.sync="columns"
+            :table-metadata="tableMetadata"
+            :data="data"
+            :showSelect="showSelect"
+            @column-click="onColumnClick"
+            @click="$emit('click', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
             </template>
             <template v-slot:colheader="slotProps">
               <RowButtonAdd
-                  v-if="canEdit && !slotProps.col"
-                  :table="table"
-                  :graphqlURL="graphqlURL"
-                  @close="reload"
-                  class="d-inline p-0"
+                v-if="canEdit && !slotProps.col"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                @close="reload"
+                class="d-inline p-0"
               />
               <IconAction
-                  v-if="slotProps.col && orderByColumn == slotProps.col.id"
-                  :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-                  class="d-inline p-0"
+                v-if="slotProps.col && orderByColumn == slotProps.col.id"
+                :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
               />
             </template>
             <template v-slot:rowheader="slotProps">
               <RowButtonEdit
-                  v-if="canEdit"
-                  :table="table"
-                  :graphqlURL="graphqlURL"
-                  :pkey="getPkey(slotProps.row)"
-                  @close="reload"
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
               />
               <RowButtonClone
-                  v-if="canEdit"
-                  :table="table"
-                  :graphqlURL="graphqlURL"
-                  :pkey="getPkey(slotProps.row)"
-                  @close="reload"
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
               />
               <RowButtonDelete
-                  v-if="canEdit"
-                  :table="table"
-                  :graphqlURL="graphqlURL"
-                  :pkey="getPkey(slotProps.row)"
-                  @close="reload"
+                v-if="canEdit"
+                :table="table"
+                :graphqlURL="graphqlURL"
+                :pkey="getPkey(slotProps.row)"
+                @close="reload"
               />
             </template>
           </TableMolgenis>
@@ -203,7 +203,7 @@ import RecordCard from "./RecordCard";
 import TableSettings from "./TableSettings";
 import TruncateButton from "./TruncateButton"
 
-const View = {TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit"};
+const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
 export default {
   extends: TableMixin,
@@ -319,16 +319,16 @@ export default {
     },
     emitColumns() {
       let columns = this.columns
-          .filter((c) => c.showColumn && c.columnType != "HEADING")
-          .map((c) => c.name);
+        .filter((c) => c.showColumn && c.columnType != "HEADING")
+        .map((c) => c.name);
       this.$emit("update:showColumns", columns);
     },
     emitFilters() {
       this.$emit(
-          "update:showFilters",
-          this.columns
-              .filter((c) => c.showFilter && c.columnType != "HEADING")
-              .map((c) => c.name)
+        "update:showFilters",
+        this.columns
+          .filter((c) => c.showFilter && c.columnType != "HEADING")
+          .map((c) => c.name)
       );
     },
     emitConditions() {
@@ -371,8 +371,8 @@ export default {
     },
     hasSubclass() {
       if (
-          this.columns &&
-          this.columns.filter((c) => c.name == "mg_tableclass").length > 0
+        this.columns &&
+        this.columns.filter((c) => c.name == "mg_tableclass").length > 0
       ) {
         return true;
       }
@@ -394,37 +394,37 @@ export default {
       if (this.columns) {
         this.columns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
-              ? col.conditions.filter((f) => f !== "" && f != undefined)
-              : [];
+            ? col.conditions.filter((f) => f !== "" && f != undefined)
+            : [];
           if (conditions.length > 0) {
             if (
-                col.columnType.startsWith("STRING") ||
-                col.columnType.startsWith("TEXT")
+              col.columnType.startsWith("STRING") ||
+              col.columnType.startsWith("TEXT")
             ) {
-              filter[col.id] = {like: col.conditions};
+              filter[col.id] = { like: col.conditions };
             } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = {equals: col.conditions};
+              filter[col.id] = { equals: col.conditions };
             } else if (
-                col.columnType.startsWith("REF") ||
-                col.columnType.startsWith("ONTOLOGY")
+              col.columnType.startsWith("REF") ||
+              col.columnType.startsWith("ONTOLOGY")
             ) {
-              filter[col.id] = {equals: col.conditions};
+              filter[col.id] = { equals: col.conditions };
             } else if (
-                [
-                  "DECIMAL",
-                  "DECIMAL_ARRAY",
-                  "INT",
-                  "INT_ARRAY",
-                  "DATE",
-                  "DATE_ARRAY",
-                ].includes(col.columnType)
+              [
+                "DECIMAL",
+                "DECIMAL_ARRAY",
+                "INT",
+                "INT_ARRAY",
+                "DATE",
+                "DATE_ARRAY",
+              ].includes(col.columnType)
             ) {
               filter[col.id] = {
                 between: conditions.flat(),
               };
             } else {
               alert(
-                  "filter unsupported for column type '" +
+                "filter unsupported for column type '" +
                   col.columnType +
                   "' (please report a bug)"
               );
