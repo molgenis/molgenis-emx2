@@ -178,6 +178,7 @@ class SqlTable implements Table {
     if (t.getMetadata().getInherit() != null) {
       t.getInheritedTable().truncate(t.getMgTableClass(t.getMetadata()));
     }
+    logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
 
   private void truncate(String mg_table) {

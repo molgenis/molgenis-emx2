@@ -426,7 +426,13 @@ public class GraphqlSchemaFieldFactory {
                 List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
                 if (tables != null) {
                   for (String tableName : tables) {
-                    s.getTable(tableName).truncate();
+                    Table table = s.getTable(tableName);
+                    if (table == null) {
+                      throw new GraphqlException(
+                          "Truncate failed: table " + tableName + " unknown");
+                    } else {
+                      table.truncate();
+                    }
                     message.append("Truncated table '" + tableName + "'\n");
                   }
                 }
