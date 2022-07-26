@@ -536,5 +536,9 @@ public class TestGraphqSchemaFields {
     assertTrue(message.contains("Truncated"));
     List<Row> result2 = schema.getTable("Order").retrieveRows();
     assertTrue(result.size() > 0 && result2.size() == 0);
+
+    // restore
+    schema = database.dropCreateSchema(schemaName);
+    new PetStoreLoader().load(schema, true);
   }
 }
