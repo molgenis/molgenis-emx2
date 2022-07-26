@@ -31,8 +31,7 @@ public class CohortsResponse {
     List<CohortsResultSetsItem> cohortItemList = new ArrayList<>();
 
     for (Table table : tables) {
-      Query query = table.query();
-      selectColumns(table, query);
+      Query query = selectColumns(table);
 
       if (idForQuery != null) {
         query.where(f("cohortId", EQUALS, idForQuery));
