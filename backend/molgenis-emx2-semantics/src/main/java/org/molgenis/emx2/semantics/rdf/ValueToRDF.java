@@ -121,8 +121,6 @@ public class ValueToRDF {
 
     } else {
 
-      // System.out.println("value = " + o + " for " + column.getName());
-
       if (BOOLEAN.equals(XSDType)) {
         return literal((boolean) o);
       } else if (DATE.equals(XSDType)) {
@@ -146,7 +144,7 @@ public class ValueToRDF {
   }
 
   /**
-   * FIXME: apparently EMX2 can return DECIMAL data as Integers when it is a whole number
+   * FIXME: apparently EMX2 can return DECIMAL data as Integers when it is a whole number?
    *
    * @param object
    * @return
@@ -160,7 +158,7 @@ public class ValueToRDF {
   }
 
   /**
-   * FIXME: apparently EMX2 can return LONG data as Integers when it is a whole number
+   * FIXME: apparently EMX2 can return LONG data as Integers when it is a whole number?
    *
    * @param object
    * @return

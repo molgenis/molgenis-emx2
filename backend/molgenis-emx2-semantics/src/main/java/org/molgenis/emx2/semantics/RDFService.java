@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics;
 
-import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.molgenis.emx2.semantics.rdf.ColumnToRDF.describeColumns;
 import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
 import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
@@ -11,6 +10,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -42,6 +45,7 @@ public class RDFService {
   private ModelBuilder builder;
   private WriterConfig config;
   private RDFFormat rdfFormat;
+  private String rootContext;
 
   /**
    * Hidden constructor, used on-the-fly by static functions that handle requests.
@@ -50,6 +54,13 @@ public class RDFService {
    * @param response
    */
   private RDFService(Request request, Response response) throws Exception {
+
+    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
+    // etc
+    String requestURL = request.url();
+    URI requestURI = getURI(requestURL);
+    this.rootContext =
+        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
 
     jsonMapper =
         new ObjectMapper()
@@ -88,18 +99,19 @@ public class RDFService {
    * @param response
    */
   public static void getRdfForTable(
-      Table table, PrintWriter writer, Request request, Response response) {
+      Table table, PrintWriter writer, Request request, Response response, String rdfApiLocation) {
     try {
 
       RDFService rdfService = new RDFService(request, response);
-      IRI schemaContext =
-          iri(request.url().substring(0, request.url().length() - table.getName().length() - 1));
-      rdfService.getBuilder().setNamespace("emx", schemaContext.stringValue() + "/");
+      String schemaRdfApiContext =
+          rdfService.getRootContext() + "/" + table.getSchema().getName() + rdfApiLocation;
+      rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
 
-      describeSchema(rdfService.getBuilder(), table.getSchema(), schemaContext);
-      describeTable(rdfService.getBuilder(), table, schemaContext);
-      describeColumns(rdfService.getBuilder(), table, schemaContext);
-      describeValues(rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaContext);
+      describeSchema(rdfService.getBuilder(), table.getSchema(), schemaRdfApiContext);
+      describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
+      describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
+      describeValues(
+          rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaRdfApiContext);
 
       Rio.write(
           rdfService.getBuilder().build(),
@@ -108,7 +120,7 @@ public class RDFService {
           rdfService.getConfig());
 
     } catch (Exception e) {
-      throw new MolgenisException("RDF export failed due to an exception.", e);
+      throw new MolgenisException("RDF export failed due to an exception", e);
     }
   }
 
@@ -122,19 +134,22 @@ public class RDFService {
    * @param response
    */
   public static void getRdfForSchema(
-      Schema schema, PrintWriter writer, Request request, Response response) {
+      Schema schema,
+      PrintWriter writer,
+      Request request,
+      Response response,
+      String rdfApiLocation) {
     try {
 
       RDFService rdfService = new RDFService(request, response);
-      IRI schemaContext = iri(request.url());
-      rdfService.getBuilder().setNamespace("emx", schemaContext.stringValue() + "/");
+      String schemaRdfApiContext =
+          rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
+      rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
 
-      describeSchema(rdfService.getBuilder(), schema, schemaContext);
-      for (Table t : schema.getTablesSorted()) {
-        describeTable(rdfService.getBuilder(), t, schemaContext);
-      }
-      for (Table t : schema.getTablesSorted()) {
-        describeColumns(rdfService.getBuilder(), t, schemaContext);
+      describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext);
+      for (Table table : schema.getTablesSorted()) {
+        describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
+        describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
       }
 
       Rio.write(
@@ -144,7 +159,7 @@ public class RDFService {
           rdfService.getConfig());
 
     } catch (Exception e) {
-      throw new MolgenisException("RDF export failed due to an exception.", e);
+      throw new MolgenisException("RDF export failed due to an exception", e);
     }
   }
 
@@ -152,16 +167,72 @@ public class RDFService {
    * Output is an RDF definition of all database schemas, all of their tables, as well as all table
    * columns and row values. In other words: a complete database dump, depending on authorization.
    *
-   * @param database
-   * @param printWriter
+   * @param schemas
+   * @param writer
    * @param request
    * @param response
    */
-  public static void getRdfDatabaseDump(
-      Database database, PrintWriter printWriter, Request request, Response response) {
-    for (String schemaName : database.getSchemaNames()) {
-      Schema schema = database.getSchema(schemaName);
+  public static void getRdfForDatabase(
+      List<Schema> schemas,
+      PrintWriter writer,
+      Request request,
+      Response response,
+      String rdfApiLocation) {
+    try {
+
+      RDFService rdfService = new RDFService(request, response);
+      String databaseRdfApiContext = rdfService.getRootContext() + rdfApiLocation;
+      rdfService.getBuilder().setNamespace("emx", databaseRdfApiContext + "/");
+
+      for (Schema schema : schemas) {
+        String schemaRdfApiContext =
+            rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
+        describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext);
+        for (Table table : schema.getTablesSorted()) {
+          describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
+          describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
+          describeValues(
+              rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaRdfApiContext);
+        }
+      }
+
+      Rio.write(
+          rdfService.getBuilder().build(),
+          writer,
+          rdfService.getRdfFormat(),
+          rdfService.getConfig());
+
+    } catch (Exception e) {
+      throw new MolgenisException("RDF export failed due to an exception", e);
     }
+  }
+
+  /**
+   * @param uriString
+   * @return
+   * @throws URISyntaxException
+   */
+  public static URI getURI(String uriString) throws URISyntaxException {
+    ParsedIRI parsedIRI = ParsedIRI.create(uriString);
+    URI uri =
+        new URI(
+            parsedIRI.getScheme(),
+            parsedIRI.getUserInfo(),
+            parsedIRI.getHost(),
+            parsedIRI.getPort(),
+            parsedIRI.getPath(),
+            parsedIRI.getQuery(),
+            parsedIRI.getFragment());
+    return uri;
+  }
+
+  /**
+   * @param uriString
+   * @return
+   * @throws URISyntaxException
+   */
+  public static IRI encodedIRI(String uriString) throws URISyntaxException {
+    return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
   }
 
   private ObjectMapper getJsonMapper() {
@@ -178,5 +249,9 @@ public class RDFService {
 
   private RDFFormat getRdfFormat() {
     return rdfFormat;
+  }
+
+  private String getRootContext() {
+    return rootContext;
   }
 }
