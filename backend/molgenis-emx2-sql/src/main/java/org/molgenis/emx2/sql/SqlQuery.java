@@ -524,6 +524,11 @@ public class SqlQuery extends QueryBean {
                 select,
                 null,
                 new String[0]));
+      } else if (column.isHeading()) {
+        /**
+         * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
+         * unsure if this can cause any problems elsewhere.
+         */
       } else {
         // primitive fields
         fields.add(field(name(alias(tableAlias), column.getName())));
