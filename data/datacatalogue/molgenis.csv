@@ -86,8 +86,8 @@ Datasources,,qualityOfLifeOther,text,,,,,,,,,"If other, specify additional quali
 Datasources,,databanks,refback,,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,,CollectionEvents,,resource,,,List of collection events defined for this resource
 Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data model available?
-RWEResources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
-RWEResources,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
+RWEresources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
+RWEresources,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
 RWEresources,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
 RWEresources,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?"
@@ -120,8 +120,8 @@ Databanks,,accessThirdPartyConditions,text,,,,,,,,,"If above is 'yes', describe 
 Databanks,,accessNonEU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
 Databanks,,accessNonEUConditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
 Databanks,,standardOperatingProcedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?
-RWEResources,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
-RWEResources,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted."
+RWEresources,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
+RWEresources,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted."
 Databanks,,dataController,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank.
 RWEresources,,governanceDetails,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
 RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data
@@ -131,15 +131,15 @@ Databanks,,origin,heading,,,,,,,,,Information on the institution or body that su
 Databanks,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
 Databanks,,reasonSustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
 Databanks,,dateEstablished,date,,,,,,,,,Date that the data bank was first established.
-RWEResources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
-RWEResources,,recordPrompt,text,,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
+RWEresources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
+RWEresources,,recordPrompt,text,,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
 Databanks,,unitOfObservation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?"
 Databanks,,multipleEntries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?"
 Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags
 Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records
 Databanks,,lagTime,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
-RWEResources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
-RWEResources,,preservationDuration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
+RWEresources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
+RWEresources,,preservationDuration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
 RWREsources,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
 RWREsources,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
 Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
@@ -149,7 +149,7 @@ Databanks,,completenessOverTime,text,,,,,,,,,"Describe any changes in completene
 Databanks,,completenessResults,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?
 Databanks,,qualityDescription,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
 Databanks,,qualityOverTime,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
-RWEResources,,accessForValidation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
+RWEresources,,accessForValidation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
 Databanks,,qualityValidationFrequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?
 Databanks,,qualityValidationMethods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?
 Databanks,,correctionMethods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?
@@ -157,7 +157,7 @@ Databanks,,qualityValidationResults,,,,,,,,,,"If available, provide a link to a 
 DataResources,,otherInformation,heading,,,,,,,,,Other information
 DataResources,,designPaper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-RWEResources,,fundingSources,ontology_array,,,,FundingTypes,,,,,Statement listing funding that was obtained for this resource
+RWEresources,,fundingSources,ontology_array,,,,FundingTypes,,,,,Statement listing funding that was obtained for this resource
 Studies,,fundingScheme,ontology_array,,,CatalogueOntologies,StudyFunding,,,,,The source of funding for the study. Select all that apply.
 Resources,,fundingStatement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
