@@ -23,11 +23,13 @@ public class ColumnToRDF {
       String columnContext = tableContext + "/column/" + c.getName();
       builder.add(columnContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000757"));
       builder.add(columnContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#MeasureProperty"));
-      // fixme: is isReference() same as isRef() ??
-      if (c.isReference()) {
+      if (c.isReference() || c.isOntology()) {
         builder.add(columnContext, RDF.TYPE, OWL.OBJECTPROPERTY);
+        builder.add(
+            columnContext, RDFS.RANGE, encodedIRI(schemaContext + "/" + c.getRefTableName()));
       } else {
         builder.add(columnContext, RDF.TYPE, OWL.DATATYPEPROPERTY);
+        builder.add(columnContext, RDFS.RANGE, columnTypeToXSD(c.getColumnType()));
       }
       builder.add(columnContext, RDFS.LABEL, c.getName());
       builder.add(columnContext, RDFS.DOMAIN, encodedIRI(tableContext));
@@ -39,7 +41,6 @@ public class ColumnToRDF {
       if (c.getDescription() != null) {
         builder.add(columnContext, DC.DESCRIPTION, c.getDescription());
       }
-      builder.add(columnContext, RDFS.RANGE, columnTypeToXSD(c.getColumnType()));
     }
   }
 }
