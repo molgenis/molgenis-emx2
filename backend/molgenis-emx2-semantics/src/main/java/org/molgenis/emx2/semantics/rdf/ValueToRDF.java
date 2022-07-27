@@ -38,7 +38,7 @@ public class ValueToRDF {
       TableMetadata tableMetadata = table.getMetadata();
       String primaryKey = tableMetadata.getPrimaryKeys().get(0);
       String pkValue = (String) row.get(primaryKey);
-      IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/row/" + pkValue);
+      IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
       builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
