@@ -42,7 +42,12 @@ public class ValueToRDF {
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
       builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
-      builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
+      if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+        // NCIT_C95637 = Coded Value Data Type
+        builder.add(rowContext, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
+      } else {
+        builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
+      }
       builder.add(
           rowContext, iri("http://purl.org/linked-data/cube#dataSet"), encodedIRI(tableContext));
 
