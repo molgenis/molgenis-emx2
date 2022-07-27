@@ -4,6 +4,8 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.eclipse.rdf4j.model.vocabulary.XSD.*;
 import static org.eclipse.rdf4j.model.vocabulary.XSD.LONG;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
 import static org.molgenis.emx2.semantics.RDFService.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
@@ -22,7 +24,11 @@ import org.molgenis.emx2.*;
 public class ValueToRDF {
 
   public static void describeValues(
-      ObjectMapper jsonMapper, ModelBuilder builder, Table table, String schemaContext)
+      ObjectMapper jsonMapper,
+      ModelBuilder builder,
+      Table table,
+      String rowId,
+      String schemaContext)
       throws Exception {
     Map<String, Column> columnMap = new HashMap<>();
     for (Column c : table.getMetadata().getColumns()) {
@@ -30,6 +36,14 @@ public class ValueToRDF {
     }
     String tableContext = schemaContext + "/" + table.getName();
     Query query = selectColumns(table);
+    if (rowId != null) {
+      // FIXME: how to support multiple PKs?
+      query.where(
+          f(
+              table.getMetadata().getPrimaryKeyColumns().get(0).getName(),
+              EQUALS,
+              rowId)); // PK == rowId
+    }
     String json = query.retrieveJSON();
     Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
     List<Map<String, Object>> data = jsonMap.get(table.getName());

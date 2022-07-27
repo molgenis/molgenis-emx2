@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
+import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static spark.Spark.get;
 
 import java.io.PrintWriter;
@@ -24,9 +23,22 @@ public class RDFApi {
 
   public static void create(MolgenisSessionManager sm) {
     sessionManager = sm;
+    get(RDF_API_LOCATION, RDFApi::rdfForDatabase);
     get("/:schema" + RDF_API_LOCATION, RDFApi::rdfForSchema);
     get("/:schema" + RDF_API_LOCATION + "/:table", RDFApi::rdfForTable);
-    get(RDF_API_LOCATION, RDFApi::rdfDump);
+    get("/:schema" + RDF_API_LOCATION + "/:table/:row", RDFApi::rdfForRow);
+  }
+
+  // todo make streaming (also the other endpoints)
+  private static String rdfForDatabase(Request request, Response response) {
+    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
+    List<Schema> schemas = new ArrayList<>();
+    for (String schemaName : schemaNames) {
+      schemas.add(sessionManager.getSession(request).getDatabase().getSchema(schemaName));
+    }
+    StringWriter sw = new StringWriter();
+    RDFService.getRdfForDatabase(schemas, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    return sw.getBuffer().toString();
   }
 
   private static String rdfForSchema(Request request, Response response) {
@@ -39,19 +51,17 @@ public class RDFApi {
   private static String rdfForTable(Request request, Response response) {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForTable(table, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.getRdfForTable(
+        table, null, new PrintWriter(sw), request, response, RDF_API_LOCATION);
     return sw.getBuffer().toString();
   }
 
-  // todo make streaming (also the other endpoints)
-  private static String rdfDump(Request request, Response response) {
-    Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
-    List<Schema> schemas = new ArrayList<>();
-    for (String schemaName : schemaNames) {
-      schemas.add(sessionManager.getSession(request).getDatabase().getSchema(schemaName));
-    }
+  private static String rdfForRow(Request request, Response response) {
+    Table table = getTable(request);
+    String rowId = sanitize(request.params("row"));
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForDatabase(schemas, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.getRdfForTable(
+        table, rowId, new PrintWriter(sw), request, response, RDF_API_LOCATION);
     return sw.getBuffer().toString();
   }
 }
