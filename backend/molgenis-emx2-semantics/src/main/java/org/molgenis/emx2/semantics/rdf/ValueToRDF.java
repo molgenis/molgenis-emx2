@@ -16,6 +16,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
 
 public class ValueToRDF {
@@ -45,6 +46,9 @@ public class ValueToRDF {
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
         // NCIT_C95637 = Coded Value Data Type
         builder.add(rowContext, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
+        if (row.get("ontologyTermURI") != null) {
+          builder.add(rowContext, RDFS.ISDEFINEDBY, iri((String) row.get("ontologyTermURI")));
+        }
       } else {
         builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
       }
@@ -85,28 +89,19 @@ public class ValueToRDF {
     ColumnType columnType = column.getColumnType();
     IRI XSDType = columnTypeToXSD(columnType);
 
-    if (columnType.equals(ColumnType.ONTOLOGY) || columnType.equals(ColumnType.ONTOLOGY_ARRAY)) {
-      Map map = ((Map) o);
-      if (map.get("ontologyTermURI") != null) {
-        return encodedIRI((String) map.get("ontologyTermURI"));
-      } else {
-        return encodedIRI(schemaContext + "/" + map.get("name"));
-      }
-    } else if (columnType.equals(ColumnType.REF)
+    if (columnType.equals(ColumnType.REF)
         || columnType.equals(ColumnType.REF_ARRAY)
-        || columnType.equals(ColumnType.REFBACK)) {
+        || columnType.equals(ColumnType.REFBACK)
+        || columnType.equals(ColumnType.ONTOLOGY)
+        || columnType.equals(ColumnType.ONTOLOGY_ARRAY)) {
       // TODO should the target IRI be resolvable here?
       TableMetadata tableMetadata = column.getRefTable();
       String primaryKey = tableMetadata.getPrimaryKeys().get(0);
       String pkValue = (String) ((Map) o).get(primaryKey);
       return encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + pkValue);
-      // return iri(ParsedIRI.create(schemaContext + "/" + tableMetadata.getTableName() + "/" +
-      // pkValue));
     } else if (columnType.equals(ColumnType.FILE)) {
       Map map = ((Map) o);
-
       if (map.get("id") != null) {
-        String fileApiContext = schemaContext.substring(0, "api/rdf".length());
         return encodedIRI(
             schemaContext
                 + "/api/file/"
