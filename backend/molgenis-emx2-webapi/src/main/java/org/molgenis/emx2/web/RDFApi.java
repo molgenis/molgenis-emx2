@@ -36,22 +36,24 @@ public class RDFApi {
       schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
     }
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForSchema(new PrintWriter(sw), request, response, RDF_API_LOCATION, schemas);
+    RDFService.describeAsRDF(
+        new PrintWriter(sw), request, response, RDF_API_LOCATION, null, null, schemas);
     return sw.getBuffer().toString();
   }
 
   private static String rdfForSchema(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForSchema(new PrintWriter(sw), request, response, RDF_API_LOCATION, schema);
+    RDFService.describeAsRDF(
+        new PrintWriter(sw), request, response, RDF_API_LOCATION, null, null, schema);
     return sw.getBuffer().toString();
   }
 
   private static String rdfForTable(Request request, Response response) {
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForTable(
-        table, null, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.describeAsRDF(
+        new PrintWriter(sw), request, response, RDF_API_LOCATION, table, null, table.getSchema());
     return sw.getBuffer().toString();
   }
 
@@ -59,8 +61,8 @@ public class RDFApi {
     Table table = getTable(request);
     String rowId = sanitize(request.params("row"));
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForTable(
-        table, rowId, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.describeAsRDF(
+        new PrintWriter(sw), request, response, RDF_API_LOCATION, table, rowId, table.getSchema());
     return sw.getBuffer().toString();
   }
 }

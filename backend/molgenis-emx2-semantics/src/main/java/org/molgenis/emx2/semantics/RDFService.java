@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -91,64 +93,34 @@ public class RDFService {
   }
 
   /**
-   * Output is an RDF definition of the schema, the selected table, the columns of this table, and
-   * all values contained within its rows.
-   *
-   * @param table
-   * @param writer
-   * @param request
-   * @param response
-   */
-  public static void getRdfForTable(
-      Table table,
-      String rowId,
-      PrintWriter writer,
-      Request request,
-      Response response,
-      String rdfApiLocation) {
-    try {
-
-      RDFService rdfService = new RDFService(request, response);
-      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
-
-      String schemaRdfApiContext =
-          rdfService.getRootContext() + "/" + table.getSchema().getName() + rdfApiLocation;
-      rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
-
-      describeSchema(
-          rdfService.getBuilder(),
-          table.getSchema(),
-          schemaRdfApiContext,
-          rdfService.getRootContext());
-      describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
-      describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
-      describeValues(
-          rdfService.getJsonMapper(), rdfService.getBuilder(), table, rowId, schemaRdfApiContext);
-
-      Rio.write(
-          rdfService.getBuilder().build(),
-          writer,
-          rdfService.getRdfFormat(),
-          rdfService.getConfig());
-
-    } catch (Exception e) {
-      throw new MolgenisException("RDF export failed due to an exception", e);
-    }
-  }
-
-  /**
-   * Output is an RDF definition of selected database schemas and all data contained therein.
+   * Retrieve EMX2 data described as RDF. Can be used in different ways:
+   * <ul>
+   *     <li>Call with one or more schemas, table and rowId null: retrieve all data from selected schemas</li>
+   *     <li>Call with a table, schema of that table, rowId null: retrieve all data from selected table</li>
+   *     <li>Call with a table, schema of that table, rowId provided: retrieve all data from selected row</li>
+   * </ul>
+   * Each call will result in a full stack of data, containing the following elements:
+   * <ul>
+   *     <li>Root node with server URL</li>
+   *     <li>Schema node(s) linked to its root</li>
+   *     <li>Table node(s) linked to its schema</li>
+   *     <li>Column node(s) linked to its table</li>
+   *     <li>Row node(s) linked to its table with value(s) linked to its column(s)</li>
+   * </ul>
+   * The number of schemas, tables, and rows returned depend on the input parameters.
    *
    * @param schemas
    * @param writer
    * @param request
    * @param response
    */
-  public static void getRdfForSchema(
+  public static void describeAsRDF(
       PrintWriter writer,
       Request request,
       Response response,
       String rdfApiLocation,
+      Table table,
+      String rowId,
       Schema... schemas) {
     try {
 
@@ -162,14 +134,15 @@ public class RDFService {
         rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
         describeSchema(
             rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getRootContext());
-        for (Table table : schema.getTablesSorted()) {
-          describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
-          describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
+        List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
+        for (Table tableToDescribe : tables) {
+          describeTable(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
+          describeColumns(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
           describeValues(
               rdfService.getJsonMapper(),
               rdfService.getBuilder(),
-              table,
-              null,
+              tableToDescribe,
+              rowId,
               schemaRdfApiContext);
         }
       }
