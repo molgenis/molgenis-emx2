@@ -3,7 +3,6 @@ package org.molgenis.emx2.semantics.rdf;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.molgenis.emx2.semantics.RDFService.encodedIRI;
 
-import java.net.URISyntaxException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
@@ -13,8 +12,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
 
 public class TableToRDF {
-  public static void describeTable(ModelBuilder builder, Table table, String schemaContext)
-      throws URISyntaxException {
+  public static void describeTable(ModelBuilder builder, Table table, String schemaContext) {
     IRI tableContext = encodedIRI(schemaContext + "/" + table.getName());
     builder.add(tableContext, RDF.TYPE, OWL.CLASS);
     builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
