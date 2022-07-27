@@ -50,7 +50,9 @@ public class ValueToRDF {
         if (row.get(column) != null) {
           IRI columnContext = encodedIRI(tableContext + "/column/" + column);
           for (Value value : formatValue(row.get(column), columnMap.get(column), schemaContext)) {
-            builder.add(rowContext, columnContext, value);
+            if (value != null) {
+              builder.add(rowContext, columnContext, value);
+            }
           }
         }
       }
@@ -98,26 +100,19 @@ public class ValueToRDF {
     } else if (columnType.equals(ColumnType.FILE)) {
       Map map = ((Map) o);
 
-      // dump now:
-      // http://localhost:8080/api/rdf/pet%252520storeapi/file/User/picture/e2c04ddfad9547e98cd76476cfe8611f
-
-      // table now:
-      // http://localhost:8080/pet%252520store/api/rdfapi/file/User/picture/e2c04ddfad9547e98cd76476cfe8611f
-
-      // must be:
-      // http://localhost:8080/pet%20store/api/file/User/picture/e2c04ddfad9547e98cd76476cfe8611f
-
-      // todo schema double escaped?? "pet%252520store" instead of "pet%20store"
-
-      String fileApiContext = schemaContext.substring(0, "api/rdf".length());
-      return encodedIRI(
-          schemaContext
-              + "/api/file/"
-              + column.getTableName()
-              + "/"
-              + column.getName()
-              + "/"
-              + map.get("id"));
+      if (map.get("id") != null) {
+        String fileApiContext = schemaContext.substring(0, "api/rdf".length());
+        return encodedIRI(
+            schemaContext
+                + "/api/file/"
+                + column.getTableName()
+                + "/"
+                + column.getName()
+                + "/"
+                + map.get("id"));
+      } else {
+        return null;
+      }
 
     } else {
 
