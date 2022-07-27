@@ -6,8 +6,11 @@ import org.molgenis.emx2.Schema;
 
 public enum AvailableDataModels {
   DATA_CATALOGUE(new DataCatalogueLoader()),
-  DATA_CATALOGUE_STAGING(new DataCatalogueStagingLoader()),
-  PET_STORE(new PetStoreLoader());
+  DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
+  DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
+  PET_STORE(new PetStoreLoader()),
+
+  FAIR_DATA_HUB(new FAIRDataHubLoader());
 
   private DataModelLoader installer;
 

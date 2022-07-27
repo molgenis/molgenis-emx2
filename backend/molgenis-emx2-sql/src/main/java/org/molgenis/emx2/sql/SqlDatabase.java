@@ -35,7 +35,7 @@ public class SqlDatabase implements Database {
   private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
-  private Collection<Setting> settings = new ArrayList<>();
+  private Map<String, String> settings = new LinkedHashMap<>();
   private boolean inTx;
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
@@ -73,7 +73,7 @@ public class SqlDatabase implements Database {
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
-    this.settings.addAll(copy.settings);
+    this.settings.putAll(copy.settings);
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
@@ -99,7 +99,6 @@ public class SqlDatabase implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -154,7 +153,8 @@ public class SqlDatabase implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      if (settings.stream().noneMatch(s -> s.key().equals(Constants.IS_OIDC_ENABLED))) {
+      if (getSettingValue(Constants.IS_OIDC_ENABLED) == null) {
+        // use environment property unless overriden in settings
         this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
@@ -302,10 +302,22 @@ public class SqlDatabase implements Database {
 
   @Override
   public Collection<Setting> getSettings() {
+    this.reloadSettingsIfNeeded();
+    return this.settings.entrySet().stream()
+        .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+        .toList();
+  }
+
+  private void reloadSettingsIfNeeded() {
     if (this.settings.isEmpty()) {
       this.settings = MetadataUtils.loadSettings(jooq);
     }
-    return this.settings;
+  }
+
+  @Override
+  public String getSettingValue(String key) {
+    this.reloadSettingsIfNeeded();
+    return this.settings.get(key);
   }
 
   @Override
@@ -313,7 +325,9 @@ public class SqlDatabase implements Database {
     if (isAdmin()) {
       Setting newSetting = new Setting(key, value);
       MetadataUtils.saveSetting(jooq, newSetting);
-      this.settings.add(newSetting);
+      this.settings.put(key, value);
+      // force all sessions to reload
+      this.listener.afterCommit();
       return newSetting;
     } else {
       throw new MolgenisException("Insufficient rights to create database level setting");
@@ -324,7 +338,14 @@ public class SqlDatabase implements Database {
   public Boolean deleteSetting(String key) {
     if (isAdmin()) {
       MetadataUtils.deleteSetting(jooq, key);
-      return this.settings.removeIf((Setting s) -> s.key().equals(key));
+      if (this.settings.containsKey(key)) {
+        this.settings.remove(key);
+        // force all sessions to reload
+        this.listener.afterCommit();
+        return true;
+      } else {
+        return false;
+      }
     } else {
       throw new MolgenisException("Insufficient rights to delete database level setting");
     }

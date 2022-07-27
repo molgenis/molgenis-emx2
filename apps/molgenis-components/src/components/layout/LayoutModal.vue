@@ -75,10 +75,14 @@ export default {
     },
   },
   beforeMount() {
-    document.addEventListener("keydown", this.escapeKeyHandler);
+    if(document && document.addEventListener) {
+      document.addEventListener("keydown", this.escapeKeyHandler);
+    }
   },
   beforeDestroy() {
-    document.removeEventListener("keydown", this.escapeKeyHandler);
+    if(document && document.removeEventListener) {
+      document.removeEventListener("keydown", this.escapeKeyHandler);
+    }
   },
 };
 </script>

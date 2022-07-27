@@ -1,11 +1,16 @@
 <template>
-  <div>
+  <FormGroup
+    :id="id + '-0'"
+    :label="label"
+    :required="required"
+    description="description"
+    :errorMessage="errorMessage"
+  >
     <div v-for="(value, index) in values" :key="index">
       <component
         :is="inputType"
-        :id="id + index"
+        :id="id + '-' + index"
         v-model="values[index]"
-        @updateInput="$emit('input', values)"
         :showAddButton="index === values.length"
       >
         <template v-slot:append>
@@ -27,7 +32,7 @@
         </template>
       </component>
     </div>
-  </div>
+  </FormGroup>
 </template>
 
 <script>
@@ -40,11 +45,17 @@ export default {
   data() {
     return { values: this.value || [null] };
   },
+  props: {
+    columnType: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     inputType() {
       return {
         STRING_ARRAY: InputString,
-      }[this.type];
+      }[this.columnType];
     },
   },
   methods: {
@@ -68,7 +79,7 @@ export default {
     <div>
       <ArrayInput
           id="array-string-1"
-          type="STRING_ARRAY"
+          columnType="STRING_ARRAY"
           v-model="value"
       ></ArrayInput>
     </div>
@@ -86,7 +97,7 @@ export default {
     },
     data() {
       return {
-        value: ["blaat"],
+        value: ["String array value"],
       };
     },
   };

@@ -5,6 +5,8 @@ import Members from "./components/Members";
 import Theme from "./components/Theme";
 import MenuManager from "./components/MenuManager";
 import PageManager from "./components/PageManager";
+import LogViewer from "./components/LogViewer"; 
+import SettingsManager from "./components/SettingsManager"
 
 Vue.config.productionTip = false;
 
@@ -32,6 +34,16 @@ const router = new VueRouter({
       name: "Pages",
       path: "/Pages",
       component: PageManager,
+    },
+    {
+      name: "Change log",
+      path: "/log",
+      component: LogViewer,
+    },
+    {
+      name: "Advanced settings",
+      path: "/settings",
+      component: SettingsManager,
     },
     {
       path: "/",

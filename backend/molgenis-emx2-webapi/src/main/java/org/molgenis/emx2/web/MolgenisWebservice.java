@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
@@ -25,15 +26,15 @@ import spark.Response;
 import spark.Spark;
 
 public class MolgenisWebservice {
-  static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
-  static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   public static final String SCHEMA = "schema";
-  private static final String ROBOTS_TXT = "robots.txt";
-  private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
   public static final String EDITOR = "Editor";
   public static final String MANAGER = "Manager";
   public static final String ROLE = "role";
   public static final String VIEWER = "Viewer";
+  static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
+  static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  private static final String ROBOTS_TXT = "robots.txt";
+  private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
   static MolgenisSessionManager sessionManager;
   static OIDCController oidcController;
 
@@ -59,16 +60,21 @@ public class MolgenisWebservice {
     get(("/" + OIDC_LOGIN_PATH), oidcController::handleLoginRequest);
     get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    // root
+    // get setting for home
     get(
         "/",
         ACCEPT_HTML,
-        (request, response) ->
-            "Welcome to MOLGENIS EMX2 "
-                + Version.getVersion()
-                + ".<br/>. See <a href=\"/api/\">/api/</a> and  <a href=\"/apps/central/\">/apps/central/</a>");
-
-    redirect.get("/", "/apps/central/");
+        (request, response) -> {
+          // check for setting
+          String ladingPagePath =
+              sessionManager.getSession(request).getDatabase().getSettingValue(LANDING_PAGE);
+          if (ladingPagePath != null) {
+            response.redirect(ladingPagePath);
+          } else {
+            response.redirect("/apps/central/");
+          }
+          return response;
+        });
 
     redirect.get("/api", "/api/");
 
@@ -95,6 +101,8 @@ public class MolgenisWebservice {
     TaskApi.create();
     GraphqlApi.createGraphQLservice(sessionManager);
     LinkedDataFragmentsApi.create(sessionManager);
+    BeaconApi.create(sessionManager);
+    FAIRDataPointApi.create(sessionManager);
     BootstrapThemeService.create();
 
     get(
@@ -119,7 +127,7 @@ public class MolgenisWebservice {
     exception(
         Exception.class,
         (e, req, res) -> {
-          logger.error(e.getMessage());
+          logger.error(e.getMessage(), e);
           res.status(400);
           res.type(ACCEPT_JSON);
           res.body(molgenisExceptionToJson(e));
@@ -197,11 +205,6 @@ public class MolgenisWebservice {
         .writeValueAsString(api);
   }
 
-  public static String sanitize(String string) {
-    if (string != null) return string.replaceAll("[\n|\r|\t]", "_");
-    else return null;
-  }
-
   /** get database either from session or based on token */
   // helper method used in multiple places
   public static Table getTable(Request request) {
@@ -214,10 +217,34 @@ public class MolgenisWebservice {
     return schema.getTable(sanitize(request.params(TABLE)));
   }
 
+  /** alternative version for getTable */
+  public static Table getTable(Request request, String tableName) {
+    String schemaName = request.params(SCHEMA);
+    Schema schema =
+        sessionManager.getSession(request).getDatabase().getSchema(sanitize(schemaName));
+    if (schema == null) {
+      throw new MolgenisException("Schema " + schemaName + " unknown or access denied");
+    } else {
+      return schema.getTable(sanitize(tableName));
+    }
+  }
+
+  public static String sanitize(String string) {
+    if (string != null) {
+      return string.replaceAll("[\n|\r|\t]", "_");
+    } else {
+      return null;
+    }
+  }
+
   public static Schema getSchema(Request request) {
     return sessionManager
         .getSession(request)
         .getDatabase()
         .getSchema(sanitize(request.params(SCHEMA)));
+  }
+
+  public static Collection<String> getSchemaNames(Request request) {
+    return sessionManager.getSession(request).getDatabase().getSchemaNames();
   }
 }

@@ -6,6 +6,7 @@
       :graphqlURL="graphqlURL"
       :pkey="pkey"
       :clone="true"
+      :refBack="refBack"
       @close="closeForm"
       :visible-columns="visibleColumns" />
     <IconAction icon="copy" @click="openForm"
@@ -26,6 +27,7 @@ export default {
   props: {
     pkey: Object,
     visibleColumns: Array,
+    refBack: String
   },
   computed: {
     title() {

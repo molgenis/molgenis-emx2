@@ -2,16 +2,19 @@
   <FormGroup
     :id="id"
     :label="label"
+    :required="required"
     :description="description"
-    :errorMessage="errorMessage"
+    :errorMessage="errorMessage || bigIntError"
   >
     <input
       :id="id"
       :value="value"
-      :class="{ 'form-control': true, 'is-invalid': errorMessage }"
+      class="form-control"
+      :class="{ 'is-invalid': errorMessage || bigIntError }"
       :aria-describedby="id + 'Help'"
       :placeholder="placeholder"
       :readonly="readonly"
+      :required="required"
       @keypress="handleKeyValidity($event)"
       @input="inputHandler($event)"
     />
@@ -39,7 +42,7 @@ export default {
     },
   },
   computed: {
-    errorMessage() {
+    bigIntError() {
       return getBigIntError(this.value);
     },
   },
@@ -109,12 +112,20 @@ span:hover .hoverIcon {
 
 <docs>
   <template>
+  <div>
     <demo-item>
       <div>
         <InputLong id="input-long" v-model="value" label="My long input label" description="Some help needed?"/>
         You typed: {{ JSON.stringify(value) }}
       </div>
     </demo-item>
+    <demo-item>
+      <div>
+        <InputLong id="input-long-read-only" v-model="value" label="Readonly" readonly/>
+        Value: {{ JSON.stringify(value) }}
+      </div>
+    </demo-item>
+</div>
   </template>
   <script>
     export default {

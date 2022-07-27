@@ -32,8 +32,8 @@ at [Docker hub](https://hub.docker.com/repository/docker/molgenis/emx2-snapshot)
 
 ## Software we use
 
-* postresql 16
-* java 16
+* postresql
+* java
 * yarn (on mac, brew install yarn)
 * gradle (on mac, brew install gradle)
 * git (on mac, install xcode dev tools)

@@ -10,6 +10,7 @@ Sibling linkage,,Family linkage
 Sociodemographics,"Which of the following sociodemographic information is included? Select all that apply"
 Age,,Sociodemographics
 Sex,,Sociodemographics
+Sex,,Sociodemographics
 Gender,,Sociodemographics
 Ethnicity,,Sociodemographics
 Country of origin,,Sociodemographics
@@ -49,6 +50,13 @@ Batch number,,Product information
 Formulation,,Product information
 Strength,,Product information
 Package size,,Product information
+Product information vocabulary,Is product information available? Select all items vocabularies that apply,Clinical data
+ART 57,,Product information vocabulary
+IFA GmbH,,Product information vocabulary
+EQDM,,Product information vocabulary
+SPN,,Product information vocabulary
+MTHSPL,,Product information vocabulary
+Product information not coded (Free text),,Product information vocabulary
 ATMP,Is information on advanced therapy medicinal products included?,
 Contraception,Is information on contraceptives included?,
 Indication for use,"If medicines information is captured,is the indication for use recorded?",
@@ -60,7 +68,18 @@ Clinical measures,"Is information on clinical measures included (e.g., BMI, bloo
 Healthcare centre,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",
 Healthcare provider,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",
 Genetic data,Is genotyping information available?,
+OGG,,Genetic data
+FG,,Genetic data
+GO,,Genetic data
+EGO,,Genetic data
+SOPHARM,,Genetic data
+PHARE,,Genetic data
+Other genetic data,,Genetic data
 Biomarker data,Is biomarker information available?,
+BMO,,Biomarker data
+SMASH,,Biomarker data
+FOBI,,Biomarker data
+Other biomarker data,,Biomarker data
 Patient-generated data,"Is patient-generated information (e.g.,from wearable devices) available?",
 Quality of life,Are quality of life measures available? Select all that apply,
 AQoL-8D,,Quality of life

@@ -358,6 +358,9 @@ public class Row {
   }
 
   public boolean isNull(String columnName, ColumnType type) {
+    if (type.isArray()) {
+      return get(columnName, type) == null || ((Object[]) get(columnName, type)).length == 0;
+    }
     return get(columnName, type) == null;
   }
 
