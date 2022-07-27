@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -138,71 +137,26 @@ public class RDFService {
   }
 
   /**
-   * Output is an RDF definition of the schema, its tables, the columns of this table, and all
-   * values contained within its rows.
-   *
-   * @param schema
-   * @param writer
-   * @param request
-   * @param response
-   */
-  public static void getRdfForSchema(
-      Schema schema,
-      PrintWriter writer,
-      Request request,
-      Response response,
-      String rdfApiLocation) {
-    try {
-
-      RDFService rdfService = new RDFService(request, response);
-      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
-
-      String schemaRdfApiContext =
-          rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
-      rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
-
-      describeSchema(
-          rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getRootContext());
-      for (Table table : schema.getTablesSorted()) {
-        describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
-        describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
-        describeValues(
-            rdfService.getJsonMapper(), rdfService.getBuilder(), table, null, schemaRdfApiContext);
-      }
-
-      Rio.write(
-          rdfService.getBuilder().build(),
-          writer,
-          rdfService.getRdfFormat(),
-          rdfService.getConfig());
-
-    } catch (Exception e) {
-      throw new MolgenisException("RDF export failed due to an exception", e);
-    }
-  }
-
-  /**
-   * Output is an RDF definition of all database schemas, all of their tables, as well as all table
-   * columns and row values. In other words: a complete database dump, depending on authorization.
+   * Output is an RDF definition of selected database schemas and all data contained therein.
    *
    * @param schemas
    * @param writer
    * @param request
    * @param response
    */
-  public static void getRdfForDatabase(
-      List<Schema> schemas,
+  public static void getRdfForSchema(
       PrintWriter writer,
       Request request,
       Response response,
-      String rdfApiLocation) {
+      String rdfApiLocation,
+      Schema... schemas) {
     try {
 
       RDFService rdfService = new RDFService(request, response);
       describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
 
-      for (int i = 0; i < schemas.size(); i++) {
-        Schema schema = schemas.get(i);
+      for (int i = 0; i < schemas.length; i++) {
+        Schema schema = schemas[i];
         String schemaRdfApiContext =
             rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
         rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");

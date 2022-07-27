@@ -5,9 +5,7 @@ import static spark.Spark.get;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.semantics.RDFService;
@@ -32,19 +30,20 @@ public class RDFApi {
   // todo make streaming (also the other endpoints)
   private static String rdfForDatabase(Request request, Response response) {
     Collection<String> schemaNames = MolgenisWebservice.getSchemaNames(request);
-    List<Schema> schemas = new ArrayList<>();
-    for (String schemaName : schemaNames) {
-      schemas.add(sessionManager.getSession(request).getDatabase().getSchema(schemaName));
+    String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
+    Schema[] schemas = new Schema[schemaNames.size()];
+    for (int i = 0; i < schemas.length; i++) {
+      schemas[i] = (sessionManager.getSession(request).getDatabase().getSchema(schemaNamesArr[i]));
     }
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForDatabase(schemas, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.getRdfForSchema(new PrintWriter(sw), request, response, RDF_API_LOCATION, schemas);
     return sw.getBuffer().toString();
   }
 
   private static String rdfForSchema(Request request, Response response) {
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
-    RDFService.getRdfForSchema(schema, new PrintWriter(sw), request, response, RDF_API_LOCATION);
+    RDFService.getRdfForSchema(new PrintWriter(sw), request, response, RDF_API_LOCATION, schema);
     return sw.getBuffer().toString();
   }
 
