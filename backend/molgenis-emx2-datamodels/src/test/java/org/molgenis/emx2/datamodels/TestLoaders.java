@@ -42,7 +42,7 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueLoader() {
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(39, dataCatalogue.getTableNames().size());
+    assertEquals(43, dataCatalogue.getTableNames().size());
   }
 
   @Test

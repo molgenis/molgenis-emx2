@@ -334,7 +334,7 @@ SourceDataDictionaries,,description,text,,,,,,,,,notes specific to this data dic
 DataDictionaryMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 DataDictionaryMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 DataDictionaryMappings,,toDataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-DataDictionaryMappings,,mappingStatus,ontology,MappingStatus,,,,,,,,"Has the data been ETL-ed to a common data model?"
+DataDictionaryMappings,,mappingStatus,ontology,,,,MappingStatus,,,,,"Has the data been ETL-ed to a common data model?"
 DataDictionaryMappings,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months"
 AllSourceVariables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
 AllSourceVariables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
