@@ -181,12 +181,12 @@ public class RDFService {
     try {
 
       RDFService rdfService = new RDFService(request, response);
-      String databaseRdfApiContext = rdfService.getRootContext() + rdfApiLocation;
-      rdfService.getBuilder().setNamespace("emx", databaseRdfApiContext + "/");
 
-      for (Schema schema : schemas) {
+      for (int i = 0; i < schemas.size(); i++) {
+        Schema schema = schemas.get(i);
         String schemaRdfApiContext =
             rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
+        rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
         describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext);
         for (Table table : schema.getTablesSorted()) {
           describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
