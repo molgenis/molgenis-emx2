@@ -99,7 +99,12 @@ public class RDFService {
    * @param response
    */
   public static void getRdfForTable(
-      Table table, PrintWriter writer, Request request, Response response, String rdfApiLocation) {
+      Table table,
+      String rowId,
+      PrintWriter writer,
+      Request request,
+      Response response,
+      String rdfApiLocation) {
     try {
 
       RDFService rdfService = new RDFService(request, response);
@@ -111,7 +116,7 @@ public class RDFService {
       describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
       describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
       describeValues(
-          rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaRdfApiContext);
+          rdfService.getJsonMapper(), rdfService.getBuilder(), table, rowId, schemaRdfApiContext);
 
       Rio.write(
           rdfService.getBuilder().build(),
@@ -125,8 +130,8 @@ public class RDFService {
   }
 
   /**
-   * Output is an RDF definition of the schema, its tables, and the columns of these tables. So no
-   * data.
+   * Output is an RDF definition of the schema, its tables, the columns of this table, and all
+   * values contained within its rows.
    *
    * @param schema
    * @param writer
@@ -150,6 +155,8 @@ public class RDFService {
       for (Table table : schema.getTablesSorted()) {
         describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
         describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
+        describeValues(
+            rdfService.getJsonMapper(), rdfService.getBuilder(), table, null, schemaRdfApiContext);
       }
 
       Rio.write(
@@ -192,7 +199,11 @@ public class RDFService {
           describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
           describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
           describeValues(
-              rdfService.getJsonMapper(), rdfService.getBuilder(), table, schemaRdfApiContext);
+              rdfService.getJsonMapper(),
+              rdfService.getBuilder(),
+              table,
+              null,
+              schemaRdfApiContext);
         }
       }
 
