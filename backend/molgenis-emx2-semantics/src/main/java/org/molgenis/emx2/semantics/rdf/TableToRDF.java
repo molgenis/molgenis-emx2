@@ -16,6 +16,7 @@ public class TableToRDF {
     IRI tableContext = encodedIRI(schemaContext + "/" + table.getName());
     builder.add(tableContext, RDF.TYPE, OWL.CLASS);
     builder.add(tableContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#DataSet"));
+    // SIO:000754 = database table
     builder.add(tableContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000754"));
     if (table.getMetadata().getSemantics() != null) {
       for (String tableSemantics : table.getMetadata().getSemantics()) {
@@ -23,12 +24,15 @@ public class TableToRDF {
       }
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
       builder.add(
+          // NCIT:C48697 = Controlled Vocabulary
           tableContext, RDFS.ISDEFINEDBY, iri("http://purl.obolibrary.org/obo/NCIT_C48697"));
     }
     builder.add(tableContext, RDFS.LABEL, table.getName());
     if (table.getMetadata().getTableType() == TableType.DATA) {
+      // NCIT:C25474 = Data
       builder.add(tableContext, RDFS.RANGE, iri("http://purl.obolibrary.org/obo/NCIT_C25474"));
     } else if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+      // NCIT:C21270 = Ontology
       builder.add(tableContext, RDFS.RANGE, iri("http://purl.obolibrary.org/obo/NCIT_C21270"));
     }
   }

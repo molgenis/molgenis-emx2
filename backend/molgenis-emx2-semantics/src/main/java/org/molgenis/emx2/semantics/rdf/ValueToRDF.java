@@ -38,11 +38,7 @@ public class ValueToRDF {
     Query query = selectColumns(table);
     if (rowId != null) {
       // FIXME: how to support multiple PKs?
-      query.where(
-          f(
-              table.getMetadata().getPrimaryKeyColumns().get(0).getName(),
-              EQUALS,
-              rowId)); // PK == rowId
+      query.where(f(table.getMetadata().getPrimaryKeyColumns().get(0).getName(), EQUALS, rowId));
     }
     String json = query.retrieveJSON();
     Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
@@ -56,9 +52,10 @@ public class ValueToRDF {
       IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
+      // SIO:001187 = database row
       builder.add(rowContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_001187"));
       if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-        // NCIT_C95637 = Coded Value Data Type
+        // NCIT:C95637 = Coded Value Data Type
         builder.add(rowContext, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
         if (row.get("ontologyTermURI") != null) {
           builder.add(rowContext, RDFS.ISDEFINEDBY, iri((String) row.get("ontologyTermURI")));

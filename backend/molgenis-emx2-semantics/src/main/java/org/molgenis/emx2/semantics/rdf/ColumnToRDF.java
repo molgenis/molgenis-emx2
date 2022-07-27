@@ -21,6 +21,7 @@ public class ColumnToRDF {
     String tableContext = schemaContext + "/" + table.getName();
     for (Column c : table.getMetadata().getColumns()) {
       String columnContext = tableContext + "/column/" + c.getName();
+      // SIO:000757 = database column
       builder.add(columnContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000757"));
       builder.add(columnContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#MeasureProperty"));
       if (c.isReference() || c.isOntology()) {
