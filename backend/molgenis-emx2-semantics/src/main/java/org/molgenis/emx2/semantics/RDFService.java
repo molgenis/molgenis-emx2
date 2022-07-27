@@ -1,6 +1,7 @@
 package org.molgenis.emx2.semantics;
 
 import static org.molgenis.emx2.semantics.rdf.ColumnToRDF.describeColumns;
+import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
 import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
 import static org.molgenis.emx2.semantics.rdf.TableToRDF.describeTable;
@@ -87,6 +88,7 @@ public class RDFService {
     this.builder.setNamespace("owl", "http://www.w3.org/2002/07/owl#");
     this.builder.setNamespace("sio", "http://semanticscience.org/resource/");
     this.builder.setNamespace("qb", "http://purl.org/linked-data/cube#");
+    this.builder.setNamespace("dcterms", "http://purl.org/dc/terms/");
   }
 
   /**
@@ -108,11 +110,17 @@ public class RDFService {
     try {
 
       RDFService rdfService = new RDFService(request, response);
+      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
+
       String schemaRdfApiContext =
           rdfService.getRootContext() + "/" + table.getSchema().getName() + rdfApiLocation;
       rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
 
-      describeSchema(rdfService.getBuilder(), table.getSchema(), schemaRdfApiContext);
+      describeSchema(
+          rdfService.getBuilder(),
+          table.getSchema(),
+          schemaRdfApiContext,
+          rdfService.getRootContext());
       describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
       describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
       describeValues(
@@ -147,11 +155,14 @@ public class RDFService {
     try {
 
       RDFService rdfService = new RDFService(request, response);
+      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
+
       String schemaRdfApiContext =
           rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
       rdfService.getBuilder().setNamespace("emx", schemaRdfApiContext + "/");
 
-      describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext);
+      describeSchema(
+          rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getRootContext());
       for (Table table : schema.getTablesSorted()) {
         describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
         describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
@@ -188,13 +199,15 @@ public class RDFService {
     try {
 
       RDFService rdfService = new RDFService(request, response);
+      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
 
       for (int i = 0; i < schemas.size(); i++) {
         Schema schema = schemas.get(i);
         String schemaRdfApiContext =
             rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
         rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
-        describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext);
+        describeSchema(
+            rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getRootContext());
         for (Table table : schema.getTablesSorted()) {
           describeTable(rdfService.getBuilder(), table, schemaRdfApiContext);
           describeColumns(rdfService.getBuilder(), table, schemaRdfApiContext);
