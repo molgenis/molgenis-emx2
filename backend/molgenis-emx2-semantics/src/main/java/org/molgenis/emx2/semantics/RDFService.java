@@ -1,6 +1,7 @@
 package org.molgenis.emx2.semantics;
 
 import static org.molgenis.emx2.semantics.rdf.ColumnToRDF.describeColumns;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 import static org.molgenis.emx2.semantics.rdf.SchemaToRDF.describeSchema;
 import static org.molgenis.emx2.semantics.rdf.SupportedRDFFileFormats.RDF_FILE_FORMATS;
@@ -12,11 +13,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import org.eclipse.rdf4j.common.net.ParsedIRI;
-import org.eclipse.rdf4j.model.*;
+
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -94,19 +93,26 @@ public class RDFService {
 
   /**
    * Retrieve EMX2 data described as RDF. Can be used in different ways:
+   *
    * <ul>
-   *     <li>Call with one or more schemas, table and rowId null: retrieve all data from selected schemas</li>
-   *     <li>Call with a table, schema of that table, rowId null: retrieve all data from selected table</li>
-   *     <li>Call with a table, schema of that table, rowId provided: retrieve all data from selected row</li>
+   *   <li>Call with one or more schemas, table and rowId null: retrieve all data from selected
+   *       schemas
+   *   <li>Call with a table, schema of that table, rowId null: retrieve all data from selected
+   *       table
+   *   <li>Call with a table, schema of that table, rowId provided: retrieve all data from selected
+   *       row
    * </ul>
+   *
    * Each call will result in a full stack of data, containing the following elements:
+   *
    * <ul>
-   *     <li>Root node with server URL</li>
-   *     <li>Schema node(s) linked to its root</li>
-   *     <li>Table node(s) linked to its schema</li>
-   *     <li>Column node(s) linked to its table</li>
-   *     <li>Row node(s) linked to its table with value(s) linked to its column(s)</li>
+   *   <li>Root node with server URL
+   *   <li>Schema node(s) linked to its root
+   *   <li>Table node(s) linked to its schema
+   *   <li>Column node(s) linked to its table
+   *   <li>Row node(s) linked to its table with value(s) linked to its column(s)
    * </ul>
+   *
    * The number of schemas, tables, and rows returned depend on the input parameters.
    *
    * @param schemas
@@ -158,32 +164,7 @@ public class RDFService {
     }
   }
 
-  /**
-   * @param uriString
-   * @return
-   * @throws URISyntaxException
-   */
-  public static URI getURI(String uriString) throws URISyntaxException {
-    ParsedIRI parsedIRI = ParsedIRI.create(uriString);
-    URI uri =
-        new URI(
-            parsedIRI.getScheme(),
-            parsedIRI.getUserInfo(),
-            parsedIRI.getHost(),
-            parsedIRI.getPort(),
-            parsedIRI.getPath(),
-            parsedIRI.getQuery(),
-            parsedIRI.getFragment());
-    return uri;
-  }
 
-  /**
-   * @param uriString
-   * @return
-   */
-  public static IRI encodedIRI(String uriString) {
-    return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
-  }
 
   private ObjectMapper getJsonMapper() {
     return jsonMapper;

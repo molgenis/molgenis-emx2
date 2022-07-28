@@ -7,8 +7,8 @@ import static org.eclipse.rdf4j.model.vocabulary.XSD.LONG;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
-import static org.molgenis.emx2.semantics.RDFService.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;

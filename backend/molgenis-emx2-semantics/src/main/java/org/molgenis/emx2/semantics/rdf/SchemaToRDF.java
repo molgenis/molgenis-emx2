@@ -1,6 +1,6 @@
 package org.molgenis.emx2.semantics.rdf;
 
-import static org.molgenis.emx2.semantics.RDFService.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -13,7 +13,7 @@ public class SchemaToRDF {
   public static void describeSchema(
       ModelBuilder builder, Schema schema, String schemaContext, String rootContext) {
     builder.add(schemaContext, RDFS.LABEL, schema.getName());
-    builder.add(schemaContext, DCTERMS.IS_PART_OF, encodedIRI(rootContext));
+    builder.add(schemaContext, DCTERMS.IS_PART_OF, encodedIRI(rootContext))
     if (schema.getMetadata().getDescription() != null) {
       builder.add(schemaContext, DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }

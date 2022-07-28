@@ -1,8 +1,8 @@
 package org.molgenis.emx2.semantics.rdf;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.molgenis.emx2.semantics.RDFService.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.ColumnTypeToXSDDataType.columnTypeToXSD;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.DC;
