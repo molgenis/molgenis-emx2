@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -163,8 +162,6 @@ public class RDFService {
       throw new MolgenisException("RDF export failed due to an exception", e);
     }
   }
-
-
 
   private ObjectMapper getJsonMapper() {
     return jsonMapper;
