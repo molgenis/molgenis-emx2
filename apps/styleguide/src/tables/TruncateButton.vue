@@ -6,7 +6,7 @@
       <div v-else>
         Truncate
         <strong>{{ table }}</strong>
-        <br/>Are you sure that you want to remove ALL rows in table '{{ table }}'?
+        <br/>Are you sure that you want to delete ALL rows in table '{{ table }}'?
         <br/>
       </div>
     </template>
@@ -17,7 +17,7 @@
       </ButtonDanger>
     </template>
   </LayoutModal>
-  <IconDanger v-else icon="bomb" @click="openForm">truncate</IconDanger>
+  <IconDanger v-else icon="bomb" @click="openForm">Delete ALL</IconDanger>
 </template>
 
 <script>
