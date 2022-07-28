@@ -415,6 +415,32 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
+  private static DataFetcher<?> truncateFetcher(Schema schema) {
+    return dataFetchingEnvironment -> {
+      StringBuilder message = new StringBuilder();
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema s = db.getSchema(schema.getName());
+                List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+                if (tables != null) {
+                  for (String tableName : tables) {
+                    Table table = s.getTable(tableName);
+                    if (table == null) {
+                      throw new GraphqlException(
+                          "Truncate failed: table " + tableName + " unknown");
+                    } else {
+                      table.truncate();
+                    }
+                    message.append("Truncated table '" + tableName + "'\n");
+                  }
+                }
+              });
+      return new GraphqlApiMutationResult(SUCCESS, message.toString());
+    };
+  }
+
   private static void dropColumns(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<Map> columns = dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
@@ -657,6 +683,18 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .build();
+  }
+
+  public GraphQLFieldDefinition truncateMutation(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("truncate")
+        .type(typeForMutationResult)
+        .dataFetcher(truncateFetcher(schema))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.TABLES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
 }
