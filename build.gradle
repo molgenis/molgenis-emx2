@@ -88,7 +88,7 @@ task ci(type: WriteProperties) {
 
 jib {
     from {
-        image = 'eclipse-temurin:17-jdk-focal'
+        image = 'gcr.io/distroless/java17-debian11'
     }
     to {
         image = imageName
