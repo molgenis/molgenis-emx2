@@ -21,9 +21,10 @@ resources:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: 
 
+container:
+  gradle:
 services:
-  nginx: gradle
-  redis: postgres
+  postgres: postgres
 
 steps:
 - script: apt-get update && apt-get install postgresql-client -y
