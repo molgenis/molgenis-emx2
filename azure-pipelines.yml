@@ -1,0 +1,36 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+#trigger only on PR to master
+pr:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  containers:
+  - container: gradle
+    image: gradle:jdk17
+  - container: postgres
+    image: postgres:14-alpine
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: 
+
+services:
+  nginx: gradle
+  redis: postgres
+
+steps:
+- script: apt-get update && apt-get install postgresql-client -y
+- script: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+- script: ./gradlew test
+  env:
+    MOLGENIS_POSTGRES_USER: molgenis
+    MOLGENIS_POSTGRES_PASS: molgenis
+    MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
+
