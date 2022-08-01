@@ -41,4 +41,3 @@ steps:
     MOLGENIS_POSTGRES_USER: molgenis
     MOLGENIS_POSTGRES_PASS: molgenis
     MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-
