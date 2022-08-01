@@ -21,8 +21,7 @@ resources:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: 
 
-container:
-  gradle:
+container: gradle
 services:
   postgres: postgres
 
