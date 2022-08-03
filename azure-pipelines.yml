@@ -30,7 +30,7 @@ steps:
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
     sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-17/bin/java 1
-  displayName: initialize database
+  displayName: initialize database and set jdk 17 to default
   env:
     PGPASSWORD: postgres\
 - script: |
