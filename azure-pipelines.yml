@@ -9,16 +9,18 @@ trigger:
 pr:
   - master
 
-container: eclipse-temurin:17-jdk-focal
-
 resources:
   containers:
+  - container: 
+    image: eclipse-temurin:17-jdk-focal
   - container: postgres
     image: postgres:14-alpine
     env:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
+
+container: gradle
 services:
   postgres: postgres
 
