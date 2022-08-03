@@ -30,6 +30,8 @@ services:
 
 steps:
 - script: |
+    su -
+    apt-get install sudo -y
     sudo apt-get update && sudo apt-get install postgresql-client -y
   displayName: get postgresql client
 - script: |
