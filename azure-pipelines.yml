@@ -31,12 +31,14 @@ steps:
   env:
     PGPASSWORD: postgres
 - script: |
-    alternatives --display java
+    update-alternatives --display java
   displayName: list available java versions (for debug purposes)
 - script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
-    ./gradlew test
+    ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} \
+    -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
+    -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
   displayName: run test, ensure we are using java 17 JAVA_HOME
    
   env:
