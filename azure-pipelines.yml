@@ -33,6 +33,8 @@ steps:
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
   displayName: initialize database
+  env:
+    PGPASSWORD: postgres
 - script: |
     ./gradlew test
   displayName: run test
