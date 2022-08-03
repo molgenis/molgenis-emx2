@@ -24,19 +24,20 @@ services:
 steps:
 - script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client -y
-    sudo update-alternatives --set java /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
-    java -version
-  displayName: install jdk 17 and postgresql client
+  displayName: postgresql client
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
   displayName: initialize database
   env:
     PGPASSWORD: postgres
 - script: |
+    alternatives --display java
+  displayName: list available java versions (for debug purposes)
+- script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
     ./gradlew test
-  displayName: run test
+  displayName: run test, ensure we are using java 17 JAVA_HOME
    
   env:
     MOLGENIS_POSTGRES_USER: molgenis
