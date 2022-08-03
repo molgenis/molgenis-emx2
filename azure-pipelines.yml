@@ -11,8 +11,6 @@ pr:
 
 resources:
   containers:
-  - container: gradle
-    image: eclipse-temurin:17-jdk-focal
   - container: postgres
     image: postgres:14-alpine
     env:
@@ -20,30 +18,25 @@ resources:
     ports:
       - 5432:5432
 
-container: gradle
 services:
   postgres: postgres
 
 steps:
 - script: |
-    su -
-    apt-get update && apt-get install postgresql-client -y
+    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
+    echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+    sudo apt install temurin-17-jdk
+    java -version
   displayName: get postgresql client
-  target:
-   container: gradle
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
   displayName: initialize database
   env:
     PGPASSWORD: postgres\
-  target:
-    container: gradle
 - script: |
     java --version
     ./gradlew test
   displayName: run test
-  target:
-    container: gradle
    
   env:
     MOLGENIS_POSTGRES_USER: molgenis
