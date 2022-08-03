@@ -24,14 +24,13 @@ services:
 steps:
 - script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client -y
-
-    java -version
-  displayName: install java
-- script: |
-    psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
     sudo update-alternatives --display java java - auto mode 
     sudo update-alternatives --install /usr/bin/java /usr/lib/jvm/temurin-17-jdk-amd64/bin/java 1
-  displayName: initialize database and set jdk 17 to default
+    java -version
+  displayName: install jdk 17 and postgresql client
+- script: |
+    psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
+  displayName: initialize database
   env:
     PGPASSWORD: postgres\
 - script: |
