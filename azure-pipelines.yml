@@ -36,6 +36,8 @@ steps:
 - script: |
     ./gradlew test
   displayName: run test
+  target:
+   container: gradle
   env:
     MOLGENIS_POSTGRES_USER: molgenis
     MOLGENIS_POSTGRES_PASS: molgenis
