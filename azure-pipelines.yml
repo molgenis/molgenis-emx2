@@ -28,15 +28,21 @@ steps:
 - script: |
     apt-get update && apt-get install postgresql-client -y
   displayName: get postgresql client
+  target:
+   container: gradle
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
   displayName: initialize database
   env:
-    PGPASSWORD: postgres
+    PGPASSWORD: postgres\
+  target:
+    container: gradle
 - script: |
     java --version
     ./gradlew test
   displayName: run test
+  target:
+    container: gradle
    
   env:
     MOLGENIS_POSTGRES_USER: molgenis
