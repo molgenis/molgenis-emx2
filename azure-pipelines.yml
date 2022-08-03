@@ -26,6 +26,7 @@ services:
 
 steps:
 - script: |
+    su -
     apt-get update && apt-get install postgresql-client -y
   displayName: get postgresql client
   target:
