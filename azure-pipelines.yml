@@ -33,7 +33,7 @@ steps:
   env:
     PGPASSWORD: postgres
 - script: |
-    java --version
+    ./gradlew -version
     ./gradlew test
   displayName: run test
    
