@@ -31,7 +31,7 @@ services:
 
 steps:
 - script: |
-    sudo apt-get update && sudo apt-get install postgresql-client -y
+    apt-get update && apt-get install postgresql-client -y
   displayName: get postgresql client
 - script: |
     psql -h postgres -p 5432 -U postgres < .docker/initdb.sql
