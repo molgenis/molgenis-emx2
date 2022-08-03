@@ -28,7 +28,7 @@ subprojects {
 
     spotless {
         java {
-            googleJavaFormat()
+            googleJavaFormat('1.15.0')
         }
     }
     compileJava.dependsOn 'spotlessApply'
@@ -63,8 +63,8 @@ subprojects {
         }
     }
 
-    targetCompatibility = '16'
-    sourceCompatibility = '16'
+    targetCompatibility = '17'
+    sourceCompatibility = '17'
 
     jar {
         reproducibleFileOrder = true
