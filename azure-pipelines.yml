@@ -24,7 +24,7 @@ services:
 steps:
 - script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client -y
-    sudo update-alternatives --display java java - auto mode 
+    sudo pdate-alternatives --query java
     java -version
   displayName: install jdk 17 and postgresql client
 - script: |
