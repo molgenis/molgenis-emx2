@@ -20,8 +20,8 @@ resources:
     ports:
       - 5432:5432
 
+container: gradle
 services:
-  gradle: gradle
   postgres: postgres
 
 steps:
@@ -39,6 +39,8 @@ steps:
   displayName: run test
   target:
    container: gradle
+    
+   
   env:
     MOLGENIS_POSTGRES_USER: molgenis
     MOLGENIS_POSTGRES_PASS: molgenis
