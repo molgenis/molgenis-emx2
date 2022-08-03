@@ -33,6 +33,7 @@ steps:
   env:
     PGPASSWORD: postgres
 - script: |
+    export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
     ./gradlew -version
     ./gradlew test
   displayName: run test
