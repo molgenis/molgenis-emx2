@@ -18,11 +18,12 @@ resources:
     image: gradle:jdk17
   - container: postgres
     image: postgres:14-alpine
-    trigger: true
     env:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432/tcp
+
+container: ubuntu:18.04
 
 services:
   gradle: gradle
