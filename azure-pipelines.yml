@@ -9,6 +9,8 @@ trigger:
 pr:
   - master
 
+container: eclipse-temurin:17-jdk-focal
+
 resources:
   containers:
   - container: postgres
@@ -17,8 +19,6 @@ resources:
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432:5432
-
-container: eclipse-temurin:17-jdk-focal
 services:
   postgres: postgres
 
@@ -35,9 +35,6 @@ steps:
     java --version
     ./gradlew test
   displayName: run test
-  target:
-   container: gradle
-    
    
   env:
     MOLGENIS_POSTGRES_USER: molgenis
