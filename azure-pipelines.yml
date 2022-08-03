@@ -20,7 +20,7 @@ resources:
     image: postgres:14-alpine
     trigger: true
     ports:
-      - 5432
+      - 5432:5432
 
 services:
   gradle: gradle
