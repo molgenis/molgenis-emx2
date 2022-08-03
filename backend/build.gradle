@@ -28,7 +28,7 @@ subprojects {
 
     spotless {
         java {
-            googleJavaFormat()
+            googleJavaFormat('1.15').aosp().reflowLongStrings().groupArtifact('com.google.googlejavaformat:google-java-format')
         }
     }
     compileJava.dependsOn 'spotlessApply'
