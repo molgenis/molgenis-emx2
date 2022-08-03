@@ -11,8 +11,6 @@ pr:
 
 resources:
   containers:
-  - container: gradle
-    image: eclipse-temurin:17-jdk-focal
   - container: postgres
     image: postgres:14-alpine
     env:
@@ -20,7 +18,7 @@ resources:
     ports:
       - 5432:5432
 
-container: gradle
+container: eclipse-temurin:17-jdk-focal
 services:
   postgres: postgres
 
