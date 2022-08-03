@@ -29,7 +29,7 @@ steps:
   displayName: install java
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
-    update-alternatives --config java
+    sudo update-alternatives --display java java - auto mode 
     sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/temurin-17/bin/java 1
   displayName: initialize database and set jdk 17 to default
   env:
