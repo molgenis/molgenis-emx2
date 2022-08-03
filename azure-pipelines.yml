@@ -31,7 +31,7 @@ steps:
   env:
     PGPASSWORD: postgres
 - script: |
-    update-alternatives --display java
+    sudo update-alternatives --display java
   displayName: list available java versions (for debug purposes)
 - script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
