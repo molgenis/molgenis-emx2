@@ -24,13 +24,12 @@ services:
 steps:
 - script: |
     sudo apt-get update &&  sudo apt-get install postgresql-client -y
-    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
-    echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
-    sudo apt install temurin-17-jdk
+
     java -version
   displayName: install java
 - script: |
     psql -h localhost -p 5432 -U postgres < .docker/initdb.sql
+    sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-17/bin/java 1
   displayName: initialize database
   env:
     PGPASSWORD: postgres\
