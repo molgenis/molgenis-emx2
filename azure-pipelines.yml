@@ -18,7 +18,7 @@ resources:
     env:
       POSTGRES_PASSWORD: postgres
     ports:
-      - 5432/tcp
+      - 5432:5432
 
 services:
   gradle: gradle
