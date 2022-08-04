@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.0
+Version,,,,,,,,,,,,3
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official full name of the institution or organisation as used in EU projects
@@ -34,6 +34,7 @@ Resources,,name,text,2,TRUE,,,,,,,Name used in European projects
 DataResources,,localName,,,,,,,,,,"If different from above, name in the national language"
 Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network, e.g. h2020 project"
 Studies,,type,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
+Studies,,typeOther,,,,,,,,,,"If other, describe the type of study"
 Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which of the following families of data sources best describe this data source
 Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource"
 DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
@@ -68,6 +69,7 @@ Cohorts,,inclusionCriteria,text,,,,InclusionCriteria,,,,,Inclusion criteria appl
 DataResources,,startYear,int,,,,,,,,,Year when first data was collected
 DataResources,,endYear,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
+RWEresources,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
 RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
 RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
 RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
@@ -128,7 +130,6 @@ RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed to publi
 RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
 RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
 Databanks,,origin,heading,,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
-Databanks,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
 Databanks,,reasonSustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
 Databanks,,dateEstablished,date,,,,,,,,,Date that the data bank was first established.
 RWEresources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
@@ -140,8 +141,8 @@ Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data ba
 Databanks,,lagTime,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
 RWEresources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
 RWEresources,,preservationDuration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
-RWREsources,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
-RWREsources,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
+RWEresources,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
+RWEresources,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
 Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
 Databanks,,numberOfRecords,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count)
 Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)."
@@ -242,7 +243,7 @@ QuantitativeInformation,,proportionEtnicity,text,,,,,,,,,Proportion per etnicity
 CollectionEvents,,,,,,,,,,,,Definition of a data collection event for a resource
 CollectionEvents,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of
 CollectionEvents,,name,,1,TRUE,,,,,,,Name of the collection event
-CollectionEvents,,description,,,,,,,,,,Description of the collection event
+CollectionEvents,,description,text,,,,,,,,,Description of the collection event
 CollectionEvents,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
 CollectionEvents,,startYear,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection
 CollectionEvents,,startMonth,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection
@@ -295,15 +296,15 @@ Studies,,datasources,ref_array,,,,Datasources,,,,,Datasources that provided data
 Studies,,databanks,ref_array,,,,Databanks,,,,,Databanks that provided data into this study
 Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study
 Studies,,studyFeatures,ontology_array,,,CatalogueOntologies,StudyFeatures,,,,,Data features
-Studies,,dataCharacterizationDetails,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
+Studies,,dataCharacterisationDetails,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
 Studies,,dataSourceTypes,ontology_array,,,CatalogueOntologies,StudyDatasourceTypes,,,,,Types of data sources used
 Studies,,dataSourceTypesOther,text,,,,,,,,,"Sources of data, if other"
 Studies,,qualityMarks,ontology_array,,,,StudyQualityMarks,,,,,"Quality marks, such as ENCePP seal"
-Studies,,medicinesStudiedCodes,ontology_array,,,,MedicineCodes,,,,,"Codes of medicines studied"
-Studies,,medicinesStudiedBrands,text,,,,,,,,,"Brand names of medicines studied"
-Studies,,medicalConditionsStudied,ontology_array,,,,MedicalConditions,,,,,"Codes of the medical conditions studied"
-Studies,,medicalConditionsStudiedOther,text,,,,MedicalConditions,,,,,"Codes of the medical conditions studied"
-Studies,,dateCollectionEndPlanned,date,,,,,,,,,"The date of the end of the data collection for the study- planned"
+Studies,,medicinesStudiedCodes,ontology_array,,,,MedicineCodes,,,,,Codes of medicines studied
+Studies,,medicinesStudiedBrands,text,,,,,,,,,Brand names of medicines studied
+Studies,,medicalConditionsStudied,ontology_array,,,,MedicalConditions,,,,,Codes of the medical conditions studied
+Studies,,medicalConditionsStudiedOther,text,,,,MedicalConditions,,,,,Codes of the medical conditions studied
+Studies,,dateCollectionEndPlanned,date,,,,,,,,,The date of the end of the data collection for the study- planned
 Studies,,dateCollectionEndActual,date,,,,,,,,,"Data collection end, actual"
 Studies,,dataExtractionDate,date,,,,,,,,,Date on which the study data was extracted
 Studies,,methods,heading,,,,,,,,,Methodological aspects
@@ -344,7 +345,7 @@ SourceDataDictionaries,,description,text,,,,,,,,,notes specific to this data dic
 DataDictionaryMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 DataDictionaryMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 DataDictionaryMappings,,toDataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-DataDictionaryMappings,,mappingStatus,ontology,,,,MappingStatus,,,,,"Has the data been ETL-ed to a common data model?"
+DataDictionaryMappings,,mappingStatus,ontology,,,,MappingStatus,,,,,Has the data been ETL-ed to a common data model?
 DataDictionaryMappings,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months"
 AllSourceVariables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
 AllSourceVariables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
