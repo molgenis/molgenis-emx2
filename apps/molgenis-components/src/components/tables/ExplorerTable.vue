@@ -401,6 +401,7 @@ export default {
         return accum;
       }, {});
       this.$emit("update:conditions", result);
+      this.reload();
     },
     setLimit(limit) {
       const limitNumber = parseInt(limit);
