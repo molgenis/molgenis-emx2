@@ -86,7 +86,7 @@
       <div v-if="countFilters" class="col-3 pl-0">
         <FilterSidebar
           :filters.sync="columns"
-          @update:filters="emitConditions"
+          @updateFilters="emitConditions"
           :graphqlURL="graphqlURL"
         />
       </div>
@@ -96,7 +96,7 @@
       >
         <FilterWells
           :filters.sync="columns"
-          @update:filters="emitConditions"
+          @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
         />
         <div v-if="loading">
@@ -532,7 +532,41 @@ export default {
       id="my-explorer-table"
       tableName="Pet"
       graphqlURL="/pet store/graphql"
+      :showColumns.sync="showColumns"
+      :showFilters.sync="showFilters"
+      :conditions.sync="conditions"
+      :showPage.sync="page" 
+      :showLimit.sync="limit"
+      :showOrderBy.sync="showOrderBy" 
+      :showOrder.sync="showOrder"
     ></explorer-table>
+
+    <div class="border mt-3 p-2">
+      <h5>synced props: </h5>
+      <div>showColumns: {{showColumns}}</div>
+      <div>showFilters: {{showFilters}}</div>
+      <div>conditions: {{conditions}}</div>
+      <div>showOrderBy: {{showOrderBy}}</div>
+      <div>showOrder: {{showOrder}}</div>
+      <div>page: {{page}}</div>
+      <div>limit: {{limit}}</div>
+    </div>
   </demo-item>
 </template>
+
+<script>
+  export default {
+    data() {
+      return {
+        showColumns: ['name'],
+        showFilters: ['name'],
+        conditions: {"name": ["pooky", "spike"]},
+        page: 1,
+        limit: 10,
+        showOrder: 'DESC', 
+        showOrderBy: 'name'
+      }
+    },
+  }
+</script>
 </docs>
