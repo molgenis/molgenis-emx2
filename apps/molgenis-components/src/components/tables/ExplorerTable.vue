@@ -32,17 +32,23 @@
           <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
-            <h6>Download</h6>
-            <ul>
-              <li><ButtonAlt :href="'../api/zip/' + table">zip</ButtonAlt></li>
-              <li>
-                <ButtonAlt :href="'../api/excel/' + table">excel</ButtonAlt>
-              </li>
-              <li>
-                <ButtonAlt :href="'../api/jsonld/' + table">jsonld</ButtonAlt>
-              </li>
-              <li><ButtonAlt :href="'../api/ttl/' + table">ttl</ButtonAlt></li>
-            </ul>
+            <h6>download</h6>
+            <div>
+              <div>
+                <ButtonAlt :href="'../api/zip/' + tableName">zip</ButtonAlt>
+              </div>
+              <div>
+                <ButtonAlt :href="'../api/excel/' + tableName">excel</ButtonAlt>
+              </div>
+              <div>
+                <ButtonAlt :href="'../api/jsonld/' + tableName"
+                  >jsonld</ButtonAlt
+                >
+              </div>
+              <div>
+                <ButtonAlt :href="'../api/ttl/' + tableName">ttl</ButtonAlt>
+              </div>
+            </div>
           </form>
         </ButtonDropdown>
 
@@ -456,7 +462,7 @@ export default {
       this.limit = this.showLimit;
     },
     tableMetadata() {
-      console.log('table meta data watch')
+      console.log("table meta data watch");
       this.page = this.showPage;
       this.limit = this.showLimit;
       this.orderByColumn = this.showOrderBy;
