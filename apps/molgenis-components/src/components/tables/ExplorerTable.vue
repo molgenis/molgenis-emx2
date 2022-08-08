@@ -52,14 +52,24 @@
           </form>
         </ButtonDropdown>
 
-        <!-- <IconAction
-          class="ml-2"
-          label="view"
-          :icon="viewIcon"
-          @click="toggleView"
-        /> -->
+        <span>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            @click="toggleView"
+          >
+            view
+            <span class="fas fa-fw fa-th"></span>
+          </button>
+        </span>
       </div>
-      <InputSearch id="explorer-table-search" v-model="searchTerms" />
+      <!-- end first btn group -->
+
+      <InputSearch
+        class="mx-1"
+        id="explorer-table-search"
+        v-model="searchTerms"
+      />
       <Pagination v-model="page" :limit="limit" :count="count" />
       <div class="btn-group m-0" v-if="view != View.RECORD">
         <span class="btn">Rows per page:</span>
@@ -432,7 +442,9 @@ export default {
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           filter: this.graphqlFilter,
-          orderby: this.orderByColumn ? { [this.orderByColumn]: this.order } : {},
+          orderby: this.orderByColumn
+            ? { [this.orderByColumn]: this.order }
+            : {},
         })
         .catch(this.handleError);
 
@@ -527,9 +539,25 @@ export default {
 };
 </script>
 
+<style scoped>
+/* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due to single route element constraint */
+.btn-group >>> span:not(:first-child) .btn {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+}
+
+.btn-group >>> span:not(:last-child) .btn {
+  margin-left: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+</style>
+
 <docs>
 <template>
-  <demo-item>
+  <div>
     <explorer-table 
       id="my-explorer-table"
       tableName="Pet"
@@ -553,7 +581,7 @@ export default {
       <div>page: {{page}}</div>
       <div>limit: {{limit}}</div>
     </div>
-  </demo-item>
+  </div>
 </template>
 
 <script>
