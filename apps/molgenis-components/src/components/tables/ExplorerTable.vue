@@ -431,7 +431,7 @@ export default {
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           filter: this.graphqlFilter,
-          orderby: this.orderByObject,
+          orderby: this.orderByColumn ? { [this.orderByColumn]: this.order } : {},
         })
         .catch(this.handleError);
 
@@ -454,6 +454,7 @@ export default {
     showOrder() {
       this.order = this.showOrder;
       this.$emit("update:showOrder", this.showOrder);
+      this.reload();
     },
     showPage() {
       this.page = this.showPage;
