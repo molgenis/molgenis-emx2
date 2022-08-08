@@ -59,7 +59,7 @@
             @click="toggleView"
           >
             view
-            <span class="fas fa-fw fa-th"></span>
+            <span class="fas fa-fw" :class="viewIcon"></span>
           </button>
         </span>
       </div>
@@ -307,11 +307,11 @@ export default {
     },
     viewIcon() {
       if (this.view === View.CARDS) {
-        return "list-alt";
+        return "fa-list-alt";
       } else if (this.view === View.TABLE) {
-        return "th";
+        return "fa-th";
       } else {
-        return "th-list";
+        return "fa-th-list";
       }
     },
     countFilters() {
