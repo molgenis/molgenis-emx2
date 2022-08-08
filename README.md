@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2)
+[![CircleCI](https://circleci.com/gh/molgenis/molgenis-emx2.svg?style=shield)](https://circleci.com/gh/molgenis/molgenis-emx2) 
 [![TravisCI](https://travis-ci.com/molgenis/molgenis-emx2.svg?branch=master)](https://travis-ci.com/molgenis/molgenis-emx2)
 [![Quality Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=alert_status)](https://sonarcloud.io/dashboard?id=molgenis_molgenis-emx2)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgenis-emx2&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=molgenis_molgenis-emx2)
@@ -7,7 +7,7 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 ![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social)
 
-# MOLGENIS EMX2 scientific data platform
+# MOLGENIS EMX2 FAIR scientific data platform
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility,
 interoperability and reusability). 

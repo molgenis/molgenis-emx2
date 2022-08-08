@@ -96,6 +96,8 @@ import LinksList from "./display/LinksList.vue";
 import TableDisplay from "./display/TableDisplay";
 import ImageCard from "./display/ImageCard";
 
+import TruncateButton from "./tables/TruncateButton";
+
 export {
   ButtonAction,
   ButtonAlt,
@@ -180,4 +182,5 @@ export {
   ContactDisplay,
   LinksList,
   TableDisplay,
+  TruncateButton
 };

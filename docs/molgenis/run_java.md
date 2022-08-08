@@ -6,6 +6,9 @@ Steps:
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
+    ```
+* Then in psql console paste
+    ```console
     create database molgenis;
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;

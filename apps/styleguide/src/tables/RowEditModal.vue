@@ -235,7 +235,7 @@ export default {
           return (
             value &&
             refValue &&
-            JSON.stringify(value) !== JSON.stringify(refValue)
+            !JSON.stringify(value).includes(JSON.stringify(refValue))
           );
         }
       }
