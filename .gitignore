@@ -45,3 +45,6 @@ tls
 yarn_error.log
 .nyc_output
 coverage
+.env
+**/venv
+**/__pycache__
