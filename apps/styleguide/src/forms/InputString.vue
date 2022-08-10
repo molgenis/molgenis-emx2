@@ -1,10 +1,15 @@
 <template>
   <span>
-    <span v-if="inplace && !focus && !errorMessage" @click="toggleFocus">
-      <span v-if="list && value">{{ value.join(', ') }}</span>
-      <span v-else> {{ value ? value : '&zwnj;&zwnj;' }}</span>
+    <span v-if="inplace && !focus && !stringError" @click="toggleFocus">
+      <span v-if="list && value">{{ value.join(", ") }}</span>
+      <span v-else> {{ value ? value : "&zwnj;&zwnj;" }}</span>
     </span>
-    <FormGroup v-else v-bind="$props" v-on="$listeners">
+    <FormGroup
+      v-else
+      v-bind="$props"
+      v-on="$listeners"
+      :errorMessage="stringError"
+    >
       <InputAppend
         v-for="(item, idx) in valueArray"
         :key="idx"
@@ -18,7 +23,7 @@
         <input
           v-focus="inplace && !list"
           :value="item"
-          :class="{'form-control': true, 'is-invalid': errorMessage}"
+          :class="{ 'form-control': true, 'is-invalid': stringError }"
           :aria-describedby="id + 'Help'"
           :placeholder="placeholder"
           :readonly="readonly"
@@ -38,22 +43,38 @@
 </template>
 
 <script>
-import BaseInput from './_baseInput.vue';
-import InputAppend from './_inputAppend';
-import IconAction from './IconAction';
+import BaseInput from "./_baseInput.vue";
+import InputAppend from "./_inputAppend";
+import IconAction from "./IconAction";
 
 export default {
   extends: BaseInput,
+  props: {
+    stringLength: {
+      type: Number,
+      default: 255,
+    },
+  },
   components: {
     InputAppend,
-    FormGroup: () => import('./_formGroup'), //because it uses itself in nested form
-    IconAction
+    FormGroup: () => import("./_formGroup"), // needed because it uses itself in nested forms
+    IconAction,
+  },
+  computed: {
+    stringError() {
+      console.log(this.valueArray);
+      if (this.valueArray.some((item) => item?.length > this.stringLength)) {
+        return `Please limit to ${this.stringLength} characters.`;
+      } else {
+        return this.errorMessage;
+      }
+    },
   },
   methods: {
     keyhandler(event) {
       return event;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -188,6 +209,64 @@ Metadata edit example
       return {column: {value: null, label: 'testlabel', description: 'test description'}}
     }
   }
+</script>
+```
+
+stringLength example
+```
+<template>
+  <div>
+    <InputString v-model="value" label="My string input label" description="Some help needed?" :stringLength="10" />
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: null
+      };
+    }
+  };
+</script>
+```
+
+stringLength example
+```
+<template>
+  <div>
+    <InputString v-model="value" label="My string input label" description="Some help needed?" :stringLength="8" />
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: "01234567890"
+      };
+    }
+  };
+</script>
+```
+stringLength example with a list
+```
+<template>
+  <div>
+    <InputString v-model="value" :list="true" label="test" :stringLength="5" 
+                 description="should be able to manage a list of values"/>
+    <br/>
+    You typed: {{ JSON.stringify(value) }}
+  </div>
+</template>
+<script>
+  export default {
+    data: function () {
+      return {
+        value: ['1234', '123456']
+      };
+    },
+  };
 </script>
 ```
 </docs>
