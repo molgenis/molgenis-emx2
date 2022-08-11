@@ -25,7 +25,7 @@ subprojects {
     }
 
 
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.npm_install]) {
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
@@ -33,7 +33,6 @@ subprojects {
         }
         // set input out out put for each app type
         if (project.name == 'styleguide') {
-            dependsOn ":apps:yarnSetup"
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('tests'))
@@ -43,7 +42,6 @@ subprojects {
             outputs.dir('build')
             outputs.dir('dist')
         } else if (project.name == 'molgenis-components') {
-            dependsOn ":apps:yarnSetup"
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
