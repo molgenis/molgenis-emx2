@@ -245,12 +245,12 @@ class Client:
         
         return response.json()['data']['_session']['schemas']
 
-    def post_gql_to_db(self, databaseName, gql):
+    def post_gql_to_db(self, databaseName, gql, variables={}, path='/graphql'):
         """ Post a given gql statement to a given database  """
 
         response = self.session.post(
-            self.url + '/' + databaseName + '/graphql',
-            json={'query': gql}
+            self.url + '/' + databaseName + path,
+            json={"query": gql, "variables": variables}
         )
         if response.status_code != 200:
             log.error(

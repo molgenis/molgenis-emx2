@@ -34,15 +34,20 @@ def main():
         password=MIGRATION_PASSWORD
     )
 
-    gql = "mutation{change(columns: {table: \"Cohorts\", name: \"designDescription\", columnType: \"TEXT\"}){message}}"
+    updateColType = "mutation{change(columns: {table: \"Cohorts\", name: \"designDescription\", columnType: \"TEXT\"}){message}}"
+    updateDescription = "mutation change($tables: [MolgenisTableInput]){change(tables: $tables){message}}"
+    variables = {'tables': [  {'name': 'Version', 'tableType': 'DATA', 'description': '2.7'}]}
+
     
     schemas = mClient.list_schemas()
 
     # run migration for each schema
     for schema in schemas:
-      # mClient.post_gql_to_db(schema, gql)
       version = get_catalogue_model_version(mClient, schema)
-      log.info(version)
+      if version == '2.6':
+        mClient.post_gql_to_db(schema, updateColType)
+        mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
+      
 
     log.info('migration complete')
 
