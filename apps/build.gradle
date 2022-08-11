@@ -33,6 +33,7 @@ subprojects {
         }
         // set input out out put for each app type
         if (project.name == 'styleguide') {
+            dependsOn ":apps:yarnSetup"
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('tests'))
@@ -42,6 +43,7 @@ subprojects {
             outputs.dir('build')
             outputs.dir('dist')
         } else if (project.name == 'molgenis-components') {
+            dependsOn ":apps:yarnSetup"
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
