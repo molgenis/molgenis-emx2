@@ -43,6 +43,31 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.VALUE)
                   .type(Scalars.GraphQLString))
           .build();
+  static final GraphQLType changesMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("ChangesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OPERATION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLENAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OLD_ROW_DATA)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(NEW_ROW_DATA)
+                  .type(Scalars.GraphQLString))
+          .build();
+
   private static final GraphQLInputObjectType inputDropColumnType =
       new GraphQLInputObjectType.Builder()
           .name("DropColumnInput")
@@ -390,6 +415,32 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
+  private static DataFetcher<?> truncateFetcher(Schema schema) {
+    return dataFetchingEnvironment -> {
+      StringBuilder message = new StringBuilder();
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema s = db.getSchema(schema.getName());
+                List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+                if (tables != null) {
+                  for (String tableName : tables) {
+                    Table table = s.getTable(tableName);
+                    if (table == null) {
+                      throw new GraphqlException(
+                          "Truncate failed: table " + tableName + " unknown");
+                    } else {
+                      table.truncate();
+                    }
+                    message.append("Truncated table '" + tableName + "'\n");
+                  }
+                }
+              });
+      return new GraphqlApiMutationResult(SUCCESS, message.toString());
+    };
+  }
+
   private static void dropColumns(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<Map> columns = dataFetchingEnvironment.getArgument(GraphqlConstants.COLUMNS);
@@ -452,6 +503,20 @@ public class GraphqlSchemaFieldFactory {
         .name("_schema")
         .type(outputMetadataType)
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
+  }
+
+  public GraphQLFieldDefinition.Builder changeLogQuery(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_changes")
+        .type(GraphQLList.list(changesMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> schema.getChanges());
+  }
+
+  public GraphQLFieldDefinition.Builder changeLogCountQuery(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_changesCount")
+        .type(Scalars.GraphQLInt)
+        .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
   }
 
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
@@ -618,6 +683,18 @@ public class GraphqlSchemaFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .build();
+  }
+
+  public GraphQLFieldDefinition truncateMutation(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("truncate")
+        .type(typeForMutationResult)
+        .dataFetcher(truncateFetcher(schema))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.TABLES)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
 }

@@ -79,6 +79,7 @@
               :recordTemplate.sync="recordTemplate"
               :graphqlURL="graphqlURL"
             />
+            <TruncateButton v-if="canManage" :table="table" :graphqlURL="graphqlURL" @close="reload"/>
           </div>
         </div>
       </div>
@@ -200,6 +201,7 @@ import TableCards from "./TableCards";
 import IconAction from "../forms/IconAction";
 import RecordCard from "./RecordCard";
 import TableSettings from "./TableSettings";
+import TruncateButton from "./TruncateButton"
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -226,6 +228,7 @@ export default {
     IconAction,
     RecordCard,
     TableSettings,
+    TruncateButton
   },
   props: {
     value: {

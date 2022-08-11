@@ -71,6 +71,8 @@ export default {
     visibleColumns: Array,
     /** when creating new record, this is initialization value */
     defaultValue: Object,
+    /** when cloning a record, we must make sure that refback part of pkey is kept when rendered as part of InputRefBack (i.e. master detail view)*/
+    refBack: String
   },
   components: {
     LayoutForm,
@@ -233,7 +235,7 @@ export default {
           return (
             value &&
             refValue &&
-            JSON.stringify(value) !== JSON.stringify(refValue)
+            !JSON.stringify(value).includes(JSON.stringify(refValue))
           );
         }
       }
@@ -276,8 +278,15 @@ export default {
         let data = val[0];
         let defaultValue = {};
         this.tableMetadata.columns.forEach((column) => {
-          // primary skip (key=1) key in case of clone
-          if (data[column.id] && (!this.clone || column.key != 1)) {
+          // remove primary key (key=1) in case of clone
+          // unless in case of refBack (should be in context of composite key)
+          // then keep the pkey column
+          if (
+            data[column.id] &&
+            (!this.clone ||
+              column.key != 1 ||
+              (this.clone && column.key == 1 && column.name == this.refBack))
+          ) {
             defaultValue[column.id] = data[column.id];
           }
         });

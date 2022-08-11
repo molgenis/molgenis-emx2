@@ -16,6 +16,7 @@ import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.BeforeClass;
@@ -525,5 +526,19 @@ public class TestGraphqSchemaFields {
             .at("/_tasks/0/description")
             .textValue()
             .startsWith("test"));
+  }
+
+  @Test
+  public void testTruncate() throws IOException {
+    List<Row> result = schema.getTable("Order").retrieveRows();
+    String message =
+        execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
+    assertTrue(message.contains("Truncated"));
+    List<Row> result2 = schema.getTable("Order").retrieveRows();
+    assertTrue(result.size() > 0 && result2.size() == 0);
+
+    // restore
+    schema = database.dropCreateSchema(schemaName);
+    new PetStoreLoader().load(schema, true);
   }
 }
