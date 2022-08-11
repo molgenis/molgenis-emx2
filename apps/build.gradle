@@ -16,16 +16,19 @@ node {
     with nodeSpec
 }
 
+task addCrossEnv(type: YarnTask) {
+    // add the express package only
+    args = ['global', 'add', 'cross-env']
+}
+
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.addCrossEnv]) {
         node { with nodeSpec }
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
-        }
-        if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
         }
 
