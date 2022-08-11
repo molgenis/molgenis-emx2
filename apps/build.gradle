@@ -9,21 +9,15 @@ def nodeSpec = {
     version = '16.16.0'
     yarnVersion = '1.22.19'
     npmVersion = "8.17.0"
+    download = true
 }
 
 node {
     with nodeSpec
-    download = true
 }
 
 subprojects {
     apply plugin: "com.github.node-gradle.node"
-    //using from parent yarn_install
-    node {
-        with nodeSpec
-        download = false;
-    }
-
 
     task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.npm_install]) {
         // force build order: molgenis-components > styleguide > ...apps
