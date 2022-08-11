@@ -19,7 +19,8 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.npm_install]) {
+    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.addCrossEnv]) {
+        node { with nodeSpec }
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
@@ -74,6 +75,7 @@ subprojects {
 
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: build) {
+            node { with nodeSpec }
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -87,6 +89,7 @@ subprojects {
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
+            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
