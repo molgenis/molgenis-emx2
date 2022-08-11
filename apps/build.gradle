@@ -9,38 +9,29 @@ def nodeSpec = {
     version = '16.16.0'
     yarnVersion = '1.22.19'
     npmVersion = "8.17.0"
+    download = true
 }
 
 node {
     with nodeSpec
-    download = true
+}
+
+task addCrossEnv(type: YarnTask) {
+    // add the express package only
+    args = ['global', 'add', 'cross-env']
 }
 
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    yarnSetup.configure {
-        dependsOn parent.yarnSetup
-    }
-
-    nodeSetup.configure {
-        dependsOn parent.nodeSetup
-    }
-
-    npmSetup.configure {
-        dependsOn parent.npmSetup
-    }
-
-    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.npm_install]) {
-        node {
-            with nodeSpec
-            download = false
-        }
+    task build(type: YarnTask, dependsOn: [parent.yarn_install, parent.addCrossEnv]) {
+        node { with nodeSpec }
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
             dependsOn ":apps:molgenis-components:build"
         }
+
         // set input out out put for each app type
         if (project.name == 'styleguide') {
             inputs.file('package.json')
@@ -90,10 +81,7 @@ subprojects {
 
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node {
-                with nodeSpec
-                download = false
-            }
+            node { with nodeSpec }
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -107,10 +95,7 @@ subprojects {
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node {
-                with nodeSpec
-                download = false
-            }
+            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
