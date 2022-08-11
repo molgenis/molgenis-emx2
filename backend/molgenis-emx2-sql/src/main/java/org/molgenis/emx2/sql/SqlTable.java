@@ -170,14 +170,16 @@ class SqlTable implements Table {
     if (t.getMetadata().getLocalColumn(MG_TABLECLASS) != null) {
       t.truncate(t.getMgTableClass(t.getMetadata()));
     }
-    // in normal table it is a real truncate
+    // in normal table delete
     else {
-      database.getJooq().truncate(t.getJooqTable()).execute();
+      // truncate would be faster, but then we need add code to remove and re-add foreign keys
+      database.getJooq().deleteFrom(t.getJooqTable()).execute();
     }
     // in case inherited we must also truncate parent
     if (t.getMetadata().getInherit() != null) {
       t.getInheritedTable().truncate(t.getMgTableClass(t.getMetadata()));
     }
+    logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
 
   private void truncate(String mg_table) {
