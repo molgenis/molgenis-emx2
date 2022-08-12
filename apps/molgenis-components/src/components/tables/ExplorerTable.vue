@@ -112,25 +112,25 @@
         <div v-if="loading">
           <Spinner />
         </div>
-        <!-- <TableCards
-            v-if="!loading && view == View.CARDS"
-            :data="dataRows"
-            :columns="columns"
-            :table-name="table"
-            @reload="reload"
-            :canEdit="canEdit"
-            @click="$emit('click', $event)"
-            :template="cardTemplate"
-          /> -->
+        <TableCards
+          v-if="!loading && view == View.CARDS"
+          :data="dataRows"
+          :columns="columns"
+          :table-name="tableName"
+          :canEdit="canEdit"
+          :template="cardTemplate"
+          @reload="reload"
+          @click="$emit('click', $event)"
+        />
         <RecordCard
-            v-if="!loading && view == View.RECORD"
-            :data="dataRows"
-            :table-name="tableName"
-            :columns="columns"
-            :canEdit="canEdit"
-            @click="$emit('click', $event)"
-            :template="recordTemplate"
-          />
+          v-if="!loading && view == View.RECORD"
+          :data="dataRows"
+          :table-name="tableName"
+          :columns="columns"
+          :canEdit="canEdit"
+          @click="$emit('click', $event)"
+          :template="recordTemplate"
+        />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
           :selection.sync="selectedItems"
@@ -205,8 +205,9 @@ import Spinner from "../layout/Spinner.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
-import RecordCard from "./RecordCard.vue"
-import TableSettings from "./TableSettings.vue"
+import RecordCard from "./RecordCard.vue";
+import TableSettings from "./TableSettings.vue";
+import TableCards from "./TableCards.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -225,7 +226,8 @@ export default {
     FilterSidebar,
     FilterWells,
     RecordCard,
-    TableSettings
+    TableSettings,
+    TableCards,
   },
   data() {
     return {
@@ -310,7 +312,7 @@ export default {
       type: Boolean,
       required: false,
       default: () => false,
-    }
+    },
   },
   computed: {
     View() {
