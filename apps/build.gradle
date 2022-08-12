@@ -22,16 +22,18 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    node
-            {
-                with nodeSpec
-                download = false
-                yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
-                npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-                workDir = file("${parent.projectDir}/.gradle/nodejs")
-            }
-
     yarnSetup.dependsOn parent.yarnSetup
+    npmSetup.dependsOn parent.npmSetup
+    nodeSetup.dependsOn parent.nodeSetup
+
+    node {
+        with nodeSpec
+        download = false
+        yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+        workDir = file("${parent.projectDir}/.gradle/nodejs")
+    }
+
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         // force build order: molgenis-components > styleguide > ...apps
