@@ -22,8 +22,6 @@ subprojects {
     yarnSetup.dependsOn parent.yarnSetup
     npmSetup.dependsOn parent.npmSetup
     nodeSetup.dependsOn parent.nodeSetup
-    //we use yarn workspaces, install happens on /apps level
-    yarn_install.enabled = false
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node { with nodeSpec }
