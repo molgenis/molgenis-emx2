@@ -9,18 +9,28 @@ def nodeSpec = {
     version = '16.16.0'
     yarnVersion = '1.22.19'
     npmVersion = "8.17.0"
-    download = true
 }
 
 node {
     with nodeSpec
+    download = true
+    yarnWorkDir = file("${project.projectDir}/.gradle/yarn")
+    npmWorkDir = file("${project.projectDir}/.gradle/npm")
+    workDir = file("${project.projectDir}/.gradle/nodejs")
 }
 
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
+    node {
+        with nodeSpec
+        download = false
+        yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+        workDir = file("${parent.projectDir}/.gradle/nodejs")
+    }
+
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
-        node { with nodeSpec }
         // force build order: molgenis-components > styleguide > ...apps
         if (project.name != 'styleguide' && project.name != 'molgenis-components') {
             dependsOn ":apps:styleguide:build"
@@ -76,7 +86,6 @@ subprojects {
 
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -90,7 +99,6 @@ subprojects {
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
