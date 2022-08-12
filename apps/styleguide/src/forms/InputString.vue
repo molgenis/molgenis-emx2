@@ -62,7 +62,6 @@ export default {
   },
   computed: {
     stringError() {
-      console.log(this.valueArray);
       if (this.valueArray.some((item) => item?.length > this.stringLength)) {
         return `Please limit to ${this.stringLength} characters.`;
       } else {
