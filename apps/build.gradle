@@ -19,6 +19,10 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
+    yarnSetup.dependsOn parent.yarnSetup
+    npmSetup.dependsOn parent.npmSetup
+    nodeSetup.dependsOn parent.nodeSetup
+
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node { with nodeSpec }
         // force build order: molgenis-components > styleguide > ...apps
