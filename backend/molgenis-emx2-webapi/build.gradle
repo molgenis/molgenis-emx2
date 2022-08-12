@@ -12,5 +12,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.10.0'
     testImplementation 'io.rest-assured:rest-assured:5.1.1'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
-    implementation 'de.larsgrefer.sass:sass-embedded-host:1.4.0'
+    implementation 'de.larsgrefer.sass:sass-embedded-host:1.5.1'
 }
