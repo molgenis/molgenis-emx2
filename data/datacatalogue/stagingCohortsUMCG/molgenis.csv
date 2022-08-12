@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,2.6
+Version,,,,,,,,,,,,2.7
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Subcohorts,,,,,,,,,,,,"List of subcohorts or subpopulations for this resource (fill in at least one subcohort, consider a single cohort without subcohorts as one subcohort)"
 Cohorts,Resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
