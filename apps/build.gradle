@@ -14,6 +14,7 @@ def nodeSpec = {
 node {
     with nodeSpec
     download = true
+    workDir = file("${project.projectDir}/.gradle/nodejs")
     yarnWorkDir = file("${project.projectDir}/.gradle/yarn")
     npmWorkDir = file("${project.projectDir}/.gradle/npm")
     workDir = file("${project.projectDir}/.gradle/nodejs")
@@ -22,13 +23,16 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    yarnSetup.dependsOn parent.yarn_install
-    npmSetup.dependsOn parent.yarn_install
-    nodeSetup.dependsOn parent.yarn_install
+    yarnSetup.dependsOn parent.yarnSetup
+    npmSetup.dependsOn parent.npmSetup
+    nodeSetup.dependsOn parent.nodeSetup
+    //we use yarn workspaces, install happens on /apps level
+    yarn_install.enabled = false
 
     node {
         with nodeSpec
         download = false
+        workDir = file("${parent.projectDir}/.gradle/nodejs")
         yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
         npmWorkDir = file("${parent.projectDir}/.gradle/npm")
         workDir = file("${parent.projectDir}/.gradle/nodejs")
