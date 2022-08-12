@@ -22,9 +22,9 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    yarnSetup.dependsOn parent.yarnSetup
-    npmSetup.dependsOn parent.npmSetup
-    nodeSetup.dependsOn parent.nodeSetup
+    yarnSetup.dependsOn parent.yarn_install
+    npmSetup.dependsOn parent.yarn_install
+    nodeSetup.dependsOn parent.yarn_install
 
     node {
         with nodeSpec
