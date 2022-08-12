@@ -84,7 +84,7 @@
         <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
         <TableSettings
           v-if="canManage"
-          :tableName="table"
+          :tableName="tableName"
           :cardTemplate.sync="cardTemplate"
           :recordTemplate.sync="recordTemplate"
           :graphqlURL="graphqlURL"
@@ -148,7 +148,7 @@
             <RowButton
               v-if="canEdit && !slotProps.col"
               type="add"
-              :table="table"
+              :table="tableName"
               :graphqlURL="graphqlURL"
               @close="reload"
               class="d-inline p-0"
@@ -163,25 +163,25 @@
             <RowButton
               v-if="canEdit"
               type="add"
-              :table="table"
+              :table="tableName"
               :graphqlURL="graphqlURL"
-              :pkey="getPkey(slotProps.row)"
+              :pkey="getPrimaryKey(slotProps.row)"
               @close="reload"
             />
             <RowButton
               v-if="canEdit"
               type="edit"
-              :table="table"
+              :table="tableName"
               :graphqlURL="graphqlURL"
-              :pkey="getPkey(slotProps.row)"
+              :pkey="getPrimaryKey(slotProps.row)"
               @close="reload"
             />
             <RowButton
               v-if="canEdit"
               type="delete"
-              :table="table"
+              :table="tableName"
               :graphqlURL="graphqlURL"
-              :pkey="getPkey(slotProps.row)"
+              :pkey="getPrimaryKey(slotProps.row)"
               @close="reload"
             />
           </template>
@@ -194,6 +194,7 @@
 
 <script>
 import Client from "../../client/client.js";
+import { getPrimaryKey } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
@@ -379,6 +380,7 @@ export default {
     },
   },
   methods: {
+    getPrimaryKey,
     toggleView() {
       if (this.view === View.TABLE) {
         this.view = View.CARDS;
@@ -584,10 +586,20 @@ export default {
         :showLimit.sync="limit"
         :showOrderBy.sync="showOrderBy" 
         :showOrder.sync="showOrder"
+        :canEdit="canEdit"
+        :canManage="canManage"
       ></explorer-table>
 
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
+        <div>
+          <label for="canEdit" class="pr-1">can edit: </label>
+          <input type="checkbox" id="canEdit" v-model="canEdit">
+        </div>
+        <div>
+          <label for="canManage" class="pr-1">canManage: </label>
+          <input type="checkbox" id="canManage" v-model="canManage">
+        </div>
         <div>showColumns: {{showColumns}}</div>
         <div>showFilters: {{showFilters}}</div>
         <div>conditions: {{conditions}}</div>
@@ -610,7 +622,9 @@ export default {
         page: 1,
         limit: 10,
         showOrder: 'DESC', 
-        showOrderBy: 'name'
+        showOrderBy: 'name',
+        canEdit: false,
+        canManage: false
       }
     },
   }
