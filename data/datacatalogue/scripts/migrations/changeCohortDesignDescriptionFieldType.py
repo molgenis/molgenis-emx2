@@ -1,3 +1,4 @@
+from io import BytesIO, StringIO
 import sys
 import os
 import logging
@@ -7,6 +8,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 import client
 from decouple import config
 from decouple import AutoConfig
+import pandas as pd
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger('migration')
@@ -41,12 +43,16 @@ def main():
     
     schemas = mClient.list_schemas()
 
+    stream = read_csv_into_stream('/models/staging-2.6.csv')
+
     # run migration for each schema
     for schema in schemas:
       version = get_catalogue_model_version(mClient, schema)
-      if version == '2.6':
-        mClient.post_gql_to_db(schema, updateColType)
-        mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
+      if version == '2.8':
+        # mClient.post_gql_to_db(schema, updateColType)
+        # mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
+        log.info('run for: ' + schema)
+        mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
       
 
     log.info('migration complete')
@@ -65,6 +71,13 @@ def get_catalogue_model_version(client: client.Client, databaseName):
         version = table["description"]
   
   return version
+
+def read_csv_into_stream(filePath):
+    df = pd.read_csv(os.path.dirname(
+        SCRIPT_DIR) + filePath, dtype='str', na_filter=False)
+    stream = StringIO()
+    df.to_csv(stream, index=False)
+   
 
 
 if __name__ == ("__main__"):
