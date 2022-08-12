@@ -62,7 +62,7 @@ jobs:
 
       - run:
           name: add packages for docker cli install
-          command: apt-get -y install gnupg lsb-release
+          command: apt-get -y install gnupg lsb-release curl
 
       - run:
           name: update packages again
