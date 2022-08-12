@@ -40,6 +40,11 @@ let conf = {
         changeOrigin: true,
         secure: false,
       },
+      "/js/expressions/0.21.2/expressions.js": {
+        target: `${BACKEND_LOCATION}`,
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 };
