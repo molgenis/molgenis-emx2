@@ -84,6 +84,12 @@ export default {
           return resultArray[0];
         }
       },
+      saveTableSettings: async (settings) => {
+        return axios.post(graphqlURL ? graphqlURL : "graphql", {
+          query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+          variables: { settings },
+        });
+      },
     };
   },
 };

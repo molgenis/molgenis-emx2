@@ -82,13 +82,13 @@
           class="mb-0"
         />
         <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
-        <!-- <TableSettings
+        <TableSettings
           v-if="canManage"
           :tableName="table"
           :cardTemplate.sync="cardTemplate"
           :recordTemplate.sync="recordTemplate"
           :graphqlURL="graphqlURL"
-        /> -->
+        />
       </div>
     </div>
 
@@ -122,15 +122,15 @@
             @click="$emit('click', $event)"
             :template="cardTemplate"
           /> -->
-        <!-- <RecordCard
+        <RecordCard
             v-if="!loading && view == View.RECORD"
             :data="dataRows"
-            :table-name="table"
+            :table-name="tableName"
             :columns="columns"
             :canEdit="canEdit"
             @click="$emit('click', $event)"
             :template="recordTemplate"
-          /> -->
+          />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
           :selection.sync="selectedItems"
@@ -205,6 +205,8 @@ import Spinner from "../layout/Spinner.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
+import RecordCard from "./RecordCard.vue"
+import TableSettings from "./TableSettings.vue"
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -222,6 +224,8 @@ export default {
     TableMolgenis,
     FilterSidebar,
     FilterWells,
+    RecordCard,
+    TableSettings
   },
   data() {
     return {
@@ -241,6 +245,8 @@ export default {
       selectedItems: [],
       orderByColumn: null,
       graphqlError: null,
+      cardTemplate: null,
+      recordTemplate: null,
     };
   },
   props: {
@@ -300,6 +306,11 @@ export default {
       required: false,
       default: () => false,
     },
+    canManage: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    }
   },
   computed: {
     View() {
@@ -558,28 +569,31 @@ export default {
 <docs>
 <template>
   <div>
-    <explorer-table 
-      id="my-explorer-table"
-      tableName="Pet"
-      graphqlURL="/pet store/graphql"
-      :showColumns.sync="showColumns"
-      :showFilters.sync="showFilters"
-      :conditions.sync="conditions"
-      :showPage.sync="page" 
-      :showLimit.sync="limit"
-      :showOrderBy.sync="showOrderBy" 
-      :showOrder.sync="showOrder"
-    ></explorer-table>
+    <div class="border p-1 my-1">
+      <label>Read only example</label>
+      <explorer-table 
+        id="my-explorer-table"
+        tableName="Pet"
+        graphqlURL="/pet store/graphql"
+        :showColumns.sync="showColumns"
+        :showFilters.sync="showFilters"
+        :conditions.sync="conditions"
+        :showPage.sync="page" 
+        :showLimit.sync="limit"
+        :showOrderBy.sync="showOrderBy" 
+        :showOrder.sync="showOrder"
+      ></explorer-table>
 
-    <div class="border mt-3 p-2">
-      <h5>synced props: </h5>
-      <div>showColumns: {{showColumns}}</div>
-      <div>showFilters: {{showFilters}}</div>
-      <div>conditions: {{conditions}}</div>
-      <div>showOrderBy: {{showOrderBy}}</div>
-      <div>showOrder: {{showOrder}}</div>
-      <div>page: {{page}}</div>
-      <div>limit: {{limit}}</div>
+      <div class="border mt-3 p-2">
+        <h5>synced props: </h5>
+        <div>showColumns: {{showColumns}}</div>
+        <div>showFilters: {{showFilters}}</div>
+        <div>conditions: {{conditions}}</div>
+        <div>showOrderBy: {{showOrderBy}}</div>
+        <div>showOrder: {{showOrder}}</div>
+        <div>page: {{page}}</div>
+        <div>limit: {{limit}}</div>
+      </div>
     </div>
   </div>
 </template>
