@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: gradle:jdk17
+      - image: gradle:jdk17-focal
       - image: postgres:14-alpine
         environment:
           POSTGRES_USER: postgres
@@ -62,7 +62,7 @@ jobs:
 
       - run:
           name: add packages for docker cli install
-          command: apt-get -y install gnupg lsb-release curl
+          command: apt-get -y install gnupg lsb-release
 
       - run:
           name: update packages again
