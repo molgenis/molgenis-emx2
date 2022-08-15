@@ -14,12 +14,14 @@
           will get the 'name' column
         </p>
         <InputText
+          id="table-settings-card-template"
           name="cardTemplate"
           label="cardTemplate"
           :value="cardTemplate"
           @input="emitCardTemplate"
         />
         <InputText
+          id="table-settings-record-template"
           name="recordTemplate"
           label="recordTemplate"
           :value="recordTemplate"
