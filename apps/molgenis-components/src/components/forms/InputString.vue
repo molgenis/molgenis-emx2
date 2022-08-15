@@ -4,7 +4,7 @@
     :label="label"
     :required="required"
     :description="description"
-    :errorMessage="errorMessage"
+    :errorMessage="stringError"
   >
     <InputGroup>
       <template v-slot:prepend>
@@ -18,7 +18,7 @@
         @input="$emit('input', $event.target.value)"
         type="text"
         class="form-control"
-        :class="{ 'is-invalid': errorMessage }"
+        :class="{ 'is-invalid': stringError }"
         :aria-describedby="id"
         :placeholder="placeholderValue"
         :readonly="readonly"
@@ -40,6 +40,21 @@ export default {
   name: "InputString",
   components: { FormGroup, InputGroup },
   extends: BaseInput,
+  props: {
+    stringLength: {
+      type: Number,
+      default: 255,
+    },
+  },
+  computed: {
+    stringError() {
+      if (this?.value.length > this.stringLength) {
+        return `Please limit to ${this.stringLength} characters.`;
+      } else {
+        return this.errorMessage;
+      }
+    },
+  },
 };
 </script>
 
@@ -69,7 +84,10 @@ span:hover .hoverIcon {
     <b>column</b>
     <InputString id="input-string4" :label.sync="column.label" v-model="column.value" :editMeta="true"
                  :description.sync="column.description"/>
-    text.<br/>
+    text.<br/><br/>
+    <InputString id="input-string5" v-model="value" :stringLength="4" label="maximum stringLength (4)"/>
+    <b>Readonly</b>
+
     column :
     <pre>{{ column }}</pre>
   </div>
