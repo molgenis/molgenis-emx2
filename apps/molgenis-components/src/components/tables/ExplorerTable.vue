@@ -7,7 +7,7 @@
       {{ tableMetadata.description }}
     </p>
 
-    <div class="btn-toolbar">
+    <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
           :columns.sync="columns"
@@ -66,11 +66,12 @@
       <!-- end first btn group -->
 
       <InputSearch
-        class="mx-1"
+        class="mx-1 inline-form-group"
         id="explorer-table-search"
         v-model="searchTerms"
       />
       <Pagination v-model="page" :limit="limit" :count="count" />
+
       <div class="btn-group m-0" v-if="view != View.RECORD">
         <span class="btn">Rows per page:</span>
         <InputSelect
@@ -82,8 +83,10 @@
           class="mb-0"
         />
         <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
+      </div>
+
+      <div class="btn-group" v-if="canManage">
         <TableSettings
-          v-if="canManage"
           :tableName="tableName"
           :cardTemplate.sync="cardTemplate"
           :recordTemplate.sync="recordTemplate"
@@ -567,6 +570,10 @@ export default {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.inline-form-group {
+  margin-bottom: 0;
 }
 </style>
 
