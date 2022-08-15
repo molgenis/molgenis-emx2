@@ -43,16 +43,19 @@ def main():
     
     schemas = mClient.list_schemas()
 
-    stream = read_csv_into_stream('/models/staging-2.6.csv')
+    stream = read_csv_into_stream('/models/staging-2.8.csv')
+    # log.info(stream)
 
     # run migration for each schema
     for schema in schemas:
       version = get_catalogue_model_version(mClient, schema)
-      if version == '2.8':
+      isStaging = is_umcg_staging(mClient, schema)
+      if isStaging == True:
+        log.info('version: ' + schema + ' ' + str(version) + ' ' + str(isStaging))
+        mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
         # mClient.post_gql_to_db(schema, updateColType)
         # mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
-        log.info('run for: ' + schema)
-        mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
+        # log.info('run for: ' + schema)
       
 
     log.info('migration complete')
@@ -72,11 +75,32 @@ def get_catalogue_model_version(client: client.Client, databaseName):
   
   return version
 
+def is_umcg_staging(client: client.Client, databaseName):
+  query = "query { _schema {tables {name, description}} }"
+
+  resp = client.query(query, {}, databaseName)
+
+  # Wanneer is een schema een umcg staging schema ..
+  # Als het geen ‘AllSourceVariables’ tabla heeft en geen ‘Cohorts’ tabel
+
+  hasAllSourceVariables = False
+  hasCohorts = False
+
+  if resp and resp["_schema"] and "tables" in resp["_schema"]:
+    for table in resp["_schema"]["tables"]:
+      if table["name"] == "AllSourceVariables":
+        hasAllSourceVariables = True
+      if table["name"] == "Cohorts":
+        hasCohorts = True
+  
+  return not hasAllSourceVariables and hasCohorts
+
 def read_csv_into_stream(filePath):
     df = pd.read_csv(os.path.dirname(
         SCRIPT_DIR) + filePath, dtype='str', na_filter=False)
     stream = StringIO()
     df.to_csv(stream, index=False)
+    return stream
    
 
 
