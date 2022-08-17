@@ -10,7 +10,7 @@
     "format": "vue-cli-service lint --fix",
     "styleguide": "vue-cli-service styleguidist",
     "styleguide:build": "vue-cli-service styleguidist:build",
-    "preinstall": "yarn global @vue/cli-service@4.5.19"
+    "preinstall": "yarn global add @vue/cli-service@4.5.19"
 }
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
