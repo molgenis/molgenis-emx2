@@ -13,6 +13,18 @@
     {
       "matchPackageNames": ["vuex"],
       "allowedVersions": ">=3.6"
+    },
+    {
+      "groupName": "org.pac4j",
+      "matchPackagePrefixes": [
+        "org.pac4j"
+      ]
+    },
+    {
+      "groupName": "org.eclipse.rdf4j",
+      "matchPackagePrefixes": [
+        "org.eclipse.rdf4j"
+      ]
     }
   ]
 }
