@@ -1,0 +1,242 @@
+<template>
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between">
+      <div class="form-inline">
+        <h1>Schema editor: {{ schema.name }}</h1>
+        <span v-if="schema.tables">
+          <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>
+          &nbsp;
+          <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
+        </span>
+      </div>
+      <div>
+        <span v-if="schema.tables">
+          <JsonView :value="schema" />
+          <ButtonAction @click="showDiagram = !showDiagram">
+            {{ showDiagram ? "Hide" : "Show" }} Diagram
+          </ButtonAction></span
+        >
+      </div>
+    </div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
+    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+    <Spinner v-if="loading === true || !schema.tables" />
+    <div v-else class="row">
+      <div class="col-2 bg-white">
+        <div class="fixedContainer mr-n3 overflow-auto">
+          <SchemaToc v-model="schema" v-if="schema.tables" />
+        </div>
+      </div>
+      <div class="bg-white col ml-2 overflow-auto">
+        <div>
+          <Yuml
+            :schema="schema"
+            :key="JSON.stringify(schema)"
+            v-if="showDiagram"
+          />
+          <SchemaView v-model="schema" v-if="schema.tables" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.fixedContainer {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  max-height: 100vh;
+  top: 0;
+}
+</style>
+
+<script>
+import { request } from "graphql-request";
+import Yuml from "./Yuml.vue";
+import SchemaView from "./SchemaView.vue";
+import SchemaToc from "./SchemaToc.vue";
+import JsonView from "./JsonView.vue";
+import {
+  ButtonAction,
+  MessageError,
+  MessageSuccess,
+  MessageWarning,
+  Spinner,
+} from "molgenis-components";
+
+export default {
+  components: {
+    Yuml,
+    SchemaView,
+    ButtonAction,
+    MessageError,
+    MessageWarning,
+    MessageSuccess,
+    SchemaToc,
+    Spinner,
+    JsonView,
+  },
+  data() {
+    return {
+      schema: {},
+      loading: false,
+      graphqlError: null,
+      warning: null,
+      success: null,
+      showDiagram: false,
+    };
+  },
+  methods: {
+    saveSchema() {
+      this.graphqlError = null;
+      this.warning = "submitting changes";
+      let tables = this.schema.tables;
+      this.schema.tables = null; //hide it all
+
+      //transform subclasses back into their original tables.
+      //create a map of tables
+      let tableMap = tables.reduce((map, table) => {
+        map[table.name] = table;
+        table.subclasses.forEach((subclass) => (map[subclass.name] = subclass));
+        delete table.subclasses;
+        return map;
+      }, {});
+      //redistribute the columns to subclasses
+      tables.forEach((table) => {
+        table.columns.forEach((column) => {
+          if (column.table != table.name) {
+            tableMap[column.table].columns.push(column);
+          }
+        });
+      });
+      tables.forEach((table) => {
+        table.columns = table.columns.filter(
+          (column) => column.table === table.name
+        );
+      });
+      request(
+        "graphql",
+        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
+        {
+          tables: tables,
+        }
+      )
+        .then(() => {
+          this.warning = "submission complete, reloading schema";
+          this.loadSchema();
+          this.warning = null;
+          this.success = `Schema saved`;
+          this.warning = null;
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            this.graphqlError = "Forbidden. Do you need to login?";
+            this.showLogin = true;
+          } else {
+            this.graphqlError = error.response.errors[0].message;
+          }
+        });
+      this.loading = false;
+    },
+    loadSchema() {
+      this.graphqlError = null;
+      this.loading = true;
+      request(
+        "graphql",
+        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+      )
+        .then((data) => {
+          console.log("transform");
+          let _schema = this.addOldNamesAndRemoveMeta(data._schema);
+          this.schema = this.convertToSubclassTables(_schema);
+          console.log("transform complete");
+        })
+        .catch((error) => {
+          this.graphqlError = error;
+          if (
+            this.graphqlError.includes(
+              "Field '_schema' in type 'Query' is undefined"
+            )
+          ) {
+            this.error =
+              "Schema is unknown or permission denied (might you need to login with authorized user?)";
+          }
+        })
+        .finally(() => {
+          this.loading = false;
+          this.warning = null;
+        });
+    },
+    addOldNamesAndRemoveMeta(schema) {
+      if (schema) {
+        if (schema.tables) {
+          let tables = schema.tables.filter(
+            (table) => table.tableType != "ONTOLOGIES"
+          );
+          tables.forEach((t) => {
+            t.oldName = t.name;
+            if (t.columns) {
+              t.columns = t.columns
+                .filter((c) => !c.name.startsWith("mg_"))
+                .map((c) => {
+                  c.oldName = c.name;
+                  return c;
+                })
+                .filter((c) => !c.inherited);
+            } else {
+              t.columns = [];
+            }
+          });
+          schema.tables = tables;
+        } else {
+          schema.tables = [];
+        }
+      }
+      return schema;
+    },
+    convertToSubclassTables(schema) {
+      //columns of subclasses should be put in root tables, sorted by position
+      // this because position can only edited in context of root table
+      schema.tables.forEach((table) => {
+        if (table.inherit == undefined) {
+          this.subclassTables(schema, table.name).forEach((subclass) => {
+            //get columns from subclass tables
+            table.columns.push(...subclass.columns);
+            subclass.columns = [];
+            //add subclass to root table
+            if (!table.subclasses) {
+              table.subclasses = [subclass];
+            } else {
+              table.subclasses.push(subclass);
+            }
+          });
+        }
+        //sort
+        table.columns.sort((a, b) => a.position - b.position);
+      });
+      //remove the subclass tables
+      schema.tables = schema.tables.filter(
+        (table) => table.inherit === undefined
+      );
+      return schema;
+    },
+    subclassTables(schema, tableName) {
+      let subclasses = schema.tables.filter(
+        (table) => table.inherit == tableName
+      );
+      subclasses
+        .map((table) => table.name)
+        .forEach((subclassName) => {
+          subclasses = subclasses.concat(
+            this.subclassTables(schema, subclassName)
+          );
+        });
+      return subclasses;
+    },
+  },
+  created() {
+    this.loadSchema();
+  },
+};
+</script>

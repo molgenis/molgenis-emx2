@@ -64,7 +64,11 @@ subprojects {
             outputs.dir('.nuxt')
         } else {
             inputs.file('package.json')
-            inputs.file('vue.config.js')
+            if (project.name == 'schema2') {
+                inputs.file('vite.config.js')
+            } else {
+                inputs.file('vue.config.js')
+            }
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.files(fileTree('tests'))

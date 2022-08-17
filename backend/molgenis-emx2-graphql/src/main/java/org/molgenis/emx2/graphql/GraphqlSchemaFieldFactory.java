@@ -106,6 +106,8 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
           .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
+          .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
@@ -371,7 +373,7 @@ public class GraphqlSchemaFieldFactory {
     return dataFetchingEnvironment -> {
 
       // add tables
-      String json = JsonUtil.schemaToJson(schema.getMetadata());
+      String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
       // add members
