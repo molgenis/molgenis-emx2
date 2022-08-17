@@ -25,6 +25,12 @@
       "matchPackagePrefixes": [
         "org.eclipse.rdf4j"
       ]
+    },
+    {
+      "groupName": "com.fasterxml.jackson.dataformat",
+      "matchPackagePrefixes": [
+        "com.fasterxml.jackson.dataformat"
+      ]
     }
   ]
 }
