@@ -25,6 +25,7 @@
   "dependencies": {
     "@vue/compiler-sfc": "3.2.37",
     "axios": "0.27.2",
+    "cross-env": "7.0.3",
     "popper.js": "1.16.1",
     "v-click-outside": "3.2.0",
     "vite-plugin-vue2": "2.0.2",
@@ -33,9 +34,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "3.0.2",
-    "cross-env": "7.0.3",
+    "vite": "3.0.8",
     "vitest": "0.21.1",
-    "vite": "3.0.6",
     "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0",
     "vue-server-renderer": "2.6.14",
