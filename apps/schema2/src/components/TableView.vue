@@ -68,12 +68,13 @@
             <ColumnView
               class="moveHandle"
               v-for="(column, columnIndex) in table.columns"
-              :key="columnIndex"
+              :key="columnIndex + '_' + table.columns.length"
               :tableName="table.name"
               v-model="table.columns[columnIndex]"
               :schema="schema"
               :columnIndex="columnIndex"
               @input="$emit('input', table)"
+              @createColumn="createColumn"
             />
           </Draggable>
         </div>
@@ -134,15 +135,23 @@ export default {
         return "Table name must be unique within schema";
       }
     },
-    createColumn() {
-      this.table.columns.push({
+    createColumn(position) {
+      let newColumn = {
         name: undefined,
         columnType: "STRING",
-      });
+        table: this.table.name,
+      };
+      if (position) {
+        this.table.columns.splice(position, 0, newColumn);
+      } else {
+        this.table.columns.unshift(newColumn);
+      }
+      this.applyPosition();
+      this.$emit("input", this.table);
     },
     createSubclass() {
       this.table.subclasses.push({
-        name: "newtable",
+        name: undefined,
         description: "n/a",
         extends: this.table.name,
       });

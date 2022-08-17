@@ -10,6 +10,11 @@
         :schema="schema"
         @input="$emit('input', column)"
       />
+      <IconAction
+        class="hoverIcon"
+        icon="plus"
+        @click="$emit('createColumn', column.position)"
+      />
     </div>
     <div class="col">
       <code>
@@ -40,10 +45,12 @@
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
+import { IconAction } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
+    IconAction,
   },
   data() {
     return {

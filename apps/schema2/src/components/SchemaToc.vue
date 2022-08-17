@@ -1,6 +1,5 @@
 <template>
   <div>
-    <a :href="'#'" v-scroll-to="'#molgenis_bottom_page_anchor'">link bottom</a>
     <h4>
       Tables
       <IconAction icon="plus" @click="addTable" />
@@ -39,7 +38,7 @@ export default {
   methods: {
     addTable() {
       this.$scrollTo("#molgenis_bottom_page_anchor");
-      this.schema.tables.push({ name: undefined });
+      this.schema.tables.push({ name: undefined, columns: [] });
       this.$emit("input", this.schema);
     },
   },
