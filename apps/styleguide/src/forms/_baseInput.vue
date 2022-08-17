@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     removeNulls(arr) {
-      return arr.filter((v) => v === 0 || v);
+      return arr.filter((v) => v === 0 || v === false || v);
     },
     //emit update with new item on list
     emitValue(event, index) {

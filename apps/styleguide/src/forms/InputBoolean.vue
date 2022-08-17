@@ -2,7 +2,7 @@
   <div v-if="inplace">
     <div
       class="form-check form-check-inline"
-      :class="{'is-invalid': errorMessage}"
+      :class="{ 'is-invalid': errorMessage }"
     >
       <input
         :id="id"
@@ -20,17 +20,25 @@
     v-model="valueArray[0]"
     :options="[true, false]"
     @input="emitValue"
-    v-on="$listeners"
   />
 </template>
 
 <script>
-import BaseInput from './_baseInput.vue';
-import InputRadio from './InputRadio';
+import BaseInput from "./_baseInput.vue";
+import InputRadio from "./InputRadio";
 
 export default {
-  components: {InputRadio},
-  extends: BaseInput
+  components: { InputRadio },
+  extends: BaseInput,
+  methods: {
+    emitValue() {
+      console.log("input " + this.valueArray);
+      this.$emit(
+        "input",
+        this.valueArray[0] ? this.valueArray[0] === "true" : null
+      );
+    },
+  },
 };
 </script>
 
@@ -40,14 +48,15 @@ Example
 <template>
   <div>
     <InputBoolean v-model="value" label="My first boolean" description="do you need some boolean help?"/>
-    value: {{ value }}
+    value: {{ value }} type: {{ typeof value }}
+
   </div>
 </template>
 <script>
   export default {
     data() {
       return {
-        value: null
+        value: false
       }
     }
   }
