@@ -10,7 +10,6 @@
     "format": "vue-cli-service lint --fix",
     "styleguide": "vue-cli-service styleguidist",
     "styleguide:build": "vue-cli-service styleguidist:build"
-}
   },
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
