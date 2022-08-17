@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,2.7
+Version,,,,,,,,,,,,2.8
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Subcohorts,,,,,,,,,,,,"List of subcohorts or subpopulations for this resource (fill in at least one subcohort, consider a single cohort without subcohorts as one subcohort)"
 Cohorts,Resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -19,7 +19,7 @@ Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resour
 Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ref_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,design,ref,,,CatalogueOntologies,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
-Cohorts,,designDescription,,,,,,,,,,Short description of the study design of this cohort
+Cohorts,,designDescription,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,designSchematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collectionType,ref_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Resources,,institution,ref_array,,,SharedStaging,Institutions,,,,,Institution providing and/or coordinating access to this resource

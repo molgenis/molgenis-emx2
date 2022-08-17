@@ -48,7 +48,7 @@ export default {
   },
   computed: {
     stringError() {
-      if (this?.value.length > this.stringLength) {
+      if (this.value && this.value.length && this.value.length > this.stringLength) {
         return `Please limit to ${this.stringLength} characters.`;
       } else {
         return this.errorMessage;
