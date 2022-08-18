@@ -92,6 +92,10 @@
           :recordTemplate.sync="recordTemplate"
           :graphqlURL="graphqlURL"
         />
+
+        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true"
+          >Delete All</IconDanger
+        >
       </div>
     </div>
 
@@ -217,6 +221,25 @@
       @close="isDeleteModalShown = false"
       @executeDelete="handleExecuteDelete"
     />
+
+    <ConfirmModal
+      v-if="isDeleteAllModalShown"
+      :title="'Truncate ' + tableName"
+      actionLabel="Truncate"
+      actionType="danger"
+      :tableName="tableName"
+      @close="isDeleteAllModalShown = false"
+      @confirmed="handelExecuteDeleteAll"
+    >
+      <p>
+        Truncate <strong>{{ tableName }}</strong>
+      </p>
+      <p>
+        Are you sure that you want to delete ALL rows in table '{{
+          tableName
+        }}'?
+      </p>
+    </ConfirmModal>
   </div>
 </template>
 
@@ -228,6 +251,7 @@ import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import IconAction from "../forms/IconAction.vue";
+import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import SelectionBox from "./SelectionBox.vue";
@@ -240,6 +264,7 @@ import TableSettings from "./TableSettings.vue";
 import TableCards from "./TableCards.vue";
 import EditModal from "../forms/EditModal.vue";
 import DeleteModal from "../forms/DeleteModal.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -250,6 +275,7 @@ export default {
     Pagination,
     ButtonDropdown,
     IconAction,
+    IconDanger,
     InputSearch,
     InputSelect,
     SelectionBox,
@@ -262,6 +288,7 @@ export default {
     TableCards,
     EditModal,
     DeleteModal,
+    ConfirmModal,
   },
   data() {
     return {
@@ -287,6 +314,7 @@ export default {
       isEditModalShown: false,
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
+      isDeleteAllModalShown: false,
     };
   },
   props: {
@@ -441,6 +469,16 @@ export default {
         this.reload();
       }
     },
+    async handelExecuteDeleteAll() {
+      this.isDeleteAllModalShown = false;
+      const resp = await this.client
+        .deleteAllTableData(this.tableName)
+        .catch(this.handleError);
+      if (resp) {
+        this.success = resp.delete.message;
+        this.reload();
+      }
+    },
     toggleView() {
       if (this.view === View.TABLE) {
         this.view = View.CARDS;
@@ -503,7 +541,6 @@ export default {
       this.loading = false;
     },
     async reload() {
-      console.log("reload");
       this.loading = true;
       this.graphqlError = null;
 
@@ -688,7 +725,7 @@ export default {
         showOrder: 'DESC', 
         showOrderBy: 'name',
         canEdit: true,
-        canManage: false
+        canManage: true
       }
     },
   }

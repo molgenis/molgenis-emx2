@@ -26,6 +26,7 @@ import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
+import ConformModal from "../src/components/forms/ConfirmModal.vue"
 import EditModal from "../src/components/forms/EditModal.vue"
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
@@ -131,6 +132,7 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonSubmit,
+  ConformModal,
   EditModal,
   FormGroup,
   FormInput,
