@@ -26,20 +26,29 @@
           description="Please enter the provided password"
           @enterPressed="signin"
         />
-        <InputCheckbox
-          id="privacy-agreement"
-          name="privacy-agreement"
-          label="Agree with privacy policy:"
-          :required="true"
-          :options="['agree']"
-          v-model="userAgrees"
-        >
-        </InputCheckbox>
+        <div class="alert alert-info" role="alert">
+          <b>Privacy policy</b>
+          <p>
+            Deze omgeving bevat gegevens die mogelijk privacy gevoelig van aard
+          </p>
+          <InputCheckbox
+            class="mb-0"
+            id="privacy-agreement"
+            name="privacy-agreement"
+            :required="true"
+            :options="[privacyPolicyLabel]"
+            :hideClearButton="true"
+            v-model="userAgrees"
+          />
+        </div>
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
-      <ButtonSubmit form="signin-form" :disabled="userAgrees[0] !== 'agree'">
+      <ButtonSubmit
+        form="signin-form"
+        :disabled="userAgrees[0] !== privacyPolicyLabel"
+      >
         Sign in
       </ButtonSubmit>
     </template>
@@ -75,6 +84,7 @@ export default {
       error: null,
       success: null,
       userAgrees: [],
+      privacyPolicyLabel: "Agree with privacy policy",
     };
   },
   methods: {

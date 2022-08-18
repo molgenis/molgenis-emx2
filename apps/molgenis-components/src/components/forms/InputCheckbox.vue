@@ -31,6 +31,7 @@
       </label>
     </div>
     <button
+      v-if="!hideClearButton"
       class="checkbox-clear-value btn-link btn m-0 p-0"
       @click.prevent="
         result = [];
@@ -64,6 +65,10 @@ export default {
   },
   props: {
     options: Array,
+    hideClearButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
