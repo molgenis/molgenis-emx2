@@ -9,6 +9,8 @@
       :can-edit="canEdit"
       :template="template"
       @reload="$emit('reload')"
+      @edit="$emit('edit', $event)"
+      @delete="$emit('delete', $event)"
       @click="$emit('click', $event)"
     />
   </div>

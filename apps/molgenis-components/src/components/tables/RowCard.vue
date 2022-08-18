@@ -4,18 +4,22 @@
       <div class="card-text">
         <span class="float-right">
           <RowButton
-            class="d-inline"
             v-if="canEdit"
+            type="edit"
+            class="d-inline"
             :table="tableName"
             :pkey="getKey(row)"
             @close="$emit('reload')"
+            @edit="$emit('edit', row)"
           />
           <RowButton
-            class="mt-0"
             v-if="canEdit"
+            type="delete"
+            class="mt-0"
             :table="tableName"
             :pkey="getKey(row)"
             @close="$emit('reload')"
+            @delete="$emit('delete', row)"
           />
         </span>
         <VueTemplate v-if="template" :template="template" :a="row" />

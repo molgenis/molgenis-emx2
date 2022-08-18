@@ -127,6 +127,8 @@
           :canEdit="canEdit"
           :template="cardTemplate"
           @reload="reload"
+          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
+          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
           @click="$emit('click', $event)"
         />
         <RecordCard
@@ -136,6 +138,8 @@
           :columns="columns"
           :canEdit="canEdit"
           @click="$emit('click', $event)"
+          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
+          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
           :template="recordTemplate"
         />
         <TableMolgenis
