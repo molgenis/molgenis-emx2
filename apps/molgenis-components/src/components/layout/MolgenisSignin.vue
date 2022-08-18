@@ -26,11 +26,22 @@
           description="Please enter the provided password"
           @enterPressed="signin"
         />
+        <InputCheckbox
+          id="privacy-agreement"
+          name="privacy-agreement"
+          label="Agree with privacy policy:"
+          :required="true"
+          :options="['agree']"
+          v-model="userAgrees"
+        >
+        </InputCheckbox>
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
-      <ButtonSubmit form="signin-form">Sign in</ButtonSubmit>
+      <ButtonSubmit form="signin-form" :disabled="userAgrees[0] !== 'agree'">
+        Sign in
+      </ButtonSubmit>
     </template>
   </LayoutModal>
 </template>
@@ -63,6 +74,7 @@ export default {
       password: null,
       error: null,
       success: null,
+      userAgrees: [],
     };
   },
   methods: {
