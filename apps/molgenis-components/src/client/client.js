@@ -11,6 +11,9 @@ export default {
     return {
       insertDataRow,
       updateDataRow,
+      deleteRow: async (rowKey, tableName) => {
+        return deleteRow(rowKey, tableName, graphqlURL);
+      },
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;
@@ -135,6 +138,12 @@ const updateDataRow = (rowData, tableName, graphqlURL) => {
   const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL, formData);
+};
+
+const deleteRow = (key, tableName, graphqlURL) => {
+  const query = `mutation delete($pkey:[${tableName}Input]){delete(${tableName}:$pkey){message}}`;
+  const variables = { pkey: [key] };
+  return axios.post(graphqlURL, { query, variables });
 };
 
 const fetchMetaData = async (axios, graphqlURL, onError) => {

@@ -147,15 +147,17 @@
           <template v-slot:header>
             <label>{{ count }} records found</label>
           </template>
-          <template v-slot:colheader="slotProps">
+          <template v-slot:rowcolheader>
             <RowButton
-              v-if="canEdit && !slotProps.col"
+              v-if="canEdit"
               type="add"
               :table="tableName"
               :graphqlURL="graphqlURL"
-              @close="reload"
+              @add="handleRowAction('add')"
               class="d-inline p-0"
             />
+          </template>
+          <template v-slot:colheader="slotProps">
             <IconAction
               v-if="slotProps.col && orderByColumn == slotProps.col.id"
               :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
@@ -165,32 +167,56 @@
           <template v-slot:rowheader="slotProps">
             <RowButton
               v-if="canEdit"
-              type="add"
-              :table="tableName"
-              :graphqlURL="graphqlURL"
-              :pkey="getPrimaryKey(slotProps.row)"
-              @close="reload"
+              type="edit"
+              @edit="
+                handleRowAction(
+                  'edit',
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
             />
             <RowButton
               v-if="canEdit"
-              type="edit"
-              :table="tableName"
-              :graphqlURL="graphqlURL"
-              :pkey="getPrimaryKey(slotProps.row)"
-              @close="reload"
+              type="clone"
+              @clone="
+                handleRowAction(
+                  'clone',
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
             />
             <RowButton
               v-if="canEdit"
               type="delete"
-              :table="tableName"
-              :graphqlURL="graphqlURL"
-              :pkey="getPrimaryKey(slotProps.row)"
-              @close="reload"
+              @delete="
+                handleDeleteRowRequest(
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
             />
           </template>
         </TableMolgenis>
       </div>
     </div>
+
+    <EditModal
+      v-if="isEditModalShown"
+      :isModalShown="true"
+      :id="tableName + '-edit-modal'"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      :clone="editMode === 'clone'"
+      :graphqlURL="graphqlURL"
+      @close="handleModalClose"
+    />
+
+    <DeleteModal
+      v-if="isDeleteModalShown"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      @close="isDeleteModalShown = false"
+      @executeDelete="handleExecuteDelete"
+    />
   </div>
 </template>
 
@@ -212,6 +238,8 @@ import FilterWells from "../filters/FilterWells.vue";
 import RecordCard from "./RecordCard.vue";
 import TableSettings from "./TableSettings.vue";
 import TableCards from "./TableCards.vue";
+import EditModal from "../forms/EditModal.vue";
+import DeleteModal from "../forms/DeleteModal.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -232,6 +260,8 @@ export default {
     RecordCard,
     TableSettings,
     TableCards,
+    EditModal,
+    DeleteModal,
   },
   data() {
     return {
@@ -253,6 +283,10 @@ export default {
       graphqlError: null,
       cardTemplate: null,
       recordTemplate: null,
+      isDeleteModalShown: false,
+      isEditModalShown: false,
+      editMode: "add", // add, edit, clone
+      editRowPrimaryKey: null,
     };
   },
   props: {
@@ -384,6 +418,29 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    handleRowAction(type, key) {
+      this.editMode = type;
+      this.editRowPrimaryKey = key;
+      this.isEditModalShown = true;
+    },
+    handleModalClose() {
+      this.isEditModalShown = false;
+      this.reload();
+    },
+    handleDeleteRowRequest(key) {
+      this.editRowPrimaryKey = key;
+      this.isDeleteModalShown = true;
+    },
+    async handleExecuteDelete() {
+      this.isDeleteModalShown = false;
+      const resp = await this.client
+        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .catch(this.handleError);
+      if (resp) {
+        this.success = resp.delete.message;
+        this.reload();
+      }
+    },
     toggleView() {
       if (this.view === View.TABLE) {
         this.view = View.CARDS;
@@ -438,14 +495,15 @@ export default {
       this.$emit("update:showLimit", limitNumber);
     },
     handleError(error) {
-      if (Array.isArray(error.response.errors)) {
-        this.graphqlError = error.response.errors[0].message;
+      if (Array.isArray(error?.response?.data?.errors)) {
+        this.graphqlError = error.response.data.errors[0].message;
       } else {
         this.graphqlError = error;
       }
       this.loading = false;
     },
     async reload() {
+      console.log("reload");
       this.loading = true;
       this.graphqlError = null;
 
@@ -494,7 +552,6 @@ export default {
       this.limit = this.showLimit;
     },
     tableMetadata() {
-      console.log("table meta data watch");
       this.page = this.showPage;
       this.limit = this.showLimit;
       this.orderByColumn = this.showOrderBy;
@@ -630,7 +687,7 @@ export default {
         limit: 10,
         showOrder: 'DESC', 
         showOrderBy: 'name',
-        canEdit: false,
+        canEdit: true,
         canManage: false
       }
     },
