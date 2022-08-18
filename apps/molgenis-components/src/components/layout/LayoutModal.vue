@@ -13,6 +13,7 @@
           <div class="modal-header">
             <h5 class="modal-title">{{ title }}</h5>
             <button
+              v-if="!closeDisabled"
               type="button"
               class="close"
               data-dismiss="modal"
@@ -62,6 +63,7 @@ export default {
     },
     /** Shown as the title of the model */
     title: { type: String, default: "" },
+    closeDisabled: false,
   },
   methods: {
     close() {
@@ -75,12 +77,12 @@ export default {
     },
   },
   beforeMount() {
-    if(document && document.addEventListener) {
+    if (document && document.addEventListener) {
       document.addEventListener("keydown", this.escapeKeyHandler);
     }
   },
   beforeDestroy() {
-    if(document && document.removeEventListener) {
+    if (document && document.removeEventListener) {
       document.removeEventListener("keydown", this.escapeKeyHandler);
     }
   },

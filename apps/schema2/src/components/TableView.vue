@@ -4,7 +4,7 @@
       <div>
         <span class="hoverContainer">
           <h4
-            :id="table.name"
+            :id="table.name != undefined ? table.name.replaceAll(' ', '_') : ''"
             style="display: inline-block; text-transform: none !important"
             :style="table.drop ? 'text-decoration: line-through' : ''"
           >
@@ -30,7 +30,7 @@
               <div
                 v-for="(subclass, index) in table.subclasses"
                 class="row mb-2"
-                :key="index"
+                :key="table.subclasses.length + '_' + index"
               >
                 <div class="col-2">
                   <span class="pl-2"> {{ subclass.name }}</span>
@@ -150,11 +150,16 @@ export default {
       this.$emit("input", this.table);
     },
     createSubclass() {
-      this.table.subclasses.push({
+      if (!this.table.subclasses) {
+        //need to $set otherwise vue doesn't see the change
+        this.$set(this.table, "subclasses", []);
+      }
+      this.table.subclasses.unshift({
         name: undefined,
         description: "n/a",
-        extends: this.table.name,
+        inherit: this.table.name,
       });
+      this.$emit("input", this.table);
     },
   },
   created() {

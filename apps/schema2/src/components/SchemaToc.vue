@@ -11,7 +11,13 @@
         )"
         :key="table.name"
       >
-        <a :href="'#'" v-scroll-to="'#' + table.name">{{ table.name }}</a>
+        <a
+          :href="'#'"
+          v-scroll-to="
+            '#' + (table.name ? table.name.replaceAll(' ', '_') : '')
+          "
+          >{{ table.name }}</a
+        >
       </p>
     </div>
   </div>

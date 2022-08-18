@@ -4,7 +4,10 @@
       id="molgenis_tables_container"
       v-if="schema.tables && schema.tables.length > 0"
     >
-      <span v-for="(table, index) in schema.tables" :key="index">
+      <span
+        v-for="(table, index) in schema.tables"
+        :key="schema.tables.length + '_' + index"
+      >
         <TableView
           v-if="table.inherit == undefined"
           v-model="schema.tables[index]"

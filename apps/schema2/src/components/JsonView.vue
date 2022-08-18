@@ -2,7 +2,9 @@
   <ButtonAction v-if="!show" @click="show = true"> Show JSON</ButtonAction>
   <LayoutModal v-else @close="show = false">
     <template v-slot:body>
-      <pre><code v-html="prettyPrint(value)" class="text-black"></code></pre>
+      <pre
+        class="overflow-auto mh-100"
+      ><code v-html="prettyPrint(value)" class="text-black"></code></pre>
     </template>
   </LayoutModal>
 </template>

@@ -147,10 +147,8 @@ export default {
         "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
-          console.log("transform");
           let _schema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(_schema);
-          console.log("transform complete");
         })
         .catch((error) => {
           this.graphqlError = error;

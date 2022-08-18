@@ -5,10 +5,20 @@
     icon="pencil-alt"
     @click="show = true"
   />
-  <LayoutModal v-else :title="'Edit ' + table.name" @close="close">
+  <LayoutModal
+    v-else
+    :title="'Edit ' + table.name"
+    @close="close"
+    :closeDisabled="isDisabled"
+  >
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
-      <InputString id="table_name" v-model="table.name" label="Table name" />
+      <InputString
+        id="table_name"
+        v-model="table.name"
+        label="Table name"
+        :errorMessage="nameInvalid"
+      />
       <InputText
         id="table_description"
         v-model="table.description"
@@ -19,8 +29,9 @@
         id="table_extends"
         v-model="table.inherit"
         :required="true"
-        :options="extendsOptions"
+        :options="inheritOptions"
         :readonly="table.oldName !== undefined"
+        :errorMessage="subclassInvalid"
         label="Extends table (can not be edited after creation)"
       />
       <InputString
@@ -31,7 +42,7 @@
       />
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="close">Done</ButtonAction>
+      <ButtonAction @click="close" :disabled="isDisabled">Done</ButtonAction>
       <ButtonDanger @click="toggleDelete" v-if="table.drop != true">
         Mark as deleted
       </ButtonDanger>
@@ -80,6 +91,27 @@ export default {
       /** whether modal is shown */
       show: false,
     };
+  },
+  computed: {
+    inheritOptions() {
+      if (this.extendsOptions) {
+        return this.extendsOptions.filter((value) => value != this.name);
+      }
+      return null;
+    },
+    nameInvalid() {
+      return !this.table.name || this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+        ? "Name is required and can only contain 'azAZ_ '"
+        : null;
+    },
+    subclassInvalid() {
+      return this.extendOptions && this.table.inherit == undefined
+        ? "Extends is required in case of subclass"
+        : null;
+    },
+    isDisabled() {
+      return this.nameInvalid || this.subclassInvalid;
+    },
   },
   methods: {
     close() {
