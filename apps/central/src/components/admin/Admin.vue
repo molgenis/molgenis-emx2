@@ -15,6 +15,7 @@
             v-for="(label, key) in {
               users: 'Users',
               settings: 'Settings',
+              privacyPolicy: 'Privacy policy',
             }"
             :key="key"
           >
@@ -35,11 +36,7 @@
 </template>
 
 <script>
-import {
-  Spinner,
-  MessageError,
-  MolgenisSignin,
-} from "molgenis-components";
+import { Spinner, MessageError, MolgenisSignin } from "molgenis-components";
 
 export default {
   components: {

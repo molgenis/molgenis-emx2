@@ -30,6 +30,8 @@
           <b>Privacy policy</b>
           <p>
             Deze omgeving bevat gegevens die mogelijk privacy gevoelig van aard
+            zijn. Hierbij ga ik akkoord met de privacy policy en code of
+            conduct.
           </p>
           <InputCheckbox
             class="mb-0"
@@ -63,7 +65,7 @@ import MessageError from "../forms/MessageError.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "./LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
-
+import InputCheckbox from "../forms/InputCheckbox.vue";
 import { request } from "../../client/client.js";
 
 export default {
@@ -76,6 +78,7 @@ export default {
     LayoutForm,
     LayoutModal,
     ButtonSubmit,
+    InputCheckbox,
   },
   data: function () {
     return {

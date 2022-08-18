@@ -5,9 +5,9 @@ import Groups from "./components/Groups";
 import Admin from "./components/admin/Admin";
 import ManageSettings from "./components/admin/ManageSettings";
 import ManageUsers from "./components/admin/ManageUsers";
+import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy";
 
 Vue.config.productionTip = false;
-
 Vue.use(VueRouter);
 
 const router = new VueRouter({
@@ -21,6 +21,11 @@ const router = new VueRouter({
       children: [
         { name: "users", path: "users", component: ManageUsers },
         { name: "settings", path: "settings", component: ManageSettings },
+        {
+          name: "privacyPolicy",
+          path: "privacyPolicy",
+          component: ManagePrivacyPolicy,
+        },
       ],
     },
   ],
