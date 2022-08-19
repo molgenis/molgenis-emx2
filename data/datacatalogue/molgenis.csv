@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.7
+Version,,,,,,,,,,,,2.8
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
 Institutions,,name,,2,,,,,,,,Official name of the institution or organisation as used in EU projects
@@ -38,7 +38,7 @@ Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (
 Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,,"If other, describe the type of resource"
 Cohorts,,design,ontology,,,CatalogueOntologies,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
-Cohorts,,designDescription,,,,,,,,,,Short description of the study design of this cohort
+Cohorts,,designDescription,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,designSchematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collectionType,ontology_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"

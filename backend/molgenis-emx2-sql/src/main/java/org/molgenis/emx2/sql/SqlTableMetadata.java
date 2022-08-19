@@ -230,12 +230,12 @@ class SqlTableMetadata extends TableMetadata {
     }
     // update the metadata so we can use it for new keys and references
     if (column.getPosition() == null) {
-      column.setPosition(tm.columns.get(columnName).getPosition());
+      newColumn.setPosition(tm.columns.get(columnName).getPosition());
     }
     // remove the old
     tm.columns.remove(columnName);
     // add the new
-    tm.columns.put(column.getName(), column);
+    tm.columns.put(column.getName(), newColumn);
 
     // reapply ref constrainst
     executeCreateRefConstraints(tm.getJooq(), newColumn);
