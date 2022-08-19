@@ -3,7 +3,7 @@ require("graphql-playground-react/build/static/js/middleware.js");
 
 window.addEventListener("load", function (event) {
   GraphQLPlayground.init(document.getElementById("root"), {
-    endpoint: "graphql",
+    endpoint: "./graphql",
     settings: {
       "schema.polling.enable": false,
     },
