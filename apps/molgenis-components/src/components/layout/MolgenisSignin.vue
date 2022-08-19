@@ -29,9 +29,7 @@
         <div class="alert alert-info" role="alert">
           <b>Privacy policy</b>
           <p>
-            Deze omgeving bevat gegevens die mogelijk privacy gevoelig van aard
-            zijn. Hierbij ga ik akkoord met de privacy policy en code of
-            conduct.
+            {{ privacyPolicy }}
           </p>
           <InputCheckbox
             class="mb-0"
@@ -88,6 +86,7 @@ export default {
       success: null,
       userAgrees: [],
       privacyPolicyLabel: "Agree with privacy policy",
+      privacyPolicy: "",
     };
   },
   methods: {
@@ -124,6 +123,17 @@ export default {
       this.error = null;
       this.$emit("cancel");
     },
+    async fetchPrivacyPolicy() {
+      const response = await request("graphql", `{_settings{key, value}}`);
+      const policyData = response._settings.find(
+        (item) => item.key === "PrivacyPolicy"
+      );
+      if (policyData === undefined) {
+        this.privacyPolicy = "Policy 1";
+      } else {
+        this.privacyPolicy = policyData.value;
+      }
+    },
   },
   watch: {
     async show(newValue) {
@@ -131,6 +141,9 @@ export default {
       // set focus on email input to enable submit action
       this.$refs.email.$el.children[1].focus();
     },
+  },
+  mounted() {
+    this.fetchPrivacyPolicy();
   },
 };
 </script>
