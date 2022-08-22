@@ -191,7 +191,7 @@ class SqlSchemaMetadataExecutor {
     return members;
   }
 
-  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema) {
+  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
     if (!AuditUtils.isChangeSchema(schema.getDatabase(), schema.getName())) {
       return Collections.emptyList();
     }
@@ -199,7 +199,7 @@ class SqlSchemaMetadataExecutor {
         jooq.select(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
             .from(table(name(schema.getName(), MG_CHANGLOG)))
             .orderBy(STAMP.desc())
-            .limit(1000)
+            .limit(limit)
             .fetch();
 
     return result.stream()

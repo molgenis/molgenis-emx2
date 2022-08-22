@@ -509,7 +509,12 @@ public class GraphqlSchemaFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_changes")
         .type(GraphQLList.list(changesMetadataType))
-        .dataFetcher(dataFetchingEnvironment -> schema.getChanges());
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              int limit = dataFetchingEnvironment.getArgumentOrDefault("limit", 100);
+              return schema.getChanges(limit);
+            })
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt));
   }
 
   public GraphQLFieldDefinition.Builder changeLogCountQuery(Schema schema) {

@@ -33,9 +33,9 @@ public class TestChangelog {
           Schema schema = db.getSchema("testSchemaChanges");
           schema = addTestData(schema);
 
-          assertEquals(3, schema.getChanges().size());
-          assertEquals('I', schema.getChanges().get(0).operation());
-          assertEquals("Person", schema.getChanges().get(0).tableName());
+          assertEquals(3, schema.getChanges(100).size());
+          assertEquals('I', schema.getChanges(100).get(0).operation());
+          assertEquals("Person", schema.getChanges(100).get(0).tableName());
         });
   }
 
@@ -52,7 +52,7 @@ public class TestChangelog {
           Schema schema = db.getSchema("testSchemaChangesFF");
           schema = addTestData(schema);
 
-          assertEquals(0, schema.getChanges().size());
+          assertEquals(0, schema.getChanges(100).size());
         });
   }
 

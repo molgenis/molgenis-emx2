@@ -13,7 +13,11 @@
       </MessageWarning>
     </IconBar>
     <div v-if="count > 0 || search || (session && session.email == 'admin')">
-      <InputSearch placeholder="search by name" v-model="search" />
+      <InputSearch
+        id="groups-search-input"
+        placeholder="search by name"
+        v-model="search"
+      />
       <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>
@@ -26,6 +30,7 @@
           </th>
           <th>name</th>
           <th>description</th>
+          <th v-if="showChangeColumn">last update</th>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
@@ -49,6 +54,13 @@
             <td>
               {{ schema.description }}
             </td>
+            <td v-if="showChangeColumn">
+              <LastUpdateField
+                v-if="changelogSchemas.includes(schema.name)"
+                :schema="schema.name"
+              />
+              <span v-else>n/a</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -69,19 +81,20 @@
 </template>
 
 <script>
-import {request} from 'graphql-request';
+import { request } from "graphql-request";
 
-import SchemaCreateModal from './SchemaCreateModal';
-import SchemaDeleteModal from './SchemaDeleteModal';
-import SchemaEditModal from './SchemaEditModal';
+import SchemaCreateModal from "./SchemaCreateModal";
+import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaEditModal from "./SchemaEditModal";
 import {
   IconAction,
   IconBar,
   IconDanger,
   Spinner,
   MessageWarning,
-  InputSearch
-} from 'molgenis-components';
+  InputSearch,
+} from "molgenis-components";
+import LastUpdateField from "./LastUpdateField.vue";
 
 export default {
   components: {
@@ -93,10 +106,11 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
-    InputSearch
+    InputSearch,
+    LastUpdateField,
   },
   props: {
-    session: Object
+    session: Object,
   },
   data: function () {
     return {
@@ -107,7 +121,7 @@ export default {
       showEditSchema: false,
       editDescription: null,
       graphqlError: null,
-      search: null
+      search: null,
     };
   },
   computed: {
@@ -115,9 +129,9 @@ export default {
       return this.schemasFilteredAndSorted.length;
     },
     schemasFilteredAndSorted() {
-      let filtered = this.schemas
+      let filtered = this.schemas;
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(' ');
+        let terms = this.search.toLowerCase().split(" ");
         filtered = this.schemas.filter((s) =>
           terms.every(
             (v) =>
@@ -127,7 +141,28 @@ export default {
         );
       }
       return filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
+    },
+    showChangeColumn() {
+      return (
+        this.session.email == "admin" ||
+        (this.session &&
+          this.session.roles &&
+          this.session.roles.includes("Manager"))
+      ) && this.changelogSchemas;
+    },
+    changelogSchemas() {
+      if (
+        this.session &&
+        this.session.settings &&
+        this.session.settings["CHANGELOG_SCHEMAS"]
+      ) {
+        return this.session.settings["CHANGELOG_SCHEMAS"]
+          .split(",")
+          .map((s) => s.trim());
+      } else {
+        return [];
+      }
+    },
   },
   created() {
     this.getSchemaList();
@@ -158,16 +193,16 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request('graphql', '{Schemas{name description}}')
+      request("graphql", "{Schemas{name description}}")
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
         })
         .catch(
           (error) =>
-            (this.graphqlError = 'internal server graphqlError' + error)
+            (this.graphqlError = "internal server graphqlError" + error)
         );
-    }
-  }
+    },
+  },
 };
 </script>
