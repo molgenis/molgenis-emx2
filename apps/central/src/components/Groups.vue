@@ -28,9 +28,23 @@
               @click="openCreateSchema"
             />
           </th>
-          <th>name</th>
+          <th @click="changeSortOrder('name')" class="sort-col">
+            name
+            <IconAction
+              v-if="sortColumn === 'name'"
+              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              class="d-inline p-0"
+            />
+          </th>
           <th>description</th>
-          <th v-if="showChangeColumn">last update</th>
+          <th v-if="showChangeColumn" @click="changeSortOrder('lastUpdate')" class="sort-col">
+            last update
+            <IconAction
+              v-if="sortColumn === 'lastUpdate'"
+              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              class="d-inline p-0"
+            />
+          </th>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
@@ -58,8 +72,13 @@
               <LastUpdateField
                 v-if="changelogSchemas.includes(schema.name)"
                 :schema="schema.name"
+                @input="
+                  (i) => {
+                    schema.update = new Date(i);
+                    handleLastUpdateChange();
+                  }
+                "
               />
-              <span v-else>n/a</span>
             </td>
           </tr>
         </tbody>
@@ -122,6 +141,8 @@ export default {
       editDescription: null,
       graphqlError: null,
       search: null,
+      sortColumn: "name",
+      sortOrder: "ASC",
     };
   },
   computed: {
@@ -129,26 +150,16 @@ export default {
       return this.schemasFilteredAndSorted.length;
     },
     schemasFilteredAndSorted() {
-      let filtered = this.schemas;
-      if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(" ");
-        filtered = this.schemas.filter((s) =>
-          terms.every(
-            (v) =>
-              s.name.toLowerCase().includes(v) ||
-              (s.description && s.description.toLowerCase().includes(v))
-          )
-        );
-      }
-      return filtered.sort((a, b) => a.name.localeCompare(b.name));
+      return this.sortSchemas(this.filterSchema(this.schemas));
     },
     showChangeColumn() {
       return (
-        this.session.email == "admin" ||
-        (this.session &&
-          this.session.roles &&
-          this.session.roles.includes("Manager"))
-      ) && this.changelogSchemas;
+        (this.session.email == "admin" ||
+          (this.session &&
+            this.session.roles &&
+            this.session.roles.includes("Manager"))) &&
+        this.changelogSchemas
+      );
     },
     changelogSchemas() {
       if (
@@ -203,6 +214,64 @@ export default {
             (this.graphqlError = "internal server graphqlError" + error)
         );
     },
+    filterSchema(unfiltered) {
+      let filtered = unfiltered;
+      if (this.search && this.search.trim().length > 0) {
+        let terms = this.search.toLowerCase().split(" ");
+        filtered = this.schemas.filter((s) =>
+          terms.every(
+            (v) =>
+              s.name.toLowerCase().includes(v) ||
+              (s.description && s.description.toLowerCase().includes(v))
+          )
+        );
+      }
+      return filtered;
+    },
+    sortSchemas(unsorted) {
+      let sorted = [];
+      if (this.sortColumn === "lastUpdate") {
+        sorted = unsorted.sort((a, b) => {
+          if (a.update && b.update) {
+            return a.update.getTime() - b.update.getTime();
+          } else if (a.update && !b.update) {
+            return 1;
+          } else if (!a.update && b.update) {
+            return -1;
+          }
+          {
+            return a.name.localeCompare(b.name);
+          }
+        });
+      } else {
+        sorted = unsorted.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      if (this.sortOrder === "DESC") {
+        sorted.reverse();
+      }
+      return sorted;
+    },
+    changeSortOrder(columnName) {
+      if (this.sortColumn === columnName) {
+        // reverse the sort
+        this.sortOrder = this.sortOrder === "ASC" ? "DESC" : "ASC";
+      } else {
+        this.sortOrder = "ASC";
+        this.sortColumn = columnName;
+      }
+    },
+    handleLastUpdateChange() {
+      if (this.sortColumn === "lastUpdate") {
+        this.sortSchemas(this.schemasFilteredAndSorted);
+      }
+    },
   },
 };
 </script>
+
+<style scoped>
+.sort-col:hover {
+  cursor: pointer;
+}
+</style>
