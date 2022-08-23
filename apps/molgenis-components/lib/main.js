@@ -26,7 +26,7 @@ import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
-import EditModal from "../src/components/forms/EditModal.vue"
+import EditModal from "../src/components/forms/EditModal.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
@@ -91,8 +91,8 @@ import VueTemplate from "../src/components/layout/VueTemplate.vue";
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
 import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
-import RowButton from "../src/components/tables/RowButton.vue"
-import ShowHide from "../src/components/tables/ShowHide.vue"
+import RowButton from "../src/components/tables/RowButton.vue";
+import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
 
@@ -104,6 +104,10 @@ import ListDisplay from "../src/components/tables/cellTypes/ListDisplay.vue";
 import ObjectDisplay from "../src/components/tables/cellTypes/ObjectDisplay.vue";
 import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue";
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
+
+//tasks
+import Task from "../src/components/tasks/Task.vue";
+import SubTask from "../src/components/tasks/SubTask.vue";
 
 export {
   ContactDisplay,
@@ -199,4 +203,6 @@ export {
   StringDisplay,
   TextDisplay,
   Client,
+  Task,
+  SubTask,
 };
