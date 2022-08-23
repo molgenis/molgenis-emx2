@@ -32,7 +32,7 @@ public class TestSubmissions {
     db.dropSchemaIfExists("system");
     // remove submissions
     db.getSchemaNames().stream()
-        .filter(name -> name.startsWith("Submission_"))
+        .filter(name -> name.startsWith("Submit_"))
         .forEach(
             name -> {
               db.dropSchemaIfExists(name);
@@ -42,7 +42,7 @@ public class TestSubmissions {
 
   @Test
   public void createSubmissionSimple() {
-    String targetSchemaName = TestSubmissions.class.getSimpleName() + "_target";
+    String targetSchemaName = TestSubmissions.class.getSimpleName() + "_1";
     // setup databases
     Schema targetSchema = db.dropCreateSchema(targetSchemaName);
     service = new SubmissionService(targetSchema, taskService);
@@ -50,12 +50,11 @@ public class TestSubmissions {
     new PetStoreLoader().load(targetSchema, true);
 
     // config to clone 'pet' into submission schema
-    SubmissionCreateTask createTask = service.createSubmission(List.of("Pet"));
+    SubmissionCreateTask createTask = service.createSubmission(List.of("Pet"), null);
     createTask.run();
-    assertEquals(DRAFT, createTask.getSubmission().getStatus());
 
     // verify a new schema has been created ready to receive submissions, with only table Pet
-    Schema draft = db.getSchema(createTask.getSubmission().getSchema());
+    Schema draft = db.getSchema(createTask.getSubmissionRecord().getSchema());
     assertNotNull(draft);
     assertEquals(1, draft.getTableNames().size());
     assertTrue(draft.getTableNames().contains("Pet"));
@@ -71,10 +70,10 @@ public class TestSubmissions {
     assertEquals(1, service.list().size());
 
     // check with a refback included
-    createTask = service.createSubmission(List.of("Pet", "Order"));
+    createTask = service.createSubmission(List.of("Pet", "Order"), null);
     createTask.run();
 
-    draft = db.getSchema(createTask.getSubmission().getSchema());
+    draft = db.getSchema(createTask.getSubmissionRecord().getSchema());
     assertEquals(2, draft.getTableNames().size());
     assertTrue(draft.getTableNames().contains("Pet"));
     assertTrue(draft.getTableNames().contains("Order"));
@@ -89,14 +88,14 @@ public class TestSubmissions {
         row("orderId", 3, "pet", "puck", "quantity", 1, "price", 3.99, "status", "approved"));
 
     // lets merge
-    service.mergeSubmission(createTask.getSubmission().getId()).run();
+    service.mergeSubmission(createTask.getSubmissionRecord().getId()).run();
     assertEquals("puck", targetSchema.getTable("Pet").retrieveRows().get(2).getString("name"));
-    assertEquals(MERGED, service.getById(createTask.getSubmission().getId()).getStatus());
+    assertEquals(MERGED, service.getById(createTask.getSubmissionRecord().getId()).getStatus());
   }
 
   @Test
   public void createSubmissionWithInheritance() {
-    String targetSchemaName = TestSubmissions.class.getSimpleName() + "_target2";
+    String targetSchemaName = TestSubmissions.class.getSimpleName() + "_2";
 
     // setup databases
     Schema targetSchema = db.dropCreateSchema(targetSchemaName);
@@ -104,12 +103,10 @@ public class TestSubmissions {
     new DataCatalogueLoader().load(targetSchema, false);
 
     // config to clone 'cohort' into submission schema
-    SubmissionCreateTask task = service.createSubmission(List.of("Cohorts"));
+    SubmissionCreateTask task =
+        service.createSubmission(List.of("Cohorts"), "{pid: \"TestCohort\"}");
     task.run();
 
-    // should have included superclasses
-    // or should we merge subclass hierachy into simple class?
-    Schema draft = db.getSchema(task.getSubmission().getSchema());
-    assertTrue(draft.getTableNames().contains("Resources"));
+    // todo rest of tests
   }
 }

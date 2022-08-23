@@ -57,7 +57,9 @@ public class SubmissionCreateTask extends Task {
                 subtask.complete();
 
                 // load the submission data to be updated, if selected
-                loadSelectedIdentifiersForUpdateSubmissions(targetSchema, schema);
+                if (this.getSubmissionRecord().getTargetIdentifiers() != null) {
+                  loadSelectedIdentifiersForUpdateSubmissions(targetSchema, schema);
+                }
 
                 // now our submission is ready to be edited, lets save this state
                 this.submissionRecord.setStatus(SubmissionRecord.SubmissionStatus.DRAFT);
@@ -249,5 +251,9 @@ public class SubmissionCreateTask extends Task {
       }
     }
     return and(result);
+  }
+
+  public SubmissionRecord getSubmissionRecord() {
+    return this.submissionRecord;
   }
 }

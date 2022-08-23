@@ -116,7 +116,7 @@ public class SubmissionService {
               // create submission table if needed
               Table submissionsTable = systemSchema.getTable(SUBMISSIONS);
               if (submissionsTable == null) {
-                systemSchema.create(table(SUBMISSIONS, column(ID).setPkey()));
+                submissionsTable = systemSchema.create(table(SUBMISSIONS, column(ID).setPkey()));
               }
 
               // if needed in the future: add migrations here
