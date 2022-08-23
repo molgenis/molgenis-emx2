@@ -66,9 +66,17 @@ public class SubmissionMergeTask extends Task {
 
                     // delete rows
                     if (deletions.containsKey(targetTable.getName())) {
+                      Task deleteTask =
+                          this.addSubTask(
+                                  String.format("Deleting rows from %s", targetTable.getName()))
+                              .start();
                       int result = targetTable.delete(deletions.get(targetTable.getName()));
-                      this.addSubTask(
-                          String.format("Deleted %s rows from %s", result, targetTable.getName()));
+                      deleteTask
+                          .setDescription(
+                              String.format(
+                                  "Deleted %s rows from %s", result, targetTable.getName()))
+                          .complete()
+                          .setStatus(TaskStatus.WARNING);
                     }
 
                     // copy rows

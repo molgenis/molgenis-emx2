@@ -24,7 +24,7 @@
             <a
               v-if="rowProps.row.status == 'DRAFT'"
               class="btn btn-primary"
-              :href="'Submission_' + rowProps.row.id"
+              :href="'/Submit_' + rowProps.row.id"
             >
               view
             </a>

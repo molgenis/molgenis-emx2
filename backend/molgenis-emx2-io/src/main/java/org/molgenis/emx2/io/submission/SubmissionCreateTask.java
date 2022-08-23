@@ -174,9 +174,7 @@ public class SubmissionCreateTask extends Task {
                         targetTable.query().where(f(column.getName(), keyFilter)).retrieveRows();
                     int refCount = submissionTable.save(refRows);
                     refTask.complete(
-                        String.format(
-                            "Loaded %s %s",
-                            refCount, submissionTable.getName() + "." + column.getName()));
+                        String.format("Loaded %s %s", refCount, submissionTable.getName()));
                   }
                 });
       }
