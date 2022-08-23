@@ -487,6 +487,22 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public void txAsAdmin(Transaction transaction) {
+    tx(
+        db -> {
+          String currentUser = db.getActiveUser();
+          try {
+            db.becomeAdmin();
+            transaction.run(db);
+          } catch (Exception e) {
+            throw new SqlMolgenisException("Transaction failed", e);
+          } finally {
+            db.setActiveUser(currentUser);
+          }
+        });
+  }
+
+  @Override
   public void tx(Transaction transaction) {
     if (inTx) {
       // we do not nest transactions
