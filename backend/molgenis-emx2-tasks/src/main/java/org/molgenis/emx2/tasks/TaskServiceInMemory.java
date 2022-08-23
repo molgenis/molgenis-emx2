@@ -22,10 +22,10 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public String submit(Task task) {
+  public Task submit(Task task) {
     tasks.put(task.getId(), task);
     executorService.submit(task);
-    return task.getId();
+    return task;
   }
 
   @Override

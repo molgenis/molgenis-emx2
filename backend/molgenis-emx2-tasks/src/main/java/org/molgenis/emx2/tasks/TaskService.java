@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface TaskService {
-  String submit(Task task);
+  Task submit(Task task);
 
   Set<String> getJobIds();
 
