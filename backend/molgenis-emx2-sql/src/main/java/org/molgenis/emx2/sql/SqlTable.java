@@ -215,6 +215,9 @@ class SqlTable implements Table {
               + table.getName()
               + " cannot process row insert/update/delete requests because no primary key is defined");
 
+    // strip rows from mg_tableclass if provided, this should be set internally
+    rows.forEach(row -> row.getValueMap().remove(MG_TABLECLASS));
+
     db.tx(
         db2 -> {
           for (Row row : rows) {
@@ -302,7 +305,7 @@ class SqlTable implements Table {
 
     log(
         db.getActiveUser(),
-        table.getJooqTable().getName(),
+        table.getJooqTable().getSchema().getName() + "." + table.getJooqTable().getName(),
         start,
         count,
         transactionType.name().toLowerCase() + "d (incl subclass if applicable)");
