@@ -7,6 +7,8 @@ import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
 
 public class SchemaMetadata {
+  private static final String SCHEMA_NAME_MESSAGE =
+      ": Schema name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 20 characters (so schema + table name (max 32) < 63, with column name still in limit of postgresql aliases";
 
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
   protected Map<String, String> settings = new LinkedHashMap<>();
@@ -50,6 +52,12 @@ public class SchemaMetadata {
   private void validateSchemaName(String name) {
     if (name == null || name.isEmpty())
       throw new MolgenisException("Create schema failed: Schema name was null or empty");
+    if (name.length() > 20) {
+      // we now use for triggers identifier of <prefix>_<schema>_<table>_<column> that together
+      // should be < 63 character unique
+      // we might be better of having schema identifiers???
+      throw new MolgenisException("Schema name '" + name + "' is too long" + SCHEMA_NAME_MESSAGE);
+    }
     if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
       throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
   }
