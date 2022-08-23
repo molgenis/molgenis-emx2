@@ -12,6 +12,7 @@ import graphql.schema.GraphQLSchema;
 import java.io.IOException;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.submission.SubmissionService;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
@@ -251,6 +252,12 @@ public class GraphqlApiFactory {
     mutationBuilder.field(tableField.updateMutation(schema));
     mutationBuilder.field(tableField.upsertMutation(schema));
     mutationBuilder.field(tableField.deleteMutation(schema));
+
+    // submit
+    GraphqlSubmissionFieldFactory submissionFields = new GraphqlSubmissionFieldFactory();
+    SubmissionService submissionService = new SubmissionService(schema, taskService);
+    queryBuilder.field(submissionFields.submissionsQuery(submissionService));
+    mutationBuilder.field(submissionFields.submissionsMutation(submissionService));
 
     // assemble and return
     GraphQL result =

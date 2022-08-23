@@ -1,0 +1,14 @@
+{
+  "Cohort": [
+    "Cohorts",
+    "Publications",
+    "Partners",
+    "Documentation",
+    "CollectionEvents",
+    "Subcohorts",
+    "SourceVariables",
+    "RepeatedSourceVariables",
+    "SourceVariableValues",
+    "VariableMappings"
+  ]
+}

@@ -13,7 +13,8 @@
     "nuxt-ssr",
     "molgenis-components",
     "helloworld",
-    "gendecs"
+    "gendecs",
+    "submit"
   ],
   "resolutions": {
     "nuxt-ssr/**/css-loader": "4.3.0",

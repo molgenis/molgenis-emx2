@@ -1,7 +1,6 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.*;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLEnumType;
@@ -9,6 +8,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.molgenis.emx2.tasks.Task;
 
 public class GraphqlApiMutationResult {
   public enum Status {
@@ -22,6 +22,12 @@ public class GraphqlApiMutationResult {
   private Map<String, String> details = new LinkedHashMap<>();
   private String code;
   private String taskId;
+
+  public GraphqlApiMutationResult(Task task) {
+    this.status = SUCCESS;
+    this.message = task.getDescription();
+    this.taskId = task.getId();
+  }
 
   public GraphqlApiMutationResult(Status status, String message, Object... formatValues) {
     this.status = status;
