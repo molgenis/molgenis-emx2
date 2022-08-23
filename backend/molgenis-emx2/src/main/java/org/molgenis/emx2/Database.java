@@ -7,6 +7,9 @@ public interface Database {
 
   void tx(Transaction transaction);
 
+  /** run function as admin user */
+  void txAsAdmin(Transaction transaction);
+
   void init();
 
   Schema createSchema(String name);
