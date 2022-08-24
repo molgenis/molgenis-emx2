@@ -488,18 +488,18 @@ public class SqlDatabase implements Database {
 
   @Override
   public void txAsAdmin(Transaction transaction) {
-    tx(
-        db -> {
-          String currentUser = db.getActiveUser();
-          try {
-            db.becomeAdmin();
+    String currentUser = getActiveUser();
+    becomeAdmin();
+    try {
+      tx(
+          db -> {
             transaction.run(db);
-          } catch (Exception e) {
-            throw new SqlMolgenisException("Transaction failed", e);
-          } finally {
-            db.setActiveUser(currentUser);
-          }
-        });
+          });
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Transaction failed", e);
+    } finally {
+      setActiveUser(currentUser);
+    }
   }
 
   @Override

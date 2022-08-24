@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.submission;
 
 import static org.molgenis.emx2.ColumnType.REFBACK;
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.EQUALS;
 
@@ -89,6 +90,7 @@ public class SubmissionCreateTask extends Task {
       Task loadTask = this.addSubTask("Loading data for " + mainTable.getName()).start();
       List<Row> rows =
           targetSchema.getTable(mainTable.getName()).query().where(keyFilter).retrieveRows();
+      rows.forEach(row -> row.getValueMap().remove(MG_TABLECLASS));
       int count = mainTable.save(rows);
       loadTask.complete(String.format("Loaded %s %s", count, mainTable.getName()));
 
@@ -140,6 +142,7 @@ public class SubmissionCreateTask extends Task {
                         });
                   }
                   List<Row> refRows = targetTable.where(or(filters)).retrieveRows();
+                  refRows.forEach(row -> row.getValueMap().remove(MG_TABLECLASS));
                   int refResult = submissionTable.save(refRows);
                   refTask.complete(
                       String.format(
@@ -169,9 +172,11 @@ public class SubmissionCreateTask extends Task {
                   // not refback
                   ) {
                     Task refTask = this.addSubTask("Loading data for " + mainTable).start();
+
                     // this is magic
                     List<Row> refRows =
                         targetTable.query().where(f(column.getName(), keyFilter)).retrieveRows();
+                    refRows.forEach(row -> row.getValueMap().remove(MG_TABLECLASS));
                     int refCount = submissionTable.save(refRows);
                     refTask.complete(
                         String.format("Loaded %s %s", refCount, submissionTable.getName()));
