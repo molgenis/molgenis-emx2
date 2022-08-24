@@ -495,6 +495,8 @@ public class SqlDatabase implements Database {
           db -> {
             transaction.run(db);
           });
+    } catch (DataAccessException e) {
+      throw new SqlMolgenisException("Transaction failed", e);
     } catch (Exception e) {
       throw new SqlMolgenisException("Transaction failed", e);
     } finally {
