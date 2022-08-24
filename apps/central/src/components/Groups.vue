@@ -162,7 +162,7 @@ export default {
           (this.session &&
             this.session.roles &&
             this.session.roles.includes("Manager"))) &&
-        this.changelogSchemas
+        this.changelogSchemas.length
       );
     },
     changelogSchemas() {
