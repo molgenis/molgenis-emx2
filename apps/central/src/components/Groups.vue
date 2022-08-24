@@ -31,18 +31,22 @@
           <th @click="changeSortOrder('name')" class="sort-col">
             name
             <IconAction
-              v-if="sortColumn === 'name'"
+              v-if="sortOrder && sortColumn === 'name'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
+              class="d-inline p-0 hide-icon"
             />
           </th>
           <th>description</th>
-          <th v-if="showChangeColumn" @click="changeSortOrder('lastUpdate')" class="sort-col">
+          <th
+            v-if="showChangeColumn"
+            @click="changeSortOrder('lastUpdate')"
+            class="sort-col"
+          >
             last update
             <IconAction
-              v-if="sortColumn === 'lastUpdate'"
+              v-if="sortOrder && sortColumn === 'lastUpdate'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
+              class="d-inline p-0 hide-icon"
             />
           </th>
         </thead>
@@ -142,7 +146,7 @@ export default {
       graphqlError: null,
       search: null,
       sortColumn: "name",
-      sortOrder: "ASC",
+      sortOrder: null,
     };
   },
   computed: {
