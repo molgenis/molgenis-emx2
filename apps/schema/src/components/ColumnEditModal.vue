@@ -9,7 +9,7 @@
     <template v-slot:body>
       <LayoutForm v-if="value">
         <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
-        <div class="d-flex align-content-around flex-wrap">
+        <div class="row">
           <div class="col-4">
             <InputString
               id="column_name"
@@ -25,28 +25,13 @@
             />
           </div>
         </div>
-        <div class="d-flex align-content-around flex-wrap">
+        <div class="row">
           <div class="col-4">
             <InputSelect
               id="column_columnType"
               v-model="column.columnType"
               :options="columnTypes"
               label="columnType"
-            />
-          </div>
-          <div class="col-4" v-if="column.columnType != 'CONSTANT'">
-            <InputBoolean
-              id="column_required"
-              v-model="column.required"
-              :label="column.visibleIf ? 'required (if visible)' : 'required'"
-            />
-          </div>
-          <div class="col-4" v-if="column.columnType != 'CONSTANT'">
-            <InputSelect
-              id="column_key"
-              v-model="column.key"
-              :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-              label="key"
             />
           </div>
           <div
@@ -99,7 +84,24 @@
             />
           </div>
         </div>
-        <div class="d-flex align-content-around flex-wrap">
+        <div class="row">
+          <div class="col-4" v-if="column.columnType != 'CONSTANT'">
+            <InputBoolean
+              id="column_required"
+              v-model="column.required"
+              :label="column.visibleIf ? 'required (if visible)' : 'required'"
+            />
+          </div>
+          <div class="col-4" v-if="column.columnType != 'CONSTANT'">
+            <InputSelect
+              id="column_key"
+              v-model="column.key"
+              :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+              label="key"
+            />
+          </div>
+        </div>
+        <div class="row">
           <div class="col-4" v-if="column.columnType != 'CONSTANT'">
             <InputText
               id="column_validation"
@@ -122,6 +124,19 @@
               v-model="column.semantics"
               :list="true"
               label="semantics"
+            />
+          </div>
+        </div>
+        <div class="row" v-if="subclasses !== undefined">
+          <div class="col">
+            <InputSelect
+              :readonly="column.oldName !== undefined"
+              id="column_table"
+              v-model="column.table"
+              :options="subclasses"
+              :list="true"
+              label="Available in subclass"
+              description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
             />
           </div>
         </div>
@@ -174,6 +189,8 @@ export default {
     table: Object,
     /** schema  column is part of */
     schema: Object,
+    /** subclasses if applicable */
+    subclasses: Array,
   },
   data() {
     return {
@@ -183,8 +200,6 @@ export default {
       column: null,
       //the options
       columnTypes,
-      //for forcing updates
-      timestamp: Date.now(),
     };
   },
   computed: {
@@ -229,7 +244,8 @@ export default {
     },
   },
   created() {
-    this.column = this.value;
+    //deep copy so it doesn't update during edits
+    this.column = JSON.parse(JSON.stringify(this.value));
     //show new columns in editor
     if (this.column.name == undefined) {
       this.show = true;

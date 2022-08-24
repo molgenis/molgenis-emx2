@@ -1,13 +1,16 @@
 <template>
-  <div
-    class="row mb-2 hoverContainer"
+  <tr
+    class="hoverContainer"
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
-    <div class="col-2">
-      <span class="pl-2">{{ column.name }}</span>
+    <td>
+      <span>
+        {{ column.name }}
+      </span>
       <ColumnEditModal
         v-model="column"
         :schema="schema"
+        :subclasses="subclasses"
         @input="$emit('input', column)"
       />
       <IconAction
@@ -15,31 +18,29 @@
         icon="plus"
         @click="$emit('createColumn', column.position)"
       />
-    </div>
-    <div class="col">
-      <code>
-        <span v-if="column.table != tableName">
-          subclass({{ column.table }})
-        </span>
-        <span v-if="column.key">key={{ column.key }} </span>
-        <span v-if="column.refTable">
-          {{ column.columnType.toLowerCase() }}({{
-            column.refSchema ? column.refSchema + "." : ""
-          }}{{ column.refTable
-          }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
-          <span v-if="column.refLink">, refLink={{ column.refLink }}</span
-          >)
-        </span>
-        <span v-else-if="column.columnType != 'STRING'">
-          {{ column.columnType.toLowerCase() }}
-        </span>
-        <span v-if="column.required === true || column.required === 'true'">
-          required
-        </span>
-      </code>
-      <div>{{ column.description ? column.description : "n/a" }}</div>
-    </div>
-  </div>
+    </td>
+    <td>
+      <span v-if="column.table != tableName">
+        subclass={{ column.table }}
+      </span>
+      <span v-if="column.refTable">
+        {{ column.columnType.toLowerCase() }}({{
+          column.refSchema ? column.refSchema + "." : ""
+        }}{{ column.refTable
+        }}<span v-if="column.refBack">, refBack={{ column.refBack }}</span>
+        <span v-if="column.refLink">, refLink={{ column.refLink }}</span
+        >)
+      </span>
+      <span v-else>
+        {{ column.columnType.toLowerCase() }}
+      </span>
+      <span v-if="column.required === true || column.required === 'true'">
+        required
+      </span>
+      <span v-if="column.key">key={{ column.key }}</span>
+    </td>
+    <td>{{ column.description }}</td>
+  </tr>
 </template>
 
 <script>
@@ -62,6 +63,7 @@ export default {
   props: {
     value: Object,
     tableName: String,
+    subclasses: Array,
     columnIndex: Number,
     schema: Object,
   },

@@ -1,85 +1,90 @@
 <template>
-  <div>
+  <div :style="table.drop ? 'text-decoration: line-through' : ''">
     <div>
       <div>
         <span class="hoverContainer">
           <h4
-            :id="table.name != undefined ? table.name.replaceAll(' ', '_') : ''"
-            style="display: inline-block; text-transform: none !important"
-            :style="table.drop ? 'text-decoration: line-through' : ''"
+              :id="table.name != undefined ? table.name.replaceAll(' ', '_') : ''"
+              style="display: inline-block; text-transform: none !important"
+              :style="table.drop ? 'text-decoration: line-through' : ''"
           >
-            {{ table.name }}
+            Table: {{ table.name }}
           </h4>
-          <TableEditModal v-model="table" @input="$emit('input', table)" />
-          <div class="mb-2 row">
-            <div class="col-2"><label>Description:</label></div>
-            <div class="col">{{ table.description }}</div>
-            <br />
-            <div class="definition">{{ table.semantics }}</div>
-          </div>
+          <TableEditModal v-model="table" @input="$emit('input', table)"/>
         </span>
-        <div class="row hoverContainer">
-          <div class="col">
-            <label>Subclasses:</label>
-            <IconAction
+        <span v-if="table.subclasses === undefined" class="hoverContainer">
+            (no subclasses)  <IconAction
+            icon="plus"
+            @click="createSubclass"
+            class="btn-sm hoverIcon"
+        />
+          </span>
+        <div v-else>
+          <span class="hoverContainer">
+          Subclasses:
+          <IconAction
               icon="plus"
               @click="createSubclass"
               class="btn-sm hoverIcon"
-            />
-            <div class="mb-2">
-              <div
-                v-for="(subclass, index) in table.subclasses"
-                class="row mb-2"
-                :key="table.subclasses.length + '_' + index"
-              >
-                <div class="col-2">
-                  <span class="pl-2"> {{ subclass.name }}</span>
-                  <TableEditModal
-                    v-model="table.subclasses[index]"
-                    @input="$emit('input', table)"
-                    :extendsOptions="[
+          /></span>
+          <ul>
+            <li v-for="(subclass, index) in table.subclasses" class="hoverContainer"
+                :key="table.subclasses.length + '_' + index">
+              <TableEditModal
+                  v-model="table.subclasses[index]"
+                  @input="$emit('input', table)"
+                  :extendsOptions="[
                       table.name,
                       ...table.subclasses
                         .map((subclass) => subclass.name)
                         .filter((t) => t != subclass.name),
                     ]"
-                  />
-                </div>
-                <div class="col">
-                  {{ subclass.description }}
-                  <div class="definition">extends({{ subclass.inherit }})</div>
-                </div>
-              </div>
-            </div>
-          </div>
+              />
+              {{ subclass.name }} extends {{ subclass.inherit }}<span
+                v-if="subclass.description !== undefined">: {{ subclass.description }}</span>
+            </li>
+          </ul>
         </div>
-        <div class="row hoverContainer">
-          <div class="col">
-            <label>Columns:</label>
+        <p>
+          {{
+            table.description ? table.description : "No description available"
+          }}
+        </p>
+        <div class="definition">{{ table.semantics }}</div>
+        </span>
+      </div>
+      <table class="table table-bordered">
+        <thead>
+        <tr class="hoverContainer">
+          <th style="width: 25%">
+            Column
             <IconAction
-              icon="plus"
-              @click="createColumn"
-              class="btn-sm hoverIcon"
+                icon="plus"
+                @click="createColumn"
+                class="btn-sm hoverIcon"
             />
-          </div>
-        </div>
-        <div>
-          <Draggable v-model="table.columns" @end="applyPosition()">
-            <ColumnView
+          </th>
+          <th style="width: 25%">Definition</th>
+          <th>Description</th>
+        </tr>
+        </thead>
+        <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
+          <ColumnView
               class="moveHandle"
               v-for="(column, columnIndex) in table.columns"
-              :key="columnIndex + '_' + table.columns.length"
+              :key="column.name + '_'+ columnIndex + '_' + table.columns.length"
               :tableName="table.name"
+              :subclasses="subclassNames"
               v-model="table.columns[columnIndex]"
               :schema="schema"
               :columnIndex="columnIndex"
               @input="$emit('input', table)"
               @createColumn="createColumn"
-            />
-          </Draggable>
-        </div>
-      </div>
+          />
+        </Draggable>
+      </table>
     </div>
+  </div>
   </div>
 </template>
 
@@ -98,7 +103,7 @@
 </style>
 
 <script>
-import { IconAction } from "molgenis-components";
+import {IconAction} from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
@@ -120,6 +125,13 @@ export default {
       table: {},
       columnTypes,
     };
+  },
+  computed: {
+    subclassNames() {
+      if (this.table.subclasses) {
+        return this.table.subclasses.map((subclass) => subclass.name);
+      }
+    },
   },
   methods: {
     applyPosition() {

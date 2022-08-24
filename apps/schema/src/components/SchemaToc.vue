@@ -4,12 +4,20 @@
       Tables
       <IconAction icon="plus" @click="addTable" />
     </h4>
-    <div v-if="tables">
+    <div v-if="schema.tables">
       <p
-        v-for="table in tables.filter((t) => t.externalSchema == undefined)"
+        v-for="table in schema.tables.filter(
+          (t) => t.externalSchema == undefined && t.inherit == undefined
+        )"
         :key="table.name"
       >
-        <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a>
+        <a
+          :href="'#'"
+          v-scroll-to="
+            '#' + (table.name ? table.name.replaceAll(' ', '_') : '')
+          "
+          >{{ table.name }}</a
+        >
       </p>
     </div>
   </div>
@@ -18,28 +26,30 @@
 <script>
 import Vue from "vue";
 import VueScrollTo from "vue-scrollto";
-import { IconAction } from "@mswertz/emx2-styleguide";
+import { IconAction } from "molgenis-components";
 
 Vue.use(VueScrollTo);
 
 export default {
   components: { IconAction },
   props: {
-    tables: Array,
+    /** schema v-model */
+    value: Object,
+  },
+  data() {
+    return {
+      schema: null,
+    };
   },
   methods: {
     addTable() {
-      let result = [];
-      if (this.tables) {
-        result = this.tables;
-      }
-      let name = "NewTable";
-      result.unshift({
-        name: name,
-        columns: [],
-      });
-      this.$emit("update:tables", result);
+      this.$scrollTo("#molgenis_bottom_page_anchor");
+      this.schema.tables.push({ name: undefined, columns: [] });
+      this.$emit("input", this.schema);
     },
+  },
+  created() {
+    this.schema = this.value;
   },
 };
 </script>

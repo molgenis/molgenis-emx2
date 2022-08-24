@@ -1,156 +1,138 @@
 <template>
-  <!-- when authorisation graphqlError show login-->
-  <Spinner v-if="loading" />
-  <div v-else-if="showLogin">
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <SigninForm @login="loginSuccess" @cancel="cancel" />
-  </div>
-  <!-- when update succesfull show result before close -->
+  <IconAction
+    v-if="!show"
+    class="btn-sm hoverIcon"
+    icon="pencil-alt"
+    @click="show = true"
+  />
   <LayoutModal
-    v-else-if="success"
-    :title="title"
-    :show="true"
-    @close="$emit('close')"
+    v-else
+    :title="'Edit ' + table.name"
+    @close="close"
+    :closeDisabled="isDisabled"
   >
     <template v-slot:body>
-      <MessageSuccess>{{ success }}</MessageSuccess>
+      <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
+      <InputString
+        id="table_name"
+        v-model="table.name"
+        label="Table name"
+        :errorMessage="nameInvalid"
+      />
+      <InputText
+        id="table_description"
+        v-model="table.description"
+        label="Table Description"
+      />
+      <InputSelect
+        v-if="extendsOptions"
+        id="table_extends"
+        v-model="table.inherit"
+        :required="true"
+        :options="inheritOptions"
+        :readonly="table.oldName !== undefined"
+        :errorMessage="subclassInvalid"
+        label="Extends table (can not be edited after creation)"
+      />
+      <InputString
+        id="table_semantics"
+        :list="true"
+        v-model="table.semantics"
+        label="semantics (comma separated list of IRI defining type, and/or keyword 'id')"
+      />
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="$emit('close')">Close</ButtonAction>
-    </template>
-  </LayoutModal>
-  <!-- alter or add a table -->
-  <LayoutModal v-else :title="title" :show="true" @close="$emit('close')">
-    <template v-slot:body>
-      <LayoutForm v-if="(tableDraft.oldName = null)">
-        <InputString v-model="tableDraft.name" label="Table name" />
-        <InputText v-model="tableDraft.description" label="Table Description" />
-        <InputString
-          :list="true"
-          v-model="tableDraft.semantics"
-          label="semantics (comma separated list of IRI defining type, and/or keyword 'id')"
-        />
-      </LayoutForm>
-      <div v-else>ALTER IS NOT YET IMPLEMENTED</div>
-    </template>
-    <template v-slot:footer>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-      <ButtonAction v-if="tableDraft.oldName == false" @click="executeCommand"
-        >{{ action }}
-      </ButtonAction>
+      <ButtonAction @click="close" :disabled="isDisabled">Done</ButtonAction>
+      <ButtonDanger @click="toggleDelete" v-if="table.drop != true">
+        Mark as deleted
+      </ButtonDanger>
+      <ButtonDanger @click="toggleDelete" v-else>
+        Undo mark as deleted
+      </ButtonDanger>
     </template>
   </LayoutModal>
 </template>
 
 <script>
-import {request} from 'graphql-request';
-
 import {
-  ButtonAction,
-  ButtonAlt,
   InputString,
   InputText,
-  LayoutForm,
   LayoutModal,
-  MessageError,
-  MessageSuccess,
-  SigninForm,
-  Spinner
-} from '@mswertz/emx2-styleguide';
+  IconAction,
+  ButtonDanger,
+  ButtonAction,
+  MessageWarning,
+  InputSelect,
+} from "molgenis-components";
 
 export default {
   components: {
-    MessageSuccess,
-    MessageError,
-    ButtonAction,
-    ButtonAlt,
     LayoutModal,
     InputString,
     InputText,
-    LayoutForm,
-    Spinner,
-    SigninForm
+    IconAction,
+    ButtonDanger,
+    ButtonAction,
+    MessageWarning,
+    InputSelect,
   },
   props: {
-    schema: String,
-    table: {type: Object, default: () => {}}
+    /** Table metadata object entered as v-model */
+    value: Object,
+    /** schema */
+    schema: Object,
+    /** in case of '+' subclass we show 'extends' option */
+    extendsOptions: null,
   },
   data: function () {
     return {
-      loading: false,
-      graphqlError: null,
-      success: null,
-      showLogin: false,
-      tableDraft: {}
+      /** copy of table metadata being edited now */
+      table: {},
+      /** whether modal is shown */
+      show: false,
     };
   },
   computed: {
-    title() {
-      if (this.tableDraft.command === 'CREATE') {
-        return `Create table`;
-      } else {
-        return `Alter table '${this.table.name}'`;
+    inheritOptions() {
+      if (this.extendsOptions) {
+        return this.extendsOptions.filter((value) => value != this.name);
       }
+      return null;
     },
-    action() {
-      if (this.tableDraft.command === 'CREATE') return `Create table`;
-      else return `Alter table ${this.table.name}`;
-    }
+    nameInvalid() {
+      return !this.table.name || this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+        ? "Name is required and can only contain 'azAZ_ '"
+        : null;
+    },
+    subclassInvalid() {
+      return this.extendOptions && this.table.inherit == undefined
+        ? "Extends is required in case of subclass"
+        : null;
+    },
+    isDisabled() {
+      return this.nameInvalid || this.subclassInvalid;
+    },
   },
   methods: {
-    executeCommand() {
-      this.loading = true;
-      this.graphqlError = null;
-      this.success = null;
-      request(
-        'graphql',
-        `mutation change($table:MolgenisTableInput){change(tables:[$table]){message}}`,
-        {
-          table: {
-            name: this.table.name,
-            description: this.table.description,
-            semantics: this.table.semantics
-          }
-        }
-      )
-        .then(() => {
-          if (this.table) {
-            this.success = `Table ${this.table.name} altered`;
-          } else {
-            this.success = `Table ${this.table.name} created`;
-          }
-          this.$emit('close');
-        })
-        .catch((error) => {
-          if (error.response.status === 403) {
-            this.graphqlError = 'Forbidden. Do you need to login?';
-            this.showLogin = true;
-          } else {
-            this.graphqlError = error.response.errors[0].message;
-            console.graphqlError(JSON.stringify(this.error));
-          }
-        });
-      this.loading = false;
-    }
-  },
-  watch: {
-    table: {
-      deep: true,
-      handler() {
-        this.created();
+    close() {
+      this.show = false;
+      this.$emit("input", this.table);
+    },
+    toggleDelete() {
+      //need to do deep set otherwise vue doesn't see it
+      if (!this.table.drop) {
+        this.$set(this.table, "drop", true);
+      } else {
+        this.$set(this.table, "drop", false);
       }
-    }
+    },
   },
   created() {
-    this.tableDraft = this.table;
-    if (this.tableDraft.name === null) {
-      this.tableDraft.command = 'CREATE';
-    } else {
-      this.tableDraft.command = 'ALTER';
-      this.tableDraft.oldName = this.tableDraft.name;
+    this.table = this.value;
+    //force showing of the new table editor
+    if (this.table.name === undefined) {
+      this.show = true;
     }
-  }
+  },
 };
 </script>

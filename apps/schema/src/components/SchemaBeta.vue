@@ -10,12 +10,9 @@
         </span>
       </div>
       <div>
-        <span v-if="schema.tables">
-          <JsonView :value="schema" />
-          <ButtonAction @click="showDiagram = !showDiagram">
-            {{ showDiagram ? "Hide" : "Show" }} Diagram
-          </ButtonAction></span
-        >
+        <ButtonAction @click="showDiagram = !showDiagram">
+          {{ showDiagram ? "Hide" : "Show" }} Diagram
+        </ButtonAction>
       </div>
     </div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
@@ -29,14 +26,12 @@
         </div>
       </div>
       <div class="bg-white col ml-2 overflow-auto">
-        <div>
-          <Yuml
-            :schema="schema"
-            :key="JSON.stringify(schema)"
-            v-if="showDiagram"
-          />
-          <SchemaView v-model="schema" v-if="schema.tables" />
-        </div>
+        <NomnomDiagram
+          :schema="schema"
+          :key="JSON.stringify(schema)"
+          v-if="showDiagram"
+        />
+        <SchemaView v-model="schema" v-if="schema.tables" />
       </div>
     </div>
   </div>
@@ -53,10 +48,9 @@
 
 <script>
 import { request } from "graphql-request";
-import Yuml from "./Yuml.vue";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
-import JsonView from "./JsonView.vue";
+import NomnomDiagram from "./NomnomDiagram.vue";
 import {
   ButtonAction,
   MessageError,
@@ -67,7 +61,6 @@ import {
 
 export default {
   components: {
-    Yuml,
     SchemaView,
     ButtonAction,
     MessageError,
@@ -75,7 +68,7 @@ export default {
     MessageSuccess,
     SchemaToc,
     Spinner,
-    JsonView,
+    NomnomDiagram,
   },
   data() {
     return {
@@ -98,7 +91,11 @@ export default {
       //create a map of tables
       let tableMap = tables.reduce((map, table) => {
         map[table.name] = table;
-        table.subclasses.forEach((subclass) => (map[subclass.name] = subclass));
+        if (table.subclasses) {
+          table.subclasses.forEach(
+            (subclass) => (map[subclass.name] = subclass)
+          );
+        }
         delete table.subclasses;
         return map;
       }, {});
@@ -115,6 +112,7 @@ export default {
           (column) => column.table === table.name
         );
       });
+      tables = Object.values(tableMap);
       request(
         "graphql",
         `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,

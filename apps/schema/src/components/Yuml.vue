@@ -1,12 +1,13 @@
 <template>
   <div v-if="schema.tables">
     <InputCheckbox
+      id="showAttributes"
       v-model="showAttributes"
       :defaultValue="showAttributes"
       :options="['attributes', 'external']"
     />
     <div style="text-align: center" class="overflow-auto">
-      <Spinner v-if="loadingYuml" />
+      <Spinner v-if="loadingYuml === true" />
       <img
         :class="imgFullscreen ? '' : 'img-fluid'"
         @click="imgFullscreen = !imgFullscreen"
@@ -15,61 +16,67 @@
         :src="yuml"
         alt="Small"
         style="max-height: 100%"
-        @load="loadingYuml = false"
+        @load="yumlLoaded"
       />
     </div>
   </div>
 </template>
 
 <script>
-import {Spinner, InputCheckbox} from '@mswertz/emx2-styleguide';
+import { Spinner, InputCheckbox } from "molgenis-components";
 
 export default {
   components: {
     Spinner,
-    InputCheckbox
+    InputCheckbox,
   },
   props: {
-    schema: Object
+    schema: Object,
   },
   data() {
     return {
       loadingYuml: false,
       imgFullscreen: false,
-      showAttributes: []
+      showAttributes: [],
     };
+  },
+  methods: {
+    yumlLoaded() {
+      console.log("yumlLoaded");
+      this.loadingYuml = false;
+    },
   },
   computed: {
     tables() {
       return this.schema.tables;
     },
     yuml() {
-      if (!this.tables || this.tables.length === 0) return '';
+      if (!this.tables || this.tables.length === 0) return "";
       this.loadingYuml = true;
-      let res = 'https://yuml.me/diagram/plain;dir:bt/class/';
+      let res = "https://yuml.me/diagram/plain;dir:bt/class/";
       // classes
       this.tables
         .filter(
-          (t) => !t.externalSchema || this.showAttributes.includes('external')
+          (t) => !t.externalSchema || this.showAttributes.includes("external")
         )
         .forEach((table) => {
           res += `[${table.name}`;
 
           if (
             Array.isArray(table.columns) &&
-            this.showAttributes.includes('attributes')
+            this.showAttributes.includes("attributes")
           ) {
-            res += '|';
+            res += "|";
             table.columns
               .filter((column) => !column.inherited)
               .forEach((column) => {
-                if (column.columnType.includes('REF')) {
+                if (column.columnType.includes("REF")) {
                   res += `${column.name}:${column.refTable}`;
                 } else {
                   res += `${column.name}:${column.columnType}`;
                 }
-                res += `［${column.nullable ? '0' : '1'}..${
-                  column.columnType.includes('ARRAY') ? '*' : '1'
+                res += `［${column.nullable ? "0" : "1"}..${
+                  column.columnType.includes("ARRAY") ? "*" : "1"
                 }］;`; //notice I use not standard [] to not break yuml
               });
           }
@@ -85,7 +92,7 @@ export default {
         .filter(
           (t) =>
             t.externalSchema == undefined ||
-            this.showAttributes.includes('external')
+            this.showAttributes.includes("external")
         )
         .forEach((table) => {
           if (table.inherit) {
@@ -97,12 +104,12 @@ export default {
                 (c) =>
                   !c.inherited &&
                   (c.refSchema == undefined ||
-                    this.showAttributes.includes('external'))
+                    this.showAttributes.includes("external"))
               )
               .forEach((column) => {
-                if (column.columnType === 'REF') {
+                if (column.columnType === "REF") {
                   res += `[${table.name}]${column.name}->[${column.refTable}],`;
-                } else if (column.columnType === 'REF_ARRAY') {
+                } else if (column.columnType === "REF_ARRAY") {
                   res += `[${table.name}]${column.name}-*>[${column.refTable}],`;
                 }
               });
@@ -110,7 +117,7 @@ export default {
         });
 
       return res;
-    }
-  }
+    },
+  },
 };
 </script>
