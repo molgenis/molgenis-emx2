@@ -25,6 +25,7 @@
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <InputText
+            id="schema-edit-description"
             v-model="newSchemaDescription"
             label="description"
             :defaultValue="schemaDescription"
@@ -46,8 +47,6 @@ import { request } from "graphql-request";
 import {
   ButtonAction,
   ButtonAlt,
-  IconAction,
-  LayoutForm,
   LayoutModal,
   MessageError,
   MessageSuccess,
@@ -62,9 +61,7 @@ export default {
     ButtonAction,
     ButtonAlt,
     LayoutModal,
-    LayoutForm,
     Spinner,
-    IconAction,
     InputText,
   },
   props: {

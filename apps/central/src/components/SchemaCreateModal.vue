@@ -37,24 +37,28 @@
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm :key="key">
             <InputString
+              id="schema-create-name"
               v-model="schemaName"
               label="name"
               :defaultValue="schemaName"
               :required="true"
             />
             <InputSelect
+              id="schema-create-template"
               label="template"
               description="Load existing database template"
               v-model="template"
               :options="templates"
             />
             <InputBoolean
+              id="schema-create-sample-data"
               v-if="template"
               label="load example data"
               description="Include example data in the template"
               v-model="includeDemoData"
             />
             <InputText
+              id="schema-create-description"
               v-model="schemaDescription"
               label="description (optional)"
               :defaultValue="schemaDescription"
