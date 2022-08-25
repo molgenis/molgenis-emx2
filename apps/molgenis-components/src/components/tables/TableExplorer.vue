@@ -276,7 +276,7 @@ import ConfirmModal from "../forms/ConfirmModal.vue";
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
 export default {
-  name: "ExplorerTable",
+  name: "TableExplorer",
   components: {
     ShowHide,
     Pagination,
@@ -681,8 +681,8 @@ export default {
   <div>
     <div class="border p-1 my-1">
       <label>Read only example</label>
-      <explorer-table 
-        id="my-explorer-table"
+      <table-explorer
+        id="my-table-explorer"
         tableName="Pet"
         graphqlURL="/pet store/graphql"
         :showColumns.sync="showColumns"
@@ -694,7 +694,7 @@ export default {
         :showOrder.sync="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
-      ></explorer-table>
+      ></table-explorer>
 
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
