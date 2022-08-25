@@ -52,6 +52,13 @@ public class TestTableAndColumnMetadataNotTestedElseWhere {
 
     t.alterColumn("col2", column("col2").setPosition(0));
     t.alterColumn("col3", column("col3").setPosition(1));
+
+    // when alter without position given then position should be untouched
+    t.alterColumn("col3", column("col3").setType(ColumnType.TEXT));
+    db.clearCache();
+    t = db.getSchema("testColumnPosition").getTable("test").getMetadata();
+    assertEquals((Integer) 1, t.getColumn("col3").getPosition());
+
     t.alterColumn("col1", column("col1").setPosition(2));
     assertEquals(new ArrayList<>(t.getColumnNames()).get(0), "col2");
     db.clearCache();

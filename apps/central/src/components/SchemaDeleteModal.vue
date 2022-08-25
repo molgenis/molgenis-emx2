@@ -42,8 +42,6 @@ import { request } from "graphql-request";
 import {
   ButtonAction,
   ButtonAlt,
-  IconAction,
-  LayoutForm,
   LayoutModal,
   MessageError,
   MessageSuccess,
@@ -57,9 +55,7 @@ export default {
     ButtonAction,
     ButtonAlt,
     LayoutModal,
-    LayoutForm,
     Spinner,
-    IconAction,
   },
   props: {
     schemaName: String,

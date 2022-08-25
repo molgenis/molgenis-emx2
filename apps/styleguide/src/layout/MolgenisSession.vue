@@ -113,7 +113,7 @@ export default {
       this.loading = true;
 
       const responses = await Promise.allSettled([
-        request("/apps/central/graphql", query),
+        request("/api/graphql", query),
         request(this.graphql, query),
       ]);
       const dbSettings =
