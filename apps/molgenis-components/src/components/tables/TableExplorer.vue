@@ -122,6 +122,7 @@
         <RecordCards
           v-if="!loading && view == View.CARDS"
           class="card-columns"
+          id="cards"
           :data="dataRows"
           :columns="columns"
           :table-name="tableName"
@@ -134,6 +135,7 @@
         />
         <RecordCards
           v-if="!loading && view == View.RECORD"
+          id="records"
           :data="dataRows"
           :columns="columns"
           :table-name="tableName"

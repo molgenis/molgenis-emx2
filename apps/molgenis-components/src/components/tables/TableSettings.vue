@@ -7,10 +7,10 @@
       <Spinner v-if="loading" />
       <form v-else>
         <p v-pre>
-          The data is in variable 'a'. For example,
-          <tt>{{ a }}</tt>
+          The data is in variable 'row'. For example,
+          <tt>{{ row }}</tt>
           will show all values available.
-          <tt>{{ a.name }}</tt>
+          <tt>{{ row.name }}</tt>
           will get the 'name' column
         </p>
         <InputText

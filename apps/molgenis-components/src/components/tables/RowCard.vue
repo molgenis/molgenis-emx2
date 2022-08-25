@@ -22,7 +22,7 @@
             @delete="$emit('delete', row)"
           />
         </span>
-        <VueTemplate v-if="template" :template="template" :a="row" />
+        <VueTemplate v-if="template" :template="template" :row="row" />
         <dl v-else>
           <div v-for="col in columns" :key="col.id">
             <dt

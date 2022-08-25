@@ -2,7 +2,7 @@
   <div>
     <RowCard
       v-for="(row, index) in data"
-      :key="index"
+      :key="id + '-' + index"
       :row="row"
       :columns="columns"
       :tableName="tableName"
@@ -23,6 +23,7 @@ export default {
   name: "RecordCards",
   components: { RowCard },
   props: {
+    id: String,
     data: Array,
     columns: Array,
     tableName: String,
