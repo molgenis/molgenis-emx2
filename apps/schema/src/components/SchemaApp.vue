@@ -1,6 +1,6 @@
 <template>
-  <div class="container-fluid">
-    <div class="d-flex justify-content-between">
+  <div class="container-fluid bg-white">
+    <div class="sticky-top d-flex justify-content-between">
       <div class="form-inline">
         <h1>Schema editor: {{ schema.name }}</h1>
         <span v-if="schema.tables">
@@ -41,8 +41,7 @@
 .fixedContainer {
   position: -webkit-sticky; /* Safari */
   position: sticky;
-  max-height: 100vh;
-  top: 0;
+  top: 50px;
 }
 </style>
 
@@ -102,7 +101,7 @@ export default {
       //redistribute the columns to subclasses
       tables.forEach((table) => {
         table.columns.forEach((column) => {
-          if (column.table != table.name) {
+          if (column.table !== table.name) {
             tableMap[column.table].columns.push(column);
           }
         });
@@ -128,7 +127,7 @@ export default {
           this.warning = null;
         })
         .catch((error) => {
-          if (error.response.status === 403) {
+          if (error.response.status === "403") {
             this.graphqlError = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
@@ -150,13 +149,8 @@ export default {
         })
         .catch((error) => {
           this.graphqlError = error;
-          if (
-            this.graphqlError.includes(
-              "Field '_schema' in type 'Query' is undefined"
-            )
-          ) {
-            this.error =
-              "Schema is unknown or permission denied (might you need to login with authorized user?)";
+          if (error.response.status === 400) {
+            this.graphqlError = "Schema not found. Do you need to login?";
           }
         })
         .finally(() => {
@@ -168,7 +162,7 @@ export default {
       if (schema) {
         if (schema.tables) {
           let tables = schema.tables.filter(
-            (table) => table.tableType != "ONTOLOGIES"
+            (table) => table.tableType !== "ONTOLOGIES"
           );
           tables.forEach((t) => {
             t.oldName = t.name;
@@ -195,7 +189,7 @@ export default {
       //columns of subclasses should be put in root tables, sorted by position
       // this because position can only edited in context of root table
       schema.tables.forEach((table) => {
-        if (table.inherit == undefined) {
+        if (table.inherit === undefined) {
           this.subclassTables(schema, table.name).forEach((subclass) => {
             //get columns from subclass tables
             table.columns.push(...subclass.columns);
@@ -219,7 +213,7 @@ export default {
     },
     subclassTables(schema, tableName) {
       let subclasses = schema.tables.filter(
-        (table) => table.inherit == tableName
+        (table) => table.inherit === tableName
       );
       subclasses
         .map((table) => table.name)
