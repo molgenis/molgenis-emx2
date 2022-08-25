@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.submission;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.io.submission.SubmissionRecord.SubmissionStatus.MERGED;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -82,6 +83,9 @@ public class SubmissionMergeTask extends Task {
                     // copy rows
                     List<Row> rows =
                         submissionTable.retrieveRows(); // we assume submissions to be <10k rows
+                    // is this a bug or a feature
+                    // but we must remove tableclass otherwise we update the wrong schema
+                    rows.forEach(row -> row.getValueMap().remove(MG_TABLECLASS));
                     int result = targetTable.save(rows);
                     this.addSubTask(
                             String.format("Copied %s rows from %s", result, targetTable.getName()))
