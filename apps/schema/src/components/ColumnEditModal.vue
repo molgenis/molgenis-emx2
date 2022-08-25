@@ -15,6 +15,7 @@
               id="column_name"
               v-model="column.name"
               label="columnName"
+              :errorMessage="nameInvalid"
             />
           </div>
           <div class="col-8">
@@ -143,7 +144,8 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="close">Close</ButtonAction>
+      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAlt @click="cancel">Cancel</ButtonAlt>
     </template>
   </LayoutModal>
 </template>
@@ -159,6 +161,7 @@ import {
   LayoutModal,
   ButtonAction,
   MessageWarning,
+  ButtonAlt,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 
@@ -173,6 +176,7 @@ export default {
     LayoutModal,
     ButtonAction,
     MessageWarning,
+    ButtonAlt,
   },
   props: {
     /** Column metadata object entered as v-model */
@@ -210,25 +214,33 @@ export default {
     tableNames() {
       return this.schema.tables.map((t) => t.name);
     },
+    nameInvalid() {
+      if (this.column.name === undefined || this.column.name === "") {
+        return "Name is required";
+      }
+      if (!this.column.name.match(/^[a-zA-Z]\w+$/)) {
+        return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
+      }
+      if (
+        this.value.name !== this.column.name &&
+        Array.isArray(this.table.columns) &&
+        this.table.columns.filter((c) => c.name === this.column.name).length > 0
+      ) {
+        return "Name should be unique";
+      }
+    },
+    isDisabled() {
+      return this.nameInvalid || this.subclassInvalid;
+    },
   },
   methods: {
     close() {
       this.show = false;
       this.$emit("input", this.column);
     },
-    validateName(name) {
-      if (
-        Array.isArray(this.table.columns) &&
-        this.table.columns.filter((c) => c.name === name).length !== 1
-      ) {
-        return "Name should be unique";
-      }
-      if (name === undefined) {
-        return "Name is required";
-      }
-      if (!name.match(/^[a-zA-Z]\w+$/)) {
-        return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
-      }
+    cancel() {
+      this.column = JSON.parse(JSON.stringify(this.value));
+      this.show = false;
     },
     refBackCandidates(fromTable, toTable) {
       return this.schema.tables

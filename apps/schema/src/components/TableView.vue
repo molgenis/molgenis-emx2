@@ -89,7 +89,6 @@
         </thead>
         <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
           <ColumnView
-            class="moveHandle"
             v-for="(column, columnIndex) in table.columns"
             :key="
               JSON.stringify(column) +
@@ -120,10 +119,6 @@
 
 .hoverContainer:hover .hoverIcon {
   visibility: visible;
-}
-
-.moveHandle:hover {
-  cursor: move;
 }
 </style>
 

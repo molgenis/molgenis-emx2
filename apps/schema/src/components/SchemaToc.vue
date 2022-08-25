@@ -13,9 +13,10 @@
       >
         <a
           :href="'#'"
-          v-scroll-to="
-            '#' + (table.name ? table.name.replaceAll(' ', '_') : '')
-          "
+          v-scroll-to="{
+            el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
+            offset: -50,
+          }"
           >{{ table.name }}</a
         >
       </p>

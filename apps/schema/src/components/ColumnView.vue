@@ -4,7 +4,7 @@
     :style="column.drop ? 'text-decoration: line-through' : ''"
   >
     <td>
-      <span>
+      <span class="moveHandle">
         {{ column.name }}
       </span>
       <ColumnEditModal
@@ -42,6 +42,12 @@
     <td>{{ column.description }}</td>
   </tr>
 </template>
+
+<style scoped>
+.moveHandle:hover {
+  cursor: move;
+}
+</style>
 
 <script>
 import columnTypes from "../columnTypes.js";

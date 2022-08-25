@@ -38,8 +38,13 @@ export default {
         table.columns
           .filter((column) => column.table === tableName)
           .forEach((column) => {
-            if (column.columnType.includes("REF")) {
-              res += `${column.name}: ${column.refTable}`;
+            if (
+              column.columnType.includes("REF") ||
+              column.columnType.includes("ONTOLOGY")
+            ) {
+              res += `${column.name}: ${column.columnType.toLowerCase()}(${
+                column.refTable
+              })`;
             } else {
               res += `${column.name}: ${column.columnType.toLowerCase()}`;
             }
@@ -67,7 +72,9 @@ export default {
           (t) => !t.externalSchema || this.showAttributes.includes("external")
         )
         .forEach((table) => {
-          res += `[<box> ${table.name}`;
+          res += `[${table.externalSchema ? "<external>" : "<box>"} ${
+            table.name
+          }`;
           res += this.nomnomColumnsForTable(table, table.name);
           res += "]\n";
           if (table.subclasses !== undefined) {

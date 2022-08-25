@@ -43,6 +43,7 @@
     </template>
     <template v-slot:footer>
       <ButtonAction @click="close" :disabled="isDisabled">Done</ButtonAction>
+      <ButtonAlt @click="cancel" :disabled="isDisabled">Cancel</ButtonAlt>
     </template>
   </LayoutModal>
 </template>
@@ -56,6 +57,7 @@ import {
   ButtonAction,
   MessageWarning,
   InputSelect,
+  ButtonAlt,
 } from "molgenis-components";
 
 export default {
@@ -67,6 +69,7 @@ export default {
     ButtonAction,
     MessageWarning,
     InputSelect,
+    ButtonAlt,
   },
   props: {
     /** Table metadata object entered as v-model */
@@ -105,6 +108,7 @@ export default {
         return "Name is required and can only contain 'azAZ_ '";
       }
       if (
+        this.value.name !== this.table.name &&
         this.schema.tables.filter(
           (table) =>
             table.name === this.table.name ||
@@ -131,6 +135,11 @@ export default {
     close() {
       this.show = false;
       this.$emit("input", this.table);
+    },
+    cancel() {
+      //set
+      this.table = JSON.parse(JSON.stringify(this.value));
+      this.show = false;
     },
   },
   created() {

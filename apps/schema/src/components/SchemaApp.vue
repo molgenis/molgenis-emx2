@@ -3,14 +3,14 @@
     <div class="sticky-top d-flex justify-content-between">
       <div class="form-inline">
         <h1>Schema editor: {{ schema.name }}</h1>
-        <span v-if="schema.tables">
+        <span v-if="schema.tables && dirty">
           <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>
           &nbsp;
           <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
         </span>
       </div>
       <div>
-        <ButtonAction @click="showDiagram = !showDiagram">
+        <ButtonAction @click="toggleShowDiagram">
           {{ showDiagram ? "Hide" : "Show" }} Diagram
         </ButtonAction>
       </div>
@@ -26,12 +26,17 @@
         </div>
       </div>
       <div class="bg-white col ml-2 overflow-auto">
+        <a id="molgenis_diagram_anchor"></a>
         <NomnomDiagram
           :schema="schema"
           :key="JSON.stringify(schema)"
           v-if="showDiagram"
         />
-        <SchemaView v-model="schema" v-if="schema.tables" />
+        <SchemaView
+          v-model="schema"
+          v-if="schema.tables"
+          @input="dirty = true"
+        />
       </div>
     </div>
   </div>
@@ -77,9 +82,14 @@ export default {
       warning: null,
       success: null,
       showDiagram: false,
+      dirty: false,
     };
   },
   methods: {
+    toggleShowDiagram() {
+      this.showDiagram = !this.showDiagram;
+      this.$scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
+    },
     saveSchema() {
       this.graphqlError = null;
       this.warning = "submitting changes";
@@ -139,6 +149,7 @@ export default {
     loadSchema() {
       this.graphqlError = null;
       this.loading = true;
+      this.dirty = false;
       request(
         "graphql",
         "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
