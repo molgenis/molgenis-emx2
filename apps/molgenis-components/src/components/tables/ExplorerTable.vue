@@ -119,28 +119,30 @@
         <div v-if="loading">
           <Spinner />
         </div>
-        <TableCards
+        <RecordCards
           v-if="!loading && view == View.CARDS"
+          class="card-columns"
           :data="dataRows"
           :columns="columns"
           :table-name="tableName"
           :canEdit="canEdit"
           :template="cardTemplate"
+          @click="$emit('click', $event)"
           @reload="reload"
           @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
           @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-          @click="$emit('click', $event)"
         />
-        <RecordCard
+        <RecordCards
           v-if="!loading && view == View.RECORD"
           :data="dataRows"
-          :table-name="tableName"
           :columns="columns"
+          :table-name="tableName"
           :canEdit="canEdit"
+          :template="recordTemplate"
           @click="$emit('click', $event)"
+          @reload="reload"
           @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
           @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-          :template="recordTemplate"
         />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
@@ -218,12 +220,15 @@
       @close="handleModalClose"
     />
 
-    <DeleteModal
+    <ConfirmModal
       v-if="isDeleteModalShown"
+      :title="'Delete from ' + tableName"
+      actionLabel="Delete"
+      actionType="danger"
       :tableName="tableName"
       :pkey="editRowPrimaryKey"
       @close="isDeleteModalShown = false"
-      @executeDelete="handleExecuteDelete"
+      @confirmed="handleExecuteDelete"
     />
 
     <ConfirmModal
@@ -263,11 +268,9 @@ import Spinner from "../layout/Spinner.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
-import RecordCard from "./RecordCard.vue";
+import RecordCards from "./RecordCards.vue";
 import TableSettings from "./TableSettings.vue";
-import TableCards from "./TableCards.vue";
 import EditModal from "../forms/EditModal.vue";
-import DeleteModal from "../forms/DeleteModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
@@ -287,11 +290,9 @@ export default {
     TableMolgenis,
     FilterSidebar,
     FilterWells,
-    RecordCard,
+    RecordCards,
     TableSettings,
-    TableCards,
     EditModal,
-    DeleteModal,
     ConfirmModal,
   },
   data() {

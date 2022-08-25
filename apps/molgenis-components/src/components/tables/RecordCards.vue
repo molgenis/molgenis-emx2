@@ -1,8 +1,8 @@
 <template>
-  <div class="card-columns">
+  <div>
     <RowCard
-      v-for="row in data"
-      :key="JSON.stringify(row) + template"
+      v-for="(row, index) in data"
+      :key="index"
       :row="row"
       :columns="columns"
       :tableName="tableName"
@@ -20,6 +20,7 @@
 import RowCard from "./RowCard.vue";
 
 export default {
+  name: "RecordCards",
   components: { RowCard },
   props: {
     data: Array,
