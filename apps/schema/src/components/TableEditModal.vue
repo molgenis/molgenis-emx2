@@ -9,7 +9,7 @@
     v-else
     :title="'Edit ' + table.name"
     @close="close"
-    :closeDisabled="isDisabled"
+    :isCloseButtonShown="!isDisabled"
   >
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>

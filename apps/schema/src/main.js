@@ -1,7 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
 import VueRouter from "vue-router";
-import SchemaApp from "./components/SchemaBeta.vue";
+import SchemaApp from "./components/SchemaApp.vue";
 
 Vue.config.productionTip = false;
 
