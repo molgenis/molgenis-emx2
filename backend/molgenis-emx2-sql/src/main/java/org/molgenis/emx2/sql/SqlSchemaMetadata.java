@@ -1,10 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChanges;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -312,5 +312,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public Integer getChangesCount() {
     return executeGetChangesCount(getJooq(), this);
+  }
+
+  public void enableChangeLog() {
+    ChangeLogExecutor.enableChangeLog(this.getDatabase(), this);
+  }
+
+  public void disableChangeLog() {
+    ChangeLogExecutor.disableChangeLog(this.getDatabase(), this);
+  }
+
+  public boolean isChangeLogEnabled() {
+    return ChangeLogExecutor.isChangeLogEnabled(this.getDatabase(), this);
   }
 }

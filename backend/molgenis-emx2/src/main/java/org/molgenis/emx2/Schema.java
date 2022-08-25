@@ -58,4 +58,10 @@ public interface Schema {
   List<Change> getChanges(int limit);
 
   Integer getChangesCount();
+
+  boolean isChangeLogEnabled();
+
+  void enableChangeLog();
+
+  void disableChangeLog();
 }
