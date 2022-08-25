@@ -470,7 +470,7 @@ export default {
         .deleteRow(this.editRowPrimaryKey, this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.success = resp.delete.message;
+        this.handleSuccess(resp)
         this.reload();
       }
     },
@@ -480,7 +480,7 @@ export default {
         .deleteAllTableData(this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.success = resp.delete.message;
+        this.handleSuccess(resp)
         this.reload();
       }
     },
@@ -544,6 +544,9 @@ export default {
         this.graphqlError = error;
       }
       this.loading = false;
+    },
+    handleSuccess(resp) {
+       this.success = resp.data?.data?.delete?.message;
     },
     async reload() {
       this.loading = true;
