@@ -9,7 +9,7 @@
         :key="schema.tables.length + '_' + index"
       >
         <TableView
-          v-if="table.inherit == undefined"
+          v-if="table.inherit === undefined"
           v-model="schema.tables[index]"
           :schema="schema"
           @input="$emit('input', schema)"

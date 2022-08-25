@@ -25,7 +25,7 @@
         label="Table Description"
       />
       <InputSelect
-        v-if="extendsOptions"
+        v-if="rootTable !== undefined"
         id="table_extends"
         v-model="table.inherit"
         :required="true"
@@ -43,12 +43,6 @@
     </template>
     <template v-slot:footer>
       <ButtonAction @click="close" :disabled="isDisabled">Done</ButtonAction>
-      <ButtonDanger @click="toggleDelete" v-if="table.drop != true">
-        Mark as deleted
-      </ButtonDanger>
-      <ButtonDanger @click="toggleDelete" v-else>
-        Undo mark as deleted
-      </ButtonDanger>
     </template>
   </LayoutModal>
 </template>
@@ -59,7 +53,6 @@ import {
   InputText,
   LayoutModal,
   IconAction,
-  ButtonDanger,
   ButtonAction,
   MessageWarning,
   InputSelect,
@@ -71,7 +64,6 @@ export default {
     InputString,
     InputText,
     IconAction,
-    ButtonDanger,
     ButtonAction,
     MessageWarning,
     InputSelect,
@@ -79,10 +71,10 @@ export default {
   props: {
     /** Table metadata object entered as v-model */
     value: Object,
-    /** schema */
+    /** root table, used in case of subclasses */
+    rootTable: Object,
+    /** schema, used for uniques check */
     schema: Object,
-    /** in case of '+' subclass we show 'extends' option */
-    extendsOptions: null,
   },
   data: function () {
     return {
@@ -94,18 +86,40 @@ export default {
   },
   computed: {
     inheritOptions() {
-      if (this.extendsOptions) {
-        return this.extendsOptions.filter((value) => value != this.name);
+      if (this.rootTable && this.rootTable.subclasses !== undefined) {
+        let result = [this.rootTable.name];
+        result.push(
+          ...this.rootTable.subclasses
+            .map((subclass) => subclass.name)
+            .filter((name) => name !== this.table.name)
+        );
+        return result;
+      }
+    },
+    nameInvalid() {
+      if (
+        this.table.name === undefined ||
+        this.table.name.trim() === "" ||
+        this.table.name.search(/^[a-zA-Z0-9 _]*$/)
+      ) {
+        return "Name is required and can only contain 'azAZ_ '";
+      }
+      if (
+        this.schema.tables.filter(
+          (table) =>
+            table.name === this.table.name ||
+            (table.subclasses !== undefined &&
+              table.subclasses
+                .map((subclass) => subclass.name)
+                .includes(this.table.name))
+        ).length > 0
+      ) {
+        return "Name should be unique";
       }
       return null;
     },
-    nameInvalid() {
-      return !this.table.name || this.table.name.search(/^[a-zA-Z0-9 _]*$/)
-        ? "Name is required and can only contain 'azAZ_ '"
-        : null;
-    },
     subclassInvalid() {
-      return this.extendOptions && this.table.inherit == undefined
+      return this.inheritOptions && this.table.inherit === undefined
         ? "Extends is required in case of subclass"
         : null;
     },
@@ -118,17 +132,10 @@ export default {
       this.show = false;
       this.$emit("input", this.table);
     },
-    toggleDelete() {
-      //need to do deep set otherwise vue doesn't see it
-      if (!this.table.drop) {
-        this.$set(this.table, "drop", true);
-      } else {
-        this.$set(this.table, "drop", false);
-      }
-    },
   },
   created() {
-    this.table = this.value;
+    //deep copy
+    this.table = JSON.parse(JSON.stringify(this.value));
     //force showing of the new table editor
     if (this.table.name === undefined) {
       this.show = true;

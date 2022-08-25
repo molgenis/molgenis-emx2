@@ -7,7 +7,7 @@
     <div v-if="schema.tables">
       <p
         v-for="table in schema.tables.filter(
-          (t) => t.externalSchema == undefined && t.inherit == undefined
+          (t) => t.externalSchema === undefined && t.inherit === undefined
         )"
         :key="table.name"
       >

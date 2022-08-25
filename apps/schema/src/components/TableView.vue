@@ -4,44 +4,64 @@
       <div>
         <span class="hoverContainer">
           <h4
-              :id="table.name != undefined ? table.name.replaceAll(' ', '_') : ''"
-              style="display: inline-block; text-transform: none !important"
-              :style="table.drop ? 'text-decoration: line-through' : ''"
+            :id="
+              table.name !== undefined ? table.name.replaceAll(' ', '_') : ''
+            "
+            style="display: inline-block; text-transform: none !important"
+            :style="table.drop ? 'text-decoration: line-through' : ''"
           >
             Table: {{ table.name }}
           </h4>
-          <TableEditModal v-model="table" @input="$emit('input', table)"/>
+          <TableEditModal
+            v-model="table"
+            :schema="schema"
+            @input="$emit('input', table)"
+          />
+          <IconDanger
+            @click="deleteTable(table)"
+            icon="trash"
+            class="hoverIcon"
+          />
         </span>
         <span v-if="table.subclasses === undefined" class="hoverContainer">
-            (no subclasses)  <IconAction
+          (no subclasses)
+          <IconAction
             icon="plus"
             @click="createSubclass"
             class="btn-sm hoverIcon"
-        />
-          </span>
+          />
+        </span>
         <div v-else>
           <span class="hoverContainer">
-          Subclasses:
-          <IconAction
+            Subclasses:
+            <IconAction
               icon="plus"
               @click="createSubclass"
               class="btn-sm hoverIcon"
-          /></span>
+            />
+          </span>
           <ul>
-            <li v-for="(subclass, index) in table.subclasses" class="hoverContainer"
-                :key="table.subclasses.length + '_' + index">
+            <li
+              v-for="(subclass, index) in table.subclasses"
+              class="hoverContainer"
+              :key="table.subclasses.length + '_' + index"
+              :style="subclass.drop ? 'text-decoration: line-through' : ''"
+            >
               <TableEditModal
-                  v-model="table.subclasses[index]"
-                  @input="$emit('input', table)"
-                  :extendsOptions="[
-                      table.name,
-                      ...table.subclasses
-                        .map((subclass) => subclass.name)
-                        .filter((t) => t != subclass.name),
-                    ]"
+                v-model="table.subclasses[index]"
+                :schema="schema"
+                :rootTable="table"
+                @input="$emit('input', table)"
               />
-              {{ subclass.name }} extends {{ subclass.inherit }}<span
-                v-if="subclass.description !== undefined">: {{ subclass.description }}</span>
+              <IconDanger
+                @click="deleteTable(subclass)"
+                icon="trash"
+                class="hoverIcon"
+              />
+              {{ subclass.name }} extends {{ subclass.inherit }}
+              <span v-if="subclass.description !== undefined"
+                >: {{ subclass.description }}</span
+              >
             </li>
           </ul>
         </div>
@@ -51,40 +71,45 @@
           }}
         </p>
         <div class="definition">{{ table.semantics }}</div>
-        </span>
       </div>
       <table class="table table-bordered">
         <thead>
-        <tr class="hoverContainer">
-          <th style="width: 25%">
-            Column
-            <IconAction
+          <tr class="hoverContainer">
+            <th style="width: 25%" scope="col">
+              Column
+              <IconAction
                 icon="plus"
                 @click="createColumn"
                 class="btn-sm hoverIcon"
-            />
-          </th>
-          <th style="width: 25%">Definition</th>
-          <th>Description</th>
-        </tr>
+              />
+            </th>
+            <th style="width: 25%" scope="col">Definition</th>
+            <th scope="col">Description</th>
+          </tr>
         </thead>
         <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
           <ColumnView
-              class="moveHandle"
-              v-for="(column, columnIndex) in table.columns"
-              :key="column.name + '_'+ columnIndex + '_' + table.columns.length"
-              :tableName="table.name"
-              :subclasses="subclassNames"
-              v-model="table.columns[columnIndex]"
-              :schema="schema"
-              :columnIndex="columnIndex"
-              @input="$emit('input', table)"
-              @createColumn="createColumn"
+            class="moveHandle"
+            v-for="(column, columnIndex) in table.columns"
+            :key="
+              JSON.stringify(column) +
+              '_' +
+              columnIndex +
+              '_' +
+              table.columns.length
+            "
+            :style="
+              isSubclassDropped(column) ? 'text-decoration: line-through' : ''
+            "
+            v-model="table.columns[columnIndex]"
+            :schema="schema"
+            :columnIndex="columnIndex"
+            @input="$emit('input', table)"
+            @createColumn="createColumn"
           />
         </Draggable>
       </table>
     </div>
-  </div>
   </div>
 </template>
 
@@ -103,7 +128,7 @@
 </style>
 
 <script>
-import {IconAction} from "molgenis-components";
+import { IconAction, IconDanger } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
@@ -115,6 +140,7 @@ export default {
     IconAction,
     ColumnView,
     Draggable,
+    IconDanger,
   },
   props: {
     value: Object,
@@ -126,13 +152,6 @@ export default {
       columnTypes,
     };
   },
-  computed: {
-    subclassNames() {
-      if (this.table.subclasses) {
-        return this.table.subclasses.map((subclass) => subclass.name);
-      }
-    },
-  },
   methods: {
     applyPosition() {
       let position = 1;
@@ -143,8 +162,25 @@ export default {
       if (!this.name) {
         return "Table name is required";
       }
-      if (this.schema.tables.filter((t) => t.name == this.name).length > 1) {
+      if (this.schema.tables.filter((t) => t.name === this.name).length > 1) {
         return "Table name must be unique within schema";
+      }
+    },
+    deleteTable(table) {
+      if (!table.drop) {
+        //need to do deep set otherwise vue doesn't see it
+        this.$set(table, "drop", true);
+      } else {
+        this.$set(table, "drop", false);
+      }
+    },
+    isSubclassDropped(column) {
+      if (column.table === this.table.name) {
+        return this.table.drop;
+      } else {
+        return this.table.subclasses.filter(
+          (subclass) => subclass.name === column.table
+        )[0].drop;
       }
     },
     createColumn(position) {

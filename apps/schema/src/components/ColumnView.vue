@@ -10,9 +10,9 @@
       <ColumnEditModal
         v-model="column"
         :schema="schema"
-        :subclasses="subclasses"
         @input="$emit('input', column)"
       />
+      <IconDanger class="hoverIcon" icon="trash" @click="deleteColumn" />
       <IconAction
         class="hoverIcon"
         icon="plus"
@@ -20,7 +20,7 @@
       />
     </td>
     <td>
-      <span v-if="column.table != tableName">
+      <span v-if="column.table !== rootTableName">
         subclass={{ column.table }}
       </span>
       <span v-if="column.refTable">
@@ -46,12 +46,13 @@
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconAction } from "molgenis-components";
+import { IconAction, IconDanger } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
     IconAction,
+    IconDanger,
   },
   data() {
     return {
@@ -62,10 +63,19 @@ export default {
   },
   props: {
     value: Object,
-    tableName: String,
-    subclasses: Array,
-    columnIndex: Number,
     schema: Object,
+  },
+  computed: {
+    rootTableName() {
+      return this.schema.tables.filter(
+        (table) =>
+          table.name === this.column.table ||
+          (table.subclasses !== undefined &&
+            table.subclasses
+              .map((subclass) => subclass.name)
+              .includes(this.column.table))
+      )[0].name;
+    },
   },
   methods: {
     deleteColumn() {
@@ -74,7 +84,7 @@ export default {
       } else {
         this.column.drop = true;
       }
-      this.$emit("input", this.column);
+      this.emitValue();
     },
     emitValue() {
       this.$emit("input", this.column);

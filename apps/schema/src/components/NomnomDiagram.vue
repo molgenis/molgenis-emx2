@@ -28,18 +28,27 @@ export default {
     };
   },
   methods: {
-    getRootTable(tableName) {
-      let result = tableName;
-      this.schema.tables.forEach((table) => {
-        if (table.subclasses !== undefined) {
-          table.subclasses.forEach((subclass) => {
-            if (subclass.name === tableName) {
-              result = table.name;
+    nomnomColumnsForTable(table, tableName) {
+      let res = "";
+      if (
+        Array.isArray(table.columns) &&
+        this.showAttributes.includes("attributes")
+      ) {
+        res += "|";
+        table.columns
+          .filter((column) => column.table === tableName)
+          .forEach((column) => {
+            if (column.columnType.includes("REF")) {
+              res += `${column.name}: ${column.refTable}`;
+            } else {
+              res += `${column.name}: ${column.columnType.toLowerCase()}`;
             }
+            res += `${column.nullable ? ";" : "*;"}`;
           });
-        }
-      });
-      return result;
+        //remove trailing ;
+        res = res.replace(/;\s*$/, "");
+      }
+      return res;
     },
   },
   computed: {
@@ -59,48 +68,12 @@ export default {
         )
         .forEach((table) => {
           res += `[<box> ${table.name}`;
-          if (
-            Array.isArray(table.columns) &&
-            this.showAttributes.includes("attributes")
-          ) {
-            res += "|";
-            table.columns
-              .filter((column) => column.table === table.name)
-              .forEach((column) => {
-                if (column.columnType.includes("REF")) {
-                  res += `${column.name}: ${column.refTable}`;
-                } else {
-                  res += `${column.name}: ${column.columnType.toLowerCase()}`;
-                }
-                res += `${column.nullable ? ";" : "*;"}`;
-              });
-            //remove trailing ;
-            res = res.replace(/;\s*$/, "");
-          }
+          res += this.nomnomColumnsForTable(table, table.name);
           res += "]\n";
-          if (table.subclasses != undefined) {
+          if (table.subclasses !== undefined) {
             table.subclasses.forEach((subclass) => {
               res += `[<box> ${subclass.name}`;
-              if (
-                Array.isArray(table.columns) &&
-                this.showAttributes.includes("attributes")
-              ) {
-                res += "|";
-                table.columns
-                  .filter((column) => column.table === subclass.name)
-                  .forEach((column) => {
-                    if (column.columnType.includes("REF")) {
-                      res += `${column.name}: ${column.refTable}`;
-                    } else {
-                      res += `${
-                        column.name
-                      }: ${column.columnType.toLowerCase()}`;
-                    }
-                    res += `${column.nullable ? ";" : "*;"}`;
-                  });
-                //remove trailing ;
-                res = res.replace(/;\s*$/, "");
-              }
+              res += this.nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
               res += `[<box>${subclass.inherit}]<:-[<box>${subclass.name}]\n`;
             });
@@ -111,7 +84,7 @@ export default {
       this.tables
         .filter(
           (t) =>
-            t.externalSchema == undefined ||
+            t.externalSchema === undefined ||
             this.showAttributes.includes("external")
         )
         .forEach((table) => {
@@ -120,7 +93,7 @@ export default {
               .filter(
                 (c) =>
                   !c.inherited &&
-                  (c.refSchema == undefined ||
+                  (c.refSchema === undefined ||
                     this.showAttributes.includes("external"))
               )
               .forEach((column) => {
