@@ -90,9 +90,9 @@ export default {
   },
   computed: {
     columnsWithoutMeta() {
-      return this.tableMetaData.columns.filter(
+      return this.tableMetaData && this.tableMetaData.columns ? this.tableMetaData.columns.filter(
         (column) => !column.name.startsWith("mg_")
-      );
+      ): [];
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
@@ -138,12 +138,14 @@ export default {
       return true;
     },
     validateTable() {
-      this.tableMetaData?.columns.forEach((column) => {
-        this.errorPerColumn[column.id] = this.getColumnError(
-          column,
-          this.internalValues
-        );
-      });
+      if (this.tableMetaData && this.tableMetaData.columns) {
+        this.tableMetaData.columns.forEach((column) => {
+          this.errorPerColumn[column.id] = this.getColumnError(
+            column,
+            this.internalValues
+          );
+        });
+      }
     },
     getColumnError(column, values) {
       const value = values[column.id];

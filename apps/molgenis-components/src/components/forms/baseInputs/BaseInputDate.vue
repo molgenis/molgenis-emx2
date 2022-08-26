@@ -33,16 +33,10 @@ export default {
   },
   props: {
     readonly: { type: Boolean, default: false },
-  },
-  computed: {
-    config() {
-      return {
-        wrap: false,
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        clickOpens: !this.readonly,
-      };
-    },
+    config: {
+      type: Object,
+      required: true,
+    }
   },
 };
 </script>
