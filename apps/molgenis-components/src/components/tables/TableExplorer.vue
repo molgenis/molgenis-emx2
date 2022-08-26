@@ -564,7 +564,10 @@ export default {
       }
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
+          limit: this.limit,
+          offset: this.offset,
           filter: this.graphqlFilter,
+          searchTerms: this.searchTerms,
           orderby: this.orderByColumn
             ? { [this.orderByColumn]: this.order }
             : {},
@@ -577,6 +580,12 @@ export default {
     },
   },
   watch: {
+    searchTerms: {
+      handler(newValue) {
+        this.$emit('searchTerms', newValue);
+        this.reload();
+      }
+    },
     page() {
       this.loading = true;
       this.offset = this.limit * (this.page - 1);
