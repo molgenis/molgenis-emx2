@@ -35,7 +35,10 @@ export default {
   components: { IconAction },
   props: {
     /** schema v-model */
-    value: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {

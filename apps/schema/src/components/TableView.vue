@@ -138,8 +138,14 @@ export default {
     IconDanger,
   },
   props: {
-    value: Object,
-    schema: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
+    schema: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {

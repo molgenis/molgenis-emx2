@@ -16,7 +16,10 @@ import { InputCheckbox } from "molgenis-components";
 
 export default {
   props: {
-    schema: Object,
+    schema: {
+      type: Object,
+      required: true,
+    },
   },
   components: {
     InputCheckbox,

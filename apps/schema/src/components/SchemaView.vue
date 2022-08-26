@@ -27,7 +27,10 @@ export default {
     TableView,
   },
   props: {
-    value: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {

@@ -180,9 +180,15 @@ export default {
   },
   props: {
     /** Column metadata object entered as v-model */
-    value: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
     /** schema  column is part of, used for ref options*/
-    schema: Object,
+    schema: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {

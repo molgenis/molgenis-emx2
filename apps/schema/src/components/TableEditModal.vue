@@ -73,11 +73,20 @@ export default {
   },
   props: {
     /** Table metadata object entered as v-model */
-    value: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
     /** root table, used in case of subclasses */
-    rootTable: Object,
+    rootTable: {
+      type: Object,
+      required: false,
+    },
     /** schema, used for uniques check */
-    schema: Object,
+    schema: {
+      type: Object,
+      required: true,
+    },
   },
   data: function () {
     return {
@@ -90,7 +99,7 @@ export default {
   computed: {
     inheritOptions() {
       if (this.rootTable && this.rootTable.subclasses !== undefined) {
-        let result = [this.rootTable.name];
+        const result = [this.rootTable.name];
         result.push(
           ...this.rootTable.subclasses
             .map((subclass) => subclass.name)
@@ -98,6 +107,7 @@ export default {
         );
         return result;
       }
+      return undefined;
     },
     nameInvalid() {
       if (

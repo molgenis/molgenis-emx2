@@ -9,7 +9,7 @@
           <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
         </span>
       </div>
-      <div>
+      <div v-if="schema.tables">
         <ButtonAction @click="toggleShowDiagram">
           {{ showDiagram ? "Hide" : "Show" }} Diagram
         </ButtonAction>
@@ -21,7 +21,7 @@
     <Spinner v-if="loading === true || !schema.tables" />
     <div v-else class="row">
       <div class="col-2 bg-white">
-        <div class="fixedContainer mr-n3 overflow-auto">
+        <div class="sticky-top mr-n3 overflow-auto" style="top: 50px">
           <SchemaToc v-model="schema" v-if="schema.tables" />
         </div>
       </div>
@@ -41,14 +41,6 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-.fixedContainer {
-  position: -webkit-sticky; /* Safari */
-  position: sticky;
-  top: 50px;
-}
-</style>
 
 <script>
 import { request } from "graphql-request";
@@ -98,7 +90,7 @@ export default {
 
       //transform subclasses back into their original tables.
       //create a map of tables
-      let tableMap = tables.reduce((map, table) => {
+      const tableMap = tables.reduce((map, table) => {
         map[table.name] = table;
         if (table.subclasses) {
           table.subclasses.forEach(
