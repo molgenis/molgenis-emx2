@@ -107,6 +107,7 @@ import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
 //task
 import SubTask from "../src/components/task/SubTask.vue";
+import Task from "../src/components/task/Task.vue";
 
 export {
   ContactDisplay,
@@ -186,6 +187,7 @@ export {
   ExplorerTable,
   TableMolgenis,
   TableSimple,
+  Task,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
