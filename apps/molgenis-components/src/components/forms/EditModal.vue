@@ -2,6 +2,7 @@
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <RowEdit
+        v-if="loaded"
         :id="id"
         v-model="rowData"
         :pkey="pkey"
@@ -42,6 +43,7 @@ export default {
       tableMetaData: {},
       client: null,
       errorMessage: null,
+      loaded: true
     };
   },
   props: {
@@ -133,6 +135,7 @@ export default {
     },
   },
   async mounted() {
+    this.loaded = false
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -151,6 +154,7 @@ export default {
         );
       }
     }
+    this.loaded = true;
   },
 };
 </script>
