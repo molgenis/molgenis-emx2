@@ -8,7 +8,7 @@
     >
       <FilterInput
         :id="'filter-' + filter.name"
-        :conditions="filters[index].conditions"
+        :conditions="visibleFilters[index].conditions"
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
         :tableName="filter.refTable"
@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     handleUpdateFilter(index, event) {
-      let newFilters = [...this.filters];
+      let newFilters = [...this.visibleFilters];
       newFilters[index].conditions = event;
       this.$emit("updateFilters", newFilters);
     },
@@ -87,7 +87,7 @@ export default {
           {
             name: "pets",
             columnType: "REF",
-            showFilter: true,
+            showFilter: false,
             expanded: true,
             conditions: [],
             refTable: "Pet",
