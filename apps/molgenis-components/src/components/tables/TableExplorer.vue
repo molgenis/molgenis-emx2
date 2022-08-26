@@ -439,11 +439,12 @@ export default {
                 between: conditions.flat(),
               };
             } else {
-              alert(
+              const msg =
                 "filter unsupported for column type '" +
-                  col.columnType +
-                  "' (please report a bug)"
-              );
+                col.columnType +
+                "' (please report a bug)";
+              console.log(msg);
+              this.graphqlError = msg;
             }
           }
         });
@@ -472,7 +473,7 @@ export default {
         .deleteRow(this.editRowPrimaryKey, this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.handleSuccess(resp)
+        this.handleSuccess(resp);
         this.reload();
       }
     },
@@ -482,7 +483,7 @@ export default {
         .deleteAllTableData(this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.handleSuccess(resp)
+        this.handleSuccess(resp);
         this.reload();
       }
     },
@@ -548,7 +549,7 @@ export default {
       this.loading = false;
     },
     handleSuccess(resp) {
-       this.success = resp.data?.data?.delete?.message;
+      this.success = resp.data?.data?.delete?.message;
     },
     async reload() {
       this.loading = true;
@@ -582,9 +583,9 @@ export default {
   watch: {
     searchTerms: {
       handler(newValue) {
-        this.$emit('searchTerms', newValue);
+        this.$emit("searchTerms", newValue);
         this.reload();
-      }
+      },
     },
     page() {
       this.loading = true;
