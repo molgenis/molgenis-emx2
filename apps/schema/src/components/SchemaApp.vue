@@ -36,7 +36,10 @@
           v-model="schema"
           :schemaNames="schemaNames"
           v-if="schema.tables"
-          @input="dirty = true"
+          @input="
+            dirty = true;
+            success = null;
+          "
         />
       </div>
     </div>
@@ -85,10 +88,13 @@ export default {
       this.$scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
     },
     saveSchema() {
+      this.loading = true;
       this.graphqlError = null;
       this.warning = "submitting changes";
-      let tables = this.schema.tables;
-      this.schema.tables = null; //hide it all
+      this.success = null;
+      //copy so in case of error user can continue to edit
+      let schema = JSON.parse(JSON.stringify(this.schema));
+      let tables = schema.tables;
 
       //transform subclasses back into their original tables.
       //create a map of tables
@@ -128,7 +134,6 @@ export default {
           this.loadSchema();
           this.warning = null;
           this.success = `Schema saved`;
-          this.warning = null;
         })
         .catch((error) => {
           if (error.response.status === "403") {
@@ -136,12 +141,14 @@ export default {
             this.showLogin = true;
           } else {
             this.graphqlError = error.response.errors[0].message;
-            this.loading = false;
           }
+          this.warning = null;
+          this.loading = false;
         });
       this.loading = false;
     },
     loadSchema() {
+      console.log("load schema");
       this.graphqlError = null;
       this.loading = true;
       this.dirty = false;
@@ -159,11 +166,8 @@ export default {
           if (error.response.status === 400) {
             this.graphqlError = "Schema not found. Do you need to login?";
           }
-        })
-        .finally(() => {
-          this.loading = false;
-          this.warning = null;
         });
+      this.loading = false;
     },
     addOldNamesAndRemoveMeta(schema) {
       if (schema) {

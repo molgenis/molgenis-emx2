@@ -82,9 +82,10 @@
               (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
             "
           >
-            <InputString
+            <InputSelect
               id="column_refLink"
               v-model="column.refLink"
+              :options="refLinkCandidates(column)"
               label="refLink"
               description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
             />
@@ -275,6 +276,15 @@ export default {
     cancel() {
       this.column = JSON.parse(JSON.stringify(this.value));
       this.show = false;
+    },
+    refLinkCandidates(column) {
+      return this.table.columns
+        .filter(
+          (c) =>
+            (c.columnType == "REF" || c.columnType == "REF_ARRAY") &&
+            c.name !== column.name
+        )
+        .map((c) => c.name);
     },
     refBackCandidates(fromTable, toTable) {
       const schema =
