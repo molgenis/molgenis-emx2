@@ -63,7 +63,7 @@ export default {
     },
     /** Shown as the title of the model */
     title: { type: String, default: "" },
-    isCloseButtonShown: true,
+    isCloseButtonShown: { type: Boolean, default: true },
   },
   methods: {
     close() {
