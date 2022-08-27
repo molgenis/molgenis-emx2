@@ -8,11 +8,11 @@ module.exports = {
     target: `${HOST}/${SCHEMA}`,
     ...opts,
   },
-  "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
-  "/api": { target: `${HOST}`, ...opts },
-  "/apps": { target: `${HOST}`, ...opts },
   "^/[a-zA-Z0-9_.-]+/graphql": {
     target: `${HOST}`,
     ...opts,
   },
+  "/api": { target: `${HOST}`, ...opts },
+  "/apps": { target: `${HOST}`, ...opts },
+  "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
 };
