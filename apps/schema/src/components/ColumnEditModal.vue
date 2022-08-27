@@ -7,8 +7,10 @@
   />
   <LayoutModal v-else @close="close">
     <template v-slot:body>
-      <LayoutForm v-if="value">
+      <Spinner v-if="loading" />
+      <LayoutForm v-else>
         <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
+        <MessageError v-if="error">{{ error }}</MessageError>
         <div class="row">
           <div class="col-4">
             <InputString
@@ -55,6 +57,13 @@
               "
               :options="tableNames"
               label="refTable"
+            />
+            <InputSelect
+              id="column_refSchema"
+              v-model="column.refSchema"
+              :options="schemaNames"
+              @input="loadRefSchema"
+              label="refSchema"
             />
           </div>
           <div
@@ -162,6 +171,8 @@ import {
   ButtonAction,
   MessageWarning,
   ButtonAlt,
+  Client,
+  Spinner,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 
@@ -177,6 +188,7 @@ export default {
     ButtonAction,
     MessageWarning,
     ButtonAlt,
+    Spinner,
   },
   props: {
     /** Column metadata object entered as v-model */
@@ -189,6 +201,11 @@ export default {
       type: Object,
       required: true,
     },
+    /** list of schemas for externalSchema select */
+    schemaNames: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
@@ -198,6 +215,11 @@ export default {
       column: null,
       //the type options
       columnTypes,
+      //in case a refSchema has to be used for the table lookup
+      refSchema: undefined,
+      error: null,
+      client: null,
+      loading: false,
     };
   },
   computed: {
@@ -218,7 +240,11 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      return this.schema.tables.map((t) => t.name);
+      if (this.refSchema !== undefined) {
+        return this.refSchema.tables.map((t) => t.name);
+      } else {
+        return this.schema.tables.map((t) => t.name);
+      }
     },
     nameInvalid() {
       if (this.column.name === undefined || this.column.name === "") {
@@ -249,11 +275,30 @@ export default {
       this.show = false;
     },
     refBackCandidates(fromTable, toTable) {
-      return this.schema.tables
+      const schema =
+        this.refSchema !== undefined ? this.refSchema : this.schema;
+      return schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0]
         .filter((c) => c.refTable === toTable)
         .map((c) => c.name);
+    },
+    async loadRefSchema() {
+      this.error = undefined;
+      this.loading = true;
+      if (this.column.refSchema !== undefined) {
+        this.client = Client.newClient(
+          "/" + this.column.refSchema + "/graphql",
+          this.$axios
+        );
+        const schema = await this.client.fetchMetaData((error) => {
+          this.error = error;
+        });
+        this.refSchema = schema;
+      } else {
+        this.refSchema = {};
+      }
+      this.loading = false;
     },
   },
   created() {
@@ -262,6 +307,10 @@ export default {
     //show new columns in editor
     if (this.column.name === undefined) {
       this.show = true;
+    }
+    //if reference to external schema
+    if (this.column.refSchema != undefined) {
+      this.loadRefSchema();
     }
   },
 };

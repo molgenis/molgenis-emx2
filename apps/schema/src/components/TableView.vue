@@ -102,7 +102,7 @@
             "
             v-model="table.columns[columnIndex]"
             :schema="schema"
-            :columnIndex="columnIndex"
+            :schemaNames="schemaNames"
             @input="$emit('input', table)"
             @createColumn="createColumn"
           />
@@ -144,6 +144,10 @@ export default {
     },
     schema: {
       type: Object,
+      required: true,
+    },
+    schemaNames: {
+      type: Array,
       required: true,
     },
   },

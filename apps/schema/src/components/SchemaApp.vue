@@ -21,7 +21,7 @@
     <Spinner v-if="loading === true || !schema.tables" />
     <div v-else class="row">
       <div class="col-2 bg-white">
-        <div class="sticky-top mr-n3 overflow-auto" style="top: 50px">
+        <div class="sticky-top mr-n3 overflow-auto vh-100" style="top: 50px">
           <SchemaToc v-model="schema" v-if="schema.tables" />
         </div>
       </div>
@@ -34,6 +34,7 @@
         />
         <SchemaView
           v-model="schema"
+          :schemaNames="schemaNames"
           v-if="schema.tables"
           @input="dirty = true"
         />
@@ -74,6 +75,7 @@ export default {
       warning: null,
       success: null,
       showDiagram: false,
+      schemaNames: [],
       dirty: false,
     };
   },
@@ -144,11 +146,12 @@ export default {
       this.dirty = false;
       request(
         "graphql",
-        "{_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
           let _schema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(_schema);
+          this.schemaNames = data._session.schemas;
         })
         .catch((error) => {
           this.graphqlError = error;

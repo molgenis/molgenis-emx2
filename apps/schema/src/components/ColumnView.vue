@@ -10,6 +10,7 @@
       <ColumnEditModal
         v-model="column"
         :schema="schema"
+        :schemaNames="schemaNames"
         @input="$emit('input', column)"
       />
       <IconDanger class="hoverIcon" icon="trash" @click="deleteColumn" />
@@ -74,6 +75,10 @@ export default {
     },
     schema: {
       type: Object,
+      required: true,
+    },
+    schemaNames: {
+      type: Array,
       required: true,
     },
   },

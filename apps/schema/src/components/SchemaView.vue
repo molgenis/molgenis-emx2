@@ -12,6 +12,7 @@
           v-if="table.inherit === undefined"
           v-model="schema.tables[index]"
           :schema="schema"
+          :schemaNames="schemaNames"
           @input="$emit('input', schema)"
       /></span>
     </div>
@@ -29,6 +30,10 @@ export default {
   props: {
     value: {
       type: Object,
+      required: true,
+    },
+    schemaNames: {
+      type: Array,
       required: true,
     },
   },
