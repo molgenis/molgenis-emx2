@@ -6,6 +6,15 @@
     <td>
       <span class="moveHandle">
         {{ column.name }}
+        <span v-if="column.semantics">
+          (<a
+            :href="purl"
+            target="_blank"
+            v-for="purl in column.semantics"
+            :key="purl"
+            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          >)
+        </span>
       </span>
       <ColumnEditModal
         v-model="column"

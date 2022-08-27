@@ -11,6 +11,15 @@
             :style="table.drop ? 'text-decoration: line-through' : ''"
           >
             Table: {{ table.name }}
+            <span v-if="table.semantics" class="small">
+              (<a
+                :href="purl"
+                target="_blank"
+                v-for="purl in table.semantics"
+                :key="purl"
+                >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+              >)
+            </span>
           </h4>
           <TableEditModal
             v-model="table"
@@ -70,7 +79,6 @@
             table.description ? table.description : "No description available"
           }}
         </p>
-        <div class="definition">{{ table.semantics }}</div>
       </div>
       <table class="table table-bordered">
         <thead>
