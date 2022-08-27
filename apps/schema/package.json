@@ -6,7 +6,7 @@
     "dist"
   ],
   "scripts": {
-    "serve": "vite",
+    "serve": "vite --debug",
     "build": "vite build",
     "lint": "vite lint"
   },

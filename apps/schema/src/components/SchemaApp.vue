@@ -136,6 +136,7 @@ export default {
             this.showLogin = true;
           } else {
             this.graphqlError = error.response.errors[0].message;
+            this.loading = false;
           }
         });
       this.loading = false;

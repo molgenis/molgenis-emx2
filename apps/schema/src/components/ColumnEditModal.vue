@@ -5,7 +5,7 @@
     icon="pencil-alt"
     @click="show = true"
   />
-  <LayoutModal v-else @close="close">
+  <LayoutModal v-else @close="close" :isCloseButtonShown="!isDisabled">
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
@@ -64,15 +64,10 @@
               :options="schemaNames"
               @input="loadRefSchema"
               label="refSchema"
+              description="When you want to refer to table in another schema"
             />
           </div>
-          <div
-            class="col-4"
-            v-if="
-              column.columnType === 'REFBACK' &&
-              refBackCandidates(column.refTable, table.name).length > 1
-            "
-          >
+          <div class="col-4" v-if="column.columnType === 'REFBACK'">
             <InputSelect
               id="column_refBack"
               label="refBack"
@@ -91,6 +86,7 @@
               id="column_refLink"
               v-model="column.refLink"
               label="refLink"
+              description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
             />
           </div>
         </div>
@@ -102,6 +98,8 @@
               :label="column.visibleIf ? 'required (if visible)' : 'required'"
             />
           </div>
+        </div>
+        <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
             <InputSelect
               id="column_key"
@@ -128,6 +126,8 @@
               description="{other} > 5"
             />
           </div>
+        </div>
+        <div class="row">
           <div class="col-4">
             <InputString
               id="column_semantics"
@@ -137,17 +137,19 @@
             />
           </div>
         </div>
-        <div class="row" v-if="subclassNames !== undefined">
-          <div class="col">
-            <InputSelect
-              :readonly="column.oldName !== undefined"
-              id="column_table"
-              v-model="column.table"
-              :options="subclassNames"
-              :list="true"
-              label="Available in subclass"
-              description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
-            />
+        <div class="row">
+          <div class="row" v-if="subclassNames !== undefined">
+            <div class="col">
+              <InputSelect
+                :readonly="column.oldName !== undefined"
+                id="column_table"
+                v-model="column.table"
+                :options="subclassNames"
+                :list="true"
+                label="Available in subclass"
+                description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
+              />
+            </div>
           </div>
         </div>
       </LayoutForm>
@@ -277,11 +279,14 @@ export default {
     refBackCandidates(fromTable, toTable) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-      return schema.tables
+
+      const columns = schema.tables
         .filter((t) => t.name === fromTable)
-        .map((t) => t.columns)[0]
-        .filter((c) => c.refTable === toTable)
-        .map((c) => c.name);
+        .map((t) => t.columns)[0];
+      if (columns != undefined) {
+        return columns.filter((c) => c.refTable === toTable).map((c) => c.name);
+      }
+      return undefined;
     },
     async loadRefSchema() {
       this.error = undefined;
