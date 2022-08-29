@@ -8,10 +8,11 @@ import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import spark.Request;
 
@@ -94,6 +95,7 @@ public class GenomicVariantsResponse {
     for (Table table : genomicVariantTables) {
 
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
+      // todo not good enough - only 'name' of OntologyTerm inside a reference can be queried this way, we miss code and codesystem! replace by GraphQL
       Query query = table.query();
       selectColumns(table, query);
 
@@ -143,21 +145,36 @@ public class GenomicVariantsResponse {
           // todo optional parameter: variantMaxLength
       }
 
+      String queryResultJSON = query.retrieveJSON();
+      Map<String, Object> queryResult = new ObjectMapper().readValue(queryResultJSON, Map.class);
+      List<Map<String, Object>> gvarListFromJSON =
+          (List<Map<String, Object>>) queryResult.get("GenomicVariations");
+
       List<GenomicVariantsResultSetsItem> genomicVariantsItemList = new ArrayList<>();
-      for (Row row : query.retrieveRows()) {
-        GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
-        genomicVariantsItem.setVariantInternalId(row.getString("variantInternalId"));
-        genomicVariantsItem.setVariantType(row.getString("variantType"));
-        genomicVariantsItem.setReferenceBases(row.getString("referenceBases"));
-        genomicVariantsItem.setAlternateBases(row.getString("alternateBases"));
-        genomicVariantsItem.setGeneId(row.getString("geneId"));
-        genomicVariantsItem.setPosition(
-            new Position(
-                row.getString("position_assemblyId"),
-                row.getString("position_refseqId"),
-                new Long[] {row.getLong("position_start")},
-                new Long[] {row.getLong("position_end")}));
-        genomicVariantsItemList.add(genomicVariantsItem);
+
+      if (gvarListFromJSON != null) {
+        for (Map map : gvarListFromJSON) {
+          GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
+          genomicVariantsItem.setVariantInternalId((String) map.get("variantInternalId"));
+          genomicVariantsItem.setVariantType((String) map.get("variantType"));
+          genomicVariantsItem.setReferenceBases((String) map.get("referenceBases"));
+          genomicVariantsItem.setAlternateBases((String) map.get("alternateBases"));
+          genomicVariantsItem.setGeneId((String) map.get("geneId"));
+          genomicVariantsItem.setPosition(
+              new Position(
+                  (String) map.get("position_assemblyId"),
+                  (String) map.get("position_refseqId"),
+                  // FIXME: should be Long but that results in class java.lang.Integer cannot be
+                  // cast to class java.lang.Long (java.lang.Integer and java.lang.Long are in
+                  // module java.base of loader 'bootstrap') see
+                  // https://github.com/molgenis/molgenis-emx2/issues/1547
+                  new Long[] {((Integer) map.get("position_start")).longValue()},
+                  new Long[] {((Integer) map.get("position_end")).longValue()}));
+          genomicVariantsItem.setVariantLevelData(
+              new VariantLevelData(
+                  ClinicalInterpretations.get(map.get("clinicalInterpretations"))));
+          genomicVariantsItemList.add(genomicVariantsItem);
+        }
       }
       if (genomicVariantsItemList.size() > 0) {
         GenomicVariantsResultSets genomicVariantsResultSets =
