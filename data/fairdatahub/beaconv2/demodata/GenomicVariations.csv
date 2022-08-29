@@ -1,5 +1,5 @@
-variantInternalId,variantType,referenceBases,alternateBases,position_assemblyId,position_refseqId,position_start,position_end,geneId
-20:2447951..2447952c>g,SNP,c,g,GRCh37,20,2447951,2447952,SNRPB
+variantInternalId,variantType,referenceBases,alternateBases,position_assemblyId,position_refseqId,position_start,position_end,geneId,clinicalInterpretations
+20:2447951..2447952c>g,SNP,c,g,GRCh37,20,2447951,2447952,SNRPB,"Var001_CI001,Var001_CI002"
 20:2447955..2447958c>g,SNP,c,g,GRCh37,20,2447955,2447958,SNRPB
 20:2447946..2447950c>g,SNP,c,g,GRCh37,20,2447946,2447950,SNRPB
 20:2447961..2447963c>g,SNP,c,g,GRCh37,20,2447961,2447963,SNORD119

@@ -1,0 +1,3 @@
+id,category,clinicalRelevance,conditionId,effect
+Var001_CI001,"disease or disorder",VUS,famchol1,"Homozygous familial hypercholesterolemia"
+Var001_CI002,"modulator",benign,surfcmtd4,"SURF1-related Charcot-Marie-Tooth disease type 4"
