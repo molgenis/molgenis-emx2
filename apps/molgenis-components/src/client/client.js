@@ -11,6 +11,12 @@ export default {
     return {
       insertDataRow,
       updateDataRow,
+      deleteRow: async (rowKey, tableName) => {
+        return deleteRow(rowKey, tableName, graphqlURL);
+      },
+      deleteAllTableData: async (tableName) => {
+        return deleteAllTableData(tableName, graphqlURL);
+      },
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;
@@ -84,6 +90,12 @@ export default {
           return resultArray[0];
         }
       },
+      saveTableSettings: async (settings) => {
+        return axios.post(graphqlURL ? graphqlURL : "graphql", {
+          query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+          variables: { settings },
+        });
+      },
     };
   },
 };
@@ -131,6 +143,17 @@ const updateDataRow = (rowData, tableName, graphqlURL) => {
   return axios.post(graphqlURL, formData);
 };
 
+const deleteRow = (key, tableName, graphqlURL) => {
+  const query = `mutation delete($pkey:[${tableName}Input]){delete(${tableName}:$pkey){message}}`;
+  const variables = { pkey: [key] };
+  return axios.post(graphqlURL, { query, variables });
+};
+
+const deleteAllTableData = (tableName, graphqlURL) => {
+  const query = `mutation {truncate(tables:"${tableName}"){message}}`;
+  return axios.post(graphqlURL, { query });
+};
+
 const fetchMetaData = async (axios, graphqlURL, onError) => {
   const url = graphqlURL ? graphqlURL : "graphql";
   const resp = await axios
@@ -165,6 +188,7 @@ const fetchTableData = async (
   const search =
     properties &&
     Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
+    properties.searchTerms !== null &&
     properties.searchTerms !== ""
       ? ',search:"' + properties.searchTerms.trim() + '"'
       : "";

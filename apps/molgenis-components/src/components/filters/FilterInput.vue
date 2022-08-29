@@ -21,6 +21,7 @@ import StringFilter from "./StringFilter.vue";
 import IntegerFilter from "./IntegerFilter.vue";
 import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
+import DateTimeFilter from "./DateTimeFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
@@ -43,6 +44,8 @@ const filterTypeMap = {
   DECIMAL_ARRAY: DecimalFilter,
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
+  DATETIME: DateTimeFilter,
+  DATETIME_ARRAY: DateTimeFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
   REF: RefListFilter,
@@ -59,6 +62,7 @@ export default {
     IntegerFilter,
     DecimalFilter,
     DateFilter,
+    DateTimeFilter,
     BooleanFilter,
     RefFilter,
     RefListFilter,
