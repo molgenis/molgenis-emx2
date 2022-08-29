@@ -13,6 +13,7 @@
       :readonly="readonly"
       :class="{ 'is-invalid': errorMessage }"
       :required="required"
+      :config="config"
       @input="$emit('input', $event)"
     />
   </FormGroup>
@@ -32,6 +33,16 @@ export default {
   props: {
     readonly: { type: Boolean, default: false },
   },
+  computed: {
+    config() {
+      return {
+        wrap: false,
+        dateFormat: "Y-m-d",
+        allowInput: false,
+        clickOpens: !this.readonly,
+      };
+    },
+  }
 };
 </script>
 
