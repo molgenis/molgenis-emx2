@@ -4,9 +4,9 @@
       <i class="fa-li fa" :class="icon"></i>
       {{ task.description }}
       <SubTask
-        v-for="subtask in task.subTasks"
+        v-for="(subtask, key) in task.subTasks"
         :task="subtask"
-        :key="subtask.id"
+        :key="key"
       />
     </li>
   </ul>
@@ -90,6 +90,12 @@ export default {
           {
             description: "subtask 3",
             status: "UNDEFINED",
+            subTasks: [
+              {
+                description: "sub subtask 1",
+                status: "WARNING",
+              },
+            ],
           },
           {
             description: "subtask 4",

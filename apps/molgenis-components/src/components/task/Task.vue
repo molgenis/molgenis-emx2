@@ -12,6 +12,7 @@ import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";
 
 export default {
+  name: "Task",
   components: {
     SubTask,
     Spinner,
@@ -41,10 +42,10 @@ export default {
     },
     monitorTask() {
       console.log("bla");
-      try {
-        request(
-          "graphql",
-          `{
+
+      request(
+        "graphql",
+        `{
           _tasks(id:"${this.taskId}")
           {
             id, description, status, subTasks
@@ -59,23 +60,20 @@ export default {
             }
           }
         }`
-        )
-          .then((data) => {
-            this.task = data._tasks[0];
-            this.loading = false;
-          })
-          .catch((error) => {
-            if (Array.isArray(error.response.errors)) {
-              this.error = error.response.errors[0].message;
-              this.startMonitorTask();
-            } else {
-              this.error = error;
-              this.startMonitorTask();
-            }
-          });
-      } catch (error) {
-        console.log("found stuff: ", error);
-      }
+      )
+        .then((data) => {
+          this.task = data._tasks[0];
+          this.loading = false;
+        })
+        .catch((error) => {
+          if (Array.isArray(error.response.errors)) {
+            this.error = error.response.errors[0].message;
+            this.startMonitorTask();
+          } else {
+            this.error = error;
+            this.startMonitorTask();
+          }
+        });
     },
   },
   created() {
@@ -89,7 +87,7 @@ export default {
   <div>
     <demo-item>
       task
-      <Task :task="task" />
+      <Task :taskId="task" />
     </demo-item>
   </div>
 </template>
@@ -98,7 +96,7 @@ export default {
 export default {
   data() {
     return {
-      task: "",
+      task: "taskID",
     };
   },
 };

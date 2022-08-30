@@ -108,6 +108,8 @@ import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 //task
 import SubTask from "../src/components/task/SubTask.vue";
 import Task from "../src/components/task/Task.vue";
+import TaskList from "../src/components/task/TaskList.vue";
+import TaskManager from "../src/components/task/TaskManager.vue";
 
 export {
   ContactDisplay,
@@ -181,13 +183,15 @@ export {
   LayoutModal,
   Molgenis,
   Spinner,
-  SubTask,
   VueTemplate,
   DataDisplayCell,
   ExplorerTable,
   TableMolgenis,
   TableSimple,
+  SubTask,
   Task,
+  TaskManager,
+  TaskList,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
