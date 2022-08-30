@@ -205,6 +205,9 @@ export default {
         if (table.inherit === undefined) {
           this.getSubclassTables(schema, table.name).forEach((subclass) => {
             //get columns from subclass tables
+            if (!subclass.columns) {
+              console.log(subclass.name);
+            }
             table.columns.push(...subclass.columns);
             subclass.columns = [];
             //add subclass to root table
@@ -229,7 +232,11 @@ export default {
         (table) => table.inherit === tableName
       );
       return subclasses.concat(
-        subclasses.map((table) => this.getSubclassTables(schema, table.name))
+        subclasses
+          .map((table) => {
+            return this.getSubclassTables(schema, table.name);
+          })
+          .flat(1)
       );
     },
   },

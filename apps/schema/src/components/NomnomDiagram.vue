@@ -4,7 +4,7 @@
       id="displaySettings"
       v-model="displaySettings"
       :defaultValue="displaySettings"
-      :options="['attributes', 'external']"
+      :options="['attributes', 'external', 'vertical', 'ontologies']"
     />
     <div v-html="nomnomlSVG" class="bg-white" style="max-width: 100%"></div>
   </div>
@@ -68,7 +68,9 @@ export default {
     },
     nomnomSource() {
       if (!this.tables || this.tables.length === 0) return "";
-      let res = "#.box: fill=white solid\n#stroke: #007bff\n";
+      let res = `#.box: fill=white solid\n#stroke: #007bff\n#direction: ${
+        this.displaySettings.includes("vertical") ? "right" : "down"
+      }\n`;
       // classes
       this.tables
         .filter(
@@ -107,9 +109,17 @@ export default {
                     this.displaySettings.includes("external"))
               )
               .forEach((column) => {
-                if (column.columnType === "REF") {
+                if (
+                  column.columnType === "REF" ||
+                  (column.columnType === "ONTOLOGY" &&
+                    this.displaySettings.includes("ontologies"))
+                ) {
                   res += `[<box>${column.refTable}]<-${column.name}[<box>${table.name}]\n`;
-                } else if (column.columnType === "REF_ARRAY") {
+                } else if (
+                  column.columnType === "REF_ARRAY" ||
+                  (column.columnType === "ONTOLOGY_ARRAY" &&
+                    this.displaySettings.includes("ontologies"))
+                ) {
                   res += `[<box>${column.refTable}]*<-${column.name}[<box>${table.name}]\n`;
                 }
               });
