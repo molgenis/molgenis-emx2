@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="sticky-top mr-n3" style="top: 50px">
     <h4>
       Tables
       <IconAction icon="plus" @click="addTable" />
     </h4>
-    <div v-if="schema.tables">
+    <div v-if="schema.tables" class="overflow-auto 90-vh" style="height: 90vh">
       <p
         v-for="table in schema.tables.filter(
           (t) => t.externalSchema === undefined && t.inherit === undefined

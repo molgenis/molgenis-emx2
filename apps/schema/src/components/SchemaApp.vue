@@ -21,9 +21,7 @@
     <Spinner v-if="loading === true || !schema.tables" />
     <div v-else class="row">
       <div class="col-2 bg-white">
-        <div class="sticky-top mr-n3 overflow-auto vh-100" style="top: 50px">
-          <SchemaToc v-model="schema" v-if="schema.tables" />
-        </div>
+        <SchemaToc v-model="schema" v-if="schema.tables" />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
