@@ -191,13 +191,13 @@ export default {
       if (column.table === this.table.name) {
         return this.table.drop;
       } else {
-        return this.table.subclasses.filter(
+        return this.table.subclasses?.find(
           (subclass) => subclass.name === column.table
-        )[0].drop;
+        ).drop;
       }
     },
     createColumn(position) {
-      let newColumn = {
+      const newColumn = {
         name: undefined,
         columnType: "STRING",
         table: this.table.name,

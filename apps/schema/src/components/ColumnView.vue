@@ -93,14 +93,14 @@ export default {
   },
   computed: {
     rootTableName() {
-      return this.schema.tables.filter(
+      return this.schema.tables.find(
         (table) =>
           table.name === this.column.table ||
           (table.subclasses !== undefined &&
             table.subclasses
               .map((subclass) => subclass.name)
               .includes(this.column.table))
-      )[0].name;
+      ).name;
     },
   },
   methods: {
@@ -110,9 +110,6 @@ export default {
       } else {
         this.column.drop = true;
       }
-      this.emitValue();
-    },
-    emitValue() {
       this.$emit("input", this.column);
     },
   },

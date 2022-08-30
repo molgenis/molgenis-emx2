@@ -1,9 +1,9 @@
 <template>
   <div>
     <InputCheckbox
-      id="showAttributes"
-      v-model="showAttributes"
-      :defaultValue="showAttributes"
+      id="displaySettings"
+      v-model="displaySettings"
+      :defaultValue="displaySettings"
       :options="['attributes', 'external']"
     />
     <div v-html="nomnomlSVG" class="bg-white" style="max-width: 100%"></div>
@@ -27,17 +27,17 @@ export default {
   data() {
     return {
       imgFullscreen: false,
-      showAttributes: [],
+      displaySettings: [],
     };
   },
   methods: {
     nomnomColumnsForTable(table, tableName) {
-      let res = "";
+      let result = "";
       if (
         Array.isArray(table.columns) &&
-        this.showAttributes.includes("attributes")
+        this.displaySettings.includes("attributes")
       ) {
-        res += "|";
+        result += "|";
         table.columns
           .filter((column) => column.table === tableName)
           .forEach((column) => {
@@ -45,18 +45,18 @@ export default {
               column.columnType.includes("REF") ||
               column.columnType.includes("ONTOLOGY")
             ) {
-              res += `${column.name}: ${column.columnType.toLowerCase()}(${
+              result += `${column.name}: ${column.columnType.toLowerCase()}(${
                 column.refTable
               })`;
             } else {
-              res += `${column.name}: ${column.columnType.toLowerCase()}`;
+              result += `${column.name}: ${column.columnType.toLowerCase()}`;
             }
-            res += `${column.nullable ? ";" : "*;"}`;
+            result += `${column.nullable ? ";" : "*;"}`;
           });
         //remove trailing ;
-        res = res.replace(/;\s*$/, "");
+        result = result.replace(/;\s*$/, "");
       }
-      return res;
+      return result;
     },
   },
   computed: {
@@ -72,7 +72,7 @@ export default {
       // classes
       this.tables
         .filter(
-          (t) => !t.externalSchema || this.showAttributes.includes("external")
+          (t) => !t.externalSchema || this.displaySettings.includes("external")
         )
         .forEach((table) => {
           res += `[${table.externalSchema ? "<external>" : "<box>"} ${
@@ -95,7 +95,7 @@ export default {
         .filter(
           (t) =>
             t.externalSchema === undefined ||
-            this.showAttributes.includes("external")
+            this.displaySettings.includes("external")
         )
         .forEach((table) => {
           if (Array.isArray(table.columns)) {
@@ -104,7 +104,7 @@ export default {
                 (c) =>
                   !c.inherited &&
                   (c.refSchema === undefined ||
-                    this.showAttributes.includes("external"))
+                    this.displaySettings.includes("external"))
               )
               .forEach((column) => {
                 if (column.columnType === "REF") {

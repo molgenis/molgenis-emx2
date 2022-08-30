@@ -7,7 +7,7 @@
   />
   <LayoutModal
     v-else
-    :title="'Edit ' + table.name"
+    title="Edit table definition"
     @close="close"
     :isCloseButtonShown="!isDisabled"
   >
@@ -42,8 +42,8 @@
       />
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="close" :disabled="isDisabled">Done</ButtonAction>
-      <ButtonAlt @click="cancel" :disabled="isDisabled">Cancel</ButtonAlt>
+      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAlt @click="cancel">Cancel</ButtonAlt>
     </template>
   </LayoutModal>
 </template>

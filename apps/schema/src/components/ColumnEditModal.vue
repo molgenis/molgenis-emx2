@@ -228,18 +228,15 @@ export default {
   computed: {
     //current table object
     table() {
-      return this.schema.tables.filter(
+      return this.schema.tables.find(
         (table) =>
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
-      )[0];
+      );
     },
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
-      if (this.table.subclasses) {
-        return this.table.subclasses.map((subclass) => subclass.name);
-      }
-      return undefined;
+      return this.table?.subclasses.map((subclass) => subclass.name);
     },
     //listing of all tables, used for refs
     tableNames() {
@@ -258,10 +255,12 @@ export default {
       }
       if (
         this.value.name !== this.column.name &&
-        Array.isArray(this.table.columns) &&
-        this.table.columns.filter((c) => c.name === this.column.name).length > 0
+        this.table.columns?.filter((c) => c.name === this.column.name).length >
+          0
       ) {
         return "Name should be unique";
+      } else {
+        return undefined;
       }
     },
     isDisabled() {
@@ -293,10 +292,7 @@ export default {
       const columns = schema.tables
         .filter((t) => t.name === fromTable)
         .map((t) => t.columns)[0];
-      if (columns != undefined) {
-        return columns.filter((c) => c.refTable === toTable).map((c) => c.name);
-      }
-      return undefined;
+      return columns?.filter((c) => c.refTable === toTable).map((c) => c.name);
     },
     async loadRefSchema() {
       this.error = undefined;

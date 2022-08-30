@@ -169,7 +169,9 @@ export default {
         });
       this.loading = false;
     },
-    addOldNamesAndRemoveMeta(schema) {
+    addOldNamesAndRemoveMeta(rawSchema) {
+      //deep copy to not change the input
+      const schema = JSON.parse(JSON.stringify(rawSchema));
       if (schema) {
         if (schema.tables) {
           let tables = schema.tables.filter(
@@ -196,12 +198,14 @@ export default {
       }
       return schema;
     },
-    convertToSubclassTables(schema) {
+    convertToSubclassTables(rawSchema) {
+      //deep copy to not change the input
+      const schema = JSON.parse(JSON.stringify(rawSchema));
       //columns of subclasses should be put in root tables, sorted by position
       // this because position can only edited in context of root table
       schema.tables.forEach((table) => {
         if (table.inherit === undefined) {
-          this.subclassTables(schema, table.name).forEach((subclass) => {
+          this.getSubclassTables(schema, table.name).forEach((subclass) => {
             //get columns from subclass tables
             table.columns.push(...subclass.columns);
             subclass.columns = [];
@@ -222,18 +226,13 @@ export default {
       );
       return schema;
     },
-    subclassTables(schema, tableName) {
+    getSubclassTables(schema, tableName) {
       let subclasses = schema.tables.filter(
         (table) => table.inherit === tableName
       );
-      subclasses
-        .map((table) => table.name)
-        .forEach((subclassName) => {
-          subclasses = subclasses.concat(
-            this.subclassTables(schema, subclassName)
-          );
-        });
-      return subclasses;
+      return subclasses.concat(
+        subclasses.map((table) => this.getSubclassTables(schema, table.name))
+      );
     },
   },
   created() {
