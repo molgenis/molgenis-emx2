@@ -11,7 +11,7 @@
     "molgenis-components": "*",
     "graphql-request": "4.3.0",
     "vue": "2.6.14",
-    "vue-router": "3.6.3"
+    "vue-router": "3.6.4"
   },
   "browserslist": [
     "> 1%",
