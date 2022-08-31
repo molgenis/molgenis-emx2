@@ -4,10 +4,13 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution.FORMATS;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,18 +76,17 @@ public class FAIRDataPointDataset {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    IRI reqUrl = iri(request.url());
+    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
+    URI requestURI = getURI(request.url());
+    String host =
+        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String apiFdp = host + "/api/fdp";
+    String apiFdpDistribution = apiFdp + "/distribution";
 
-    // todo this can fail with repeated slashes? deal with/escape whitespaces?
-    IRI root =
-        iri(
-            reqUrl
-                .toString()
-                .replace("/dataset/" + fdpDataseTable.getSchema().getName() + "/" + id, ""));
-    IRI distributionIRI = iri(root + "/distribution");
+    IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
+    IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
-
     String distribution = (String) datasetFromJSON.get("distribution");
     if (!schema.getTableNames().contains(distribution)) {
       throw new Exception(
@@ -95,7 +97,8 @@ public class FAIRDataPointDataset {
           reqUrl,
           // not 'Distribution' (class) but 'distribution' (predicate)
           iri("http://www.w3.org/ns/dcat#distribution"),
-          iri(root + "/distribution/" + schema.getName() + "/" + distribution + "/" + format));
+          encodedIRI(
+              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
     }
 
     builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
@@ -150,15 +153,16 @@ public class FAIRDataPointDataset {
         literal(((String) datasetFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
 
-    builder.add(distributionIRI, RDF.TYPE, LDP.DIRECT_CONTAINER);
-    builder.add(distributionIRI, DCTERMS.TITLE, "Distributions");
-    builder.add(distributionIRI, LDP.MEMBERSHIP_RESOURCE, reqUrl);
-    builder.add(distributionIRI, LDP.HAS_MEMBER_RELATION, DCAT.DISTRIBUTION);
+    builder.add(apiFdpDistributionEnc, RDF.TYPE, LDP.DIRECT_CONTAINER);
+    builder.add(apiFdpDistributionEnc, DCTERMS.TITLE, "Distributions");
+    builder.add(apiFdpDistributionEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
+    builder.add(apiFdpDistributionEnc, LDP.HAS_MEMBER_RELATION, DCAT.DISTRIBUTION);
     for (String format : FORMATS) {
       builder.add(
-          distributionIRI,
+          apiFdpDistributionEnc,
           LDP.CONTAINS,
-          iri(root + "/distribution/" + schema.getName() + "/" + distribution + "/" + format));
+          encodedIRI(
+              apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
     }
 
     // Write model

@@ -26,7 +26,7 @@ public class FAIRDataPointTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
-    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2");
+    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
     FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
@@ -54,11 +54,11 @@ public class FAIRDataPointTest {
         result.contains(
             """
                 ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
-                .indent(2)));
-    assertEquals(3775, result.length());
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"""));
+    assertEquals(3887, result.length());
   }
 
   @Test
@@ -126,15 +126,16 @@ public class FAIRDataPointTest {
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
+    System.out.println(result);
     assertTrue(
         result.contains(
             """
                 <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
                   dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
-                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080/ for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
+                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080 for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
                   dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
                   dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
                   dcterms:format "ttl";"""));
-    assertEquals(961, result.length());
+    assertEquals(960, result.length());
   }
 }

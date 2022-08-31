@@ -3,8 +3,11 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset.queryDataset;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -99,14 +102,18 @@ public class FAIRDataPointDistribution {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    // fixme: not ok, see how encoding is done in RDF api
-    schema = schema.replace(" ", "%20");
-    table = table.replace(" ", "%20");
-    IRI reqURL = iri(request.url());
-    String appURL =
-        reqURL
-            .toString()
-            .replace("api/fdp/distribution/" + schema + "/" + table + "/" + format, "");
+    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
+    URI requestURI = getURI(request.url());
+    String host =
+        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String apiFdp = host + "/api/fdp";
+    String apiFdpDataset = apiFdp + "/dataset";
+    String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
+
+    IRI reqURL = iri(request.url()); // escaping/encoding seems OK
+    IRI apiFdpEnc = encodedIRI(apiFdp);
+    IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
+    IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);
 
     /*
     See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
@@ -117,7 +124,7 @@ public class FAIRDataPointDistribution {
         reqURL,
         DCTERMS.DESCRIPTION,
         "MOLGENIS EMX2 data distribution at "
-            + appURL
+            + host
             + " for table "
             + table
             + " in schema "
@@ -130,13 +137,17 @@ public class FAIRDataPointDistribution {
         || format.equals("ttl")
         || format.equals("excel")
         || format.equals("zip")) {
-      builder.add(reqURL, DCAT.DOWNLOAD_URL, iri(appURL + schema + "/api/" + format + "/" + table));
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          encodedIRI(host + "/" + schema + "/api/" + format + "/" + table));
     } else {
       // all "rdf-" flavours
       builder.add(
           reqURL,
           DCAT.DOWNLOAD_URL,
-          iri(appURL + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
+          encodedIRI(
+              host + "/" + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
     }
 
     String mediaType;
