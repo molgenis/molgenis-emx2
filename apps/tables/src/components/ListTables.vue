@@ -26,24 +26,24 @@
 </template>
 
 <script>
-import {MessageWarning, InputSearch} from '@mswertz/emx2-styleguide';
-import TablesTable from './TablesTable';
+import { MessageWarning, InputSearch } from "molgenis-components";
+import TablesTable from "./TablesTable";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     MessageWarning,
     InputSearch,
-    TablesTable
+    TablesTable,
   },
   props: {
     session: Object,
-    schema: Object
+    schema: Object,
   },
   data() {
     return {
       tableFilter: [],
-      search: null
+      search: null,
     };
   },
   computed: {
@@ -58,7 +58,7 @@ export default {
         return [];
       }
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(' ');
+        let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
           .filter((table) => !table.externalSchema)
           .filter((table) =>
@@ -74,14 +74,14 @@ export default {
       }
     },
     tables() {
-      return this.tablesFiltered.filter((table) => table.tableType == 'DATA');
+      return this.tablesFiltered.filter((table) => table.tableType == "DATA");
     },
     ontologies() {
       return this.tablesFiltered.filter(
-        (table) => table.tableType == 'ONTOLOGIES'
+        (table) => table.tableType == "ONTOLOGIES"
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

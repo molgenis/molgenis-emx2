@@ -1,34 +1,30 @@
 <template>
   <div>
-    <router-link v-if="schema" to="/">< Back to {{ schema.name }}</router-link>
+    <router-link v-if="schema" to="/">
+      &gt; Back to {{ schema.name }}
+    </router-link>
     <TableExplorer
-      :table="table"
+      :tableName="table"
       :showColumns="showColumns"
-      @update:showColumns="updateColumns"
       :showFilters="showFilters"
-      @update:showFilters="updateFilters"
       :conditions="conditions"
-      @update:conditions="updateConditions"
       :showPage="showPage"
-      @update:showPage="updatePage"
       :showLimit="showLimit"
-      @update:showLimit="updateLimit"
       :showOrderBy="showOrderBy"
-      @update:showOrderBy="updateOrderBy"
       :showOrder="showOrder"
-      @update:showOrder="updateOrder"
       :key="timestamp"
     />
   </div>
 </template>
 
 <script>
-import { TableExplorer } from "@mswertz/emx2-styleguide";
+import { TableExplorer } from "molgenis-components";
 
 export default {
+  name: "ViewTable",
   props: {
-    table: String,
-    schema: Object,
+    table: { type: String, required: true },
+    schema: { type: Object, default: null },
   },
   data() {
     return { timestamp: Date.now(), query: {} };
@@ -176,11 +172,11 @@ export default {
         });
         return result;
       }
-      return null;
+      return [];
     },
   },
   watch: {
-    $route(to, from) {
+    $route(to) {
       //this is to prevent updates if changes come from outside vs inside
       if (JSON.stringify(to.query) != JSON.stringify(this.query)) {
         this.timestamp = Date.now();
