@@ -100,59 +100,106 @@ public class FAIRDataPointDataset {
           encodedIRI(
               apiFdpDistribution + "/" + schema.getName() + "/" + distribution + "/" + format));
     }
-
-    builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
-
-    ArrayList<IRI> spatials =
-        extractItemAsIRI((List<Map>) datasetFromJSON.get("spatial"), "ontologyTermURI");
-    for (IRI spatial : spatials) {
-      builder.add(reqUrl, DCTERMS.SPATIAL, spatial);
+    if (datasetFromJSON.get("accrualPeriodicity") != null) {
+      builder.add(reqUrl, DCTERMS.ACCRUAL_PERIODICITY, datasetFromJSON.get("accrualPeriodicity"));
+    }
+    if (datasetFromJSON.get("spatial") != null) {
+      ArrayList<IRI> spatials =
+          extractItemAsIRI((List<Map>) datasetFromJSON.get("spatial"), "ontologyTermURI");
+      for (IRI spatial : spatials) {
+        builder.add(reqUrl, DCTERMS.SPATIAL, spatial);
+      }
     }
 
-    builder.add(
-        reqUrl,
-        DCAT.SPATIAL_RESOLUTION_IN_METERS,
-        literal((double) datasetFromJSON.get("spatialResolutionInMeters")));
+    if (datasetFromJSON.get("spatialResolutionInMeters") != null) {
+      builder.add(
+          reqUrl,
+          DCAT.SPATIAL_RESOLUTION_IN_METERS,
+          literal((double) datasetFromJSON.get("spatialResolutionInMeters")));
+    }
+    if (datasetFromJSON.get("temporal") != null) {
+      builder.add(reqUrl, DCTERMS.TEMPORAL, datasetFromJSON.get("temporal"));
+    }
+    if (datasetFromJSON.get("temporalResolution") != null) {
+      builder.add(reqUrl, DCAT.TEMPORAL_RESOLUTION, datasetFromJSON.get("temporalResolution"));
+    }
+    if (datasetFromJSON.get("wasGeneratedBy") != null) {
+      builder.add(reqUrl, PROV.WAS_GENERATED_BY, datasetFromJSON.get("wasGeneratedBy"));
+    }
+    if (datasetFromJSON.get("accessRights") != null) {
+      builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, datasetFromJSON.get("accessRights"));
+    }
+    if (datasetFromJSON.get("contactPoint") != null) {
+      builder.add(reqUrl, DCAT.CONTACT_POINT, datasetFromJSON.get("contactPoint"));
+    }
+    if (datasetFromJSON.get("creator") != null) {
+      builder.add(reqUrl, DCTERMS.CREATOR, datasetFromJSON.get("creator"));
+    }
+    if (datasetFromJSON.get("description") != null) {
+      builder.add(reqUrl, DCTERMS.DESCRIPTION, datasetFromJSON.get("description"));
+    }
+    if (datasetFromJSON.get("description") != null) {
+      builder.add(reqUrl, ODRL2.HAS_POLICY, datasetFromJSON.get("description"));
+    }
+    if (datasetFromJSON.get("id") != null) {
+      builder.add(reqUrl, DCTERMS.IDENTIFIER, datasetFromJSON.get("id"));
+    }
+    if (datasetFromJSON.get("isReferencedBy") != null) {
+      builder.add(reqUrl, DCTERMS.IS_REFERENCED_BY, datasetFromJSON.get("isReferencedBy"));
+    }
+    if (datasetFromJSON.get("keyword") != null) {
+      for (String keyword : (List<String>) datasetFromJSON.get("keyword")) {
+        builder.add(reqUrl, DCAT.KEYWORD, keyword);
+      }
+    }
 
-    builder.add(reqUrl, DCTERMS.TEMPORAL, datasetFromJSON.get("temporal"));
-    builder.add(reqUrl, DCAT.TEMPORAL_RESOLUTION, datasetFromJSON.get("temporalResolution"));
-    builder.add(reqUrl, PROV.WAS_GENERATED_BY, datasetFromJSON.get("wasGeneratedBy"));
-    builder.add(reqUrl, DCTERMS.ACCESS_RIGHTS, datasetFromJSON.get("accessRights"));
-    builder.add(reqUrl, DCAT.CONTACT_POINT, datasetFromJSON.get("contactPoint"));
-    builder.add(reqUrl, DCTERMS.CREATOR, datasetFromJSON.get("creator"));
-    builder.add(reqUrl, DCTERMS.DESCRIPTION, datasetFromJSON.get("description"));
-    builder.add(reqUrl, ODRL2.HAS_POLICY, datasetFromJSON.get("description"));
-    builder.add(reqUrl, DCTERMS.IDENTIFIER, datasetFromJSON.get("id"));
-    builder.add(reqUrl, DCTERMS.IS_REFERENCED_BY, datasetFromJSON.get("isReferencedBy"));
-    for (String keyword : (List<String>) datasetFromJSON.get("keyword")) {
-      builder.add(reqUrl, DCAT.KEYWORD, keyword);
+    if (datasetFromJSON.get("landingPage") != null) {
+      builder.add(reqUrl, DCAT.LANDING_PAGE, datasetFromJSON.get("landingPage"));
     }
-    builder.add(reqUrl, DCAT.LANDING_PAGE, datasetFromJSON.get("landingPage"));
-    builder.add(reqUrl, DCTERMS.LICENSE, datasetFromJSON.get("license"));
-    ArrayList<IRI> languages =
-        extractItemAsIRI((List<Map>) datasetFromJSON.get("language"), "ontologyTermURI");
-    for (IRI language : languages) {
-      builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+    if (datasetFromJSON.get("license") != null) {
+      builder.add(reqUrl, DCTERMS.LICENSE, datasetFromJSON.get("license"));
     }
-    builder.add(reqUrl, DCTERMS.RELATION, datasetFromJSON.get("relation"));
-    builder.add(reqUrl, DCTERMS.RIGHTS, datasetFromJSON.get("rights"));
-    builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
-    builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
+    if (datasetFromJSON.get("language") != null) {
+      ArrayList<IRI> languages =
+          extractItemAsIRI((List<Map>) datasetFromJSON.get("language"), "ontologyTermURI");
+      for (IRI language : languages) {
+        builder.add(reqUrl, DCTERMS.LANGUAGE, language);
+      }
+    }
+    if (datasetFromJSON.get("relation") != null) {
+      builder.add(reqUrl, DCTERMS.RELATION, datasetFromJSON.get("relation"));
+    }
+    if (datasetFromJSON.get("rights") != null) {
+      builder.add(reqUrl, DCTERMS.RIGHTS, datasetFromJSON.get("rights"));
+    }
+    if (datasetFromJSON.get("qualifiedRelation") != null) {
+      builder.add(reqUrl, DCAT.QUALIFIED_RELATION, datasetFromJSON.get("qualifiedRelation"));
+    }
+    if (datasetFromJSON.get("publisher") != null) {
+      builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
+    }
     builder.add(
         reqUrl,
         DCTERMS.ISSUED,
         literal(((String) datasetFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
-    for (IRI themeIRI : hyperlinkArrayToIRIList((List<String>) datasetFromJSON.get("theme"))) {
-      builder.add(reqUrl, DCAT.THEME, themeIRI);
+    if (datasetFromJSON.get("theme") != null) {
+      for (IRI themeIRI : hyperlinkArrayToIRIList((List<String>) datasetFromJSON.get("theme"))) {
+        builder.add(reqUrl, DCAT.THEME, themeIRI);
+      }
     }
-    builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
-    builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
+    if (datasetFromJSON.get("title") != null) {
+      builder.add(reqUrl, DCTERMS.TITLE, datasetFromJSON.get("title"));
+    }
+    if (datasetFromJSON.get("type") != null) {
+      builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
+    }
     builder.add(
         reqUrl,
         DCTERMS.MODIFIED,
         literal(((String) datasetFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
-
+    if (datasetFromJSON.get("qualifiedAttribution") != null) {
+      builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
+    }
     builder.add(apiFdpDistributionEnc, RDF.TYPE, LDP.DIRECT_CONTAINER);
     builder.add(apiFdpDistributionEnc, DCTERMS.TITLE, "Distributions");
     builder.add(apiFdpDistributionEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
