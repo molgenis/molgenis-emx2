@@ -26,7 +26,7 @@ public class FAIRDataPointTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
-    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2");
+    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
     FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
@@ -55,9 +55,10 @@ public class FAIRDataPointTest {
             """
                 ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>,
                     <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03>"""));
-    assertEquals(3735, result.length());
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"""));
+    assertEquals(3887, result.length());
   }
 
   @Test
