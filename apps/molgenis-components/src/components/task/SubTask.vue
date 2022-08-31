@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     color() {
-      switch (this.task.status) {
+      switch (this.task?.status) {
         case "COMPLETED":
           return "text-success";
         case "ERROR":
@@ -34,7 +34,7 @@ export default {
       }
     },
     icon() {
-      switch (this.task.status) {
+      switch (this.task?.status) {
         case "COMPLETED":
           return "fa-check";
         case "ERROR":

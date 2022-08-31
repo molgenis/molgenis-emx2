@@ -7,7 +7,7 @@
       <div v-if="taskUrl">
         <h4>Progress of current upload:</h4>
         <ul class="fa-ul">
-          <Task :task="task" />
+          <SubTask :task="task" />
         </ul>
         <ButtonAction
           v-if="task.status == 'COMPLETED' || task.status == 'ERROR'"
@@ -106,9 +106,9 @@ import {
   MessageSuccess,
   MessageWarning,
   Molgenis,
-} from "@mswertz/emx2-styleguide";
+  SubTask,
+} from "molgenis-components";
 import { request } from "graphql-request";
-import Task from "./Task";
 
 /** Data import tool */
 export default {
@@ -119,7 +119,7 @@ export default {
     MessageSuccess,
     MessageWarning,
     Molgenis,
-    Task,
+    SubTask,
   },
   data: function () {
     return {
