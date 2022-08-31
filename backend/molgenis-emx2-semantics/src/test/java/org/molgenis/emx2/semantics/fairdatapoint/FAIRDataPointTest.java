@@ -54,11 +54,10 @@ public class FAIRDataPointTest {
         result.contains(
             """
                 ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
-                .indent(2)));
-    assertEquals(3775, result.length());
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03>"""));
+    assertEquals(3735, result.length());
   }
 
   @Test
