@@ -125,15 +125,16 @@ public class FAIRDataPointTest {
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
+    System.out.println(result);
     assertTrue(
         result.contains(
             """
                 <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
                   dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
-                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080/ for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
+                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080 for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
                   dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
                   dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
                   dcterms:format "ttl";"""));
-    assertEquals(961, result.length());
+    assertEquals(960, result.length());
   }
 }
