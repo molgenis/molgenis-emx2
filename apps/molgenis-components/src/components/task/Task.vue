@@ -18,7 +18,10 @@ export default {
     Spinner,
   },
   props: {
-    taskId: String,
+    taskId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -27,25 +30,14 @@ export default {
     };
   },
   methods: {
-    startMonitorTask() {
-      if (!this.task || !["COMPLETED", "ERROR"].includes(this.task.status)) {
-        setTimeout(this.monitorTask, 500);
-      } else {
-        if (this.task.status == "ERROR") {
-          this.error = this.task.status.description;
-          this.success = null;
-        } else {
-          this.error = null;
-          this.success = this.task.status.description;
-        }
-      }
-    },
-    monitorTask() {
-      console.log("bla");
-
-      request(
-        "graphql",
-        `{
+    async startMonitorTask() {
+      while (
+        !this.task ||
+        !(this.task.status === "ERROR") ||
+        !(this.task.status === "COMPLETED")
+      ) {
+        await sleep(500);
+        const query = `{
           _tasks(id:"${this.taskId}")
           {
             id, description, status, subTasks
@@ -59,46 +51,38 @@ export default {
               }
             }
           }
-        }`
-      )
-        .then((data) => {
-          this.task = data._tasks[0];
-          this.loading = false;
-        })
-        .catch((error) => {
-          if (Array.isArray(error.response.errors)) {
-            this.error = error.response.errors[0].message;
-            this.startMonitorTask();
-          } else {
-            this.error = error;
-            this.startMonitorTask();
-          }
-        });
+        }`;
+        request("graphql", query)
+          .then((data) => {
+            this.task = data._tasks[0];
+            this.loading = false;
+          })
+          .catch((error) => {
+            if (Array.isArray(error.response.errors)) {
+              console.log(error.response.errors[0].message);
+            } else {
+              console.log(error);
+            }
+          });
+      }
     },
   },
   created() {
     this.startMonitorTask();
   },
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 </script>
 
 <docs>
 <template>
   <div>
     <demo-item>
-      task
-      <Task :taskId="task" />
+      This component is not demoable, as it needs an existing task-id. It is also shown in the TaskList and TaskManager components.
     </demo-item>
   </div>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      task: "taskID",
-    };
-  },
-};
-</script>
 </docs>

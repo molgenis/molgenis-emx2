@@ -59,7 +59,6 @@ export default {
         });
     },
   },
-  //don't do this on create because prevent to serverside.
   mounted() {
     this.retrieveTasks();
   },
