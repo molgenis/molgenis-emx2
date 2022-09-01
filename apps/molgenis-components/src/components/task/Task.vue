@@ -18,7 +18,10 @@ export default {
     Spinner,
   },
   props: {
-    taskId: String,
+    taskId: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {

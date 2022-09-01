@@ -106,8 +106,8 @@ import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue"
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
 //tasks
-import Task from "../src/components/tasks/Task.vue";
-import SubTask from "../src/components/tasks/SubTask.vue";
+import Task from "../src/components/task/Task.vue";
+import SubTask from "../src/components/task/SubTask.vue";
 
 export {
   ContactDisplay,
