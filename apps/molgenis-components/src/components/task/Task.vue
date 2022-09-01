@@ -76,8 +76,16 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
-      <Task taskId="6956bf6d-3f78-4798-873f-dd5382ac0e24"/>
+      <StringInput v-model="taskId" />
+      <Task :taskId="taskId" />
     </demo-item>
   </div>
 </template>
+<script>
+export default {
+  data: function () {
+    return { taskId: "not existing taskId" };
+  },
+};
+</script>
 </docs>
