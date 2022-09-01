@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 5;
+  private static final int SOFTWARE_DATABASE_VERSION = 6;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -44,11 +44,12 @@ public class Migrations {
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
-          // todo skip for now in favor of feature flag
-          //          if (version < 5)
-          //            executeMigrationFile(
-          //                tdb, "migration5.sql", "database migration: add mg_changelog for each
-          // schema");
+          // migration 5 was no-op, due to version error
+          if (version < 6)
+            executeMigrationFile(
+                tdb,
+                "migration6.sql",
+                "database migration: add isChangelogEnabled column to schemaMetadata");
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.

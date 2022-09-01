@@ -1,3 +1,3 @@
 package org.molgenis.emx2;
 
-public record SchemaInfo(String tableSchema, String description) {}
+public record SchemaInfo(String tableSchema, String description, boolean isChangelogEnabled) {}

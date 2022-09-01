@@ -13,6 +13,7 @@ public class SchemaMetadata {
   protected String name;
   // optional
   protected String description;
+  protected boolean isChangeLogEnabled = false;
   // optional
   protected Database database;
 
@@ -23,15 +24,26 @@ public class SchemaMetadata {
     this.name = name;
   }
 
+  public SchemaMetadata(String name, boolean isChangeLogEnabled) {
+    this(name);
+    this.isChangeLogEnabled = isChangeLogEnabled;
+  }
+
   public SchemaMetadata(String name, String description) {
     this(name);
     this.description = description;
+  }
+
+  public SchemaMetadata(String name, String description, boolean isChangeLogEnabled) {
+    this(name, description);
+    this.isChangeLogEnabled = isChangeLogEnabled;
   }
 
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
     this.database = schema.getDatabase();
+    this.isChangeLogEnabled = schema.isChangeLogEnabled();
     this.setSettings(schema.getSettings());
     for (Setting setting : schema.getSettings()) {
       this.setSetting(setting.key(), setting.value());
@@ -41,6 +53,7 @@ public class SchemaMetadata {
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
+    this.isChangeLogEnabled = schema.isChangeLogEnabled();
     this.database = db;
     for (Setting setting : schema.getSettings()) {
       this.setSetting(setting.key(), setting.value());
@@ -68,6 +81,14 @@ public class SchemaMetadata {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public boolean isChangeLogEnabled() {
+    return isChangeLogEnabled;
+  }
+
+  public void setIsChangeLogEnabled(Boolean isChangeLogEnabled) {
+    this.isChangeLogEnabled = isChangeLogEnabled;
   }
 
   public Set<String> getTableNames() {

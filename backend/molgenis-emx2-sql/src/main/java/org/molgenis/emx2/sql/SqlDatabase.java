@@ -186,15 +186,26 @@ public class SqlDatabase implements Database {
 
   @Override
   public SqlSchema createSchema(String name) {
-    return this.createSchema(name, null);
+    return this.createSchema(name, null, false);
   }
 
   @Override
-  public SqlSchema createSchema(String name, String description) {
+  public Schema createSchema(String name, String description) {
+    return this.createSchema(name, description, false);
+  }
+
+  @Override
+  public Schema createSchema(String name, boolean isChangeLogEnabled) {
+    return this.createSchema(name, null, isChangeLogEnabled);
+  }
+
+  @Override
+  public SqlSchema createSchema(String name, String description, boolean isChangeLogEnabled) {
     long start = System.currentTimeMillis();
     this.tx(
         db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
+          SqlSchemaMetadata metadata =
+              new SqlSchemaMetadata(db, name, description, isChangeLogEnabled);
           executeCreateSchema((SqlDatabase) db, metadata);
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
@@ -202,6 +213,11 @@ public class SqlDatabase implements Database {
           if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
+          // setup changelog
+          if (isChangeLogEnabled) {
+            ChangeLogExecutor.enableChangeLog((SqlDatabase) db, metadata);
+          }
+
           // refresh
           db.clearCache();
         });
@@ -211,12 +227,21 @@ public class SqlDatabase implements Database {
   }
 
   @Override
-  public Schema updateSchema(String name, String description) {
+  public Schema updateSchema(String name, String description, boolean isChangeLogEnabled) {
     long start = System.currentTimeMillis();
     this.tx(
         db -> {
-          SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          MetadataUtils.updateSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+          SqlSchemaMetadata oldMetadata = new SqlSchemaMetadata(db, name);
+          if (oldMetadata.isChangeLogEnabled() != isChangeLogEnabled) {
+            if (isChangeLogEnabled) {
+              ChangeLogExecutor.enableChangeLog((SqlDatabase) db, oldMetadata);
+            } else {
+              ChangeLogExecutor.disableChangeLog((SqlDatabase) db, oldMetadata);
+            }
+          }
+
+          MetadataUtils.updateSchemaMetadata(
+              ((SqlDatabase) db).getJooq(), name, description, isChangeLogEnabled);
 
           // refresh
           db.clearCache();

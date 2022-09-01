@@ -13,7 +13,11 @@ public interface Database {
 
   Schema createSchema(String name, String description);
 
-  Schema updateSchema(String name, String description);
+  Schema createSchema(String name, boolean isChangeLogEnabled);
+
+  Schema createSchema(String name, String description, boolean isChangeLogEnabled);
+
+  Schema updateSchema(String name, String description, boolean isChangeLogEnabled);
 
   Schema dropCreateSchema(String name);
 

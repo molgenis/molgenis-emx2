@@ -28,8 +28,7 @@ public class TestChangelog {
         db -> {
           db.dropSchemaIfExists("testSchemaChanges");
           db.becomeAdmin();
-          db.createSetting("CHANGELOG_SCHEMAS", "testSchemaChanges");
-          db.createSchema("testSchemaChanges");
+          db.createSchema("testSchemaChanges", true);
           Schema schema = db.getSchema("testSchemaChanges");
           schema = addTestData(schema);
 

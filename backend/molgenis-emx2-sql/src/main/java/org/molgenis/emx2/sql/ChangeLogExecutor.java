@@ -23,7 +23,7 @@ import org.molgenis.emx2.TableMetadata;
 
 public class ChangeLogExecutor {
 
-  private static final String MG_CHANGLOG = "mg_changelog";
+  public static final String MG_CHANGLOG = "mg_changelog";
   private static final org.jooq.Field OPERATION = field(name("operation"), CHAR(1).nullable(false));
   private static final org.jooq.Field STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
   private static final org.jooq.Field USERID = field(name("userid"), VARCHAR.nullable(false));
@@ -85,11 +85,11 @@ public class ChangeLogExecutor {
     // todo revoke grants for changelog table ?
 
     // remove the changelog data table
-    removeChangeLogTable(db);
+    removeChangeLogTable(db, schema.getName());
   }
 
-  static void removeChangeLogTable(SqlDatabase db) {
-    db.getJooq().dropTableIfExists(MG_CHANGLOG);
+  static void removeChangeLogTable(SqlDatabase db, String schemaName) {
+    db.getJooq().dropTableIfExists(table(name(schemaName, MG_CHANGLOG)));
   }
 
   static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
@@ -119,9 +119,5 @@ public class ChangeLogExecutor {
 
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
     return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
-  }
-
-  static boolean isChangeLogEnabled(SqlDatabase db, SchemaMetadata schema) {
-    return db.getJooq().fetchExists(table(name(schema.getName(), MG_CHANGLOG)));
   }
 }

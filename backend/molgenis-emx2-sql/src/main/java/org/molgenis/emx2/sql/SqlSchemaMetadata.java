@@ -71,6 +71,16 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     this.reload();
   }
 
+  public SqlSchemaMetadata(
+      Database db, String name, String description, boolean isChangelogEnabled) {
+    super(
+        db,
+        MetadataUtils.loadSchemaMetadata(
+            ((SqlDatabase) db).getJooq(),
+            new SchemaMetadata(name, description, isChangelogEnabled)));
+    this.reload();
+  }
+
   public SqlSchemaMetadata(Database db, String name) {
     super(
         db,
@@ -320,9 +330,5 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void disableChangeLog() {
     ChangeLogExecutor.disableChangeLog(this.getDatabase(), this);
-  }
-
-  public boolean isChangeLogEnabled() {
-    return ChangeLogExecutor.isChangeLogEnabled(this.getDatabase(), this);
   }
 }

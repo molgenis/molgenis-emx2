@@ -62,6 +62,8 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
+  private static final Field<Boolean> SCHEMA_IS_CHANGELOG_ENABLED =
+      field(name("is_changelog_enabled"), BOOLEAN.nullable(false));
   private static final Field<String> TABLE_NAME =
       field(name("table_name"), VARCHAR.nullable(false));
   private static final Field<String> TABLE_INHERITS =
@@ -277,23 +279,25 @@ public class MetadataUtils {
         TABLE_SCHEMA);
   }
 
-  protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
+  protected static void saveSchemaMetadata(
+      DSLContext sql, String name, String description, boolean isChangeLogEnabled) {
     try {
-      String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
       sql.insertInto(SCHEMA_METADATA)
-          .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION)
-          .values(schema.getName(), description)
+          .columns(TABLE_SCHEMA, SCHEMA_DESCRIPTION, SCHEMA_IS_CHANGELOG_ENABLED)
+          .values(name, description, isChangeLogEnabled)
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("save of schema metadata failed", e);
     }
   }
 
-  protected static void updateSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
+  protected static void updateSchemaMetadata(
+      DSLContext sql, String name, String description, boolean isChangeLogEnabled) {
     try {
       sql.update(SCHEMA_METADATA)
-          .set(SCHEMA_DESCRIPTION, schema.getDescription())
-          .where(TABLE_SCHEMA.eq(schema.getName()))
+          .set(SCHEMA_DESCRIPTION, description)
+          .set(SCHEMA_IS_CHANGELOG_ENABLED, isChangeLogEnabled)
+          .where(TABLE_SCHEMA.eq(name))
           .execute();
     } catch (Exception e) {
       throw new MolgenisException("update of schema metadata failed", e);
@@ -311,13 +315,21 @@ public class MetadataUtils {
       schemaInfos.add(
           new SchemaInfo(
               infoRecord.get(TABLE_SCHEMA, String.class),
-              infoRecord.get(SCHEMA_DESCRIPTION, String.class)));
+              infoRecord.get(SCHEMA_DESCRIPTION, String.class),
+              infoRecord.get(SCHEMA_IS_CHANGELOG_ENABLED, Boolean.class)));
     }
     return schemaInfos;
   }
 
   protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
-    jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
+    Record schemaMetaDataRecord =
+        jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
+    if (schemaMetaDataRecord != null) {
+      schema.setDescription(schemaMetaDataRecord.get(SCHEMA_DESCRIPTION, String.class));
+      schema.setIsChangeLogEnabled(
+          schemaMetaDataRecord.get(SCHEMA_IS_CHANGELOG_ENABLED, Boolean.class));
+    }
+
     return schema;
   }
 

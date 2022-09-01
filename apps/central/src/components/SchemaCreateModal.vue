@@ -43,6 +43,12 @@
               :defaultValue="schemaName"
               :required="true"
             />
+          <InputBoolean
+            id="schema-create-is-changelog-enabled"
+            v-model="isChangelogEnabled"
+            label="enable changelog"
+            :defaultValue="false"
+          />
             <InputSelect
               id="schema-create-template"
               label="template"
@@ -107,7 +113,6 @@ export default {
     InputSelect,
     LayoutForm,
     Spinner,
-    IconAction,
   },
   data: function () {
     return {
@@ -117,6 +122,7 @@ export default {
       success: null,
       schemaName: null,
       schemaDescription: null,
+      isChangelogEnabled: false,
       template: null,
       templates: [null, "PET_STORE", "DATA_CATALOGUE", "FAIR_DATA_HUB", "DATA_CATALOGUE_COHORT_STAGING","DATA_CATALOGUE_NETWORK_STAGING"],
       includeDemoData: false,
@@ -137,12 +143,28 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
+        `mutation createSchema(
+          $name:String,
+          $description:String,
+          $isChangelogEnabled: Boolean,
+          $template: String,
+          $includeDemoData: Boolean
+        ){
+          createSchema(
+            name:$name,
+            description:$description,
+            isChangelogEnabled: $isChangelogEnabled,
+            template: $template,
+            includeDemoData: $includeDemoData){
+            message
+            }
+         }`,
         {
           name: this.schemaName,
           description: this.schemaDescription,
           template: this.template,
           includeDemoData: this.includeDemoData,
+          isChangelogEnabled: this.isChangelogEnabled
         }
       )
         .then((data) => {

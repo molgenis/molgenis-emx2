@@ -57,7 +57,7 @@
                 <IconAction
                   v-if="session && session.email == 'admin'"
                   icon="edit"
-                  @click="openEditSchema(schema.name, schema.description)"
+                  @click="openEditSchema(schema)"
                 />
                 <IconDanger
                   v-if="session && session.email == 'admin'"
@@ -74,7 +74,7 @@
             </td>
             <td v-if="showChangeColumn">
               <LastUpdateField
-                v-if="changelogSchemas.includes(schema.name)"
+                v-if="schema.isChangelogEnabled"
                 :schema="schema.name"
                 @input="
                   (i) => {
@@ -98,6 +98,7 @@
         @close="closeEditSchema"
         :schemaName="showEditSchema"
         :schemaDescription="editDescription"
+        :schemaIsChangelogEnabled="editIsChangelogEnabled"
       />
     </div>
   </div>
@@ -143,6 +144,7 @@ export default {
       showDeleteSchema: false,
       showEditSchema: false,
       editDescription: null,
+      editIsChangelogEnabled: null,
       graphqlError: null,
       search: null,
       sortColumn: "name",
@@ -161,22 +163,8 @@ export default {
         (this.session.email == "admin" ||
           (this.session &&
             this.session.roles &&
-            this.session.roles.includes("Manager"))) &&
-        this.changelogSchemas.length
+            this.session.roles.includes("Manager")))
       );
-    },
-    changelogSchemas() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["CHANGELOG_SCHEMAS"]
-      ) {
-        return this.session.settings["CHANGELOG_SCHEMAS"]
-          .split(",")
-          .map((s) => s.trim());
-      } else {
-        return [];
-      }
     },
   },
   created() {
@@ -197,9 +185,10 @@ export default {
       this.showDeleteSchema = null;
       this.getSchemaList();
     },
-    openEditSchema(schemaName, schemaDescription) {
-      this.showEditSchema = schemaName;
-      this.editDescription = schemaDescription;
+    openEditSchema(schema) {
+      this.showEditSchema = schema.name;
+      this.editDescription = schema.description;
+      this.editIsChangelogEnabled = schema.isChangelogEnabled;
     },
     closeEditSchema() {
       this.showEditSchema = null;
@@ -208,7 +197,7 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name description}}")
+      request("graphql", "{Schemas{name description isChangelogEnabled}}")
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;

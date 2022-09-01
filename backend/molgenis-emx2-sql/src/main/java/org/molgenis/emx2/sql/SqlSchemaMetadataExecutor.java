@@ -62,11 +62,8 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
-    //    if (ChangeLogUtils.isChangeSchema(db, schema.getName())) {
-    //      ChangeLogExecutor.enableChangeLog(db, schema);
-    //    }
-
-    MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
+    MetadataUtils.saveSchemaMetadata(
+        db.getJooq(), schema.getName(), schema.getDescription(), schema.isChangeLogEnabled());
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
@@ -201,7 +198,7 @@ class SqlSchemaMetadataExecutor {
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
       // remove changelog table
-      ChangeLogExecutor.removeChangeLogTable(db);
+      ChangeLogExecutor.disableChangeLog(db, db.getSchema(schemaName).getMetadata());
       // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles

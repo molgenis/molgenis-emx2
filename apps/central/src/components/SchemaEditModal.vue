@@ -30,6 +30,12 @@
             label="description"
             :defaultValue="schemaDescription"
         />
+        <InputBoolean
+            id="schema-edit-is-changelog-enabled"
+            v-model="newSchemaIsChangelogEnabled"
+            label="enable changelog"
+            :defaultValue="false"
+        />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
@@ -51,6 +57,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
+  InputBoolean,
   InputText,
 } from "molgenis-components";
 
@@ -62,11 +69,13 @@ export default {
     ButtonAlt,
     LayoutModal,
     Spinner,
+    InputBoolean,
     InputText,
   },
   props: {
     schemaName: String,
-    schemaDescription: String
+    schemaDescription: String,
+    schemaIsChangelogEnabled: Boolean
   },
   data: function () {
     return {
@@ -74,7 +83,8 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
-      newSchemaDescription: this.schemaDescription
+      newSchemaDescription: this.schemaDescription,
+      newSchemaIsChangelogEnabled: this.schemaIsChangelogEnabled
     };
   },
   computed: {
@@ -92,10 +102,15 @@ export default {
       this.success = null;
       request(
         this.endpoint,
-        `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
+        `mutation updateSchema($name:String, $description:String, $isChangelogEnabled: Boolean) {
+          updateSchema(name:$name, description: $description, isChangelogEnabled: $isChangelogEnabled) {
+            message
+          }
+        }`,
         {
           name: this.schemaName,
           description: this.newSchemaDescription,
+          isChangelogEnabled: this.newSchemaIsChangelogEnabled
         }
       )
         .then((data) => {
