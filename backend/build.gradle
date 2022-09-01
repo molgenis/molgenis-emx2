@@ -49,9 +49,15 @@ subprojects {
         implementation('org.pac4j:pac4j-core:5.4.6'){
            exclude group: 'org.slf4j'
         }
-        implementation 'org.pac4j:pac4j-oidc:5.4.6'
-        implementation 'org.pac4j:pac4j-http:5.4.6'
-        implementation 'org.pac4j:spark-pac4j:5.0.0'
+        implementation ('org.pac4j:pac4j-oidc:5.4.6'){
+           exclude group: 'org.slf4j'
+        }
+        implementation ('org.pac4j:pac4j-http:5.4.6'){
+           exclude group: 'org.slf4j'
+        }
+        implementation ('org.pac4j:spark-pac4j:5.0.0'){
+           exclude group: 'org.slf4j'
+        }
         implementation 'org.javers:javers-core:6.6.5'
 
         //also used outside test
