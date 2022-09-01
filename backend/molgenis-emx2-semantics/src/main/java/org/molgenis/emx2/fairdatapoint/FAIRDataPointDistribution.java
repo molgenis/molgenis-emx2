@@ -42,7 +42,8 @@ public class FAIRDataPointDistribution {
               "rdf-nquads",
               "rdf-xml",
               "rdf-trig",
-              "rdf-jsonld"));
+              "rdf-jsonld",
+              "graphql"));
 
   /**
    * Access a dataset distribution by a combination of schema, table, and format. Example:
@@ -106,14 +107,7 @@ public class FAIRDataPointDistribution {
     URI requestURI = getURI(request.url());
     String host =
         requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
-    String apiFdp = host + "/api/fdp";
-    String apiFdpDataset = apiFdp + "/dataset";
-    String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
-
     IRI reqURL = iri(request.url()); // escaping/encoding seems OK
-    IRI apiFdpEnc = encodedIRI(apiFdp);
-    IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
-    IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);
 
     /*
     See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
@@ -141,6 +135,22 @@ public class FAIRDataPointDistribution {
           reqURL,
           DCAT.DOWNLOAD_URL,
           encodedIRI(host + "/" + schema + "/api/" + format + "/" + table));
+    } else if (format.equals("graphql")) {
+      List<String> columnNames =
+          database.getSchema(schema).getTable(table).getMetadata().getColumnNames();
+      // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          encodedIRI(
+              host
+                  + "/"
+                  + schema
+                  + "/graphql?query={"
+                  + table
+                  + "{"
+                  + (String.join(",", columnNames))
+                  + "}}"));
     } else {
       // all "rdf-" flavours
       builder.add(
@@ -157,6 +167,7 @@ public class FAIRDataPointDistribution {
         break;
       case "jsonld":
       case "rdf-jsonld":
+      case "graphql":
         mediaType = "https://www.iana.org/assignments/media-types/application/ld+json";
         break;
       case "ttl":
