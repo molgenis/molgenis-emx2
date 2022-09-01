@@ -56,11 +56,11 @@
               />
             </h5>
           </span>
-          <table class="table table-bordered">
+          <table class="table table-bordered" style="table-layout: fixed">
             <thead>
               <th style="width: 25%" scope="col">Subclass</th>
               <th style="width: 25%" scope="col">extends</th>
-              <th>description</th>
+              <th style="width: 50%" scope="col">description</th>
             </thead>
             <tbody>
               <tr
@@ -105,12 +105,12 @@
           class="btn-sm hoverIcon"
         />
       </h5>
-      <table class="table table-bordered">
+      <table class="table table-bordered" style="table-layout: fixed">
         <thead>
           <tr class="hoverContainer">
             <th style="width: 25%" scope="col">Column</th>
             <th style="width: 25%" scope="col">Definition</th>
-            <th scope="col">Description</th>
+            <th style="width: 50%" scope="col">Description</th>
           </tr>
         </thead>
         <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
