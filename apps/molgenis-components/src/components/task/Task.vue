@@ -27,16 +27,26 @@ export default {
     return {
       task: null,
       loading: true,
+<<<<<<< HEAD
+=======
+      error: false,
+>>>>>>> master
     };
   },
   methods: {
     async startMonitorTask() {
       while (
+<<<<<<< HEAD
         !this.task ||
         !(this.task.status === "ERROR") ||
         !(this.task.status === "COMPLETED")
       ) {
         await sleep(500);
+=======
+        (!this.error && !this.task) ||
+        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
+      ) {
+>>>>>>> master
         const query = `{
           _tasks(id:"${this.taskId}")
           {
@@ -53,6 +63,7 @@ export default {
           }
         }`;
         request("graphql", query)
+<<<<<<< HEAD
           .then((data) => {
             this.task = data._tasks[0];
             this.loading = false;
@@ -65,6 +76,16 @@ export default {
             }
           });
       }
+=======
+          .then((data) => (this.task = data._tasks[0]))
+          .catch((error) => {
+            console.log(JSON.stringify(error));
+            this.error = true;
+          });
+        await sleep(500);
+      }
+      this.loading = false;
+>>>>>>> master
     },
   },
   created() {
@@ -81,8 +102,23 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
+<<<<<<< HEAD
       This component is not demoable, as it needs an existing task-id. It is also shown in the TaskList and TaskManager components.
     </demo-item>
   </div>
 </template>
+=======
+      <StringInput v-model="taskId" />
+      <Task :taskId="taskId" />
+    </demo-item>
+  </div>
+</template>
+<script>
+export default {
+  data: function () {
+    return { taskId: "not existing taskId" };
+  },
+};
+</script>
+>>>>>>> master
 </docs>
