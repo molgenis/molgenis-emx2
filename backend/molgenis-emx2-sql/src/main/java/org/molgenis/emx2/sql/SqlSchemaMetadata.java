@@ -323,12 +323,4 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public Integer getChangesCount() {
     return executeGetChangesCount(getJooq(), this);
   }
-
-  public void enableChangeLog() {
-    ChangeLogExecutor.enableChangeLog(this.getDatabase(), this);
-  }
-
-  public void disableChangeLog() {
-    ChangeLogExecutor.disableChangeLog(this.getDatabase(), this);
-  }
 }

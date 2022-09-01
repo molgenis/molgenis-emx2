@@ -237,8 +237,6 @@ public class GraphqlApiFactory {
         || schema.getDatabase().isAdmin()) {
       queryBuilder.field(schemaFields.changeLogQuery(schema));
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
-      mutationBuilder.field(schemaFields.enableChangeLogMutation(schema));
-      mutationBuilder.field(schemaFields.disableChangeLogMutation(schema));
     }
 
     // table

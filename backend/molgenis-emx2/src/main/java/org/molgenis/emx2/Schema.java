@@ -60,8 +60,4 @@ public interface Schema {
   Integer getChangesCount();
 
   boolean isChangeLogEnabled();
-
-  void enableChangeLog();
-
-  void disableChangeLog();
 }

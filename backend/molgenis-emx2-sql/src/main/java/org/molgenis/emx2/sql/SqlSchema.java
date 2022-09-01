@@ -373,14 +373,4 @@ public class SqlSchema implements Schema {
   public boolean isChangeLogEnabled() {
     return metadata.isChangeLogEnabled();
   }
-
-  @Override
-  public void enableChangeLog() {
-    metadata.enableChangeLog();
-  }
-
-  @Override
-  public void disableChangeLog() {
-    metadata.disableChangeLog();
-  }
 }
