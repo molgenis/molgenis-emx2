@@ -93,4 +93,6 @@ public interface Database {
   boolean isOidcEnabled();
 
   boolean hasSchema(String catalogueOntologies);
+
+  Schema create(SchemaMetadata schema);
 }

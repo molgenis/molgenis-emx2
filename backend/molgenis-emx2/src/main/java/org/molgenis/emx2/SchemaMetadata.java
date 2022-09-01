@@ -16,6 +16,8 @@ public class SchemaMetadata {
   protected boolean isChangeLogEnabled = false;
   // optional
   protected Database database;
+  protected String template;
+  protected boolean includeDemoData = false;
 
   public SchemaMetadata() {}
 
@@ -71,24 +73,27 @@ public class SchemaMetadata {
     return name;
   }
 
-  public void setName(String name) {
+  public SchemaMetadata setName(String name) {
     this.name = name;
+    return this;
   }
 
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
+  public SchemaMetadata setDescription(String description) {
     this.description = description;
+    return this;
   }
 
   public boolean isChangeLogEnabled() {
     return isChangeLogEnabled;
   }
 
-  public void setIsChangeLogEnabled(Boolean isChangeLogEnabled) {
+  public SchemaMetadata setIsChangeLogEnabled(Boolean isChangeLogEnabled) {
     this.isChangeLogEnabled = isChangeLogEnabled;
+    return this;
   }
 
   public Set<String> getTableNames() {
@@ -188,6 +193,24 @@ public class SchemaMetadata {
       }
     }
     return null;
+  }
+
+  public String getTemplate() {
+    return template;
+  }
+
+  public SchemaMetadata setTemplate(String template) {
+    this.template = template;
+    return this;
+  }
+
+  public boolean isIncludeDemoData() {
+    return includeDemoData;
+  }
+
+  public SchemaMetadata setIncludeDemoData(boolean includeDemoData) {
+    this.includeDemoData = includeDemoData;
+    return this;
   }
 
   public List<TableMetadata> getTablesIncludingExternal() {

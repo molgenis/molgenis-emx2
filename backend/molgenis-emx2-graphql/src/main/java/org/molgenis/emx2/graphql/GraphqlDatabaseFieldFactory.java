@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.AvailableDataModels;
 import org.molgenis.emx2.tasks.TaskService;
@@ -22,6 +24,29 @@ public class GraphqlDatabaseFieldFactory {
   public GraphqlDatabaseFieldFactory() {
     // no instances
   }
+
+  static final GraphQLInputObjectType inputSchemaType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisSchemaInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(NAME).type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(DESCRIPTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.IS_CHANGELOG_ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.TEMPLATE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.INCLUDE_DEMO_DATA)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
 
   public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
@@ -38,57 +63,50 @@ public class GraphqlDatabaseFieldFactory {
 
   public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("createSchema")
+        .name("create")
         .type(typeForMutationResult)
         .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.IS_CHANGELOG_ENABLED)
-                .type(Scalars.GraphQLBoolean))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.TEMPLATE).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.INCLUDE_DEMO_DATA)
-                .type(Scalars.GraphQLBoolean))
+            GraphQLArgument.newArgument().name(SCHEMAS).type(GraphQLList.list(inputSchemaType)))
+        // todo also include 'settings' into this 'create' mutation
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument(NAME);
-              String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              boolean isChangelogEnabled =
-                  dataFetchingEnvironment.getArgument(Constants.IS_CHANGELOG_ENABLED);
-              String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
-              Boolean includeDemoData =
-                  dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
-
+              List<SchemaMetadata> schemaList = dataFetchingEnvironment.getArgument(SCHEMAS);
               database.tx(
                   db -> {
-                    Schema schema = db.createSchema(name, description, isChangelogEnabled);
-                    if (template != null) {
-                      AvailableDataModels.valueOf(template)
-                          .install(schema, Boolean.TRUE.equals(includeDemoData));
+                    for (SchemaMetadata schemaMetadata : schemaList) {
+                      Schema schema = db.create(schemaMetadata);
+                      if (schemaMetadata.getTemplate() != null) {
+                        AvailableDataModels.valueOf(schemaMetadata.getTemplate())
+                            .install(
+                                schema, Boolean.TRUE.equals(schemaMetadata.isIncludeDemoData()));
+                      }
                     }
                   });
-              return new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
+              return new GraphqlApiMutationResult(
+                  SUCCESS,
+                  "Schema(s) %s created",
+                  schemaList.stream()
+                      .map(schema -> schema.getName())
+                      .collect(Collectors.joining(",")));
             });
+  }
+
+  private SchemaMetadata getSchema(Map<String, Object> schemaInfo) {
+    Row row = new Row(schemaInfo);
+    return new SchemaMetadata()
+        .setName(row.getString(NAME))
+        .setDescription(row.getString(DESCRIPTION))
+        .setIsChangeLogEnabled(row.getBoolean(IS_CHANGELOG_ENABLED));
   }
 
   public GraphQLFieldDefinition.Builder updateMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("updateSchema")
+        .name("update")
         .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.IS_CHANGELOG_ENABLED)
-                .type(Scalars.GraphQLBoolean))
+        .argument(GraphQLArgument.newArgument().name(SCHEMAS).type(inputSchemaType))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              // todo
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
               boolean isChangeLogEnabled =

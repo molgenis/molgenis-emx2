@@ -190,6 +190,12 @@ public class SqlDatabase implements Database {
   }
 
   @Override
+  public SqlSchema create(SchemaMetadata schema) {
+    return this.createSchema(
+        schema.getName(), schema.getDescription(), schema.isChangeLogEnabled());
+  }
+
+  @Override
   public Schema createSchema(String name, String description) {
     return this.createSchema(name, description, false);
   }
