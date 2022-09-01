@@ -4,13 +4,8 @@
       Tables
       <IconAction icon="plus" @click="addTable" />
     </h4>
-    <div v-if="schema.tables" class="overflow-auto 90-vh" style="height: 90vh">
-      <p
-        v-for="table in schema.tables.filter(
-          (t) => t.externalSchema === undefined && t.inherit === undefined
-        )"
-        :key="table.name"
-      >
+    <ul v-if="schema.tables" class="overflow-auto 90-vh" style="height: 90vh">
+      <li v-for="table in schema.tables" :key="table.name">
         <a
           :href="'#'"
           v-scroll-to="{
@@ -19,8 +14,22 @@
           }"
           >{{ table.name }}</a
         >
-      </p>
-    </div>
+        <ul v-if="table.subclasses">
+          <li v-for="subtable in table.subclasses" :key="subtable.name">
+            <a
+              :href="'#'"
+              v-scroll-to="{
+                el:
+                  '#' +
+                  (subtable.name ? subtable.name.replaceAll(' ', '_') : ''),
+                offset: -50,
+              }"
+              >{{ subtable.name }}</a
+            >
+          </li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </template>
 

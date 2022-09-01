@@ -32,6 +32,11 @@
             class="hoverIcon"
           />
         </span>
+        <p>
+          {{
+            table.description ? table.description : "No description available"
+          }}
+        </p>
         <span v-if="table.subclasses === undefined" class="hoverContainer">
           (no subclasses)
           <IconAction
@@ -42,55 +47,68 @@
         </span>
         <div v-else>
           <span class="hoverContainer">
-            Subclasses:
-            <IconAction
-              icon="plus"
-              @click="createSubclass"
-              class="btn-sm hoverIcon"
-            />
+            <h5>
+              Subclasses:
+              <IconAction
+                icon="plus"
+                @click="createSubclass"
+                class="btn-sm hoverIcon"
+              />
+            </h5>
           </span>
-          <ul>
-            <li
-              v-for="(subclass, index) in table.subclasses"
-              class="hoverContainer"
-              :key="table.subclasses.length + '_' + index"
-              :style="subclass.drop ? 'text-decoration: line-through' : ''"
-            >
-              <TableEditModal
-                v-model="table.subclasses[index]"
-                :schema="schema"
-                :rootTable="table"
-                @input="$emit('input', table)"
-              />
-              <IconDanger
-                @click="deleteTable(subclass)"
-                icon="trash"
-                class="hoverIcon"
-              />
-              {{ subclass.name }} extends {{ subclass.inherit }}
-              <span v-if="subclass.description !== undefined"
-                >: {{ subclass.description }}</span
+          <table class="table table-bordered">
+            <thead>
+              <th style="width: 25%" scope="col">Subclass</th>
+              <th style="width: 25%" scope="col">extends</th>
+              <th>description</th>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(subclass, index) in table.subclasses"
+                class="hoverContainer"
+                :key="table.subclasses.length + '_' + index"
+                :style="subclass.drop ? 'text-decoration: line-through' : ''"
+                :id="
+                  subclass.name !== undefined
+                    ? subclass.name.replaceAll(' ', '_')
+                    : ''
+                "
               >
-            </li>
-          </ul>
+                <td>
+                  {{ subclass.name }}
+                  <TableEditModal
+                    v-model="table.subclasses[index]"
+                    :schema="schema"
+                    :rootTable="table"
+                    @input="$emit('input', table)"
+                  />
+                  <IconDanger
+                    @click="deleteTable(subclass)"
+                    icon="trash"
+                    class="hoverIcon"
+                  />
+                </td>
+                <td>extends {{ subclass.inherit }}</td>
+                <td>
+                  {{ subclass.description }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <p>
-          {{
-            table.description ? table.description : "No description available"
-          }}
-        </p>
       </div>
+      <h5 class="hoverContainer">
+        Columns:
+        <IconAction
+          icon="plus"
+          @click="createColumn"
+          class="btn-sm hoverIcon"
+        />
+      </h5>
       <table class="table table-bordered">
         <thead>
           <tr class="hoverContainer">
-            <th style="width: 25%" scope="col">
-              Column
-              <IconAction
-                icon="plus"
-                @click="createColumn"
-                class="btn-sm hoverIcon"
-              />
-            </th>
+            <th style="width: 25%" scope="col">Column</th>
             <th style="width: 25%" scope="col">Definition</th>
             <th scope="col">Description</th>
           </tr>
