@@ -27,16 +27,15 @@ export default {
     return {
       task: null,
       loading: true,
-      errorOccurred: false,
+      error: false,
     };
   },
   methods: {
     async startMonitorTask() {
       while (
-        (!this.task && !this.errorOccurred) ||
-        !["COMPLETED", "ERROR"].includes(this.task.status)
+        (!this.error && !this.task) ||
+        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
       ) {
-        await sleep(500);
         const query = `{
           _tasks(id:"${this.taskId}")
           {
@@ -53,15 +52,14 @@ export default {
           }
         }`;
         request("graphql", query)
-          .then((data) => {
-            this.task = data._tasks[0];
-            this.loading = false;
-          })
+          .then((data) => (this.task = data._tasks[0]))
           .catch((error) => {
             console.log(JSON.stringify(error));
-            this.errorOccurred = true;
+            this.error = true;
           });
+        await sleep(500);
       }
+      this.loading = false;
     },
   },
   created() {
@@ -78,7 +76,7 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
-      This component is not demoable, as it needs an existing task-id. It is also shown in the TaskList and TaskManager components.
+      <Task taskId="6956bf6d-3f78-4798-873f-dd5382ac0e24"/>
     </demo-item>
   </div>
 </template>
