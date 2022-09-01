@@ -24,19 +24,47 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Version;
 import spark.Request;
 
 public class FAIRDataPoint {
 
   // todo: double check cardinality
 
-  private String result;
-
-  public String getResult() {
-    return result;
+  /**
+   * Constructor
+   *
+   * @param request
+   * @param schemas
+   * @throws Exception
+   */
+  public FAIRDataPoint(Request request, Schema... schemas) {
+    this.version = Version.getVersion();
+    this.request = request;
+    this.schemas = schemas;
   }
 
-  public FAIRDataPoint(Request request, Schema... schemas) throws Exception {
+  private String version;
+  private Request request;
+  private Schema[] schemas;
+  private String result;
+
+  /**
+   * Used to override version for JUnit testing
+   *
+   * @param version
+   */
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  /**
+   * Create and get resulting FDP
+   *
+   * @return
+   * @throws Exception
+   */
+  public String getResult() throws Exception {
     // get all FDP_Catalog records from all of the supplied tables
     if (schemas.length == 0) {
       throw new Exception("No data available");
@@ -68,13 +96,8 @@ public class FAIRDataPoint {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    // todo database version automatic using something like ??
-    // GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
-    // queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(database));
-
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     Date currentDateTime = new Date(System.currentTimeMillis());
-    String version = "MOLGENIS-EMX2 v8.0";
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     String requestURL = request.url();
@@ -177,7 +200,7 @@ public class FAIRDataPoint {
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#uiLanguage"),
         iri("http://lexvo.org/id/iso639-3/eng"));
-    builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#hasSoftwareVersion"), version);
+    builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#hasSoftwareVersion"), this.version);
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#fdpSoftwareVersion"),
@@ -190,7 +213,7 @@ public class FAIRDataPoint {
     builder.add(apiFdpEnc, RDF.TYPE, DCAT.DATA_SERVICE);
     builder.add(apiFdpEnc, RDF.TYPE, iri("https://w3id.org/fdp/fdp-o#FAIRDataPoint"));
     builder.add(apiFdpEnc, RDFS.LABEL, "FAIR Data Point hosted by MOLGENIS-EMX2 at " + apiFdpEnc);
-    builder.add(apiFdpEnc, DCTERMS.HAS_VERSION, version);
+    builder.add(apiFdpEnc, DCTERMS.HAS_VERSION, this.version);
     builder.add(
         apiFdpEnc,
         iri("http://www.re3data.org/schema/3-0#repositoryIdentifier"),
@@ -204,6 +227,6 @@ public class FAIRDataPoint {
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
-    this.result = stringWriter.toString();
+    return stringWriter.toString();
   }
 }

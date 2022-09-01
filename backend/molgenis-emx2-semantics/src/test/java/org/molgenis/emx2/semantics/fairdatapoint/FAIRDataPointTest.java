@@ -40,6 +40,7 @@ public class FAIRDataPointTest {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
     FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHubSchemas);
+    fairDataPoint.setVersion("setversionforjtest");
     String result = fairDataPoint.getResult();
     assertTrue(
         result.contains(
