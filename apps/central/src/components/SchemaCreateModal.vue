@@ -47,8 +47,8 @@
             id="schema-create-is-changelog-enabled"
             v-model="isChangelogEnabled"
             label="enable changelog"
-            :inplace="true"
             :defaultValue="false"
+            :isClearable="false"
           />
             <InputSelect
               id="schema-create-template"

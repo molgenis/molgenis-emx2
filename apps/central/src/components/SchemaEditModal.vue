@@ -34,8 +34,8 @@
             id="schema-edit-is-changelog-enabled"
             v-model="newSchemaIsChangelogEnabled"
             label="enable changelog"
-            :inplace="true"
             :defaultValue="false"
+            :isClearable="false"
         />
       </template>
       <template v-slot:footer>
