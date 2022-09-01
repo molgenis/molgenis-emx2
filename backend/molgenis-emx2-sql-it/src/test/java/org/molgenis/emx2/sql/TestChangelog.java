@@ -39,19 +39,17 @@ public class TestChangelog {
   }
 
   @Test
-  public void testChangelogFeatureFlag() {
+  public void testGetChangesCount() {
 
     database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
-          db.dropSchemaIfExists("testSchemaChangesFF");
+          db.dropSchemaIfExists("testSchemaChangesChangeCount");
           db.becomeAdmin();
-          db.createSetting("CHANGELOG_SCHEMAS", "otherschema");
-          db.createSchema("testSchemaChangesFF");
-          Schema schema = db.getSchema("testSchemaChangesFF");
+          db.createSchema("testSchemaChangesChangeCount", "my desc", true);
+          Schema schema = db.getSchema("testSchemaChangesChangeCount");
           schema = addTestData(schema);
-
-          assertEquals(0, schema.getChanges(100).size());
+          assertEquals(java.util.Optional.of(3), java.util.Optional.of(schema.getChangesCount()));
         });
   }
 

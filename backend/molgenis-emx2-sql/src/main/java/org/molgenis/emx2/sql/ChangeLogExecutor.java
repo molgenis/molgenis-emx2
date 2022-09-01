@@ -81,15 +81,8 @@ public class ChangeLogExecutor {
               ChangeLogUtils.buildProcessAuditFunctionRemove(
                   schema.getName(), table.getTableName()));
     }
-
-    // todo revoke grants for changelog table ?
-
     // remove the changelog data table
-    removeChangeLogTable(db, schema.getName());
-  }
-
-  static void removeChangeLogTable(SqlDatabase db, String schemaName) {
-    db.getJooq().dropTableIfExists(table(name(schemaName, MG_CHANGLOG)));
+    db.getJooq().dropTableIfExists(table(name(schema.getName(), MG_CHANGLOG)));
   }
 
   static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
