@@ -34,6 +34,7 @@
             id="schema-edit-is-changelog-enabled"
             v-model="newSchemaIsChangelogEnabled"
             label="enable changelog"
+            :inplace="true"
             :defaultValue="false"
         />
       </template>
