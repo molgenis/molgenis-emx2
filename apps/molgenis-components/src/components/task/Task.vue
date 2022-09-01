@@ -27,14 +27,14 @@ export default {
     return {
       task: null,
       loading: true,
+      errorOccurred: false,
     };
   },
   methods: {
     async startMonitorTask() {
       while (
-        !this.task ||
-        !(this.task.status === "ERROR") ||
-        !(this.task.status === "COMPLETED")
+        (!this.task && !this.errorOccurred) ||
+        !["COMPLETED", "ERROR"].includes(this.task.status)
       ) {
         await sleep(500);
         const query = `{
@@ -58,11 +58,8 @@ export default {
             this.loading = false;
           })
           .catch((error) => {
-            if (Array.isArray(error.response.errors)) {
-              console.log(error.response.errors[0].message);
-            } else {
-              console.log(error);
-            }
+            console.log(JSON.stringify(error));
+            this.errorOccurred = true;
           });
       }
     },
