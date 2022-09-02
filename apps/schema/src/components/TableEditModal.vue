@@ -2,12 +2,12 @@
   <IconAction
     v-if="!show"
     class="btn-sm hoverIcon"
-    icon="pencil-alt"
-    @click="show = true"
+    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
+    @click="showModal"
   />
   <LayoutModal
     v-else
-    title="Edit table definition"
+    :title="title"
     @close="close"
     :isCloseButtonShown="!isDisabled"
   >
@@ -16,13 +16,13 @@
       <InputString
         id="table_name"
         v-model="table.name"
-        label="Table name"
+        label="Name"
         :errorMessage="nameInvalid"
       />
       <InputText
         id="table_description"
         v-model="table.description"
-        label="Table Description"
+        label="Description"
       />
       <InputSelect
         v-if="rootTable !== undefined"
@@ -38,7 +38,7 @@
         id="table_semantics"
         :list="true"
         v-model="table.semantics"
-        label="semantics (comma separated list of IRI defining type, and/or keyword 'id')"
+        label="Semantics (comma separated list of IRI defining type, and/or keyword 'id')"
       />
     </template>
     <template v-slot:footer>
@@ -72,10 +72,9 @@ export default {
     ButtonAlt,
   },
   props: {
-    /** Table metadata object entered as v-model */
+    /** Table metadata object entered as v-model, for updates */
     value: {
       type: Object,
-      required: true,
     },
     /** root table, used in case of subclasses */
     rootTable: {
@@ -87,6 +86,15 @@ export default {
       type: Object,
       required: true,
     },
+    /** action, either 'add' or 'input */
+    operation: {
+      type: String,
+      default: "input",
+    },
+    /** type, either 'ontology' or nothing*/
+    tableType: {
+      type: String,
+    },
   },
   data: function () {
     return {
@@ -97,6 +105,11 @@ export default {
     };
   },
   computed: {
+    title() {
+      return this.tableType === "ontology"
+        ? this.operation + " ontology definition"
+        : this.operation + " table definition";
+    },
     inheritOptions() {
       if (this.rootTable && this.rootTable.subclasses !== undefined) {
         const result = [this.rootTable.name];
@@ -118,17 +131,20 @@ export default {
         return "Name is required and can only contain 'azAZ_ '";
       }
       if (
-        this.value.name !== this.table.name &&
-        this.schema.tables.filter(
+        this.value?.name !== this.table.name &&
+        (this.schema.tables.filter(
           (table) =>
             table.name === this.table.name ||
             (table.subclasses !== undefined &&
               table.subclasses
                 .map((subclass) => subclass.name)
                 .includes(this.table.name))
-        ).length > 0
+        ).length > 0 ||
+          this.schema.ontologies.filter(
+            (ontology) => ontology.name === this.table.name
+          ).length > 0)
       ) {
-        return "Name should be unique";
+        return "Name should be unique (no other table or ontology can have same name)";
       }
       return null;
     },
@@ -142,22 +158,32 @@ export default {
     },
   },
   methods: {
+    showModal() {
+      if (!this.value) {
+        this.table = {};
+      }
+      this.show = true;
+    },
     close() {
       this.show = false;
-      this.$emit("input", this.table);
+      this.$emit(this.operation, this.table);
     },
     cancel() {
       //set
-      this.table = JSON.parse(JSON.stringify(this.value));
+      if (this.value) {
+        this.table = JSON.parse(JSON.stringify(this.value));
+      } else {
+        this.table = {};
+      }
       this.show = false;
     },
   },
   created() {
     //deep copy
-    this.table = JSON.parse(JSON.stringify(this.value));
-    //force showing of the new table editor
-    if (this.table.name === undefined) {
-      this.show = true;
+    if (this.value) {
+      this.table = JSON.parse(JSON.stringify(this.value));
+    } else {
+      this.table = {};
     }
   },
 };

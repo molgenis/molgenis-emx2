@@ -23,10 +23,12 @@
         @input="$emit('input', column)"
       />
       <IconDanger class="hoverIcon" icon="trash" @click="deleteColumn" />
-      <IconAction
-        class="hoverIcon"
-        icon="plus"
-        @click="$emit('createColumn', column.position)"
+      <ColumnEditModal
+        :schema="schema"
+        :schemaNames="schemaNames"
+        operation="add"
+        :tableName="column.table"
+        @add="addColumn"
       />
     </td>
     <td>
@@ -57,17 +59,20 @@
 .moveHandle:hover {
   cursor: move;
 }
+
+span {
+  word-break: break-word;
+}
 </style>
 
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconAction, IconDanger } from "molgenis-components";
+import { IconDanger } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
-    IconAction,
     IconDanger,
   },
   data() {
@@ -104,20 +109,15 @@ export default {
     },
   },
   methods: {
+    addColumn(value) {
+      this.$emit("add", value);
+    },
     deleteColumn() {
-      if (this.column.drop) {
-        delete this.column.drop;
-      } else {
-        this.column.drop = true;
-      }
-      this.$emit("input", this.column);
+      this.$emit("delete");
     },
   },
   created() {
     this.column = this.value;
-    if (this.column) {
-      this.column.oldName = this.column.name;
-    }
   },
 };
 </script>

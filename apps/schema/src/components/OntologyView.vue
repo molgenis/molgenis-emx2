@@ -1,0 +1,115 @@
+<template>
+  <tr
+    :style="ontology.drop ? 'text-decoration: line-through' : ''"
+    class="hoverContainer"
+  >
+    <td>
+      <p
+        :id="
+          ontology.name !== undefined ? ontology.name.replaceAll(' ', '_') : ''
+        "
+        style="display: inline-block; text-transform: none !important"
+        :style="ontology.drop ? 'text-decoration: line-through' : ''"
+      >
+        {{ ontology.name }}
+        <span v-if="ontology.semantics" class="small">
+          (<a
+            :href="purl"
+            target="_blank"
+            v-for="purl in ontology.semantics"
+            :key="purl"
+            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          >)
+        </span>
+      </p>
+      <TableEditModal
+        v-model="ontology"
+        :schema="schema"
+        @input="$emit('input', ontology)"
+      />
+      <IconDanger
+        @click="deleteOntology(ontology)"
+        icon="trash"
+        class="hoverIcon"
+      />
+    </td>
+    <td>
+      {{
+        ontology.description ? ontology.description : "No description available"
+      }}
+    </td>
+  </tr>
+</template>
+
+<style>
+.hoverIcon {
+  visibility: hidden;
+}
+
+.hoverContainer:hover .hoverIcon {
+  visibility: visible;
+}
+</style>
+
+<script>
+import { IconAction, IconDanger } from "molgenis-components";
+import columnTypes from "../columnTypes.js";
+import TableEditModal from "./TableEditModal.vue";
+
+export default {
+  components: {
+    TableEditModal,
+    IconAction,
+    IconDanger,
+  },
+  props: {
+    value: {
+      type: Object,
+      required: true,
+    },
+    schema: {
+      type: Object,
+      required: true,
+    },
+    schemaNames: {
+      type: Array,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      ontology: {},
+      columnTypes,
+    };
+  },
+  methods: {
+    applyPosition() {
+      let position = 1;
+      this.table.columns.forEach((column) => (column.position = position++));
+      this.$emit("input", this.table);
+    },
+    validateName() {
+      if (!this.name) {
+        return "Ontology name is required";
+      }
+      if (this.schema.tables.filter((t) => t.name === this.name).length > 1) {
+        return "Ontology name must be unique within schema";
+      }
+    },
+    deleteOntology(ontology) {
+      if (!ontology.oldName) {
+        this.$emit("delete");
+      }
+      if (!ontology.drop) {
+        //need to do deep set otherwise vue doesn't see it
+        this.$set(ontology, "drop", true);
+      } else {
+        this.$set(ontology, "drop", false);
+      }
+    },
+  },
+  created() {
+    this.ontology = this.value;
+  },
+};
+</script>

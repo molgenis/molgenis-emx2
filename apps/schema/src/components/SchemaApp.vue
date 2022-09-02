@@ -1,23 +1,25 @@
 <template>
   <div class="container-fluid bg-white">
-    <div class="sticky-top d-flex justify-content-between">
-      <div class="form-inline">
-        <h1>Schema editor: {{ schema.name }}</h1>
-        <span v-if="schema.tables && dirty">
-          <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>
-          &nbsp;
-          <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
-        </span>
+    <div class="sticky-top bg-white">
+      <div class="d-flex justify-content-between">
+        <div class="form-inline">
+          <h1>Schema editor: {{ schema.name }}</h1>
+          <span v-if="schema.tables && dirty">
+            <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>
+            &nbsp;
+            <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
+          </span>
+        </div>
+        <div v-if="schema.tables">
+          <ButtonAction @click="toggleShowDiagram">
+            {{ showDiagram ? "Hide" : "Show" }} Diagram
+          </ButtonAction>
+        </div>
       </div>
-      <div v-if="schema.tables">
-        <ButtonAction @click="toggleShowDiagram">
-          {{ showDiagram ? "Hide" : "Show" }} Diagram
-        </ButtonAction>
-      </div>
+      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+      <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
+      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
-    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <Spinner v-if="loading === true || !schema.tables" />
     <div v-else class="row">
       <div class="col-2 bg-white">
@@ -33,7 +35,6 @@
         <SchemaView
           v-model="schema"
           :schemaNames="schemaNames"
-          v-if="schema.tables"
           @input="
             dirty = true;
             success = null;
@@ -43,6 +44,12 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+table {
+  table-layout: fixed;
+}
+</style>
 
 <script>
 import { request } from "graphql-request";
@@ -120,6 +127,8 @@ export default {
         );
       });
       tables = Object.values(tableMap);
+      //add ontologies
+      tables.push(...schema.ontologies);
       request(
         "graphql",
         `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
@@ -172,8 +181,11 @@ export default {
       const schema = JSON.parse(JSON.stringify(rawSchema));
       if (schema) {
         if (schema.tables) {
+          //normal tables
           let tables = schema.tables.filter(
-            (table) => table.tableType !== "ONTOLOGIES"
+            (table) =>
+              table.tableType !== "ONTOLOGIES" &&
+              table.externalSchema === undefined
           );
           tables.forEach((t) => {
             t.oldName = t.name;
@@ -189,6 +201,11 @@ export default {
               t.columns = [];
             }
           });
+          schema.ontologies = schema.tables.filter(
+            (table) =>
+              table.tableType === "ONTOLOGIES" &&
+              table.externalSchema === undefined
+          );
           schema.tables = tables;
         } else {
           schema.tables = [];

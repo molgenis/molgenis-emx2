@@ -2,10 +2,10 @@
   <IconAction
     v-if="!show"
     class="btn-sm hoverIcon"
-    icon="pencil-alt"
+    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
     @click="show = true"
   />
-  <LayoutModal v-else @close="close" :isCloseButtonShown="!isDisabled">
+  <LayoutModal v-else @close="cancel" :isCloseButtonShown="!isDisabled">
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
@@ -156,7 +156,7 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
     </template>
   </LayoutModal>
@@ -194,10 +194,13 @@ export default {
     Spinner,
   },
   props: {
-    /** Column metadata object entered as v-model */
+    /** Column metadata object entered as v-model in case of updates*/
     value: {
       type: Object,
-      required: true,
+    },
+    /** schema  column is part of, used for ref options*/
+    tableName: {
+      type: String,
     },
     /** schema  column is part of, used for ref options*/
     schema: {
@@ -208,6 +211,11 @@ export default {
     schemaNames: {
       type: Array,
       required: true,
+    },
+    /** can be set to 'add' */
+    operation: {
+      type: String,
+      default: "input",
     },
   },
   data() {
@@ -230,13 +238,18 @@ export default {
     table() {
       return this.schema.tables.find(
         (table) =>
+          table.name === this.tableName ||
           table.name === this.column.table ||
           (table.subclasses && table.subclasses.includes(this.column.table))
       );
     },
     //listing of related subclasses, used to indicate if column is part of subclass
     subclassNames() {
-      return this.table?.subclasses.map((subclass) => subclass.name);
+      if (this.table?.subclasses) {
+        return this.table?.subclasses.map((subclass) => subclass.name);
+      } else {
+        return undefined;
+      }
     },
     //listing of all tables, used for refs
     tableNames() {
@@ -254,7 +267,7 @@ export default {
         return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
       }
       if (
-        this.value.name !== this.column.name &&
+        (this.value === undefined || this.value.name !== this.column.name) &&
         this.table.columns?.filter((c) => c.name === this.column.name).length >
           0
       ) {
@@ -268,12 +281,13 @@ export default {
     },
   },
   methods: {
-    close() {
+    apply() {
       this.show = false;
-      this.$emit("input", this.column);
+      this.$emit(this.operation, this.column);
+      this.reset();
     },
     cancel() {
-      this.column = JSON.parse(JSON.stringify(this.value));
+      this.reset();
       this.show = false;
     },
     refLinkCandidates(column) {
@@ -311,18 +325,21 @@ export default {
       }
       this.loading = false;
     },
+    reset() {
+      //deep copy so it doesn't update during edits
+      if (this.value) {
+        this.column = JSON.parse(JSON.stringify(this.value));
+      } else {
+        this.column = { table: this.tableName, columnType: "STRING" };
+      }
+      //if reference to external schema
+      if (this.column.refSchema != undefined) {
+        this.loadRefSchema();
+      }
+    },
   },
   created() {
-    //deep copy so it doesn't update during edits
-    this.column = JSON.parse(JSON.stringify(this.value));
-    //show new columns in editor
-    if (this.column.name === undefined) {
-      this.show = true;
-    }
-    //if reference to external schema
-    if (this.column.refSchema != undefined) {
-      this.loadRefSchema();
-    }
+    this.reset();
   },
 };
 </script>
