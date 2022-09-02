@@ -13,10 +13,16 @@
       :showOrderBy="showOrderBy"
       :showOrder="showOrder"
       :key="timestamp"
+      @update:showColumns="updateColumns"
+      @update:showFilters="updateFilters"
+      @update:conditions="updateConditions"
+      @update:showPage="updatePage"
+      @update:showLimit="updateLimit"
+      @update:showOrderBy="updateOrderBy"
+      @update:showOrder="updateOrder"
     />
   </div>
 </template>
-
 <script>
 import { TableExplorer } from "molgenis-components";
 
