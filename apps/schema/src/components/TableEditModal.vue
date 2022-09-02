@@ -111,13 +111,15 @@ export default {
         : this.operation + " table definition";
     },
     inheritOptions() {
-      if (this.rootTable && this.rootTable.subclasses !== undefined) {
+      if (this.rootTable) {
         const result = [this.rootTable.name];
-        result.push(
-          ...this.rootTable.subclasses
-            .map((subclass) => subclass.name)
-            .filter((name) => name !== this.table.name)
-        );
+        if (this.rootTable.subclasses !== undefined) {
+          result.push(
+            ...this.rootTable.subclasses
+              .map((subclass) => subclass.name)
+              .filter((name) => name !== this.table.name)
+          );
+        }
         return result;
       }
       return undefined;
@@ -132,17 +134,19 @@ export default {
       }
       if (
         this.value?.name !== this.table.name &&
-        (this.schema.tables.filter(
-          (table) =>
-            table.name === this.table.name ||
-            (table.subclasses !== undefined &&
-              table.subclasses
-                .map((subclass) => subclass.name)
-                .includes(this.table.name))
-        ).length > 0 ||
-          this.schema.ontologies.filter(
-            (ontology) => ontology.name === this.table.name
-          ).length > 0)
+        ((this.schema.tables &&
+          this.schema.tables.filter(
+            (table) =>
+              table.name === this.table.name ||
+              (table.subclasses !== undefined &&
+                table.subclasses
+                  .map((subclass) => subclass.name)
+                  .includes(this.table.name))
+          ).length > 0) ||
+          (this.schema.ontologies &&
+            this.schema.ontologies.filter(
+              (ontology) => ontology.name === this.table.name
+            ).length > 0))
       ) {
         return "Name should be unique (no other table or ontology can have same name)";
       }

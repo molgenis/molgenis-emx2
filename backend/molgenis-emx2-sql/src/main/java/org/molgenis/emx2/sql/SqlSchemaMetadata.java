@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChanges;
@@ -127,7 +128,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
-                SqlTableMetadata result = new SqlTableMetadata(sm, table);
+                SqlTableMetadata result = null;
+                if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+                  result =
+                      new SqlTableMetadata(
+                          sm,
+                          getOntologyTableDefinition(table.getTableName(), table.getDescription()));
+                } else {
+                  result = new SqlTableMetadata(sm, table);
+                }
                 sm.tables.put(table.getTableName(), result);
                 executeCreateTable(((SqlDatabase) database).getJooq(), result);
               }

@@ -4,7 +4,7 @@
     class="hoverContainer"
   >
     <td>
-      <p
+      <div
         :id="
           ontology.name !== undefined ? ontology.name.replaceAll(' ', '_') : ''
         "
@@ -21,7 +21,7 @@
             >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
           >)
         </span>
-      </p>
+      </div>
       <TableEditModal
         v-model="ontology"
         :schema="schema"

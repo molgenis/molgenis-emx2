@@ -63,34 +63,57 @@ export default {
     tables() {
       return this.schema.tables;
     },
+    ontologies() {
+      return this.schema.ontologies;
+    },
     nomnomlSVG() {
       return renderSvg(this.nomnomSource);
     },
     nomnomSource() {
       if (!this.tables || this.tables.length === 0) return "";
-      let res = `#.box: fill=white solid\n#stroke: #007bff\n#direction: ${
-        this.displaySettings.includes("vertical") ? "right" : "down"
-      }\n`;
+      let res = `
+#.table: fill=white solid
+#.external: fill=white stroke=grey text=italic solid
+#.ontology: fill=white solid visual=ellipse
+#.externalo: fill=white stroke=grey solid visual=ellipse
+#stroke: #007bff
+#direction: ${this.displaySettings.includes("vertical") ? "right" : "down"}\n`;
       // classes
-      this.tables
-        .filter(
-          (t) => !t.externalSchema || this.displaySettings.includes("external")
-        )
-        .forEach((table) => {
-          res += `[${table.externalSchema ? "<external>" : "<box>"} ${
-            table.name
-          }`;
-          res += this.nomnomColumnsForTable(table, table.name);
-          res += "]\n";
-          if (table.subclasses !== undefined) {
-            table.subclasses.forEach((subclass) => {
-              res += `[<box> ${subclass.name}`;
-              res += this.nomnomColumnsForTable(table, subclass.name);
-              res += "]\n";
-              res += `[<box>${subclass.inherit}]<:-[<box>${subclass.name}]\n`;
-            });
-          }
-        });
+      if (this.tables) {
+        this.tables
+          .filter(
+            (t) =>
+              !t.externalSchema || this.displaySettings.includes("external")
+          )
+          .forEach((table) => {
+            res += `[${table.externalSchema ? "<external>" : "<table>"} ${
+              table.name
+            }`;
+            res += this.nomnomColumnsForTable(table, table.name);
+            res += "]\n";
+            if (table.subclasses !== undefined) {
+              table.subclasses.forEach((subclass) => {
+                res += `[<table> ${subclass.name}`;
+                res += this.nomnomColumnsForTable(table, subclass.name);
+                res += "]\n";
+                res += `[<table>${subclass.inherit}]<:-[<table>${subclass.name}]\n`;
+              });
+            }
+          });
+      }
+      if (this.displaySettings.includes("ontologies") && this.ontologies) {
+        this.ontologies
+          .filter(
+            (t) =>
+              !t.externalSchema || this.displaySettings.includes("external")
+          )
+          .forEach((table) => {
+            res += `[${table.externalSchema ? "<external>" : "<ontology>"} ${
+              table.name
+            }`;
+            res += "]\n";
+          });
+      }
 
       // relations
       this.tables
@@ -110,17 +133,18 @@ export default {
               )
               .forEach((column) => {
                 if (
-                  column.columnType === "REF" ||
-                  (column.columnType === "ONTOLOGY" &&
-                    this.displaySettings.includes("ontologies"))
+                  this.displaySettings.includes("ontologies") &&
+                  (column.columnType === "ONTOLOGY" ||
+                    column.columnType === "ONTOLOGY_ARRAY")
                 ) {
-                  res += `[<box>${column.refTable}]<-${column.name}[<box>${table.name}]\n`;
+                  const type = column.refSchema ? "externalo" : "ontology";
+                  res += `[<${type}>${column.refTable}]<- ${column.name}[<table>${table.name}]\n`;
                 } else if (
                   column.columnType === "REF_ARRAY" ||
-                  (column.columnType === "ONTOLOGY_ARRAY" &&
-                    this.displaySettings.includes("ontologies"))
+                  column.columnType === "REF"
                 ) {
-                  res += `[<box>${column.refTable}]*<-${column.name}[<box>${table.name}]\n`;
+                  const type = column.refSchema ? "external" : "table";
+                  res += `[<${type}>${column.refTable}]<- ${column.name}[<table>${table.name}]\n`;
                 }
               });
           }

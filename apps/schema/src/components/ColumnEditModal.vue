@@ -5,7 +5,12 @@
     :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
     @click="show = true"
   />
-  <LayoutModal v-else @close="cancel" :isCloseButtonShown="!isDisabled">
+  <LayoutModal
+    v-else
+    title="Edit column metadata"
+    @close="cancel"
+    :isCloseButtonShown="!isDisabled"
+  >
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
@@ -83,9 +88,10 @@
             "
           >
             <InputSelect
+              v-if="refLinkCandidates.length > 0"
               id="column_refLink"
               v-model="column.refLink"
-              :options="refLinkCandidates(column)"
+              :options="refLinkCandidates"
               label="refLink"
               description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
             />
@@ -138,19 +144,18 @@
             />
           </div>
         </div>
-        <div class="row">
-          <div class="row" v-if="subclassNames !== undefined">
-            <div class="col">
-              <InputSelect
-                :readonly="column.oldName !== undefined"
-                id="column_table"
-                v-model="column.table"
-                :options="subclassNames"
-                :list="true"
-                label="Available in subclass"
-                description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
-              />
-            </div>
+
+        <div class="row" v-if="subclassNames !== undefined">
+          <div class="col">
+            <InputSelect
+              :readonly="column.oldName !== undefined"
+              id="column_table"
+              v-model="column.table"
+              :options="subclassNames"
+              :list="true"
+              label="Available in subclass"
+              description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
+            />
           </div>
         </div>
       </LayoutForm>
@@ -173,6 +178,7 @@ import {
   LayoutModal,
   ButtonAction,
   MessageWarning,
+  MessageError,
   ButtonAlt,
   Client,
   Spinner,
@@ -190,6 +196,7 @@ export default {
     LayoutModal,
     ButtonAction,
     MessageWarning,
+    MessageError,
     ButtonAlt,
     Spinner,
   },
@@ -254,9 +261,27 @@ export default {
     //listing of all tables, used for refs
     tableNames() {
       if (this.refSchema !== undefined) {
-        return this.refSchema.tables.map((t) => t.name);
+        if (
+          this.column.columnType === "ONTOLOGY" ||
+          this.column.columnType === "ONTOLOGY_ARRAY"
+        ) {
+          return this.refSchema.tables
+            .filter((t) => t.tableType === "ONTOLOGIES")
+            .map((t) => t.name);
+        } else {
+          return this.refSchema.tables
+            .filter((t) => t.tableType !== "ONTOLOGIES")
+            .map((t) => t.name);
+        }
       } else {
-        return this.schema.tables.map((t) => t.name);
+        if (
+          this.column.columnType === "ONTOLOGY" ||
+          this.column.columnType === "ONTOLOGY_ARRAY"
+        ) {
+          return this.schema.ontologies.map((t) => t.name);
+        } else {
+          return this.schema.tables.map((t) => t.name);
+        }
       }
     },
     nameInvalid() {
@@ -290,12 +315,12 @@ export default {
       this.reset();
       this.show = false;
     },
-    refLinkCandidates(column) {
+    refLinkCandidates() {
       return this.table.columns
         .filter(
           (c) =>
-            (c.columnType == "REF" || c.columnType == "REF_ARRAY") &&
-            c.name !== column.name
+            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
+            c.name !== this.value.name
         )
         .map((c) => c.name);
     },

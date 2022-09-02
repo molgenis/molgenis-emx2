@@ -32,24 +32,23 @@
             class="hoverIcon"
           />
         </span>
-        <p>
+        <div v-if="table.description">
+          <label>Description: </label>
           {{
             table.description ? table.description : "No description available"
           }}
-        </p>
+        </div>
 
         <div v-if="table.tableType !== 'ONTOLOGIES'">
-          <span v-if="table.subclasses === undefined" class="hoverContainer">
-            (no subclasses)
-            <IconAction
-              icon="plus"
-              @click="createSubclass"
-              class="btn-sm hoverIcon"
-            />
-          </span>
-          <div v-else>
+          <div>
             <div class="hoverContainer mb-2">
-              <h5 style="display: inline">Subclasses:</h5>
+              <label style="display: inline">Subclasses:</label>
+              <span
+                v-if="table.subclasses === undefined"
+                class="hoverContainer"
+              >
+                None
+              </span>
               <TableEditModal
                 :schema="schema"
                 operation="add"
@@ -57,9 +56,9 @@
                 @add="createSubclass"
               />
             </div>
-            <table class="table table-bordered">
+            <table class="table table-bordered" v-if="table.subclasses">
               <thead>
-                <th style="width: 20ch" scope="col">Subclass</th>
+                <th style="width: 20ch" scope="col">subclass</th>
                 <th style="width: 32ch" scope="col">extends</th>
                 <th scope="col">description</th>
               </thead>
@@ -98,7 +97,8 @@
             </table>
           </div>
           <div class="hoverContainer mb-2">
-            <h5 style="display: inline">Columns:</h5>
+            <label style="display: inline">Columns:</label>
+            <span v-if="!table.columns?.length > 0"> None.</span>
             <ColumnEditModal
               :schema="schema"
               :schemaNames="schemaNames"
@@ -114,9 +114,9 @@
           >
             <thead>
               <tr class="hoverContainer">
-                <th style="width: 20ch" scope="col">Column</th>
-                <th style="width: 32ch" scope="col">Definition</th>
-                <th scope="col">Description</th>
+                <th style="width: 20ch" scope="col">column</th>
+                <th style="width: 32ch" scope="col">definition</th>
+                <th scope="col">description</th>
               </tr>
             </thead>
             <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
@@ -144,7 +144,6 @@
               />
             </Draggable>
           </table>
-          <p v-else>No columns defined.</p>
         </div>
       </div>
     </div>
@@ -162,7 +161,7 @@
 </style>
 
 <script>
-import { IconAction, IconDanger } from "molgenis-components";
+import { IconDanger } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
@@ -172,7 +171,6 @@ import ColumnEditModal from "./ColumnEditModal.vue";
 export default {
   components: {
     TableEditModal,
-    IconAction,
     ColumnView,
     Draggable,
     IconDanger,
@@ -200,6 +198,9 @@ export default {
   },
   methods: {
     addColumn(index, column) {
+      if (this.table.columns == undefined) {
+        this.table.columns = [];
+      }
       this.table.columns.splice(index, 0, column);
       this.$emit("input", this.table);
     },
@@ -219,13 +220,13 @@ export default {
     deleteTable(table) {
       if (!table.oldName) {
         this.$emit("delete");
-      }
-      if (!table.drop) {
+      } else if (!table.drop) {
         //need to do deep set otherwise vue doesn't see it
         this.$set(table, "drop", true);
       } else {
         this.$set(table, "drop", false);
       }
+      this.$emit("input", table);
     },
     deleteColumn(index) {
       if (this.table.columns[index].oldName === undefined) {

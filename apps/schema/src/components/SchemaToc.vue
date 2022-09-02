@@ -1,11 +1,20 @@
 <template>
   <div class="sticky-top mr-n3 overflow-auto" style="top: 50px; height: 90vh">
-    <div class="hoverContainer mb-2">
-      <h4 style="display: inline-block">Tables:</h4>
-      <TableEditModal @add="addTable" operation="add" :schema="schema" />
+    <div class="hoverContainer">
+      <label class="m-0">Tables:</label>
+      <TableEditModal
+        @add="addTable"
+        operation="add"
+        :schema="schema"
+        @input="$emit('input', schema)"
+      />
     </div>
     <div v-if="schema.tables?.length > 0">
-      <span v-for="table in schema.tables" :key="table.name">
+      <span
+        v-for="table in schema.tables"
+        :key="table.name + schema.tables.length"
+        class="ml-2"
+      >
         <a
           :href="'#'"
           v-scroll-to="{
@@ -24,7 +33,7 @@
               :href="'#'"
               v-scroll-to="{
                 el: '#' + (table.name ? table.name.replaceAll(' ', '_') : ''),
-                offset: -50,
+                offset: -200,
               }"
               >{{ subtable.name }}</a
             >
@@ -34,28 +43,33 @@
       </span>
     </div>
     <p v-else>No tables defined</p>
-    <div class="mb-2 hoverContainer">
-      <h4 style="display: inline-block">Ontologies:</h4>
+    <div class="hoverContainer">
+      <label class="m-0 mt-2">Ontologies:</label>
       <TableEditModal
         @add="addOntology"
         operation="add"
         tableType="ontology"
         :schema="schema"
+        @input="$emit('input', schema)"
       />
     </div>
-    <ul v-if="schema.ontologies?.length > 0">
-      <li v-for="ontology in schema.ontologies" :key="ontology.name">
+    <div v-if="schema.ontologies?.length > 0">
+      <div
+        v-for="ontology in schema.ontologies"
+        :key="ontology.name"
+        class="mb-0 ml-2"
+      >
         <a
           :href="'#'"
           v-scroll-to="{
             el: '#' + (ontology.name ? ontology.name.replaceAll(' ', '_') : ''),
-            offset: -50,
+            offset: -200,
           }"
         >
           {{ ontology.name }}
         </a>
-      </li>
-    </ul>
+      </div>
+    </div>
     <p v-else>No ontologies defined</p>
   </div>
 </template>
@@ -84,11 +98,18 @@ export default {
   methods: {
     addTable(table) {
       this.$scrollTo("#molgenis_bottom_tables_anchor");
+      if (!Array.isArray(this.schema.tables)) {
+        this.schema.tables = [];
+      }
       this.schema.tables.push(table);
       this.$emit("input", this.schema);
     },
     addOntology(ontology) {
       this.$scrollTo("#molgenis_bottom_ontologies_anchor");
+      if (!Array.isArray(this.schema.ontologies)) {
+        this.schema.ontologies = [];
+      }
+      ontology.tableType = "ONTOLOGIES";
       this.schema.ontologies.push(ontology);
       this.$emit("input", this.schema);
     },

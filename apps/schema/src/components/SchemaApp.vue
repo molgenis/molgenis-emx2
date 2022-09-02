@@ -1,29 +1,43 @@
 <template>
   <div class="container-fluid bg-white">
-    <div class="sticky-top bg-white">
-      <div class="d-flex justify-content-between">
+    <div class="sticky-top">
+      <div class="d-flex flex-row">
+        <h1>Schema: {{ schema.name }}</h1>
         <div class="form-inline">
-          <h1>Schema editor: {{ schema.name }}</h1>
-          <span v-if="schema.tables && dirty">
-            <ButtonAction @click="saveSchema" class="ml-2">Save</ButtonAction>
-            &nbsp;
-            <ButtonAction @click="loadSchema" class="ml-2">Reset</ButtonAction>
-          </span>
-        </div>
-        <div v-if="schema.tables">
-          <ButtonAction @click="toggleShowDiagram">
+          <ButtonAction v-if="dirty" @click="saveSchema" class="ml-2">
+            Save
+          </ButtonAction>
+          <ButtonAction v-if="dirty" @click="loadSchema" class="ml-2">
+            Reset
+          </ButtonAction>
+          <ButtonAction
+            v-if="schema.tables?.length > 0"
+            @click="toggleShowDiagram"
+            class="ml-2"
+          >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
+          <MessageError v-if="graphqlError" class="ml-2 m-0 p-2">
+            {{ graphqlError }}
+          </MessageError>
+          <MessageWarning v-if="warning" class="ml-2 m-0 p-2">
+            {{ warning }}
+          </MessageWarning>
+          <MessageSuccess v-if="success" class="ml-2 m-0 p-2">
+            {{ success }}
+          </MessageSuccess>
         </div>
       </div>
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    <Spinner v-if="loading === true || !schema.tables" />
+    <Spinner v-if="loading === true" />
     <div v-else class="row">
       <div class="col-2 bg-white">
-        <SchemaToc v-model="schema" v-if="schema.tables" />
+        <SchemaToc
+          v-model="schema"
+          v-if="schema.tables"
+          @input="handleInput"
+          :key="key"
+        />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
@@ -35,10 +49,7 @@
         <SchemaView
           v-model="schema"
           :schemaNames="schemaNames"
-          @input="
-            dirty = true;
-            success = null;
-          "
+          @input="handleInput"
         />
       </div>
     </div>
@@ -85,9 +96,16 @@ export default {
       showDiagram: false,
       schemaNames: [],
       dirty: false,
+      key: Date.now(),
     };
   },
   methods: {
+    handleInput() {
+      this.dirty = true;
+      this.success = null;
+      this.key = Date.now();
+      this.$emit("input", this.schema);
+    },
     toggleShowDiagram() {
       this.showDiagram = !this.showDiagram;
       this.$scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
@@ -99,7 +117,7 @@ export default {
       this.success = null;
       //copy so in case of error user can continue to edit
       let schema = JSON.parse(JSON.stringify(this.schema));
-      let tables = schema.tables;
+      let tables = schema.tables ? schema.tables : [];
 
       //transform subclasses back into their original tables.
       //create a map of tables
@@ -115,16 +133,18 @@ export default {
       }, {});
       //redistribute the columns to subclasses
       tables.forEach((table) => {
-        table.columns.forEach((column) => {
-          if (column.table !== table.name) {
-            tableMap[column.table].columns.push(column);
-          }
-        });
+        if (table.columns !== undefined) {
+          table.columns.forEach((column) => {
+            if (column.table !== table.name) {
+              tableMap[column.table].columns.push(column);
+            }
+          });
+        }
       });
       tables.forEach((table) => {
-        table.columns = table.columns.filter(
-          (column) => column.table === table.name
-        );
+        table.columns = table.columns
+          ? table.columns.filter((column) => column.table === table.name)
+          : [];
       });
       tables = Object.values(tableMap);
       //add ontologies
@@ -158,7 +178,6 @@ export default {
       console.log("load schema");
       this.graphqlError = null;
       this.loading = true;
-      this.dirty = false;
       request(
         "graphql",
         "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
@@ -167,50 +186,54 @@ export default {
           let _schema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(_schema);
           this.schemaNames = data._session.schemas;
+          this.loading = false;
+          this.key = Date.now();
+          this.dirty = false;
         })
         .catch((error) => {
           this.graphqlError = error;
           if (error.response.status === 400) {
             this.graphqlError = "Schema not found. Do you need to login?";
           }
+          this.loading = false;
         });
-      this.loading = false;
     },
     addOldNamesAndRemoveMeta(rawSchema) {
       //deep copy to not change the input
       const schema = JSON.parse(JSON.stringify(rawSchema));
       if (schema) {
-        if (schema.tables) {
-          //normal tables
-          let tables = schema.tables.filter(
-            (table) =>
-              table.tableType !== "ONTOLOGIES" &&
-              table.externalSchema === undefined
-          );
-          tables.forEach((t) => {
-            t.oldName = t.name;
-            if (t.columns) {
-              t.columns = t.columns
-                .filter((c) => !c.name.startsWith("mg_"))
-                .map((c) => {
-                  c.oldName = c.name;
-                  return c;
-                })
-                .filter((c) => !c.inherited);
-            } else {
-              t.columns = [];
-            }
-          });
-          schema.ontologies = schema.tables.filter(
-            (table) =>
-              table.tableType === "ONTOLOGIES" &&
-              table.externalSchema === undefined
-          );
-          schema.tables = tables;
-        } else {
-          schema.tables = [];
-        }
+        //normal tables
+        let tables = !schema.tables
+          ? []
+          : schema.tables.filter(
+              (table) =>
+                table.tableType !== "ONTOLOGIES" &&
+                table.externalSchema === undefined
+            );
+        tables.forEach((t) => {
+          t.oldName = t.name;
+          if (t.columns) {
+            t.columns = t.columns
+              .filter((c) => !c.name.startsWith("mg_"))
+              .map((c) => {
+                c.oldName = c.name;
+                return c;
+              })
+              .filter((c) => !c.inherited);
+          } else {
+            t.columns = [];
+          }
+        });
+        schema.ontologies = !schema.tables
+          ? []
+          : schema.tables.filter(
+              (table) =>
+                table.tableType === "ONTOLOGIES" &&
+                table.externalSchema === undefined
+            );
+        schema.tables = tables;
       }
+
       return schema;
     },
     convertToSubclassTables(rawSchema) {
