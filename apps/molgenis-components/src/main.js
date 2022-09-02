@@ -8,7 +8,6 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
 import * as utils from "./components/utils";
-import "dist/style.css";
 
 const components = import.meta.globEager("./components/**/*.vue");
 const generatedDocumentComponents = import.meta.globEager(
