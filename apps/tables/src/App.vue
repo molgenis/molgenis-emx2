@@ -13,6 +13,7 @@
 <script>
 import { Molgenis, MessageWarning } from "molgenis-components";
 import { request } from "graphql-request";
+import "molgenis-components/dist/style.css";
 
 export default {
   components: {
