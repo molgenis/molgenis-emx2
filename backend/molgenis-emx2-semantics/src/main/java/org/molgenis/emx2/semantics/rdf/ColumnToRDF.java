@@ -36,6 +36,10 @@ public class ColumnToRDF {
       builder.add(columnContext, RDFS.DOMAIN, encodedIRI(tableContext));
       if (c.getSemantics() != null) {
         for (String columnSemantics : c.getSemantics()) {
+          if (columnSemantics.equals("id")) {
+            // fixme: need to figure out how to better handle 'id' tagging
+            columnSemantics = "http://semanticscience.org/resource/SIO_000115";
+          }
           builder.add(columnContext, RDFS.ISDEFINEDBY, iri(columnSemantics));
         }
       }
