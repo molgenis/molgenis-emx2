@@ -5,7 +5,7 @@ export default {
     template: String,
   },
   created () {
-      this.$options.template = this.template
+      this.$options.template = `<div>${this.template}</div>`
       this.$options.props = this.$props
   }
 };

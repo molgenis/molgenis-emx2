@@ -17,6 +17,7 @@
                 theme: 'Theme',
                 menu: 'Menu',
                 pages: 'Pages',
+                log: 'Change log',
                 settings: 'Advanced settings'
               }"
               :key="key"

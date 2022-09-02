@@ -8,7 +8,7 @@ FDP_Catalog,,publisher,string,,TRUE,,,,,,http://purl.org/dc/terms/publisher,The 
 FDP_Catalog,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,The language(s) used in the catalog.
 FDP_Catalog,,license,hyperlink,,TRUE,,,,,,http://purl.org/dc/terms/license,The reference to the usage license of the catalog.
 FDP_Catalog,,themeTaxonomy,hyperlink,,TRUE,,,,,,http://www.w3.org/ns/dcat#themeTaxonomy,A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.
-FDP_Catalog,,hasPart,ref_array,,TRUE,,FDP_Dataset,,,,http://purl.org/dc/terms/hasPart,The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.
+FDP_Catalog,,dataset,ref_array,,TRUE,,FDP_Dataset,,,,http://www.w3.org/ns/dcat#dataset,The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.
 FDP_Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,FAIR Data Point dataset entries.
 FDP_Dataset,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0000919,Local database identifier of the dataset.
 FDP_Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.
@@ -26,7 +26,7 @@ FDP_Dataset,,creator,string,,,,,,,,http://purl.org/dc/terms/creator,The entity r
 FDP_Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.
 FDP_Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.
 FDP_Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.
-FDP_Dataset,,keyword,string,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.
+FDP_Dataset,,keyword,string_array,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.
 FDP_Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.
 FDP_Dataset,,license,string,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.
 FDP_Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.
@@ -34,6 +34,6 @@ FDP_Dataset,,relation,string,,,,,,,,http://purl.org/dc/terms/relation,A resource
 FDP_Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.
 FDP_Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.
 FDP_Dataset,,publisher,string,,,,,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.
-FDP_Dataset,,theme,string,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
+FDP_Dataset,,theme,hyperlink_array,,,,,,,,http://purl.org/dc/terms/theme,A main category of the resource. A resource can have multiple themes.
 FDP_Dataset,,type,string,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.
 FDP_Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource

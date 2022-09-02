@@ -58,7 +58,7 @@ public class FAIRDataPointTest {
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
                   <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
                 .indent(2)));
-    assertEquals(3999, result.length());
+    assertEquals(3775, result.length());
   }
 
   @Test
@@ -72,7 +72,7 @@ public class FAIRDataPointTest {
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
-            "dcterms:hasPart <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01>,\n"
+            "dcat:dataset <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01>,\n"
                 + "    <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId02>;"));
     assertTrue(
         result.contains(
@@ -80,7 +80,7 @@ public class FAIRDataPointTest {
             dcterms:rights [ a dcterms:RightsStatement;
                   dcterms:description "Rights are provided on a per-dataset basis."
                 ];"""));
-    assertEquals(1745, result.length());
+    assertEquals(2147, result.length());
   }
 
   @Test
@@ -95,7 +95,7 @@ public class FAIRDataPointTest {
     assertTrue(
         result.contains(
             """
-                        dcat:Distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
+                        dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
                             <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>,
                             <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;"""));
     assertTrue(
@@ -106,7 +106,7 @@ public class FAIRDataPointTest {
                       dcat:spatialResolutionInMeters 1.0E1;"""));
     assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2039, result.length());
+    assertEquals(2791, result.length());
   }
 
   @Test

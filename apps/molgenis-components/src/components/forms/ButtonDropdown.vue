@@ -1,5 +1,5 @@
 <template>
-  <span >
+  <span>
     <button
       type="button"
       ref="showInputButton"
@@ -12,7 +12,7 @@
     </button>
     <span
       v-if="display"
-      class="bg-white border rounded"
+      class="mg-dropdown-drop bg-white border rounded"
       ref="dropdown"
       v-click-outside="toggle"
     >
@@ -20,6 +20,13 @@
     </span>
   </span>
 </template>
+
+<style  scoped>
+span.mg-dropdown-drop {
+  /* bootstrap dropdown z-index */
+  z-index: 1000;
+}
+</style>
 
 <script>
 import vClickOutside from "v-click-outside";

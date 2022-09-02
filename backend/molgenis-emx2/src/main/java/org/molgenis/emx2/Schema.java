@@ -54,4 +54,8 @@ public interface Schema {
   String getRoleForActiveUser();
 
   String getName();
+
+  List<Change> getChanges(int limit);
+
+  Integer getChangesCount();
 }
