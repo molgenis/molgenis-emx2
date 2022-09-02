@@ -46,6 +46,10 @@ public class ValueToRDF {
     Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
     List<Map<String, Object>> data = jsonMap.get(table.getName());
 
+    if (data == null) {
+      return;
+    }
+
     for (Map<String, Object> row : data) {
 
       String pkValue =

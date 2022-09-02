@@ -309,8 +309,9 @@ public class SqlQuery extends QueryBean {
         || select.getLimit() > 0
         || select.getOffset() > 0) {
       List<Field<?>> pkeyFields = table.getPrimaryKeyFields();
-      if (pkeyFields.isEmpty()) throw new MolgenisException("primary key not set");
-      conditions.add(row(pkeyFields).in(filterQuery));
+      if (pkeyFields.size() > 0) {
+        conditions.add(row(pkeyFields).in(filterQuery));
+      }
     }
     if (column != null) {
       conditions.add(refJoinCondition(column, tableAlias, subAlias));
