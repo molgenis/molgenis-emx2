@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -46,9 +47,10 @@ public class ValueToRDF {
 
     for (Map<String, Object> row : data) {
 
-      TableMetadata tableMetadata = table.getMetadata();
-      String primaryKey = tableMetadata.getPrimaryKeys().get(0);
-      String pkValue = (String) row.get(primaryKey);
+      String pkValue =
+          table.getMetadata().getPrimaryKeys().stream()
+              .map(primaryKey -> row.get(primaryKey).toString())
+              .collect(Collectors.joining("-"));
       IRI rowContext = encodedIRI(schemaContext + "/" + table.getName() + "/" + pkValue);
 
       builder.add(rowContext, RDF.TYPE, encodedIRI(tableContext));
