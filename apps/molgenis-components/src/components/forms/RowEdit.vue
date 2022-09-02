@@ -33,7 +33,7 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: null,
       errorPerColumn: {},
     };
   },
@@ -258,7 +258,9 @@ export default {
   created() {
     //pass by value
     if (this.defaultValue) {
-      this.internalValues = JSON.parse(JSON.stringify(this.defaultValue));
+      this.internalValues = deepClone(this.defaultValue);
+    } else {
+      this.internalValues = deepClone(this.value)
     }
     this.validateTable();
   },

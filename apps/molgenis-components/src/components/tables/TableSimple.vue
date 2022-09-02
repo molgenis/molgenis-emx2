@@ -82,9 +82,9 @@ export default {
       return (
         this.selectColumn ||
         !!this.$slots["colheader"] ||
-        !!this.$scopedSlots["colheader"] ||
+        (this.$scopedSlots && this.$scopedSlots["colheader"]) ||
         !!this.$slots["rowheader"] ||
-        !!this.$scopedSlots["rowheader"]
+        (this.$scopedSlots && this.$scopedSlots["rowheader"])
       );
     },
   },

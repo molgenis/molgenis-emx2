@@ -649,7 +649,7 @@ export default {
         }
         this.columns.forEach((c) => {
           if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
-            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
+            c.conditions = this.conditions[c.name];
           } else {
             c.conditions = [];
           }
@@ -673,14 +673,14 @@ export default {
 
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due to single route element constraint */
-.btn-group >>> span:not(:first-child) .btn {
+.btn-group :deep(span:not(:first-child) .btn) {
   margin-left: 0;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   border-left: 0;
 }
 
-.btn-group >>> span:not(:last-child) .btn {
+.btn-group :deep(span:not(:last-child) .btn) {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
@@ -697,7 +697,7 @@ export default {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
+        id="my-table-expl orer"
         tableName="Pet"
         graphqlURL="/pet store/graphql"
         :showColumns.sync="showColumns"
