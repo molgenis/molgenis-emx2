@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -47,11 +48,11 @@ public class BiosamplesResponse {
       if (biosampleListFromJSON != null) {
         for (Map map : biosampleListFromJSON) {
           BiosamplesResultSetsItem biosamplesItem = new BiosamplesResultSetsItem();
-          biosamplesItem.setId((String) map.get("id"));
+          biosamplesItem.setId(TypeUtils.toString(map.get("id")));
           biosamplesItem.setBiosampleStatus(mapToOntologyTerm((Map) map.get("biosampleStatus")));
           biosamplesItem.setSampleOriginType(mapToOntologyTerm((Map) map.get("sampleOriginType")));
-          biosamplesItem.setCollectionMoment((String) map.get("collectionMoment"));
-          biosamplesItem.setCollectionDate((String) map.get("collectionDate"));
+          biosamplesItem.setCollectionMoment(TypeUtils.toString(map.get("collectionMoment")));
+          biosamplesItem.setCollectionDate(TypeUtils.toString(map.get("collectionDate")));
           biosamplesItem.setObtentionProcedure(
               new ObtentionProcedure(mapToOntologyTerm((Map) map.get("obtentionProcedure"))));
           biosamplesItemList.add(biosamplesItem);

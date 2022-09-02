@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -44,15 +45,15 @@ public class CohortsResponse {
       if (cohortList != null) {
         for (Map map : cohortList) {
           CohortsResultSetsItem cohortsItem = new CohortsResultSetsItem();
-          cohortsItem.setCohortId((String) map.get("cohortId"));
-          cohortsItem.setCohortName((String) map.get("cohortName"));
-          cohortsItem.setCohortType((String) map.get("cohortType"));
+          cohortsItem.setCohortId(TypeUtils.toString(map.get("cohortId")));
+          cohortsItem.setCohortName(TypeUtils.toString(map.get("cohortName")));
+          cohortsItem.setCohortType(TypeUtils.toString(map.get("cohortType")));
           cohortsItem.setCohortDesign(mapToOntologyTerm((Map) map.get("cohortDesign")));
           cohortsItem.setCohortSize((Integer) map.get("cohortSize"));
           cohortsItem.setInclusionCriteria(
               new InclusionCriteria(
-                  (String) map.get("inclusionCriteria_ageRange_start_iso8601duration"),
-                  (String) map.get("inclusionCriteria_ageRange_end_iso8601duration")));
+                  TypeUtils.toString(map.get("inclusionCriteria_ageRange_start_iso8601duration")),
+                  TypeUtils.toString(map.get("inclusionCriteria_ageRange_end_iso8601duration"))));
           cohortsItem.setLocations(mapListToOntologyTerms((List<Map>) map.get("locations")));
           cohortsItem.setGenders(mapListToOntologyTerms((List<Map>) map.get("genders")));
           cohortsItem.setCohortDataTypes(

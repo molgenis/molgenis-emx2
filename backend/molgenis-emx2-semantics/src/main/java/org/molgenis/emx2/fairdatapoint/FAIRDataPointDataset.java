@@ -28,6 +28,7 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointDataset {
@@ -87,7 +88,7 @@ public class FAIRDataPointDataset {
     IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
-    String distribution = (String) datasetFromJSON.get("distribution");
+    String distribution = TypeUtils.toString(datasetFromJSON.get("distribution"));
     if (!schema.getTableNames().contains(distribution)) {
       throw new Exception(
           "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.");
@@ -181,7 +182,9 @@ public class FAIRDataPointDataset {
     builder.add(
         reqUrl,
         DCTERMS.ISSUED,
-        literal(((String) datasetFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(datasetFromJSON.get("mg_insertedOn")).substring(0, 19),
+            XSD.DATETIME));
     if (datasetFromJSON.get("theme") != null) {
       for (IRI themeIRI : hyperlinkArrayToIRIList((List<String>) datasetFromJSON.get("theme"))) {
         builder.add(reqUrl, DCAT.THEME, themeIRI);
@@ -196,7 +199,9 @@ public class FAIRDataPointDataset {
     builder.add(
         reqUrl,
         DCTERMS.MODIFIED,
-        literal(((String) datasetFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(datasetFromJSON.get("mg_updatedOn")).substring(0, 19),
+            XSD.DATETIME));
     if (datasetFromJSON.get("qualifiedAttribution") != null) {
       builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
     }

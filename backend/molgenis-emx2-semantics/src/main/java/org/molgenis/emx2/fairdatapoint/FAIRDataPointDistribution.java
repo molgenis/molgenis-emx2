@@ -18,6 +18,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointDistribution {
@@ -204,11 +205,13 @@ public class FAIRDataPointDistribution {
     builder.add(
         reqURL,
         DCTERMS.ISSUED,
-        literal(((String) sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(
         reqURL,
         DCTERMS.MODIFIED,
-        literal(((String) sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
     builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
     builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));

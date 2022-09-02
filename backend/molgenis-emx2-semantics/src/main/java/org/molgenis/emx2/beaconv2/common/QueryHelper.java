@@ -10,6 +10,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class QueryHelper {
 
@@ -57,8 +58,8 @@ public class QueryHelper {
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
       ontologyTerm.setId(
-          mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
-      ontologyTerm.setLabel((String) mapList.get(i).get("name"));
+          mapList.get(i).get("codesystem") + ":" + TypeUtils.toString(mapList.get(i).get("code")));
+      ontologyTerm.setLabel(TypeUtils.toString(mapList.get(i).get("name")));
       result[i] = ontologyTerm;
     }
     return result;
@@ -72,8 +73,8 @@ public class QueryHelper {
    */
   public static OntologyTerm mapToOntologyTerm(Map map) {
     OntologyTerm ontologyTerm = new OntologyTerm();
-    ontologyTerm.setId(map.get("codesystem") + ":" + (String) map.get("code"));
-    ontologyTerm.setLabel((String) map.get("name"));
+    ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
+    ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     return ontologyTerm;
   }
 }

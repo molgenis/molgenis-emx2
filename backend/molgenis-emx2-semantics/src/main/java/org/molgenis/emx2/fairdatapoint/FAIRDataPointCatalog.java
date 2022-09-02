@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointCatalog {
@@ -140,7 +141,8 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.PUBLISHER, publisher);
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
-    builder.add(apiFdpEnc, DCTERMS.LICENSE, iri((String) catalogFromJSON.get("license")));
+    builder.add(
+        apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     ArrayList<IRI> datasetIRIs =
         extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
     for (IRI datasetIRI : datasetIRIs) {
@@ -149,17 +151,24 @@ public class FAIRDataPointCatalog {
     }
     builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(apiFdpEnc, DCTERMS.IS_PART_OF, apiFdpEnc); // fixme looks fishy
-    builder.add(apiFdpEnc, DCAT.THEME_TAXONOMY, iri((String) catalogFromJSON.get("themeTaxonomy")));
+    builder.add(
+        apiFdpEnc,
+        DCAT.THEME_TAXONOMY,
+        iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#metadataIssued"),
-        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
+            XSD.DATETIME));
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
-        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
+            XSD.DATETIME));
     builder.add(apiFdpDatasetEnc, RDF.TYPE, LDP.DIRECT_CONTAINER);
     builder.add(apiFdpDatasetEnc, DCTERMS.TITLE, "Datasets");
     builder.add(apiFdpDatasetEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
@@ -188,11 +197,15 @@ public class FAIRDataPointCatalog {
     builder.add(
         apiFdpEnc,
         DCTERMS.ISSUED,
-        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
+            XSD.DATETIME));
     builder.add(
         apiFdpEnc,
         DCTERMS.MODIFIED,
-        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
+            XSD.DATETIME));
     BNode rights = vf.createBNode();
     builder.add(apiFdpEnc, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
@@ -239,7 +252,7 @@ public class FAIRDataPointCatalog {
   public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
     for (Map map : object) {
-      IRI iri = iri((String) map.get(item));
+      IRI iri = iri(TypeUtils.toString(map.get(item)));
       values.add(iri);
     }
     return values;
@@ -256,7 +269,7 @@ public class FAIRDataPointCatalog {
   public ArrayList<IRI> extractDatasetIRIs(Object object, String apiFdp, String schema) {
     ArrayList<IRI> values = new ArrayList<>();
     for (Map map : ((List<Map>) object)) {
-      String id = (String) map.get("id");
+      String id = TypeUtils.toString(map.get("id"));
       IRI iri = encodedIRI(apiFdp + "/dataset/" + schema + "/" + id);
       values.add(iri);
     }

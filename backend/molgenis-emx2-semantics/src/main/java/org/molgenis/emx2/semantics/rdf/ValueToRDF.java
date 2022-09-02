@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class ValueToRDF {
 
@@ -60,7 +61,8 @@ public class ValueToRDF {
         // NCIT:C95637 = Coded Value Data Type
         builder.add(rowContext, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C95637"));
         if (row.get("ontologyTermURI") != null) {
-          builder.add(rowContext, RDFS.ISDEFINEDBY, iri((String) row.get("ontologyTermURI")));
+          builder.add(
+              rowContext, RDFS.ISDEFINEDBY, iri(TypeUtils.toString(row.get("ontologyTermURI"))));
         }
       } else {
         builder.add(rowContext, RDF.TYPE, iri("http://purl.org/linked-data/cube#Observation"));
@@ -110,7 +112,7 @@ public class ValueToRDF {
       // TODO should the target IRI be resolvable here?
       TableMetadata tableMetadata = column.getRefTable();
       String primaryKey = tableMetadata.getPrimaryKeys().get(0);
-      String pkValue = (String) ((Map) o).get(primaryKey);
+      String pkValue = TypeUtils.toString(((Map) o).get(primaryKey));
       return encodedIRI(schemaContext + "/" + tableMetadata.getTableName() + "/" + pkValue);
     } else if (columnType.equals(ColumnType.FILE)) {
       Map map = ((Map) o);
@@ -132,15 +134,15 @@ public class ValueToRDF {
       if (BOOLEAN.equals(XSDType)) {
         return literal((boolean) o);
       } else if (DATE.equals(XSDType)) {
-        return literal(((String) o), XSDType);
+        return literal(TypeUtils.toString(o), XSDType);
       } else if (DATETIME.equals(XSDType)) {
-        return literal(((String) o).substring(0, 19), XSDType);
+        return literal(TypeUtils.toString(o).substring(0, 19), XSDType);
       } else if (DECIMAL.equals(XSDType)) {
         return literal(fixDouble(o));
       } else if (STRING.equals(XSDType)) {
-        return literal((String) o);
+        return literal(TypeUtils.toString(o));
       } else if (ANYURI.equals(XSDType)) {
-        return encodedIRI((String) o);
+        return encodedIRI(TypeUtils.toString(o));
       } else if (INT.equals(XSDType)) {
         return literal((int) o);
       } else if (LONG.equals(XSDType)) {
