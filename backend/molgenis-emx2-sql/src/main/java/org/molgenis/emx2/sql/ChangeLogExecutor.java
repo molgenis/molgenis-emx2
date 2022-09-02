@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.jooq.impl.DSL.select;
 import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.SQLDataType.CHAR;
 import static org.jooq.impl.SQLDataType.JSON;
@@ -81,12 +82,10 @@ public class ChangeLogExecutor {
               ChangeLogUtils.buildProcessAuditFunctionRemove(
                   schema.getName(), table.getTableName()));
     }
-    // remove the changelog data table
-    db.getJooq().dropTableIfExists(table(name(schema.getName(), MG_CHANGLOG)));
   }
 
   static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
-    if (!ChangeLogUtils.isChangeSchema(schema.getDatabase(), schema.getName())) {
+    if (!hasChangeLogTable(jooq, schema)) {
       return Collections.emptyList();
     }
     List<Record> result =
@@ -111,6 +110,19 @@ public class ChangeLogExecutor {
   }
 
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
-    return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
+    if (hasChangeLogTable(jooq, schema)) {
+      return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
+    } else {
+      // do not query db when changelog table does not exist
+      return 0;
+    }
+  }
+
+  static boolean hasChangeLogTable(DSLContext jooq, SchemaMetadata schema) {
+    return jooq.fetchExists(
+        select()
+            .from(table(name("information_schema", "tables")))
+            .where(field("table_schema").eq(schema.getName()))
+            .and(field("table_name").eq(MG_CHANGLOG)));
   }
 }
