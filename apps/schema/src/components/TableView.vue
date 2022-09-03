@@ -33,6 +33,16 @@
             icon="trash"
             class="hoverIcon"
           />
+          <a
+            class="hoverIcon"
+            :href="'#'"
+            v-scroll-to="{
+              el: '#molgenis_tables_container',
+              offset: -200,
+            }"
+          >
+            scroll to top
+          </a>
         </span>
         <div v-if="table.description">
           <label>Description: </label>
@@ -61,7 +71,7 @@
             </div>
             <table class="table table-bordered" v-if="table.subclasses">
               <thead>
-                <th style="width: 20ch" scope="col">subclass</th>
+                <th style="width: 25ch" scope="col">subclass</th>
                 <th style="width: 32ch" scope="col">extends</th>
                 <th scope="col">description</th>
               </thead>
@@ -120,7 +130,7 @@
           >
             <thead>
               <tr class="hoverContainer">
-                <th style="width: 20ch" scope="col">column</th>
+                <th style="width: 25ch" scope="col">column</th>
                 <th style="width: 32ch" scope="col">definition</th>
                 <th scope="col">description</th>
               </tr>
@@ -208,6 +218,9 @@ export default {
     };
   },
   methods: {
+    scrollToTop() {
+      this.$s;
+    },
     addColumn(index, column) {
       if (this.table.columns == undefined) {
         this.table.columns = [];

@@ -16,27 +16,29 @@
           >)
         </span>
       </span>
-      <ColumnEditModal
-        v-if="isManager"
-        v-model="column"
-        :schema="schema"
-        :schemaNames="schemaNames"
-        @input="$emit('input', column)"
-      />
-      <IconDanger
-        v-if="isManager"
-        class="hoverIcon"
-        icon="trash"
-        @click="deleteColumn"
-      />
-      <ColumnEditModal
-        v-if="isManager"
-        :schema="schema"
-        :schemaNames="schemaNames"
-        operation="add"
-        :tableName="column.table"
-        @add="addColumn"
-      />
+      <IconBar class="d-inline-block">
+        <ColumnEditModal
+          v-if="isManager"
+          v-model="column"
+          :schema="schema"
+          :schemaNames="schemaNames"
+          @input="$emit('input', column)"
+        />
+        <IconDanger
+          v-if="isManager"
+          class="hoverIcon"
+          icon="trash"
+          @click="deleteColumn"
+        />
+        <ColumnEditModal
+          v-if="isManager"
+          :schema="schema"
+          :schemaNames="schemaNames"
+          operation="add"
+          :tableName="column.table"
+          @add="addColumn"
+        />
+      </IconBar>
     </td>
     <td>
       <span v-if="column.table !== rootTableName">
@@ -75,12 +77,13 @@ span {
 <script>
 import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
-import { IconDanger } from "molgenis-components";
+import { IconDanger, IconBar } from "molgenis-components";
 
 export default {
   components: {
     ColumnEditModal,
     IconDanger,
+    IconBar,
   },
   data() {
     return {
