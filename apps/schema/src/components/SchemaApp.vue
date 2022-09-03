@@ -17,8 +17,8 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
-          <MessageError v-if="graphqlError" class="ml-2 m-0 p-2">
-            {{ graphqlError }}
+          <MessageError v-if="error" class="ml-2 m-0 p-2">
+            {{ error }}
           </MessageError>
           <MessageWarning v-if="warning" class="ml-2 m-0 p-2">
             {{ warning }}
@@ -37,6 +37,7 @@
           v-if="schema.tables"
           @input="handleInput"
           :key="key"
+          :isManager="isManager"
         />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
@@ -50,6 +51,7 @@
           v-model="schema"
           :schemaNames="schemaNames"
           @input="handleInput"
+          :isManager="isManager"
         />
       </div>
     </div>
@@ -90,13 +92,14 @@ export default {
     return {
       schema: {},
       loading: false,
-      graphqlError: null,
+      error: null,
       warning: null,
       success: null,
       showDiagram: false,
       schemaNames: [],
       dirty: false,
       key: Date.now(),
+      isManager: false,
     };
   },
   methods: {
@@ -189,11 +192,13 @@ export default {
           this.loading = false;
           this.key = Date.now();
           this.dirty = false;
+          this.isManager = data._session.roles?.includes("Manager");
         })
         .catch((error) => {
-          this.graphqlError = error;
-          if (error.response.status === 400) {
-            this.graphqlError = "Schema not found. Do you need to login?";
+          if (error.response?.errors[0]?.message) {
+            this.error = error.response.errors[0].message;
+          } else {
+            this.error = error;
           }
           this.loading = false;
         });

@@ -138,13 +138,13 @@ export default {
                     column.columnType === "ONTOLOGY_ARRAY")
                 ) {
                   const type = column.refSchema ? "externalo" : "ontology";
-                  res += `[<${type}>${column.refTable}]<- ${column.name}[<table>${table.name}]\n`;
+                  res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
                 } else if (
                   column.columnType === "REF_ARRAY" ||
                   column.columnType === "REF"
                 ) {
                   const type = column.refSchema ? "external" : "table";
-                  res += `[<${type}>${column.refTable}]<- ${column.name}[<table>${table.name}]\n`;
+                  res += `[<${type}>${column.refTable}]<- ${column.name} [<table>${table.name}]\n`;
                 }
               });
           }

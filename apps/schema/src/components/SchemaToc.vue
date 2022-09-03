@@ -3,6 +3,7 @@
     <div class="hoverContainer">
       <label class="m-0">Tables:</label>
       <TableEditModal
+        v-if="isManager"
         @add="addTable"
         operation="add"
         :schema="schema"
@@ -46,6 +47,7 @@
     <div class="hoverContainer">
       <label class="m-0 mt-2">Ontologies:</label>
       <TableEditModal
+        v-if="isManager"
         @add="addOntology"
         operation="add"
         tableType="ontology"
@@ -88,6 +90,10 @@ export default {
     value: {
       type: Object,
       required: true,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {

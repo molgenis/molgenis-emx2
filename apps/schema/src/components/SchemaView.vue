@@ -13,12 +13,23 @@
             :schemaNames="schemaNames"
             @input="$emit('input', schema)"
             @delete="deleteTable(index)"
+            :isManager="isManager"
           />
         </span>
       </span>
       <a id="molgenis_bottom_tables_anchor"></a>
       <div v-if="schema.ontologies && schema.ontologies?.length > 0">
-        <h4>Ontologies</h4>
+        <div class="hoverContainer">
+          <h4 class="d-inline-block">Ontologies</h4>
+          <TableEditModal
+            v-if="isManager"
+            @add="addOntology"
+            operation="add"
+            tableType="ontology"
+            :schema="schema"
+            @input="$emit('input', schema)"
+          />
+        </div>
         <table
           v-if="schema.ontologies && schema.ontologies?.length > 0"
           class="table table-bordered"
@@ -38,6 +49,7 @@
               :schemaNames="schemaNames"
               @input="$emit('input', schema)"
               @delete="deleteOntology(index)"
+              :isManager="isManager"
             />
           </tbody>
         </table>
@@ -50,11 +62,13 @@
 <script>
 import TableView from "./TableView.vue";
 import OntologyView from "./OntologyView.vue";
+import TableEditModal from "./TableEditModal.vue";
 
 export default {
   components: {
     TableView,
     OntologyView,
+    TableEditModal,
   },
   props: {
     value: {
@@ -65,6 +79,10 @@ export default {
       type: Array,
       required: true,
     },
+    isManager: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -72,6 +90,14 @@ export default {
     };
   },
   methods: {
+    addOntology(ontology) {
+      if (!Array.isArray(this.schema.ontologies)) {
+        this.schema.ontologies = [];
+      }
+      ontology.tableType = "ONTOLOGIES";
+      this.schema.ontologies.push(ontology);
+      this.$emit("input", this.schema);
+    },
     deleteTable(index) {
       this.schema.tables.splice(index, 1);
       this.$emit("input", this.schema);

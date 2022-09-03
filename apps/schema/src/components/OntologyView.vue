@@ -23,11 +23,13 @@
         </span>
       </div>
       <TableEditModal
+        v-if="isManager"
         v-model="ontology"
         :schema="schema"
         @input="$emit('input', ontology)"
       />
       <IconDanger
+        v-if="isManager"
         @click="deleteOntology(ontology)"
         icon="trash"
         class="hoverIcon"
@@ -74,6 +76,10 @@ export default {
     schemaNames: {
       type: Array,
       required: true,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {

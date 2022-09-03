@@ -17,13 +17,20 @@
         </span>
       </span>
       <ColumnEditModal
+        v-if="isManager"
         v-model="column"
         :schema="schema"
         :schemaNames="schemaNames"
         @input="$emit('input', column)"
       />
-      <IconDanger class="hoverIcon" icon="trash" @click="deleteColumn" />
+      <IconDanger
+        v-if="isManager"
+        class="hoverIcon"
+        icon="trash"
+        @click="deleteColumn"
+      />
       <ColumnEditModal
+        v-if="isManager"
         :schema="schema"
         :schemaNames="schemaNames"
         operation="add"
@@ -94,6 +101,10 @@ export default {
     schemaNames: {
       type: Array,
       required: true,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

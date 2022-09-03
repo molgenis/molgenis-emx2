@@ -22,11 +22,13 @@
             </span>
           </h4>
           <TableEditModal
+            v-if="isManager"
             v-model="table"
             :schema="schema"
             @input="$emit('input', table)"
           />
           <IconDanger
+            v-if="isManager"
             @click="deleteTable(table)"
             icon="trash"
             class="hoverIcon"
@@ -50,6 +52,7 @@
                 None
               </span>
               <TableEditModal
+                v-if="isManager"
                 :schema="schema"
                 operation="add"
                 :rootTable="table"
@@ -77,12 +80,14 @@
                   <td>
                     {{ subclass.name }}
                     <TableEditModal
+                      v-if="isManager"
                       v-model="table.subclasses[index]"
                       :schema="schema"
                       :rootTable="table"
                       @input="$emit('input', table)"
                     />
                     <IconDanger
+                      v-if="isManager"
                       @click="deleteSubclass(subclass)"
                       icon="trash"
                       class="hoverIcon"
@@ -100,6 +105,7 @@
             <label style="display: inline">Columns:</label>
             <span v-if="!table.columns?.length > 0"> None.</span>
             <ColumnEditModal
+              v-if="isManager"
               :schema="schema"
               :schemaNames="schemaNames"
               operation="add"
@@ -141,6 +147,7 @@
                 @createColumn="createColumn"
                 @add="addColumn(columnIndex, $event)"
                 @delete="deleteColumn(columnIndex)"
+                :isManager="isManager"
               />
             </Draggable>
           </table>
@@ -188,6 +195,10 @@ export default {
     schemaNames: {
       type: Array,
       required: true,
+    },
+    isManager: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
