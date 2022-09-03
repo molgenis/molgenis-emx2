@@ -184,7 +184,7 @@ public class Column implements Comparable<Column> {
                 + getTableName()
                 + "."
                 + getName()
-                + "'");
+                + "'. Do you have access permissions?");
       }
     }
 
