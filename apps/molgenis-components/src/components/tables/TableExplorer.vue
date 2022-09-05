@@ -275,6 +275,7 @@ import RecordCards from "./RecordCards.vue";
 import TableSettings from "./TableSettings.vue";
 import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
+import RowButton from "./RowButton.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -298,6 +299,7 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
+    RowButton
   },
   data() {
     return {
