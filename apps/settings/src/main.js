@@ -8,6 +8,8 @@ import PageManager from "./components/PageManager";
 import LogViewer from "./components/LogViewer"; 
 import SettingsManager from "./components/SettingsManager"
 
+import "molgenis-components/dist/style.css";
+
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);

@@ -5,6 +5,8 @@ import App from "./App";
 import HelloWorld from "./components/HelloWorld";
 import SomeQuery from "./components/SomeQuery";
 
+import "molgenis-components/dist/style.css";
+
 Vue.use(VueRouter);
 
 /** use vue router only to react to change url attributes */
