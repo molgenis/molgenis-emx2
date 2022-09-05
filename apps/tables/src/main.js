@@ -3,8 +3,6 @@ import VueRouter from "vue-router";
 import ListTables from "./components/ListTables";
 import ViewTable from "./components/ViewTable";
 
-import "molgenis-components/dist/style.css";
-
 import App from "./App";
 
 Vue.use(VueRouter);
@@ -15,17 +13,17 @@ const router = new VueRouter({
     {
       path: "/",
       component: ListTables,
-      props: true,
+      props: true
     },
     {
       path: "/:table",
       component: ViewTable,
-      props: true,
-    },
-  ],
+      props: true
+    }
+  ]
 });
 
 new Vue({
   router,
-  render: (h) => h(App),
+  render: h => h(App)
 }).$mount("#app");
