@@ -149,7 +149,10 @@ export default {
       this.taskUrl = null;
     },
     startMonitorTask() {
-      if (!this.task || !["COMPLETED", "ERROR"].includes(this.task?.status)) {
+      if (
+        !this.task ||
+        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
+      ) {
         setTimeout(this.monitorTask, 500);
       } else {
         if (this.task.status === "ERROR") {
