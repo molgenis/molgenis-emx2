@@ -6,6 +6,8 @@ import Admin from "./components/admin/Admin";
 import ManageSettings from "./components/admin/ManageSettings";
 import ManageUsers from "./components/admin/ManageUsers";
 
+import "molgenis-components/dist/style.css";
+
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
