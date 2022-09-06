@@ -589,4 +589,14 @@ public class WebApiSmokeTests {
         .when()
         .get("http://localhost:8080/pet store/api/ttl/doesnotexist");
   }
+
+  @Test
+  public void testFDPDistribution() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+  }
 }
