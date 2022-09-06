@@ -52,7 +52,10 @@ export default {
           }
         }`;
         request("graphql", query)
-          .then((data) => (this.task = data._tasks[0]))
+          .then((data) => {
+            this.task = data._tasks[0];
+            this.$emit("taskUpdated", this.task);
+          })
           .catch((error) => {
             console.log(JSON.stringify(error));
             this.error = true;
