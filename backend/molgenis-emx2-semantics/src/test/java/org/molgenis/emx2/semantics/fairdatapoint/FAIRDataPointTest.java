@@ -154,7 +154,6 @@ public class FAIRDataPointTest {
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
-    System.out.println(result);
     assertTrue(
         result.contains(
             """
@@ -165,5 +164,35 @@ public class FAIRDataPointTest {
                   dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
                   dcterms:format "ttl";"""));
     assertEquals(960, result.length());
+  }
+
+  @Test
+  public void FDPDistributionMimeTypes() throws Exception {
+    Request request = mock(Request.class);
+    when(request.url())
+        .thenReturn("http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl");
+    when(request.params("schema")).thenReturn("fairDataHub_nr1");
+    when(request.params("table")).thenReturn("Analyses");
+    testFormatToMediaType(request, "csv");
+    testFormatToMediaType(request, "jsonld");
+    testFormatToMediaType(request, "rdf-jsonld");
+    testFormatToMediaType(request, "graphql");
+    testFormatToMediaType(request, "ttl");
+    testFormatToMediaType(request, "rdf-ttl");
+    testFormatToMediaType(request, "excel");
+    testFormatToMediaType(request, "zip");
+    testFormatToMediaType(request, "rdf-n3");
+    testFormatToMediaType(request, "rdf-ntriples");
+    testFormatToMediaType(request, "rdf-nquads");
+    testFormatToMediaType(request, "rdf-xml");
+    testFormatToMediaType(request, "rdf-trig");
+  }
+
+  private static void testFormatToMediaType(Request request, String format) throws Exception {
+    when(request.params("format")).thenReturn(format);
+    FAIRDataPointDistribution fairDataPointDistribution =
+        new FAIRDataPointDistribution(request, database);
+    String result = fairDataPointDistribution.getResult();
+    assertTrue(result.contains(FAIRDataPointDistribution.formatToMediaType(format)));
   }
 }

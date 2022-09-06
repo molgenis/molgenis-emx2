@@ -161,6 +161,39 @@ public class FAIRDataPointDistribution {
               host + "/" + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
     }
 
+    builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(format)));
+    builder.add(reqURL, DCTERMS.FORMAT, format);
+    builder.add(
+        reqURL,
+        DCTERMS.ISSUED,
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+    builder.add(
+        reqURL,
+        DCTERMS.MODIFIED,
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+    builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
+    builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
+    builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
+    builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
+    // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
+
+    // Write model
+    Model model = builder.build();
+    StringWriter stringWriter = new StringWriter();
+    Rio.write(model, stringWriter, applicationOntologyFormat, config);
+    this.result = stringWriter.toString();
+  }
+
+  /**
+   * Convert a format into its corresponding MIME type
+   *
+   * @param format
+   * @return
+   * @throws Exception
+   */
+  public static String formatToMediaType(String format) throws Exception {
     String mediaType;
     switch (format) {
       case "csv":
@@ -199,29 +232,6 @@ public class FAIRDataPointDistribution {
       default:
         throw new Exception("MIME Type could not be assigned");
     }
-
-    builder.add(reqURL, DCAT.MEDIA_TYPE, iri(mediaType));
-    builder.add(reqURL, DCTERMS.FORMAT, format);
-    builder.add(
-        reqURL,
-        DCTERMS.ISSUED,
-        literal(
-            TypeUtils.toString(sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(
-        reqURL,
-        DCTERMS.MODIFIED,
-        literal(
-            TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
-    builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
-    builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
-    builder.add(reqURL, DCTERMS.CONFORMS_TO, iri("http://www.w3.org/ns/dcat#Distribution"));
-    // todo odrl:Policy? https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
-
-    // Write model
-    Model model = builder.build();
-    StringWriter stringWriter = new StringWriter();
-    Rio.write(model, stringWriter, applicationOntologyFormat, config);
-    this.result = stringWriter.toString();
+    return mediaType;
   }
 }
