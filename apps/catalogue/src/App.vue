@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { Molgenis, Spinner } from "@mswertz/emx2-styleguide";
+import { Molgenis, Spinner } from "molgenis-components";
 
 export default {
   components: {

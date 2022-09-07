@@ -5,7 +5,6 @@ import store from "./store/store";
 import CatalogueView from "./views/CatalogueView";
 import ResourceDetailsView from "./views/ResourceDetailsView";
 import TableView from "./views/TableView";
-import NetworkView from "./views/NetworkView";
 import ResourceListView from "./views/ResourceListView";
 import VariableView from "./views/VariableView";
 import VariableMappingsView from "./views/VariableMappingsView";
@@ -24,6 +23,8 @@ import NetworkCohorts from "./network/NetworkCohorts";
 import NetworkDetails from "./network/NetworkDetails";
 import HomeView from "./views/HomeView"
 Vue.config.productionTip = false;
+
+import "molgenis-components/dist/style.css";
 
 Vue.use(VueRouter);
 

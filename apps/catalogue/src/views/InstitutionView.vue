@@ -33,25 +33,21 @@
 
 <script>
 import { request } from "graphql-request";
-import { MessageError, ReadMore, TableSearch } from "@mswertz/emx2-styleguide";
+import { MessageError } from "molgenis-components";
 import DatasourceList from "../components/DatasourceList";
 import DatabankList from "../components/DatabankList";
 import NetworkList from "../components/NetworkList";
 import ResourceHeader from "../components/ResourceHeader";
 import PartnerInList from "../components/PartnerInList";
-import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
-    OntologyTerms,
     PartnerInList,
     ResourceHeader,
     DatabankList,
     DatasourceList,
     NetworkList,
     MessageError,
-    ReadMore,
-    TableSearch,
   },
   props: {
     pid: String,

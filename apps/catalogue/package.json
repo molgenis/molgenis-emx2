@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@mswertz/emx2-styleguide": "*",
+    "molgenis-components": "*",
     "core-js": "3.25.0",
     "graphql-request": "4.3.0",
     "vue": "2.6.14",
