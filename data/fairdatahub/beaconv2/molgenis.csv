@@ -10,8 +10,8 @@ GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GEN
 GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958
 GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN
 GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001
-GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001
 GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations
+GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001
 GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://purl.obolibrary.org/obo/NCIT_C25372,E.g. disease or disorder
 GenomicVariationsClinInterpr,,clinicalRelevance,String,,,,,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign
 GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1
