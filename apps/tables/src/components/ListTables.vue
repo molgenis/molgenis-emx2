@@ -10,7 +10,11 @@
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <InputSearch id="tables-list-search-input" placeholder="search by name" v-model="search" />
+      <InputSearch
+        id="tables-list-search-input"
+        placeholder="search by name"
+        v-model="search"
+      />
       <h2>Data tables</h2>
       <TablesTable v-if="tables.length > 0" :tables="tables" />
       <p v-else>No tables found</p>
@@ -84,7 +88,3 @@ export default {
   },
 };
 </script>
-
-<docs>
-
-</docs>

@@ -11,7 +11,11 @@
       <div class="btn-group">
         <ShowHide
           :columns.sync="columns"
-          @update:columns="emitFilters"
+          @update:columns="
+            (newFilters) => {
+              setPropertyToShow(newFilters, '_filter');
+            }
+          "
           checkAttribute="showFilter"
           :exclude="['HEADING', 'FILE']"
           label="filters"
@@ -20,7 +24,11 @@
 
         <ShowHide
           :columns.sync="columns"
-          @update:columns="emitColumns"
+          @update:columns="
+            (newColumns) => {
+              setPropertyToShow(newColumns, '_col');
+            }
+          "
           checkAttribute="showColumn"
           label="columns"
           icon="columns"
@@ -260,7 +268,7 @@ import Client from "../../client/client.js";
 import { getPrimaryKey } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
-import ButtonAlt from "../forms/ButtonAlt.vue"
+import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
@@ -299,33 +307,32 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
-    RowButton
+    RowButton,
   },
   data() {
     return {
-      tableMetadata: null,
-      dataRows: [],
-      client: null,
-      columns: [],
-      searchTerms: null,
-      count: null,
-      page: null,
-      limit:
-        this.view === View.TABLE || this.view === View.TABLE
-          ? this.showLimit
-          : 1,
-      view: View.TABLE,
-      loading: false,
-      selectedItems: [],
-      orderByColumn: null,
-      graphqlError: null,
       cardTemplate: null,
-      recordTemplate: null,
-      isDeleteModalShown: false,
-      isEditModalShown: false,
+      client: null,
+      count: null,
+      conditions: this.getConditions(),
+      dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
+      filters: this.getPropertyToShow("_filter"),
+      graphqlError: null,
       isDeleteAllModalShown: false,
+      isDeleteModalShown: false,
+      isEditModalShown: false,
+      limit: this.view === View.TABLE || this.view === View.TABLE ? 20 : 1,
+      loading: false,
+      orderByColumn: null,
+      page: 1,
+      recordTemplate: null,
+      searchTerms: null,
+      selectedItems: [],
+      tableMetadata: null,
+      view: View.TABLE,
+      visibleColumns: this.getPropertyToShow("_col"),
     };
   },
   props: {
@@ -337,57 +344,12 @@ export default {
       type: String,
       default: () => "graphql",
     },
-    value: {
-      type: Array,
-      default: () => [],
-    },
-    showSelect: {
-      type: Boolean,
-      default: () => false,
-    },
-    showHeader: {
-      type: Boolean,
-      default: () => true,
-    },
-    showFilters: {
-      type: Array,
-      default: () => [],
-    },
-    showColumns: {
-      type: Array,
-      default: () => [],
-    },
-    showView: {
-      type: String,
-      default: View.TABLE,
-    },
-    showPage: {
-      type: Number,
-      default: 1,
-    },
-    showLimit: {
-      type: Number,
-      default: 20,
-    },
-    conditions: {
-      type: Object,
-      default: () => ({}),
-    },
-    showOrderBy: {
-      type: String,
-    },
-    showOrder: {
-      type: String,
-      default: () => "ASC",
-    },
     canEdit: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
     canManage: {
       type: Boolean,
-      required: false,
       default: () => false,
     },
   },
@@ -405,14 +367,14 @@ export default {
       }
     },
     countFilters() {
-      return this.columns
-        ? this.columns.filter((f) => f.showFilter).length
+      return this.visibleColumns
+        ? this.visibleColumns.filter((f) => f.showFilter).length
         : null;
     },
     graphqlFilter() {
       let filter = this.filter ? this.filter : {};
-      if (this.columns) {
-        this.columns.forEach((col) => {
+      if (this.visibleColumns) {
+        this.visibleColumns.forEach((col) => {
           let conditions = Array.isArray(col.conditions)
             ? col.conditions.filter((f) => f !== "" && f != undefined)
             : [];
@@ -457,6 +419,42 @@ export default {
     },
   },
   methods: {
+    getPropertyToShow(property) {
+      if (this.$route.query[property]) {
+        if (Array.isArray(this.$route.query[property])) {
+          return this.$route.query[property];
+        } else {
+          return this.$route.query[property].split(",");
+        }
+      } else {
+        return [];
+      }
+    },
+    setPropertyToShow(newColumns, property) {
+      const filteredColumns = filterOnVisibility(newColumns);
+      const query = getColumnsQuery(filteredColumns, property);
+      if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: query });
+      }
+    },
+    getConditions() {
+      let result = {};
+      this.filter.forEach((filterName) => {
+        if (this.$route.query[filterName]) {
+          const columnType = this.tableMetadata.columns[filterName].type;
+          if (["DATE", "DATETIME", "INT", "DECIMAL"].includes(columnType)) {
+            result[filterName] = this.$route.query[filterName]
+              .split(",")
+              .map((v) => v.split(".."));
+          } else if (["REF", "REF_ARRAY", "REFBACK"].includes(columnType)) {
+            result[filterName] = JSON.parse(this.$route.query[filterName]);
+          } else {
+            result[filterName] = this.$route.query[filterName].split(",");
+          }
+        }
+      });
+      return result;
+    },
     getPrimaryKey,
     handleRowAction(type, key) {
       this.editMode = type;
@@ -511,25 +509,15 @@ export default {
       } else {
         order = "ASC";
       }
-      this.$emit("update:showOrderBy", orderByColumn);
-      this.$emit("update:showOrder", order);
-    },
-    emitColumns() {
-      let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType !== "HEADING")
-        .map((c) => c.name);
-      this.$emit("update:showColumns", columns);
-    },
-    emitFilters() {
-      this.$emit(
-        "update:showFilters",
-        this.columns
-          .filter((c) => c.showFilter && c.columnType !== "HEADING")
-          .map((c) => c.name)
-      );
+      let query = Object.assign({}, this.$route.query);
+      query._orderBy = orderByColumn;
+      query._order = order;
+      if (JSON.stringify(query) != JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: query });
+      }
     },
     emitConditions() {
-      const result = this.columns.reduce((accum, c) => {
+      const result = this.visibleColumns.reduce((accum, c) => {
         if (c.conditions && c.conditions.length > 0) {
           accum[c.id] = c.conditions;
         }
@@ -559,14 +547,6 @@ export default {
       this.loading = true;
       this.graphqlError = null;
 
-      if (!this.client) {
-        this.client = Client.newClient(this.graphqlURL);
-      }
-      if (!this.tableMetadata) {
-        this.tableMetadata = await this.client
-          .fetchTableMetaData(this.tableName)
-          .catch(this.handleError);
-      }
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           limit: this.limit,
@@ -585,6 +565,13 @@ export default {
     },
   },
   watch: {
+    $route(to) {
+      //this is to prevent updates if changes come from outside vs inside
+      if (JSON.stringify(to.query) != JSON.stringify(this.query)) {
+        this.timestamp = Date.now();
+        this.query = to.query;
+      }
+    },
     searchTerms: {
       handler(newValue) {
         this.$emit("searchTerms", newValue);
@@ -597,82 +584,86 @@ export default {
       this.$emit("update:showPage", this.page);
       this.reload();
     },
-    showOrderBy() {
-      this.orderByColumn = this.showOrderBy;
-      this.$emit("update:showOrderBy", this.showOrderBy);
-    },
-    showOrder() {
-      this.order = this.showOrder;
-      this.$emit("update:showOrder", this.showOrder);
-      this.reload();
-    },
-    showPage() {
-      this.page = this.showPage;
-    },
+
     showLimit() {
       this.limit = this.showLimit;
     },
-    tableMetadata() {
-      this.page = this.showPage;
-      this.limit = this.showLimit;
-      this.orderByColumn = this.showOrderBy;
-      this.order = this.showOrder;
-      if (this.columns.length === 0) {
-        this.columns.push(...this.tableMetadata.columns);
-        // //init settings
-        this.columns.forEach((c) => {
-          //show columns
-          if (this.showColumns && this.showColumns.length > 0) {
-            if (this.showColumns.includes(c.name)) {
-              c.showColumn = true;
-            } else {
-              c.showColumn = false;
-            }
-          } else {
-            //default we show all non mg_ columns
-            if (!c.name.startsWith("mg_")) {
-              c.showColumn = true;
-            } else {
-              c.showColumn = false;
-            }
-          }
-          //show filters
-          if (this.showFilters && this.showFilters.length > 0) {
-            if (this.showFilters.includes(c.name)) {
-              c.showFilter = true;
-            } else {
-              c.showFilter = false;
-            }
-          } else {
-            //default we hide all filters
-            c.showFilter = false;
-          }
-        });
-        if (this.showView) {
-          this.view = this.showView;
-        }
-        this.columns.forEach((c) => {
-          if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
-            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
-          } else {
-            c.conditions = [];
-          }
-        });
-        //table settings
-        if (this.tableMetadata.settings) {
-          this.tableMetadata.settings.forEach((s) => {
-            if (s.key == "cardTemplate") this.cardTemplate = s.value;
-            if (s.key == "recordTemplate") this.recordTemplate = s.value;
-          });
-        }
-      }
-      this.reload();
-    },
   },
   mounted: async function () {
+    this.loading = true;
+    this.graphqlError = null;
+
+    if (!this.client) {
+      this.client = Client.newClient(this.graphqlURL);
+    }
+    if (!this.tableMetadata) {
+      this.tableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
+    }
+
+    if (this.visibleColumns.length === 0) {
+      let newColumns = getColumns(this.tableMetadata.columns);
+      newColumns.forEach((column) => {
+        if (this.conditions[column.name]?.length > 0) {
+          this.$set(column, "conditions", this.conditions[column.name]); //haat vue reactivity
+        } else {
+          column.conditions = [];
+        }
+      });
+      this.visibleColumns = newColumns;
+    }
+    //table settings
+    if (this.tableMetadata.settings) {
+      this.tableMetadata.settings.forEach((s) => {
+        if (s.key == "cardTemplate") this.cardTemplate = s.value;
+        if (s.key == "recordTemplate") this.recordTemplate = s.value;
+      });
+    }
+
     await this.reload();
   },
 };
+
+function filterOnVisibility(columns) {
+  return columns
+    .filter((column) => column.showColumn && column.columnType !== "HEADING")
+    .map((column) => column.name);
+}
+
+function getColumnsQuery(columns, property) {
+  const query = Object.assign({}, this.$route.query);
+  if (columns.length > 0) {
+    query[property] = columns.join(",");
+  } else {
+    delete query[property];
+  }
+  return query;
+}
+
+function getColumns(columns) {
+  const newColumns = [...columns];
+  newColumns.forEach((column) => {
+    //default we show all non mg_ columns
+    if (!column.name.startsWith("mg_")) {
+      column.showColumn = true;
+    } else {
+      column.showColumn = false;
+    }
+    //show filters
+    if (this.filters?.length > 0) {
+      if (this.filters.includes(column.name)) {
+        column.showFilter = true;
+      } else {
+        column.showFilter = false;
+      }
+    } else {
+      //default we hide all filters
+      column.showFilter = false;
+    }
+  });
+  return newColumns;
+}
 </script>
 
 <style scoped>
