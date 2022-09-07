@@ -25,14 +25,11 @@ subprojects {
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node { with nodeSpec }
-        // force build order: molgenis-components > styleguide > ...apps
-        if (project.name != 'styleguide' && project.name != 'molgenis-components') {
-            dependsOn ":apps:styleguide:build"
-            dependsOn ":apps:molgenis-components:build"
-        }
 
         // set input out out put for each app type
         if (project.name == 'styleguide') {
+            // force build order: molgenis-components > styleguide > ...apps
+            dependsOn ":apps:molgenis-components:buildComponentsShowcase"
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('tests'))
@@ -52,6 +49,8 @@ subprojects {
             outputs.dir('gen-docs')
             outputs.dir('showCase')
         } else if (project.name == 'nuxt-ssr') {
+            // force build order: molgenis-components > styleguide > ...apps
+            dependsOn ":apps:styleguide:build"
             inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
@@ -63,6 +62,9 @@ subprojects {
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
         } else {
+            // force build order: molgenis-components > styleguide > ...apps
+            dependsOn ":apps:styleguide:build"
+            dependsOn ":apps:styleguide:buildStyleguidist"
             inputs.file('package.json')
             inputs.file('vue.config.js')
             inputs.files(fileTree('src'))
@@ -80,7 +82,7 @@ subprojects {
 
     if (project.name == 'styleguide') {
         task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
+            dependsOn ":apps:molgenis-components:build"
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.file('package.json')
@@ -93,8 +95,7 @@ subprojects {
     }
 
     if (project.name == 'molgenis-components') {
-        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
+        task buildComponentsShowcase(type: YarnTask, dependsOn:  ":apps:molgenis-components:build") {
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
