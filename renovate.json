@@ -27,9 +27,9 @@
       ]
     },
     {
-      "groupName": "com.fasterxml.jackson.dataformat",
+      "groupName": "com.fasterxml.jackson",
       "matchPackagePrefixes": [
-        "com.fasterxml.jackson.dataformat"
+        "com.fasterxml.jackson"
       ]
     }
   ]
