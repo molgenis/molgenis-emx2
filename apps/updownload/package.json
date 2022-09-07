@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "core-js": "3.25.0",
+    "core-js": "3.25.1",
     "graphql-request": "4.3.0",
     "vue": "2.6.14"
   },
