@@ -97,6 +97,7 @@ subprojects {
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn:  ":apps:molgenis-components:build") {
             if (project.name == 'molgenis-components') {
+                node { with nodeSpec }
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
                 inputs.files(fileTree('public'))
