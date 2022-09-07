@@ -48,7 +48,6 @@ public class Beaconv2_ModelEndpointsTest {
   @Test
   public void testGenomicVariants_SequenceQuery() throws Exception {
 
-    // todo test case insensitive
     // todo test multiple valid and some invalid query parameter combinations
     // todo support and test optional arguments
 
@@ -56,13 +55,14 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.queryParams("referenceName")).thenReturn("20");
     when(request.queryParams("start")).thenReturn("2447955");
     when(request.queryParams("referenceBases")).thenReturn("c");
-    when(request.queryParams("alternateBases")).thenReturn("g");
+    when(request.queryParams("alternateBases"))
+        .thenReturn("G"); // 'g' in database, test case insensitivity
     GenomicVariants genomicVariations =
         new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1396, json.length());
+    assertEquals(1434, json.length());
   }
 
   @Test
@@ -76,6 +76,8 @@ public class Beaconv2_ModelEndpointsTest {
         new GenomicVariants(request, List.of(beaconSchema.getTable("GenomicVariations")));
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertFalse(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
+    assertFalse(json.contains("\"resultsCount\" : 1,"));
     assertEquals(728, json.length());
   }
 
@@ -91,7 +93,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertEquals(1864, json.length());
+    assertEquals(2912, json.length());
   }
 
   @Test
@@ -105,7 +107,7 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
-    assertEquals(2332, json.length());
+    assertEquals(3418, json.length());
   }
 
   @Test
@@ -119,7 +121,7 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertEquals(1396, json.length());
+    assertEquals(2406, json.length());
   }
 
   @Test
