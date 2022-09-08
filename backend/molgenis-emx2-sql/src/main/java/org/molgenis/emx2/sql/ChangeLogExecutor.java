@@ -17,7 +17,10 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Record6;
+import org.jooq.Result;
 import org.molgenis.emx2.Change;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
@@ -25,12 +28,12 @@ import org.molgenis.emx2.TableMetadata;
 public class ChangeLogExecutor {
 
   public static final String MG_CHANGLOG = "mg_changelog";
-  private static final org.jooq.Field OPERATION = field(name("operation"), CHAR(1).nullable(false));
-  private static final org.jooq.Field STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
-  private static final org.jooq.Field USERID = field(name("userid"), VARCHAR.nullable(false));
-  private static final org.jooq.Field TABLENAME = field(name("tablename"), VARCHAR.nullable(false));
-  private static final org.jooq.Field OLD = field(name("old"), JSON.nullable(true));
-  private static final org.jooq.Field NEW = field(name("new"), JSON.nullable(true));
+  private static final Field<String> OPERATION = field(name("operation"), CHAR(1).nullable(false));
+  private static final Field<Timestamp> STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
+  private static final Field<String> USERID = field(name("userid"), VARCHAR.nullable(false));
+  private static final Field<String> TABLENAME = field(name("tablename"), VARCHAR.nullable(false));
+  private static final Field<org.jooq.JSON> OLD = field(name("old"), JSON.nullable(true));
+  private static final Field<org.jooq.JSON> NEW = field(name("new"), JSON.nullable(true));
 
   private ChangeLogExecutor() {
     // hide
@@ -88,7 +91,7 @@ public class ChangeLogExecutor {
     if (!hasChangeLogTable(jooq, schema)) {
       return Collections.emptyList();
     }
-    List<Record> result =
+    Result<Record6<String, Timestamp, String, String, org.jooq.JSON, org.jooq.JSON>> result =
         jooq.select(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
             .from(table(name(schema.getName(), MG_CHANGLOG)))
             .orderBy(STAMP.desc())
