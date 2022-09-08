@@ -160,11 +160,6 @@ public class GraphqlDatabaseFieldFactory {
                             .name(Constants.DESCRIPTION)
                             .type(Scalars.GraphQLString)
                             .build())
-                    .field(
-                        GraphQLFieldDefinition.newFieldDefinition()
-                            .name(Constants.IS_CHANGELOG_ENABLED)
-                            .type(Scalars.GraphQLBoolean)
-                            .build())
                     .build()));
   }
 
