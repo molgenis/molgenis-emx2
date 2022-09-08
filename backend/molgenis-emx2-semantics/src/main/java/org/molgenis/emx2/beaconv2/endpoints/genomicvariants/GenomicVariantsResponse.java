@@ -194,9 +194,13 @@ public class GenomicVariantsResponse {
                   TypeUtils.toString(map.get("position__refseqId")),
                   new Long[] {TypeUtils.toLong(map.get("position__start"))},
                   new Long[] {TypeUtils.toLong(map.get("position__end")).longValue()}));
-          genomicVariantsItem.setVariantLevelData(
-              new VariantLevelData(
-                  ClinicalInterpretations.get(map.get("clinicalInterpretations"))));
+          VariantLevelData variantLevelData =
+              new VariantLevelData(ClinicalInterpretations.get(map.get("clinicalInterpretations")));
+          if (variantLevelData != null
+              && variantLevelData.getClinicalInterpretations() != null
+              && variantLevelData.getClinicalInterpretations().length > 0) {
+            genomicVariantsItem.setVariantLevelData(variantLevelData);
+          }
           genomicVariantsItemList.add(genomicVariantsItem);
         }
       }

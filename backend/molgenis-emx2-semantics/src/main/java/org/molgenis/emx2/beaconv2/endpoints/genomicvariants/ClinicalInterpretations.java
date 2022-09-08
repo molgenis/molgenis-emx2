@@ -24,10 +24,18 @@ public class ClinicalInterpretations {
     for (int i = 0; i < clininterprCast.size(); i++) {
       Map map = clininterprCast.get(i);
       ClinicalInterpretations clinicalInterpretations = new ClinicalInterpretations();
-      clinicalInterpretations.category = mapToOntologyTerm((Map) map.get("category"));
-      clinicalInterpretations.clinicalRelevance = (String) map.get("clinicalRelevance");
-      clinicalInterpretations.conditionId = (String) map.get("conditionId");
-      clinicalInterpretations.effect = mapToOntologyTerm((Map) map.get("effect"));
+      if (map.get("category") != null) {
+        clinicalInterpretations.category = mapToOntologyTerm((Map) map.get("category"));
+      }
+      if (map.get("clinicalRelevance") != null) {
+        clinicalInterpretations.clinicalRelevance = (String) map.get("clinicalRelevance");
+      }
+      if (map.get("conditionId") != null) {
+        clinicalInterpretations.conditionId = (String) map.get("conditionId");
+      }
+      if (map.get("effect") != null) {
+        clinicalInterpretations.effect = mapToOntologyTerm((Map) map.get("effect"));
+      }
       result[i] = clinicalInterpretations;
     }
     return result;
