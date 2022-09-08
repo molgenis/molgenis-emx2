@@ -28,10 +28,6 @@ public class SchemaMetadata {
     this.description = description;
   }
 
-  public SchemaMetadata(String name, String description, boolean isChangeLogEnabled) {
-    this(name, description);
-  }
-
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
