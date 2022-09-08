@@ -94,8 +94,7 @@ public class GenomicVariantsResponse {
     for (Table table : genomicVariantTables) {
 
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
-      Query query = table.query();
-      selectColumns(table, query);
+      Query query = selectColumns(table);
 
       switch (genomicQueryType) {
         case SEQUENCE -> query.where(

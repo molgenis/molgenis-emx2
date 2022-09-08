@@ -94,11 +94,9 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
-      return ((Long) v).longValue();
-    }
+    if (v instanceof Long) return (Long) v;
     if (v instanceof Double) return Math.round((Double) v);
-    return (Long) v;
+    return Long.parseLong(v.toString());
   }
 
   public static Integer[] toIntArray(Object v) {

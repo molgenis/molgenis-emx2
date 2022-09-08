@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.beaconv2.common.ISO8601duration;
 import org.molgenis.emx2.beaconv2.common.OntologyTerm;
+import org.molgenis.emx2.utils.TypeUtils;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Measures {
@@ -24,15 +25,16 @@ public class Measures {
       Map map = measuresCast.get(i);
       Measures m = new Measures();
       m.assayCode = mapToOntologyTerm((Map) map.get("assayCode"));
-      m.date = (String) map.get("date");
-      m.measurementVariable = (String) map.get("measurementVariable");
+      m.date = TypeUtils.toString(map.get("date"));
+      m.measurementVariable = TypeUtils.toString(map.get("measurementVariable"));
       m.measurementValue =
           new MeasurementValue(
               (Integer) map.get("measurementValue__value"),
               mapToOntologyTerm((Map) map.get("measurementValue__units")));
       m.observationMoment =
           new ObservationMoment(
-              new ISO8601duration((String) map.get("observationMoment__age__iso8601duration")));
+              new ISO8601duration(
+                  TypeUtils.toString(map.get("observationMoment__age__iso8601duration"))));
       result[i] = m;
     }
     return result;
