@@ -49,8 +49,7 @@ public class TestGraphqlDatabaseFields {
     String result = execute("{Schemas{name}}").at("/data/Schemas").toString();
     assertFalse(result.contains(schemaName + "B"));
 
-    execute(
-        "mutation{createSchema(name:\"" + schemaName + "B\", isChangelogEnabled: false){message}}");
+    execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
     assertNotNull(database.getSchema(schemaName + "B"));
     result = execute("{Schemas{name}}").at("/data/Schemas").toString();
     assertTrue(result.contains(schemaName + "B"));

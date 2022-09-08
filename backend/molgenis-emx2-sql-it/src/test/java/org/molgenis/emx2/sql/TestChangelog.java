@@ -7,6 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -28,8 +29,9 @@ public class TestChangelog {
         db -> {
           db.dropSchemaIfExists("testSchemaChanges");
           db.becomeAdmin();
-          db.createSchema("testSchemaChanges", true);
+          db.createSchema("testSchemaChanges");
           Schema schema = db.getSchema("testSchemaChanges");
+          schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
           schema = addTestData(schema);
 
           assertEquals(3, schema.getChanges(100).size());
@@ -46,8 +48,9 @@ public class TestChangelog {
         db -> {
           db.dropSchemaIfExists("testSchemaChangesChangeCount");
           db.becomeAdmin();
-          db.createSchema("testSchemaChangesChangeCount", "my desc", true);
+          db.createSchema("testSchemaChangesChangeCount", "my desc");
           Schema schema = db.getSchema("testSchemaChangesChangeCount");
+          schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
           schema = addTestData(schema);
           assertEquals(java.util.Optional.of(3), java.util.Optional.of(schema.getChangesCount()));
         });

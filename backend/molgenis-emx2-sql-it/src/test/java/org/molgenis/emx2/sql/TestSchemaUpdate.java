@@ -23,10 +23,8 @@ public class TestSchemaUpdate {
     String descUpdate = "update me";
     db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate);
     assertTrue(
-        db.getSchemaInfos()
-            .contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate, false)));
+        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate)));
     assertFalse(
-        db.getSchemaInfos()
-            .contains(new SchemaInfo(TestSchemaUpdate.class.getName(), desc, false)));
+        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), desc)));
   }
 }
