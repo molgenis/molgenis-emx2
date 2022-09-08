@@ -14,67 +14,67 @@
     </IconBar>
     <div v-if="count > 0 || search || (session && session.email == 'admin')">
       <InputSearch
-        id="groups-search-input"
-        placeholder="search by name"
-        v-model="search"
+          id="groups-search-input"
+          placeholder="search by name"
+          v-model="search"
       />
       <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>
-          <th style="width: 1px">
-            <IconAction
+        <th style="width: 1px">
+          <IconAction
               v-if="session && session.email == 'admin'"
               icon="plus"
               @click="openCreateSchema"
-            />
-          </th>
-          <th @click="changeSortOrder('name')" class="sort-col">
-            name
-            <IconAction
+          />
+        </th>
+        <th @click="changeSortOrder('name')" class="sort-col">
+          name
+          <IconAction
               v-if="sortOrder && sortColumn === 'name'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
               class="d-inline p-0 hide-icon"
-            />
-          </th>
-          <th>description</th>
-          <th
+          />
+        </th>
+        <th>description</th>
+        <th
             v-if="showChangeColumn"
             @click="changeSortOrder('lastUpdate')"
             class="sort-col"
-          >
-            last update
-            <IconAction
+        >
+          last update
+          <IconAction
               v-if="sortOrder && sortColumn === 'lastUpdate'"
               :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
               class="d-inline p-0 hide-icon"
-            />
-          </th>
+          />
+        </th>
         </thead>
         <tbody>
-          <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
-            <td>
-              <div style="display: flex">
-                <IconAction
+        <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
+          <td>
+            <div style="display: flex">
+              <IconAction
                   v-if="session && session.email == 'admin'"
                   icon="edit"
-                  @click="openEditSchema(schema)"
-                />
-                <IconDanger
+                  @click="openEditSchema(schema.name, schema.description)"
+              />
+              <IconDanger
                   v-if="session && session.email == 'admin'"
                   icon="trash"
                   @click="openDeleteSchema(schema.name)"
-                />
-              </div>
-            </td>
-            <td>
-              <a :href="'/' + schema.name">{{ schema.name }}</a>
-            </td>
-            <td>
-              {{ schema.description }}
-            </td>
-            <td v-if="showChangeColumn">
-              <LastUpdateField
-                v-if="schema.isChangelogEnabled"
+              />
+            </div>
+          </td>
+          <td>
+            <a :href="'/' + schema.name">{{ schema.name }}</a>
+          </td>
+          <td>
+            {{ schema.description }}
+          </td>
+          <td v-if="showChangeColumn">
+            <LastUpdateField
+                v-if="changelogSchemas.includes(schema.name)"
                 :schema="schema.name"
                 @input="
                   (i) => {
@@ -82,23 +82,22 @@
                     handleLastUpdateChange();
                   }
                 "
-              />
-            </td>
-          </tr>
+            />
+          </td>
+        </tr>
         </tbody>
       </table>
       <SchemaCreateModal v-if="showCreateSchema" @close="closeCreateSchema" />
       <SchemaDeleteModal
-        v-if="showDeleteSchema"
-        @close="closeDeleteSchema"
-        :schemaName="showDeleteSchema"
+          v-if="showDeleteSchema"
+          @close="closeDeleteSchema"
+          :schemaName="showDeleteSchema"
       />
       <SchemaEditModal
-        v-if="showEditSchema"
-        @close="closeEditSchema"
-        :schemaName="showEditSchema"
-        :schemaDescription="editDescription"
-        :schemaIsChangelogEnabled="editIsChangelogEnabled"
+          v-if="showEditSchema"
+          @close="closeEditSchema"
+          :schemaName="showEditSchema"
+          :schemaDescription="editDescription"
       />
     </div>
   </div>
@@ -144,7 +143,6 @@ export default {
       showDeleteSchema: false,
       showEditSchema: false,
       editDescription: null,
-      editIsChangelogEnabled: null,
       graphqlError: null,
       search: null,
       sortColumn: "name",
@@ -160,11 +158,25 @@ export default {
     },
     showChangeColumn() {
       return (
-        (this.session.email == "admin" ||
-          (this.session &&
-            this.session.roles &&
-            this.session.roles.includes("Manager")))
+          (this.session.email == "admin" ||
+              (this.session &&
+                  this.session.roles &&
+                  this.session.roles.includes("Manager"))) &&
+          this.changelogSchemas.length
       );
+    },
+    changelogSchemas() {
+      if (
+          this.session &&
+          this.session.settings &&
+          this.session.settings["CHANGELOG_SCHEMAS"]
+      ) {
+        return this.session.settings["CHANGELOG_SCHEMAS"]
+            .split(",")
+            .map((s) => s.trim());
+      } else {
+        return [];
+      }
     },
   },
   created() {
@@ -185,10 +197,9 @@ export default {
       this.showDeleteSchema = null;
       this.getSchemaList();
     },
-    openEditSchema(schema) {
-      this.showEditSchema = schema.name;
-      this.editDescription = schema.description;
-      this.editIsChangelogEnabled = schema.isChangelogEnabled;
+    openEditSchema(schemaName, schemaDescription) {
+      this.showEditSchema = schemaName;
+      this.editDescription = schemaDescription;
     },
     closeEditSchema() {
       this.showEditSchema = null;
@@ -197,26 +208,26 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name description isChangelogEnabled}}")
-        .then((data) => {
-          this.schemas = data.Schemas;
-          this.loading = false;
-        })
-        .catch(
-          (error) =>
-            (this.graphqlError = "internal server graphqlError" + error)
-        );
+      request("graphql", "{Schemas{name description}}")
+          .then((data) => {
+            this.schemas = data.Schemas;
+            this.loading = false;
+          })
+          .catch(
+              (error) =>
+                  (this.graphqlError = "internal server graphqlError" + error)
+          );
     },
     filterSchema(unfiltered) {
       let filtered = unfiltered;
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         filtered = this.schemas.filter((s) =>
-          terms.every(
-            (v) =>
-              s.name.toLowerCase().includes(v) ||
-              (s.description && s.description.toLowerCase().includes(v))
-          )
+            terms.every(
+                (v) =>
+                    s.name.toLowerCase().includes(v) ||
+                    (s.description && s.description.toLowerCase().includes(v))
+            )
         );
       }
       return filtered;

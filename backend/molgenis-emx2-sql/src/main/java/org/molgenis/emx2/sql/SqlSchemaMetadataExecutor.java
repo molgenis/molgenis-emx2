@@ -62,8 +62,7 @@ class SqlSchemaMetadataExecutor {
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
-    MetadataUtils.saveSchemaMetadata(
-        db.getJooq(), schema.getName(), schema.getDescription(), schema.isChangeLogEnabled());
+    MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {

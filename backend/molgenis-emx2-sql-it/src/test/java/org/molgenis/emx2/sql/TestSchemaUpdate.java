@@ -21,7 +21,7 @@ public class TestSchemaUpdate {
   @Test
   public void testUpdateDescription() {
     String descUpdate = "update me";
-    db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate, false);
+    db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate);
     assertTrue(
         db.getSchemaInfos()
             .contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate, false)));

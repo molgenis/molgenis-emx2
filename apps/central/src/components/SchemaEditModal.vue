@@ -8,10 +8,10 @@
     </LayoutModal>
     <!-- when completed -->
     <LayoutModal
-      v-else-if="success"
-      :title="title"
-      :show="true"
-      @close="$emit('close')"
+        v-else-if="success"
+        :title="title"
+        :show="true"
+        @close="$emit('close')"
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
@@ -30,18 +30,11 @@
             label="description"
             :defaultValue="schemaDescription"
         />
-        <InputBoolean
-            id="schema-edit-is-changelog-enabled"
-            v-model="newSchemaIsChangelogEnabled"
-            label="enable changelog"
-            :defaultValue="false"
-            :isClearable="false"
-        />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
         <ButtonAction @click="executeDeleteSchema"
-          >Edit database
+        >Edit database
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -58,7 +51,6 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
-  InputBoolean,
   InputText,
 } from "molgenis-components";
 
@@ -70,13 +62,11 @@ export default {
     ButtonAlt,
     LayoutModal,
     Spinner,
-    InputBoolean,
     InputText,
   },
   props: {
     schemaName: String,
-    schemaDescription: String,
-    schemaIsChangelogEnabled: Boolean
+    schemaDescription: String
   },
   data: function () {
     return {
@@ -84,8 +74,7 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
-      newSchemaDescription: this.schemaDescription,
-      newSchemaIsChangelogEnabled: this.schemaIsChangelogEnabled
+      newSchemaDescription: this.schemaDescription
     };
   },
   computed: {
@@ -102,31 +91,26 @@ export default {
       this.graphqlError = null;
       this.success = null;
       request(
-        this.endpoint,
-        `mutation updateSchema($name:String, $description:String, $isChangelogEnabled: Boolean) {
-          updateSchema(name:$name, description: $description, isChangelogEnabled: $isChangelogEnabled) {
-            message
+          this.endpoint,
+          `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
+          {
+            name: this.schemaName,
+            description: this.newSchemaDescription,
           }
-        }`,
-        {
-          name: this.schemaName,
-          description: this.newSchemaDescription,
-          isChangelogEnabled: this.newSchemaIsChangelogEnabled
-        }
       )
-        .then((data) => {
-          this.success = data.updateSchema.message;
-          this.loading = false;
-        })
-        .catch((error) => {
-          if (error.response.status === 403) {
-            this.graphqlError =
-              error.message + "Forbidden. Do you need to login?";
-          } else {
-            this.graphqlError = error.response.errors[0].message;
-          }
-          this.loading = false;
-        });
+          .then((data) => {
+            this.success = data.updateSchema.message;
+            this.loading = false;
+          })
+          .catch((error) => {
+            if (error.response.status === 403) {
+              this.graphqlError =
+                  error.message + "Forbidden. Do you need to login?";
+            } else {
+              this.graphqlError = error.response.errors[0].message;
+            }
+            this.loading = false;
+          });
     },
   },
 };

@@ -202,15 +202,15 @@ table from the other schema should not have a name conflict with any table in th
 practice, the table from the other schema will be imported into the current schema.
 
 ## Changelog
-Data changes made by a user can be tracked via a changelog. When the changelog feature is enabled,
+Data changes made by a user can be tracked via a changelog. When enabled,
 all (data) changes made by a user are stored in a changelog table. 
 The changelog can only be enabled or disabled for the entire schema. 
 Admin or Manager users can view changes made by going
-to ``[server]/[schema]/settings/#/log`` ( Settings app -> selct the 'Change log' tab). 
+to ``[server]/[schema]/settings/#/changelog`` ( Settings app -> select the 'Changelog' tab). 
 
-The changelog can be turned enabled when creating a schema by setting the 
-'enable changelog' value to true. The changelog can also be enabled after schema creation via the edit schema modal.
-Disabling the changelog can be also be done via the edit schema modal. 
+The changelog can be enabled after schema creation via adding a setting with key ```isChangelogEnabled```, and setting the 
+value to ```true```.
+Disabling the changelog is done the setting the value to ```false``` or removing the setting
 
 ## FAQ
 

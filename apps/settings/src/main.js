@@ -5,7 +5,7 @@ import Members from "./components/Members";
 import Theme from "./components/Theme";
 import MenuManager from "./components/MenuManager";
 import PageManager from "./components/PageManager";
-import LogViewer from "./components/LogViewer"; 
+import ChangelogViewer from "./components/ChangelogViewer";
 import SettingsManager from "./components/SettingsManager"
 
 Vue.config.productionTip = false;
@@ -36,9 +36,9 @@ const router = new VueRouter({
       component: PageManager,
     },
     {
-      name: "Change log",
-      path: "/log",
-      component: LogViewer,
+      name: "Changelog",
+      path: "/changelog",
+      component: ChangelogViewer,
     },
     {
       name: "Advanced settings",

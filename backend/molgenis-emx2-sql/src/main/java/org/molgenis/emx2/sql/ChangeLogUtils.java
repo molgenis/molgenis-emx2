@@ -1,5 +1,7 @@
 package org.molgenis.emx2.sql;
 
+import java.util.Optional;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 
 public class ChangeLogUtils {
@@ -56,7 +58,9 @@ public class ChangeLogUtils {
   }
 
   public static boolean isChangeSchema(Database db, String schemaName) {
-    return db.getSchema(schemaName).isChangeLogEnabled();
+    Optional<String> settingValue =
+        db.getSchema(schemaName).getMetadata().findSettingValue(Constants.IS_CHANGELOG_ENABLED);
+    return settingValue.filter(Boolean::parseBoolean).isPresent();
   }
 
   private static String buildFunctionName(String tableName) {

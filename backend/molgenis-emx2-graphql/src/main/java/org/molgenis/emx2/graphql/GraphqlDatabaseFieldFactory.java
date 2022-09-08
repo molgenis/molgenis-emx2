@@ -45,10 +45,6 @@ public class GraphqlDatabaseFieldFactory {
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.IS_CHANGELOG_ENABLED)
-                .type(Scalars.GraphQLBoolean))
-        .argument(
             GraphQLArgument.newArgument().name(Constants.TEMPLATE).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument()
@@ -58,15 +54,13 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              boolean isChangelogEnabled =
-                  dataFetchingEnvironment.getArgument(Constants.IS_CHANGELOG_ENABLED);
               String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
               database.tx(
                   db -> {
-                    Schema schema = db.createSchema(name, description, isChangelogEnabled);
+                    Schema schema = db.createSchema(name, description);
                     if (template != null) {
                       AvailableDataModels.valueOf(template)
                           .install(schema, Boolean.TRUE.equals(includeDemoData));
@@ -83,17 +77,11 @@ public class GraphqlDatabaseFieldFactory {
         .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
         .argument(
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.IS_CHANGELOG_ENABLED)
-                .type(Scalars.GraphQLBoolean))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
-              boolean isChangeLogEnabled =
-                  dataFetchingEnvironment.getArgument(Constants.IS_CHANGELOG_ENABLED);
-              database.updateSchema(name, description, isChangeLogEnabled);
+              database.updateSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
   }
@@ -154,7 +142,6 @@ public class GraphqlDatabaseFieldFactory {
                 if (!Objects.isNull(schemaInfo.description())) {
                   fields.put("description", schemaInfo.description());
                 }
-                fields.put("isChangelogEnabled", String.valueOf(schemaInfo.isChangelogEnabled()));
                 result.add(fields);
               }
               return result;

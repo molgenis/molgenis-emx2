@@ -368,9 +368,4 @@ public class SqlSchema implements Schema {
   public Integer getChangesCount() {
     return metadata.getChangesCount();
   }
-
-  @Override
-  public boolean isChangeLogEnabled() {
-    return metadata.isChangeLogEnabled();
-  }
 }

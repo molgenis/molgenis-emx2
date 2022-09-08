@@ -71,16 +71,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     this.reload();
   }
 
-  public SqlSchemaMetadata(
-      Database db, String name, String description, boolean isChangelogEnabled) {
-    super(
-        db,
-        MetadataUtils.loadSchemaMetadata(
-            ((SqlDatabase) db).getJooq(),
-            new SchemaMetadata(name, description, isChangelogEnabled)));
-    this.reload();
-  }
-
   public SqlSchemaMetadata(Database db, String name) {
     super(
         db,
@@ -198,11 +188,35 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       SqlDatabase db, String schemaName, Collection<Setting> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
     settings.forEach(
-        s -> {
-          MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
-          schema.settings.put(s.key(), s.value());
+        setting -> {
+          if (Constants.IS_CHANGELOG_ENABLED.equals(setting.key())) {
+            toggleChangeLogIfNeeded(db, schema, setting.value());
+          }
+          MetadataUtils.saveSetting(db.getJooq(), schema, null, setting);
+          schema.settings.put(setting.key(), setting.value());
         });
     return schema;
+  }
+
+  /**
+   * Checks if the proposed changelog setting is different from the current setting and enables or
+   * disables the changelog feature accordingly.
+   */
+  private static void toggleChangeLogIfNeeded(
+      SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
+    boolean currentValue =
+        schema
+            .findSettingValue(Constants.IS_CHANGELOG_ENABLED)
+            .filter(Boolean::parseBoolean)
+            .isPresent();
+    boolean newValue = Boolean.parseBoolean(settingsValue);
+    if (currentValue != newValue) {
+      if (newValue) {
+        ChangeLogExecutor.enableChangeLog(db, schema);
+      } else {
+        ChangeLogExecutor.disableChangeLog(db, schema);
+      }
+    }
   }
 
   @Override
@@ -235,6 +249,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static SqlSchemaMetadata removeSettingTransaction(
       String key, SqlDatabase db, String schemaName) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    if (Constants.IS_CHANGELOG_ENABLED.equals(key)) {
+      toggleChangeLogIfNeeded(db, schema, Boolean.FALSE.toString());
+    }
     MetadataUtils.deleteSetting(db.getJooq(), schema, null, new Setting(key, null));
     schema.settings.remove(key);
     return schema;
@@ -242,12 +259,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   protected DSLContext getJooq() {
     return getDatabase().getJooq();
-  }
-
-  private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
-    logger.info("{} {} {} in {}ms", user, message, getName(), (System.currentTimeMillis() - start));
   }
 
   @Override
