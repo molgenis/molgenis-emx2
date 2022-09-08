@@ -196,7 +196,7 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
-      // remove changelog table
+      // remove changelog triggers
       ChangeLogExecutor.disableChangeLog(db, db.getSchema(schemaName).getMetadata());
       // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
