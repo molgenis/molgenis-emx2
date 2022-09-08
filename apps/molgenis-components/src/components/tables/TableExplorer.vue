@@ -74,7 +74,7 @@
       <Pagination
         :value="page"
         @input="setPage($event)"
-        :limit="activeLimit"
+        :limit="limit"
         :count="count"
       />
 
@@ -82,10 +82,10 @@
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
-          :value="listLimit"
+          :value="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
-          @input="setListLimit($event)"
+          @input="setLimit($event)"
           class="mb-0"
         />
         <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
@@ -313,7 +313,7 @@ export default {
       count: null,
       page: this.showPage,
       view: this.showView,
-      listLimit: this.showLimit,
+      limit: this.showLimit,
       loading: false,
       selectedItems: [],
       orderByColumn: null,
@@ -337,10 +337,6 @@ export default {
     graphqlURL: {
       type: String,
       default: () => "graphql",
-    },
-    value: {
-      type: Array,
-      default: () => [],
     },
     showSelect: {
       type: Boolean,
@@ -391,12 +387,13 @@ export default {
     },
   },
   computed: {
-    activeLimit() {
-      const isList = this.view === View.TABLE || this.view === View.CARDS;
-      const activeLimit = isList ? this.listLimit : 1;
-      this.$emit("update:showLimit", activeLimit);
-      return activeLimit;
-    },
+    // activeLimit() {
+    //   const isList = this.view === View.TABLE || this.view === View.CARDS;
+    //   const activeLimit = isList ? this.limit : 1;
+    //   this.$emit("update:showLimit", activeLimit);
+    //   console.log("activeLimit", activeLimit);
+    //   return activeLimit;
+    // },
     View() {
       return View;
     },
@@ -503,10 +500,13 @@ export default {
     toggleView() {
       if (this.view === View.TABLE) {
         this.view = View.CARDS;
+        this.setLimit(this.showLimit);
       } else if (this.view === View.CARDS) {
         this.view = View.RECORD;
+        this.setLimit(1);
       } else {
         this.view = View.TABLE;
+        this.setLimit(this.showLimit);
       }
       this.setPage(1);
     },
@@ -552,13 +552,14 @@ export default {
     setPage(page) {
       this.page = page;
       this.loading = true;
-      this.offset = this.activeLimit * (page - 1);
+      this.offset = this.limit * (page - 1);
       this.$emit("update:showPage", page);
       this.reload();
     },
-    setListLimit(limit) {
-      this.listLimit = parseInt(limit);
+    setLimit(limit) {
+      this.limit = parseInt(limit);
       this.setPage(1);
+      this.$emit("update:showLimit", limit);
     },
     setOrder(newOrder, newOrderByColumn) {
       this.order = newOrder;
@@ -635,7 +636,7 @@ export default {
 
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
-          limit: this.activeLimit,
+          limit: this.limit,
           offset: this.offset,
           filter: this.graphqlFilter,
           searchTerms: this.searchTerms,
