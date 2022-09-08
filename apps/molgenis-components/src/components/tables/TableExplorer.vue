@@ -70,16 +70,21 @@
         id="explorer-table-search"
         v-model="searchTerms"
       />
-      <Pagination v-model="page" :limit="limit" :count="count" />
+      <Pagination
+        :value="page"
+        @input="setPage($event)"
+        :limit="activeLimit"
+        :count="count"
+      />
 
-      <div class="btn-group m-0" v-if="view != View.RECORD">
+      <div class="btn-group m-0" v-if="view !== View.RECORD">
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
-          :value="limit"
+          :value="listLimit"
           :options="[10, 20, 50, 100]"
           :clear="false"
-          @input="setLimit($event)"
+          @input="setListLimit($event)"
           class="mb-0"
         />
         <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
@@ -120,7 +125,7 @@
           <Spinner />
         </div>
         <RecordCards
-          v-if="!loading && view == View.CARDS"
+          v-if="!loading && view === View.CARDS"
           class="card-columns"
           id="cards"
           :data="dataRows"
@@ -134,7 +139,7 @@
           @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
         />
         <RecordCards
-          v-if="!loading && view == View.RECORD"
+          v-if="!loading && view === View.RECORD"
           id="records"
           :data="dataRows"
           :columns="columns"
@@ -305,9 +310,9 @@ export default {
       columns: [],
       searchTerms: null,
       count: null,
-      page: this.initialPageValue(),
-      limit: this.initialLimitValue(),
-      view: View.TABLE,
+      page: this.showPage,
+      view: this.showView,
+      listLimit: this.showLimit,
       loading: false,
       selectedItems: [],
       orderByColumn: null,
@@ -319,6 +324,7 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
       isDeleteAllModalShown: false,
+      offset: 0,
     };
   },
   props: {
@@ -383,6 +389,12 @@ export default {
     },
   },
   computed: {
+    activeLimit() {
+      const isList = this.view === View.TABLE || this.view === View.CARDS;
+      const activeLimit = isList ? this.listLimit : 1;
+      this.$emit("update:showLimit", activeLimit);
+      return activeLimit;
+    },
     View() {
       return View;
     },
@@ -449,14 +461,6 @@ export default {
   },
   methods: {
     getPrimaryKey,
-    initialPageValue() {
-      return this.showPage ? this.showPage : 1;
-    },
-    initialLimitValue() {
-      const isList = this.view === View.TABLE || this.view === View.CARDS;
-      const listItems = this.showLimit ? this.showLimit : 20;
-      return isList ? listItems : 1;
-    },
     handleRowAction(type, key) {
       this.editMode = type;
       this.editRowPrimaryKey = key;
@@ -498,6 +502,7 @@ export default {
       } else {
         this.view = View.TABLE;
       }
+      this.setPage(1);
     },
     onColumnClick(column) {
       let orderByColumn = this.orderByColumn;
@@ -538,19 +543,17 @@ export default {
       this.reload();
     },
     setPage(page) {
+      console.log("setPage", page);
       this.page = page;
       this.loading = true;
-      this.offset = this.limit * (page - 1);
+      this.offset = this.activeLimit * (page - 1);
       this.$emit("update:showPage", page);
       this.reload();
     },
-    setLimit(limit) {
-      const limitNumber = parseInt(limit);
-      this.limit = limitNumber;
-      if (this.page != 1) {
-        this.setPage(1);
-      }
-      this.$emit("update:showLimit", limitNumber);
+    setListLimit(limit) {
+      console.log("setLimit", limit);
+      this.listLimit = parseInt(limit);
+      this.setPage(1);
     },
     handleError(error) {
       if (Array.isArray(error?.response?.data?.errors)) {
@@ -567,17 +570,9 @@ export default {
       this.loading = true;
       this.graphqlError = null;
 
-      if (!this.client) {
-        this.client = Client.newClient(this.graphqlURL);
-      }
-      if (!this.tableMetadata) {
-        this.tableMetadata = await this.client
-          .fetchTableMetaData(this.tableName)
-          .catch(this.handleError);
-      }
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
-          limit: this.limit,
+          limit: this.activeLimit,
           offset: this.offset,
           filter: this.graphqlFilter,
           searchTerms: this.searchTerms,
@@ -664,13 +659,21 @@ export default {
     },
   },
   mounted: async function () {
+    if (!this.client) {
+      this.client = Client.newClient(this.graphqlURL);
+    }
+    if (!this.tableMetadata) {
+      this.tableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
+    }
     await this.reload();
   },
 };
 </script>
 
 <style scoped>
-/* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due to single route element constraint */
+/* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {
   margin-left: 0;
   border-top-left-radius: 0;
@@ -701,8 +704,8 @@ export default {
         :showColumns.sync="showColumns"
         :showFilters.sync="showFilters"
         :conditions.sync="conditions"
-        :showPage.sync="page" 
-        :showLimit.sync="limit"
+        :showPage="page" 
+        :showLimit="limit"
         :showOrderBy.sync="showOrderBy" 
         :showOrder.sync="showOrder"
         :canEdit="canEdit"
