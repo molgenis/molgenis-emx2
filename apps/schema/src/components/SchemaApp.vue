@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid bg-white">
-    <div class="sticky-top">
+    <div class="sticky-top bg-white">
       <div class="d-flex flex-row">
         <h1>Schema: {{ schema.name }}</h1>
         <div class="form-inline">
@@ -178,7 +178,6 @@ export default {
       this.loading = false;
     },
     loadSchema() {
-      console.log("load schema");
       this.graphqlError = null;
       this.loading = true;
       request(
@@ -186,7 +185,7 @@ export default {
         "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
-          let _schema = this.addOldNamesAndRemoveMeta(data._schema);
+          const _schema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(_schema);
           this.schemaNames = data._session.schemas;
           this.loading = false;

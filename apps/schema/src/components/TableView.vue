@@ -29,7 +29,7 @@
           />
           <IconDanger
             v-if="isManager"
-            @click="deleteTable(table)"
+            @click="deleteTable"
             icon="trash"
             class="hoverIcon"
           />
@@ -138,13 +138,7 @@
             <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
               <ColumnView
                 v-for="(column, columnIndex) in table.columns"
-                :key="
-                  JSON.stringify(column) +
-                  '_' +
-                  columnIndex +
-                  '_' +
-                  table.columns.length
-                "
+                :key="columnIndex + column.name"
                 :style="
                   isSubclassDropped(column)
                     ? 'text-decoration: line-through'
@@ -241,16 +235,16 @@ export default {
         return "Table name must be unique within schema";
       }
     },
-    deleteTable(table) {
-      if (!table.oldName) {
+    deleteTable() {
+      if (!this.table.oldName) {
         this.$emit("delete");
-      } else if (!table.drop) {
+      } else if (!this.table.drop) {
         //need to do deep set otherwise vue doesn't see it
-        this.$set(table, "drop", true);
+        this.table.drop = true;
       } else {
-        this.$set(table, "drop", false);
+        this.table.drop = false;
       }
-      this.$emit("input", table);
+      this.$emit("input", this.table);
     },
     deleteColumn(index) {
       if (this.table.columns[index].oldName === undefined) {
@@ -267,10 +261,11 @@ export default {
         );
       } else if (!subclass.drop) {
         //need to do deep set otherwise vue doesn't see it
-        this.$set(subclass, "drop", true);
+        subclass.drop = true;
       } else {
-        this.$set(subclass, "drop", false);
+        subclass.drop = false;
       }
+      this.$emit("input", this.table);
     },
     isSubclassDropped(column) {
       if (column.table === this.table.name) {
@@ -305,7 +300,7 @@ export default {
     },
   },
   created() {
-    this.table = this.value;
+    this.table = JSON.parse(JSON.stringify(this.value));
   },
 };
 </script>

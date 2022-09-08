@@ -42,8 +42,8 @@
       />
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
+      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -72,9 +72,10 @@ export default {
     ButtonAlt,
   },
   props: {
-    /** Table metadata object entered as v-model, for updates */
+    /** Existing Table metadata object entered as v-model. In case of a new table this should be left empty. */
     value: {
       type: Object,
+      required: false,
     },
     /** root table, used in case of subclasses */
     rootTable: {

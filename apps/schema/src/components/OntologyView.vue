@@ -89,11 +89,6 @@ export default {
     };
   },
   methods: {
-    applyPosition() {
-      let position = 1;
-      this.table.columns.forEach((column) => (column.position = position++));
-      this.$emit("input", this.table);
-    },
     validateName() {
       if (!this.name) {
         return "Ontology name is required";

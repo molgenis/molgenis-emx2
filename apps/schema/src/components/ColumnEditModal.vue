@@ -161,8 +161,8 @@
       </LayoutForm>
     </template>
     <template v-slot:footer>
-      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
+      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
 </template>

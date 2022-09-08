@@ -2,10 +2,7 @@
   <div>
     <div id="molgenis_tables_container">
       <span v-if="schema.tables && schema.tables?.length > 0">
-        <span
-          v-for="(table, index) in schema.tables"
-          :key="JSON.stringify(table) + schema.tables.length + '_' + index"
-        >
+        <span v-for="(table, index) in schema.tables" :key="index">
           <TableView
             v-if="table.inherit === undefined"
             v-model="schema.tables[index]"

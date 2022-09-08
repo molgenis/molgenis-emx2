@@ -45,7 +45,7 @@
         <br v-else />
       </span>
     </div>
-    <p v-else>No tables defined</p>
+    <p v-else><i>none defined</i></p>
     <div class="hoverContainer">
       <label class="m-0 mt-2">Ontologies:</label>
       <TableEditModal
@@ -74,7 +74,7 @@
         </a>
       </div>
     </div>
-    <p v-else>No ontologies defined</p>
+    <p v-else><i>none defined</i></p>
   </div>
 </template>
 
