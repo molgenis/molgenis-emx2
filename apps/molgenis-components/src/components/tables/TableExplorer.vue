@@ -68,7 +68,8 @@
       <InputSearch
         class="mx-1 inline-form-group"
         id="explorer-table-search"
-        v-model="searchTerms"
+        :value="searchTerms"
+        @input="setSearchTerms($event)"
       />
       <Pagination
         :value="page"
@@ -176,8 +177,8 @@
           </template>
           <template v-slot:colheader="slotProps">
             <IconAction
-              v-if="slotProps.col && orderByColumn == slotProps.col.id"
-              :icon="order == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              v-if="slotProps.col && orderByColumn === slotProps.col.id"
+              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
               class="d-inline p-0"
             />
           </template>
@@ -308,7 +309,7 @@ export default {
       dataRows: [],
       client: null,
       columns: [],
-      searchTerms: null,
+      searchTerms: "",
       count: null,
       page: this.showPage,
       view: this.showView,
@@ -325,6 +326,7 @@ export default {
       editRowPrimaryKey: null,
       isDeleteAllModalShown: false,
       offset: 0,
+      order: this.showOrder,
     };
   },
   props: {
@@ -450,7 +452,6 @@ export default {
                 "filter unsupported for column type '" +
                 col.columnType +
                 "' (please report a bug)";
-              console.log(msg);
               this.graphqlError = msg;
             }
           }
@@ -461,6 +462,11 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    setSearchTerms(newSearchValue) {
+      this.searchTerms = newSearchValue;
+      this.$emit("searchTerms", newSearchValue);
+      this.reload();
+    },
     handleRowAction(type, key) {
       this.editMode = type;
       this.editRowPrimaryKey = key;
@@ -515,6 +521,7 @@ export default {
       } else {
         order = "ASC";
       }
+      this.setOrder(order, orderByColumn);
       this.$emit("update:showOrderBy", orderByColumn);
       this.$emit("update:showOrder", order);
     },
@@ -543,7 +550,6 @@ export default {
       this.reload();
     },
     setPage(page) {
-      console.log("setPage", page);
       this.page = page;
       this.loading = true;
       this.offset = this.activeLimit * (page - 1);
@@ -551,9 +557,15 @@ export default {
       this.reload();
     },
     setListLimit(limit) {
-      console.log("setLimit", limit);
       this.listLimit = parseInt(limit);
       this.setPage(1);
+    },
+    setOrder(newOrder, newOrderByColumn) {
+      this.order = newOrder;
+      this.orderByColumn = newOrderByColumn;
+      this.$emit("update:showOrder", newOrder);
+      this.$emit("update:showOrderBy", newOrderByColumn);
+      this.reload();
     },
     handleError(error) {
       if (Array.isArray(error?.response?.data?.errors)) {
@@ -566,48 +578,9 @@ export default {
     handleSuccess(resp) {
       this.success = resp.data?.data?.delete?.message;
     },
-    async reload() {
-      this.loading = true;
-      this.graphqlError = null;
-
-      const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
-          limit: this.activeLimit,
-          offset: this.offset,
-          filter: this.graphqlFilter,
-          searchTerms: this.searchTerms,
-          orderby: this.orderByColumn
-            ? { [this.orderByColumn]: this.order }
-            : {},
-        })
-        .catch(this.handleError);
-
-      this.dataRows = dataResponse[this.tableName];
-      this.count = dataResponse[this.tableName + "_agg"]["count"];
-      this.loading = false;
-    },
-  },
-  watch: {
-    searchTerms: {
-      handler(newValue) {
-        this.$emit("searchTerms", newValue);
-        this.reload();
-      },
-    },
-    showOrderBy() {
-      this.orderByColumn = this.showOrderBy;
-      this.$emit("update:showOrderBy", this.showOrderBy);
-    },
-    showOrder() {
-      this.order = this.showOrder;
-      this.$emit("update:showOrder", this.showOrder);
-      this.reload();
-    },
-    tableMetadata() {
-      this.orderByColumn = this.showOrderBy;
-      this.order = this.showOrder;
+    setTableMetadata(newTableMetadata) {
       if (this.columns.length === 0) {
-        this.columns.push(...this.tableMetadata.columns);
+        this.columns.push(...newTableMetadata.columns);
         // //init settings
         this.columns.forEach((c) => {
           //show columns
@@ -648,14 +621,33 @@ export default {
           }
         });
         //table settings
-        if (this.tableMetadata.settings) {
-          this.tableMetadata.settings.forEach((s) => {
+        if (newTableMetadata.settings) {
+          newTableMetadata.settings.forEach((s) => {
             if (s.key == "cardTemplate") this.cardTemplate = s.value;
             if (s.key == "recordTemplate") this.recordTemplate = s.value;
           });
         }
       }
-      this.reload();
+    },
+    async reload() {
+      this.loading = true;
+      this.graphqlError = null;
+
+      const dataResponse = await this.client
+        .fetchTableData(this.tableName, {
+          limit: this.activeLimit,
+          offset: this.offset,
+          filter: this.graphqlFilter,
+          searchTerms: this.searchTerms,
+          orderby: this.orderByColumn
+            ? { [this.orderByColumn]: this.order }
+            : {},
+        })
+        .catch(this.handleError);
+
+      this.dataRows = dataResponse[this.tableName];
+      this.count = dataResponse[this.tableName + "_agg"]["count"];
+      this.loading = false;
     },
   },
   mounted: async function () {
@@ -663,9 +655,10 @@ export default {
       this.client = Client.newClient(this.graphqlURL);
     }
     if (!this.tableMetadata) {
-      this.tableMetadata = await this.client
+      const newTableMetadata = await this.client
         .fetchTableMetaData(this.tableName)
         .catch(this.handleError);
+      this.tableMetadata = this.setTableMetadata(newTableMetadata);
     }
     await this.reload();
   },
