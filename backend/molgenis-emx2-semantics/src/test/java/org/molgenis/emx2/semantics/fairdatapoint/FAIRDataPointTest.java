@@ -26,7 +26,7 @@ public class FAIRDataPointTest {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     Schema fairDataHub_nr1 = database.dropCreateSchema("fairDataHub_nr1");
-    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2");
+    Schema fairDataHub_nr2 = database.dropCreateSchema("fairDataHub_nr2 with a whitespace");
     FAIRDataHubLoader fairDataHubLoader = new FAIRDataHubLoader();
     fairDataHubLoader.load(fairDataHub_nr1, true);
     fairDataHubLoader.load(fairDataHub_nr2, true);
@@ -40,6 +40,7 @@ public class FAIRDataPointTest {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
     FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHubSchemas);
+    fairDataPoint.setVersion("setversionforjtest");
     String result = fairDataPoint.getResult();
     assertTrue(
         result.contains(
@@ -54,11 +55,11 @@ public class FAIRDataPointTest {
         result.contains(
             """
                 ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId01>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/catalogId02>,
-                  <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2/minCatId03> ."""
-                .indent(2)));
-    assertEquals(3775, result.length());
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,
+                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"""));
+    assertEquals(3887, result.length());
   }
 
   @Test
@@ -94,10 +95,43 @@ public class FAIRDataPointTest {
     String result = fairDataPointDataset.getResult();
     assertTrue(
         result.contains(
-            """
-                        dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
-                            <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>,
-                            <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;"""));
+            "dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/graphql>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-jsonld>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-n3>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-nquads>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ntriples>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-trig>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ttl>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-xml>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;"));
     assertTrue(
         result.contains(
             """
@@ -106,7 +140,7 @@ public class FAIRDataPointTest {
                       dcat:spatialResolutionInMeters 1.0E1;"""));
     assertTrue(result.contains("dcterms:language lang:eng, lang:nld;"));
 
-    assertEquals(2791, result.length());
+    assertEquals(4117, result.length());
   }
 
   @Test
@@ -125,10 +159,40 @@ public class FAIRDataPointTest {
             """
                 <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
                   dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
-                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080/ for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
+                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080 for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
                   dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
                   dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
                   dcterms:format "ttl";"""));
-    assertEquals(961, result.length());
+    assertEquals(960, result.length());
+  }
+
+  @Test
+  public void FDPDistributionMimeTypes() throws Exception {
+    Request request = mock(Request.class);
+    when(request.url())
+        .thenReturn("http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl");
+    when(request.params("schema")).thenReturn("fairDataHub_nr1");
+    when(request.params("table")).thenReturn("Analyses");
+    testFormatToMediaType(request, "csv");
+    testFormatToMediaType(request, "jsonld");
+    testFormatToMediaType(request, "rdf-jsonld");
+    testFormatToMediaType(request, "graphql");
+    testFormatToMediaType(request, "ttl");
+    testFormatToMediaType(request, "rdf-ttl");
+    testFormatToMediaType(request, "excel");
+    testFormatToMediaType(request, "zip");
+    testFormatToMediaType(request, "rdf-n3");
+    testFormatToMediaType(request, "rdf-ntriples");
+    testFormatToMediaType(request, "rdf-nquads");
+    testFormatToMediaType(request, "rdf-xml");
+    testFormatToMediaType(request, "rdf-trig");
+  }
+
+  private static void testFormatToMediaType(Request request, String format) throws Exception {
+    when(request.params("format")).thenReturn(format);
+    FAIRDataPointDistribution fairDataPointDistribution =
+        new FAIRDataPointDistribution(request, database);
+    String result = fairDataPointDistribution.getResult();
+    assertTrue(result.contains(FAIRDataPointDistribution.formatToMediaType(format)));
   }
 }

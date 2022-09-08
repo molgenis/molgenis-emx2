@@ -30,8 +30,7 @@ public class AnalysesResponse {
     idForQuery = request.queryParams("id");
 
     for (Table table : tables) {
-      Query query = table.query();
-      selectColumns(table, query);
+      Query query = selectColumns(table);
 
       if (idForQuery != null) {
         query.where(f("id", EQUALS, idForQuery));

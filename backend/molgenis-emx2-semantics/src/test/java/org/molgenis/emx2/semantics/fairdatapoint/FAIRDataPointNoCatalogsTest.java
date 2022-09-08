@@ -32,6 +32,7 @@ public class FAIRDataPointNoCatalogsTest {
     Request request = mock(Request.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
     FAIRDataPoint fairDataPoint = new FAIRDataPoint(request, fairDataHub_nocatalogs);
+    fairDataPoint.setVersion("setversionforjtest");
     String result = fairDataPoint.getResult();
     assertFalse(result.contains("fdp-o:metadataCatalog"));
     assertFalse(result.contains("ldp:DirectContainer"));

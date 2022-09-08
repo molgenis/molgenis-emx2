@@ -23,7 +23,7 @@ Analyses,,analysisDate,date,,,,,,,,http://purl.obolibrary.org/obo/date,E.g. 2021
 Analyses,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. S0001
 Analyses,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. P0001
 Analyses,,pipelineName,string,,,,,,,,http://edamontology.org/data_2531,E.g. Pipeline-panel-0001-v1
-Analyses,,pipelineRef,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17564,E.g. https://doi.org/10.48511/workflowhub.workflow.111.1
+Analyses,,pipelineRef,hyperlink,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17564,E.g. https://doi.org/10.48511/workflowhub.workflow.111.1
 Analyses,,runId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
 Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g. GATK4.0
 Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples

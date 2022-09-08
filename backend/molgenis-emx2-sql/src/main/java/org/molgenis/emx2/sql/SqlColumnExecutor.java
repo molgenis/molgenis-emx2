@@ -295,6 +295,7 @@ public class SqlColumnExecutor {
                       .setDescription("Parent in case this code exists in a hierarchy"),
                   column("ontologyTermURI")
                       // .setKey(3) //todo: ideally, has a unique check
+                      .setType(HYPERLINK)
                       .setRequired(false)
                       .setDescription("Reference to structured definition of this term"),
                   column("definition").setType(TEXT).setDescription("Definition of the term"),

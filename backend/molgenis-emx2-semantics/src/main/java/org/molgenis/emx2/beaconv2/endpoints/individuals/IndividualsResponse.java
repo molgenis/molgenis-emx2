@@ -10,6 +10,7 @@ import graphql.GraphQL;
 import java.util.*;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -64,7 +65,7 @@ public class IndividualsResponse {
       if (individualsListFromJSON != null) {
         for (Map map : individualsListFromJSON) {
           IndividualsResultSetsItem individualsItem = new IndividualsResultSetsItem();
-          individualsItem.setId((String) map.get("id"));
+          individualsItem.setId(TypeUtils.toString(map.get("id")));
           individualsItem.setSex(mapToOntologyTerm((Map) map.get("sex")));
           individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
           individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
