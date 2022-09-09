@@ -111,76 +111,67 @@ export default {
       });
       return result;
     },
-    updateOrderBy(showOrderBy) {
-      this.query = Object.assign({}, this.$route.query);
-      this.query._orderBy = showOrderBy;
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
+    queryRoute(query) {
+      if (JSON.stringify(query) != JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: query });
       }
+    },
+    updateOrderBy(showOrderBy) {
+      const query = Object.assign({}, this.$route.query);
+      this.query._orderBy = showOrderBy;
+      this.queryRoute(query);
     },
     updateOrder(showOrder) {
-      this.query = Object.assign({}, this.$route.query);
+      const query = Object.assign({}, this.$route.query);
       if (showOrder) {
-        this.query._order = showOrder;
+        query._order = showOrder;
       }
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      this.queryRoute(query);
     },
     updatePage(showPage) {
-      this.query = Object.assign({}, this.$route.query);
-      this.query._page = showPage;
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      const query = Object.assign({}, this.$route.query);
+      query._page = showPage;
+      this.queryRoute(query);
     },
     updateLimit(showLimit) {
-      this.query = Object.assign({}, this.$route.query);
-      this.query._limit = showLimit;
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      const query = Object.assign({}, this.$route.query);
+      query._limit = showLimit;
+      this.queryRoute(query);
     },
     updateColumns(showColumns) {
-      this.query = Object.assign({}, this.$route.query);
-      if (showColumns.length > 0) this.query._col = showColumns.join(",");
-      else delete this.query._col;
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      const query = Object.assign({}, this.$route.query);
+      if (showColumns.length > 0) query._col = showColumns.join(",");
+      else delete query._col;
+      this.queryRoute(query);
     },
     updateFilters(showFilters) {
-      this.query = Object.assign({}, this.$route.query);
-      if (showFilters.length > 0) this.query._filter = showFilters.join(",");
-      else delete this.query._filter;
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      const query = Object.assign({}, this.$route.query);
+      if (showFilters.length > 0) query._filter = showFilters.join(",");
+      else delete query._filter;
+      this.queryRoute(query);
     },
     updateConditions(conditions) {
       const columns = this.getColumns();
-      this.query = Object.assign({}, this.$route.query);
+      const query = Object.assign({}, this.$route.query);
       columns.forEach((c) => {
         if (conditions[c.name]) {
           if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
             //todo try to make this human readible too
-            this.query[c.name] = JSON.stringify(conditions[c.name]);
+            query[c.name] = JSON.stringify(conditions[c.name]);
           } else if (
             ["DATE", "DATETIME", "INT", "DECIMAL"].includes(c.columnType)
           ) {
-            this.query[c.name] = conditions[c.name]
+            query[c.name] = conditions[c.name]
               .map((v) => v.join(".."))
               .join(",");
           } else {
-            this.query[c.name] = conditions[c.name].join(",");
+            query[c.name] = conditions[c.name].join(",");
           }
         } else {
-          delete this.query[c.name];
+          delete query[c.name];
         }
       });
-      if (JSON.stringify(this.query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: this.query });
-      }
+      this.queryRoute(query);
     },
   },
 };
