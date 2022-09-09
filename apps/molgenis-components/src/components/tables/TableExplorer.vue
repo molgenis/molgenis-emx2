@@ -387,13 +387,6 @@ export default {
     },
   },
   computed: {
-    // activeLimit() {
-    //   const isList = this.view === View.TABLE || this.view === View.CARDS;
-    //   const activeLimit = isList ? this.limit : 1;
-    //   this.$emit("update:showLimit", activeLimit);
-    //   console.log("activeLimit", activeLimit);
-    //   return activeLimit;
-    // },
     View() {
       return View;
     },
@@ -632,6 +625,7 @@ export default {
           });
         }
       }
+      this.$emit("update:showAllColumns", this.columns);
     },
     async reload() {
       this.loading = true;
