@@ -8,10 +8,10 @@
     </LayoutModal>
     <!-- when completed -->
     <LayoutModal
-        v-else-if="success"
-        :title="title"
-        :show="true"
-        @close="$emit('close')"
+      v-else-if="success"
+      :title="title"
+      :show="true"
+      @close="$emit('close')"
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
@@ -25,17 +25,15 @@
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <InputText
-            id="schema-edit-description"
-            v-model="newSchemaDescription"
-            label="description"
-            :defaultValue="schemaDescription"
+          id="schema-edit-description"
+          v-model="newSchemaDescription"
+          label="description"
+          :defaultValue="schemaDescription"
         />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeDeleteSchema"
-        >Edit database
-        </ButtonAction>
+        <ButtonAction @click="executeDeleteSchema">Edit database </ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -66,7 +64,7 @@ export default {
   },
   props: {
     schemaName: String,
-    schemaDescription: String
+    schemaDescription: String,
   },
   data: function () {
     return {
@@ -74,7 +72,7 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
-      newSchemaDescription: this.schemaDescription
+      newSchemaDescription: this.schemaDescription,
     };
   },
   computed: {
@@ -91,26 +89,26 @@ export default {
       this.graphqlError = null;
       this.success = null;
       request(
-          this.endpoint,
-          `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
-          {
-            name: this.schemaName,
-            description: this.newSchemaDescription,
-          }
+        this.endpoint,
+        `mutation updateSchema($name:String, $description:String){updateSchema(name:$name, description: $description){message}}`,
+        {
+          name: this.schemaName,
+          description: this.newSchemaDescription,
+        }
       )
-          .then((data) => {
-            this.success = data.updateSchema.message;
-            this.loading = false;
-          })
-          .catch((error) => {
-            if (error.response.status === 403) {
-              this.graphqlError =
-                  error.message + "Forbidden. Do you need to login?";
-            } else {
-              this.graphqlError = error.response.errors[0].message;
-            }
-            this.loading = false;
-          });
+        .then((data) => {
+          this.success = data.updateSchema.message;
+          this.loading = false;
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            this.graphqlError =
+              error.message + "Forbidden. Do you need to login?";
+          } else {
+            this.graphqlError = error.response.errors[0].message;
+          }
+          this.loading = false;
+        });
     },
   },
 };

@@ -82,7 +82,6 @@ import { request } from "graphql-request";
 import {
   ButtonAction,
   ButtonAlt,
-  IconAction,
   InputString,
   InputText,
   InputBoolean,
@@ -107,7 +106,6 @@ export default {
     InputSelect,
     LayoutForm,
     Spinner,
-    IconAction,
   },
   data: function () {
     return {
