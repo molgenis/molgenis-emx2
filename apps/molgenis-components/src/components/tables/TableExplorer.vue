@@ -500,6 +500,7 @@ export default {
         this.view = View.TABLE;
         this.setLimit(this.showLimit);
       }
+      this.$emit("update:showView", this.view);
       this.setPage(1);
     },
     onColumnClick(column) {
