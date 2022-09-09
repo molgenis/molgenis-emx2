@@ -6,6 +6,7 @@
       :canEdit="canEdit"
       :canManage="canManage"
       @update:showColumns="updateColumns"
+      @update:showAllColumns="updateAllColumns"
       @update:showFilters="updateFilters"
       @update:conditions="updateConditions"
       @update:showPage="updatePage"
@@ -30,6 +31,11 @@ export default {
   name: "RoutedTableExplorer",
   components: {
     TableExplorer,
+  },
+  data() {
+    return {
+      columnsData: [],
+    };
   },
   props: {
     tableName: {
@@ -94,9 +100,8 @@ export default {
     },
     getConditions() {
       let result = {};
-      const columns = this.getColumns();
       //find the table and then iterate the colums
-      columns.forEach((c) => {
+      this.columnsData.forEach((c) => {
         if (this.$route.query[c.name]) {
           if (["DATE", "DATETIME", "INT", "DECIMAL"].includes(c.columnType)) {
             result[c.name] = this.$route.query[c.name]
@@ -110,11 +115,6 @@ export default {
         }
       });
       return result;
-    },
-    queryRoute(query) {
-      if (JSON.stringify(query) != JSON.stringify(this.$route.query)) {
-        this.$router.push({ query: query });
-      }
     },
     updateOrderBy(showOrderBy) {
       const query = Object.assign({}, this.$route.query);
@@ -130,7 +130,7 @@ export default {
     },
     updatePage(showPage) {
       const query = Object.assign({}, this.$route.query);
-      query._page = showPage;
+      query._page = showPage.toString();
       this.queryRoute(query);
     },
     updateLimit(showLimit) {
@@ -144,6 +144,9 @@ export default {
       else delete query._col;
       this.queryRoute(query);
     },
+    updateAllColumns(showAllColumns) {
+      this.columnsData = showAllColumns;
+    },
     updateFilters(showFilters) {
       const query = Object.assign({}, this.$route.query);
       if (showFilters.length > 0) query._filter = showFilters.join(",");
@@ -151,9 +154,8 @@ export default {
       this.queryRoute(query);
     },
     updateConditions(conditions) {
-      const columns = this.getColumns();
       const query = Object.assign({}, this.$route.query);
-      columns.forEach((c) => {
+      this.columnsData.forEach((c) => {
         if (conditions[c.name]) {
           if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
             //todo try to make this human readible too
@@ -172,6 +174,11 @@ export default {
         }
       });
       this.queryRoute(query);
+    },
+    queryRoute(query) {
+      if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) {
+        this.$router.push({ query: query });
+      }
     },
   },
 };
