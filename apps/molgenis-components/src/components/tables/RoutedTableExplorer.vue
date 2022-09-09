@@ -9,11 +9,11 @@
       @update:showAllColumns="updateAllColumns"
       @update:showFilters="updateFilters"
       @update:conditions="updateConditions"
-      @update:showPage="updatePage"
-      @update:showLimit="updateLimit"
-      @update:showOrderBy="updateOrderBy"
+      @update:showPage="updateProperty($event, '_page')"
+      @update:showLimit="updateProperty($event, '_limit')"
+      @update:showOrderBy="updateProperty($event, '_orderBy')"
       @update:showOrder="updateOrder"
-      @update:showView="updateView"
+      @update:showView="updateProperty($event, '_view')"
       :showView="getView()"
       :showColumns="getColumns()"
       :showFilters="getFilters()"
@@ -107,24 +107,28 @@ export default {
     getConditions() {
       let result = {};
       //find the table and then iterate the colums
-      this.columnsData.forEach((c) => {
-        if (this.$route.query[c.name]) {
-          if (["DATE", "DATETIME", "INT", "DECIMAL"].includes(c.columnType)) {
-            result[c.name] = this.$route.query[c.name]
+      this.columnsData.forEach((column) => {
+        if (this.$route.query[column.name]) {
+          if (
+            ["DATE", "DATETIME", "INT", "DECIMAL"].includes(column.columnType)
+          ) {
+            result[column.name] = this.$route.query[column.name]
               .split(",")
               .map((v) => v.split(".."));
-          } else if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
-            result[c.name] = JSON.parse(this.$route.query[c.name]);
+          } else if (
+            ["REF", "REF_ARRAY", "REFBACK"].includes(column.columnType)
+          ) {
+            result[column.name] = JSON.parse(this.$route.query[column.name]);
           } else {
-            result[c.name] = this.$route.query[c.name].split(",");
+            result[column.name] = this.$route.query[column.name].split(",");
           }
         }
       });
       return result;
     },
-    updateOrderBy(showOrderBy) {
+    updateProperty(value, property) {
       const query = Object.assign({}, this.$route.query);
-      this.query._orderBy = showOrderBy;
+      query[property] = value;
       this.queryRoute(query);
     },
     updateOrder(showOrder) {
@@ -132,21 +136,6 @@ export default {
       if (showOrder) {
         query._order = showOrder;
       }
-      this.queryRoute(query);
-    },
-    updatePage(showPage) {
-      const query = Object.assign({}, this.$route.query);
-      query._page = showPage.toString();
-      this.queryRoute(query);
-    },
-    updateLimit(showLimit) {
-      const query = Object.assign({}, this.$route.query);
-      query._limit = showLimit.toString();
-      this.queryRoute(query);
-    },
-    updateView(showView) {
-      const query = Object.assign({}, this.$route.query);
-      query._view = showView;
       this.queryRoute(query);
     },
     updateColumns(showColumns) {
