@@ -325,7 +325,6 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
       isDeleteAllModalShown: false,
-      offset: 0,
       order: this.showOrder,
     };
   },
@@ -545,7 +544,6 @@ export default {
     setPage(page) {
       this.page = page;
       this.loading = true;
-      this.offset = this.limit * (page - 1);
       this.$emit("update:showPage", page);
       this.reload();
     },
@@ -630,11 +628,12 @@ export default {
     async reload() {
       this.loading = true;
       this.graphqlError = null;
+      const offset = this.limit * (this.page - 1);
 
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           limit: this.limit,
-          offset: this.offset,
+          offset: offset,
           filter: this.graphqlFilter,
           searchTerms: this.searchTerms,
           orderby: this.orderByColumn
