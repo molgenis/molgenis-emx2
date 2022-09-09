@@ -558,6 +558,9 @@ export default {
     },
     setLimit(limit) {
       this.limit = parseInt(limit);
+      if (!Number.isInteger(this.limit) || this.limit < 1) {
+        this.limit = 1;
+      }
       this.setPage(1);
       this.$emit("update:showLimit", limit);
     },
