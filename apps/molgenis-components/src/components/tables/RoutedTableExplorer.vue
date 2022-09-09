@@ -12,13 +12,13 @@
       @update:showLimit="updateLimit"
       @update:showOrderBy="updateOrderBy"
       @update:showOrder="updateOrder"
-      :showColumns="setColumns"
-      :showFilters="setFilters"
-      :conditions="setConditions"
-      :showPage="setPage"
-      :showLimit="setLimit"
-      :showOrderBy="setOrderBy"
-      :showOrder="setOrder"
+      :showColumns="getColumns()"
+      :showFilters="getFilters()"
+      :conditions="getConditions()"
+      :showPage="getPage()"
+      :showLimit="getLimit()"
+      :showOrderBy="getOrderBy()"
+      :showOrder="getOrder()"
     />
   </div>
 </template>
@@ -94,8 +94,9 @@ export default {
     },
     getConditions() {
       let result = {};
+      const columns = this.getColumns();
       //find the table and then iterate the colums
-      this.activeTable.columns.forEach((c) => {
+      columns.forEach((c) => {
         if (this.$route.query[c.name]) {
           if (["DATE", "DATETIME", "INT", "DECIMAL"].includes(c.columnType)) {
             result[c.name] = this.$route.query[c.name]
@@ -157,8 +158,9 @@ export default {
       }
     },
     updateConditions(conditions) {
+      const columns = this.getColumns();
       this.query = Object.assign({}, this.$route.query);
-      this.activeTable.columns.forEach((c) => {
+      columns.forEach((c) => {
         if (conditions[c.name]) {
           if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
             //todo try to make this human readible too
