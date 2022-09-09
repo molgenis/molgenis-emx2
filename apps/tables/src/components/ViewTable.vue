@@ -3,16 +3,15 @@
     <router-link v-if="schema" to="/">
       &gt; Back to {{ schema.name }}
     </router-link>
-    <TableExplorer
+    <RoutedTableExplorer
       :tableName="table"
-      :key="timestamp"
       :canEdit="canEdit"
       :canManage="canManage"
     />
   </div>
 </template>
 <script>
-import { TableExplorer } from "molgenis-components";
+import { RoutedTableExplorer } from "molgenis-components";
 
 export default {
   name: "ViewTable",
@@ -21,11 +20,8 @@ export default {
     schema: { type: Object, default: null },
     session: { session: Object },
   },
-  data() {
-    return { timestamp: Date.now(), query: {} };
-  },
   components: {
-    TableExplorer,
+    RoutedTableExplorer,
   },
   computed: {
     canEdit() {
