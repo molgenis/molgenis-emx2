@@ -9,8 +9,8 @@
 export default {
   name: "ButtonAction",
   props: {
-    href: String,
-    icon: String,
+    href: { type: String, required: false },
+    icon: { type: String, required: false },
   },
   methods: {
     onClick() {
