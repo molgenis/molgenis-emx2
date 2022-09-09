@@ -13,6 +13,8 @@
       @update:showLimit="updateLimit"
       @update:showOrderBy="updateOrderBy"
       @update:showOrder="updateOrder"
+      @update:showView="updateView"
+      :showView="getView()"
       :showColumns="getColumns()"
       :showFilters="getFilters()"
       :conditions="getConditions()"
@@ -98,6 +100,10 @@ export default {
       if (this.$route.query._limit) return parseInt(this.$route.query._limit);
       else return 20;
     },
+    getView() {
+      if (this.$route.query._view) return this.$route.query._view;
+      else return "table";
+    },
     getConditions() {
       let result = {};
       //find the table and then iterate the colums
@@ -135,7 +141,12 @@ export default {
     },
     updateLimit(showLimit) {
       const query = Object.assign({}, this.$route.query);
-      query._limit = showLimit;
+      query._limit = showLimit.toString();
+      this.queryRoute(query);
+    },
+    updateView(showView) {
+      const query = Object.assign({}, this.$route.query);
+      query._view = showView;
       this.queryRoute(query);
     },
     updateColumns(showColumns) {
