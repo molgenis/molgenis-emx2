@@ -20,6 +20,7 @@ public class Constants {
   public static final String FORM = "form";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
+  public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
   public static final String SEMANTICS = "semantics";

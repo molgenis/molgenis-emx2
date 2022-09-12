@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -144,25 +145,29 @@ public class MolgenisWebservice {
     try {
       Schema schema = getSchema(request);
       String role = schema.getRoleForActiveUser();
-      List<Map<String, String>> menu =
-          new ObjectMapper().readValue(schema.getMetadata().getSetting("menu"), List.class);
-      menu =
-          menu.stream()
-              .filter(
-                  el ->
-                      role == null
-                          || role.equals(schema.getDatabase().getAdminUserName())
-                          || el.get(ROLE) == null
-                          || el.get(ROLE).equals(VIEWER)
-                              && List.of(VIEWER, EDITOR, MANAGER).contains(role)
-                          || el.get(ROLE).equals(EDITOR) && List.of(EDITOR, MANAGER).contains(role)
-                          || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
-              .toList();
-
-      if (!menu.isEmpty()) {
-        response.redirect(
-            "/" + request.params(SCHEMA) + "/" + menu.get(0).get("href").replace("../", ""));
+      Optional<String> menuSettingValue = schema.getMetadata().findSettingValue("menu");
+      if (menuSettingValue.isPresent()) {
+        List<Map<String, String>> menu =
+            new ObjectMapper().readValue(menuSettingValue.get(), List.class);
+        menu =
+            menu.stream()
+                .filter(
+                    el ->
+                        role == null
+                            || role.equals(schema.getDatabase().getAdminUserName())
+                            || el.get(ROLE) == null
+                            || el.get(ROLE).equals(VIEWER)
+                                && List.of(VIEWER, EDITOR, MANAGER).contains(role)
+                            || el.get(ROLE).equals(EDITOR)
+                                && List.of(EDITOR, MANAGER).contains(role)
+                            || el.get(ROLE).equals(MANAGER) && role.equals(MANAGER))
+                .toList();
+        if (!menu.isEmpty()) {
+          response.redirect(
+              "/" + request.params(SCHEMA) + "/" + menu.get(0).get("href").replace("../", ""));
+        }
       }
+
     } catch (Exception e) {
       // silly default
       logger.debug(e.getMessage());
