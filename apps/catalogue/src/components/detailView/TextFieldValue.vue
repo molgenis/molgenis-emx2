@@ -1,5 +1,5 @@
 <template>
-  <ReadMore :text="data" length="1000" />
+  <ReadMore :text="data" :length="1000" />
 </template>
 
 <script>
