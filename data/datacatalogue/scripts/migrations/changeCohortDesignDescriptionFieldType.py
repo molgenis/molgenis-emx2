@@ -36,9 +36,11 @@ def main():
         password=MIGRATION_PASSWORD
     )
 
-    updateColType = "mutation{change(columns: {table: \"Cohorts\", name: \"designDescription\", columnType: \"TEXT\"}){message}}"
-    updateDescription = "mutation change($tables: [MolgenisTableInput]){change(tables: $tables){message}}"
-    variables = {'tables': [  {'name': 'Version', 'tableType': 'DATA', 'description': '2.7'}]}
+    # updateColType = "mutation{change(columns: {table: \"Cohorts\", name: \"designDescription\", columnType: \"TEXT\"}){message}}"
+    # updateDescription = "mutation change($tables: [MolgenisTableInput]){change(tables: $tables){message}}"
+    # variables = {'tables': [  {'name': 'Version', 'tableType': 'DATA', 'description': '2.7'}]}
+    toggleOn = "mutation change($settings:[MolgenisSettingsInput]){ change(settings:$settings){ message }}"
+    variables = { 'settings': { 'key': 'isChangelogEnabled', 'value' : 'true' } }
 
     
     schemas = mClient.list_schemas()
@@ -50,12 +52,12 @@ def main():
     for schema in schemas:
       version = get_catalogue_model_version(mClient, schema)
       isStaging = is_umcg_staging(mClient, schema)
-      if isStaging == True:
-        log.info('version: ' + schema + ' ' + str(version) + ' ' + str(isStaging))
-        mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
-        # mClient.post_gql_to_db(schema, updateColType)
-        # mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
-        # log.info('run for: ' + schema)
+      # if isStaging == True:
+      log.info('version: ' + schema + ' ' + str(version) + ' ' + str(isStaging))
+      # mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
+      mClient.post_gql_to_db(schema, toggleOn, variables)
+      # mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
+      log.info('run for: ' + schema)
       
 
     log.info('migration complete')
