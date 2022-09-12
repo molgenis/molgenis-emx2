@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -58,15 +59,15 @@ public class RunsResponse {
       if (runsListFromJSON != null) {
         for (Map map : runsListFromJSON) {
           RunsResultSetsItem runsItem = new RunsResultSetsItem();
-          runsItem.setId((String) map.get("id"));
-          runsItem.setBiosampleId((String) map.get("biosampleId"));
-          runsItem.setIndividualId((String) map.get("individualId"));
-          runsItem.setRunDate((String) map.get("runDate"));
+          runsItem.setId(TypeUtils.toString(map.get("id")));
+          runsItem.setBiosampleId(TypeUtils.toString(map.get("biosampleId")));
+          runsItem.setIndividualId(TypeUtils.toString(map.get("individualId")));
+          runsItem.setRunDate(TypeUtils.toString(map.get("runDate")));
           runsItem.setLibrarySource(mapToOntologyTerm((Map) map.get("librarySource")));
-          runsItem.setLibrarySelection((String) map.get("librarySelection"));
-          runsItem.setLibraryStrategy((String) map.get("libraryStrategy"));
-          runsItem.setLibraryLayout((String) map.get("libraryLayout"));
-          runsItem.setPlatform((String) map.get("platform"));
+          runsItem.setLibrarySelection(TypeUtils.toString(map.get("librarySelection")));
+          runsItem.setLibraryStrategy(TypeUtils.toString(map.get("libraryStrategy")));
+          runsItem.setLibraryLayout(TypeUtils.toString(map.get("libraryLayout")));
+          runsItem.setPlatform(TypeUtils.toString(map.get("platform")));
           runsItem.setPlatformModel(mapToOntologyTerm((Map) map.get("platformModel")));
           runsItemList.add(runsItem);
         }
