@@ -1,7 +1,7 @@
 <template>
   <span v-if="loading"><Spinner></Spinner></span>
   <span v-else-if="update">
-    <a :href="`/${this.schema}/settings/#/log`">
+    <a :href="`/${this.schema}/settings/#/changelog`">
       {{ formatStamp(update.stamp) }} ({{ update.tableName }})
     </a>
   </span>
