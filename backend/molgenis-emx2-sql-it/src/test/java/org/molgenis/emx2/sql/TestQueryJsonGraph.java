@@ -185,11 +185,35 @@ public class TestQueryJsonGraph {
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));
   }
 
-  // todo @Test
-  // we want to refactor this
+  @Test
   public void testGroupBy() throws JsonProcessingException {
-    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
+    ObjectMapper mapper = new ObjectMapper();
 
+    // first test against pet store for references
+    Schema petStore = db.getSchema("pet store");
+    Map<String, Map<String, List<Map<String, Object>>>> result =
+        mapper.readValue(
+            petStore
+                .agg("Pet")
+                .select(s("groupBy", s("count"), s("category", s("name"))))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(1, result.get("Pet_agg").get("groupBy").get(0).get("count"));
+    assertEquals(
+        "cat", ((Map) result.get("Pet_agg").get("groupBy").get(0).get("category")).get("name"));
+    result =
+        mapper.readValue(
+            petStore
+                .agg("Pet")
+                .select(s("groupBy", s("count"), s("tags", s("name"))))
+                .retrieveJSON(),
+            Map.class);
+    assertEquals(1, result.get("Pet_agg").get("groupBy").get(0).get("count"));
+    assertEquals(
+        "red", ((Map) result.get("Pet_agg").get("groupBy").get(0).get("tags")).get("name"));
+
+    // tests below use non-reference types, do we want to enable group by on those??
+    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
     schema.create(
         table(
             "Test",
@@ -228,20 +252,21 @@ public class TestQueryJsonGraph {
                 "tag_array2",
                 new String[] {"yellow", "red"}));
 
-    ObjectMapper mapper = new ObjectMapper();
-
-    Map<String, Map<String, List<Map<String, Object>>>> result =
+    // group by tag
+    result =
         mapper.readValue(
             schema.agg("Test").select(s("groupBy", s("count"), s("tag"))).retrieveJSON(),
             Map.class);
     assertEquals(2, result.get("Test_agg").get("groupBy").get(1).get("count"));
 
+    // group by the elements of tag_array
     result =
         mapper.readValue(
             schema.agg("Test").select(s("groupBy", s("count"), s("tag_array"))).retrieveJSON(),
             Map.class);
     assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
 
+    // group by multiple columns, with tag_array and tag_array2
     result =
         mapper.readValue(
             schema

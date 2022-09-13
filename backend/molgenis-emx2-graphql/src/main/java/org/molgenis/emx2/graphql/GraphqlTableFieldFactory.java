@@ -33,7 +33,7 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", "sum", "avg");
+  final List<String> agg_fields = List.of("max", "min", "sum", "avg", "groupBy");
   // cache so we can reuse filter input types between tables
   private Map<String, GraphQLInputObjectType> tableFilterInputTypes = new LinkedHashMap<>();
   // cache so we can reuse filter input types between tables
@@ -277,7 +277,26 @@ public class GraphqlTableFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
     }
-    // todo group by options
+    // todo group by options, for now only ref, refArray
+    GraphQLObjectType.Builder groupByBuilder =
+        GraphQLObjectType.newObject().name(tableName + "GroupBy");
+    groupByBuilder.field(
+        GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    for (Column column : table.getMetadata().getColumns()) {
+      // for now only 'ref' types. We might want to have truncating actions for the other types.
+      if (column.isRef() || column.isRefArray()) {
+        // deep subselect, is that really what we want?
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(escape(column.getName()))
+                .type(GraphQLTypeReference.typeRef(escape(column.getRefTableName()))));
+      }
+    }
+    builder.field(
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name(GROUPBY_FIELD)
+            .type(GraphQLList.list(groupByBuilder.build())));
+
     return builder.build();
   }
 
@@ -559,8 +578,11 @@ public class GraphqlTableFieldFactory {
 
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer
-      if (result != null) return ((Map<String, Object>) result).get(fieldName);
-      return null;
+      if (result != null) {
+        return ((Map<String, Object>) result).get(fieldName);
+      } else {
+        return null;
+      }
     };
   }
 

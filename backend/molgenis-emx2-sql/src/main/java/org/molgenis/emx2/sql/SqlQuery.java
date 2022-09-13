@@ -324,7 +324,7 @@ public class SqlQuery extends QueryBean {
             ? ROW_TO_JSON_SQL
             : JSON_AGG_SQL;
 
-    return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    return field(jooq.selectDistinct(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
   }
 
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
@@ -574,13 +574,9 @@ public class SqlQuery extends QueryBean {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(count().as(COUNT_FIELD));
       } else if (GROUPBY_FIELD.equals(field.getColumn())) {
-        // todo
-        //        fields.add(
-        //            key(GROUPBY_FIELD)
-        //                .value(
-        //                    jsonAggregateGroupBy(
-        //                        table, column, field, tableAlias, subAlias, filters,
-        // searchTerms)));
+        fields.add(
+            jsonAggregateGroupBy(table, column, field, tableAlias, subAlias, filters, searchTerms)
+                .as(GROUPBY_FIELD));
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
@@ -632,13 +628,33 @@ public class SqlQuery extends QueryBean {
         selectFields.add(field("COUNT(*)"));
       } else {
         Column c = isValidColumn(table, field.getColumn());
-        selectFields.add(c.getJooqField());
         List<Field> subselectFields = new ArrayList<>();
-        subselectFields.addAll(table.getPrimaryKeyFields());
+        // in case of 'ref' we subselect
+        if (c.isRef()) {
+          selectFields.add(field(name(c.getName())));
+          subselectFields.add(
+              jsonSubselect(
+                  (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0]));
+        }
+        // in case of ref_array we must unnest the values
+        else if (c.isRefArray()) {
+          // only divergent selectField
+          selectFields.add(
+              // coalesce to also return the nulls
+              field("jsonb_array_elements(coalesce({0},'[{}]'::jsonb))", field(name(c.getName())))
+                  .as(name(c.getName())));
+          subselectFields.add(
+              jsonSubselect(
+                  (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0]));
+        }
+        // todo decide if we want to support non-ref types for group by. E.g date (group by year of
+        // date)
         // if array we unnest
-        if (c.getColumnType().isArray()) {
+        else if (c.getColumnType().isArray()) {
+          selectFields.add(c.getJooqField());
           subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
         } else {
+          selectFields.add(c.getJooqField());
           subselectFields.add(c.getJooqField());
         }
         if (condition != null) {
@@ -651,14 +667,17 @@ public class SqlQuery extends QueryBean {
               jooq.select(subselectFields)
                   .from(tableWithInheritanceJoin(table).as(alias(tableAlias))));
         }
-        groupByFields.add(c.getJooqField());
+        groupByFields.add(field(name(c.getName())));
       }
     }
 
+    if (subQuery.size() == 0) {
+      throw new MolgenisException("groupBy failed: no fields to group by on selected");
+    }
     SelectJoinStep<org.jooq.Record> groupByQuery =
         table.getJooq().select(selectFields).from(subQuery.get(0));
     for (int i = 1; i < subQuery.size(); i++) {
-      groupByQuery = groupByQuery.naturalJoin(subQuery.get(i));
+      groupByQuery = groupByQuery.naturalFullOuterJoin(subQuery.get(i));
     }
 
     return field(
