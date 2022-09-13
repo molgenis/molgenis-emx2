@@ -55,3 +55,16 @@ Get all the pets that have the letter K in them
   }
 }
 ```
+
+Get all the pets that have the letter k and are sold
+
+```
+{
+  Pet(filter: { name: { like: "k" }, _and: { status: { like: "sold" } } } ) {
+    name,
+    status,
+    weight,
+    photoUrls
+  }
+}
+```
