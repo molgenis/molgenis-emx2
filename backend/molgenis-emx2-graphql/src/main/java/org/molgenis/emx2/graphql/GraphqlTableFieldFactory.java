@@ -277,7 +277,7 @@ public class GraphqlTableFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
     }
-    // todo group by options, for now only ref, refArray
+    // group by options, for now only ref, refArray
     GraphQLObjectType.Builder groupByBuilder =
         GraphQLObjectType.newObject().name(tableName + "GroupBy");
     groupByBuilder.field(
@@ -285,7 +285,6 @@ public class GraphqlTableFieldFactory {
     for (Column column : table.getMetadata().getColumns()) {
       // for now only 'ref' types. We might want to have truncating actions for the other types.
       if (column.isRef() || column.isRefArray()) {
-        // deep subselect, is that really what we want?
         groupByBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition()
                 .name(escape(column.getName()))

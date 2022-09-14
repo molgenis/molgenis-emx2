@@ -307,13 +307,13 @@ public class TestGraphqSchemaFields {
     // refs
     JsonNode result = execute("{Pet_agg{groupBy{count,tags{name}}}}");
     // 1 red
-    TestCase.assertEquals("red", result.at("/Pet_agg/groupBy/0/tags/name").asText());
+    TestCase.assertEquals(null, result.at("/Pet_agg/groupBy/0/tags/name").textValue());
     TestCase.assertEquals(1, result.at("/Pet_agg/groupBy/0/count").intValue());
     // 1 green
     TestCase.assertEquals("green", result.at("/Pet_agg/groupBy/1/tags/name").asText());
     TestCase.assertEquals(1, result.at("/Pet_agg/groupBy/1/count").intValue());
     // 1 with no tags
-    TestCase.assertEquals(null, result.at("/Pet_agg/groupBy/2/tags/name").textValue());
+    TestCase.assertEquals("red", result.at("/Pet_agg/groupBy/2/tags/name").textValue());
     TestCase.assertEquals(1, result.at("/Pet_agg/groupBy/2/count").intValue());
 
     result = execute("{Pet_agg{groupBy{count,category{name}}}}");
@@ -330,11 +330,11 @@ public class TestGraphqSchemaFields {
     // 1 green dog
     TestCase.assertEquals(1, result.at("/Pet_agg/groupBy/1/count").intValue());
     TestCase.assertEquals("dog", result.at("/Pet_agg/groupBy/1/category/name").textValue());
-    TestCase.assertEquals("red", result.at("/Pet_agg/groupBy/1/tags/name").textValue());
+    TestCase.assertEquals("green", result.at("/Pet_agg/groupBy/1/tags/name").textValue());
     // 1 <untagged> cat
     TestCase.assertEquals(1, result.at("/Pet_agg/groupBy/2/count").intValue());
     TestCase.assertEquals("dog", result.at("/Pet_agg/groupBy/2/category/name").textValue());
-    TestCase.assertEquals("green", result.at("/Pet_agg/groupBy/2/tags/name").textValue());
+    TestCase.assertEquals("red", result.at("/Pet_agg/groupBy/2/tags/name").textValue());
 
     // N.B. in case arrays are involved total might more than count!!!
   }

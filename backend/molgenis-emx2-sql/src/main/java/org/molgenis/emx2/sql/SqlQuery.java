@@ -629,6 +629,11 @@ public class SqlQuery extends QueryBean {
       } else {
         Column c = isValidColumn(table, field.getColumn());
         List<Field> subselectFields = new ArrayList<>();
+        // need pkey to allow for joining of the subqueries
+        subselectFields.addAll(
+            table.getPrimaryKeyFields().stream()
+                .map(f -> f.as(name("pkey_" + f.getName())))
+                .collect(Collectors.toList()));
         // in case of 'ref' we subselect
         if (c.isRef()) {
           selectFields.add(field(name(c.getName())));
@@ -677,11 +682,16 @@ public class SqlQuery extends QueryBean {
     SelectJoinStep<org.jooq.Record> groupByQuery =
         table.getJooq().select(selectFields).from(subQuery.get(0));
     for (int i = 1; i < subQuery.size(); i++) {
+      // joining on primary key
       groupByQuery = groupByQuery.naturalFullOuterJoin(subQuery.get(i));
     }
 
+    // sort by groupby fields to make deterministic
+    final List<OrderField<?>> orderByFields = new ArrayList<>();
+    groupByFields.forEach(field -> orderByFields.add(field.asc().nullsLast()));
     return field(
-        jooq.select(field(JSON_AGG_SQL)).from(groupByQuery.groupBy(groupByFields).asTable(ITEM)));
+        jooq.select(field(JSON_AGG_SQL))
+            .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)));
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {

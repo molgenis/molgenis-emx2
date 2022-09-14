@@ -209,8 +209,13 @@ public class TestQueryJsonGraph {
                 .retrieveJSON(),
             Map.class);
     assertEquals(1, result.get("Pet_agg").get("groupBy").get(0).get("count"));
+    assertEquals(null, ((Map) result.get("Pet_agg").get("groupBy").get(0).get("tags")).get("name"));
+    assertEquals(1, result.get("Pet_agg").get("groupBy").get(1).get("count"));
     assertEquals(
-        "red", ((Map) result.get("Pet_agg").get("groupBy").get(0).get("tags")).get("name"));
+        "green", ((Map) result.get("Pet_agg").get("groupBy").get(1).get("tags")).get("name"));
+    assertEquals(1, result.get("Pet_agg").get("groupBy").get(2).get("count"));
+    assertEquals(
+        "red", ((Map) result.get("Pet_agg").get("groupBy").get(2).get("tags")).get("name"));
 
     // tests below use non-reference types, do we want to enable group by on those??
     Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
@@ -257,14 +262,14 @@ public class TestQueryJsonGraph {
         mapper.readValue(
             schema.agg("Test").select(s("groupBy", s("count"), s("tag"))).retrieveJSON(),
             Map.class);
-    assertEquals(2, result.get("Test_agg").get("groupBy").get(1).get("count"));
+    assertEquals(1, result.get("Test_agg").get("groupBy").get(1).get("count"));
 
     // group by the elements of tag_array
     result =
         mapper.readValue(
             schema.agg("Test").select(s("groupBy", s("count"), s("tag_array"))).retrieveJSON(),
             Map.class);
-    assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
+    assertEquals(3, result.get("Test_agg").get("groupBy").get(0).get("count"));
 
     // group by multiple columns, with tag_array and tag_array2
     result =
