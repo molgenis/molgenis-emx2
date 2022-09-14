@@ -475,7 +475,6 @@ export default {
         .deleteRow(this.editRowPrimaryKey, this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.handleSuccess(resp);
         this.reload();
       }
     },
@@ -485,23 +484,23 @@ export default {
         .deleteAllTableData(this.tableName)
         .catch(this.handleError);
       if (resp) {
-        this.handleSuccess(resp);
         this.reload();
       }
     },
     toggleView() {
       if (this.view === View.TABLE) {
         this.view = View.CARDS;
-        this.setLimit(this.showLimit);
+        this.limit = this.showLimit;
       } else if (this.view === View.CARDS) {
         this.view = View.RECORD;
-        this.setLimit(1);
+        this.limit = 1;
       } else {
         this.view = View.TABLE;
-        this.setLimit(20);
+        this.limit = 20;
       }
-      this.$emit("update:showView", this.view);
-      this.setPage(1);
+      this.page = 1;
+      this.$emit("update:showView", this.view, this.limit);
+      this.reload();
     },
     onColumnClick(column) {
       const oldOrderByColumn = this.orderByColumn;
@@ -513,12 +512,12 @@ export default {
       } else {
         order = "ASC";
       }
+      this.order = order;
+      this.orderByColumn = column.id;
       this.$emit("update:showOrder", {
         direction: order,
         column: column.id,
       });
-      this.order = order;
-      this.orderByColumn = column.id;
       this.reload();
     },
     emitColumns() {
@@ -534,28 +533,28 @@ export default {
       );
     },
     emitConditions() {
-      const result = this.columns.reduce((accum, c) => {
-        if (c.conditions && c.conditions.length > 0) {
-          accum[c.id] = c.conditions;
+      const newConditions = this.columns.reduce((accum, column) => {
+        if (column.conditions && column.conditions.length > 0) {
+          accum[column.id] = column.conditions;
         }
         return accum;
       }, {});
-      this.$emit("update:conditions", result);
+      this.$emit("update:conditions", newConditions);
       this.reload();
     },
     setPage(page) {
       this.page = page;
-      this.loading = true;
       this.$emit("update:showPage", page);
       this.reload();
     },
     setLimit(limit) {
       this.limit = parseInt(limit);
       if (!Number.isInteger(this.limit) || this.limit < 1) {
-        this.limit = 1;
+        this.limit = 20;
       }
-      this.setPage(1);
+      this.page = 1;
       this.$emit("update:showLimit", limit);
+      this.reload();
     },
     handleError(error) {
       if (Array.isArray(error?.response?.data?.errors)) {
@@ -564,9 +563,6 @@ export default {
         this.graphqlError = error;
       }
       this.loading = false;
-    },
-    handleSuccess(resp) {
-      this.success = resp.data?.data?.delete?.message;
     },
     setTableMetadata(newTableMetadata) {
       if (this.columns.length === 0) {
@@ -679,7 +675,6 @@ function getColumnNames(columns, property) {
         :canEdit="canEdit"
         :canManage="canManage"
       ></table-explorer>
-
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
         <div>
@@ -713,8 +708,8 @@ function getColumnNames(columns, property) {
         limit: 10,
         showOrder: 'DESC', 
         showOrderBy: 'name',
-        canEdit: true,
-        canManage: true
+        canEdit: false,
+        canManage: false
       }
     },
   }
