@@ -150,7 +150,7 @@ public class FAIRDataPointCatalog {
       builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
     }
     builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
-    builder.add(apiFdpEnc, DCTERMS.IS_PART_OF, apiFdpEnc); // fixme looks fishy
+    builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
         apiFdpEnc,
         DCAT.THEME_TAXONOMY,
