@@ -367,7 +367,7 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => ({}),
+      default: () => {},
     },
     showOrderBy: {
       type: String,
@@ -404,25 +404,27 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = this.filter ? this.filter : {};
+      let filter = {};
       if (this.columns) {
         this.columns.forEach((col) => {
-          let conditions = Array.isArray(col.conditions)
-            ? col.conditions.filter((f) => f !== "" && f != undefined)
+          const conditions = col.conditions
+            ? col.conditions.filter(
+                (condition) => condition !== "" && condition !== undefined
+              )
             : [];
-          if (conditions.length > 0) {
+          if (conditions.length) {
             if (
               col.columnType.startsWith("STRING") ||
               col.columnType.startsWith("TEXT")
             ) {
-              filter[col.id] = { like: col.conditions };
+              filter[col.id] = { like: conditions };
             } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: col.conditions };
+              filter[col.id] = { equals: conditions };
             } else if (
               col.columnType.startsWith("REF") ||
               col.columnType.startsWith("ONTOLOGY")
             ) {
-              filter[col.id] = { equals: col.conditions };
+              filter[col.id] = { equals: conditions };
             } else if (
               [
                 "DECIMAL",
@@ -565,48 +567,45 @@ export default {
       this.loading = false;
     },
     setTableMetadata(newTableMetadata) {
-      if (this.columns.length === 0) {
-        if (this.showView) {
-          this.view = this.showView;
+      this.columns = newTableMetadata.columns.map((column) => {
+        const showColumn = this.showColumns.length
+          ? this.showColumns.includes(column.name)
+          : !column.name.startsWith("mg_");
+        const conditions = getCondition(
+          column.columnType,
+          this.conditions[column.name]
+        );
+        return {
+          ...column,
+          showColumn,
+          showFilter: this.showFilters.includes(column.name),
+          conditions,
+        };
+      });
+      //table settings
+      newTableMetadata.settings?.forEach((setting) => {
+        if (setting.key === "cardTemplate") {
+          this.cardTemplate = setting.value;
+        } else if (setting.key === "recordTemplate") {
+          this.recordTemplate = setting.value;
         }
-
-        this.columns = newTableMetadata.columns.map((column) => {
-          return {
-            ...column,
-            showColumn: this.showColumns.length
-              ? this.showColumns.includes(column.name)
-              : !column.name.startsWith("mg_"),
-            showFilter: this.showFilters.includes(column.name),
-            conditions: this.conditions[column.name]
-              ? this.conditions[column.name]
-              : [],
-          };
-        });
-        //table settings
-        newTableMetadata.settings?.forEach((setting) => {
-          if (setting.key === "cardTemplate") {
-            this.cardTemplate = setting.value;
-          } else if (setting.key === "recordTemplate") {
-            this.recordTemplate = setting.value;
-          }
-        });
-      }
-      this.$emit("update:showAllColumns", this.columns);
+      });
+      this.$emit("update:allColumns", this.columns);
     },
     async reload() {
       this.loading = true;
       this.graphqlError = null;
       const offset = this.limit * (this.page - 1);
-
+      const orderBy = this.orderByColumn
+        ? { [this.orderByColumn]: this.order }
+        : {};
       const dataResponse = await this.client
         .fetchTableData(this.tableName, {
           limit: this.limit,
           offset: offset,
           filter: this.graphqlFilter,
           searchTerms: this.searchTerms,
-          orderby: this.orderByColumn
-            ? { [this.orderByColumn]: this.order }
-            : {},
+          orderby: orderBy,
         })
         .catch(this.handleError);
 
@@ -616,15 +615,11 @@ export default {
     },
   },
   mounted: async function () {
-    if (!this.client) {
-      this.client = Client.newClient(this.graphqlURL);
-    }
-    if (!this.tableMetadata) {
-      const newTableMetadata = await this.client
-        .fetchTableMetaData(this.tableName)
-        .catch(this.handleError);
-      this.tableMetadata = this.setTableMetadata(newTableMetadata);
-    }
+    this.client = Client.newClient(this.graphqlURL);
+    const newTableMetadata = await this.client
+      .fetchTableMetaData(this.tableName)
+      .catch(this.handleError);
+    this.setTableMetadata(newTableMetadata);
     await this.reload();
   },
 };
@@ -633,6 +628,26 @@ function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
+}
+
+function getCondition(columnType, condition) {
+  if (condition) {
+    switch (columnType) {
+      case "REF":
+      case "REF_ARRAY":
+      case "REFBACK":
+        return JSON.parse(condition);
+      case "DATE":
+      case "DATETIME":
+      case "INT":
+      case "DECIMAL":
+        return condition.split(",").map((v) => v.split(".."));
+      default:
+        return condition.split(",");
+    }
+  } else {
+    return [];
+  }
 }
 </script>
 

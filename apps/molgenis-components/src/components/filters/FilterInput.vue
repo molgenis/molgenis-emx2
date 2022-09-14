@@ -111,14 +111,20 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        this.columnType
-      );
+      return [
+        "REF",
+        "REF_ARRAY",
+        // "REFBACK",
+        "ONTOLOGY",
+        "ONTOLOGY_ARRAY",
+      ].includes(this.columnType);
     },
   },
   methods: {
     updateCondition(index, value) {
       let updatedConditions = [...this.conditions];
+      console.log(this.conditions, "sdfasdfasfdasf", value, this.columnType);
+      console.log(this.isMultiConditionFilter, "safasafsaf");
       if (this.isMultiConditionFilter) {
         updatedConditions = value;
       } else if (!this.conditions.length) {
