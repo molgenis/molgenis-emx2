@@ -79,8 +79,9 @@ export default {
         } else {
           return this.$route.query._col.split(",");
         }
+      } else {
+        return [];
       }
-      return [];
     },
     getFilters() {
       if (this.$route.query._filter) {
@@ -89,38 +90,52 @@ export default {
         } else {
           return this.$route.query._filter.split(",");
         }
+      } else {
+        return [];
       }
-      return [];
     },
     getPage() {
-      if (this.$route.query._page) return parseInt(this.$route.query._page);
-      else return 1;
+      if (this.$route.query._page) {
+        return parseInt(this.$route.query._page);
+      } else {
+        return 1;
+      }
     },
     getLimit() {
-      if (this.$route.query._limit) return parseInt(this.$route.query._limit);
-      else return 20;
+      if (this.$route.query._limit) {
+        return parseInt(this.$route.query._limit);
+      } else {
+        return 20;
+      }
     },
     getView() {
-      if (this.$route.query._view) return this.$route.query._view;
-      else return "table";
+      if (this.$route.query._view) {
+        return this.$route.query._view;
+      } else {
+        return "table";
+      }
     },
     getConditions() {
       let result = {};
-      //find the table and then iterate the colums
+      //find the table and then iterate the columns
       this.columnsData.forEach((column) => {
         if (this.$route.query[column.name]) {
-          if (
-            ["DATE", "DATETIME", "INT", "DECIMAL"].includes(column.columnType)
-          ) {
-            result[column.name] = this.$route.query[column.name]
-              .split(",")
-              .map((v) => v.split(".."));
-          } else if (
-            ["REF", "REF_ARRAY", "REFBACK"].includes(column.columnType)
-          ) {
-            result[column.name] = JSON.parse(this.$route.query[column.name]);
-          } else {
-            result[column.name] = this.$route.query[column.name].split(",");
+          switch (column.columnType) {
+            case "REF":
+            case "REF_ARRAY":
+            case "REFBACK":
+              result[column.name] = JSON.parse(this.$route.query[column.name]);
+              break;
+            case "DATE":
+            case "DATETIME":
+            case "INT":
+            case "DECIMAL":
+              result[column.name] = this.$route.query[column.name]
+                .split(",")
+                .map((v) => v.split(".."));
+              break;
+            default:
+              result[column.name] = this.$route.query[column.name].split(",");
           }
         }
       });
@@ -140,8 +155,11 @@ export default {
     },
     updateColumns(showColumns) {
       const query = Object.assign({}, this.$route.query);
-      if (showColumns.length > 0) query._col = showColumns.join(",");
-      else delete query._col;
+      if (showColumns.length > 0) {
+        query._col = showColumns.join(",");
+      } else {
+        delete query._col;
+      }
       this.queryRoute(query);
     },
     updateAllColumns(showAllColumns) {
@@ -149,28 +167,36 @@ export default {
     },
     updateFilters(showFilters) {
       const query = Object.assign({}, this.$route.query);
-      if (showFilters.length > 0) query._filter = showFilters.join(",");
-      else delete query._filter;
+      if (showFilters.length > 0) {
+        query._filter = showFilters.join(",");
+      } else {
+        delete query._filter;
+      }
       this.queryRoute(query);
     },
     updateConditions(conditions) {
-      const query = Object.assign({}, this.$route.query);
-      this.columnsData.forEach((c) => {
-        if (conditions[c.name]) {
-          if (["REF", "REF_ARRAY", "REFBACK"].includes(c.columnType)) {
-            //todo try to make this human readible too
-            query[c.name] = JSON.stringify(conditions[c.name]);
-          } else if (
-            ["DATE", "DATETIME", "INT", "DECIMAL"].includes(c.columnType)
-          ) {
-            query[c.name] = conditions[c.name]
-              .map((v) => v.join(".."))
-              .join(",");
-          } else {
-            query[c.name] = conditions[c.name].join(",");
+      let query = Object.assign({}, this.$route.query);
+      this.columnsData.forEach((column) => {
+        if (conditions[column.name]) {
+          switch (column.columnType) {
+            case "REF":
+            case "REF_ARRAY":
+            case "REFBACK":
+              query[column.name] = JSON.stringify(conditions[column.name]);
+              break;
+            case "DATE":
+            case "DATETIME":
+            case "INT":
+            case "DECIMAL":
+              query[column.name] = conditions[column.name]
+                .map((v) => v.join(".."))
+                .join(",");
+              break;
+            default:
+              query[column.name] = conditions[column.name].join(",");
           }
         } else {
-          delete query[c.name];
+          delete query[column.name];
         }
       });
       this.queryRoute(query);
