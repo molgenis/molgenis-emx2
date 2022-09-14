@@ -5,10 +5,10 @@
       :graphqlURL="graphqlURL"
       :canEdit="canEdit"
       :canManage="canManage"
-      @update:showColumns="updateColumns"
-      @update:showAllColumns="updateAllColumns"
-      @update:showFilters="updateFilters"
+      @update:allColumns="updateAllColumns"
       @update:conditions="updateConditions"
+      @update:showColumns="updateColumns"
+      @update:showFilters="updateFilters"
       @update:showPage="updatePage"
       @update:showLimit="updateLimit"
       @update:showOrder="updateOrder"
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      columnsData: [],
+      allColumns: [],
     };
   },
   props: {
@@ -116,31 +116,14 @@ export default {
     },
     getConditions() {
       let result = {};
-      //find the table and then iterate the columns
-      this.columnsData.forEach((column) => {
-        if (this.$route.query[column.name]) {
-          switch (column.columnType) {
-            case "REF":
-            case "REF_ARRAY":
-            case "REFBACK":
-              result[column.name] = JSON.parse(this.$route.query[column.name]);
-              break;
-            case "DATE":
-            case "DATETIME":
-            case "INT":
-            case "DECIMAL":
-              result[column.name] = this.$route.query[column.name]
-                .split(",")
-                .map((v) => v.split(".."));
-              break;
-            default:
-              result[column.name] = this.$route.query[column.name].split(",");
-          }
+      Object.keys(this.$route.query).forEach((key) => {
+        if (!key.startsWith("_")) {
+          result[key] = this.$route.query[key];
         }
       });
       return result;
     },
-    updatePage(value, page) {
+    updatePage(page) {
       const query = Object.assign({}, this.$route.query);
       query._page = page;
       this.queryRoute(query);
@@ -174,8 +157,8 @@ export default {
       }
       this.queryRoute(query);
     },
-    updateAllColumns(showAllColumns) {
-      this.columnsData = showAllColumns;
+    updateAllColumns(allColumns) {
+      this.allColumns = allColumns;
     },
     updateFilters(showFilters) {
       const query = Object.assign({}, this.$route.query);
@@ -188,7 +171,7 @@ export default {
     },
     updateConditions(conditions) {
       let query = Object.assign({}, this.$route.query);
-      this.columnsData.forEach((column) => {
+      this.allColumns.forEach((column) => {
         if (conditions[column.name]) {
           switch (column.columnType) {
             case "REF":
