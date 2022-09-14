@@ -319,7 +319,7 @@ export default {
       limit: this.showLimit,
       loading: false,
       order: this.showOrder,
-      orderByColumn: null,
+      orderByColumn: this.showOrderBy,
       page: this.showPage,
       recordTemplate: null,
       searchTerms: "",
@@ -498,38 +498,39 @@ export default {
         this.setLimit(1);
       } else {
         this.view = View.TABLE;
-        this.setLimit(this.showLimit);
+        this.setLimit(20);
       }
       this.$emit("update:showView", this.view);
       this.setPage(1);
     },
     onColumnClick(column) {
-      let orderByColumn = this.orderByColumn;
+      const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
-      if (orderByColumn != column.id) {
-        orderByColumn = column.id;
+      if (oldOrderByColumn !== column.id) {
         order = "ASC";
-      } else if (order == "ASC") {
+      } else if (order === "ASC") {
         order = "DESC";
       } else {
         order = "ASC";
       }
-      this.setOrder(order, orderByColumn);
-      this.$emit("update:showOrderBy", orderByColumn);
-      this.$emit("update:showOrder", order);
+      this.$emit("update:showOrder", {
+        direction: order,
+        column: column.id,
+      });
+      this.order = order;
+      this.orderByColumn = column.id;
+      this.reload();
     },
     emitColumns() {
-      let columns = this.columns
-        .filter((c) => c.showColumn && c.columnType !== "HEADING")
-        .map((c) => c.name);
-      this.$emit("update:showColumns", columns);
+      this.$emit(
+        "update:showColumns",
+        getColumnNames(this.columns, "showColumn")
+      );
     },
     emitFilters() {
       this.$emit(
         "update:showFilters",
-        this.columns
-          .filter((c) => c.showFilter && c.columnType !== "HEADING")
-          .map((c) => c.name)
+        getColumnNames(this.columns, "showFilter")
       );
     },
     emitConditions() {
@@ -556,13 +557,6 @@ export default {
       this.setPage(1);
       this.$emit("update:showLimit", limit);
     },
-    setOrder(newOrder, newOrderByColumn) {
-      this.order = newOrder;
-      this.orderByColumn = newOrderByColumn;
-      this.$emit("update:showOrder", newOrder);
-      this.$emit("update:showOrderBy", newOrderByColumn);
-      this.reload();
-    },
     handleError(error) {
       if (Array.isArray(error?.response?.data?.errors)) {
         this.graphqlError = error.response.data.errors[0].message;
@@ -576,53 +570,30 @@ export default {
     },
     setTableMetadata(newTableMetadata) {
       if (this.columns.length === 0) {
-        this.columns.push(...newTableMetadata.columns);
-        // //init settings
-        this.columns.forEach((c) => {
-          //show columns
-          if (this.showColumns && this.showColumns.length > 0) {
-            if (this.showColumns.includes(c.name)) {
-              c.showColumn = true;
-            } else {
-              c.showColumn = false;
-            }
-          } else {
-            //default we show all non mg_ columns
-            if (!c.name.startsWith("mg_")) {
-              c.showColumn = true;
-            } else {
-              c.showColumn = false;
-            }
-          }
-          //show filters
-          if (this.showFilters && this.showFilters.length > 0) {
-            if (this.showFilters.includes(c.name)) {
-              c.showFilter = true;
-            } else {
-              c.showFilter = false;
-            }
-          } else {
-            //default we hide all filters
-            c.showFilter = false;
-          }
-        });
         if (this.showView) {
           this.view = this.showView;
         }
-        this.columns.forEach((c) => {
-          if (this.conditions[c.name] && this.conditions[c.name].length > 0) {
-            this.$set(c, "conditions", this.conditions[c.name]); //haat vue reactivity
-          } else {
-            c.conditions = [];
-          }
+
+        this.columns = newTableMetadata.columns.map((column) => {
+          return {
+            ...column,
+            showColumn: this.showColumns.length
+              ? this.showColumns.includes(column.name)
+              : !column.name.startsWith("mg_"),
+            showFilter: this.showFilters.includes(column.name),
+            conditions: this.conditions[column.name]
+              ? this.conditions[column.name]
+              : [],
+          };
         });
         //table settings
-        if (newTableMetadata.settings) {
-          newTableMetadata.settings.forEach((s) => {
-            if (s.key == "cardTemplate") this.cardTemplate = s.value;
-            if (s.key == "recordTemplate") this.recordTemplate = s.value;
-          });
-        }
+        newTableMetadata.settings?.forEach((setting) => {
+          if (setting.key === "cardTemplate") {
+            this.cardTemplate = setting.value;
+          } else if (setting.key === "recordTemplate") {
+            this.recordTemplate = setting.value;
+          }
+        });
       }
       this.$emit("update:showAllColumns", this.columns);
     },
@@ -661,6 +632,12 @@ export default {
     await this.reload();
   },
 };
+
+function getColumnNames(columns, property) {
+  return columns
+    .filter((column) => column[property] && column.columnType !== "HEADING")
+    .map((column) => column.name);
+}
 </script>
 
 <style scoped>

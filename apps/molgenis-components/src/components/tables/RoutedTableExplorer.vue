@@ -11,7 +11,6 @@
       @update:conditions="updateConditions"
       @update:showPage="updateProperty($event, '_page')"
       @update:showLimit="updateProperty($event, '_limit')"
-      @update:showOrderBy="updateProperty($event, '_orderBy')"
       @update:showOrder="updateOrder"
       @update:showView="updateProperty($event, '_view')"
       :showView="getView()"
@@ -146,10 +145,11 @@ export default {
       query[property] = value;
       this.queryRoute(query);
     },
-    updateOrder(showOrder) {
+    updateOrder(order) {
       const query = Object.assign({}, this.$route.query);
-      if (showOrder) {
-        query._order = showOrder;
+      if (order) {
+        query._order = order.direction;
+        query._orderBy = order.column;
       }
       this.queryRoute(query);
     },
