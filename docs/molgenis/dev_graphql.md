@@ -4,14 +4,22 @@ TODO, describe basics. Meanwhile, please use self-documenting GraphQL IDE inside
 
 # Getting started 
 
-## GraphQL API Playground
+* Introductionary information on graphql standard can be found at https://graphql.org/
+* Each 'schema' has a graphql API: 
+  * This can be accessed remotely using http://servername/schemaname/graphql
+  * Or using playground using http://servername/schemaname/graphql-playground
+* In addition there is a 'database' level graphql API:
+  * This can be accessed remotely using http://servername/api/graphql
+  * Or using playground using http://servername/schemaname/apps/graphql-playground/
+  
+In most schemas on top side of the menu you also see a link to _GraphQL_ or _GraphQL API_
+this will open up a GraphQL playground for the selected schema (or in case of 'central' the database level API. <br>
 
-In the top side of the menu you see a link to _GraphQL_ or _GraphQL API_
-this will open up a GraphQL playground for the selected database. <br>
-So that means, given the following url ```https://emx2.dev.molgenis.org/apps/central/#/ ``` <br>
-**apps** is the selected database. <br>
-
-And for example ```https://emx2.dev.molgenis.org/pet%20store/tables/#/``` gives access to the pet store when clicking on the link.
+For example:
+* Database level API at https://emx2.dev.molgenis.org/api/graphql 
+* Databaswe level playground at https://emx2.dev.molgenis.org/apps/graphql-playground
+* Schema level API for 'pet store' at https://emx2.dev.molgenis.org/pet store/graphql 
+* Schema level playground for 'pet store' at https://emx2.dev.molgenis.org/pet store/graphql-playground 
 
 ### Example querying the Pet Store
 
@@ -68,3 +76,10 @@ Get all the pets that have the letter k and are sold
   }
 }
 ```
+
+# Developing 'apps'
+
+When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
+* You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
+* In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
+* In case of serving the app in 'central' you will get 'database' graphql endpoint, e.g. https://emx2.dev.molgenis.org/apps/central/
