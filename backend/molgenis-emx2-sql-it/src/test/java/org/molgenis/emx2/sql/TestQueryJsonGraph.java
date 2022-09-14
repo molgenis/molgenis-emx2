@@ -190,7 +190,7 @@ public class TestQueryJsonGraph {
     ObjectMapper mapper = new ObjectMapper();
 
     // first test against pet store for references
-    Schema petStore = db.getSchema("pet store");
+    Schema petStore = db.getSchema(TestQueryJsonGraph.class.getSimpleName());
     Map<String, Map<String, List<Map<String, Object>>>> result =
         mapper.readValue(
             petStore
