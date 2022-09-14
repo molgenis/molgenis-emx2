@@ -114,7 +114,7 @@ export default {
       return [
         "REF",
         "REF_ARRAY",
-        // "REFBACK",
+        "REFBACK",
         "ONTOLOGY",
         "ONTOLOGY_ARRAY",
       ].includes(this.columnType);
@@ -122,17 +122,15 @@ export default {
   },
   methods: {
     updateCondition(index, value) {
-      let updatedConditions = [...this.conditions];
-      console.log(this.conditions, "sdfasdfasfdasf", value, this.columnType);
-      console.log(this.isMultiConditionFilter, "safasafsaf");
       if (this.isMultiConditionFilter) {
-        updatedConditions = value;
+        this.$emit("updateConditions", JSON.parse(JSON.stringify(value)));
       } else if (!this.conditions.length) {
-        updatedConditions = [value];
+        this.$emit("updateConditions", [value]);
       } else {
+        let updatedConditions = JSON.parse(JSON.stringify(this.conditions));
         updatedConditions[index] = value;
+        this.$emit("updateConditions", updatedConditions);
       }
-      this.$emit("updateConditions", updatedConditions);
     },
     clearCondition(index) {
       let updatedConditions = [...this.conditions];
@@ -151,8 +149,6 @@ export default {
 };
 </script>
 
-<style></style>
-
 <docs>
 <template>
   <div>
@@ -168,7 +164,6 @@ export default {
         <div>conditions: {{ conditions }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled string filter</label>
       <demo-item>
@@ -181,7 +176,6 @@ export default {
         <div>conditions: {{ conditions1 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled int filter</label>
       <demo-item>
@@ -194,7 +188,6 @@ export default {
         <div>conditions: {{ conditions2 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>date filter</label>
       <demo-item>
