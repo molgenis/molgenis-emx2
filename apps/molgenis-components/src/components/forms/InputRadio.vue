@@ -54,6 +54,11 @@ export default {
       type: Array,
       required: true,
     },
+    isClearable: {
+      type: Boolean,
+      required: false,
+      default: true
+    }
   },
   data() {
     return {
@@ -68,11 +73,16 @@ export default {
   },
   computed: {
     isClearShown() {
-      return (
-        this.isMouseOver &&
-        this.radioValue !== null &&
-        this.radioValue != undefined
-      );
+      if(this.isClearable !== undefined && this.isClearable === false) {
+        return false;
+      } else {
+        return (
+            this.isMouseOver &&
+            this.radioValue !== null &&
+            this.radioValue !== undefined
+        );
+      }
+
     },
   },
 };

@@ -4,7 +4,7 @@ import static junit.framework.TestCase.assertEquals;
 
 import org.junit.Test;
 
-public class AuditUtilsTest {
+public class ChangeLogUtilsTest {
   @Test
   public void testBuildProcessAuditFunction() {
     String expectedFunction =
@@ -26,7 +26,8 @@ public class AuditUtilsTest {
                    $Pet_audit$ LANGUAGE plpgsql;
             """;
     assertEquals(
-        expectedFunction.strip(), AuditUtils.buildProcessAuditFunction("pet store", "Pet").strip());
+        expectedFunction.strip(),
+        ChangeLogUtils.buildProcessAuditFunction("pet store", "Pet").strip());
   }
 
   @Test
@@ -37,7 +38,8 @@ public class AuditUtilsTest {
           AFTER INSERT OR UPDATE OR DELETE ON "pet store"."Pet"
               FOR EACH ROW EXECUTE FUNCTION "pet store"."process_Pet_audit"();
             """;
-    assertEquals(expectedTrigger.strip(), AuditUtils.buildAuditTrigger("pet store", "Pet").strip());
+    assertEquals(
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "Pet").strip());
   }
 
   @Test
@@ -49,20 +51,20 @@ public class AuditUtilsTest {
                   FOR EACH ROW EXECUTE FUNCTION "pet store"."process_My_pets_audit"();
                 """;
     assertEquals(
-        expectedTrigger.strip(), AuditUtils.buildAuditTrigger("pet store", "My pets").strip());
+        expectedTrigger.strip(), ChangeLogUtils.buildAuditTrigger("pet store", "My pets").strip());
   }
 
   @Test
   public void testRemoveProcessAuditFunction() {
     assertEquals(
         "DROP FUNCTION IF EXISTS \"my schema\".\"process_my_table_audit\"() CASCADE",
-        AuditUtils.buildProcessAuditFunctionRemove("my schema", "my table").strip());
+        ChangeLogUtils.buildProcessAuditFunctionRemove("my schema", "my table").strip());
   }
 
   @Test
   public void testRemoveAuditTrigger() {
     assertEquals(
         "DROP TRIGGER IF EXISTS my_table_audit ON \"my schema\".\"my table\" CASCADE",
-        AuditUtils.buildAuditTriggerRemove("my schema", "my table").strip());
+        ChangeLogUtils.buildAuditTriggerRemove("my schema", "my table").strip());
   }
 }

@@ -1,11 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import java.util.Arrays;
+import java.util.Optional;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 
-public class AuditUtils {
+public class ChangeLogUtils {
 
-  private AuditUtils() {
+  private ChangeLogUtils() {
     throw new IllegalStateException("Utility class");
   }
 
@@ -29,8 +30,8 @@ public class AuditUtils {
                 """
         .formatted(
             schemaName,
-            AuditUtils.buildFunctionName(schemaName),
-            AuditUtils.buildFunctionName(tableName));
+            ChangeLogUtils.buildFunctionName(schemaName),
+            ChangeLogUtils.buildFunctionName(tableName));
   }
 
   public static String buildAuditTrigger(String schemaName, String tableName) {
@@ -39,31 +40,27 @@ public class AuditUtils {
             AFTER INSERT OR UPDATE OR DELETE ON "%1$s"."%2$s"
                 FOR EACH ROW EXECUTE FUNCTION "%1$s"."process_%3$s_audit"();
             """
-        .formatted(schemaName, tableName, AuditUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
   }
 
   public static String buildAuditTriggerRemove(String schemaName, String tableName) {
     return """
             DROP TRIGGER IF EXISTS %3$s_audit ON "%1$s"."%2$s" CASCADE
             """
-        .formatted(schemaName, tableName, AuditUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
   }
 
   public static String buildProcessAuditFunctionRemove(String schemaName, String tableName) {
     return """
             DROP FUNCTION IF EXISTS "%1$s"."process_%2$s_audit"() CASCADE
             """
-        .formatted(schemaName, AuditUtils.buildFunctionName(tableName));
+        .formatted(schemaName, ChangeLogUtils.buildFunctionName(tableName));
   }
 
   public static boolean isChangeSchema(Database db, String schemaName) {
-    if (db.getSettingValue("CHANGELOG_SCHEMAS") != null) {
-      return Arrays.stream(db.getSettingValue("CHANGELOG_SCHEMAS").split(","))
-          .map(String::trim)
-          .anyMatch(s -> s.contains(schemaName));
-    } else {
-      return false;
-    }
+    Optional<String> settingValue =
+        db.getSchema(schemaName).getMetadata().findSettingValue(Constants.IS_CHANGELOG_ENABLED);
+    return settingValue.filter(Boolean::parseBoolean).isPresent();
   }
 
   private static String buildFunctionName(String tableName) {
