@@ -27,22 +27,21 @@ export default {
     canEdit() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
-          (this.session.roles &&
-            (this.session.roles.includes("Editor") ||
-              this.session.roles.includes("Manager"))))
+        (this.session?.email === "admin" ||
+          this.session?.roles?.includes("Editor") ||
+          this.session?.roles?.includes("Manager"))
       );
     },
     canManage() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
-          this.session.roles.includes("Manager"))
+        (this.session?.email === "admin" ||
+          this.session?.roles.includes("Manager"))
       );
     },
     activeTable() {
       if (this.schema) {
-        return this.schema.tables.filter((t) => t.name == this.table)[0];
+        return this.schema.tables.find((table) => table.name == this.table);
       } else {
         return null;
       }
