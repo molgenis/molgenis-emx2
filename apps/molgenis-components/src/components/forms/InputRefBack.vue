@@ -1,6 +1,6 @@
 <template>
   <FormGroup v-bind="$props" v-on="$listeners">
-    <Spinner v-if="!this.tableMetadata || !this.data" />
+    <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="refTablePrimaryKeyObject"
       :data="data"
@@ -125,7 +125,8 @@ export default {
     return {
       client: null,
       tableMetadata: null,
-      data: null
+      data: null,
+      isLoading: false
     }
   },
   computed: {
@@ -157,13 +158,16 @@ export default {
   methods: {
     getPrimaryKey,
     async reload () {
+      this.isLoading = true
       this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
+      this.isLoading = false
     }
   },
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
+    this.isLoading = true
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
-    this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
+    await this.reload();
   },
 };
 </script>
