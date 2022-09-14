@@ -79,8 +79,8 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument().name(Constants.DESCRIPTION).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String name = dataFetchingEnvironment.getArgument("name");
-              String description = dataFetchingEnvironment.getArgument("description");
+              String name = dataFetchingEnvironment.getArgument(NAME);
+              String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
               database.updateSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
