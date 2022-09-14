@@ -99,9 +99,9 @@
           :graphqlURL="graphqlURL"
         />
 
-        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true"
-          >Delete All</IconDanger
-        >
+        <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
+          Delete All
+        </IconDanger>
       </div>
     </div>
 
@@ -305,27 +305,27 @@ export default {
   },
   data() {
     return {
-      tableMetadata: null,
-      dataRows: [],
+      cardTemplate: null,
       client: null,
       columns: [],
-      searchTerms: "",
       count: null,
-      page: this.showPage,
-      view: this.showView,
-      limit: this.showLimit,
-      loading: false,
-      selectedItems: [],
-      orderByColumn: null,
-      graphqlError: null,
-      cardTemplate: null,
-      recordTemplate: null,
-      isDeleteModalShown: false,
-      isEditModalShown: false,
+      dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
+      graphqlError: null,
       isDeleteAllModalShown: false,
+      isDeleteModalShown: false,
+      isEditModalShown: false,
+      limit: this.showLimit,
+      loading: false,
       order: this.showOrder,
+      orderByColumn: null,
+      page: this.showPage,
+      recordTemplate: null,
+      searchTerms: "",
+      selectedItems: [],
+      tableMetadata: null,
+      view: this.showView,
     };
   },
   props: {
