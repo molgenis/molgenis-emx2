@@ -9,10 +9,10 @@
       @update:showAllColumns="updateAllColumns"
       @update:showFilters="updateFilters"
       @update:conditions="updateConditions"
-      @update:showPage="updateProperty($event, '_page')"
-      @update:showLimit="updateProperty($event, '_limit')"
+      @update:showPage="updatePage"
+      @update:showLimit="updateLimit"
       @update:showOrder="updateOrder"
-      @update:showView="updateProperty($event, '_view')"
+      @update:showView="updateView"
       :showView="getView()"
       :showColumns="getColumns()"
       :showFilters="getFilters()"
@@ -140,22 +140,34 @@ export default {
       });
       return result;
     },
-    updateProperty(value, property) {
+    updatePage(value, page) {
       const query = Object.assign({}, this.$route.query);
-      query[property] = value;
+      query._page = page;
       this.queryRoute(query);
     },
     updateOrder(order) {
       const query = Object.assign({}, this.$route.query);
-      if (order) {
-        query._order = order.direction;
-        query._orderBy = order.column;
-      }
+      query._order = order.direction;
+      query._orderBy = order.column;
+      this.queryRoute(query);
+    },
+    updateView(view, limit) {
+      const query = Object.assign({}, this.$route.query);
+      query._view = view;
+      query._limit = limit;
+      delete query._page;
+      this.queryRoute(query);
+    },
+    updateLimit(limit) {
+      const query = Object.assign({}, this.$route.query);
+      query._limit = limit;
+      delete query._page;
       this.queryRoute(query);
     },
     updateColumns(showColumns) {
+      console.log(showColumns);
       const query = Object.assign({}, this.$route.query);
-      if (showColumns.length > 0) {
+      if (showColumns.length) {
         query._col = showColumns.join(",");
       } else {
         delete query._col;
@@ -219,32 +231,9 @@ export default {
         id="my-table-explorer"
         tableName="Pet"
         graphqlURL="/pet store/graphql"
-        :canEdit="canEdit"
-        :canManage="canManage"
-      ></routed-table-explorer>
-      <div class="border mt-3 p-2">
-        <h5>synced props: </h5>
-        <div>
-          <label for="canEdit" class="pr-1">can edit: </label>
-          <input type="checkbox" id="canEdit" v-model="canEdit">
-        </div>
-        <div>
-          <label for="canManage" class="pr-1">canManage: </label>
-          <input type="checkbox" id="canManage" v-model="canManage">
-        </div>
-      </div>
+      />
     </div>
   </div>
 </template>
 
-<script>
-  export default {
-    data() {
-      return {
-        canEdit: true,
-        canManage: true
-      }
-    },
-  }
-</script>
 </docs>
