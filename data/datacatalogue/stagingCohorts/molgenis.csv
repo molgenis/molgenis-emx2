@@ -112,7 +112,7 @@ Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countri
 Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from,
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Other inclusion criteria applied to this subcohort,
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,
-SourceDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for a cohort
+SourceDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for a cohort,
 SourceDataDictionaries,,resource,ref,1,TRUE,,Resources,,,,,Link to the resource of which contents has been released,
 SourceDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)",
 SourceDataDictionaries,,tables,refback,,,,SourceTables,,dataDictionary,,,tables part of this data dictionary,
