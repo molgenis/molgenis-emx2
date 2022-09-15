@@ -234,6 +234,11 @@ export default {
     handleSuccess(resp) {
       this.success = resp.data?.data?.delete?.message;
     },
+    async reload () {
+      this.isLoading = true
+      this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
+      this.isLoading = false
+    }
   },
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
