@@ -59,9 +59,12 @@ export default {
       default: () => "primary", // or danger
     },
   },
+  methods: {
+    flattenObject,
+  },
   computed: {
     pkeyAsString() {
-      return flattenObject(this.pkey);
+      return this.flattenObject(this.pkey);
     },
     tableId() {
       return this.table.replaceAll(" ", "_");
