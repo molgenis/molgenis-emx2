@@ -25,18 +25,21 @@ export default {
   },
   computed: {
     canEdit() {
-      return (
-        this.session &&
-        (this.session?.email === "admin" ||
-          this.session?.roles?.includes("Editor") ||
-          this.session?.roles?.includes("Manager"))
-      );
+      if (this.session) {
+        const isAdmin = this.session.email === "admin";
+        const roles = this.session.roles;
+        const isEditor = roles && roles.includes("Editor");
+        const isManager = roles && roles.includes("Manager");
+        return isAdmin || isEditor || isManager;
+      } else {
+        return false;
+      }
     },
     canManage() {
       return (
         this.session &&
-        (this.session?.email === "admin" ||
-          this.session?.roles.includes("Manager"))
+        (this.session.email === "admin" ||
+          this.session.roles.includes("Manager"))
       );
     },
     activeTable() {
