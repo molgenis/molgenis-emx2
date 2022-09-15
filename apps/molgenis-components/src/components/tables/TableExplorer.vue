@@ -629,6 +629,8 @@ function getCondition(columnType, condition) {
       case "REF":
       case "REF_ARRAY":
       case "REFBACK":
+      case "ONTOLOGY":
+      case "ONTOLOGY_ARRAY":
         return JSON.parse(condition);
       case "DATE":
       case "DATETIME":
