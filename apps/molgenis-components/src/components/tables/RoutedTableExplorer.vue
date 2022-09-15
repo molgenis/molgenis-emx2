@@ -5,7 +5,6 @@
       :graphqlURL="graphqlURL"
       :canEdit="canEdit"
       :canManage="canManage"
-      @update:allColumns="updateAllColumns"
       @update:conditions="updateConditions"
       @update:showColumns="updateColumns"
       @update:showFilters="updateFilters"
@@ -169,26 +168,27 @@ export default {
       }
       this.queryRoute(query);
     },
-    updateConditions(conditions) {
+    updateConditions(columns) {
       let query = Object.assign({}, this.$route.query);
-      this.allColumns.forEach((column) => {
-        if (conditions[column.name]) {
+      columns.forEach((column) => {
+        const conditions = column.conditions;
+        if (conditions?.length) {
           switch (column.columnType) {
             case "REF":
             case "REF_ARRAY":
             case "REFBACK":
-              query[column.name] = JSON.stringify(conditions[column.name]);
+              query[column.name] = JSON.stringify(conditions);
               break;
             case "DATE":
             case "DATETIME":
             case "INT":
             case "DECIMAL":
-              query[column.name] = conditions[column.name]
+              query[column.name] = conditions
                 .map((v) => v.join(".."))
                 .join(",");
               break;
             default:
-              query[column.name] = conditions[column.name].join(",");
+              query[column.name] = conditions.join(",");
           }
         } else {
           delete query[column.name];

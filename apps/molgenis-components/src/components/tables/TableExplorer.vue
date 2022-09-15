@@ -535,13 +535,7 @@ export default {
       );
     },
     emitConditions() {
-      const newConditions = this.columns.reduce((accum, column) => {
-        if (column.conditions && column.conditions.length > 0) {
-          accum[column.id] = column.conditions;
-        }
-        return accum;
-      }, {});
-      this.$emit("update:conditions", newConditions);
+      this.$emit("update:conditions", this.columns);
       this.reload();
     },
     setPage(page) {
@@ -590,7 +584,6 @@ export default {
           this.recordTemplate = setting.value;
         }
       });
-      this.$emit("update:allColumns", this.columns);
     },
     async reload() {
       this.loading = true;
