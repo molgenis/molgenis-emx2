@@ -177,6 +177,8 @@ export default {
             case "REF":
             case "REF_ARRAY":
             case "REFBACK":
+            case "ONTOLOGY":
+            case "ONTOLOGY_ARRAY":
               query[column.name] = JSON.stringify(conditions);
               break;
             case "DATE":
