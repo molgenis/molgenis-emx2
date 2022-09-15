@@ -90,7 +90,7 @@ export default {
   },
   computed: {
     columnsWithoutMeta() {
-      return this.tableMetaData && this.tableMetaData.columns
+      return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
             (column) => !column.name.startsWith("mg_")
           )
@@ -119,7 +119,7 @@ export default {
       return (
         (isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name != "mg_tableclass" &&
+          column.name !== "mg_tableclass" &&
           !column.refLink) ||
         this.internalValues[column.refLink]
       );
