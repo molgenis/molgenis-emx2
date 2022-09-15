@@ -84,7 +84,8 @@
 </template>
 <script>
 import { request } from "graphql-request";
-import { MessageError, TableExplorer } from "@mswertz/emx2-styleguide";
+import { TableExplorer } from "@mswertz/emx2-styleguide";
+import { MessageError } from "molgenis-components";
 import VariablesList from "../components/VariablesList";
 import Property from "../components/Property";
 import OntologyTerms from "../components/OntologyTerms";

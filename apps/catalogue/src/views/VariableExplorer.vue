@@ -6,7 +6,8 @@
         <div v-if="!network" class="bg-white">
           <h6 class="mt-3">Networks</h6>
           <input-ref
-            table="Networks"
+            id="networks-input-ref"
+            tableName="Networks"
             v-model="networks"
             :list="true"
           ></input-ref>
@@ -22,7 +23,8 @@
         </template>
         <h6 class="mt-3">Cohorts</h6>
         <input-ref
-          table="Cohorts"
+          id="cohorts-input-ref"
+          tableName="Cohorts"
           v-model="cohorts"
           :list="true"
           :maxNum="100"
@@ -41,6 +43,7 @@
             </div>
             <div class="col-9">
               <InputSearch
+                id="search-variables-input"
                 v-model="searchInput"
                 placeholder="Search variables"
               />
@@ -99,7 +102,7 @@ import {
   InputOntology,
   InputRef,
   FilterWells,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   name: "VariableExplorer",
