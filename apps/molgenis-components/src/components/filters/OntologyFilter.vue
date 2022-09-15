@@ -1,16 +1,13 @@
 <template>
-  <div>
-    <InputOntology
-      :id="id"
-      :value="condition"
-      @input="onUpdateCondition"
-      :tableName="tableName"
-      :graphqlURL="graphqlURL"
-      :isMultiSelect="true"
-      :showExpanded="true"
-    />
-    {{ JSON.stringify(condition, null, 2) }}
-  </div>
+  <InputOntology
+    :id="id"
+    :value="condition"
+    @input="onUpdateCondition"
+    :tableName="tableName"
+    :graphqlURL="graphqlURL"
+    :isMultiSelect="true"
+    :showExpanded="true"
+  />
 </template>
 
 <script>
@@ -25,7 +22,7 @@ export default {
       required: true,
     },
     condition: {
-      type: Array,
+      type: Object,
       required: false,
     },
     graphqlURL: {
