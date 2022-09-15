@@ -11,7 +11,7 @@ import static org.molgenis.emx2.semantics.rdf.ValueToRDF.describeValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -115,12 +115,12 @@ public class RDFService {
    * The number of schemas, tables, and rows returned depend on the input parameters.
    *
    * @param schemas
-   * @param writer
+   * @param outputStream
    * @param request
    * @param response
    */
   public static void describeAsRDF(
-      PrintWriter writer,
+      OutputStream outputStream,
       Request request,
       Response response,
       String rdfApiLocation,
@@ -154,7 +154,7 @@ public class RDFService {
 
       Rio.write(
           rdfService.getBuilder().build(),
-          writer,
+          outputStream,
           rdfService.getRdfFormat(),
           rdfService.getConfig());
 
