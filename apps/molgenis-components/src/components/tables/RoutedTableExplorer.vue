@@ -169,6 +169,7 @@ export default {
     },
     updateConditions(columns) {
       let query = Object.assign({}, this.$route.query);
+      delete query._page;
       columns.forEach((column) => {
         const conditions = column.conditions;
         if (conditions?.length) {

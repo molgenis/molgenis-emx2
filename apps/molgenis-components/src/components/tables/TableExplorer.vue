@@ -535,6 +535,7 @@ export default {
       );
     },
     emitConditions() {
+      this.page = 1;
       this.$emit("update:conditions", this.columns);
       this.reload();
     },
