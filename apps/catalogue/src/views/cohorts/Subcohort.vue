@@ -39,7 +39,7 @@ import {
   GridBlock,
   KeyValueBlock,
   TableDisplay,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { startEndYear } from "../../filters";
 
 export default {
