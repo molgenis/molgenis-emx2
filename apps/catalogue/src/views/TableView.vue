@@ -64,7 +64,7 @@
     <h6>Variables</h6>
     <TableExplorer
       v-if="tab == 'Variables'"
-      :table="
+      :tableName="
         tableName == 'SourceTables' ? 'SourceVariables' : 'TargetVariables'
       "
       :showHeader="false"
@@ -84,17 +84,11 @@
 </template>
 <script>
 import { request } from "graphql-request";
-import { TableExplorer } from "@mswertz/emx2-styleguide";
+import { TableExplorer } from "molgenis-components";
 import { MessageError } from "molgenis-components";
-import VariablesList from "../components/VariablesList";
-import Property from "../components/Property";
-import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
-    OntologyTerms,
-    VariablesList,
-    Property,
     MessageError,
     TableExplorer,
   },
