@@ -26,6 +26,7 @@ import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
+import { deepClone } from "../utils.js";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -123,11 +124,11 @@ export default {
   methods: {
     updateCondition(index, value) {
       if (this.isMultiConditionFilter) {
-        this.$emit("updateConditions", JSON.parse(JSON.stringify(value)));
+        this.$emit("updateConditions", deepClone(value));
       } else if (!this.conditions.length) {
         this.$emit("updateConditions", [value]);
       } else {
-        let updatedConditions = JSON.parse(JSON.stringify(this.conditions));
+        let updatedConditions = deepClone(this.conditions);
         updatedConditions[index] = value;
         this.$emit("updateConditions", updatedConditions);
       }
