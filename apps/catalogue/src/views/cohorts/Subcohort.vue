@@ -12,7 +12,10 @@
       :heading="'Subpopulations: ' + subcohort.name"
       :items="details"
     ></key-value-block>
-    <grid-block heading="Quantitative information" v-if="subcohort.counts">
+    <grid-block
+      v-if="quantitativeInformation"
+      heading="Quantitative information"
+    >
       <table-display
         :isClickable="false"
         :columns="[
@@ -109,10 +112,12 @@ export default {
       ];
     },
     quantitativeInformation() {
-      return this.subcohort.counts.map(count => {
-        count.ageGroup = count.ageGroup.name
-        return count
-      })
+      return this.subcohort && this.subcohort.counts
+        ? this.subcohort.counts.map((count) => {
+            count.ageGroup = count.ageGroup.name;
+            return count;
+          })
+        : null;
     },
   },
   mounted: async function () {
