@@ -103,16 +103,12 @@
 </template>
 
 <script>
-import { TableMixin, InputSearch } from "@mswertz/emx2-styleguide";
-
-import Property from "../components/Property";
-import ContributorList from "./ContributorList";
+import { TableMixin } from "@mswertz/emx2-styleguide";
+import { InputSearch } from "molgenis-components";
 
 export default {
   extends: TableMixin,
   components: {
-    Property,
-    ContributorList,
     InputSearch,
   },
   props: {
