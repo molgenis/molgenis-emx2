@@ -260,7 +260,7 @@ import Client from "../../client/client.js";
 import { getPrimaryKey } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
-import ButtonAlt from "../forms/ButtonAlt";
+import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
