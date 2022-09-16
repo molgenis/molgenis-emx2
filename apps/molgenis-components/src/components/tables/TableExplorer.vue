@@ -367,7 +367,7 @@ export default {
     },
     conditions: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
     showOrderBy: {
       type: String,
@@ -677,7 +677,7 @@ function getCondition(columnType, condition) {
         graphqlURL="/pet store/graphql"
         :showColumns.sync="showColumns"
         :showFilters.sync="showFilters"
-        :conditions.sync="conditions"
+        :conditions="conditions"
         :showPage="page" 
         :showLimit="limit"
         :showOrderBy.sync="showOrderBy" 
@@ -697,7 +697,6 @@ function getCondition(columnType, condition) {
         </div>
         <div>showColumns: {{showColumns}}</div>
         <div>showFilters: {{showFilters}}</div>
-        <div>conditions: {{conditions}}</div>
         <div>showOrderBy: {{showOrderBy}}</div>
         <div>showOrder: {{showOrder}}</div>
         <div>page: {{page}}</div>
@@ -713,7 +712,7 @@ function getCondition(columnType, condition) {
       return {
         showColumns: ['name'],
         showFilters: ['name'],
-        conditions: {"name": ["pooky", "spike"]},
+        conditions: {"name": "pooky,spike"},
         page: 1,
         limit: 10,
         showOrder: 'DESC', 
