@@ -125,26 +125,26 @@ export default {
     updatePage(page) {
       const query = Object.assign({}, this.$route.query);
       query._page = page;
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateOrder(order) {
       const query = Object.assign({}, this.$route.query);
       query._order = order.direction;
       query._orderBy = order.column;
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateView(view, limit) {
       const query = Object.assign({}, this.$route.query);
       query._view = view;
       query._limit = limit;
       delete query._page;
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateLimit(limit) {
       const query = Object.assign({}, this.$route.query);
       query._limit = limit;
       delete query._page;
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateColumns(showColumns) {
       const query = Object.assign({}, this.$route.query);
@@ -153,7 +153,7 @@ export default {
       } else {
         delete query._col;
       }
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateAllColumns(allColumns) {
       this.allColumns = allColumns;
@@ -165,7 +165,7 @@ export default {
       } else {
         delete query._filter;
       }
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
     updateConditions(columns) {
       let query = Object.assign({}, this.$route.query);
@@ -195,9 +195,9 @@ export default {
           delete query[column.name];
         }
       });
-      this.queryRoute(query);
+      this.updateRoute(query);
     },
-    queryRoute(query) {
+    updateRoute(query) {
       if (JSON.stringify(query) !== JSON.stringify(this.$route.query)) {
         this.$router.push({ query: query });
       }
