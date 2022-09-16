@@ -147,7 +147,6 @@ export default {
       this.queryRoute(query);
     },
     updateColumns(showColumns) {
-      console.log(showColumns);
       const query = Object.assign({}, this.$route.query);
       if (showColumns.length) {
         query._col = showColumns.join(",");
