@@ -3,7 +3,7 @@
     <TableExplorer
       :showColumns="defaultColumns"
       :showFilters="defaultFilters"
-      :table="tableName"
+      :tableName="tableName"
       :showCards="defaultCards"
       :initialSearchTerms="searchTerm"
       @click="openDetailView"
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { TableExplorer } from "@mswertz/emx2-styleguide";
+import { TableExplorer } from "molgenis-components";
 
 const css = {
   Institutions: "bg-dark text-white",

@@ -8,7 +8,7 @@
       harmonization projects, EU projects or by navigating all cohorts directly
       below.
     </p>
-    <InputSearch v-model="searchTerms" placeholder="search cohorts" />
+    <InputSearch id="networks-home-search-input" v-model="searchTerms" placeholder="search cohorts" />
     <div v-if="harmonizationNetworks.length > 0">
       <h2>Networks</h2>
       <p>
@@ -62,7 +62,7 @@
 import { request } from "graphql-request";
 
 import NetworkCard from "../components/NetworkCards";
-import { InputSearch } from "@mswertz/emx2-styleguide";
+import { InputSearch } from "molgenis-components";
 
 export default {
   components: {
@@ -146,7 +146,8 @@ export default {
           type {name}
           }}`
       ).catch((error) => console.log(error));
-      this.networks = result.Networks;
+  
+      this.networks = result.Networks ? result.Networks : [];
     },
   },
   mounted: async function () {
