@@ -187,19 +187,23 @@ public class Emx1 {
 
   private static ColumnType getColumnType(String dataType) {
     switch (dataType) {
-      case "compound": // todo
+      case "compound": // unsupported, skipped.
       case "string":
-      case "email":
-      case "enum": // todo
-      case "file": // todo
-      case "hyperlink":
+      case "enum": // unsupported, do we need this?
         return STRING; // todo
+      case "hyperlink":
+        return HYPERLINK;
+      case "email":
+        return EMAIL;
+      case "file":
+        return FILE;
       case "text":
       case "html":
         return TEXT;
       case "int":
-      case "long":
         return INT;
+      case "long":
+        return LONG;
       case "decimal":
         return DECIMAL;
       case "bool":
@@ -209,14 +213,13 @@ public class Emx1 {
       case "datetime":
         return DATETIME;
       case "xref":
-      case "categorical":
+      case "categorical": // tbd: do we also want categorical?
         return REF;
       case ONETOMANY:
         return REFBACK;
       case "mref":
       case "categorical_mref":
-        return REF_ARRAY; // todo: or should we use mref? but that is only in case of two sided
-        // references ATM
+        return REF_ARRAY;
       default:
         return STRING;
     }
