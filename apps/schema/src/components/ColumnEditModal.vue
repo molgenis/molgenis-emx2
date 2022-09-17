@@ -4,6 +4,7 @@
     class="btn-sm hoverIcon"
     :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
     @click="show = true"
+    :tooltip="tooltip"
   />
   <LayoutModal
     v-else
@@ -224,6 +225,11 @@ export default {
       type: String,
       default: "input",
     },
+    /** Optional tooltip*/
+    tooltip: {
+      type: String,
+      required: false,
+    },
   },
   data() {
     return {
@@ -302,7 +308,7 @@ export default {
       }
     },
     isDisabled() {
-      return this.nameInvalid || this.subclassInvalid;
+      return this.operation !== "add" && this.nameInvalid;
     },
   },
   methods: {
@@ -312,8 +318,8 @@ export default {
       this.reset();
     },
     cancel() {
-      this.reset();
       this.show = false;
+      this.reset();
     },
     refLinkCandidates() {
       return this.table.columns
