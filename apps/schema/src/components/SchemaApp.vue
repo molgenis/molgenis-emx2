@@ -42,11 +42,7 @@
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
-        <NomnomDiagram
-          :schema="schema"
-          :key="JSON.stringify(schema)"
-          v-if="showDiagram"
-        />
+        <NomnomDiagram :schema="schema" v-if="showDiagram" />
         <SchemaView
           v-model="schema"
           :schemaNames="schemaNames"
@@ -75,6 +71,7 @@ import {
   MessageSuccess,
   MessageWarning,
   Spinner,
+  deepClone,
 } from "molgenis-components";
 
 export default {
@@ -119,7 +116,7 @@ export default {
       this.warning = "submitting changes";
       this.success = null;
       //copy so in case of error user can continue to edit
-      let schema = JSON.parse(JSON.stringify(this.schema));
+      let schema = deepClone(this.schema);
       let tables = schema.tables ? schema.tables : [];
 
       //transform subclasses back into their original tables.
@@ -204,7 +201,7 @@ export default {
     },
     addOldNamesAndRemoveMeta(rawSchema) {
       //deep copy to not change the input
-      const schema = JSON.parse(JSON.stringify(rawSchema));
+      const schema = deepClone(rawSchema);
       if (schema) {
         //normal tables
         let tables = !schema.tables
@@ -242,7 +239,7 @@ export default {
     },
     convertToSubclassTables(rawSchema) {
       //deep copy to not change the input
-      const schema = JSON.parse(JSON.stringify(rawSchema));
+      const schema = deepClone(rawSchema);
       //columns of subclasses should be put in root tables, sorted by position
       // this because position can only edited in context of root table
       schema.tables.forEach((table) => {

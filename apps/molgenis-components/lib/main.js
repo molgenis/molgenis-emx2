@@ -113,6 +113,9 @@ import Task from "../src/components/task/Task.vue";
 import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
 
+//utils
+import { deepClone } from "../src/components/utils";
+
 export {
   ContactDisplay,
   GridBlock,
@@ -213,4 +216,5 @@ export {
   TextDisplay,
   Client,
   Tooltip,
+  deepClone,
 };

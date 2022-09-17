@@ -58,6 +58,7 @@ import {
   MessageWarning,
   InputSelect,
   ButtonAlt,
+  deepClone,
 } from "molgenis-components";
 
 export default {
@@ -176,7 +177,7 @@ export default {
     cancel() {
       //set
       if (this.value) {
-        this.table = JSON.parse(JSON.stringify(this.value));
+        this.table = deepClonet(this.value);
       } else {
         this.table = {};
       }
@@ -186,7 +187,7 @@ export default {
   created() {
     //deep copy
     if (this.value) {
-      this.table = JSON.parse(JSON.stringify(this.value));
+      this.table = deepClone(this.value);
     } else {
       this.table = {};
     }

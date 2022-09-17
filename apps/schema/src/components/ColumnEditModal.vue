@@ -183,6 +183,7 @@ import {
   ButtonAlt,
   Client,
   Spinner,
+  deepClone,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 
@@ -359,7 +360,7 @@ export default {
     reset() {
       //deep copy so it doesn't update during edits
       if (this.value) {
-        this.column = JSON.parse(JSON.stringify(this.value));
+        this.column = deepClone(this.value);
       } else {
         this.column = { table: this.tableName, columnType: "STRING" };
       }

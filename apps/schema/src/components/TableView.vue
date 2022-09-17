@@ -172,7 +172,7 @@
 </style>
 
 <script>
-import { IconDanger } from "molgenis-components";
+import { deepClone, IconDanger } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
@@ -300,7 +300,7 @@ export default {
     },
   },
   created() {
-    this.table = JSON.parse(JSON.stringify(this.value));
+    this.table = deepClone(this.value);
   },
 };
 </script>
