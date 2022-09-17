@@ -79,15 +79,21 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
-      <StringInput v-model="taskId" />
-      <Task :taskId="taskId" />
+      <InputString id="task-id-input" v-model="taskId" />
+      <ButtonAction v-if="!showTask" v-on:click="showTask = true"
+        >Send</ButtonAction
+      >
+      <Task v-if="showTask" :taskId="taskId" />
     </demo-item>
   </div>
 </template>
 <script>
 export default {
   data: function () {
-    return { taskId: "not existing taskId" };
+    return {
+      taskId: "not existing taskId",
+      showTask: false,
+    };
   },
 };
 </script>

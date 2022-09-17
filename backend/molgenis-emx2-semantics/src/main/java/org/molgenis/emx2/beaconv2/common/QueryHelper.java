@@ -10,18 +10,18 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class QueryHelper {
 
   /**
-   * Select query columns from table, including OntologyTerm sub columns. For ontologyTerm the name,
-   * code and codesystem are added to the select. These are needed for the Beacon response.
+   * Select query columns from table, including the columns of any reference.
    *
    * @param table
-   * @param query
    * @throws Exception
    */
-  public static void selectColumns(Table table, Query query) throws Exception {
+  public static Query selectColumns(Table table) {
+    Query query = table.query();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology() || column.isReference()) {
         List<Column> ontoRefCols =
@@ -31,10 +31,20 @@ public class QueryHelper {
           colNames.add(ontoRefCol.getName());
         }
         query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isFile()) {
+        ArrayList<String> colNames = new ArrayList<>();
+        colNames.add("id");
+        colNames.add("mimetype");
+        colNames.add("extension");
+        // skip contents, which is served by file api
+        query.select(new SelectColumn(column.getName(), colNames));
+      } else if (column.isHeading()) {
+        // ignore headings, not part of rows
       } else {
         query.select(s(column.getName()));
       }
     }
+    return query;
   }
 
   /**
@@ -48,8 +58,8 @@ public class QueryHelper {
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
       ontologyTerm.setId(
-          mapList.get(i).get("codesystem") + ":" + (String) mapList.get(i).get("code"));
-      ontologyTerm.setLabel((String) mapList.get(i).get("name"));
+          mapList.get(i).get("codesystem") + ":" + TypeUtils.toString(mapList.get(i).get("code")));
+      ontologyTerm.setLabel(TypeUtils.toString(mapList.get(i).get("name")));
       result[i] = ontologyTerm;
     }
     return result;
@@ -63,8 +73,8 @@ public class QueryHelper {
    */
   public static OntologyTerm mapToOntologyTerm(Map map) {
     OntologyTerm ontologyTerm = new OntologyTerm();
-    ontologyTerm.setId(map.get("codesystem") + ":" + (String) map.get("code"));
-    ontologyTerm.setLabel((String) map.get("name"));
+    ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
+    ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     return ontologyTerm;
   }
 }

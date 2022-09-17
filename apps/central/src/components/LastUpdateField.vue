@@ -1,11 +1,11 @@
 <template>
   <span v-if="loading"><Spinner></Spinner></span>
   <span v-else-if="update">
-    <a :href="`/${this.schema}/settings/#/log`">
+    <a :href="`/${this.schema}/settings/#/changelog`">
       {{ formatStamp(update.stamp) }} ({{ update.tableName }})
     </a>
   </span>
-  <span v-else><em>failed to fetch update</em></span>
+  <span v-else><em>{{statusMessage}}</em></span>
 </template>
 
 <script>
@@ -24,6 +24,7 @@ export default {
     return {
       update: null,
       loading: true,
+      statusMessage: ""
     };
   },
   methods: {
@@ -36,7 +37,10 @@ export default {
     const resp = await request(
       `/${this.schema}/settings/graphql`,
       "{_changes(limit: 1) {operation, stamp, userId, tableName}}"
-    ).catch((error) => console.log(error));
+    ).catch((error) => {
+      this.statusMessage = "failed to fetch updated"
+      console.log(error)
+    });
 
     this.update =  resp ? resp["_changes"][0] : null;
 

@@ -9,6 +9,7 @@
         :tableName="tableName"
         :tableMetaData="tableMetaData"
         :graphqlURL="graphqlURL"
+        :visibleColumns="visibleColumns"
         :clone="clone"
       >
       </RowEdit>
@@ -43,7 +44,7 @@ export default {
       tableMetaData: {},
       client: null,
       errorMessage: null,
-      loaded: true
+      loaded: true,
     };
   },
   props: {
@@ -77,7 +78,7 @@ export default {
     visibleColumns: {
       type: Array,
       required: false,
-      default: () => [],
+      default: () => null,
     },
     defaultValue: {
       type: Object,
@@ -118,7 +119,9 @@ export default {
         this.errorMessage =
           "Schema doesn't exist or permission denied. Do you need to Sign In?";
       } else {
-        this.errorMessage = error.response?.data?.errors[0]?.message || "An Error occurred during save";
+        this.errorMessage =
+          error.response?.data?.errors[0]?.message ||
+          "An Error occurred during save";
       }
     },
     async fetchRowData() {
@@ -135,7 +138,7 @@ export default {
     },
   },
   async mounted() {
-    this.loaded = false
+    this.loaded = false;
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
