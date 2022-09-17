@@ -1,10 +1,11 @@
 <template>
   <button
-    class="btn p-1 mt-n1 mb-n1 btn-outline-danger border-0"
-    @click="onClick"
+      class="btn p-1 mt-n1 mb-n1 btn-outline-danger border-0"
+      @click="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon"></i>
+    <i :class="'fas fa-fw fa-' + icon" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"></i>
+    <Tooltip v-if="showTooltip" :value="tooltip">
   </button>
 </template>
 
@@ -18,11 +19,8 @@ export default {
 </script>
 
 <docs>
-Example
-
-```
 <template>
-  <IconDanger icon="times" @click="alert('clicked')"/>
+  <IconDanger icon="times" @click="alert('clicked')" tooltip="dangerous tooltip"/>
 </template>
 <script>
   export default {
@@ -33,6 +31,4 @@ Example
     }
   }
 </script>
-```
-
 </docs>
