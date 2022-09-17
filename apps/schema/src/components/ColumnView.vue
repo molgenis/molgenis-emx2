@@ -37,6 +37,7 @@
           operation="add"
           :tableName="column.table"
           @add="addColumn"
+          tooltip="Add column at this position"
         />
       </IconBar>
     </td>
