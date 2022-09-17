@@ -1,11 +1,12 @@
 <template>
   <button
-      class="btn p-1 mt-n1 mb-n1 btn-outline-danger border-0"
-      @click="onClick"
+    class="btn p-1 mt-n1 mb-n1 btn-outline-danger border-0"
+    @click="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"></i>
-    <Tooltip v-if="showTooltip" :value="tooltip">
+    <Tooltip :value="tooltip">
+      <i :class="'fas fa-fw fa-' + icon"></i>
+    </Tooltip>
   </button>
 </template>
 

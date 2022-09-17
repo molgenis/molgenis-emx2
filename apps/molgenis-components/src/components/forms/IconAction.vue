@@ -1,13 +1,14 @@
 <template>
   <button
-      class="btn p-1 mt-n1 mb-n1 btn-outline-primary border-0"
-      @click.prevent="onClick"
+    class="btn p-1 mt-n1 mb-n1 btn-outline-primary border-0"
+    @click.prevent="onClick"
   >
-      <span v-if="label" class="mr-2">
-        {{ label }}
-      </span>
-    <i :class="'fas fa-fw fa-' + icon" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false"/>
-    <Tooltip v-if="showTooltip" :value="tooltip">
+    <span v-if="label" class="mr-2">
+      {{ label }}
+    </span>
+    <Tooltip :value="tooltip">
+      <i :class="'fas fa-fw fa-' + icon" />
+    </Tooltip>
   </button>
 </template>
 
@@ -25,11 +26,6 @@ export default {
     label: String,
     icon: String,
     tooltip: String,
-  },
-  data() {
-    return {
-      showTooltip: false,
-    };
   },
 };
 </script>

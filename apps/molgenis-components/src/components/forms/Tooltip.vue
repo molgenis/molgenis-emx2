@@ -1,6 +1,7 @@
 <template>
-  <span>
-    <div v-if="value && showTooltip" class="mg-tooltip">
+  <span class="mg-tooltip-container">
+    <slot />
+    <div v-if="value" class="mg-tooltip">
       <div class="mg-tooltiptext">
         {{ value }}
       </div>
@@ -13,7 +14,11 @@
 .mg-tooltip {
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black;
+}
+
+.mg-tooltip {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .mg-tooltip .mg-tooltiptext {
@@ -22,15 +27,17 @@
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
+  padding: 0;
   position: absolute;
   z-index: 1;
-  opacity: 1;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  top: -5px;
+  top: -15px;
   margin-left: -0px;
   left: 105%;
+}
+
+.mg-tooltip-container:hover > .mg-tooltip {
+  visibility: visible;
+  opacity: 0.9;
 }
 </style>
 
