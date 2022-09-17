@@ -11,6 +11,8 @@ const router = new VueRouter({
   routes: [{ name: "simple", path: "/", component: SchemaApp }],
 });
 
+import "molgenis-components/dist/style.css";
+
 new Vue({
   router,
   render: (h) => h(App),
