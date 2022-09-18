@@ -55,7 +55,7 @@ public class TestInherits {
     Table employee =
         s.create(table("Employee").setInherit(person.getName()).add(column("salary").setType(INT)));
 
-    Table managerTable =
+    Table manager =
         s.create(
             table("Manager")
                 .setInherit("Employee")
@@ -73,7 +73,7 @@ public class TestInherits {
 
     // try to extend twice
     try {
-      managerTable.getMetadata().setInherit("Student");
+      manager.getMetadata().setInherit("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -181,7 +181,7 @@ public class TestInherits {
     assertEquals(4, personTable.retrieveRows().size());
     assertEquals(1, studentTable.retrieveRows().size());
     assertEquals(3, employeeTable.retrieveRows().size());
-    assertEquals(1, managerTable.retrieveRows().size());
+    assertEquals(1, manager.retrieveRows().size());
     assertEquals(0, ceoTable.retrieveRows().size());
 
     try {
@@ -211,7 +211,7 @@ public class TestInherits {
 
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();
-    managerTable.getMetadata().drop();
+    manager.getMetadata().drop();
     employeeTable.getMetadata().drop();
     studentTable.getMetadata().drop();
     personTable.getMetadata().drop();
