@@ -122,7 +122,7 @@ public class TestGraphqlDatabaseFields {
             + "\") {message}}");
     Assert.assertTrue(database.isAdmin());
 
-    if (database.hasUser("pietje")) database.dropUsers("pietje");
+    if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
     assertTrue(database.hasUser("pietje"));
     assertTrue(database.checkUserPassword("pietje", "blaat123"));

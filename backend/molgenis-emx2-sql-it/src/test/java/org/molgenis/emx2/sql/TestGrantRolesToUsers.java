@@ -182,7 +182,7 @@ public class TestGrantRolesToUsers {
             db.getSchema("testRolePermissions")
                 .addMember("user_testRolePermissions_success", VIEWER.toString());
             db.becomeAdmin();
-            db.dropUsers("user_testRolePermissions_success");
+            db.removeUser("user_testRolePermissions_success");
           });
     } catch (Exception e) {
       e.printStackTrace();
@@ -285,6 +285,6 @@ public class TestGrantRolesToUsers {
     database.becomeAdmin(); // reset to admin
     database.dropSchema(s1.getName()); // clean up
     database.dropSchema(s2.getName()); // clean up
-    database.dropUsers(USER);
+    database.removeUser(USER);
   }
 }

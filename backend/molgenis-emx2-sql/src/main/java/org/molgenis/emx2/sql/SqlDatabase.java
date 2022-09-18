@@ -406,7 +406,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void dropUsers(String user) {
+  public void removeUser(String user) {
     long start = System.currentTimeMillis();
     if (!hasUser(user))
       throw new MolgenisException(

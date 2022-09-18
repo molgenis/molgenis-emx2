@@ -183,14 +183,14 @@ public class GraphqlSessionFieldFactory {
             .name("changePassword")
             .type(typeForMutationResult);
     if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
+      builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
     }
     return builder
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(EMAIL);
+              String username = dataFetchingEnvironment.getArgument(USERNAME);
               if (username == null) {
                 username = database.getActiveUser();
               }

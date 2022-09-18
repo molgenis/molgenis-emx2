@@ -258,7 +258,7 @@ public class GraphqlDatabaseFieldFactory {
       Database database, List<Map<String, String>> userList, StringBuilder messageBuilder) {
     if (userList != null) {
       for (Map<String, ?> userAsMap : userList) {
-        database.dropUsers((String) userAsMap.get(EMAIL));
+        database.removeUser((String) userAsMap.get(EMAIL));
         messageBuilder.append("Dropped user '" + userAsMap.get(EMAIL) + "'. ");
       }
     }
