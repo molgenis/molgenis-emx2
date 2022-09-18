@@ -26,7 +26,7 @@ import org.molgenis.emx2.sql.SqlSchemaMetadata;
 
 public class GraphqlSchemaFieldFactory {
 
-  public static final GraphQLInputObjectType inputSettingsType =
+  public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
           .field(
@@ -36,7 +36,7 @@ public class GraphqlSchemaFieldFactory {
           .build();
   public static final GraphQLType outputSettingsType =
       new GraphQLObjectType.Builder()
-          .name("MolgenisSetting")
+          .name("MolgenisSettingsType")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -94,14 +94,14 @@ public class GraphqlSchemaFieldFactory {
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLType outputMembersType =
+  private static final GraphQLType outputMembersMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisMembersType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(EMAIL).type(Scalars.GraphQLString))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLObjectType outputColumnType =
+  private static final GraphQLObjectType outputColumnMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
           .field(
@@ -200,7 +200,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.COLUMNS)
-                  .type(GraphQLList.list(outputColumnType)))
+                  .type(GraphQLList.list(outputColumnMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
@@ -225,7 +225,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(MEMBERS)
-                  .type(GraphQLList.list(outputMembersType)))
+                  .type(GraphQLList.list(outputMembersMetadataType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
@@ -235,7 +235,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(ROLES)
                   .type(GraphQLList.list(outputRolesType)))
           .build();
-  private final GraphQLInputObjectType inputMembersType =
+  private final GraphQLInputObjectType inputMembersMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisMembersInput")
           .field(
@@ -243,7 +243,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
-  private GraphQLInputObjectType inputColumnType =
+  private GraphQLInputObjectType inputColumnMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisColumnInput")
           .field(
@@ -320,7 +320,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(DROP).type(Scalars.GraphQLBoolean))
           .build();
-  private final GraphQLInputObjectType inputTableType =
+  private final GraphQLInputObjectType inputTableMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisTableInput")
           .field(
@@ -352,11 +352,11 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.COLUMNS)
-                  .type(GraphQLList.list(inputColumnType)))
+                  .type(GraphQLList.list(inputColumnMetadataType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SETTINGS)
-                  .type(GraphQLList.list(inputSettingsType)))
+                  .type(GraphQLList.list(inputSettingsMetadataType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
@@ -569,19 +569,19 @@ public class GraphqlSchemaFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
-                .type(GraphQLList.list(inputTableType)))
+                .type(GraphQLList.list(inputTableMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.MEMBERS)
-                .type(GraphQLList.list(inputMembersType)))
+                .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(Constants.SETTINGS)
-                .type(GraphQLList.list(inputSettingsType)))
+                .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.COLUMNS)
-                .type(GraphQLList.list(inputColumnType)))
+                .type(GraphQLList.list(inputColumnMetadataType)))
         .build();
   }
 

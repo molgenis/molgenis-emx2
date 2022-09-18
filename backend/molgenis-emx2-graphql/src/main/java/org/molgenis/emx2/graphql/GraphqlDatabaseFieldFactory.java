@@ -7,7 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsMetadataType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
 import graphql.Scalars;
@@ -200,7 +200,7 @@ public class GraphqlDatabaseFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SETTINGS)
-                  .type(GraphQLList.list(inputSettingsType))
+                  .type(GraphQLList.list(inputSettingsMetadataType))
                   .build())
           .build();
 
@@ -210,7 +210,9 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
-            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
+            GraphQLArgument.newArgument()
+                .name(SETTINGS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
@@ -235,7 +237,9 @@ public class GraphqlDatabaseFieldFactory {
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
-            GraphQLArgument.newArgument().name(SETTINGS).type(GraphQLList.list(inputSettingsType)))
+            GraphQLArgument.newArgument()
+                .name(SETTINGS)
+                .type(GraphQLList.list(inputSettingsMetadataType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
