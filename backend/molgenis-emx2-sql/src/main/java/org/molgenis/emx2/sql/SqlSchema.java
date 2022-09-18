@@ -358,4 +358,14 @@ public class SqlSchema implements Schema {
   public String getName() {
     return getMetadata().getName();
   }
+
+  @Override
+  public List<Change> getChanges(int limit) {
+    return metadata.getChanges(limit);
+  }
+
+  @Override
+  public Integer getChangesCount() {
+    return metadata.getChangesCount();
+  }
 }

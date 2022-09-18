@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface HasSettingsInterface<T> {
   T clearSettings();
@@ -16,4 +17,6 @@ public interface HasSettingsInterface<T> {
   Map<String, String> getSettings();
 
   T changeSettings(Map<String, String> settings);
+
+  Optional<String> findSettingValue(String cssURL);
 }

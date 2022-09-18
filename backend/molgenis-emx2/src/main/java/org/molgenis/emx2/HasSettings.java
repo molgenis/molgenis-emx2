@@ -60,4 +60,13 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     this.setSettings(settings);
     return (T) this;
   }
+
+  @Override
+  public Optional<String> findSettingValue(String key) {
+    if (settings.containsKey(key) && settings.get(key) != null) {
+      return Optional.of(settings.get(key));
+    } else {
+      return Optional.empty();
+    }
+  }
 }

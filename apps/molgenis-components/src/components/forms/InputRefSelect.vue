@@ -56,6 +56,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
+import InputGroup from "./InputGroup.vue";
 import { flattenObject } from "../utils";
 
 export default {
@@ -72,6 +73,7 @@ export default {
     FormGroup,
     ButtonAction,
     ButtonAlt,
+    InputGroup,
   },
   props: {
     tableName: String,

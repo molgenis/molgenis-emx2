@@ -279,3 +279,65 @@ let query = `mutation insert($row: [PetInput]) {
 client.request(query, {Pet: row}).then((data) => console.log(data)).catch((error) => console.log(error));
 ```
 
+### Example querying the Pet Store
+
+Go to the [Pet Store playground](https://emx2.dev.molgenis.org/pet%20store/graphql-playground/).
+
+Get the name of all the pets
+
+```
+{
+  Pet {
+    name
+  }
+}
+```
+
+<small>Tip: if you use ctrl + space inside the curlybraces of, in this case, Pet, you get autocomplete on its properties.</small>
+
+
+Get only the pet named Pooky
+
+```
+{
+  Pet(filter: { name: { equals: "pooky" } }){
+    name,
+    status,
+    weight,
+    photoUrls
+  }
+}
+```
+
+Get all the pets that have the letter K in them
+
+```
+{
+  Pet(filter: { name: { like: "k" } }){
+    name,
+    status,
+    weight,
+    photoUrls
+  }
+}
+```
+
+Get all the pets that have the letter k and are sold
+
+```
+{
+  Pet(filter: { name: { like: "k" }, _and: { status: { like: "sold" } } } ) {
+    name,
+    status,
+    weight,
+    photoUrls
+  }
+}
+```
+
+# Developing 'apps'
+
+When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
+* You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
+* In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
+* In case of serving the app in 'central' you will get 'database' graphql endpoint, e.g. https://emx2.dev.molgenis.org/apps/central/

@@ -81,6 +81,15 @@ class SqlTableMetadataExecutor {
     if (table.getInherit() == null) {
       executeAddMetaColumns(table);
     }
+
+    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+      // setup trigger processing function
+      jooq.execute(
+          ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
+
+      // set audit trigger, logs insert, update and delete actions on table
+      jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
+    }
   }
 
   static void executeAlterName(DSLContext jooq, TableMetadata table, String newName) {
@@ -182,6 +191,14 @@ class SqlTableMetadataExecutor {
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
+
+      // drop audit trigger
+      jooq.execute(
+          ChangeLogUtils.buildAuditTriggerRemove(
+              table.getSchema().getName(), table.getTableName()));
+      jooq.execute(
+          ChangeLogUtils.buildProcessAuditFunctionRemove(
+              table.getSchema().getName(), table.getTableName()));
 
       // drop all triggers from all columns
       for (Column c : table.getStoredColumns()) {

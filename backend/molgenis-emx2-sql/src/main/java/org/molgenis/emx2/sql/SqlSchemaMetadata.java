@@ -1,6 +1,9 @@
 package org.molgenis.emx2.sql;
 
+import static java.lang.Boolean.TRUE;
 import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
@@ -12,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,19 +172,45 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static SqlSchemaMetadata setSettingsTransaction(
       SqlDatabase db, String schemaName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    settings
+        .entrySet()
+        .forEach(
+            setting -> {
+              if (Constants.IS_CHANGELOG_ENABLED.equals(setting.getKey())) {
+                toggleChangeLogIfNeeded(db, schema, setting.getValue());
+              }
+            });
     schema.setSettingsWithoutReload(settings);
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
     return schema;
   }
 
-  protected DSLContext getJooq() {
-    return getDatabase().getJooq();
+  /**
+   * Checks if the proposed changelog setting is different from the current setting and enables or
+   * disables the changelog feature accordingly.
+   */
+  private static void toggleChangeLogIfNeeded(
+      SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
+    boolean currentValue =
+        TRUE.equals(
+            TypeUtils.toBool(schema.getSettings().containsKey(Constants.IS_CHANGELOG_ENABLED)));
+    boolean newValue = Boolean.parseBoolean(settingsValue);
+    if (currentValue != newValue) {
+      if (newValue) {
+        ChangeLogExecutor.enableChangeLog(db, schema);
+      } else {
+        ChangeLogExecutor.disableChangeLog(db, schema);
+      }
+    }
   }
 
-  private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
-    logger.info("{} {} {} in {}ms", user, message, getName(), (System.currentTimeMillis() - start));
+  @Override
+  public Map<String, String> getSettings() {
+    return super.getSettings();
+  }
+
+  protected DSLContext getJooq() {
+    return getDatabase().getJooq();
   }
 
   @Override
@@ -247,5 +277,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
       if (m.getUser().equals(user)) return m.getRole();
     }
     return null;
+  }
+
+  public List<Change> getChanges(int limit) {
+    return executeGetChanges(getJooq(), this, limit);
+  }
+
+  public Integer getChangesCount() {
+    return executeGetChangesCount(getJooq(), this);
   }
 }

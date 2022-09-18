@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -18,7 +19,16 @@ public class TestTruncate {
     Schema schema = db.dropCreateSchema(TestTruncate.class.getSimpleName());
 
     // create simple table, add data, and truncate
-    Table table1 = schema.create(table("Table1", column("name").setPkey()));
+    Table table0 = schema.create(table("Table0", column("name").setPkey()));
+    table0.insert(row("name", "a"));
+
+    // native truncate fails on foreign key, so added test for that
+    Table table1 =
+        schema.create(
+            table(
+                "Table1",
+                column("name").setPkey(),
+                column("someFkey").setType(REF).setRefTable("Table0")));
     table1.insert(row("name", "a"));
 
     Assert.assertEquals(1, table1.retrieveRows().size());

@@ -49,6 +49,13 @@ public class GraphqlConstants {
   public static final String TOKEN = "token";
   public static final String STATUS = "status";
 
+  public static final String OPERATION = "operation";
+  public static final String STAMP = "stamp";
+  public static final String USERID = "userId";
+  public static final String TABLENAME = "tableName";
+  public static final String OLD_ROW_DATA = "oldRowData";
+  public static final String NEW_ROW_DATA = "newRowData";
+
   private GraphqlConstants() {
     // hide constructor
   }

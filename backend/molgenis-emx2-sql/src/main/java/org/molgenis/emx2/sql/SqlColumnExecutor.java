@@ -278,8 +278,15 @@ public class SqlColumnExecutor {
                       .setPkey()
                       .setRequired(true)
                       .setDescription("User friendly name for this code"),
+                  column("codesystem")
+                      // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
+                      // check
+                      .setRequired(false)
+                      .setDescription(
+                          "Abbreviation of the code system/ontology this ontology term belongs to"),
                   column("code")
-                      .setKey(2)
+                      // .setKey(2)
+                      .setRequired(false)
                       .setDescription(
                           "Identifier used for this code within this code system/ontology"),
                   column("parent")
@@ -287,7 +294,10 @@ public class SqlColumnExecutor {
                       .setRefTable(column.getRefTableName())
                       .setDescription("Parent in case this code exists in a hierarchy"),
                   column("ontologyTermURI")
-                      .setDescription("reference to external definition for this term"),
+                      // .setKey(3) //todo: ideally, has a unique check
+                      .setType(HYPERLINK)
+                      .setRequired(false)
+                      .setDescription("Reference to structured definition of this term"),
                   column("definition").setType(TEXT).setDescription("Definition of the term"),
                   column("children")
                       .setType(REFBACK)

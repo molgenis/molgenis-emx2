@@ -484,7 +484,7 @@ export default {
   async mounted() {
     if (this.tableName) {
       const client = Client.newClient(this.graphqlURL);
-      this.data = (await client.fetchTableData(this.tableName))[this.tableName];
+      this.data = (await client.fetchTableData(this.tableName, { limit: this.limit || 20 }))[this.tableName];
     }
   },
   created() {

@@ -9,7 +9,7 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'application'
-    id 'com.google.cloud.tools.jib' version '3.2.1'
+    id 'com.google.cloud.tools.jib' version '3.3.0'
     id 'org.unbroken-dome.helm' version '1.7.0'
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
@@ -53,6 +53,7 @@ dependencies {
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
     archiveBaseName = 'molgenis-emx2'
+    mergeServiceFiles()
 }
 
 publishing {
@@ -185,4 +186,3 @@ task cleandb(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
-

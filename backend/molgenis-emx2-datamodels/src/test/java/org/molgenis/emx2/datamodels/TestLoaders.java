@@ -6,29 +6,67 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestLoaders {
   static Database database;
-  static Schema cohortsSchema;
-  static Schema stagingSchema;
+  static Schema fairDataHubSchema;
+
+  // staging models
+  static Schema dataCatalogue;
+  static Schema cohortStaging;
+  static Schema networkStaging;
+
+  // umcg
+  static Schema cohortStagingUMMCG;
+  static Schema sharedStagingUMCG;
 
   @BeforeClass
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    cohortsSchema = database.dropCreateSchema("CohortNetwork");
-    stagingSchema = database.dropCreateSchema("CohortStaging");
+    dataCatalogue =
+        database.dropCreateSchema("catalogue"); // staging catalogues will create 'DataCatalogue'
+    cohortStaging = database.dropCreateSchema("CohortStaging");
+    networkStaging = database.dropCreateSchema("NetworkStaging");
+    fairDataHubSchema = database.dropCreateSchema("FAIRDataHubTest");
+
+    // umcg
+    sharedStagingUMCG = database.dropCreateSchema("SharedStagingUMCG");
+    cohortStagingUMMCG = database.dropCreateSchema("UMCG");
   }
 
   @Test
   public void testDataCatalogueLoader() {
-    AvailableDataModels.DATA_CATALOGUE.install(cohortsSchema, true);
-    assertEquals(37, cohortsSchema.getTableNames().size());
+    AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
+    assertEquals(37, dataCatalogue.getTableNames().size());
   }
 
   @Test
-  public void testDataCatalogueStagingLoader() {
-    AvailableDataModels.DATA_CATALOGUE_STAGING.install(stagingSchema, true);
-    assertEquals(7, stagingSchema.getTableNames().size());
+  public void testFAIRDataHubLoader() {
+    AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
+    assertEquals(29, fairDataHubSchema.getTableNames().size());
+  }
+
+  @Test
+  public void testDataCatalogueCohortStagingLoader() {
+    AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
+    assertEquals(17, cohortStaging.getTableNames().size());
+  }
+
+  @Test
+  public void testDataCatalogueNetworkStagingLoader() {
+    AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
+    assertEquals(12, networkStaging.getTableNames().size());
+  }
+
+  @Test
+  public void testStagingModels() {
+    // UMCG
+    MolgenisIO.fromClasspathDirectory("datacatalogue/stagingSharedUMCG", sharedStagingUMCG, false);
+    assertEquals(4, sharedStagingUMCG.getTableNames().size());
+
+    MolgenisIO.fromClasspathDirectory("datacatalogue/stagingCohorts", cohortStagingUMMCG, false);
+    assertEquals(17, cohortStagingUMMCG.getTableNames().size());
   }
 }

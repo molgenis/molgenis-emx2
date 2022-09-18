@@ -18,12 +18,14 @@ export default {
       { rel: "stylesheet", href: "theme.css" },
     ],
     script: [
-      {  src: "https://unpkg.com/@molgenis/expressions" },
+      {  src: "/js/expressions/0.21.2/expressions.js" },
     ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: ["assets/css/style.css"],
+  
+  crossorigin: "anonymous",
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
@@ -58,6 +60,7 @@ export default {
   },
   proxy: {
     "/apps/central/theme.css": `${BACKEND_LOCATION}`,
+    "/js/expressions/0.21.2/expressions.js": `${BACKEND_LOCATION}`,
     "/**/theme.css": {
       target: `${BACKEND_LOCATION}`,
       pathRewrite: (path) => {

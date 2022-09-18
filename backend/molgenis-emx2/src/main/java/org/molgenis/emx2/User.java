@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class User extends HasSettings<User> {
@@ -21,6 +22,13 @@ public class User extends HasSettings<User> {
     this(username);
     requireNonNull(username);
     this.database = database;
+  }
+
+  public User(Database database, String username, Map<String, String> settings) {
+    this(username);
+    requireNonNull(username);
+    this.database = database;
+    super.setSettingsWithoutReload(settings);
   }
 
   public String getUsername() {

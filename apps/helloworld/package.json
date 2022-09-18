@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "graphql-request": "3.7.0",
+    "graphql-request": "5.0.0",
     "vue": "2.6.14",
-    "vue-router": "3.5.4"
+    "vue-router": "3.6.5"
   },
   "browserslist": [
     "> 1%",
