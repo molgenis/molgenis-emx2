@@ -12,7 +12,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
   }
 
   @Override
-  public T dropSetting(String key) {
+  public T removeSetting(String key) {
     // this is so that subclasses only need override setSettings(map)
     Map<String, String> settings = new LinkedHashMap<>();
     settings.putAll(getSettings());

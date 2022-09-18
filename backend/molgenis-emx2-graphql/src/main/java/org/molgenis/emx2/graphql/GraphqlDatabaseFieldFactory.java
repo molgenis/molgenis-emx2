@@ -133,7 +133,7 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              database.dropSetting(key);
+              database.removeSetting(key);
               return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
             });
   }
@@ -270,7 +270,7 @@ public class GraphqlDatabaseFieldFactory {
       StringBuilder messageBuilder) {
     if (settingsRaw != null) {
       for (Map<String, String> setting : settingsRaw) {
-        hasSettings.dropSetting(setting.get(KEY));
+        hasSettings.removeSetting(setting.get(KEY));
         messageBuilder.append("Dropped setting '" + setting.get(KEY) + "'. ");
       }
     }

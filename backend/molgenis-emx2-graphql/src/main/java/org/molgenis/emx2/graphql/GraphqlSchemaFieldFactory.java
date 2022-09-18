@@ -481,10 +481,10 @@ public class GraphqlSchemaFieldFactory {
             throw new MolgenisException(
                 "Cannot remove setting because table " + setting.get(TABLE + " does not exist"));
           }
-          table.getMetadata().dropSetting(setting.get("key"));
+          table.getMetadata().removeSetting(setting.get("key"));
           message.append("Removed table setting '" + (setting.get("key")) + "'\n");
         } else {
-          schema.getMetadata().dropSetting(setting.get("key"));
+          schema.getMetadata().removeSetting(setting.get("key"));
           message.append("Removed schema setting '" + (setting.get("key")) + "'\n");
         }
       }

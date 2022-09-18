@@ -326,10 +326,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public Database dropSetting(String key) {
+  public Database removeSetting(String key) {
     if (isAdmin()) {
       if (this.getSettings().containsKey(key)) {
-        super.dropSetting(key);
+        super.removeSetting(key);
         MetadataUtils.saveDatabaseSettings(getJooq(), super.getSettings());
         // force all sessions to reload
         this.listener.afterCommit();
