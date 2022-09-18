@@ -214,7 +214,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLObjectType outputSchemaType =
+  private static final GraphQLObjectType outputMetadataType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSchema")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(NAME).type(Scalars.GraphQLString))
@@ -505,7 +505,7 @@ public class GraphqlSchemaFieldFactory {
   public GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
-        .type(outputSchemaType)
+        .type(outputMetadataType)
         .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
   }
 
