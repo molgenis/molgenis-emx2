@@ -14,6 +14,7 @@
         :id="id + '-from'"
         :value="value[0]"
         :readonly="readonly"
+        :config="config"
         @input="emitValue($event, 0)"
         placeholder="from"
         class="m-0"
@@ -23,6 +24,7 @@
         :id="id + '-to'"
         :value="value[1]"
         :readonly="readonly"
+        :config="config"
         @input="emitValue($event, 1)"
         placeholder="to"
         class="m-0"
@@ -55,6 +57,16 @@ export default {
       let result = [...this.value];
       result[index] = event;
       this.$emit("input", result);
+    },
+  },
+  computed: {
+    config() {
+      return {
+        wrap: false,
+        dateFormat: "Y-m-d",
+        allowInput: false,
+        clickOpens: !this.readonly,
+      };
     },
   },
 };

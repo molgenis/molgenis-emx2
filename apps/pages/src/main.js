@@ -6,6 +6,8 @@ import ListPages from "./components/ListPages";
 import ViewPage from "./components/ViewPage";
 import EditPage from "./components/EditPage";
 
+import "molgenis-components/dist/style.css";
+
 Vue.use(VueRouter);
 
 /** use vue router only to react to change url attributes */

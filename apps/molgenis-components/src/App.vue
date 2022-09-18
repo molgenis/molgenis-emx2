@@ -17,7 +17,7 @@
         </div>
       </div>
     </template>
-    <div class="container" v-else>
+    <div class="container-fluid" v-else>
       <h2>{{ currentRouteName }}</h2>
       <router-link :to="'/'">Back to listing</router-link>
       <router-view></router-view>

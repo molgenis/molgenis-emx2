@@ -7,6 +7,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -28,31 +29,30 @@ public class TestChangelog {
         db -> {
           db.dropSchemaIfExists("testSchemaChanges");
           db.becomeAdmin();
-          db.createSetting("CHANGELOG_SCHEMAS", "testSchemaChanges");
           db.createSchema("testSchemaChanges");
           Schema schema = db.getSchema("testSchemaChanges");
+          schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
           schema = addTestData(schema);
 
-          assertEquals(3, schema.getChanges().size());
-          assertEquals('I', schema.getChanges().get(0).operation());
-          assertEquals("Person", schema.getChanges().get(0).tableName());
+          assertEquals(3, schema.getChanges(100).size());
+          assertEquals('I', schema.getChanges(100).get(0).operation());
+          assertEquals("Person", schema.getChanges(100).get(0).tableName());
         });
   }
 
   @Test
-  public void testChangelogFeatureFlag() {
+  public void testGetChangesCount() {
 
     database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
-          db.dropSchemaIfExists("testSchemaChangesFF");
+          db.dropSchemaIfExists("testSchemaChangesChangeCount");
           db.becomeAdmin();
-          db.createSetting("CHANGELOG_SCHEMAS", "otherschema");
-          db.createSchema("testSchemaChangesFF");
-          Schema schema = db.getSchema("testSchemaChangesFF");
+          db.createSchema("testSchemaChangesChangeCount", "my desc");
+          Schema schema = db.getSchema("testSchemaChangesChangeCount");
+          schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
           schema = addTestData(schema);
-
-          assertEquals(0, schema.getChanges().size());
+          assertEquals(java.util.Optional.of(3), java.util.Optional.of(schema.getChangesCount()));
         });
   }
 

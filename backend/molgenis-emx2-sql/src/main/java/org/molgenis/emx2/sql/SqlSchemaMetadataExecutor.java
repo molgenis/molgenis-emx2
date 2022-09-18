@@ -1,17 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.table;
-import static org.jooq.impl.SQLDataType.CHAR;
-import static org.jooq.impl.SQLDataType.JSON;
-import static org.jooq.impl.SQLDataType.TIMESTAMP;
-import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Privileges.*;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
@@ -21,14 +13,6 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
-
-  private static final String MG_CHANGLOG = "mg_changelog";
-  private static final org.jooq.Field OPERATION = field(name("operation"), CHAR(1).nullable(false));
-  private static final org.jooq.Field STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
-  private static final org.jooq.Field USERID = field(name("userid"), VARCHAR.nullable(false));
-  private static final org.jooq.Field TABLENAME = field(name("tablename"), VARCHAR.nullable(false));
-  private static final org.jooq.Field OLD = field(name("old"), JSON.nullable(true));
-  private static final org.jooq.Field NEW = field(name("new"), JSON.nullable(true));
 
   private SqlSchemaMetadataExecutor() {
     // hide
@@ -77,22 +61,6 @@ class SqlSchemaMetadataExecutor {
     // grant the permissions
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
-
-    if (AuditUtils.isChangeSchema(db, schema.getName())) {
-      // create change log table
-      org.jooq.Table<Record> changelogTable = table(name(schema.getName(), MG_CHANGLOG));
-      db.getJooq()
-          .createTableIfNotExists(changelogTable)
-          .columns(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
-          .execute();
-
-      // grant rights to all to insert into change log, only admin and owner can read
-      db.getJooq()
-          .execute(
-              "GRANT INSERT ON {0} TO {1}, {2}, {3}",
-              changelogTable, name(editor), name(manager), name(member));
-      db.getJooq().execute("GRANT SELECT ON {0} TO {1}", changelogTable, name(manager));
-    }
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
@@ -191,35 +159,6 @@ class SqlSchemaMetadataExecutor {
     return members;
   }
 
-  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema) {
-    if (!AuditUtils.isChangeSchema(schema.getDatabase(), schema.getName())) {
-      return Collections.emptyList();
-    }
-    List<Record> result =
-        jooq.select(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
-            .from(table(name(schema.getName(), MG_CHANGLOG)))
-            .orderBy(STAMP.desc())
-            .limit(1000)
-            .fetch();
-
-    return result.stream()
-        .map(
-            r -> {
-              char operation = r.getValue(OPERATION, char.class);
-              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
-              String userId = r.getValue(USERID, String.class);
-              String tableName = r.getValue(TABLENAME, String.class);
-              String oldRowData = r.getValue(OLD, String.class);
-              String newRowData = r.getValue(NEW, String.class);
-              return new Change(operation, stamp, userId, tableName, oldRowData, newRowData);
-            })
-        .toList();
-  }
-
-  static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
-    return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
-  }
-
   static void executeRemoveMembers(SqlDatabase db, String schemaName, List<Member> members) {
     try {
       SqlSchema schema = db.getSchema(schemaName);
@@ -257,8 +196,8 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
-      // remove audit table
-      db.getJooq().dropTableIfExists(MG_CHANGLOG);
+      // remove changelog triggers
+      ChangeLogExecutor.disableChangeLog(db, db.getSchema(schemaName).getMetadata());
       // remove settings
       db.getJooq().dropSchema(name(schemaName)).cascade().execute();
       // TODO if there are custom roles

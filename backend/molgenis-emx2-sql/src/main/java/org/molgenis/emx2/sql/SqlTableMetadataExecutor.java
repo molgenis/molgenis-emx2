@@ -85,13 +85,13 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (AuditUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
       // setup trigger processing function
       jooq.execute(
-          AuditUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
+          ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
 
       // set audit trigger, logs insert, update and delete actions on table
-      jooq.execute(AuditUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
+      jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
   }
 
@@ -247,9 +247,10 @@ class SqlTableMetadataExecutor {
 
       // drop audit trigger
       jooq.execute(
-          AuditUtils.buildAuditTriggerRemove(table.getSchema().getName(), table.getTableName()));
+          ChangeLogUtils.buildAuditTriggerRemove(
+              table.getSchema().getName(), table.getTableName()));
       jooq.execute(
-          AuditUtils.buildProcessAuditFunctionRemove(
+          ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
       // drop all triggers from all columns

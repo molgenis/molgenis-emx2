@@ -525,4 +525,78 @@ public class WebApiSmokeTests {
   public void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
   }
+
+  @Test
+  public void testRdfApi() {
+    // skip 'all schemas' test because data is way to big (i.e.
+    // get("http://localhost:8080/api/rdf");)
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/Category/cat");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/doesnotexist");
+  }
+
+  @Test
+  public void testLinkedDataApi() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/jsonld");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/jsonld/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl/doesnotexist");
+  }
+
+  @Test
+  public void testFDPDistribution() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+  }
 }

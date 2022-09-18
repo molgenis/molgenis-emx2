@@ -13,7 +13,11 @@
       </MessageWarning>
     </IconBar>
     <div v-if="count > 0 || search || (session && session.email == 'admin')">
-      <InputSearch placeholder="search by name" v-model="search" />
+      <InputSearch
+        id="groups-search-input"
+        placeholder="search by name"
+        v-model="search"
+      />
       <label>{{ count }} databases found</label>
       <table class="table table-hover table-bordered bg-white">
         <thead>
@@ -24,8 +28,27 @@
               @click="openCreateSchema"
             />
           </th>
-          <th>name</th>
+          <th @click="changeSortOrder('name')" class="sort-col">
+            name
+            <IconAction
+              v-if="sortOrder && sortColumn === 'name'"
+              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              class="d-inline p-0 hide-icon"
+            />
+          </th>
           <th>description</th>
+          <th
+            v-if="showChangeColumn"
+            @click="changeSortOrder('lastUpdate')"
+            class="sort-col"
+          >
+            last update
+            <IconAction
+              v-if="sortOrder && sortColumn === 'lastUpdate'"
+              :icon="sortOrder == 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              class="d-inline p-0 hide-icon"
+            />
+          </th>
         </thead>
         <tbody>
           <tr v-for="schema in schemasFilteredAndSorted" :key="schema.name">
@@ -49,6 +72,18 @@
             <td>
               {{ schema.description }}
             </td>
+            <td v-if="showChangeColumn">
+              <LastUpdateField
+                v-if="changelogSchemas.includes(schema.name)"
+                :schema="schema.name"
+                @input="
+                  (i) => {
+                    schema.update = new Date(i);
+                    handleLastUpdateChange();
+                  }
+                "
+              />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -69,19 +104,20 @@
 </template>
 
 <script>
-import {request} from 'graphql-request';
+import { request } from "graphql-request";
 
-import SchemaCreateModal from './SchemaCreateModal';
-import SchemaDeleteModal from './SchemaDeleteModal';
-import SchemaEditModal from './SchemaEditModal';
+import SchemaCreateModal from "./SchemaCreateModal";
+import SchemaDeleteModal from "./SchemaDeleteModal";
+import SchemaEditModal from "./SchemaEditModal";
 import {
   IconAction,
   IconBar,
   IconDanger,
   Spinner,
   MessageWarning,
-  InputSearch
-} from 'molgenis-components';
+  InputSearch,
+} from "molgenis-components";
+import LastUpdateField from "./LastUpdateField.vue";
 
 export default {
   components: {
@@ -93,10 +129,11 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
-    InputSearch
+    InputSearch,
+    LastUpdateField,
   },
   props: {
-    session: Object
+    session: Object,
   },
   data: function () {
     return {
@@ -107,7 +144,10 @@ export default {
       showEditSchema: false,
       editDescription: null,
       graphqlError: null,
-      search: null
+      search: null,
+      sortColumn: "name",
+      sortOrder: null,
+      changelogSchemas: [],
     };
   },
   computed: {
@@ -115,19 +155,19 @@ export default {
       return this.schemasFilteredAndSorted.length;
     },
     schemasFilteredAndSorted() {
-      let filtered = this.schemas
-      if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(' ');
-        filtered = this.schemas.filter((s) =>
-          terms.every(
-            (v) =>
-              s.name.toLowerCase().includes(v) ||
-              (s.description && s.description.toLowerCase().includes(v))
-          )
-        );
-      }
-      return filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
+      return this.sortSchemas(this.filterSchema(this.schemas));
+    },
+    hasManagerPermission() {
+      return (
+        this.session.email == "admin" ||
+        (this.session &&
+          this.session.roles &&
+          this.session.roles.includes("Manager"))
+      );
+    },
+    showChangeColumn() {
+      return this.hasManagerPermission && this.changelogSchemas.length;
+    },
   },
   created() {
     this.getSchemaList();
@@ -158,16 +198,93 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request('graphql', '{Schemas{name description}}')
+      request("graphql", "{Schemas{name description}}")
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
+          if (this.hasManagerPermission) {
+            this.fetchChangelogStatus()
+          }
         })
         .catch(
           (error) =>
-            (this.graphqlError = 'internal server graphqlError' + error)
+            (this.graphqlError = "internal server graphqlError" + error)
         );
-    }
-  }
+    },
+    fetchChangelogStatus() {
+      this.schemas.forEach((schema) => {
+        request(
+          `/${schema.name}/settings/graphql`,
+          `{_settings (keys: ["isChangelogEnabled"]){ key, value }}`
+        )
+          .then((data) => {
+            if (data._settings[0].value.toLowerCase() === "true") {
+              this.changelogSchemas.push(schema.name);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    },
+    filterSchema(unfiltered) {
+      let filtered = unfiltered;
+      if (this.search && this.search.trim().length > 0) {
+        let terms = this.search.toLowerCase().split(" ");
+        filtered = this.schemas.filter((s) =>
+          terms.every(
+            (v) =>
+              s.name.toLowerCase().includes(v) ||
+              (s.description && s.description.toLowerCase().includes(v))
+          )
+        );
+      }
+      return filtered;
+    },
+    sortSchemas(unsorted) {
+      let sorted = [];
+      if (this.sortColumn === "lastUpdate") {
+        sorted = unsorted.sort((a, b) => {
+          if (a.update && b.update) {
+            return a.update.getTime() - b.update.getTime();
+          } else if (a.update && !b.update) {
+            return 1;
+          } else if (!a.update && b.update) {
+            return -1;
+          }
+          {
+            return a.name.localeCompare(b.name);
+          }
+        });
+      } else {
+        sorted = unsorted.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      if (this.sortOrder === "DESC") {
+        sorted.reverse();
+      }
+      return sorted;
+    },
+    changeSortOrder(columnName) {
+      if (this.sortColumn === columnName) {
+        // reverse the sort
+        this.sortOrder = this.sortOrder === "ASC" ? "DESC" : "ASC";
+      } else {
+        this.sortOrder = "ASC";
+        this.sortColumn = columnName;
+      }
+    },
+    handleLastUpdateChange() {
+      if (this.sortColumn === "lastUpdate") {
+        this.sortSchemas(this.schemasFilteredAndSorted);
+      }
+    },
+  },
 };
 </script>
+
+<style scoped>
+.sort-col:hover {
+  cursor: pointer;
+}
+</style>
