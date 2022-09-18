@@ -50,12 +50,8 @@ subprojects {
         implementation 'org.pac4j:pac4j-oidc:5.4.5'
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
-<<<<<<< HEAD
-        implementation 'org.javers:javers-core:6.6.5'
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.20'
-=======
         implementation 'org.javers:javers-core:6.7.0'
->>>>>>> ca7cb97b8c62bf180657ccae80b6657bcacb15c2
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.20'
 
         //also used outside test
         implementation 'junit:junit:4.13.2'

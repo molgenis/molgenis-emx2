@@ -33,7 +33,6 @@ public class GraphqlDatabaseFieldFactory {
     // no instances
   }
 
-  // todo move to drop() mutation
   public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")
@@ -47,7 +46,6 @@ public class GraphqlDatabaseFieldFactory {
             });
   }
 
-  // todo move to create() mutation
   public GraphQLFieldDefinition.Builder createMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("createSchema")

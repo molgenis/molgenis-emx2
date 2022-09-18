@@ -6,6 +6,4 @@ dependencies {
     implementation project(':backend:molgenis-emx2-datamodels')
 
     testImplementation 'org.junit-pioneer:junit-pioneer:1.7.1'
-
-    // Discover and execute JUnit Platform-based tests
 }

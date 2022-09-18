@@ -23,7 +23,7 @@ public class GraphlAdminFieldFactory {
           .name("_AdminUserType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(EMAIL)
+                  .name("username")
                   .type(Scalars.GraphQLString)
                   .build())
           .field(

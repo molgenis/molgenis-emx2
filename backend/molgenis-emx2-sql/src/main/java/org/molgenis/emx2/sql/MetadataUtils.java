@@ -5,9 +5,9 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.jooq.*;
-
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
@@ -46,8 +46,7 @@ public class MetadataUtils {
       field(name("table_schema"), VARCHAR.nullable(false));
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
-  private static final Field<String> TABLE_NAME =
-      field(name("table_name"), VARCHAR.nullable(false));
+  static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
   private static final Field<String> TABLE_INHERITS =
       field(name("table_inherits"), VARCHAR.nullable(true));
   private static final Field<String> TABLE_IMPORT_SCHEMA =
@@ -137,7 +136,8 @@ public class MetadataUtils {
         } catch (Exception e) {
           // if fails, might be older schema, we before used "version_metadata'
           try {
-            Result<org.jooq.Record> result = jooq.selectFrom(name("version_metadata")).fetch();
+            Result<org.jooq.Record> result =
+                jooq.selectFrom(name("MOLGENIS", "version_metadata")).fetch();
             if (result.size() > 0) {
               // in very old version this was a string so might not be integer
               version = (Integer) result.get(0).get(VERSION);
@@ -376,18 +376,22 @@ public class MetadataUtils {
   }
 
   protected static List<User> loadUsers(SqlDatabase db, int limit, int offset) {
-    List<User> users = new ArrayList<>();
-    for (org.jooq.Record user :
-        db.getJooq()
-            .select(USER_NAME, SETTINGS)
-            .from(USERS_METADATA)
-            .orderBy(USER_NAME)
-            .limit(limit)
-            .offset(offset)
-            .fetchArray()) {
-      users.add(new User(db, user.get(USER_NAME), (Map) user.get(SETTINGS)));
+    try {
+      List<User> users = new ArrayList<>();
+      for (org.jooq.Record user :
+          db.getJooq()
+              .select(USER_NAME, SETTINGS)
+              .from(USERS_METADATA)
+              .orderBy(USER_NAME)
+              .limit(limit)
+              .offset(offset)
+              .fetchArray()) {
+        users.add(new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class)));
+      }
+      return users;
+    } catch (Exception e) {
+      throw new MolgenisException("loadUsers failed", e);
     }
-    return users;
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -585,7 +589,16 @@ public class MetadataUtils {
     return result != null && result.get("matches", Boolean.class);
   }
 
-  @SuppressWarnings("ConstantConditions")
+  public static void setVersion(DSLContext jooq, int newVersion) {
+    jooq.insertInto(DATABASE_METADATA, DATABASE_ID, VERSION)
+        .values(1, newVersion)
+        .onConflict(DATABASE_ID)
+        .doUpdate()
+        .set(VERSION, newVersion)
+        .execute();
+    version = newVersion;
+  }
+
   public static int getMaxPosition(DSLContext jooq, String schemaName) {
     Integer result =
         jooq.select(max(COLUMN_POSITION).as(COLUMN_POSITION.getName()))

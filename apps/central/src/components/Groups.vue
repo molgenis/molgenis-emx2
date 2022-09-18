@@ -117,7 +117,6 @@ import {
   MessageWarning,
   InputSearch,
 } from "molgenis-components";
-
 import LastUpdateField from "./LastUpdateField.vue";
 
 export default {

@@ -13,6 +13,7 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
+
   private SqlSchemaMetadataExecutor() {
     // hide
   }
@@ -60,6 +61,7 @@ class SqlSchemaMetadataExecutor {
     // grant the permissions
     db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
+
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
