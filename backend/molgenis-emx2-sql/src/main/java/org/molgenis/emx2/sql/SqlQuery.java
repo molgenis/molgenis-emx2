@@ -325,7 +325,13 @@ public class SqlQuery extends QueryBean {
             ? ROW_TO_JSON_SQL
             : JSON_AGG_SQL;
 
-    return field(jooq.selectDistinct(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    if (select.getColumn().endsWith("_agg")) {
+      // ugly hack to ensure distinct here?
+      // this is artifact of joining groupBy into _agg
+      return field(jooq.selectDistinct(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    } else {
+      return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    }
   }
 
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
@@ -581,8 +587,7 @@ public class SqlQuery extends QueryBean {
         fields.add(count().as(COUNT_FIELD));
       } else if (GROUPBY_FIELD.equals(field.getColumn())) {
         fields.add(
-            jsonAggregateGroupBy(table, column, field, tableAlias, subAlias, filters, searchTerms)
-                .as(GROUPBY_FIELD));
+            jsonAggregateGroupBy(table, column, field, tableAlias, subAlias, filters, searchTerms));
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
@@ -608,7 +613,7 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field jsonAggregateGroupBy(
+  private Field<Object> jsonAggregateGroupBy(
       SqlTableMetadata table,
       Column column,
       SelectColumn groupBy,
@@ -617,6 +622,10 @@ public class SqlQuery extends QueryBean {
       Filter filter,
       String[] searchTerms) {
     DSLContext jooq = table.getJooq();
+
+    if (groupBy.getSubselect(COUNT_FIELD) == null) {
+      throw new MolgenisException("Count is required when using group by");
+    }
 
     // filter conditions
     Condition condition = null;
@@ -686,18 +695,21 @@ public class SqlQuery extends QueryBean {
       throw new MolgenisException("groupBy failed: no fields to group by on selected");
     }
     SelectJoinStep<org.jooq.Record> groupByQuery =
-        table.getJooq().select(selectFields).from(subQuery.get(0));
+        table.getJooq().selectDistinct(selectFields).from(subQuery.get(0));
     for (int i = 1; i < subQuery.size(); i++) {
       // joining on primary key
       groupByQuery = groupByQuery.naturalFullOuterJoin(subQuery.get(i));
     }
 
-    // sort by groupby fields to make deterministic
+    // sort by groupBy fields to make deterministic
     final List<OrderField<?>> orderByFields = new ArrayList<>();
     groupByFields.forEach(field -> orderByFields.add(field.asc().nullsLast()));
+
+    // aggregate into one field
     return field(
-        jooq.select(field(JSON_AGG_SQL))
-            .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)));
+            jooq.select(field(JSON_AGG_SQL))
+                .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
+        .as(GROUPBY_FIELD);
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
