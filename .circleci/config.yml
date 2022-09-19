@@ -83,8 +83,8 @@ jobs:
 
       - run:
           name: Sign in to docker
-          command: docker login -u $DOCKER_USER -p $DOCKER_PAS
-          
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
       - run:
           name: build, test, release
           command: ./gradlew test jacocoMergedReport sonarqube jib release ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
