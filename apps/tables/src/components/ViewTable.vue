@@ -26,7 +26,6 @@ export default {
   computed: {
     canEdit() {
       if (this.session) {
-        // Can't use var?.prop in this app :(
         const isAdmin = this.session.email === "admin";
         const roles = this.session.roles;
         const isEditor = roles && roles.includes("Editor");
