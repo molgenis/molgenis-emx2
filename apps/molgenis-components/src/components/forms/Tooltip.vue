@@ -22,7 +22,7 @@
 }
 
 .mg-tooltip .mg-tooltiptext {
-  width: 240px;
+  width: 15rem;
   background-color: #555;
   color: #fff;
   text-align: center;
@@ -30,8 +30,8 @@
   padding: 0;
   position: absolute;
   z-index: 1;
-  top: -15px;
-  margin-left: -0px;
+  top: -0.9rem;
+  margin-left: 0;
   left: 105%;
 }
 
