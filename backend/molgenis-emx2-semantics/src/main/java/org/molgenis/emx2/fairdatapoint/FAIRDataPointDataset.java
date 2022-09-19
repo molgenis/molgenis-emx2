@@ -229,7 +229,6 @@ public class FAIRDataPointDataset {
     if (datasetFromJSON.get("type") != null) {
       builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
     }
-    System.out.println("this.modified == '" + this.modified + "'");
     if (this.modified == null) {
       builder.add(
           reqUrl,
