@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.semantics.rdf.StringsForRDFTest.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -42,10 +42,10 @@ public class RDFTest {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.url()).thenReturn("http://localhost:8080/api/fdp");
-    StringWriter sw = new StringWriter();
+    OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        new PrintWriter(sw), request, response, RDF_API_LOCATION, null, null, petStoreSchemas);
-    String result = sw.getBuffer().toString();
+        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchemas);
+    String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertTrue(result.contains(TTL_PREFIX_2));
     assertTrue(result.contains(TTL_ROOT));
@@ -75,10 +75,10 @@ public class RDFTest {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.url()).thenReturn("http://localhost:8080/petStoreNr1/api/fdp");
-    StringWriter sw = new StringWriter();
+    OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        new PrintWriter(sw), request, response, RDF_API_LOCATION, null, null, petStoreSchemas[0]);
-    String result = sw.getBuffer().toString();
+        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchemas[0]);
+    String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
     assertTrue(result.contains(TTL_ROOT));
@@ -109,10 +109,10 @@ public class RDFTest {
     Response response = mock(Response.class);
     when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp/Category");
     Table table = petStoreSchemas[0].getTable("Category");
-    StringWriter sw = new StringWriter();
+    OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        new PrintWriter(sw), request, response, RDF_API_LOCATION, table, null, table.getSchema());
-    String result = sw.getBuffer().toString();
+        outputStream, request, response, RDF_API_LOCATION, table, null, table.getSchema());
+    String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
     assertTrue(result.contains(TTL_ROOT));
@@ -144,10 +144,10 @@ public class RDFTest {
     when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp/Category/cat");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
-    StringWriter sw = new StringWriter();
+    OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        new PrintWriter(sw), request, response, RDF_API_LOCATION, table, rowId, table.getSchema());
-    String result = sw.getBuffer().toString();
+        outputStream, request, response, RDF_API_LOCATION, table, rowId, table.getSchema());
+    String result = outputStream.toString();
     assertTrue(result.contains(TTL_PREFIX_1));
     assertFalse(result.contains(TTL_PREFIX_2));
     assertTrue(result.contains(TTL_ROOT));
@@ -181,10 +181,10 @@ public class RDFTest {
     when(request.queryParams("format")).thenReturn("xml");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
-    StringWriter sw = new StringWriter();
+    OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        new PrintWriter(sw), request, response, RDF_API_LOCATION, table, rowId, table.getSchema());
-    String result = sw.getBuffer().toString();
+        outputStream, request, response, RDF_API_LOCATION, table, rowId, table.getSchema());
+    String result = outputStream.toString();
     assertTrue(result.contains("xmlns:emx0=\"http://localhost:8080/petStoreNr1/api/rdf/\">"));
     assertTrue(result.contains("<rdf:Description rdf:about=\"http://localhost:8080\">"));
     assertTrue(
