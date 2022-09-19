@@ -31,6 +31,12 @@
       "matchPackagePrefixes": [
         "com.fasterxml.jackson"
       ]
+    },
+        {
+      "groupName": "org.apache.logging.log4j",
+      "matchPackagePrefixes": [
+        "org.apache.logging.log4j"
+      ]
     }
   ]
 }
