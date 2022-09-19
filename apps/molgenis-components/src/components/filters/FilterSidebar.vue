@@ -35,7 +35,10 @@ export default {
     FilterContainer,
   },
   props: {
-    filters: Array,
+    filters: {
+      type: Array,
+      default: () => [],
+    },
     graphqlURL: {
       type: String,
       default: () => "graphql",
@@ -49,9 +52,9 @@ export default {
     },
   },
   methods: {
-    handleUpdateFilter(index, event) {
+    handleUpdateFilter(index, newConditions) {
       let newFilters = [...this.visibleFilters];
-      newFilters[index].conditions = event;
+      newFilters[index].conditions = newConditions;
       this.$emit("updateFilters", newFilters);
     },
   },

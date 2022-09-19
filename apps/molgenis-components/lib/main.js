@@ -27,7 +27,7 @@ import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
-import EditModal from "../src/components/forms/EditModal.vue"
+import EditModal from "../src/components/forms/EditModal.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
@@ -90,6 +90,7 @@ import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
+import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vue";
 import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
@@ -187,6 +188,7 @@ export {
   Spinner,
   VueTemplate,
   DataDisplayCell,
+  RoutedTableExplorer,
   TableExplorer,
   TableMolgenis,
   TableSimple,

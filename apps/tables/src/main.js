@@ -13,17 +13,17 @@ const router = new VueRouter({
     {
       path: "/",
       component: ListTables,
-      props: true
+      props: true,
     },
     {
       path: "/:table",
       component: ViewTable,
-      props: true
-    }
-  ]
+      props: true,
+    },
+  ],
 });
 
 new Vue({
   router,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");
