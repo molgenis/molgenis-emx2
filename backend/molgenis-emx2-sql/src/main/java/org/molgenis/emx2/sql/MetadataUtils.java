@@ -5,7 +5,6 @@ import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;

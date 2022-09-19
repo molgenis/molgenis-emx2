@@ -113,9 +113,9 @@ export default {
       this.settingActionLabel = "Edit Setting";
       this.settingKey = setting.key;
       this.settingValue = setting.value;
-      this.isKeyReadOnly = true;
-      this.isValueReadOnly = false;
-      this.actionFunction = this.createSetting;
+      (this.isKeyReadOnly = true),
+        (this.isValueReadOnly = false),
+        (this.actionFunction = this.createSetting);
       this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
@@ -123,9 +123,9 @@ export default {
       this.settingActionLabel = "Delete Setting";
       this.settingKey = setting.key;
       this.settingValue = setting.value;
-      this.isKeyReadOnly = true;
-      this.isValueReadOnly = true;
-      this.actionFunction = this.deleteSetting;
+      (this.isKeyReadOnly = true),
+        (this.isValueReadOnly = true),
+        (this.actionFunction = this.deleteSetting);
       this.showModal = true;
     },
     handleCreateRequest() {
@@ -133,15 +133,15 @@ export default {
       this.settingActionLabel = "Create Setting";
       this.settingKey = "";
       this.settingValue = "";
-      this.isKeyReadOnly = false;
-      this.isValueReadOnly = false;
-      this.actionFunction = this.createSetting;
+      (this.isKeyReadOnly = false),
+        (this.isValueReadOnly = false),
+        (this.actionFunction = this.createSetting);
       this.showModal = true;
     },
     async createSetting() {
       const createMutation = gql`
-        mutation change($key: String, $value: String) {
-          change(settings: { key: $key, value: $value }) {
+        mutation createSetting($key: String, $value: String) {
+          createSetting(key: $key, value: $value) {
             message
           }
         }
@@ -162,8 +162,8 @@ export default {
     },
     async deleteSetting() {
       const deleteMutation = gql`
-        mutation drop($key: String) {
-          drop(settings: { key: $key }) {
+        mutation deleteSetting($key: String) {
+          deleteSetting(key: $key) {
             message
           }
         }
