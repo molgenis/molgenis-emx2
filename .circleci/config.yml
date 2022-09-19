@@ -50,7 +50,7 @@ jobs:
 
       # run tests!
       - run:
-          command: ./gradlew test jacocoMergedReport sonarqube release -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          command: ./gradlew test jacocoMergedReport sonarqube -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           environment:
             MOLGENIS_POSTGRES_USER: molgenis
             MOLGENIS_POSTGRES_PASS: molgenis
