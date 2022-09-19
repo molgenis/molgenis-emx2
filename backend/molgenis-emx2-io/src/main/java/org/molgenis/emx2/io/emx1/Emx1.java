@@ -189,9 +189,6 @@ public class Emx1 {
     switch (dataType) {
       case "compound": // unsupported, functionally equivalent to heading
         return HEADING;
-      case "string":
-      case "enum": // unsupported, do we need this?
-        return STRING; // todo
       case "hyperlink":
         return HYPERLINK;
       case "email":
@@ -222,7 +219,7 @@ public class Emx1 {
       case "categorical_mref":
         return REF_ARRAY;
       default:
-        return STRING;
+        return STRING; // string, enum, others will default to string
     }
   }
 
