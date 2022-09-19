@@ -187,7 +187,8 @@ public class Emx1 {
 
   private static ColumnType getColumnType(String dataType) {
     switch (dataType) {
-      case "compound": // unsupported, skipped.
+      case "compound": // unsupported, functionally equivalent to heading
+        return HEADING;
       case "string":
       case "enum": // unsupported, do we need this?
         return STRING; // todo
