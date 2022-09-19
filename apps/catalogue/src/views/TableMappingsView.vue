@@ -144,11 +144,18 @@
 
 <script>
 import { request } from "graphql-request";
-import { MessageError } from "@mswertz/emx2-styleguide";
+import { MessageError, TableExplorer } from "@mswertz/emx2-styleguide";
+import VariablesList from "../components/VariablesList";
+import Property from "../components/Property";
+import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
+    OntologyTerms,
+    VariablesList,
+    Property,
     MessageError,
+    TableExplorer,
   },
   props: {
     fromPid: String,

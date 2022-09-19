@@ -3,8 +3,6 @@ import VueRouter from "vue-router";
 import ListTables from "./components/ListTables";
 import ViewTable from "./components/ViewTable";
 
-import "molgenis-components/dist/style.css";
-
 import App from "./App";
 
 Vue.use(VueRouter);
