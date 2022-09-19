@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader">{{ tableName }} Explorer</h1>
+    <h1 v-if="showHeader">{{ tableName }}</h1>
 
     <p v-if="showHeader && tableMetadata">
       {{ tableMetadata.description }}
@@ -371,7 +371,7 @@ export default {
       type: Number,
       default: 20,
     },
-    conditions: {
+    urlConditions: {
       type: Object,
       default: () => ({}),
     },
@@ -574,7 +574,7 @@ export default {
           : !column.name.startsWith("mg_");
         const conditions = getCondition(
           column.columnType,
-          this.conditions[column.name]
+          this.urlConditions[column.name]
         );
         return {
           ...column,
@@ -685,7 +685,7 @@ function getCondition(columnType, condition) {
         graphqlURL="/pet store/graphql"
         :showColumns.sync="showColumns"
         :showFilters.sync="showFilters"
-        :conditions="conditions"
+        :urlConditions="urlConditions"
         :showPage="page" 
         :showLimit="limit"
         :showOrderBy.sync="showOrderBy" 
@@ -720,7 +720,7 @@ function getCondition(columnType, condition) {
       return {
         showColumns: ['name'],
         showFilters: ['name'],
-        conditions: {"name": "pooky,spike"},
+        urlConditions: {"name": "pooky,spike"},
         page: 1,
         limit: 10,
         showOrder: 'DESC', 

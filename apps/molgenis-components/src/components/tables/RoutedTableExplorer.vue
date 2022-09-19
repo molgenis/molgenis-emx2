@@ -15,7 +15,7 @@
       :showView="getView()"
       :showColumns="getColumns()"
       :showFilters="getFilters()"
-      :conditions="getConditions()"
+      :urlConditions="getConditions()"
       :showPage="getPage()"
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
