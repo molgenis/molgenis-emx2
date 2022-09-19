@@ -1,9 +1,9 @@
 package org.molgenis.emx2.sql;
 
 import static org.molgenis.emx2.Privileges.MANAGER;
-import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
