@@ -71,7 +71,8 @@ public class FAIRDataPointBadDistributionInDatasetTest {
             Exception.class,
             () ->
                 new FAIRDataPointDataset(
-                    request, fairDataHub_baddistribution.getTable("FDP_Dataset")));
+                        request, fairDataHub_baddistribution.getTable("FDP_Dataset"))
+                    .getResult());
     String expectedMessage =
         "Schema does not contain the requested table for distribution. Make sure the value of 'distribution' in your FDP_Dataset matches a table name (from the same schema) you want to publish.";
     String actualMessage = exception.getMessage();
