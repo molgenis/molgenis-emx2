@@ -94,8 +94,11 @@ jobs:
             git config url.https://.insteadOf git://
 
       - run:
-          name: build, test, release
-          command: ./gradlew test jacocoMergedReport sonarqube jib release ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password --stacktrace
+          name: build, test, release, push docker
+          command: |
+            ./gradlew test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
+            ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
+
           environment:
             MOLGENIS_POSTGRES_USER: molgenis
             MOLGENIS_POSTGRES_PASS: molgenis
