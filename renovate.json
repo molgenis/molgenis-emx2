@@ -2,11 +2,8 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [
+  "packageRules": [ 
     {
-      "matchPackageNames": ["vue"],
-      "allowedVersions": ">=2.6"
-    },    {
       "matchPackageNames": ["vue-router"],
       "allowedVersions": ">=3.5"
     },
