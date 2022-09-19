@@ -60,7 +60,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test jacocoMergedReport shadowJar jib ci \
+                    sh "./gradlew test jacocoMergedReport shadowJar ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -96,7 +96,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test jacocoMergedReport shadowJar jib helmPublishMainChart sonarqube ci \
+                        sh "./gradlew test jacocoMergedReport shadowJar helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
