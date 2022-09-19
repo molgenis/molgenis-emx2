@@ -86,6 +86,13 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
       - run:
+          name: Setup git, todo, move to molgenisci user
+          command: |
+            git config user.email "m.a.swertz@gmail.com"
+            git config user.name "mswertz"
+            git config url.https://.insteadOf git://
+
+      - run:
           name: build, test, release
           command: ./gradlew test jacocoMergedReport sonarqube jib release ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
           environment:
