@@ -43,6 +43,8 @@ const filterTypeMap = {
   INT_ARRAY: IntegerFilter,
   DECIMAL: DecimalFilter,
   DECIMAL_ARRAY: DecimalFilter,
+  LONG: StringFilter, //TODO: LongFilter is not implemented yet
+  LONG_ARRAY: StringFilter, //TODO: LongFilter is not implemented yet
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
   DATETIME: DateTimeFilter,

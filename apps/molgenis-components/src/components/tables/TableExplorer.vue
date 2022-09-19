@@ -281,6 +281,8 @@ import RecordCards from "./RecordCards.vue";
 import TableSettings from "./TableSettings.vue";
 import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
+import RowButton from "../tables/RowButton.vue";
+import MessageError from "../forms/MessageError.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -295,12 +297,14 @@ export default {
     IconDanger,
     InputSearch,
     InputSelect,
+    MessageError,
     SelectionBox,
     Spinner,
     TableMolgenis,
     FilterSidebar,
     FilterWells,
     RecordCards,
+    RowButton,
     TableSettings,
     EditModal,
     ConfirmModal,
@@ -587,6 +591,7 @@ export default {
           this.recordTemplate = setting.value;
         }
       });
+      this.tableMetadata = newTableMetadata;
     },
     async reload() {
       this.loading = true;

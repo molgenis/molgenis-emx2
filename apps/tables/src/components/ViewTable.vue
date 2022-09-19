@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-link v-if="schema" to="/">
-      &gt; Back to {{ schema.name }}
+      &lt; Back to {{ schema.name }}
     </router-link>
     <RoutedTableExplorer
       :tableName="table"
