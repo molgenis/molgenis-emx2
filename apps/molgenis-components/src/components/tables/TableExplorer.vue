@@ -537,10 +537,7 @@ export default {
       );
     },
     emitConditions() {
-<<<<<<< HEAD
-=======
       this.page = 1;
->>>>>>> 84eb04175fe13fbb435c2a6f042cae2b16d4dee0
       this.$emit("update:conditions", this.columns);
       this.reload();
     },

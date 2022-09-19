@@ -124,19 +124,11 @@ export default {
   methods: {
     updateCondition(index, value) {
       if (this.isMultiConditionFilter) {
-<<<<<<< HEAD
-        this.$emit("updateConditions", JSON.parse(JSON.stringify(value)));
-      } else if (!this.conditions.length) {
-        this.$emit("updateConditions", [value]);
-      } else {
-        let updatedConditions = JSON.parse(JSON.stringify(this.conditions));
-=======
         this.$emit("updateConditions", deepClone(value));
       } else if (!this.conditions.length) {
         this.$emit("updateConditions", [value]);
       } else {
         let updatedConditions = deepClone(this.conditions);
->>>>>>> 84eb04175fe13fbb435c2a6f042cae2b16d4dee0
         updatedConditions[index] = value;
         this.$emit("updateConditions", updatedConditions);
       }
