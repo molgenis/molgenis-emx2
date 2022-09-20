@@ -11,7 +11,7 @@
     "lint": "vite lint"
   },
   "dependencies": {
-    "core-js": "3.25.1",
+    "core-js": "3.25.2",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
     "v-scroll-lock": "1.3.1",

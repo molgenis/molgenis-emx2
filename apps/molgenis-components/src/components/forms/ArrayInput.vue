@@ -38,10 +38,12 @@
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import InputString from "./InputString.vue";
+import FormGroup from "./FormGroup.vue";
 
 export default {
   name: "ArrayInput",
   extends: BaseInput,
+  components: { FormGroup },
   data() {
     return { values: this.value || [null] };
   },

@@ -91,6 +91,7 @@ import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
+import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vue";
 import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
@@ -191,6 +192,7 @@ export {
   Spinner,
   VueTemplate,
   DataDisplayCell,
+  RoutedTableExplorer,
   TableExplorer,
   TableMolgenis,
   TableSimple,

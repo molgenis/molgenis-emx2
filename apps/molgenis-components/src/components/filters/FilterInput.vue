@@ -26,6 +26,7 @@ import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
+import { deepClone } from "../utils.js";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -42,6 +43,8 @@ const filterTypeMap = {
   INT_ARRAY: IntegerFilter,
   DECIMAL: DecimalFilter,
   DECIMAL_ARRAY: DecimalFilter,
+  LONG: StringFilter, //TODO: LongFilter is not implemented yet
+  LONG_ARRAY: StringFilter, //TODO: LongFilter is not implemented yet
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
   DATETIME: DateTimeFilter,
@@ -111,22 +114,26 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        this.columnType
-      );
+      return [
+        "REF",
+        "REF_ARRAY",
+        "REFBACK",
+        "ONTOLOGY",
+        "ONTOLOGY_ARRAY",
+      ].includes(this.columnType);
     },
   },
   methods: {
     updateCondition(index, value) {
-      let updatedConditions = [...this.conditions];
       if (this.isMultiConditionFilter) {
-        updatedConditions = value;
+        this.$emit("updateConditions", deepClone(value));
       } else if (!this.conditions.length) {
-        updatedConditions = [value];
+        this.$emit("updateConditions", [value]);
       } else {
+        let updatedConditions = deepClone(this.conditions);
         updatedConditions[index] = value;
+        this.$emit("updateConditions", updatedConditions);
       }
-      this.$emit("updateConditions", updatedConditions);
     },
     clearCondition(index) {
       let updatedConditions = [...this.conditions];
@@ -145,8 +152,6 @@ export default {
 };
 </script>
 
-<style></style>
-
 <docs>
 <template>
   <div>
@@ -162,7 +167,6 @@ export default {
         <div>conditions: {{ conditions }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled string filter</label>
       <demo-item>
@@ -175,7 +179,6 @@ export default {
         <div>conditions: {{ conditions1 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled int filter</label>
       <demo-item>
@@ -188,7 +191,6 @@ export default {
         <div>conditions: {{ conditions2 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>date filter</label>
       <demo-item>

@@ -60,7 +60,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test jacocoMergedReport shadowJar jib release ci \
+                    sh "./gradlew test jacocoMergedReport shadowJar ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -71,7 +71,7 @@ pipeline {
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
-                    sh "rancher apps install " + 
+                    sh "rancher apps install " +
                         "-n ${NAME} " +
                         "p-vx5vf:molgenis-helm3-emx2 " +
                         "${NAME} " +
@@ -96,7 +96,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                        sh "./gradlew test jacocoMergedReport shadowJar jib release helmPublishMainChart sonarqube ci \
+                        sh "./gradlew test jacocoMergedReport shadowJar helmPublishMainChart sonarqube ci \
                             -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                             -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
