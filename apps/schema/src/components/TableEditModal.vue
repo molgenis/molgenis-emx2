@@ -1,12 +1,6 @@
 <template>
-  <IconAction
-    v-if="!show"
-    class="btn-sm hoverIcon"
-    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="showModal"
-  />
   <LayoutModal
-    v-else
+    v-if="show"
     :title="title"
     @close="close"
     :isCloseButtonShown="!isDisabled"
@@ -46,6 +40,12 @@
       <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
+  <IconAction
+    v-else
+    class="btn-sm hoverIcon"
+    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
+    @click="showModal"
+  />
 </template>
 
 <script>
