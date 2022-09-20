@@ -109,8 +109,8 @@ export default {
   computed: {
     title() {
       return this.tableType === "ontology"
-        ? this.operation + " ontology definition"
-        : this.operation + " table definition";
+        ? `${this.operation} ontology definition`
+        : `${this.operation} table definition`;
     },
     inheritOptions() {
       if (this.rootTable) {
