@@ -161,7 +161,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .hoverIcon {
   visibility: hidden;
 }
