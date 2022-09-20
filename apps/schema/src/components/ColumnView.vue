@@ -113,7 +113,7 @@ export default {
   },
   computed: {
     rootTableName() {
-      const result = this.schema.tables.find(
+      return this.schema.tables.find(
         (table) =>
           //use oldName because otheriwse error on renaming
           //must make sure new tables/subtables also have oldName set!
@@ -123,12 +123,7 @@ export default {
             table.subclasses
               .map((subclass) => subclass.oldName)
               .includes(this.column.table))
-      );
-      console.log(JSON.stringify(result));
-      if (result !== null) {
-        return result.name;
-      }
-      return this.column.table;
+      ).name;
     },
   },
   methods: {
