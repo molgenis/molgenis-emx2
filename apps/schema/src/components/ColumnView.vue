@@ -41,10 +41,8 @@
         />
       </IconBar>
     </td>
+    <td v-if="table.subclasses?.length > 0">{{ column.table }}</td>
     <td>
-      <span v-if="column.table !== rootTableName">
-        subclass={{ column.table }}
-      </span>
       <span v-if="column.refTable">
         {{ column.columnType.toLowerCase() }}({{
           column.refSchema ? column.refSchema + "." : ""
@@ -112,6 +110,14 @@ export default {
     },
   },
   computed: {
+    table() {
+      return this.schema.tables.find(
+        (table) =>
+          //use oldName because otheriwse error on renaming
+          //must make sure new tables/subtables also have oldName set!
+          table.oldName === this.column.table
+      );
+    },
     rootTableName() {
       return this.schema.tables.find(
         (table) =>

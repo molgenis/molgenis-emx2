@@ -100,6 +100,7 @@ export default {
     deleteOntology(ontology) {
       if (!ontology.oldName) {
         this.$emit("delete");
+        return;
       }
       if (!ontology.drop) {
         //need to do deep set otherwise vue doesn't see it
@@ -107,6 +108,7 @@ export default {
       } else {
         this.$set(ontology, "drop", false);
       }
+      this.$emit("input", ontology);
     },
   },
   created() {

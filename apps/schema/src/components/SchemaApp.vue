@@ -1,5 +1,9 @@
 <template>
   <div class="container-fluid bg-white">
+    <pre>
+    {{ rawSchema }}
+      </pre
+    >
     <div class="sticky-top bg-white">
       <div class="d-flex flex-row">
         <h1>Schema: {{ schema.name }}</h1>
@@ -87,6 +91,7 @@ export default {
   },
   data() {
     return {
+      rawSchema: {}, //for debug purposes
       schema: {},
       loading: false,
       error: null,
@@ -112,7 +117,7 @@ export default {
     },
     saveSchema() {
       this.loading = true;
-      this.graphqlError = null;
+      this.error = null;
       this.warning = "submitting changes";
       this.success = null;
       //copy so in case of error user can continue to edit
@@ -121,21 +126,22 @@ export default {
 
       //transform subclasses back into their original tables.
       //create a map of tables
-      const tableMap = tables.reduce((map, table) => {
-        map[table.name] = table;
+      let tableMap = {};
+      tables.forEach((table) => {
+        tableMap[table.name] = table;
         if (table.subclasses) {
-          table.subclasses.forEach(
-            (subclass) => (map[subclass.name] = subclass)
-          );
+          table.subclasses.forEach((subclass) => {
+            tableMap[subclass.name] = subclass;
+          });
+          delete table.subclasses;
         }
-        delete table.subclasses;
-        return map;
-      }, {});
+      });
+      console.log(JSON.stringify(tableMap));
       //redistribute the columns to subclasses
       tables.forEach((table) => {
         if (table.columns !== undefined) {
           table.columns.forEach((column) => {
-            if (column.table !== table.name) {
+            if (column.table !== table.oldName) {
               tableMap[column.table].columns.push(column);
             }
           });
@@ -164,10 +170,10 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === "403") {
-            this.graphqlError = "Forbidden. Do you need to login?";
+            this.error = "Forbidden. Do you need to login?";
             this.showLogin = true;
           } else {
-            this.graphqlError = error.response.errors[0].message;
+            this.error = error.response.errors[0].message;
           }
           this.warning = null;
           this.loading = false;
@@ -175,15 +181,15 @@ export default {
       this.loading = false;
     },
     loadSchema() {
-      this.graphqlError = null;
+      this.error = null;
       this.loading = true;
       request(
         "graphql",
         "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}"
       )
         .then((data) => {
-          const _schema = this.addOldNamesAndRemoveMeta(data._schema);
-          this.schema = this.convertToSubclassTables(_schema);
+          this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
+          this.schema = this.convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;
           this.loading = false;
           this.key = Date.now();
@@ -232,6 +238,10 @@ export default {
                 table.tableType === "ONTOLOGIES" &&
                 table.externalSchema === undefined
             );
+        //set old name so we can delete them properly
+        schema.ontologies.forEach((o) => {
+          o.oldName = o.name;
+        });
         schema.tables = tables;
       }
 
@@ -246,10 +256,8 @@ export default {
         if (table.inherit === undefined) {
           this.getSubclassTables(schema, table.name).forEach((subclass) => {
             //get columns from subclass tables
-            if (!subclass.columns) {
-              console.log(subclass.name);
-            }
             table.columns.push(...subclass.columns);
+            //remove the columns from subclass table
             subclass.columns = [];
             //add subclass to root table
             if (!table.subclasses) {

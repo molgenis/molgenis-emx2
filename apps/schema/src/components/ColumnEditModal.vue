@@ -3,7 +3,7 @@
     v-if="!show"
     class="btn-sm hoverIcon"
     :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="show = true"
+    @click="click"
     :tooltip="tooltip"
   />
   <LayoutModal
@@ -15,6 +15,7 @@
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
+        {{ show }}
         <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
         <MessageError v-if="error">{{ error }}</MessageError>
         <div class="row">
@@ -313,10 +314,12 @@ export default {
     },
   },
   methods: {
+    click() {
+      this.show = true;
+    },
     apply() {
       this.show = false;
       this.$emit(this.operation, this.column);
-      this.reset();
     },
     cancel() {
       this.show = false;
@@ -372,6 +375,12 @@ export default {
   },
   created() {
     this.reset();
+  },
+  watch: {
+    //silly
+    show() {
+      console.log(this.show);
+    },
   },
 };
 </script>

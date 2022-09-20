@@ -72,7 +72,7 @@
             <table class="table table-bordered" v-if="table.subclasses">
               <thead>
                 <th style="width: 25ch" scope="col">subclass</th>
-                <th style="width: 32ch" scope="col">extends</th>
+                <th style="width: 25ch" scope="col">extends</th>
                 <th scope="col">description</th>
               </thead>
               <tbody>
@@ -131,6 +131,13 @@
             <thead>
               <tr class="hoverContainer">
                 <th style="width: 25ch" scope="col">column</th>
+                <th
+                  style="width: 25ch"
+                  scope="col"
+                  v-if="table.subclasses?.length > 0"
+                >
+                  inSubclass
+                </th>
                 <th style="width: 32ch" scope="col">definition</th>
                 <th scope="col">description</th>
               </tr>
@@ -138,7 +145,7 @@
             <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
               <ColumnView
                 v-for="(column, columnIndex) in table.columns"
-                :key="columnIndex + column.name"
+                :key="columnIndex + JSON.stringify(column)"
                 :style="
                   isSubclassDropped(column)
                     ? 'text-decoration: line-through'
@@ -147,8 +154,7 @@
                 v-model="table.columns[columnIndex]"
                 :schema="schema"
                 :schemaNames="schemaNames"
-                @input="$emit('input', table)"
-                @createColumn="createColumn"
+                @input="updateColumn(columnIndex, $event)"
                 @add="addColumn(columnIndex, $event)"
                 @delete="deleteColumn(columnIndex)"
                 :isManager="isManager"
@@ -215,6 +221,10 @@ export default {
     scrollToTop() {
       this.$s;
     },
+    updateColumn(index, column) {
+      this.table.columns.splice(index, 1, column);
+      this.$emit("input", this.table);
+    },
     addColumn(index, column) {
       if (this.table.columns == undefined) {
         this.table.columns = [];
@@ -275,20 +285,6 @@ export default {
           (subclass) => subclass.name === column.table
         ).drop;
       }
-    },
-    createColumn(position) {
-      const newColumn = {
-        name: undefined,
-        columnType: "STRING",
-        table: this.table.name,
-      };
-      if (position) {
-        this.table.columns.splice(position, 0, newColumn);
-      } else {
-        this.table.columns.unshift(newColumn);
-      }
-      this.applyPosition();
-      this.$emit("input", this.table);
     },
     createSubclass(subclass) {
       if (!this.table.subclasses) {

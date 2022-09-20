@@ -1,6 +1,6 @@
 <template>
   <LayoutModal
-    v-if="show"
+    v-if="show === true"
     :title="title"
     @close="close"
     :isCloseButtonShown="!isDisabled"
