@@ -124,7 +124,7 @@ export default {
     },
     updatePage(page) {
       const query = Object.assign({}, this.$route.query);
-      query._page = page;
+      query._page = String(page);
       this.updateRoute(query);
     },
     updateOrder(order) {
