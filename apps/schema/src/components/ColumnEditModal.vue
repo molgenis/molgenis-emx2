@@ -1,13 +1,6 @@
 <template>
-  <IconAction
-    v-if="!show"
-    class="btn-sm hoverIcon"
-    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="click"
-    :tooltip="tooltip"
-  />
   <LayoutModal
-    v-else
+    v-if="show"
     title="Edit column metadata"
     @close="cancel"
     :isCloseButtonShown="!isDisabled"
@@ -167,6 +160,13 @@
       <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
+  <IconAction
+    v-else
+    class="btn-sm hoverIcon"
+    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
+    @click="click"
+    :tooltip="tooltip"
+  />
 </template>
 
 <script>
@@ -375,12 +375,6 @@ export default {
   },
   created() {
     this.reset();
-  },
-  watch: {
-    //silly
-    show() {
-      console.log(this.show);
-    },
   },
 };
 </script>

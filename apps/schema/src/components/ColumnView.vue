@@ -115,21 +115,16 @@ export default {
         (table) =>
           //use oldName because otheriwse error on renaming
           //must make sure new tables/subtables also have oldName set!
-          table.oldName === this.column.table
-      );
-    },
-    rootTableName() {
-      return this.schema.tables.find(
-        (table) =>
-          //use oldName because otheriwse error on renaming
-          //must make sure new tables/subtables also have oldName set!
           table.oldName === this.column.table ||
           table.name === this.column.table ||
           (table.subclasses !== undefined &&
             table.subclasses
               .map((subclass) => subclass.oldName)
               .includes(this.column.table))
-      ).name;
+      );
+    },
+    rootTableName() {
+      return this.table.name;
     },
   },
   methods: {

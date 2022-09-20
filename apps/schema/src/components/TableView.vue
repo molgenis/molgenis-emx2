@@ -145,7 +145,7 @@
             <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
               <ColumnView
                 v-for="(column, columnIndex) in table.columns"
-                :key="columnIndex + JSON.stringify(column)"
+                :key="columnIndex + column.name"
                 :style="
                   isSubclassDropped(column)
                     ? 'text-decoration: line-through'
