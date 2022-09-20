@@ -11,14 +11,9 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -38,14 +33,48 @@ public class FAIRDataPointDataset {
   // todo odrl:Policy object instead of String? see
   // https://www.w3.org/TR/vocab-dcat-2/#Property:distribution_has_policy
 
-  private String result;
+  private Request request;
+  private Table fdpDataseTable;
+  private String issued;
+  private String modified;
 
-  public String getResult() {
-    return result;
+  /**
+   * Constructor
+   *
+   * @param request
+   * @param fdpDataseTable
+   * @throws Exception
+   */
+  public FAIRDataPointDataset(Request request, Table fdpDataseTable) {
+    this.request = request;
+    this.fdpDataseTable = fdpDataseTable;
   }
 
-  public FAIRDataPointDataset(Request request, Table fdpDataseTable) throws Exception {
+  /**
+   * Used to override issued for JUnit testing
+   *
+   * @param issued
+   */
+  public void setIssued(String issued) {
+    this.issued = issued;
+  }
 
+  /**
+   * Used to override modified for JUnit testing
+   *
+   * @param modified
+   */
+  public void setModified(String modified) {
+    this.modified = modified;
+  }
+
+  /**
+   * Create and get resulting FDP
+   *
+   * @return
+   * @throws Exception
+   */
+  public String getResult() throws Exception {
     String id = request.params("id");
     Schema schema = fdpDataseTable.getSchema();
     List<Map<String, Object>> datasetsFromJSON = queryDataset(schema, "id", id);
@@ -70,7 +99,6 @@ public class FAIRDataPointDataset {
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
     RDFFormat applicationOntologyFormat = RDFFormat.TURTLE;
-    ValueFactory vf = SimpleValueFactory.getInstance();
     WriterConfig config = new WriterConfig();
     config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
     for (String prefix : prefixToNamespace.keySet()) {
@@ -179,12 +207,17 @@ public class FAIRDataPointDataset {
     if (datasetFromJSON.get("publisher") != null) {
       builder.add(reqUrl, DCTERMS.PUBLISHER, datasetFromJSON.get("publisher"));
     }
-    builder.add(
-        reqUrl,
-        DCTERMS.ISSUED,
-        literal(
-            TypeUtils.toString(datasetFromJSON.get("mg_insertedOn")).substring(0, 19),
-            XSD.DATETIME));
+    if (this.issued == null) {
+      builder.add(
+          reqUrl,
+          DCTERMS.ISSUED,
+          literal(
+              TypeUtils.toString(datasetFromJSON.get("mg_insertedOn")).substring(0, 19),
+              XSD.DATETIME));
+    } else {
+      builder.add(reqUrl, DCTERMS.ISSUED, literal(this.issued, XSD.DATETIME));
+    }
+
     if (datasetFromJSON.get("theme") != null) {
       for (IRI themeIRI : hyperlinkArrayToIRIList((List<String>) datasetFromJSON.get("theme"))) {
         builder.add(reqUrl, DCAT.THEME, themeIRI);
@@ -196,12 +229,17 @@ public class FAIRDataPointDataset {
     if (datasetFromJSON.get("type") != null) {
       builder.add(reqUrl, DCTERMS.TYPE, datasetFromJSON.get("type"));
     }
-    builder.add(
-        reqUrl,
-        DCTERMS.MODIFIED,
-        literal(
-            TypeUtils.toString(datasetFromJSON.get("mg_updatedOn")).substring(0, 19),
-            XSD.DATETIME));
+    if (this.modified == null) {
+      builder.add(
+          reqUrl,
+          DCTERMS.MODIFIED,
+          literal(
+              TypeUtils.toString(datasetFromJSON.get("mg_updatedOn")).substring(0, 19),
+              XSD.DATETIME));
+    } else {
+      builder.add(reqUrl, DCTERMS.MODIFIED, literal(this.modified, XSD.DATETIME));
+    }
+
     if (datasetFromJSON.get("qualifiedAttribution") != null) {
       builder.add(reqUrl, PROV.QUALIFIED_ATTRIBUTION, datasetFromJSON.get("qualifiedAttribution"));
     }
@@ -221,7 +259,7 @@ public class FAIRDataPointDataset {
     Model model = builder.build();
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
-    this.result = stringWriter.toString();
+    return stringWriter.toString();
   }
 
   public static List<Map<String, Object>> queryDataset(Schema schema, String idField, String id) {
