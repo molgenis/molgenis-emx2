@@ -177,7 +177,7 @@ export default {
     cancel() {
       //set
       if (this.value) {
-        this.table = deepClonet(this.value);
+        this.table = deepClone(this.value);
       } else {
         this.table = {};
       }
