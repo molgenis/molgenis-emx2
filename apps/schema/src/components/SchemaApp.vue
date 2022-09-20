@@ -1,9 +1,5 @@
 <template>
   <div class="container-fluid bg-white">
-    <pre>
-    {{ rawSchema }}
-      </pre
-    >
     <div class="sticky-top bg-white">
       <div class="d-flex flex-row">
         <h1>Schema: {{ schema.name }}</h1>
@@ -136,7 +132,6 @@ export default {
           delete table.subclasses;
         }
       });
-      console.log(JSON.stringify(tableMap));
       //redistribute the columns to subclasses
       tables.forEach((table) => {
         if (table.columns !== undefined) {
