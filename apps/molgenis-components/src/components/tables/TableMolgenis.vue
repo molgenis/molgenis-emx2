@@ -31,12 +31,7 @@
 
       <tbody>
         <tr v-if="!data.length">
-          <td
-            :colspan="
-              columnsWithoutMeta.length ? columnsWithoutMeta.length + 1 : 1
-            "
-            class="alert-warning"
-          >
+          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
             No results found
           </td>
         </tr>
