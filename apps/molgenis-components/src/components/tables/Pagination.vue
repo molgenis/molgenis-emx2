@@ -23,7 +23,7 @@
       </li>
       <li class="page-item disabled">
         <a class="page-link text-nowrap" href="#">{{
-          pageNumber(value, limit, count)
+          rowRange(value, limit, count)
         }}</a>
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
