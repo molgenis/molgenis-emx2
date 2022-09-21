@@ -377,6 +377,7 @@ export default {
     },
     showOrderBy: {
       type: String,
+      required: false,
     },
     showOrder: {
       type: String,
