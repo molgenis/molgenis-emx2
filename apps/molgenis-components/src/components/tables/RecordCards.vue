@@ -25,12 +25,12 @@ export default {
   name: "RecordCards",
   components: { RowCard },
   props: {
-    id: String,
+    id: { type: String, required: true },
     data: { type: Array, default: () => [] },
-    columns: Array,
-    tableName: String,
-    canEdit: Boolean,
-    template: String,
+    columns: { type: Array, default: () => [] },
+    tableName: { type: String, required: true },
+    canEdit: { type: Boolean, default: false },
+    template: { type: String, required: false },
   },
 };
 </script>

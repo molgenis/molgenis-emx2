@@ -114,11 +114,11 @@ export default {
   components: { DataDisplayCell },
   props: {
     /** selection, two-way binded*/
-    selection: Array,
+    selection: { type: Array, required: false },
     /** column metadata, two-way binded to allow for reorder */
-    columns: Array,
+    columns: { type: Array, default: () => [] },
     /** not two way binded, table metadata */
-    tableMetadata: Object,
+    tableMetadata: { type: Object, required: false },
     data: { type: Array, default: () => [] },
     showSelect: { type: Boolean, default: false },
   },
@@ -128,7 +128,7 @@ export default {
     },
     columnsWithoutMeta() {
       return this.columns
-        ? this.columns.filter((c) => c.columnType != "HEADING")
+        ? this.columns.filter((column) => column.columnType !== "HEADING")
         : [];
     },
   },
