@@ -4,6 +4,8 @@ import ListTables from "./components/ListTables";
 import ViewTable from "./components/ViewTable";
 
 import "molgenis-components/dist/style.css";
+// workaround for not importing recursive component
+Vue.component("EditModal", EditModal);
 
 import App from "./App";
 
