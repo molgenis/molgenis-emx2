@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import ListTables from "./components/ListTables";
 import ViewTable from "./components/ViewTable";
+import { EditModal } from "molgenis-components";
 
 import "molgenis-components/dist/style.css";
 // workaround for not importing recursive component
