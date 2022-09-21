@@ -21,11 +21,10 @@
           <span class="sr-only">Previous</span>
         </a>
       </li>
-      <li class="page-item">
-        <a class="page-link text-nowrap" href="#"
-          >{{ (value - 1) * limit + 1 }} -
-          {{ Math.min(count, value * limit) }} of {{ count }}</a
-        >
+      <li class="page-item disabled">
+        <a class="page-link text-nowrap" href="#">{{
+          pageNumber(value, limit, count)
+        }}</a>
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
         <a
@@ -72,16 +71,26 @@ export default {
         this.$emit("input", page);
       }
     },
+    pageNumber(value, limit, count) {
+      if (count === 0) {
+        return "-";
+      } else {
+        return `${(value - 1) * limit + 1} - ${Math.min(
+          count,
+          value * limit
+        )} of ${count}`;
+      }
+    },
   },
   computed: {
     totalPages() {
       return Math.ceil(this.count / this.limit);
     },
     isFirstPage() {
-      return this.value == 1;
+      return this.value === 1;
     },
     isLastPage() {
-      return this.value == this.totalPages;
+      return this.value === this.totalPages || this.count === 0;
     },
   },
   watch: {
