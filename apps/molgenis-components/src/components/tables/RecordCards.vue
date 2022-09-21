@@ -1,6 +1,8 @@
 <template>
   <div>
+    <div v-if="!data.length" class="alert alert-warning">No results found</div>
     <RowCard
+      v-else
       v-for="(row, index) in data"
       :key="id + '-' + index"
       :row="row"
@@ -24,7 +26,7 @@ export default {
   components: { RowCard },
   props: {
     id: String,
-    data: Array,
+    data: { type: Array, default: () => [] },
     columns: Array,
     tableName: String,
     canEdit: Boolean,
