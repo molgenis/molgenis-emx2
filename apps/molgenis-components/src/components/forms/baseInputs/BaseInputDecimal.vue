@@ -17,7 +17,10 @@
 
 <script>
 import BaseInput from "./BaseInput.vue";
-import { isNumericKey } from "../../utils";
+import { isNumericKey, flipSign } from "../../utils";
+import constants from "../../constants";
+
+const { CODE_MINUS } = constants;
 
 export default {
   extends: BaseInput,
@@ -31,6 +34,10 @@ export default {
       }
     },
     handleKeyValidity(event) {
+      const keyCode = event.which ? event.which : event.keyCode;
+      if (keyCode === CODE_MINUS) {
+        this.$emit("input", flipSign(event.target.value));
+      }
       if (!isNumericKey(event)) {
         event.preventDefault();
       }
