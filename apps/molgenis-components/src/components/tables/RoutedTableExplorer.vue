@@ -5,13 +5,13 @@
       :graphqlURL="graphqlURL"
       :canEdit="canEdit"
       :canManage="canManage"
-      @update:conditions="updateConditions"
-      @update:showColumns="updateColumns"
-      @update:showFilters="updateFilters"
-      @update:showPage="updatePage"
-      @update:showLimit="updateLimit"
-      @update:showOrder="updateOrder"
-      @update:showView="updateView"
+      @updateConditions="updateConditions"
+      @updateShowColumns="updateColumns"
+      @updateShowFilters="updateFilters"
+      @updateShowPage="updatePage"
+      @updateShowLimit="updateLimit"
+      @updateShowOrder="updateOrder"
+      @updateShowView="updateView"
       :showView="getView()"
       :showColumns="getColumns()"
       :showFilters="getFilters()"
@@ -124,7 +124,7 @@ export default {
     },
     updatePage(page) {
       const query = Object.assign({}, this.$route.query);
-      query._page = String(page);
+      query._page = page;
       this.updateRoute(query);
     },
     updateOrder(order) {

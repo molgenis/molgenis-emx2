@@ -41,9 +41,9 @@
                 <ButtonAlt :href="'../api/excel/' + tableName">excel</ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableName"
-                  >jsonld</ButtonAlt
-                >
+                <ButtonAlt :href="'../api/jsonld/' + tableName">
+                  jsonld
+                </ButtonAlt>
               </div>
               <div>
                 <ButtonAlt :href="'../api/ttl/' + tableName">ttl</ButtonAlt>
@@ -507,7 +507,7 @@ export default {
         this.limit = 20;
       }
       this.page = 1;
-      this.$emit("update:showView", this.view, this.limit);
+      this.$emit("updateShowView", this.view, this.limit);
       this.reload();
     },
     onColumnClick(column) {
@@ -522,7 +522,7 @@ export default {
       }
       this.order = order;
       this.orderByColumn = column.id;
-      this.$emit("update:showOrder", {
+      this.$emit("updateShowOrder", {
         direction: order,
         column: column.id,
       });
@@ -530,24 +530,24 @@ export default {
     },
     emitColumns() {
       this.$emit(
-        "update:showColumns",
+        "updateShowColumns",
         getColumnNames(this.columns, "showColumn")
       );
     },
     emitFilters() {
       this.$emit(
-        "update:showFilters",
+        "updateShowFilters",
         getColumnNames(this.columns, "showFilter")
       );
     },
     emitConditions() {
       this.page = 1;
-      this.$emit("update:conditions", this.columns);
+      this.$emit("updateConditions", this.columns);
       this.reload();
     },
     setPage(page) {
       this.page = page;
-      this.$emit("update:showPage", page);
+      this.$emit("updateShowPage", page);
       this.reload();
     },
     setLimit(limit) {
@@ -556,7 +556,7 @@ export default {
         this.limit = 20;
       }
       this.page = 1;
-      this.$emit("update:showLimit", limit);
+      this.$emit("updateShowLimit", limit);
       this.reload();
     },
     handleError(error) {
@@ -692,7 +692,7 @@ function getCondition(columnType, condition) {
         :showOrder.sync="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
-      ></table-explorer>
+      />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
         <div>
@@ -703,12 +703,6 @@ function getCondition(columnType, condition) {
           <label for="canManage" class="pr-1">canManage: </label>
           <input type="checkbox" id="canManage" v-model="canManage">
         </div>
-        <div>showColumns: {{showColumns}}</div>
-        <div>showFilters: {{showFilters}}</div>
-        <div>showOrderBy: {{showOrderBy}}</div>
-        <div>showOrder: {{showOrder}}</div>
-        <div>page: {{page}}</div>
-        <div>limit: {{limit}}</div>
       </div>
     </div>
   </div>
