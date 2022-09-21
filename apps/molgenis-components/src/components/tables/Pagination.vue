@@ -71,14 +71,13 @@ export default {
         this.$emit("input", page);
       }
     },
-    pageNumber(value, limit, count) {
+    rowRange(value, limit, count) {
       if (count === 0) {
         return "-";
       } else {
-        return `${(value - 1) * limit + 1} - ${Math.min(
-          count,
-          value * limit
-        )} of ${count}`;
+        const from = (value - 1) * limit + 1;
+        const to = Math.min(count, value * limit);
+        return `${from} - ${to} of ${count}`;
       }
     },
   },
