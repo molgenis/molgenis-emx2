@@ -30,7 +30,7 @@
       </thead>
 
       <tbody>
-        <tr v-if="!data.length">
+        <tr v-if="data && !data.length">
           <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
             No results found
           </td>
