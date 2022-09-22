@@ -87,7 +87,7 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import FilterWell from "../filters/FilterWell"
+import FilterWell from "../filters/FilterWell.vue"
 import { flattenObject, getPrimaryKey } from "../utils";
 
 export default {
