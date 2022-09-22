@@ -82,6 +82,7 @@
       :visibleColumns="visibleColumns"
       :clone="editMode === 'clone'"
       :graphqlURL="graphqlURL"
+      :defaultValue="defaultValue"
       @close="handleModalClose"
     />
 

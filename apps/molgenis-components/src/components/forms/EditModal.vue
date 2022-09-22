@@ -33,7 +33,7 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import RowEdit from "./RowEdit.vue";
-import { filterObject } from "../utils";
+import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
@@ -141,6 +141,8 @@ export default {
     this.loaded = false;
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
+
+    this.rowData = this.defaultValue ? deepClone(this.defaultValue) : {};
 
     if (this.pkey) {
       this.rowData = await this.fetchRowData();
