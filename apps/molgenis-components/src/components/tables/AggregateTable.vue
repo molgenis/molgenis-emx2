@@ -37,29 +37,31 @@
     </nav>
     <Spinner v-if="loading" />
     <div v-else>lets place our cool table here</div>
-    <table class="table table-striped">
-      <thead ref="tablehead">
-        <tr>
-          <th></th>
-          <th v-for="(column, index) of columns" :key="`head-${index}`">
-            <div class="rotated-title">
-              <span>{{ column }}</span>
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody ref="tablebody">
-        <tr v-for="(row, rowIndex) of rows" :key="`tr-${rowIndex}`">
-          <th>{{ row }}</th>
-          <td
-            v-for="(column, columnIndex) of columns"
-            :key="`td-${columnIndex}`"
-          >
-            {{ aggregateData[row][column] || 0 }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div>
+      <table class="table table-striped">
+        <thead ref="tablehead">
+          <tr>
+            <th></th>
+            <th v-for="(column, index) of columns" :key="`head-${index}`">
+              <div class="rotated-title">
+                <span>{{ column }}</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody ref="tablebody">
+          <tr v-for="(row, rowIndex) of rows" :key="`tr-${rowIndex}`">
+            <th>{{ row }}</th>
+            <td
+              v-for="(column, columnIndex) of columns"
+              :key="`td-${columnIndex}`"
+            >
+              {{ aggregateData[row][column] || 0 }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -139,15 +141,36 @@ export default {
   width: 2em;
   height: 10em;
   vertical-align: bottom;
+  position: relative;
 }
 .rotated-title > span {
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 10em;
+  white-space: nowrap;
+  width: 12em;
   height: 2em;
   transform-origin: 0 0;
-  transform: rotate(-90deg) translate(-10em, 0.2em);
+  transform: rotate(-55deg) translate(-7.5em, 5.25em);
   display: inline-block;
+  z-index: 1;
+  position: relative;
+}
+
+table {
+  position: relative;
+}
+
+thead {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.9) 75%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  border-bottom: 1px solid black;
+  pointer-events: none;
+  position: sticky;
+  top: 0; /* Don't forget this, required for the stickiness */
 }
 </style>
 
