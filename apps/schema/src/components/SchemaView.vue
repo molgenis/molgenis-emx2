@@ -29,7 +29,7 @@
         </div>
         <table
           v-if="schema.ontologies && schema.ontologies?.length > 0"
-          class="table table-bordered"
+          class="table table-bordered table-sm"
         >
           <thead>
             <tr>

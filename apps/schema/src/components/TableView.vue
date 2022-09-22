@@ -69,7 +69,10 @@
                 @add="createSubclass"
               />
             </div>
-            <table class="table table-bordered" v-if="table.subclasses">
+            <table
+              class="table table-bordered table-sm"
+              v-if="table.subclasses"
+            >
               <thead>
                 <th style="width: 25ch" scope="col">subclass</th>
                 <th style="width: 25ch" scope="col">extends</th>
@@ -125,7 +128,7 @@
           </div>
           <table
             v-if="table.columns?.length > 0"
-            class="table table-bordered"
+            class="table table-bordered table-sm"
             style="table-layout: fixed"
           >
             <thead>
