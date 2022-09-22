@@ -73,7 +73,7 @@ pipeline {
                     sh "sleep 15s" // wait for deletion
                     sh "rancher apps install " +
                         "-n ${NAME} " +
-                        "p-tl227:molgenis-helm3 " +
+                        ""p-tl227:molgenis-emx2 " " +
                         "${NAME} " +
                         "--no-prompt " +
                         "--set adminPassword=admin " +
