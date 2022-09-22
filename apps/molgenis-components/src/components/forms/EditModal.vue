@@ -33,7 +33,7 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import RowEdit from "./RowEdit.vue";
-import { filterObject } from "../utils";
+import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
@@ -157,6 +157,8 @@ export default {
         );
       }
     }
+
+    this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
     this.loaded = true;
   },
 };

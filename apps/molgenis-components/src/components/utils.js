@@ -59,3 +59,18 @@ export function filterObject(object, filter) {
     return accum;
   }, {});
 }
+
+export function flipSign(value) {
+  switch (value) {
+    case "-":
+      return null;
+    case null:
+      return "-";
+    default:
+      if (value.charAt(0) === "-") {
+        return value.substring(1);
+      } else {
+        return "-" + value;
+      }
+  }
+}
