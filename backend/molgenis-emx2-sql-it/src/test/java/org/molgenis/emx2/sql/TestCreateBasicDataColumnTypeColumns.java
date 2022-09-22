@@ -118,6 +118,11 @@ public class TestCreateBasicDataColumnTypeColumns {
   }
 
   @Test
+  public void testEmail() {
+    executeTest(EMAIL, new String[] {"aap@some.host", "noot@some.host", "mies@some.host"});
+  }
+
+  @Test
   public void testInt() {
     executeTest(INT, new Integer[] {5, 6, 7});
   }

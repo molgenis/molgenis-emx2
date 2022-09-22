@@ -460,7 +460,7 @@ public class SqlQuery extends QueryBean {
                 whereCondition(
                     c.getTableName(),
                     c.getName(),
-                    c.getColumnType(),
+                    c.getColumnType().getBaseType(),
                     f.getOperator(),
                     f.getValues()));
           }
@@ -936,7 +936,7 @@ public class SqlQuery extends QueryBean {
             whereCondition(
                 tableAlias,
                 column.getName(),
-                column.getColumnType(),
+                column.getColumnType().getBaseType(),
                 filters.getOperator(),
                 filters.getValues()));
       }
