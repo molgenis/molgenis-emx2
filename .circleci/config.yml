@@ -93,12 +93,11 @@ jobs:
             git config user.name "mswertz"
             git config url.https://.insteadOf git://
 
-      # to switch to release add following
-      # ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
       - run:
           name: build, test, release, push docker
           command: |
             ./gradlew test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
+            ./gradlew release jib -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} --stacktrace
 
           environment:
             MOLGENIS_POSTGRES_USER: molgenis
