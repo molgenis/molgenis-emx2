@@ -42,7 +42,9 @@
         <tr>
           <th></th>
           <th v-for="(column, index) of columns" :key="`head-${index}`">
-            {{ column }}
+            <div class="rotated-title">
+              <span>{{ column }}</span>
+            </div>
           </th>
         </tr>
       </thead>
@@ -130,6 +132,23 @@ export default {
 </script>
 
 <style scoped>
+.table td {
+  text-align: center;
+}
+.rotated-title {
+  width: 2em;
+  height: 10em;
+  vertical-align: bottom;
+}
+.rotated-title > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 10em;
+  height: 2em;
+  transform-origin: 0 0;
+  transform: rotate(-90deg) translate(-10em, 0.2em);
+  display: inline-block;
+}
 </style>
 
 <docs>
