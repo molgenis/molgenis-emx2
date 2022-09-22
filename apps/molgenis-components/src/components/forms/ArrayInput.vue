@@ -210,7 +210,7 @@ export default {
         {{ hyperlinkValue }}
       </div>
     </DemoItem>
-v    <DemoItem>
+    <DemoItem>
       <div>
         <h3><label>Email array</label></h3>
         <ArrayInput
