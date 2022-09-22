@@ -10,7 +10,11 @@
       Download all tables:
       <a href="../api/zip">zip</a> | <a href="../api/excel">excel</a> |
       <a href="../api/jsonld">jsonld</a> | <a href="../api/ttl">ttl</a><br />
-      <InputSearch placeholder="search by name" v-model="search" />
+      <InputSearch
+        id="tables-list-search-input"
+        placeholder="search by name"
+        v-model="search"
+      />
       <h2>Data tables</h2>
       <TablesTable v-if="tables.length > 0" :tables="tables" />
       <p v-else>No tables found</p>
@@ -26,24 +30,24 @@
 </template>
 
 <script>
-import {MessageWarning, InputSearch} from '@mswertz/emx2-styleguide';
-import TablesTable from './TablesTable';
+import { MessageWarning, InputSearch } from "molgenis-components";
+import TablesTable from "./TablesTable";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     MessageWarning,
     InputSearch,
-    TablesTable
+    TablesTable,
   },
   props: {
     session: Object,
-    schema: Object
+    schema: Object,
   },
   data() {
     return {
       tableFilter: [],
-      search: null
+      search: null,
     };
   },
   computed: {
@@ -58,7 +62,7 @@ export default {
         return [];
       }
       if (this.search && this.search.trim().length > 0) {
-        let terms = this.search.toLowerCase().split(' ');
+        let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
           .filter((table) => !table.externalSchema)
           .filter((table) =>
@@ -74,17 +78,13 @@ export default {
       }
     },
     tables() {
-      return this.tablesFiltered.filter((table) => table.tableType == 'DATA');
+      return this.tablesFiltered.filter((table) => table.tableType == "DATA");
     },
     ontologies() {
       return this.tablesFiltered.filter(
-        (table) => table.tableType == 'ONTOLOGIES'
+        (table) => table.tableType == "ONTOLOGIES"
       );
-    }
-  }
+    },
+  },
 };
 </script>
-
-<docs>
-
-</docs>
