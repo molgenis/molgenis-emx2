@@ -25,7 +25,7 @@
 import FormGroup from "./FormGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import constants from "../constants";
-import { isNumericKey } from "../utils";
+import { isNumericKey, flipSign } from "../utils";
 
 const { CODE_MINUS, MIN_LONG, MAX_LONG } = constants;
 
@@ -82,21 +82,6 @@ function isInvalidBigInt(value) {
     value !== null &&
     (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
   );
-}
-
-function flipSign(value) {
-  switch (value) {
-    case "-":
-      return null;
-    case null:
-      return "-";
-    default:
-      if (value.charAt(0) === "-") {
-        return value.substring(1);
-      } else {
-        return "-" + value;
-      }
-  }
 }
 </script>
 
