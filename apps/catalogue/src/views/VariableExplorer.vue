@@ -3,34 +3,37 @@
     <div class="row">
       <div class="col-6 col-sm-5 col-md-4 col-lg-3">
         <h5>Filters</h5>
-        <div v-if="!network" class="bg-white">
-          <h6 class="mt-3">Networks</h6>
-          <input-ref
+        <div v-if="!network" class="bg-white px-1">
+          <InputRefList
             id="networks-input-ref"
+            label="Networks"
             tableName="Networks"
             v-model="networks"
-            :list="true"
-          ></input-ref>
+          ></InputRefList>
         </div>
-        <template v-if="hasKeywords">
-          <h6 class="mt-3">Topics</h6>
+        <div v-if="hasKeywords" class="bg-white px-1">
           <InputOntology
-            table="Keywords"
+            id="topics-ontology-input"
+            label="Topics"
             v-model="keywords"
-            :list="true"
+            :isMultiSelect="true"
+            tableName="Keywords"
             :show-expanded="true"
           />
-        </template>
-        <h6 class="mt-3">Cohorts</h6>
-        <input-ref
-          id="cohorts-input-ref"
-          tableName="Cohorts"
-          v-model="cohorts"
-          :list="true"
-          :maxNum="100"
-          :orderBy="{ pid: 'ASC' }"
-          :filter="network ? { networks: { pid: { equals: network } } } : null"
-        ></input-ref>
+        </div>
+        <div class="bg-white px-1">
+          <InputRefList
+            id="cohorts-input-ref"
+            label="Cohorts"
+            tableName="Cohorts"
+            v-model="cohorts"
+            :maxNum="100"
+            :orderBy="{ pid: 'ASC' }"
+            :filter="
+              network ? { networks: { pid: { equals: network } } } : null
+            "
+          ></InputRefList>
+        </div>
       </div>
       <div class="col-6 col-sm-7 col-md-8 col-lg-9">
         <div class="ml-2">
@@ -100,7 +103,7 @@ import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import {
   InputSearch,
   InputOntology,
-  InputRef,
+  InputRefList,
   FilterWells,
 } from "molgenis-components";
 
@@ -112,7 +115,7 @@ export default {
     InputSearch,
     InputOntology,
     FilterWells,
-    InputRef,
+    InputRefList,
   },
   props: {
     network: {
