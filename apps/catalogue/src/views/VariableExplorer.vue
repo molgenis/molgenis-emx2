@@ -49,6 +49,7 @@
                 id="search-variables-input"
                 v-model="searchInput"
                 placeholder="Search variables"
+                :isClearBtnShown="true"
               />
             </div>
           </div>
