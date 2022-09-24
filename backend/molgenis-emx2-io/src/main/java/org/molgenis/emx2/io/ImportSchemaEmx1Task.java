@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.emx1;
+package org.molgenis.emx2.io;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
@@ -9,21 +9,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.emx1.Emx1Attribute;
+import org.molgenis.emx2.io.emx1.Emx1Entity;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.molgenis.emx2.tasks.Task;
 
-public class Emx1 {
-  static final String EMX_1_IMPORT_FAILED = "EMX1 import failed: ";
+public class ImportSchemaEmx1Task extends Task {
+  public static final String EMX_1_IMPORT_FAILED = "EMX1 import failed: ";
   public static final String ONETOMANY = "onetomany";
-  private static Logger logger = LoggerFactory.getLogger(Emx1.class);
 
-  private Emx1() {
-    // hide constructor
+  private TableStore store;
+  private Schema schema;
+
+  public ImportSchemaEmx1Task(TableStore store, Schema schema) {
+    super("Import EMX1 format");
+    this.store = store;
+    this.schema = schema;
   }
 
-  public static void uploadFromStoreToSchema(TableStore store, Schema targetSchema) {
-    long start = System.currentTimeMillis();
+  @Override
+  public void run() {
+    this.start();
+    // for progress
+    Task schemaTask = this.addSubTask("loading table metadata").start();
 
     // parse metadata into emx1 schema
     SchemaMetadata emx1schema = new SchemaMetadata();
@@ -33,7 +41,10 @@ public class Emx1 {
     loadRefRelationships(emx1schema, entities, attributes);
 
     // load into target schema
-    targetSchema.migrate(stripOldName(emx1schema));
+    schema.migrate(stripOldName(emx1schema));
+
+    // update message
+    schemaTask.complete();
 
     // revert map
     Map<String, String> tableToSheet = new LinkedHashMap<>();
@@ -45,6 +56,8 @@ public class Emx1 {
     for (TableMetadata table : emx1schema.getTables()) {
       String emx1EntityName = tableToSheet.get(table.getTableName());
       if (store.containsTable(emx1EntityName)) {
+        Task tableTask = this.addSubTask("Loading " + table.getTableName()).start();
+
         // map for mapping from 'name' to 'label'
         Map<String, String> attributeMap =
             table.getColumns().stream()
@@ -68,14 +81,15 @@ public class Emx1 {
                   return result;
                 });
 
+        List<Row> rows = rowStream.toList();
+
         // memory intensive?
-        targetSchema.getTable(table.getTableName()).save(rowStream.toList()); // actually upsert
+        schema.getTable(table.getTableName()).save(rows); // actually upsert
+
+        tableTask.setTotal(rows.size()).setProgress(rows.size()).complete();
       }
     }
-
-    if (logger.isInfoEnabled()) {
-      logger.info("import completed in {}ms", (System.currentTimeMillis() - start));
-    }
+    this.complete();
   }
 
   private static SchemaMetadata stripOldName(SchemaMetadata emx1schema) {

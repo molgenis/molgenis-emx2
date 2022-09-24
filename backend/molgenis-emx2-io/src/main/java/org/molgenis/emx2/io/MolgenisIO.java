@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.io.ImportSchemaEmx1Task.getEmx1Attributes;
+import static org.molgenis.emx2.io.ImportSchemaEmx1Task.getEmx1Entities;
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
@@ -9,7 +11,6 @@ import java.nio.file.Path;
 import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
 
 /** Short hands for running the tasks */
@@ -46,10 +47,8 @@ public class MolgenisIO {
 
   private static void executeEmx1Export(TableStore store, Schema schema) {
     // write metadata
-    store.writeTable(
-        "entities", List.of("UNSUPPORTED"), Emx1.getEmx1Entities(schema.getMetadata()));
-    store.writeTable(
-        "attributes", List.of("UNSUPPORTED"), Emx1.getEmx1Attributes(schema.getMetadata()));
+    store.writeTable("entities", List.of("UNSUPPORTED"), getEmx1Entities(schema.getMetadata()));
+    store.writeTable("attributes", List.of("UNSUPPORTED"), getEmx1Attributes(schema.getMetadata()));
     // write data
     for (String tableName : schema.getTableNames()) {
       outputTable(store, schema.getTable(tableName));

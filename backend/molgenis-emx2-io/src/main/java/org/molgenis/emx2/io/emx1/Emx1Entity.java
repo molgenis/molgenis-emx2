@@ -1,6 +1,6 @@
 package org.molgenis.emx2.io.emx1;
 
-import static org.molgenis.emx2.io.emx1.Emx1.EMX_1_IMPORT_FAILED;
+import static org.molgenis.emx2.io.ImportSchemaEmx1Task.EMX_1_IMPORT_FAILED;
 
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;

@@ -1,12 +1,14 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.io.ImportMetadataEmx2Task.MOLGENIS;
+
 import java.util.Objects;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportSchemaTask extends Task {
-  private TableStore tableStore;
+  private TableStore store;
   private Schema schema;
   private Filter filter = Filter.ALL;
 
@@ -20,7 +22,7 @@ public class ImportSchemaTask extends Task {
     super(description, strict);
     Objects.requireNonNull(store, "tableStore cannot be null");
     Objects.requireNonNull(schema, "schema cannot be null");
-    this.tableStore = store;
+    this.store = store;
     this.schema = schema;
   }
 
@@ -44,20 +46,24 @@ public class ImportSchemaTask extends Task {
             // import metadata, if any
             Schema schema = db.getSchema(this.schema.getName());
 
-            if (!filter.equals(Filter.DATA_ONLY)) {
-              Task metadataTask = new ImportMetadataTask(schema, tableStore, isStrict());
-              this.addSubTask(metadataTask);
-              metadataTask.run();
+            // try emx2 metadata importer
+            if (store.containsTable(MOLGENIS)
+                || store.containsTable("molgenis_settings")
+                || store.containsTable("molgenis_members")) {
+              Task subTask = new ImportSchemaEmx2Task(store, schema, isStrict());
+              this.addSubTask(subTask);
+              subTask.run();
+            } else
+            // attempt emx1
+            if (store.containsTable("attributes")) {
+              Task subTask = new ImportSchemaEmx1Task(store, schema);
+              this.addSubTask(subTask);
+              subTask.run();
             }
 
-            if (!filter.equals(Filter.METADATA_ONLY)) {
-              Task dataTask = new ImportDataTask(schema, tableStore, isStrict());
-              this.addSubTask(dataTask);
-              dataTask.run();
-            }
-
-            // committing
-            this.addSubTask(commit.start());
+            // committing will start now
+            this.addSubTask(commit);
+            commit.start();
           });
     } catch (Exception e) {
       this.setError("Import failed: " + e.getMessage());
