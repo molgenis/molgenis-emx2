@@ -54,15 +54,16 @@ export default {
         request("graphql", query)
           .then((data) => {
             this.task = data._tasks[0];
+            this.loading = false;
             this.$emit("taskUpdated", this.task);
           })
           .catch((error) => {
             console.log(JSON.stringify(error));
+            this.loading = false;
             this.error = true;
           });
         await sleep(500);
       }
-      this.loading = false;
     },
   },
   created() {
@@ -79,22 +80,23 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
-      <InputString id="task-id-input" v-model="taskId" />
+      <InputString id="task-id-input" v-model="taskId"/>
       <ButtonAction v-if="!showTask" v-on:click="showTask = true"
-        >Send</ButtonAction
+      >Send
+      </ButtonAction
       >
-      <Task v-if="showTask" :taskId="taskId" />
+      <Task v-if="showTask" :taskId="taskId"/>
     </demo-item>
   </div>
 </template>
 <script>
-export default {
-  data: function () {
-    return {
-      taskId: "not existing taskId",
-      showTask: false,
-    };
-  },
-};
+  export default {
+    data: function () {
+      return {
+        taskId: "not existing taskId",
+        showTask: false,
+      };
+    },
+  };
 </script>
 </docs>
