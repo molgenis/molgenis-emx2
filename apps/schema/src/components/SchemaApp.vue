@@ -137,6 +137,9 @@ export default {
         if (table.columns !== undefined) {
           table.columns.forEach((column) => {
             if (column.table !== table.oldName) {
+              if (tableMap[column.table].columns === undefined) {
+                tableMap[column.table].columns = [];
+              }
               tableMap[column.table].columns.push(column);
             }
           });
@@ -254,6 +257,7 @@ export default {
             table.columns.push(...subclass.columns);
             //remove the columns from subclass table
             subclass.columns = [];
+            subclass.oldName = subclass.name;
             //add subclass to root table
             if (!table.subclasses) {
               table.subclasses = [subclass];

@@ -123,7 +123,7 @@
               :schemaNames="schemaNames"
               operation="add"
               :tableName="table.name"
-              @add="addColumn(0, $event)"
+              @add="addColumn(table.columns.length, $event)"
             />
           </div>
           <table
@@ -148,7 +148,7 @@
             <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
               <ColumnView
                 v-for="(column, columnIndex) in table.columns"
-                :key="columnIndex + column.name"
+                :key="columnIndex + column.name + table.columns.length"
                 :style="
                   isSubclassDropped(column)
                     ? 'text-decoration: line-through'
@@ -233,6 +233,7 @@ export default {
         this.table.columns = [];
       }
       this.table.columns.splice(index, 0, column);
+      this.applyPosition();
       this.$emit("input", this.table);
     },
     applyPosition() {

@@ -118,9 +118,12 @@ export default {
           table.oldName === this.column.table ||
           table.name === this.column.table ||
           (table.subclasses !== undefined &&
-            table.subclasses
+            (table.subclasses
               .map((subclass) => subclass.oldName)
-              .includes(this.column.table))
+              .includes(this.column.table) ||
+              table.subclasses
+                .map((subclass) => subclass.name)
+                .includes(this.column.table)))
       );
     },
     rootTableName() {
