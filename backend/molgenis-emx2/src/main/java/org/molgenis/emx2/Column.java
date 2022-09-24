@@ -99,6 +99,10 @@ public class Column implements Comparable<Column> {
       throw new MolgenisException(
           "Invalid column name '" + columnName + "': column names cannot contain '_ ' or '_ '");
     }
+    if (columnName.trim().length() > 63) {
+      throw new MolgenisException(
+          "Column name too long '" + columnName + "': columns can be maximum 63 characters");
+    }
     return columnName.trim();
   }
 
