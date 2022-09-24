@@ -216,7 +216,7 @@ public class Emx1 {
       case ONETOMANY:
         return REFBACK;
       case "mref":
-      case "categorical_mref":
+      case "categoricalmref":
         return REF_ARRAY;
       default:
         return STRING; // string, enum, others will default to string
