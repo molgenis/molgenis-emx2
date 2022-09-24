@@ -4,10 +4,10 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class Emx1 {
     loadRefRelationships(emx1schema, entities, attributes);
 
     // load into target schema
-    targetSchema.migrate(emx1schema);
+    targetSchema.migrate(stripOldName(emx1schema));
 
     // revert map
     Map<String, String> tableToSheet = new LinkedHashMap<>();
@@ -41,18 +41,52 @@ public class Emx1 {
       tableToSheet.put(entry.getValue().getName(), entry.getKey());
     }
 
-    // load the tables
+    // load the tables, using the original names
     for (TableMetadata table : emx1schema.getTables()) {
-      if (store.containsTable(tableToSheet.get(table.getTableName()))) {
-        targetSchema
-            .getTable(table.getTableName())
-            .save(store.readTable(tableToSheet.get(table.getTableName()))); // actually upsert
+      String emx1EntityName = tableToSheet.get(table.getTableName());
+      if (store.containsTable(emx1EntityName)) {
+        // map for mapping from 'name' to 'label'
+        Map<String, String> attributeMap =
+            table.getColumns().stream()
+                .collect(Collectors.toMap(Column::getOldName, Column::getName));
+
+        // create a stream from the row iterable
+        Stream<Row> rowStream =
+            StreamSupport.stream(
+                store.readTable(tableToSheet.get(table.getTableName())).spliterator(), false);
+
+        // rename columns from name to label (argh!)
+        rowStream =
+            rowStream.map(
+                row -> {
+                  Row result = new Row();
+                  attributeMap
+                      .entrySet()
+                      .forEach(
+                          entry ->
+                              result.set(entry.getValue(), row.getValueMap().get(entry.getKey())));
+                  return result;
+                });
+
+        // memory intensive?
+        targetSchema.getTable(table.getTableName()).save(rowStream.toList()); // actually upsert
       }
     }
 
     if (logger.isInfoEnabled()) {
       logger.info("import completed in {}ms", (System.currentTimeMillis() - start));
     }
+  }
+
+  private static SchemaMetadata stripOldName(SchemaMetadata emx1schema) {
+    SchemaMetadata clone = new SchemaMetadata(emx1schema);
+    clone
+        .getTables()
+        .forEach(
+            t -> {
+              t.getColumns().forEach(c -> c.setOldName(null));
+            });
+    return clone;
   }
 
   private static void loadRefRelationships(
@@ -78,13 +112,25 @@ public class Emx1 {
 
         String refTableName = getTableName(entities, attribute.getRefEntity());
 
-        Column c = table.getColumn(attribute.getName()).setRefTable(refTableName);
-        if (attribute.getDataType().contains(ONETOMANY) && attribute.getRefBack() == null) {
-          throw new MolgenisException(
-              "refBack missing for attribute " + attribute.getEntity() + "." + attribute.getName());
-        }
-        if (attribute.getRefBack() != null) {
-          c.setRefBack(attribute.getRefBack());
+        Column c = table.getColumn(getColumnName(attribute)).setRefTable(refTableName);
+
+        if (attribute.getDataType().contains(ONETOMANY)) {
+          Optional<Emx1Attribute> refbackAttribute =
+              attributes.stream()
+                  .filter(
+                      a ->
+                          a.getName().equals(attribute.getName())
+                              && attribute.getRefBack().equals(a.getName()))
+                  .findFirst();
+          if (refbackAttribute.isEmpty()) {
+            throw new MolgenisException(
+                "refBack missing for attribute "
+                    + attribute.getEntity()
+                    + "."
+                    + attribute.getName());
+          } else {
+            c.setRefBack(getColumnName(refbackAttribute.get()));
+          }
         }
         table.alterColumn(c);
       }
@@ -135,10 +181,13 @@ public class Emx1 {
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
         Column column =
-            column(attribute.getName())
+            column(getColumnName(attribute))
+                .setOldName(attribute.getName())
                 .setType(type)
                 .setRequired(!attribute.getNillable())
-                .setReadonly(attribute.getReadonly());
+                .setReadonly(attribute.getReadonly())
+                // get label as description, and if also description concat that too
+                .setDescription(attribute.getDescription());
 
         // pkey
         if (attribute.getIdAttribute()) {
@@ -153,6 +202,18 @@ public class Emx1 {
           EMX_1_IMPORT_FAILED + me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
+  }
+
+  private static String getColumnName(Emx1Attribute attribute) {
+    if (attribute.getLabel() != null) {
+      // strip all illegal characters
+      String result =
+          attribute.getLabel().trim().substring(0, 1).replaceAll("[^a-zA-Z]", "")
+              + attribute.getLabel().trim().substring(1).replaceAll("[^a-zA-Z0-9_ ]", "");
+      return result.trim();
+    } else {
+      return attribute.getName();
+    }
   }
 
   private static String getTableName(Map<String, Emx1Entity> entities, String entityName) {

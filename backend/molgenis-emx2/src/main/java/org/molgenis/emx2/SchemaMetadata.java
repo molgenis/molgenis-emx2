@@ -36,6 +36,9 @@ public class SchemaMetadata {
     for (Setting setting : schema.getSettings()) {
       this.setSetting(setting.key(), setting.value());
     }
+    for (TableMetadata table : schema.getTables()) {
+      this.create(new TableMetadata(this, table));
+    }
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
