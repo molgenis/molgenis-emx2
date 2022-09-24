@@ -202,16 +202,18 @@ public class TableStoreForXlsxFile implements TableStore {
         }
 
         if (cell.getCellType().equals(FORMULA)) {
-          convertCellToRowValue(row, cell, cell.getCachedFormulaResultType(), colName);
+          convertCellToRowValue(
+              row, cell, cell.getCachedFormulaResultType(), colName, excelRow.getRowNum());
         } else {
-          convertCellToRowValue(row, cell, cell.getCellType(), colName);
+          convertCellToRowValue(row, cell, cell.getCellType(), colName, excelRow.getRowNum());
         }
       }
     }
     return row;
   }
 
-  private void convertCellToRowValue(Row row, Cell cell, CellType cellType, String colName) {
+  private void convertCellToRowValue(
+      Row row, Cell cell, CellType cellType, String colName, Integer rowNum) {
     switch (cellType) {
       case BLANK:
         row.set(colName, null);
@@ -225,12 +227,17 @@ public class TableStoreForXlsxFile implements TableStore {
         break;
       case FORMULA:
         throw new UnsupportedOperationException(
-            "Found formula in Excel file; should not happen in this function");
+            String.format(
+                "Found formula in Excel file on column %s row %s; should not happen in this function",
+                colName, rowNum));
       default:
         throw new UnsupportedOperationException(
-            "Found unknown type "
-                + cellType
-                + " in Excel file; should not happen in this function");
+            String.format(
+                "Found unknown type "
+                    + cellType
+                    + " in Excel column %s ROW %S; should not happen in this function",
+                colName,
+                rowNum));
     }
   }
 

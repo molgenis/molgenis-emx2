@@ -36,6 +36,7 @@ public class Emx1Attribute {
     this.setRefEntity(c.getRefTableName());
     this.setRefBack(c.getRefBack());
     this.setNillable(!c.isRequired());
+    this.setReadonly(c.isReadonly());
   }
 
   public Emx1Attribute(Row row) {
@@ -63,6 +64,7 @@ public class Emx1Attribute {
     this.expression = get(row, "expression");
     this.rangeMax = row.getInteger("rangeMax");
     this.rangeMin = row.getInteger("rangeMi");
+    if (row.getBoolean(READONLY_NAME) != null) this.readonly = row.getBoolean("readonly");
   }
 
   private String get(Row row, String name) {
@@ -246,6 +248,7 @@ public class Emx1Attribute {
     r.set("visible", visible);
     r.set("rangeMin", rangeMin); // not supported by design
     r.set("rangeMax", rangeMax); // not supported by design
+    r.set("readonly", readonly);
     return r;
   }
 
