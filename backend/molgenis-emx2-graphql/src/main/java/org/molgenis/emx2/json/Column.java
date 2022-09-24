@@ -13,6 +13,7 @@ public class Column {
   private String oldName;
   private Integer key = 0;
   private Boolean required = false;
+  private Boolean readonly = false;
   private String refSchema = null;
   private String refTable = null;
   private String refLink = null;
@@ -57,6 +58,7 @@ public class Column {
     this.refBack = column.getRefBack();
     this.validation = column.getValidation();
     this.required = column.isRequired();
+    this.readonly = column.isReadonly();
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
@@ -84,6 +86,8 @@ public class Column {
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
+    c.setReadonly(readonly);
+
     // ignore inherited
     return c;
   }
@@ -246,5 +250,13 @@ public class Column {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public Boolean getReadonly() {
+    return readonly;
+  }
+
+  public void setReadonly(Boolean readonly) {
+    this.readonly = readonly;
   }
 }

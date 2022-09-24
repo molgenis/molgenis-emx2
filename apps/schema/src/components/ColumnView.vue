@@ -57,6 +57,9 @@
       <span v-if="column.required === true || column.required === 'true'">
         required
       </span>
+      <span v-if="column.readonly === true || column.readonly === 'true'">
+        readonly
+      </span>
       <span v-if="column.key">key={{ column.key }}</span>
     </td>
     <td>{{ column.description }}</td>

@@ -44,6 +44,9 @@ public class Migrations {
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
+          if (version < 5)
+            executeMigrationFile(
+                tdb, "migration5.sql", "database migration: add MOLGENIS.column_metadata.readonly");
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.

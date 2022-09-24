@@ -100,6 +100,13 @@
               :label="column.visibleIf ? 'required (if visible)' : 'required'"
             />
           </div>
+          <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+            <InputBoolean
+              id="column_readonly"
+              v-model="column.readonly"
+              label="isReadonly"
+            />
+          </div>
         </div>
         <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">

@@ -53,6 +53,7 @@
       </div>
     </div>
     <a id="molgenis_bottom_ontologies_anchor"></a>
+    <pre>{{ schema }}</pre>
   </div>
 </template>
 
