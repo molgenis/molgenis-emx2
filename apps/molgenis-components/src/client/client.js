@@ -120,6 +120,7 @@ _schema {
       refLabel,
       refBack,
       required,
+      readonly,
       semantics,
       description,
       position,
