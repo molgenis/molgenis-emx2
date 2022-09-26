@@ -67,26 +67,73 @@
 
 <script>
 import { request } from "../../client/client.js";
-import requestData from "./request.json";
 
 export default {
   name: "AggregateTable",
-  props: {},
+  props: {
+    graphQlEndpoint: {
+      type: String,
+      default: "graphql",
+    },
+    /** table to aggregate */
+    table: {
+      type: String,
+      required: true,
+    },
+    /** property of the table to aggregate mref/xref */
+    columnHeaderProperty: {
+      type: String,
+      required: true,
+    },
+    /** property of the mref/xref to display in the header cell */
+    columnHeaderNameProperty: {
+      type: String,
+      required: true,
+    },
+    /** property of the table to aggregate mref/xref */
+    rowHeaderProperty: {
+      type: String,
+      required: true,
+    },
+    /** property of the mref/xref to display in the header cell */
+    rowHeaderNameProperty: {
+      type: String,
+      required: true,
+    },
+  },
   data: function () {
     return {
       loading: true,
       rows: [],
       columns: [],
       aggregateData: {},
-      columnName: "MaterialTypeDetailed",
-      rowName: "Diseases",
     };
   },
-  computed: {},
+  computed: {
+    tableName() {
+      return `${this.table}_agg`;
+    },
+    getAggregateQuery() {
+      return `{ 
+                ${this.tableName} {
+                  groupBy {
+                    count,
+                    ${this.columnHeaderProperty} {
+                      ${this.columnHeaderNameProperty}
+                    },
+                    ${this.rowHeaderProperty} {
+                      ${this.rowHeaderNameProperty}
+                    }
+                  }
+                }
+              }`;
+    },
+  },
   methods: {
     AddItem(item) {
-      const column = item[this.columnName].name;
-      const row = item[this.rowName].name;
+      const column = item[this.columnHeaderProperty].name;
+      const row = item[this.rowHeaderProperty].name;
+
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
       } else {
@@ -101,29 +148,13 @@ export default {
       }
     },
     async fetchData() {
-      /*
       const responseData = await request(
-        "SampleCatalogue/graphql",
-        `
-        {
-          Samples_agg {
-            groupBy {
-              count,
-              Diseases {
-                code,
-                name
-              },
-              MaterialTypeDetailed {
-                code,
-                name
-              }
-            }
-          }
-        }     
-        `
+        this.graphQlEndpoint,
+        this.getAggregateQuery
       );
-      */
-      requestData.data.Samples_agg.groupBy.forEach(this.AddItem);
+      responseData[this.tableName].groupBy.forEach((item) =>
+        this.AddItem(item)
+      );
       this.loading = false;
     },
   },
@@ -177,7 +208,15 @@ thead {
 <docs>
 <template>
   <demo-item>
-    <AggregateTable></AggregateTable>
+    <AggregateTable 
+      :table="tableName"
+      :graphQlEndpoint="endpoint"
+      :columnHeaderProperty="columnName" 
+      :columnHeaderNameProperty="columnNameProperty" 
+      :rowHeaderProperty="rowName"
+      :rowHeaderNameProperty="columnNameProperty" 
+    >
+    </AggregateTable>
   </demo-item>
 </template>
 
@@ -185,6 +224,11 @@ thead {
   export default {
     data() {
       return {
+        tableName: 'Samples',
+        endpoint: "SampleCatalogue/graphql",
+        columnName: "MaterialTypeDetailed",
+        rowName: "Diseases",
+        columnNameProperty: "name"
       }
     },
   }
