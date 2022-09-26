@@ -47,7 +47,8 @@ public class OntologyTableSemantics {
     String result = outputStream.toString();
 
     /**
-     * Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697 (Controlled Vocabulary)
+     * Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697
+     * (Controlled Vocabulary)
      */
     assertTrue(
         result.contains(
@@ -58,9 +59,7 @@ public class OntologyTableSemantics {
             "emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;\n"
                 + "  rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
 
-    /**
-     * Update the 'Tag' ontology table with new semantics and produce new RDF
-     */
+    /** Update the 'Tag' ontology table with new semantics and produce new RDF */
     SchemaMetadata metadata =
         Emx2.fromRowList(
             CsvTableReader.read(
@@ -76,7 +75,8 @@ public class OntologyTableSemantics {
     result = outputStream.toString();
 
     /**
-     * Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME ontology
+     * Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME
+     * ontology
      */
     assertFalse(
         result.contains(
