@@ -1,4 +1,5 @@
 module.exports = {
+  runtimeCompiler: true,
   publicPath: "", // to ensure relative paths are used
   chainWebpack: (config) => {
     // GraphQL Loader, allows import of .gql files

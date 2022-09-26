@@ -6,18 +6,23 @@
     :description="description"
     :errorMessage="errorMessage"
   >
-    <ResizableTextarea>
-      <textarea
-        :id="id"
-        :value="value"
-        class="form-control"
-        :class="{ 'is-invalid': errorMessage }"
-        :aria-describedby="id + 'Help'"
-        :placeholder="placeholder"
-        :readonly="readonly"
-        @input="$emit('input', $event.target.value)"
-      />
-    </ResizableTextarea>
+    <InputGroup>
+      <ResizableTextarea>
+        <textarea
+          :id="id"
+          :value="value"
+          class="form-control"
+          :class="{ 'is-invalid': errorMessage }"
+          :aria-describedby="id + 'Help'"
+          :placeholder="placeholder"
+          :readonly="readonly"
+          @input="$emit('input', $event.target.value)"
+        />
+      </ResizableTextarea>
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
@@ -25,11 +30,13 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import ResizableTextarea from "./ResizableTextarea.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
+    InputGroup,
     ResizableTextarea,
   },
 };

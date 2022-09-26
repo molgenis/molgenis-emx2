@@ -6,24 +6,30 @@
     :description="description"
     :errorMessage="errorMessage || bigIntError"
   >
-    <input
-      :id="id"
-      :value="value"
-      class="form-control"
-      :class="{ 'is-invalid': errorMessage || bigIntError }"
-      :aria-describedby="id + 'Help'"
-      :placeholder="placeholder"
-      :readonly="readonly"
-      :required="required"
-      @keypress="handleKeyValidity($event)"
-      @input="inputHandler($event)"
-    />
+    <InputGroup>
+      <input
+        :id="id"
+        :value="value"
+        class="form-control"
+        :class="{ 'is-invalid': errorMessage || bigIntError }"
+        :aria-describedby="id + 'Help'"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        @keypress="handleKeyValidity($event)"
+        @input="inputHandler($event)"
+      />
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
 import FormGroup from "./FormGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
+import InputGroup from "./InputGroup.vue";
 import constants from "../constants";
 import { isNumericKey, flipSign } from "../utils";
 
@@ -33,6 +39,7 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
+    InputGroup,
   },
   props: {
     readonly: {

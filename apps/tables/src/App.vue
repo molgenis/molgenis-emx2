@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { Molgenis, MessageWarning } from "@mswertz/emx2-styleguide";
+import { Molgenis, MessageWarning } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
