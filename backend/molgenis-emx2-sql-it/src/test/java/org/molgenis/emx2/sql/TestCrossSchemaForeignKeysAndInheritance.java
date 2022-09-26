@@ -12,6 +12,12 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.test.CrossSchemaReferenceExample;
 
 public class TestCrossSchemaForeignKeysAndInheritance {
+
+  private static final String schemaName1 =
+      TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "1";
+  private static final String schemaName2 =
+      TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "2";
+
   static Schema schema1;
   static Schema schema2;
   static Database db;
@@ -19,11 +25,10 @@ public class TestCrossSchemaForeignKeysAndInheritance {
   @BeforeClass
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema1 =
-        db.dropCreateSchema(TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "1");
-    schema2 =
-        db.dropCreateSchema(TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "2");
-
+    db.dropSchemaIfExists(schemaName2);
+    db.dropSchemaIfExists(schemaName1);
+    schema1 = db.createSchema(schemaName1);
+    schema2 = db.createSchema(schemaName2);
     CrossSchemaReferenceExample.create(schema1, schema2);
   }
 
