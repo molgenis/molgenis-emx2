@@ -33,7 +33,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     this.client = Client.newClient();
     this.resourceData = (
       await this.client.fetchTableDataValues(this.table, {
