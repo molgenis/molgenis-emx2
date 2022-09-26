@@ -1,6 +1,5 @@
-const HOST =
-  process.env.MOLGENIS_APPS_HOST || "https://data-catalogue.molgeniscloud.org/";
-const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "catalogue";
+const HOST = process.env.MOLGENIS_APPS_HOST || "https://emx2.dev.molgenis.org";
+const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet%20store";
 
 const opts = { changeOrigin: true, secure: false };
 
