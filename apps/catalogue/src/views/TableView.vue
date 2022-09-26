@@ -78,6 +78,8 @@
           resource: { pid: { equals: pid } },
         },
       }"
+      :canEdit="canEdit"
+      :canManage="canManage"
       @click="openVariable"
     />
   </div>
@@ -86,6 +88,7 @@
 import { request } from "graphql-request";
 import { TableExplorer } from "molgenis-components";
 import { MessageError } from "molgenis-components";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
@@ -106,6 +109,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["canEdit", "canManage"]),
     resourceType() {
       if (this.table.dataDictionary) {
         return this.table.dataDictionary.resource.mg_tableclass.split(".")[1];
@@ -122,6 +126,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["reloadMetadata"]),
     getType(mg_tableclass) {
       return mg_tableclass.split(".")[1];
     },
@@ -168,6 +173,7 @@ export default {
     },
   },
   created() {
+    this.reloadMetadata();
     this.reload();
   },
 };

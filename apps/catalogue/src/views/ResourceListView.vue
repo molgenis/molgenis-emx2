@@ -6,6 +6,8 @@
       :tableName="tableName"
       :showCards="defaultCards"
       :initialSearchTerms="searchTerm"
+      :canEdit="canEdit"
+      :canManage="canManage"
       @click="openDetailView"
       @searchTerms="onSearchTermUpdate"
     />
@@ -14,6 +16,7 @@
 
 <script>
 import { TableExplorer } from "molgenis-components";
+import { mapActions, mapGetters } from "vuex";
 
 const css = {
   Institutions: "bg-dark text-white",
@@ -41,6 +44,7 @@ export default {
     searchTerm: String,
   },
   computed: {
+    ...mapGetters(["canEdit", "canManage"]),
     headerCss() {
       return css[this.tableName];
     },
@@ -145,6 +149,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["reloadMetadata"]),
     onSearchTermUpdate(searchTerm) {
       let newQuery = { ...this.$route.query };
       if (searchTerm) {
@@ -250,6 +255,9 @@ export default {
         });
       }
     },
+  },
+  created() {
+    this.reloadMetadata();
   },
 };
 </script>
