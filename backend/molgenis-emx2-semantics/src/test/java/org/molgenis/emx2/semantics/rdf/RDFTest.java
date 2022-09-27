@@ -67,7 +67,6 @@ public class RDFTest {
     assertTrue(result.contains(TTL_ROW_DOG_1));
     assertTrue(result.contains(TTL_ROW_CAT_2));
     assertTrue(result.contains(TTL_ROW_DOG_2));
-    assertEquals(52443, result.length());
   }
 
   @Test
@@ -100,7 +99,6 @@ public class RDFTest {
     assertTrue(result.contains(TTL_ROW_DOG_1));
     assertFalse(result.contains(TTL_ROW_CAT_2));
     assertFalse(result.contains(TTL_ROW_DOG_2));
-    assertEquals(26495, result.length());
   }
 
   @Test
