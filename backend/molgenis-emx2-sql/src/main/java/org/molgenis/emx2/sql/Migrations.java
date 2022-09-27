@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.createMgTableClassCannotUpdateCheck;
+
 import java.io.IOException;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,12 @@ public class Migrations {
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
 
+          if (version < 5) {
+            migration5addMgTableclassUpdateTrigger((SqlDatabase) tdb);
+            logger.debug(
+                "Updated all tables to have mg_tableclass trigger to prevent accidental overwrite of subclass records with same primary key value");
+          }
+
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.
 
@@ -65,5 +73,21 @@ public class Migrations {
 
   private static void updateDatabaseVersion(SqlDatabase db, int newVersion) {
     MetadataUtils.setVersion(db.getJooq(), newVersion);
+  }
+
+  static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
+    // should add trigger to all root tables, identfied by having MG_TABLCLASS column
+    for (String schemaName : db.getSchemaNames()) {
+      Schema schema = db.getSchema(schemaName);
+      for (String tableName : schema.getTableNames()) {
+        TableMetadata tableMetadata = schema.getTable(tableName).getMetadata();
+        if (tableMetadata.getLocalColumnNames().contains(MG_TABLECLASS)) {
+          createMgTableClassCannotUpdateCheck((SqlTableMetadata) tableMetadata, db.getJooq());
+          logger.debug(
+              "added mg_tableclass update trigger for table "
+                  + tableMetadata.getJooqTable().getName());
+        }
+      }
+    }
   }
 }
