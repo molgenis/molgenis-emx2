@@ -2,6 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
@@ -39,15 +40,20 @@ public class FAIRDataPoint {
    * @throws Exception
    */
   public FAIRDataPoint(Request request, Schema... schemas) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    Date currentDateTime = new Date(System.currentTimeMillis());
+    this.issued = formatter.format(currentDateTime);
+    this.modified = formatter.format(currentDateTime);
     this.version = Version.getVersion();
     this.request = request;
     this.schemas = schemas;
   }
 
   private String version;
+  private String issued;
+  private String modified;
   private Request request;
   private Schema[] schemas;
-  private String result;
 
   /**
    * Used to override version for JUnit testing
@@ -56,6 +62,24 @@ public class FAIRDataPoint {
    */
   public void setVersion(String version) {
     this.version = version;
+  }
+
+  /**
+   * Used to override issued for JUnit testing
+   *
+   * @param issued
+   */
+  public void setIssued(String issued) {
+    this.issued = issued;
+  }
+
+  /**
+   * Used to override modified for JUnit testing
+   *
+   * @param modified
+   */
+  public void setModified(String modified) {
+    this.modified = modified;
   }
 
   /**
@@ -96,14 +120,10 @@ public class FAIRDataPoint {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    Date currentDateTime = new Date(System.currentTimeMillis());
-
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     String requestURL = request.url();
     URI requestURI = getURI(requestURL);
-    String host =
-        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpCatalog = apiFdp + "/catalog";
     String apiFdpProfile = apiFdp + "/catalog";
@@ -130,13 +150,11 @@ public class FAIRDataPoint {
     builder.add(
         apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), apiFdpIdentifierEnc);
     builder.add(
-        apiFdpEnc,
-        iri("https://w3id.org/fdp/fdp-o#metadataIssued"),
-        literal(formatter.format(currentDateTime), XSD.DATETIME));
+        apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIssued"), literal(issued, XSD.DATETIME));
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
-        literal(formatter.format(currentDateTime), XSD.DATETIME));
+        literal(modified, XSD.DATETIME));
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#conformsToFdpSpec"),
@@ -189,13 +207,9 @@ public class FAIRDataPoint {
     builder.add(vcard, VCARD4.HAS_URL, "https://molgenis.org/");
     builder.add(apiFdpEnc, DCAT.ENDPOINT_DESCRIPTION, encodedIRI(host + "/api/openapi"));
     builder.add(
-        apiFdpEnc,
-        iri("https://w3id.org/fdp/fdp-o#startDate"),
-        literal(formatter.format(currentDateTime), XSD.DATETIME));
+        apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#startDate"), literal(issued, XSD.DATETIME));
     builder.add(
-        apiFdpEnc,
-        iri("https://w3id.org/fdp/fdp-o#endDate"),
-        literal(formatter.format(currentDateTime), XSD.DATETIME));
+        apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#endDate"), literal(modified, XSD.DATETIME));
     builder.add(
         apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#uiLanguage"),

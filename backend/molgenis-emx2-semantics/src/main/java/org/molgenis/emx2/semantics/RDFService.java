@@ -45,7 +45,7 @@ public class RDFService {
   private ModelBuilder builder;
   private WriterConfig config;
   private RDFFormat rdfFormat;
-  private String rootContext;
+  private String host;
 
   /**
    * Hidden constructor, used on-the-fly by static functions that handle requests.
@@ -59,8 +59,7 @@ public class RDFService {
     // etc
     String requestURL = request.url();
     URI requestURI = getURI(requestURL);
-    this.rootContext =
-        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    this.host = extractHost(requestURI);
 
     jsonMapper =
         new ObjectMapper()
@@ -130,15 +129,13 @@ public class RDFService {
     try {
 
       RDFService rdfService = new RDFService(request, response);
-      describeRoot(rdfService.getBuilder(), rdfService.getRootContext());
+      describeRoot(rdfService.getBuilder(), rdfService.getHost());
 
       for (int i = 0; i < schemas.length; i++) {
         Schema schema = schemas[i];
-        String schemaRdfApiContext =
-            rdfService.getRootContext() + "/" + schema.getName() + rdfApiLocation;
+        String schemaRdfApiContext = rdfService.getHost() + "/" + schema.getName() + rdfApiLocation;
         rdfService.getBuilder().setNamespace("emx" + i, schemaRdfApiContext + "/");
-        describeSchema(
-            rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getRootContext());
+        describeSchema(rdfService.getBuilder(), schema, schemaRdfApiContext, rdfService.getHost());
         List<Table> tables = table != null ? Arrays.asList(table) : schema.getTablesSorted();
         for (Table tableToDescribe : tables) {
           describeTable(rdfService.getBuilder(), tableToDescribe, schemaRdfApiContext);
@@ -163,6 +160,19 @@ public class RDFService {
     }
   }
 
+  /**
+   * Extract the host location from a request URI.
+   *
+   * @param requestURI
+   * @return
+   */
+  public static String extractHost(URI requestURI) {
+    return requestURI.getScheme()
+        + "://"
+        + requestURI.getHost()
+        + (requestURI.getPort() != -1 ? ":" + requestURI.getPort() : "");
+  }
+
   private ObjectMapper getJsonMapper() {
     return jsonMapper;
   }
@@ -179,7 +189,7 @@ public class RDFService {
     return rdfFormat;
   }
 
-  private String getRootContext() {
-    return rootContext;
+  private String getHost() {
+    return host;
   }
 }
