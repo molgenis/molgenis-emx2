@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import { request } from "../../client/client.js";
 import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";
 

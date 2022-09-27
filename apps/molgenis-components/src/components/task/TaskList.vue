@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import { request } from "../../client/client.js";
 import MessageError from "../forms/MessageError.vue";
 
 export default {
