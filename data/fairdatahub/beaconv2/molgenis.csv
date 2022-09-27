@@ -54,7 +54,8 @@ Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary
 IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases
 IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001
 IndividualsDiseases,,diseaseCode,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
-IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C20587,E.g. Adult 18-65 Years Old
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/HP_0003674,E.g. Adult 18-65 Years Old
+IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,E.g. P32Y6M1D
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false
 IndividualsDiseases,,severity,ontology,,,,DiseaseSeverity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
 IndividualsDiseases,,stage,ontology,,,,DiseaseStage,,,,http://purl.obolibrary.org/obo/OBI_0000278,E.g. acute onset
