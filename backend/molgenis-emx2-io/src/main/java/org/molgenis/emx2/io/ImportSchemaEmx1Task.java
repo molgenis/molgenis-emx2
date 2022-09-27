@@ -201,7 +201,10 @@ public class ImportSchemaEmx1Task extends Task {
                 .setRequired(!attribute.getNillable())
                 .setReadonly(attribute.getReadonly())
                 // get label as description, and if also description concat that too
-                .setDescription(attribute.getDescription());
+                .setDescription(attribute.getDescription())
+                .setVisible(attribute.getVisible())
+                .setValidation(attribute.getVisible())
+                .setDefaultValue(attribute.getDefaultValue());
 
         // pkey
         if (attribute.getIdAttribute()) {
