@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Aggragate</a>
+      <a class="navbar-brand" href="#">Aggregate</a>
       <ul class="navbar-nav mr-auto">
         <li class="nav-item dropdown">
           <a
@@ -11,7 +11,7 @@
             data-toggle="dropdown"
             aria-expanded="false"
           >
-            Thing on rows
+            {{ columnHeaderProperty }}
           </a>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="#">Some item</a>
@@ -26,7 +26,7 @@
             data-toggle="dropdown"
             aria-expanded="false"
           >
-            Thing on columns
+            {{ rowHeaderProperty }}
           </a>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="#">Some item</a>
@@ -55,7 +55,7 @@
               v-for="(column, columnIndex) of columns"
               :key="`td-${columnIndex}`"
             >
-              {{ aggregateData[row][column] || 0 }}
+              {{ displayValue(aggregateData[row][column] || 0) }}
             </td>
           </tr>
         </tbody>
@@ -99,6 +99,10 @@ export default {
       type: String,
       required: true,
     },
+    minimumValue: {
+      type: Number,
+      default: 1,
+    },
   },
   data: function () {
     return {
@@ -129,6 +133,15 @@ export default {
     },
   },
   methods: {
+    displayValue(value) {
+      if (value == 0) {
+        return "-";
+      } else if (value < this.minimumValue) {
+        return "<" + this.minimumValue;
+      } else {
+        return value;
+      }
+    },
     AddItem(item) {
       const column = item[this.columnHeaderProperty].name;
       const row = item[this.rowHeaderProperty].name;
@@ -171,8 +184,8 @@ export default {
 
 table td {
   text-align: center;
+  border: 1px solid var(--light);
 }
-
 .rotated-title {
   width: 2em;
   height: 10em;
@@ -217,7 +230,6 @@ table thead th:first-child {
   z-index: 1;
   border-bottom: 0px;
 }
-
 table thead {
   position: sticky;
   top: 0;
@@ -227,8 +239,26 @@ table thead {
 table tbody {
   position: relative;
 }
+table tbody tr:hover {
+  background-color: var(--light);
+}
+table tbody tr:hover th {
+  background-color: var(--light);
+}
+table tbody td,
 table tbody th {
   position: relative;
+}
+table tbody td:hover::before {
+  content: "";
+  position: absolute;
+  display: inline-block;
+  background-color: var(--light);
+  left: 0;
+  right: 0;
+  top: -100vh;
+  bottom: -100vh;
+  z-index: -1;
 }
 table thead th:first-child {
   position: sticky;
@@ -250,7 +280,6 @@ table thead th:first-child::after {
   top: 0;
   pointer-events: none;
 }
-
 table tbody th {
   position: sticky;
   left: 0;
@@ -274,7 +303,8 @@ table tbody th {
       :columnHeaderProperty="columnName" 
       :columnHeaderNameProperty="columnNameProperty" 
       :rowHeaderProperty="rowName"
-      :rowHeaderNameProperty="columnNameProperty" 
+      :rowHeaderNameProperty="columnNameProperty"
+      :minimumValue="10"
     >
     </AggregateTable>
   </demo-item>
