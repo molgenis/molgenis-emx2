@@ -1,7 +1,5 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.io.ImportMetadataEmx2Task.MOLGENIS;
-
 import java.util.Objects;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -46,17 +44,13 @@ public class ImportSchemaTask extends Task {
             // import metadata, if any
             Schema schema = db.getSchema(this.schema.getName());
 
-            // try emx2 metadata importer
-            if (store.containsTable(MOLGENIS)
-                || store.containsTable("molgenis_settings")
-                || store.containsTable("molgenis_members")) {
-              Task subTask = new ImportSchemaEmx2Task(store, schema, isStrict());
-              this.addSubTask(subTask);
-              subTask.run();
-            } else
             // attempt emx1
             if (store.containsTable("attributes")) {
               Task subTask = new ImportSchemaEmx1Task(store, schema);
+              this.addSubTask(subTask);
+              subTask.run();
+            } else {
+              Task subTask = new ImportSchemaEmx2Task(store, schema, isStrict());
               this.addSubTask(subTask);
               subTask.run();
             }

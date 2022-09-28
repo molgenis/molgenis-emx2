@@ -83,7 +83,7 @@ public class FAIRDataPointDataset {
       throw new Exception("datasetsFromJSON is null");
     }
     if (datasetsFromJSON.size() != 1) {
-      throw new Exception("Bad number of dataset results");
+      throw new Exception("Bad number of dataset results for id=" + id);
     }
     Map<String, Object> datasetFromJSON = datasetsFromJSON.get(0);
 
@@ -190,7 +190,8 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI(
+              (List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
