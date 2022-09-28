@@ -134,7 +134,7 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("spatial") != null) {
       ArrayList<IRI> spatials =
-          extractItemAsIRI((List<Map>) datasetFromJSON.get("spatial"), "ontologyTermURI");
+          extractItemAsIRI((List<LinkedHashMap>) datasetFromJSON.get("spatial"), "ontologyTermURI");
       for (IRI spatial : spatials) {
         builder.add(reqUrl, DCTERMS.SPATIAL, spatial);
       }
@@ -190,7 +190,7 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<Map>) datasetFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI((List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
