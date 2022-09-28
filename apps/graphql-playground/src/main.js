@@ -6,6 +6,7 @@ window.addEventListener("load", function (event) {
     endpoint: "./graphql",
     settings: {
       "schema.polling.enable": false,
+      "request.credentials": "include",
     },
     // options as 'endpoint' belong here
   });
