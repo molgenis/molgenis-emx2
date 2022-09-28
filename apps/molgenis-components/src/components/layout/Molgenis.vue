@@ -18,7 +18,9 @@
         <h1 v-if="title">{{ title }}</h1>
         <Spinner v-if="!session" />
         <h1
-          v-else-if="this.session.roles && !this.session.roles.includes('Viewer')"
+          v-else-if="
+            this.session.roles && !this.session.roles.includes('Viewer')
+          "
           class="text-centered"
         >
           You have to login to view the data.
@@ -61,7 +63,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
-    Spinner
+    Spinner,
   },
   props: {
     menuItems: {
