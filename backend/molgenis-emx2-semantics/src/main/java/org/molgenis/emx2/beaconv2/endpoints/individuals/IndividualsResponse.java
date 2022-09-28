@@ -46,6 +46,10 @@ public class IndividualsResponse {
                   + "diseaseCausalGenes{name,codesystem,code},"
                   + "ethnicity{name,codesystem,code},"
                   + "geographicOrigin{name,codesystem,code},"
+                  + "phenotypicFeatures{"
+                  + "   featureType{name,codesystem,code},"
+                  + "   modifiers{name,codesystem,code},"
+                  + "   severity{name,codesystem,code}},"
                   + "diseases{"
                   + "   diseaseCode{name,codesystem,code},"
                   + "   ageOfOnset__ageGroup{name,codesystem,code},"
@@ -83,6 +87,8 @@ public class IndividualsResponse {
               mapListToOntologyTerms((List<Map>) map.get("diseaseCausalGenes")));
           individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
           individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
+          individualsItem.setPhenotypicFeatures(
+              PhenotypicFeatures.get(map.get("phenotypicFeatures")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));
           individualsItem.setMeasures(Measures.get(map.get("measures")));
           individualsItemList.add(individualsItem);

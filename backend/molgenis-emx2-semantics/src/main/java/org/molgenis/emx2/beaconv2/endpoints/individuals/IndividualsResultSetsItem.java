@@ -15,6 +15,11 @@ public class IndividualsResultSetsItem {
   private OntologyTerm geographicOrigin;
   private Diseases[] diseases;
   private Measures[] measures;
+  private PhenotypicFeatures[] phenotypicFeatures;
+
+  public void setPhenotypicFeatures(PhenotypicFeatures[] phenotypicFeatures) {
+    this.phenotypicFeatures = phenotypicFeatures;
+  }
 
   public void setDiseaseCausalGenes(OntologyTerm[] diseaseCausalGenes) {
     this.diseaseCausalGenes = diseaseCausalGenes;
