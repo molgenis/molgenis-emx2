@@ -4,7 +4,7 @@ GENEALOGICAL_RECORDS,Genealogical records,Miabis,,Y/N if genealogical records ar
 IMAGING_DATA,Imaging data,Miabis,,Y/N if imaging data are collected from the participants in the sample collection/study
 MEDICAL_RECORDS,Medical records,Miabis,,Y/N if medical records are collected from the participants in the sample collection/study
 NATIONAL_REGISTRIES,National registries,Miabis,,Y/N if register data is associated to the participants in the sample collection/study
-NAV,Not available,,,
-OTHER,Other,Miabis,,Other
+NAV_DATA_CATEGORY,Not available,,,
+OTHER_DATA_CATEGORY,Other,Miabis,,Other
 PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS,Physiological/Biochemical measurements,Miabis,,Y/N if Measurements/tests performed during a clinical/home visit and from samples taken from donor
 SURVEY_DATA,Survey data,Miabis,,Y/N if information from surveys are collected from the participants in the sample collection/study

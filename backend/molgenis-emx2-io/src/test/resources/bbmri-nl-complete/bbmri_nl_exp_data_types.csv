@@ -1,7 +1,7 @@
 id,label,ontology,uri,description
 GENOMICS,Genomics,,,The study of an organism's entire genome.
 METABOLOMICS,Metabolomics,,,"The identification, quantification, and characterization of the small molecule metabolites in the metabolome (i.e., the set of all small molecule metabolites found in a specific cell, organ, or organism)."
-NAV,Not available,,,
-OTHER,Other,,,
+NAV_EXP_DATA_TYPE,Not available,,,
+OTHER_EXP_DATA_TYPE,Other,,,
 PROTEOMICS,Proteomics,,,"The study of proteins, their structures, and their functions, namely the study of the proteome."
 TRANSCRIPTOMICS,Transcriptomics,,,"The study of the transcription, i.e., the expression levels of mRNAs in a given organism, tissue, etc. (under a specific set of conditions)."
