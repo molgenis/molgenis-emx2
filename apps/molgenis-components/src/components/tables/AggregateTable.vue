@@ -35,10 +35,9 @@
         </li>
       </ul>
     </nav>
-    <Spinner v-if="loading" />
-    <div v-else>lets place our cool table here</div>
-    <div>
-      <table class="table table-striped">
+    <Spinner v-if="loading" class="m-3" />
+    <div v-else role="region" class="border border-light">
+      <table>
         <thead ref="tablehead">
           <tr>
             <th></th>
@@ -165,9 +164,15 @@ export default {
 </script>
 
 <style scoped>
-.table td {
+/* 
+  Based on: 
+  https://css-tricks.com/a-table-with-both-a-sticky-header-and-a-sticky-first-column/
+*/
+
+table td {
   text-align: center;
 }
+
 .rotated-title {
   width: 2em;
   height: 10em;
@@ -186,22 +191,77 @@ export default {
   z-index: 1;
   position: relative;
 }
-
 table {
-  position: relative;
+  border-spacing: 0;
 }
-
-thead {
+table thead th {
+  padding-bottom: 1em;
+}
+table thead tr:after {
+  display: inline-block;
+  content: "";
+  width: 100%;
+  height: 15px;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 0.9) 75%,
-    rgba(255, 255, 255, 0.5) 100%
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0) 100%
   );
-  border-bottom: 1px solid black;
+  position: absolute;
+  left: 0;
+  bottom: -15px;
   pointer-events: none;
+}
+table thead th:first-child {
+  background: white;
+  z-index: 1;
+  border-bottom: 0px;
+}
+
+table thead {
   position: sticky;
-  top: 0; /* Don't forget this, required for the stickiness */
+  top: 0;
+  z-index: 1;
+  background: white;
+}
+table tbody {
+  position: relative;
+}
+table tbody th {
+  position: relative;
+}
+table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+}
+table thead th:first-child::after {
+  display: inline-block;
+  content: "";
+  width: 15px;
+  height: 100vh;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  position: absolute;
+  right: -15px;
+  top: 0;
+  pointer-events: none;
+}
+
+table tbody th {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 1;
+  padding-right: 1em;
+}
+[role="region"] {
+  width: 100%;
+  max-height: 98vh;
+  overflow: auto;
 }
 </style>
 
