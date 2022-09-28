@@ -188,7 +188,7 @@ public class FAIRDataPointCatalog {
 
     if (catalogFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI((List<LinkedHashMap>) catalogFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
@@ -249,9 +249,9 @@ public class FAIRDataPointCatalog {
    * @param item
    * @return
    */
-  public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
+  public static ArrayList<IRI> extractItemAsIRI(List<LinkedHashMap> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
-    for (Map map : object) {
+    for (LinkedHashMap map : object) {
       IRI iri = iri(TypeUtils.toString(map.get(item)));
       values.add(iri);
     }
