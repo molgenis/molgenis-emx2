@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
+import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapListToOntologyTerms;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapToOntologyTerm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -42,6 +43,7 @@ public class IndividualsResponse {
                   + "sex{name,codesystem,code},"
                   + "age__ageGroup{name,codesystem,code},"
                   + "age__age__iso8601duration,"
+                  + "diseaseCausalGenes{name,codesystem,code},"
                   + "ethnicity{name,codesystem,code},"
                   + "geographicOrigin{name,codesystem,code},"
                   + "diseases{"
@@ -77,6 +79,8 @@ public class IndividualsResponse {
               new AgeAndAgeGroup(
                   mapToOntologyTerm((Map) map.get("age__ageGroup")),
                   TypeUtils.toString(map.get("age__age__iso8601duration"))));
+          individualsItem.setDiseaseCausalGenes(
+              mapListToOntologyTerms((List<Map>) map.get("diseaseCausalGenes")));
           individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
           individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));

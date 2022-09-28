@@ -10,10 +10,15 @@ public class IndividualsResultSetsItem {
   private String id;
   private OntologyTerm sex;
   private AgeAndAgeGroup age;
+  private OntologyTerm[] diseaseCausalGenes;
   private OntologyTerm ethnicity;
   private OntologyTerm geographicOrigin;
   private Diseases[] diseases;
   private Measures[] measures;
+
+  public void setDiseaseCausalGenes(OntologyTerm[] diseaseCausalGenes) {
+    this.diseaseCausalGenes = diseaseCausalGenes;
+  }
 
   public void setAge(AgeAndAgeGroup age) {
     this.age = age;
