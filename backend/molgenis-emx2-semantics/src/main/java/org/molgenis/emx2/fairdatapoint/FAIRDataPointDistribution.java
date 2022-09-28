@@ -3,6 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset.queryDataset;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
@@ -106,8 +107,7 @@ public class FAIRDataPointDistribution {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     URI requestURI = getURI(request.url());
-    String host =
-        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String host = extractHost(requestURI);
     IRI reqURL = iri(request.url()); // escaping/encoding seems OK
 
     /*

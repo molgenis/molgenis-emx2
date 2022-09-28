@@ -197,5 +197,24 @@ public class TestInherits {
     } catch (Exception e) {
       System.out.println("Errored correctly: " + e.getMessage());
     }
+
+    // test that we cannot overwrite record from supertable using save
+    // fixes #
+    personTable.save(row("fullName", "testDuplicate"));
+    try {
+      studentTable.save(row("fullName", "testDuplicate"));
+      fail("should not be able to overwrite existing person in super table person");
+    } catch (Exception e) {
+      assertTrue(e.getMessage().contains("Duplicate key"));
+      System.out.println("Errored correctly: " + e.getMessage());
+    }
+
+    // can also drop the table without errors when trigger is removed
+    ceoTable.getMetadata().drop();
+    manager.getMetadata().drop();
+    employeeTable.getMetadata().drop();
+    studentTable.getMetadata().drop();
+    personTable.getMetadata().drop();
+    // todo add test that trigger actually is deleted
   }
 }

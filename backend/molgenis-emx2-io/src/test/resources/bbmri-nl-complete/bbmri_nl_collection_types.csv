@@ -6,7 +6,7 @@ CROSS_SECTIONAL,Cross-sectional,,,"A type of observational study that involves d
 DISEASE_SPECIFIC,Disease specific,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
 HOSPITAL,Hospital,,,
 LONGITUDINAL,Longitudinal,,,"Research studies involving repeated observations of the same entity over time. In the biobank context, longitudinal studies sample a group of people in a given time period, and study them at intervals by the acquisition and analyses of data and/or samples over time."
-OTHER,Other,,,
+OTHER_COLLECTION_TYPE,Other,,,
 POPULATION_BASED,Population-based,,,"Study done at the population level or among the population groups, generally to find the cause, incidence or spread of the disease or to see the response to the treatment, nutrition or environment."
 QUALITY_CONTROL,Qualtiy control,,,A quality control testing study design type is where some aspect of the experiment is quality controlled for the purposes of quality assurance.
 TWIN_STUDY,Twin-study,,,Twin studies measure the contribution of genetics (as opposed to environment) to a given trait or condition of interest.
