@@ -5,6 +5,7 @@ import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapToOntologyTerm;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.List;
 import java.util.Map;
+import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
 import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -12,7 +13,8 @@ import org.molgenis.emx2.utils.TypeUtils;
 public class Diseases {
 
   private OntologyTerm diseaseCode;
-  private AgeOfOnset ageOfOnset;
+  private AgeAndAgeGroup ageOfOnset;
+  private AgeAndAgeGroup ageAtDiagnosis;
   private Boolean familyHistory;
   private OntologyTerm severity;
   private OntologyTerm stage;
@@ -25,9 +27,13 @@ public class Diseases {
       Diseases d = new Diseases();
       d.diseaseCode = mapToOntologyTerm((Map) map.get("diseaseCode"));
       d.ageOfOnset =
-          new AgeOfOnset(
+          new AgeAndAgeGroup(
               mapToOntologyTerm((Map) map.get("ageOfOnset__ageGroup")),
               TypeUtils.toString(map.get("ageOfOnset__age__iso8601duration")));
+      d.ageAtDiagnosis =
+          new AgeAndAgeGroup(
+              mapToOntologyTerm((Map) map.get("ageAtDiagnosis__ageGroup")),
+              TypeUtils.toString(map.get("ageAtDiagnosis__age__iso8601duration")));
       d.familyHistory = (Boolean) map.get("familyHistory");
       d.severity = mapToOntologyTerm((Map) map.get("severity"));
       d.stage = mapToOntologyTerm((Map) map.get("stage"));

@@ -45,6 +45,8 @@ public class IndividualsResponse {
                   + "   diseaseCode{name,codesystem,code},"
                   + "   ageOfOnset__ageGroup{name,codesystem,code},"
                   + "   ageOfOnset__age__iso8601duration,"
+                  + "   ageAtDiagnosis__ageGroup{name,codesystem,code},"
+                  + "   ageAtDiagnosis__age__iso8601duration,"
                   + "   familyHistory,"
                   + "   severity{name,codesystem,code},"
                   + "   stage{name,codesystem,code}},"
