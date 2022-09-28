@@ -48,7 +48,7 @@ Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Indiv
 Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
 Individuals,,sex,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,E.g. assigned female at birth
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old"
-Individuals,,age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D"
+Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D"
 Individuals,,diseaseCausalGene,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland

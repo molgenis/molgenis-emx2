@@ -9,6 +9,7 @@ import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.*;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
@@ -39,6 +40,8 @@ public class IndividualsResponse {
                   + "{"
                   + "id,"
                   + "sex{name,codesystem,code},"
+                  + "age__ageGroup{name,codesystem,code},"
+                  + "age__age__iso8601duration,"
                   + "ethnicity{name,codesystem,code},"
                   + "geographicOrigin{name,codesystem,code},"
                   + "diseases{"
@@ -70,6 +73,10 @@ public class IndividualsResponse {
           IndividualsResultSetsItem individualsItem = new IndividualsResultSetsItem();
           individualsItem.setId(TypeUtils.toString(map.get("id")));
           individualsItem.setSex(mapToOntologyTerm((Map) map.get("sex")));
+          individualsItem.setAge(
+              new AgeAndAgeGroup(
+                  mapToOntologyTerm((Map) map.get("age__ageGroup")),
+                  TypeUtils.toString(map.get("age__age__iso8601duration"))));
           individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
           individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));
