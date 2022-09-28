@@ -16,7 +16,14 @@
       />
       <div class="container-fluid p-3" style="padding-bottom: 50px">
         <h1 v-if="title">{{ title }}</h1>
-        <slot />
+        <Spinner v-if="!session" />
+        <h1
+          v-else-if="!this.session?.roles?.includes('Viewer')"
+          class="text-centered"
+        >
+          You have to login to view the data.
+        </h1>
+        <slot v-else />
       </div>
     </div>
     <MolgenisFooter>
@@ -43,6 +50,7 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "./MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
+import Spinner from "./Spinner.vue";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -53,6 +61,7 @@ export default {
     MolgenisMenu,
     MolgenisFooter,
     Breadcrumb,
+    Spinner
   },
   props: {
     menuItems: {
