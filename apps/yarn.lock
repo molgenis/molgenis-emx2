@@ -4693,10 +4693,10 @@ ckeditor4-integrations-common@^1.0.0:
   resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-1.0.0.tgz#a8afc33b94877b4d01362c7c73aa9eec162b2d20"
   integrity sha512-OAoQT/gYrHkg0qgzf6MS/rndYhq3SScLVQ3rtXQeuCE8ju7nFHg3qZ7WGA2XpFxcZzsMP6hhugXqdel5vbcC3g==
 
-ckeditor4-vue@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-2.1.1.tgz#7a7087fae11e2b4bc52a9414e1d891bbe0dbcb3f"
-  integrity sha512-BBmpT1BYxOmaA+qy9+hvhG0tDYCGqFve1eDSol0ZNwWCm1hZvmPAke809AhkHFUjb834dbNRlTwH3c2qedjtkQ==
+ckeditor4-vue@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-2.2.0.tgz#0eac7a312ebfa169074ebc1f448aff081a7503c5"
+  integrity sha512-Cobo/prQEiOMKQ/+1GV3S6hqnJu31JHsgLhtFUpsrczVpB3Q4mD5tBHiQ3//1fIO3+jK54WDA4HXC6pHp6sjjw==
   dependencies:
     ckeditor4-integrations-common "^1.0.0"
 
