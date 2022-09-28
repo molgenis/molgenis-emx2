@@ -547,6 +547,11 @@ class SqlTable implements Table {
     return agg().select(columns);
   }
 
+  @Override
+  public Query groupBy(SelectColumn columns) {
+    return groupBy().select(columns);
+  }
+
   public Query where(Filter... filters) {
     return query().where(filters);
   }
@@ -630,6 +635,12 @@ class SqlTable implements Table {
   public Query agg() {
     return new SqlQuery(
         (SqlSchemaMetadata) this.getMetadata().getSchema(), this.getName() + "_agg");
+  }
+
+  @Override
+  public Query groupBy() {
+    return new SqlQuery(
+        (SqlSchemaMetadata) this.getMetadata().getSchema(), this.getName() + "_groupBy");
   }
 
   @Override
