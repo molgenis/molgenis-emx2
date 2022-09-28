@@ -121,7 +121,7 @@ SubcohortCounts,,ageGroup,ontology,1,TRUE,CatalogueOntologies,AgeGroups,,,,,,
 SubcohortCounts,,N total,int,,,,,,,,,,
 SubcohortCounts,,N female,int,,,,,,,,,,
 SubcohortCounts,,N male,int,,,,,,,,,,
-SourceDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for a cohort,databank or datasource
+SourceDataDictionaries,,,,,,,,,,,,"Definition of a data dictionary for a cohort, databank or datasource"
 SourceDataDictionaries,,resource,ref,1,TRUE,,Resources,,,,,Link to the resource of which contents has been released,
 SourceDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)",
 SourceDataDictionaries,,tables,refback,,,,SourceTables,,dataDictionary,,,tables part of this data dictionary,
