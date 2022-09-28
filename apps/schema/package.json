@@ -11,7 +11,6 @@
     "lint": "vite lint"
   },
   "dependencies": {
-    "@mswertz/emx2-styleguide": "*",
     "core-js": "3.25.3",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
