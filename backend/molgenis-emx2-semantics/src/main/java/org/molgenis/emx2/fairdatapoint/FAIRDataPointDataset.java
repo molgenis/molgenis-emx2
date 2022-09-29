@@ -190,7 +190,8 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI(
+              (List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
