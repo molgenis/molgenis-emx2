@@ -249,6 +249,7 @@ public class GraphqlApiFactory {
       if (table.getColumns().size() > 0) {
         queryBuilder.field(tableField.tableQueryField(table.getTable()));
         queryBuilder.field(tableField.tableAggField(table.getTable()));
+        queryBuilder.field(tableField.tableGroupByField(table.getTable()));
       }
     }
     mutationBuilder.field(tableField.insertMutation(schema));

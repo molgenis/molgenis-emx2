@@ -287,6 +287,43 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
+  public void testGroupBy() throws IOException {
+    // refs
+    JsonNode result = execute("{Pet_groupBy{count,tags{name}}}");
+    // 1 red
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    // 1 green
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/1/tags/name").asText());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    // 1 with no tags
+    TestCase.assertEquals("red", result.at("/Pet_groupBy/2/tags/name").textValue());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+
+    result = execute("{Pet_groupBy{count,category{name}}}");
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("cat", result.at("/Pet_groupBy/0/category/name").textValue());
+    TestCase.assertEquals("dog", result.at("/Pet_groupBy/1/category/name").textValue());
+
+    // currently doensn't contain cat because somehow 'null' are not included
+    result = execute("{Pet_groupBy{count,tags{name},category{name}}}");
+    // 1 red cat
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("cat", result.at("/Pet_groupBy/0/category/name").textValue());
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
+    // 1 green dog
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    TestCase.assertEquals("dog", result.at("/Pet_groupBy/1/category/name").textValue());
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/1/tags/name").textValue());
+    // 1 <untagged> cat
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+    TestCase.assertEquals("dog", result.at("/Pet_groupBy/2/category/name").textValue());
+    TestCase.assertEquals("red", result.at("/Pet_groupBy/2/tags/name").textValue());
+
+    // N.B. in case arrays are involved total might more than count!!!
+  }
+
+  @Test
   public void testSchemaQueries() throws IOException {
     TestCase.assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
   }

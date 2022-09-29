@@ -2,6 +2,7 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
@@ -121,8 +122,7 @@ public class FAIRDataPointCatalog {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     URI requestURI = getURI(request.url());
-    String host =
-        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDataset = apiFdp + "/dataset";
     String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
@@ -188,7 +188,8 @@ public class FAIRDataPointCatalog {
 
     if (catalogFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI(
+              (List<LinkedHashMap>) catalogFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
@@ -249,9 +250,9 @@ public class FAIRDataPointCatalog {
    * @param item
    * @return
    */
-  public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
+  public static ArrayList<IRI> extractItemAsIRI(List<LinkedHashMap> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
-    for (Map map : object) {
+    for (LinkedHashMap map : object) {
       IRI iri = iri(TypeUtils.toString(map.get(item)));
       values.add(iri);
     }

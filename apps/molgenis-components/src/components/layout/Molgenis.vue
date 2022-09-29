@@ -7,7 +7,11 @@
         :items="menu"
         :session="session"
       >
-        <MolgenisSession v-model="session" :key="timestamp" />
+        <MolgenisSession
+          v-model="session"
+          :key="timestamp"
+          @error="$emit('error', $event)"
+        />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"

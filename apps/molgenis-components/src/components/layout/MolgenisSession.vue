@@ -155,6 +155,15 @@ export default {
     },
     handleError(reason) {
       this.error = "internal server error " + reason;
+      if (
+        reason?.response?.data?.errors &&
+        reason.response.data.errors[0] &&
+        reason.response.data.errors[0].message
+      ) {
+        this.$emit("error", reason.response.data.errors[0].message);
+      } else {
+        this.$emit("error", this.error);
+      }
     },
     parseJson(value) {
       try {

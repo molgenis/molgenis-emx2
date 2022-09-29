@@ -81,10 +81,10 @@ public class Constants {
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
       "((https?)://)(www.)?"
-          + "[a-zA-Z0-9@:%._\\+~#?&//=]"
+          + "[a-zA-Z0-9@:%._\\+~#?&//=-]"
           + "{2,256}\\.[a-z]"
           + "{2,6}\\b([-a-zA-Z0-9@:%"
-          + "._\\+~#?&//=]*)";
+          + "._\\+~#?!&//=(\\)]*)";
 
   private Constants() {
     // hide constructor

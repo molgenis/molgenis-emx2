@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { Spinner } from "@mswertz/emx2-styleguide";
+import { Spinner } from "molgenis-components";
 import HarmonizationDefinition from "../components/HarmonizationDefinition.vue";
 import { mapActions } from "vuex";
 

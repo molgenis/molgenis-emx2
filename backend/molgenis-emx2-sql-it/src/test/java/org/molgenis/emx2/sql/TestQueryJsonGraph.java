@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
@@ -17,10 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -185,11 +183,39 @@ public class TestQueryJsonGraph {
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));
   }
 
-  // todo @Test
-  // we want to refactor this
+  @Test
   public void testGroupBy() throws JsonProcessingException {
-    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
+    ObjectMapper mapper = new ObjectMapper();
 
+    //  test against pet store for references
+    Schema petStore = db.getSchema(TestQueryJsonGraph.class.getSimpleName());
+
+    try {
+      petStore.groupBy("Pet").select(s("category", s("name"))).retrieveJSON();
+      fail("should fail if no count provided");
+    } catch (Exception e) {
+      // correct
+    }
+
+    Map<String, List<Map<String, Object>>> result =
+        mapper.readValue(
+            petStore.groupBy("Pet").select(s("count"), s("category", s("name"))).retrieveJSON(),
+            Map.class);
+    assertEquals(1, result.get("Pet_groupBy").get(0).get("count"));
+    assertEquals("cat", ((Map) result.get("Pet_groupBy").get(0).get("category")).get("name"));
+    result =
+        mapper.readValue(
+            petStore.groupBy("Pet").select(s("count"), s("tags", s("name"))).retrieveJSON(),
+            Map.class);
+    assertEquals(1, result.get("Pet_groupBy").get(0).get("count"));
+    assertEquals(null, ((Map) result.get("Pet_groupBy").get(0).get("tags")).get("name"));
+    assertEquals(1, result.get("Pet_groupBy").get(1).get("count"));
+    assertEquals("green", ((Map) result.get("Pet_groupBy").get(1).get("tags")).get("name"));
+    assertEquals(1, result.get("Pet_groupBy").get(2).get("count"));
+    assertEquals("red", ((Map) result.get("Pet_groupBy").get(2).get("tags")).get("name"));
+
+    // tests below use non-reference types, do we want to enable group by on those??
+    Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testGroupBy");
     schema.create(
         table(
             "Test",
@@ -228,27 +254,76 @@ public class TestQueryJsonGraph {
                 "tag_array2",
                 new String[] {"yellow", "red"}));
 
-    ObjectMapper mapper = new ObjectMapper();
-
-    Map<String, Map<String, List<Map<String, Object>>>> result =
-        mapper.readValue(
-            schema.agg("Test").select(s("groupBy", s("count"), s("tag"))).retrieveJSON(),
-            Map.class);
-    assertEquals(2, result.get("Test_agg").get("groupBy").get(1).get("count"));
-
+    // group by tag
     result =
         mapper.readValue(
-            schema.agg("Test").select(s("groupBy", s("count"), s("tag_array"))).retrieveJSON(),
-            Map.class);
-    assertEquals(2, result.get("Test_agg").get("groupBy").get(0).get("count"));
+            schema.groupBy("Test").select(s("count"), s("tag")).retrieveJSON(), Map.class);
+    assertEquals(1, result.get("Test_groupBy").get(1).get("count"));
 
+    // group by the elements of tag_array
+    result =
+        mapper.readValue(
+            schema.groupBy("Test").select(s("count"), s("tag_array")).retrieveJSON(), Map.class);
+    assertEquals(3, result.get("Test_groupBy").get(0).get("count"));
+
+    // group by multiple columns, with tag_array and tag_array2
     result =
         mapper.readValue(
             schema
-                .agg("Test")
-                .select(s("groupBy", s("count"), s("tag_array"), s("tag_array2")))
+                .groupBy("Test")
+                .select(s("count"), s("tag_array"), s("tag_array2"))
                 .retrieveJSON(),
             Map.class);
-    assertEquals(3, result.get("Test_agg").get("groupBy").get(0).get("count"));
+    assertEquals(3, result.get("Test_groupBy").get(0).get("count"));
+
+    // create a simple test table to pet store just to make sure
+    Table table =
+        petStore.create(
+            table("testGroupBy")
+                .add(column("id").setPkey())
+                .add(column("col1").setType(REF).setRefTable("Category"))
+                .add(column("col2").setType(REF).setRefTable("Category")));
+
+    table.insert(row("id", "1", "col1", "cat", "col2", "cat"));
+    table.insert(row("id", "2", "col1", "cat", "col2", "dog"));
+    table.insert(row("id", "3", "col1", "dog", "col2", "cat"));
+    table.insert(row("id", "4", "col1", "dog", "col2", "dog"));
+    table.insert(row("id", "5", "col1", "dog", "col2", "dog"));
+
+    result =
+        mapper.readValue(
+            table.groupBy().select(s("count"), s("col1", s("name"))).retrieveJSON(), Map.class);
+
+    assertEquals(2, result.get("testGroupBy_groupBy").size());
+    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col1")).get("name"));
+    assertEquals(2, result.get("testGroupBy_groupBy").get(0).get("count"));
+    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(1).get("col1")).get("name"));
+    assertEquals(3, result.get("testGroupBy_groupBy").get(1).get("count"));
+
+    result =
+        mapper.readValue(
+            table
+                .groupBy()
+                .select(s("count"), s("col1", s("name")), s("col2", s("name")))
+                .retrieveJSON(),
+            Map.class);
+
+    assertEquals(4, result.get("testGroupBy_groupBy").size());
+
+    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col1")).get("name"));
+    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col2")).get("name"));
+    assertEquals(1, result.get("testGroupBy_groupBy").get(0).get("count"));
+
+    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(1).get("col1")).get("name"));
+    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(1).get("col2")).get("name"));
+    assertEquals(1, result.get("testGroupBy_groupBy").get(1).get("count"));
+
+    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(2).get("col1")).get("name"));
+    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(2).get("col2")).get("name"));
+    assertEquals(1, result.get("testGroupBy_groupBy").get(2).get("count"));
+
+    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(3).get("col1")).get("name"));
+    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(3).get("col2")).get("name"));
+    assertEquals(2, result.get("testGroupBy_groupBy").get(3).get("count"));
   }
 }
