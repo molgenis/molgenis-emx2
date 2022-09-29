@@ -1,6 +1,10 @@
 <template>
   <div>
     <h1>Changes</h1>
+    <h5>The changelog is currently
+      <template v-if="isChangelogEnabled">enabled</template>
+      <template v-else>disabled</template>
+    </h5>
     <p v-if="changesCount">{{changesCount}} changes where made</p>
     <table-display :columns="columns" :rows="changes" />
   </div>
@@ -24,10 +28,17 @@ export default {
         { name: "newRowData", label: "New" },
       ],
       changes: [],
-      changesCount: null
+      changesCount: null,
+      isChangelogEnabled: null
     };
   },
   methods: {
+    async fetchIsChangelogEnabled () {
+      const resp = await request("graphql", `{_settings{key, value}}`);
+      const changelogSetting = resp._settings.find(s => s.key === "isChangelogEnabled");
+      const changelogValue = changelogSetting ? changelogSetting.value : "false";
+      this.isChangelogEnabled = changelogValue.toLowerCase() === "true";
+    },
     async fetchChanges() {
       const resp = await request(
         "graphql",
@@ -64,6 +75,7 @@ export default {
   },
   mounted: function () {
     this.fetchChanges();
+    this.fetchIsChangelogEnabled();
   },
 };
 </script>

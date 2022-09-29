@@ -4,19 +4,14 @@
       <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <div v-if="taskUrl">
+      <div v-if="taskId" class="pb-3">
         <h4>Progress of current upload:</h4>
         <ul class="fa-ul">
-          <Task :task="task" />
+          <Task :taskId="taskId" @taskUpdated="taskUpdated" />
         </ul>
-        <ButtonAction
-          v-if="task.status == 'COMPLETED' || task.status == 'ERROR'"
-          @click="done"
-        >
-          Done
-        </ButtonAction>
+        <ButtonAction v-if="taskDone" @click="done"> Done </ButtonAction>
       </div>
-      <div v-else class="mb-2">
+      <div v-else class="pb-3">
         <h4>Upload</h4>
         <MessageWarning
           v-if="
@@ -106,9 +101,9 @@ import {
   MessageSuccess,
   MessageWarning,
   Molgenis,
-} from "@mswertz/emx2-styleguide";
+  Task,
+} from "molgenis-components";
 import { request } from "graphql-request";
-import Task from "./Task";
 
 /** Data import tool */
 export default {
@@ -130,8 +125,8 @@ export default {
       error: null,
       success: null,
       loading: false,
-      taskUrl: null,
-      task: null,
+      taskId: null,
+      taskDone: false,
     };
   },
   computed: {
@@ -144,43 +139,6 @@ export default {
     },
   },
   methods: {
-    done() {
-      this.task = null;
-      this.taskUrl = null;
-    },
-    startMonitorTask() {
-      if (!this.task || !["COMPLETED", "ERROR"].includes(this.task.status)) {
-        setTimeout(this.monitorTask, 500);
-      } else {
-        if (this.task.status == "ERROR") {
-          this.error = this.task.status.description;
-          this.success = null;
-        } else {
-          this.error = null;
-          this.success = this.task.status.description;
-        }
-      }
-    },
-    monitorTask() {
-      fetch(this.taskUrl)
-        .then((response) => {
-          if (response.ok) {
-            response.json().then((task) => {
-              this.task = task;
-              this.startMonitorTask();
-            });
-          } else {
-            response.text().then((error) => {
-              this.error = error;
-              this.startMonitorTask();
-            });
-          }
-        })
-        .catch((error) => {
-          this.error = error;
-          this.startMonitorTask();
-        });
-    },
     loadSchema() {
       this.loading = true;
       request("graphql", "{_schema{name,tables{name}}}")
@@ -197,6 +155,7 @@ export default {
       this.error = null;
       this.success = null;
       this.loading = true;
+      this.taskDone = false;
       const splitFileName = this.file.name.split(".");
       const fileName = splitFileName[0];
       const type = splitFileName[splitFileName.length - 1];
@@ -249,9 +208,8 @@ export default {
           .then((response) => {
             if (response.ok) {
               response.json().then((task) => {
-                this.taskUrl = task.url;
+                this.taskId = task.id;
                 this.error = null;
-                this.monitorTask();
               });
             } else {
               response.json().then((error) => {
@@ -271,6 +229,14 @@ export default {
       } else {
         this.error = "File extension " + type + " not supported";
       }
+    },
+    taskUpdated(task) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.taskDone = true;
+      }
+    },
+    done() {
+      this.taskId = null;
     },
   },
   watch: {

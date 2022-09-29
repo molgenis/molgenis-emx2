@@ -14,6 +14,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,9 +64,9 @@ public class BootstrapThemeService {
     Schema schema = getSchema(request);
     Map<String, String> params = new LinkedHashMap<>();
     if (schema != null) {
-      String cssUrl = schema.getMetadata().getSetting("cssURL");
-      if (cssUrl != null) {
-        params.putAll(splitQuery(cssUrl.split("\\?")[1]));
+      Optional<String> cssUrl = schema.getMetadata().findSettingValue("cssURL");
+      if (cssUrl.isPresent()) {
+        params.putAll(splitQuery(cssUrl.get().split("\\?")[1]));
       }
     }
     return params;

@@ -30,7 +30,13 @@
       </thead>
 
       <tbody>
+        <tr v-if="data && !data.length">
+          <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
+            No results found
+          </td>
+        </tr>
         <tr
+          v-else
           v-for="(row, idx) in data"
           :key="idx + JSON.stringify(row) + isSelected(row)"
           :class="
@@ -103,25 +109,22 @@ export default {
   components: { DataDisplayCell },
   props: {
     /** selection, two-way binded*/
-    selection: Array,
+    selection: { type: Array, required: false },
     /** column metadata, two-way binded to allow for reorder */
-    columns: Array,
+    columns: { type: Array, default: () => [] },
     /** not two way binded, table metadata */
-    tableMetadata: Object,
-    /** json structure in molgenis json data format matching the column metadata */
-    data: Array,
-    /** if select show be shown */
-    showSelect: {
-      type: Boolean,
-      default: false,
-    },
+    tableMetadata: { type: Object, required: false },
+    data: { type: Array, default: () => [] },
+    showSelect: { type: Boolean, default: false },
   },
   computed: {
     countColumns() {
       return this.columnsWithoutMeta.filter((c) => c.showColumn).length;
     },
     columnsWithoutMeta() {
-      return this.columns ? this.columns.filter((c) => c.columnType != "HEADING") : [];
+      return this.columns
+        ? this.columns.filter((column) => column.columnType !== "HEADING")
+        : [];
     },
   },
   methods: {
@@ -214,85 +217,109 @@ export default {
 
 <docs>
 <template>
-  <demo-item id="table-molgenis" label="Table Molgenis">
-    <label class="font-italic">Local sample data</label>
-    <table-molgenis
-        :selection.sync="selected"
-        :columns.sync="columns"
-        :data="data"
-        @select="click"
-        @deselect="click"
-        @click="click"
-    >
-      <template v-slot:header>columns</template>
-      <template v-slot:rowheader="slotProps"> some row content</template>
-    </table-molgenis>
-
-    <label class="font-italic">Remote Pet data</label>
-    <table-molgenis v-if="remoteTableData"
-                    :selection.sync="remoteSelected"
-                    :columns.sync="remoteColumns"
-                    :data="remoteTableData"
-                    @click="click"
-    >
-    </table-molgenis>
-  </demo-item>
+  <div>
+    <demo-item id="table-molgenis" label="Table Molgenis">
+      <label class="font-italic">Local sample data</label>
+      <table-molgenis
+          :selection.sync="selected"
+          :columns.sync="columns"
+          :data="data"
+          @select="click"
+          @deselect="click"
+          @click="click"
+      >
+        <template v-slot:header>columns</template>
+        <template v-slot:rowheader="slotProps"> some row content</template>
+      </table-molgenis>
+      <label class="font-italic">Remote Pet data</label>
+      <table-molgenis v-if="remoteTableData"
+                      :selection.sync="remoteSelected"
+                      :columns.sync="remoteColumns"
+                      :data="remoteTableData"
+                      @click="click"
+      >
+      </table-molgenis id="table-molgenis-empty" label="Empty Table Molgenis">
+    </demo-item>
+    <DemoItem>
+      <label class="font-italic">Example without data</label>
+      <table-molgenis
+          @select="click"
+          @deselect="click"
+          @click="click"
+          :data="[]"
+          :columns.sync="columns"
+      />
+    </DemoItem>
+    <DemoItem>
+      <label class="font-italic">Example without data and columns</label>
+      <table-molgenis
+          @select="click"
+          @deselect="click"
+          @click="click"
+          :data="[]"
+      />
+    </DemoItem>
+  </div>
 </template>
 
 <script>
-  import Client from "../../../src/client/client.js";
+import Client from "../../../src/client/client.js";
 
-  export default {
-    data() {
-      return {
-        selected: [],
-        columns: [
-          {id: "col1", name: "col1", columnType: "STRING", key: 1},
-          {
-            id: "ref1", name: "ref1",
-            columnType: "REF",
-            refColumns: ["firstName", "lastName"],
-          },
-          {
-            id: "ref_arr1", name: "ref_arr1",
-            columnType: "REF_ARRAY",
-            refColumns: ["firstName", "lastName"],
-          },
-        ],
-        data: [
-          {
-            col1: "row1",
-            ref1: {firstName: "katrien", lastName: "duck"},
-            ref_arr1: [
-              {firstName: "kwik", lastName: "duck"},
-              {
-                firstName: "kwek",
-                lastName: "duck",
-              },
-              {firstName: "kwak", lastName: "duck"},
-            ],
-          },
-          {
-            col1: "row2",
-          },
-        ],
-        remoteSelected: [],
-        remoteColumns: [],
-        remoteTableData: null
-      };
+export default {
+  data() {
+    return {
+      selected: [],
+      columns: [
+        { id: "col1", name: "col1", columnType: "STRING", key: 1 },
+        {
+          id: "ref1",
+          name: "ref1",
+          columnType: "REF",
+          refColumns: ["firstName", "lastName"],
+        },
+        {
+          id: "ref_arr1",
+          name: "ref_arr1",
+          columnType: "REF_ARRAY",
+          refColumns: ["firstName", "lastName"],
+        },
+      ],
+      data: [
+        {
+          col1: "row1",
+          ref1: { firstName: "katrien", lastName: "duck" },
+          ref_arr1: [
+            { firstName: "kwik", lastName: "duck" },
+            {
+              firstName: "kwek",
+              lastName: "duck",
+            },
+            { firstName: "kwak", lastName: "duck" },
+          ],
+        },
+        {
+          col1: "row2",
+        },
+      ],
+      remoteSelected: [],
+      remoteColumns: [],
+      remoteTableData: null,
+    };
+  },
+  methods: {
+    click(value) {
+      alert("click " + JSON.stringify(value));
     },
-    methods: {
-      click(value) {
-        alert("click " + JSON.stringify(value));
-      },
-    },
-    async mounted() {
-      const client = Client.newClient("/pet store/graphql", this.$axios);
-      const remoteMetaData = await client.fetchMetaData();
-      const petColumns = remoteMetaData.tables.find(t => t.name === "Pet").columns
-      this.remoteColumns = petColumns.filter(c => !c.name.startsWith("mg_"))
-      this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
-    }
-  };
+  },
+  async mounted() {
+    const client = Client.newClient("/pet store/graphql", this.$axios);
+    const remoteMetaData = await client.fetchMetaData();
+    const petColumns = remoteMetaData.tables.find(
+      (t) => t.name === "Pet"
+    ).columns;
+    this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
+    this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
+  },
+};
 </script>
 </docs>

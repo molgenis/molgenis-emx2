@@ -25,6 +25,7 @@ public class Emx2 {
   private static final String VALIDATION = "validation";
   private static final String SEMANTICS = "semantics";
   private static final String COLUMN_POSITION = "position";
+  private static final String TABLE_TYPE = "tableType";
 
   private Emx2() {
     // hidden
@@ -55,6 +56,11 @@ public class Emx2 {
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
         schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS));
+        if (r.getString(TABLE_TYPE) != null) {
+          schema
+              .getTableMetadata(tableName)
+              .setTableType(TableType.valueOf(r.getString(TABLE_TYPE)));
+        }
       }
 
       // load column metadata
@@ -108,6 +114,7 @@ public class Emx2 {
         List.of(
             TABLE_NAME,
             TABLE_EXTENDS,
+            TABLE_TYPE,
             COLUMN_NAME,
             COLUMN_TYPE,
             KEY,
@@ -144,6 +151,7 @@ public class Emx2 {
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, t.getTableName());
       row.setString(TABLE_EXTENDS, t.getInherit());
+      row.setString(TABLE_TYPE, null);
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);

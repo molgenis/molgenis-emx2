@@ -51,6 +51,7 @@
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
+import InputGroup from "./InputGroup.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
@@ -72,6 +73,7 @@ export default {
     FormGroup,
     ButtonAction,
     ButtonAlt,
+    InputGroup,
   },
   props: {
     tableName: String,

@@ -147,6 +147,7 @@ export default {
       search: null,
       sortColumn: "name",
       sortOrder: null,
+      changelogSchemas: [],
     };
   },
   computed: {
@@ -156,27 +157,16 @@ export default {
     schemasFilteredAndSorted() {
       return this.sortSchemas(this.filterSchema(this.schemas));
     },
-    showChangeColumn() {
+    hasManagerPermission() {
       return (
-        (this.session.email == "admin" ||
-          (this.session &&
-            this.session.roles &&
-            this.session.roles.includes("Manager"))) &&
-        this.changelogSchemas.length
+        this.session.email == "admin" ||
+        (this.session &&
+          this.session.roles &&
+          this.session.roles.includes("Manager"))
       );
     },
-    changelogSchemas() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["CHANGELOG_SCHEMAS"]
-      ) {
-        return this.session.settings["CHANGELOG_SCHEMAS"]
-          .split(",")
-          .map((s) => s.trim());
-      } else {
-        return [];
-      }
+    showChangeColumn() {
+      return this.hasManagerPermission && this.changelogSchemas.length;
     },
   },
   created() {
@@ -212,11 +202,30 @@ export default {
         .then((data) => {
           this.schemas = data.Schemas;
           this.loading = false;
+          if (this.hasManagerPermission) {
+            this.fetchChangelogStatus()
+          }
         })
         .catch(
           (error) =>
             (this.graphqlError = "internal server graphqlError" + error)
         );
+    },
+    fetchChangelogStatus() {
+      this.schemas.forEach((schema) => {
+        request(
+          `/${schema.name}/settings/graphql`,
+          `{_settings (keys: ["isChangelogEnabled"]){ key, value }}`
+        )
+          .then((data) => {
+            if (data._settings[0].value.toLowerCase() === "true") {
+              this.changelogSchemas.push(schema.name);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
     },
     filterSchema(unfiltered) {
       let filtered = unfiltered;

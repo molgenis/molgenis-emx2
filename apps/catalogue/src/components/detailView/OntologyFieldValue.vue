@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { ObjectDisplay } from "@mswertz/emx2-styleguide";
+import { ObjectDisplay } from "molgenis-components";
 export default {
   name: "OntologyFieldValue",
   components: { ObjectDisplay },

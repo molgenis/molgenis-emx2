@@ -64,7 +64,7 @@ export default {
       type: Boolean,
       required: false,
     },
-    // visibleColumns:  visible columns, useful if you only want to allow partial edit (array of strings)
+    // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
     visibleColumns: {
       type: Array,
       required: false,
@@ -90,9 +90,11 @@ export default {
   },
   computed: {
     columnsWithoutMeta() {
-      return this.tableMetaData && this.tableMetaData.columns ? this.tableMetaData.columns.filter(
-        (column) => !column.name.startsWith("mg_")
-      ): [];
+      return this?.tableMetaData?.columns
+        ? this.tableMetaData.columns.filter(
+            (column) => !column.name.startsWith("mg_")
+          )
+        : [];
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
@@ -110,20 +112,21 @@ export default {
   methods: {
     getPrimaryKey,
     showColumn(column) {
-      const hasRefValue =
-        !column.refLink || this.internalValues[column.refLink];
-      const isColumnVisible =
-        !this.visibleColumns || this.visibleColumns.includes(column.name);
+      const isColumnVisible = Array.isArray(this.visibleColumns)
+        ? this.visibleColumns.map((column) => column.name).includes(column.name)
+        : true;
+
       return (
-        isColumnVisible &&
-        this.visible(column.visible, column.id) &&
-        column.name != "mg_tableclass" &&
-        hasRefValue
+        (isColumnVisible &&
+          this.visible(column.visible, column.id) &&
+          column.name !== "mg_tableclass" &&
+          !column.refLink) ||
+        this.internalValues[column.refLink]
       );
     },
     visible(expression, columnId) {
       // eslint-disable-next-line no-undef
-      if (typeof Expressions !== 'undefined' && expression) {
+      if (typeof Expressions !== "undefined" && expression) {
         try {
           // eslint-disable-next-line no-undef
           return Expressions.evaluate(expression, this.internalValues);
@@ -200,7 +203,7 @@ export default {
     },
     evaluateValidationExpression(column, values) {
       // eslint-disable-next-line no-undef
-      if (typeof Expressions !== 'undefined') {
+      if (typeof Expressions !== "undefined") {
         try {
           // eslint-disable-next-line no-undef
           if (!Expressions.evaluate(column.validation, values)) {

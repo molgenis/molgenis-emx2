@@ -20,6 +20,7 @@ public class Constants {
   public static final String FORM = "form";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
+  public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
   public static final String SEMANTICS = "semantics";
@@ -74,10 +75,10 @@ public class Constants {
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
       "((https?)://)(www.)?"
-          + "[a-zA-Z0-9@:%._\\+~#?&//=]"
+          + "[a-zA-Z0-9@:%._\\+~#?&//=-]"
           + "{2,256}\\.[a-z]"
           + "{2,6}\\b([-a-zA-Z0-9@:%"
-          + "._\\+~#?&//=]*)";
+          + "._\\+~#?!&//=(\\)]*)";
 
   private Constants() {
     // hide constructor

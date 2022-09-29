@@ -3,13 +3,15 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDataset.queryDataset;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -17,6 +19,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointDistribution {
@@ -28,7 +31,21 @@ public class FAIRDataPointDistribution {
   }
 
   public static Set<String> FORMATS =
-      new TreeSet<String>(Set.of("csv", "jsonld", "ttl", "excel", "zip"));
+      new TreeSet<>(
+          Set.of(
+              "csv",
+              "jsonld",
+              "ttl",
+              "excel",
+              "zip",
+              "rdf-ttl",
+              "rdf-n3",
+              "rdf-ntriples",
+              "rdf-nquads",
+              "rdf-xml",
+              "rdf-trig",
+              "rdf-jsonld",
+              "graphql"));
 
   /**
    * Access a dataset distribution by a combination of schema, table, and format. Example:
@@ -50,7 +67,7 @@ public class FAIRDataPointDistribution {
 
     format = format.toLowerCase();
     if (!FORMATS.contains(format)) {
-      throw new Exception("Format unknown. Use 'jsonld', 'ttl', 'csv', 'excel' or 'zip'.");
+      throw new Exception("Format unknown. Use any of: " + FORMATS);
     }
 
     if (database.getSchema(schema) == null) {
@@ -82,22 +99,16 @@ public class FAIRDataPointDistribution {
     // Main model builder
     ModelBuilder builder = new ModelBuilder();
     RDFFormat applicationOntologyFormat = RDFFormat.TURTLE;
-    ValueFactory vf = SimpleValueFactory.getInstance();
     WriterConfig config = new WriterConfig();
     config.set(BasicWriterSettings.INLINE_BLANK_NODES, true);
     for (String prefix : prefixToNamespace.keySet()) {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    schema = schema.replace(" ", "%20");
-    table = table.replace(" ", "%20");
-
-    IRI reqURL = iri(request.url());
-    // todo check if ok
-    String appURL =
-        reqURL
-            .toString()
-            .replace("api/fdp/distribution/" + schema + "/" + table + "/" + format, "");
+    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
+    URI requestURI = getURI(request.url());
+    String host = extractHost(requestURI);
+    IRI reqURL = iri(request.url()); // escaping/encoding seems OK
 
     /*
     See https://www.w3.org/TR/vocab-dcat-2/#Class:Distribution
@@ -108,7 +119,7 @@ public class FAIRDataPointDistribution {
         reqURL,
         DCTERMS.DESCRIPTION,
         "MOLGENIS EMX2 data distribution at "
-            + appURL
+            + host
             + " for table "
             + table
             + " in schema "
@@ -116,48 +127,52 @@ public class FAIRDataPointDistribution {
             + ", formatted as "
             + format
             + ".");
-    builder.add(reqURL, DCAT.DOWNLOAD_URL, iri(appURL + schema + "/api/" + format + "/" + table));
-
-    switch (format) {
-      case "jsonld":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/ld+json"));
-        break;
-      case "ttl":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/text/turtle"));
-        break;
-      case "csv":
-        builder.add(
-            reqURL, DCAT.MEDIA_TYPE, iri("https://www.iana.org/assignments/media-types/text/csv"));
-        break;
-      case "excel":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/vnd.ms-excel"));
-        break;
-      case "zip":
-        builder.add(
-            reqURL,
-            DCAT.MEDIA_TYPE,
-            iri("https://www.iana.org/assignments/media-types/application/zip"));
-        break;
+    if (format.equals("csv")
+        || format.equals("jsonld")
+        || format.equals("ttl")
+        || format.equals("excel")
+        || format.equals("zip")) {
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          encodedIRI(host + "/" + schema + "/api/" + format + "/" + table));
+    } else if (format.equals("graphql")) {
+      List<String> columnNames =
+          database.getSchema(schema).getTable(table).getMetadata().getColumnNames();
+      // GraphQL, e.g. http://localhost:8080/fdh/graphql?query={Analyses{id,etc}}
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          encodedIRI(
+              host
+                  + "/"
+                  + schema
+                  + "/graphql?query={"
+                  + table
+                  + "{"
+                  + (String.join(",", columnNames))
+                  + "}}"));
+    } else {
+      // all "rdf-" flavours
+      builder.add(
+          reqURL,
+          DCAT.DOWNLOAD_URL,
+          encodedIRI(
+              host + "/" + schema + "/api/rdf/" + table + "?format=" + format.replace("rdf-", "")));
     }
 
+    builder.add(reqURL, DCAT.MEDIA_TYPE, iri(formatToMediaType(format)));
     builder.add(reqURL, DCTERMS.FORMAT, format);
     builder.add(
         reqURL,
         DCTERMS.ISSUED,
-        literal(((String) sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(
         reqURL,
         DCTERMS.MODIFIED,
-        literal(((String) sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(sourceDataset.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
     builder.add(reqURL, DCTERMS.LICENSE, sourceDataset.get("license"));
     builder.add(reqURL, DCTERMS.ACCESS_RIGHTS, sourceDataset.get("accessRights"));
     builder.add(reqURL, DCTERMS.RIGHTS, sourceDataset.get("rights"));
@@ -169,5 +184,54 @@ public class FAIRDataPointDistribution {
     StringWriter stringWriter = new StringWriter();
     Rio.write(model, stringWriter, applicationOntologyFormat, config);
     this.result = stringWriter.toString();
+  }
+
+  /**
+   * Convert a format into its corresponding MIME type
+   *
+   * @param format
+   * @return
+   * @throws Exception
+   */
+  public static String formatToMediaType(String format) throws Exception {
+    String mediaType;
+    switch (format) {
+      case "csv":
+        mediaType = "https://www.iana.org/assignments/media-types/text/csv";
+        break;
+      case "jsonld":
+      case "rdf-jsonld":
+      case "graphql":
+        mediaType = "https://www.iana.org/assignments/media-types/application/ld+json";
+        break;
+      case "ttl":
+      case "rdf-ttl":
+        mediaType = "https://www.iana.org/assignments/media-types/text/turtle";
+        break;
+      case "excel":
+        mediaType = "https://www.iana.org/assignments/media-types/application/vnd.ms-excel";
+        break;
+      case "zip":
+        mediaType = "https://www.iana.org/assignments/media-types/application/zip";
+        break;
+      case "rdf-n3":
+        mediaType = "https://www.iana.org/assignments/media-types/text/n3";
+        break;
+      case "rdf-ntriples":
+        mediaType = "https://www.iana.org/assignments/media-types/application/n-triples";
+        break;
+      case "rdf-nquads":
+        mediaType = "https://www.iana.org/assignments/media-types/application/n-quads";
+        break;
+      case "rdf-xml":
+        mediaType = "https://www.iana.org/assignments/media-types/application/rdf+xml";
+        break;
+      case "rdf-trig":
+        mediaType = "https://www.iana.org/assignments/media-types/application/trig";
+        break;
+      default:
+        throw new Exception("MIME Type could not be assigned");
+    }
+    return mediaType;
   }
 }

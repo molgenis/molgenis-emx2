@@ -1,0 +1,6 @@
+name,definition,codesystem,code,ontologyTermURI
+disease or disorder,disease or disorder,MONDO,0000001,http://purl.obolibrary.org/obo/MONDO_0000001
+modulator,modulator,CHEBI,189678,http://purl.obolibrary.org/obo/CHEBI_189678
+modifier,modifier,SBO,0000019,http://biomodels.net/SBO/SBO_0000019
+polygenic inheritance,polygenic inheritance,HP,0010982,http://purl.obolibrary.org/obo/HP_0010982
+protective factor,protective factor,OMIT,0028766,http://purl.obolibrary.org/obo/OMIT_0028766

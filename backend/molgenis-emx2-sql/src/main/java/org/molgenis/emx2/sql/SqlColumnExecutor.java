@@ -273,34 +273,48 @@ public class SqlColumnExecutor {
               .setDescription(column.getDescription())
               .setTableType(TableType.ONTOLOGIES)
               .add(
-                  column("order").setType(INT).setDescription("Order within the code system"),
+                  column("order")
+                      .setType(INT)
+                      .setDescription("Order of this term within the code system")
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
                   column("name")
                       .setPkey()
                       .setRequired(true)
-                      .setDescription("User friendly name for this code"),
+                      .setDescription("Short but user-friendly name for this term")
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
                   column("codesystem")
                       // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
                       // check
                       .setRequired(false)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
                       .setDescription(
-                          "Abbreviation of the code system/ontology this ontology term belongs to"),
+                          "Abbreviation of the code system/ontology this term belongs to"),
                   column("code")
                       // .setKey(2)
                       .setRequired(false)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
                       .setDescription(
-                          "Identifier used for this code within this code system/ontology"),
+                          "Identifier used for this term within this code system/ontology"),
                   column("parent")
                       .setType(REF)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
                       .setRefTable(column.getRefTableName())
-                      .setDescription("Parent in case this code exists in a hierarchy"),
+                      .setDescription("The parent term, in case this code exists in a hierarchy"),
                   column("ontologyTermURI")
                       // .setKey(3) //todo: ideally, has a unique check
+                      .setType(HYPERLINK)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
                       .setRequired(false)
                       .setDescription("Reference to structured definition of this term"),
-                  column("definition").setType(TEXT).setDescription("Definition of the term"),
+                  column("definition")
+                      .setType(TEXT)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
+                      .setDescription("A concise explanation of the meaning of this term"),
                   column("children")
                       .setType(REFBACK)
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
                       .setRefTable(column.getRefTableName())
+                      .setDescription("Child terms, in case this term is the parent of other terms")
                       .setRefBack("parent"));
 
       // create the table

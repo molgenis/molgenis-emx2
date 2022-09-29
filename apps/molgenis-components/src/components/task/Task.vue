@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import { request } from "../../client/client.js";
 import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";
 
@@ -52,7 +52,10 @@ export default {
           }
         }`;
         request("graphql", query)
-          .then((data) => (this.task = data._tasks[0]))
+          .then((data) => {
+            this.task = data._tasks[0];
+            this.$emit("taskUpdated", this.task);
+          })
           .catch((error) => {
             console.log(JSON.stringify(error));
             this.error = true;
@@ -76,15 +79,21 @@ function sleep(ms) {
 <template>
   <div>
     <demo-item>
-      <StringInput v-model="taskId" />
-      <Task :taskId="taskId" />
+      <InputString id="task-id-input" v-model="taskId" />
+      <ButtonAction v-if="!showTask" v-on:click="showTask = true"
+        >Send</ButtonAction
+      >
+      <Task v-if="showTask" :taskId="taskId" />
     </demo-item>
   </div>
 </template>
 <script>
 export default {
   data: function () {
-    return { taskId: "not existing taskId" };
+    return {
+      taskId: "not existing taskId",
+      showTask: false,
+    };
   },
 };
 </script>
