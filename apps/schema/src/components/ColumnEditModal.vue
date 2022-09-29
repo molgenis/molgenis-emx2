@@ -8,7 +8,6 @@
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
-        {{ show }}
         <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
         <MessageError v-if="error">{{ error }}</MessageError>
         <div class="row">
