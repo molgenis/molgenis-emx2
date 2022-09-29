@@ -28,42 +28,18 @@
 
 <script>
 import { request } from "graphql-request";
-import {
-  MessageError,
-  ReadMore,
-  InputSelect,
-  NavTabs,
-} from "@mswertz/emx2-styleguide";
-import VariableTree from "../components/VariableTree";
-import HarmonisationList from "../components/HarmonisationList";
-import PublicationList from "../components/PublicationList";
-import PartnersList from "../components/PartnersList";
-import InstitutionList from "../components/InstitutionList";
 import ResourceHeader from "../components/ResourceHeader";
 import DatasourceList from "../components/DatasourceList";
 import DatabankList from "../components/DatabankList";
 import CohortList from "../components/CohortList";
-import ReleasesList from "../components/ReleasesList";
-import DocumentationList from "../components/DocumentationList";
 import ResourceContext from "../components/ResourceContext";
 
 export default {
   components: {
     ResourceContext,
-    DocumentationList,
-    ReleasesList,
     DatabankList,
     CohortList,
     DatasourceList,
-    InstitutionList,
-    PartnersList,
-    PublicationList,
-    HarmonisationList,
-    VariableTree,
-    MessageError,
-    ReadMore,
-    InputSelect,
-    NavTabs,
     ResourceHeader,
   },
   props: {

@@ -8,12 +8,21 @@
     </RouterLink>
     <h1 class="bg-white">{{ network }} cohorts</h1>
     <p>This page lists all cohorts partner in the {{ network }} network.</p>
-    <InputSearch v-model="searchTerms" placeholder="search cohorts" />
+    <InputSearch
+      id="cohort-cards-search-input"
+      v-model="searchTerms"
+      placeholder="search cohorts"
+    />
     <p>Found {{ count }} cohorts.</p>
     <div class="row">
       <div
-        class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4 d-flex align-items-stretch"
-        v-for="cohort in data"
+        class="
+          col-xl-3 col-lg-4 col-md-6 col-sm-12
+          mb-4
+          d-flex
+          align-items-stretch
+        "
+        v-for="cohort in cohorts"
         :key="cohort.pid"
       >
         <div class="card col-12 p-0">
@@ -38,7 +47,14 @@
                   <td><label>Design:</label></td>
                   <td>
                     <span
-                      class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
+                      class="
+                        font-weight-bold
+                        mr-2
+                        mb-2
+                        badge
+                        bade-lg
+                        badge-primary
+                      "
                       v-for="design in cohort.design"
                       :key="design"
                     >
@@ -50,7 +66,14 @@
                   <td><label>CollectionType:</label></td>
                   <td>
                     <span
-                      class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
+                      class="
+                        font-weight-bold
+                        mr-2
+                        mb-2
+                        badge
+                        bade-lg
+                        badge-primary
+                      "
                       v-for="collectionType in cohort.collectionType"
                       :key="collectionType.name"
                     >
@@ -69,7 +92,14 @@
                   <td><label>Countries:</label></td>
                   <td>
                     <span
-                      class="font-weight-bold mr-2 mb-2 badge bade-lg badge-primary"
+                      class="
+                        font-weight-bold
+                        mr-2
+                        mb-2
+                        badge
+                        bade-lg
+                        badge-primary
+                      "
                       style="max-width: 15em"
                       v-for="country in cohort.countries"
                       :key="country.name"
@@ -103,20 +133,27 @@
 </template>
 
 <script>
-import { TableMixin, InputSearch } from "@mswertz/emx2-styleguide";
-
-import Property from "../components/Property";
-import ContributorList from "./ContributorList";
+import { InputSearch } from "molgenis-components";
+import { Client } from "molgenis-components";
 
 export default {
-  extends: TableMixin,
   components: {
-    Property,
-    ContributorList,
     InputSearch,
   },
   props: {
+    table: {
+      type: String,
+      required: true
+    },
     network: String,
+    orderBy: Object
+  },
+  data() {
+    return {
+      cohorts: [],
+      count: null,
+      searchTerms: null,
+    };
   },
   computed: {
     graphqlFilter() {
@@ -127,8 +164,15 @@ export default {
       return filter;
     },
   },
-  created() {
+  async created() {
     this.limit = 1000;
+    this.client = Client.newClient();
+    const resp = await this.client.fetchTableData(this.table, {
+        filter: this.graphqlFilter,
+        orderBy: this.orderBy
+      })
+    this.cohorts = resp[this.table] ? resp[this.table] : []
+    this.count = resp[this.table + '_agg'].count
   },
 };
 </script>

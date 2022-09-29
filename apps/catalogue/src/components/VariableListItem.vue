@@ -129,7 +129,7 @@
 </template>
 
 <script>
-import { Spinner } from "@mswertz/emx2-styleguide";
+import { Spinner } from "molgenis-components";
 
 export default {
   name: "VariableListItem",

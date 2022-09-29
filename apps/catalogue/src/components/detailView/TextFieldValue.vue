@@ -1,9 +1,9 @@
 <template>
-  <ReadMore :text="data" length="1000" />
+  <ReadMore :text="data" :length="1000" />
 </template>
 
 <script>
-import { ReadMore } from "@mswertz/emx2-styleguide";
+import { ReadMore } from "molgenis-components";
 
 export default {
   name: "TextFieldValue",
