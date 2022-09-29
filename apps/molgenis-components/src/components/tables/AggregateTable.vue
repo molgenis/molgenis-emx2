@@ -3,35 +3,23 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#">Aggregate</a>
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            role="button"
-            data-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ columnHeaderProperty }}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Some item</a>
-            <a class="dropdown-item" href="#">Some item</a>
-          </div>
+        <li>
+          <InputSelect
+            class="m-0 mr-2"
+            id="column-select"
+            v-model="selectedColumnHeader"
+            :options="columnHeaderProperties"
+            @input="fetchData"
+          />
         </li>
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            role="button"
-            data-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ rowHeaderProperty }}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#">Some item</a>
-            <a class="dropdown-item" href="#">Some item</a>
-          </div>
+        <li>
+          <InputSelect
+            class="m-0"
+            id="row-select"
+            v-model="selectedRowHeader"
+            :options="rowHeaderProperties"
+            @input="fetchData"
+          />
         </li>
       </ul>
     </nav>
@@ -74,8 +62,18 @@ export default {
       type: String,
       required: true,
     },
+    /** list of references(string) to a aggregate on */
+    columnHeaderProperties: {
+      type: Array,
+      required: true,
+    },
+    /** list of references(string) to a aggregate on */
+    rowHeaderProperties: {
+      type: Array,
+      required: true,
+    },
     /** property of the table to aggregate mref/xref */
-    columnHeaderProperty: {
+    selectedColumnHeaderProperty: {
       type: String,
       required: true,
     },
@@ -85,7 +83,7 @@ export default {
       required: true,
     },
     /** property of the table to aggregate mref/xref */
-    rowHeaderProperty: {
+    selectedRowHeaderProperty: {
       type: String,
       required: true,
     },
@@ -101,6 +99,8 @@ export default {
   },
   data: function () {
     return {
+      selectedColumnHeader: this.selectedColumnHeaderProperty,
+      selectedRowHeader: this.selectedRowHeaderProperty,
       loading: true,
       rows: [],
       columns: [],
@@ -116,10 +116,10 @@ export default {
                 ${this.tableName} {
                   groupBy {
                     count,
-                    ${this.columnHeaderProperty} {
+                    ${this.selectedColumnHeader} {
                       ${this.columnHeaderNameProperty}
                     },
-                    ${this.rowHeaderProperty} {
+                    ${this.selectedRowHeader} {
                       ${this.rowHeaderNameProperty}
                     }
                   }
@@ -129,8 +129,8 @@ export default {
   },
   methods: {
     AddItem(item) {
-      const column = item[this.columnHeaderProperty].name;
-      const row = item[this.rowHeaderProperty].name;
+      const column = item[this.selectedColumnHeaderProperty].name;
+      const row = item[this.selectedRowHeaderProperty].name;
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -146,6 +146,7 @@ export default {
       }
     },
     async fetchData() {
+      this.loading = true;
       const responseData = await request(
         this.graphQlEndpoint,
         this.getAggregateQuery
@@ -165,12 +166,14 @@ export default {
 <docs>
 <template>
   <demo-item>
-    <AggregateTable 
+    <AggregateTable
       :table="tableName"
       :graphQlEndpoint="endpoint"
-      :columnHeaderProperty="columnName" 
-      :columnHeaderNameProperty="columnNameProperty" 
-      :rowHeaderProperty="rowName"
+      :columnHeaderProperties="selectableColumns"
+      :rowHeaderProperties="selectableColumns"
+      :selectedColumnHeaderProperty="columnName"
+      :columnHeaderNameProperty="columnNameProperty"
+      :selectedRowHeaderProperty="rowName"
       :rowHeaderNameProperty="columnNameProperty"
       :minimumValue="10"
     >
@@ -179,16 +182,25 @@ export default {
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        tableName: 'Samples',
-        endpoint: "SampleCatalogue/graphql",
-        columnName: "MaterialTypeDetailed",
-        rowName: "Diseases",
-        columnNameProperty: "name"
-      }
-    },
-  }
+export default {
+  data() {
+    return {
+      selectableColumns: [
+        "AnatomicalSites",
+        "DiagnosisTypes",
+        "Diseases",
+        "ImagingData",
+        "MaterialTypeDetailed",
+        "Ontologies",
+        "Sex",
+      ],
+      tableName: "Samples",
+      endpoint: "SampleCatalogue/graphql",
+      columnName: "MaterialTypeDetailed",
+      rowName: "Diseases",
+      columnNameProperty: "name",
+    };
+  },
+};
 </script>
 </docs>

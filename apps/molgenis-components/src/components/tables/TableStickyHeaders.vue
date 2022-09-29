@@ -51,12 +51,11 @@ export default {
 
 table td {
   text-align: right;
-  border: 1px solid var(--light);
+  border: 0.5px solid var(--gray);
+  padding: 0.1rem 0.6rem;
 }
 .rotated-title {
-  width: 2rem;
-  height: 12rem;
-  padding-top: 2rem;
+  padding-top: 12rem;
   vertical-align: bottom;
   position: relative;
 }
@@ -66,17 +65,18 @@ table td {
   white-space: nowrap;
   width: 12rem;
   height: 2rem;
-  transform-origin: 0 0;
-  transform: rotate(-55deg) translate(-7.5rem, 5.25rem);
+  transform-origin: 0 100%;
+  transform: rotate(-55deg) translate(0, 2px);
   display: inline-block;
   z-index: 1;
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  line-height: 2.2rem;
+  border-bottom: 0.5px solid var(--gray);
 }
 table {
   border-spacing: 0;
-}
-table thead th {
-  padding-bottom: 1rem;
 }
 table thead tr:after {
   display: inline-block;
@@ -119,14 +119,15 @@ table tbody th {
   white-space: nowrap;
 }
 
-table tbody td:nth-child(2),
-table thead th:nth-child(2) {
+table tbody td:nth-child(2) {
   padding-left: 1.5rem;
+  border-left: none;
 }
 
 table tbody tr:first-child td,
 table tbody tr:first-child th {
   padding-top: 1.5rem;
+  border-top: none;
 }
 
 table tbody td:hover::before {
