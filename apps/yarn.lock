@@ -4693,10 +4693,10 @@ ckeditor4-integrations-common@^1.0.0:
   resolved "https://registry.yarnpkg.com/ckeditor4-integrations-common/-/ckeditor4-integrations-common-1.0.0.tgz#a8afc33b94877b4d01362c7c73aa9eec162b2d20"
   integrity sha512-OAoQT/gYrHkg0qgzf6MS/rndYhq3SScLVQ3rtXQeuCE8ju7nFHg3qZ7WGA2XpFxcZzsMP6hhugXqdel5vbcC3g==
 
-ckeditor4-vue@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-2.1.1.tgz#7a7087fae11e2b4bc52a9414e1d891bbe0dbcb3f"
-  integrity sha512-BBmpT1BYxOmaA+qy9+hvhG0tDYCGqFve1eDSol0ZNwWCm1hZvmPAke809AhkHFUjb834dbNRlTwH3c2qedjtkQ==
+ckeditor4-vue@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/ckeditor4-vue/-/ckeditor4-vue-2.2.0.tgz#0eac7a312ebfa169074ebc1f448aff081a7503c5"
+  integrity sha512-Cobo/prQEiOMKQ/+1GV3S6hqnJu31JHsgLhtFUpsrczVpB3Q4mD5tBHiQ3//1fIO3+jK54WDA4HXC6pHp6sjjw==
   dependencies:
     ckeditor4-integrations-common "^1.0.0"
 
@@ -16200,10 +16200,10 @@ vite-plugin-vue2@2.0.2:
     source-map "^0.7.3"
     vue-template-babel-compiler "^1.2.0"
 
-vite@3.1.3:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.3.tgz#b2a0821c11aae124bb7618f8036913c689afcc59"
-  integrity sha512-/3XWiktaopByM5bd8dqvHxRt5EEgRikevnnrpND0gRfNkrMrPaGGexhtLCzv15RcCMtV2CLw+BPas8YFeSG0KA==
+vite@3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-3.1.4.tgz#b75824b819d8354a6f36e4b988943c7e4947e155"
+  integrity sha512-JoQI08aBjY9lycL7jcEq4p9o1xUjq5aRvdH4KWaXtkSx7e7RpAh9D3IjzDWRD4Fg44LS3oDAIOG/Kq1L+82psA==
   dependencies:
     esbuild "^0.15.6"
     postcss "^8.4.16"
