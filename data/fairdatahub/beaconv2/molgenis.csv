@@ -46,7 +46,7 @@ Cohorts,,genders,ontology_array,,,,GenderAtBirth,,,,http://purl.obolibrary.org/o
 Cohorts,,cohortDataTypes,ontology_array,,,,DCMITypes,,,,http://purl.obolibrary.org/obo/NCIT_C15783,"E.g. Dataset, Sound, Still Image"
 Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,Beacon v2 Individuals
 Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
-Individuals,,sex,ontology,,,,GenderAtBirth,,,,http://purl.obolibrary.org/obo/GSSO_009418,E.g. assigned female at birth
+Individuals,,sex,ontology,,,,GenderAtBirth,,,,"http://purl.obolibrary.org/obo/GSSO_009418,http://purl.obolibrary.org/obo/NCIT_C28421",E.g. assigned female at birth
 Individuals,,age_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old"
 Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25150,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D"
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN"
@@ -62,9 +62,9 @@ IndividualsPhenotypicFeatures,,modifiers,ontology_array,,,,Phenotypes,,,,http://
 IndividualsPhenotypicFeatures,,severity,ontology,,,,Severity,,,,http://purl.obolibrary.org/obo/HP_0012824,E.g. Profound
 IndividualsDiseases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,Beacon v2 Individuals Diseases
 IndividualsDiseases,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Ind001_Dis001
-IndividualsDiseases,,diseaseCode,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
-IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/HP_0003674,E.g. Adult 18-65 Years Old
-IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,http://www.orpha.net/ORDO/Orphanet_C023,E.g. P32Y6M1D
+IndividualsDiseases,,diseaseCode,ontology,,,,Diseases,,,,"http://purl.obolibrary.org/obo/NCIT_C15607,http://semanticscience.org/resource/SIO_001003",E.g. Spinocerebellar ataxia type 34
+IndividualsDiseases,,ageOfOnset_ageGroup,ontology,,,,AgeGroups,,,,"http://purl.obolibrary.org/obo/HP_0003674,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. Adult 18-65 Years Old
+IndividualsDiseases,,ageOfOnset_age_iso8601duration,string,,,,,,,,"http://www.orpha.net/ORDO/Orphanet_C023,http://www.ebi.ac.uk/efo/EFO_0004847",E.g. P32Y6M1D
 IndividualsDiseases,,ageAtDiagnosis_ageGroup,ontology,,,,AgeGroups,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. Adult 18-65 Years Old"
 IndividualsDiseases,,ageAtDiagnosis_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C156420,"Addition for EJP-RD Virtual Platform API. E.g. P32Y6M1D"
 IndividualsDiseases,,familyHistory,bool,,,,,,,,http://purl.obolibrary.org/obo/HP_0032316,E.g. false
