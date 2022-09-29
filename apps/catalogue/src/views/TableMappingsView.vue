@@ -201,7 +201,6 @@ export default {
   methods: {
     ...mapActions(["reloadMetadata"]),
     handleRowAction(mapping) {
-      console.log(mapping);
       this.editRowPrimaryKey = {
         fromDataDictionary: mapping.fromDataDictionary,
         fromTable: mapping.fromTable,
