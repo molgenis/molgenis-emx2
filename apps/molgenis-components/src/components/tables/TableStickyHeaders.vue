@@ -54,8 +54,9 @@ table td {
   border: 1px solid var(--light);
 }
 .rotated-title {
-  width: 2em;
-  height: 10em;
+  width: 2rem;
+  height: 12rem;
+  padding-top: 2rem;
   vertical-align: bottom;
   position: relative;
 }
@@ -63,10 +64,10 @@ table td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 12em;
-  height: 2em;
+  width: 12rem;
+  height: 2rem;
   transform-origin: 0 0;
-  transform: rotate(-55deg) translate(-7.5em, 5.25em);
+  transform: rotate(-55deg) translate(-7.5rem, 5.25rem);
   display: inline-block;
   z-index: 1;
   position: relative;
@@ -75,7 +76,7 @@ table {
   border-spacing: 0;
 }
 table thead th {
-  padding-bottom: 1em;
+  padding-bottom: 1rem;
 }
 table thead tr:after {
   display: inline-block;
@@ -117,6 +118,17 @@ table tbody th {
   position: relative;
   white-space: nowrap;
 }
+
+table tbody td:nth-child(2),
+table thead th:nth-child(2) {
+  padding-left: 1.5rem;
+}
+
+table tbody tr:first-child td,
+table tbody tr:first-child th {
+  padding-top: 1.5rem;
+}
+
 table tbody td:hover::before {
   content: "";
   position: absolute;
@@ -153,7 +165,7 @@ table tbody th {
   left: 0;
   background: white;
   z-index: 1;
-  padding-right: 1em;
+  padding-right: 1rem;
 }
 [role="region"] {
   width: 100%;
