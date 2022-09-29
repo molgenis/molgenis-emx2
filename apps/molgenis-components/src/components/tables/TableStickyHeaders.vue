@@ -51,7 +51,8 @@ export default {
 
 table td {
   text-align: right;
-  border: 0.5px solid var(--gray);
+  border-right: 0.5px solid var(--gray);
+  border-bottom: 0.5px solid var(--gray);
   padding: 0.1rem 0.6rem;
 }
 .rotated-title {
@@ -77,6 +78,7 @@ table td {
 }
 table {
   border-spacing: 0;
+  border-collapse: separate;
 }
 table thead tr:after {
   display: inline-block;
