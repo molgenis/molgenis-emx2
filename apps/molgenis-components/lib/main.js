@@ -97,6 +97,7 @@ import RowButton from "../src/components/tables/RowButton.vue";
 import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
+import TableStickyHeaders from "../src/components/tables/TableStickyHeaders.vue";
 import AggregateTable from "../src/components/tables/AggregateTable.vue";
 
 //tables/celltypes
@@ -194,6 +195,7 @@ export {
   TableExplorer,
   TableMolgenis,
   TableSimple,
+  TableStickyHeaders,
   SubTask,
   Task,
   TaskManager,
