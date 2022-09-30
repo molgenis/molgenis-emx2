@@ -131,6 +131,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set(STATUS, "available")
                 .set(WEIGHT, 9.4),
             new Row()
+                .set(CATEGORY_COLUMN, "dog")
+                .set("name", "spike")
+                .set(STATUS, "sold")
+                .set("tags", "red,green")
+                .set(WEIGHT, 15.7),
+            new Row()
                 .set(CATEGORY_COLUMN, "cat")
                 .set("name", "tom")
                 .set("tags", "red")
@@ -155,12 +161,6 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set("tags", "yellow")
                 .set(STATUS, "available")
                 .set(WEIGHT, 0.1),
-            new Row()
-                .set(CATEGORY_COLUMN, "dog")
-                .set("name", "spike")
-                .set(STATUS, "sold")
-                .set("tags", "red,green")
-                .set(WEIGHT, 15.7),
             new Row()
                 .set(CATEGORY_COLUMN, "caterpillar")
                 .set("name", "the very hungry caterpillar")
