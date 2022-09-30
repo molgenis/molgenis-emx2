@@ -243,18 +243,18 @@ public class TestGraphqSchemaFields {
 
     // offset
     TestCase.assertEquals(
-        "spike", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
+        "jerry", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // limit
     TestCase.assertEquals(1, execute("{Pet(limit:1){name}}").at("/Pet").size());
 
     // orderby asc
     TestCase.assertEquals(
-        "pooky", execute("{Pet(orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
+        "fire ant", execute("{Pet(orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // order by desc
     TestCase.assertEquals(
-        "spike", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
+        "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
     // filter nested
     TestCase.assertEquals(
@@ -272,7 +272,7 @@ public class TestGraphqSchemaFields {
 
     // or nested
     TestCase.assertEquals(
-        2,
+        4,
         execute(
                 "{Pet(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){name}}")
             .at("/Pet")

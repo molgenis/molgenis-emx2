@@ -111,7 +111,6 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
         .insert(
             new Row().set(NAME, COLORS),
             new Row().set(NAME, "red").set(PARENT, COLORS),
-            new Row().set(NAME, "yellow").set(PARENT, COLORS),
             new Row().set(NAME, "green").set(PARENT, COLORS),
             new Row().set(NAME, "blue").set(PARENT, COLORS),
             new Row().set(NAME, "purple").set(PARENT, COLORS),
@@ -158,7 +157,7 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
             new Row()
                 .set(CATEGORY_COLUMN, "bird")
                 .set("name", "tweety")
-                .set("tags", "yellow")
+                .set("tags", "red")
                 .set(STATUS, "available")
                 .set(WEIGHT, 0.1),
             new Row()
