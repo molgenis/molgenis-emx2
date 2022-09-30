@@ -31,7 +31,7 @@
 
 <script>
 import { MessageWarning, InputSearch } from "molgenis-components";
-import TablesTable from "./TablesTable";
+import TablesTable from "./TablesTable.vue";
 
 export default {
   name: "App",
