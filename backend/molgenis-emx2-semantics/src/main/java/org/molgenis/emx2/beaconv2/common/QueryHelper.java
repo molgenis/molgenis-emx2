@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.SelectColumn;
@@ -76,5 +77,57 @@ public class QueryHelper {
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     return ontologyTerm;
+  }
+
+  /**
+   * Find column and GraphQL path to that column in a table based on a semantic tag.
+   *
+   * @param buildGraphQLFilter Supply empty string, will be filled by function recursively
+   * @param columnSemanticTagOrIRI Find column that matches this semantic tag
+   * @param table Table structure to search in
+   * @return
+   */
+  public static ColumnPath findColumnPath(
+      String buildGraphQLFilter, String columnSemanticTagOrIRI, Table table) {
+    for (Column column : table.getMetadata().getColumns()) {
+      if (column.getName().startsWith("mg_")) {
+        continue;
+      }
+
+      // check semantics, return if found
+      for (String semantics : column.getSemantics()) {
+        if (semantics.endsWith(columnSemanticTagOrIRI)) {
+          return new ColumnPath(column, buildGraphQLFilter + " {" + column.getName() + ": {");
+        }
+      }
+
+      // if reference, also step in recursively
+      if (column.isReference()) {
+        Table refTable = table.getSchema().getTable(column.getRefTableName());
+        // cannot refer to itself, circular
+        if (!refTable.getName().equals(table.getName())) {
+          ColumnPath columnPath =
+              findColumnPath(
+                  buildGraphQLFilter + " {" + column.getName() + ": ",
+                  columnSemanticTagOrIRI,
+                  refTable);
+          if (columnPath != null) {
+            return columnPath;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Finalize GraphQL filter by adding missing end braces
+   *
+   * @param filter
+   * @return
+   */
+  public static String finalizeFilter(String filter) {
+    int nrOfStartingBraces = StringUtils.countMatches(filter, "{");
+    return filter + "}".repeat(nrOfStartingBraces);
   }
 }
