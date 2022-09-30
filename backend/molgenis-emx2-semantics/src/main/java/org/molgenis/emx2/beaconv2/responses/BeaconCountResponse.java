@@ -13,6 +13,11 @@ public class BeaconCountResponse {
   private Map<String, Object> info;
   private Handover[] beaconHandovers;
 
+  public BeaconCountResponse(boolean exists, int numTotalResults) {
+    this.$schema = "https://json-schema.org/draft/2020-12/schema";
+    this.responseSummary = new BeaconSummaryResponseSection(exists, numTotalResults);
+  }
+
   public String get$schema() {
     return $schema;
   }
