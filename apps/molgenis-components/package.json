@@ -11,6 +11,10 @@
     ".": {
       "import": "./dist/molgenis-components.es.js",
       "require": "./dist/molgenis-components.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   },
   "scripts": {
