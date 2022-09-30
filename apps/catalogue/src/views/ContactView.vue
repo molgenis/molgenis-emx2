@@ -61,18 +61,14 @@
 
 <script>
 import { request } from "graphql-request";
-import { MessageError } from "@mswertz/emx2-styleguide";
+import { MessageError } from "molgenis-components";
 import ResourceHeader from "../components/ResourceHeader";
 import InstitutionList from "../components/InstitutionList";
-import PartnerInList from "../components/PartnerInList";
-import Property from "../components/Property";
 import OntologyTerms from "../components/OntologyTerms";
 
 export default {
   components: {
     OntologyTerms,
-    Property,
-    PartnerInList,
     InstitutionList,
     ResourceHeader,
     MessageError,

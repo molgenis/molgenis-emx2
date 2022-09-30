@@ -106,9 +106,9 @@
 <script>
 import { request } from "graphql-request";
 
-import SchemaCreateModal from "./SchemaCreateModal";
-import SchemaDeleteModal from "./SchemaDeleteModal";
-import SchemaEditModal from "./SchemaEditModal";
+import SchemaCreateModal from "./SchemaCreateModal.vue";
+import SchemaDeleteModal from "./SchemaDeleteModal.vue";
+import SchemaEditModal from "./SchemaEditModal.vue";
 import {
   IconAction,
   IconBar,

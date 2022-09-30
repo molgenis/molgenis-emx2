@@ -214,7 +214,7 @@
 </template>
 
 <script>
-import { MessageError, ButtonAlt } from "@mswertz/emx2-styleguide";
+import { MessageError, ButtonAlt } from "molgenis-components";
 import { request } from "graphql-request";
 import OntologyTerms from "../components/OntologyTerms";
 
