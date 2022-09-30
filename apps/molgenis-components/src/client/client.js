@@ -126,6 +126,10 @@ _schema {
       visible,
       validation
     }
+    settings { 
+      key,
+      value 
+    }
   }
 }}`;
 
