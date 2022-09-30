@@ -97,18 +97,30 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
     schema.addMember(shopowner, "Owner");
     schema.getDatabase().setUserPassword(shopowner, shopowner);
 
-    schema.getTable(CATEGORY).insert(new Row().set(NAME, "cat"), new Row().set(NAME, "dog"));
+    schema
+        .getTable(CATEGORY)
+        .insert(
+            new Row().set(NAME, "cat"),
+            new Row().set(NAME, "dog"),
+            new Row().set(NAME, "mouse"),
+            new Row().set(NAME, "bird"),
+            new Row().set(NAME, "ant"),
+            new Row().set(NAME, "caterpillar"));
     schema
         .getTable(TAG)
         .insert(
             new Row().set(NAME, COLORS),
             new Row().set(NAME, "red").set(PARENT, COLORS),
+            new Row().set(NAME, "yellow").set(PARENT, COLORS),
             new Row().set(NAME, "green").set(PARENT, COLORS),
+            new Row().set(NAME, "blue").set(PARENT, COLORS),
+            new Row().set(NAME, "purple").set(PARENT, COLORS),
             new Row().set(NAME, SPECIES),
             new Row().set(NAME, MAMMALS).set(PARENT, SPECIES),
             new Row().set(NAME, "carnivorous mammals").set(PARENT, MAMMALS),
             new Row().set(NAME, "herbivorous mammals").set(PARENT, MAMMALS),
-            new Row().set(NAME, "birds").set(PARENT, SPECIES));
+            new Row().set(NAME, "birds").set(PARENT, SPECIES),
+            new Row().set(NAME, "insect").set(PARENT, SPECIES));
 
     schema
         .getTable(PET)
@@ -119,11 +131,50 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set(STATUS, "available")
                 .set(WEIGHT, 9.4),
             new Row()
+                .set(CATEGORY_COLUMN, "cat")
+                .set("name", "tom")
+                .set("tags", "red")
+                .set(STATUS, "available")
+                .set(WEIGHT, 3.14),
+            new Row()
+                .set(CATEGORY_COLUMN, "cat")
+                .set("name", "sylvester")
+                .set("tags", "purple")
+                .set(SPECIES, "carnivorous mammals")
+                .set(STATUS, "available")
+                .set(WEIGHT, 1.337),
+            new Row()
+                .set(CATEGORY_COLUMN, "mouse")
+                .set("name", "jerry")
+                .set("tags", "blue")
+                .set(STATUS, "available")
+                .set(WEIGHT, 0.18),
+            new Row()
+                .set(CATEGORY_COLUMN, "bird")
+                .set("name", "tweety")
+                .set("tags", "yellow")
+                .set(STATUS, "available")
+                .set(WEIGHT, 0.1),
+            new Row()
                 .set(CATEGORY_COLUMN, "dog")
                 .set("name", "spike")
                 .set(STATUS, "sold")
                 .set("tags", "red,green")
-                .set(WEIGHT, 15.7));
+                .set(WEIGHT, 15.7),
+            new Row()
+                .set(CATEGORY_COLUMN, "caterpillar")
+                .set("name", "the very hungry caterpillar")
+                .set(STATUS, "available")
+                .set(SPECIES, "insect")
+                .set("tags", "green")
+                .set(WEIGHT, 0.5),
+            new Row()
+                .set(CATEGORY_COLUMN, "ant")
+                .set("name", "fire ant")
+                .set(STATUS, "available")
+                .set(SPECIES, "insect")
+                .set("tags", "purple,red,green")
+                .set(WEIGHT, 0.01));
 
     schema
         .getTable(ORDER)
@@ -143,7 +194,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set(COMPLETE, false)
                 .set(STATUS, "approved"));
 
-    schema.getTable(USER).insert(new Row().set("username", "bofke").set("pets", "spike,pooky"));
+    schema
+        .getTable(USER)
+        .insert(
+            new Row()
+                .set("username", "bofke")
+                .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
   }
