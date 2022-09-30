@@ -280,7 +280,7 @@ public class TestGraphqSchemaFields {
 
     // or nested
     TestCase.assertEquals(
-        2,
+        4,
         execute(
                 "{Pet_agg(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){count}}")
             .at("/Pet_agg/count")
