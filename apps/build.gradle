@@ -62,10 +62,11 @@ subprojects {
             inputs.files(fileTree('store'))
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
-        } else if (
-        project.name == 'schema') {
+        } else if (project.name == 'central' || project.name == 'tables' || project.name == 'schema') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('assets'))
             inputs.file('vite.config.js')
             inputs.file('index.html')
             outputs.dir('dist')

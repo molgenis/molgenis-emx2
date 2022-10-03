@@ -169,7 +169,7 @@
 
 <script>
 import { request } from "graphql-request";
-import { MessageError } from "@mswertz/emx2-styleguide";
+import { MessageError } from "molgenis-components";
 
 export default {
   components: {

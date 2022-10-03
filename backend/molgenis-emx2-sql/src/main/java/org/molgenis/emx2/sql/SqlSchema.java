@@ -142,6 +142,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Query groupBy(String tableName) {
+    return getTable(tableName).groupBy();
+  }
+
+  @Override
   public Query query(String field, SelectColumn... selection) {
     return new SqlQuery(this.getMetadata(), field, selection);
   }

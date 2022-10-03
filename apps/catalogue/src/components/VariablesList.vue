@@ -40,13 +40,11 @@ import {
   InputSearch,
   MessageError,
   Pagination,
-} from "@mswertz/emx2-styleguide";
-import HarmonisationDetails from "./HarmonisationDetails";
+} from "molgenis-components";
 import VariableCard from "./VariableCard";
 
 export default {
   components: {
-    HarmonisationDetails,
     Pagination,
     MessageError,
     VariableCard,

@@ -30,22 +30,18 @@ import InstitutionList from "./InstitutionList";
 import ContactList from "./ContactList";
 import ReleasesList from "./ReleasesList";
 import DocumentationList from "./DocumentationList";
-import Conditions from "./Conditions";
 import PublicationList from "./PublicationList";
 import ContributorList from "./ContributorList";
-import NetworkList from "./NetworkList";
 import PartnersList from "./PartnersList";
 import ModelsList from "./ModelsList";
 
 export default {
   components: {
     PartnersList,
-    NetworkList,
     InstitutionList,
     ContactList,
     ReleasesList,
     DocumentationList,
-    Conditions,
     PublicationList,
     ContributorList,
     ModelsList,
