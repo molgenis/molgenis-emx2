@@ -255,7 +255,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(individuals);
     assertTrue(json.contains("\"id\" : \"Ind001\","));
     assertTrue(json.contains("\"id\" : \"Ind002\","));
-    assertEquals(5918, json.length());
   }
 
   @Test
@@ -298,7 +297,6 @@ public class Beaconv2_ModelEndpointsTest {
             "observationMoment" : {
                               "age" : {
                                 "iso8601duration" : "P75Y9M11D\""""));
-    assertEquals(3408, json.length());
   }
 
   @Test
