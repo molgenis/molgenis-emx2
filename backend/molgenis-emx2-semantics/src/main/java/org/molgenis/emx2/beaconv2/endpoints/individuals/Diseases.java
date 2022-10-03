@@ -20,6 +20,9 @@ public class Diseases {
   private OntologyTerm stage;
 
   public static Diseases[] get(Object diseases) {
+    if (diseases == null) {
+      return null;
+    }
     List<Map<String, Object>> diseasesCast = (List<Map<String, Object>>) diseases;
     Diseases[] result = new Diseases[diseasesCast.size()];
     for (int i = 0; i < diseasesCast.size(); i++) {

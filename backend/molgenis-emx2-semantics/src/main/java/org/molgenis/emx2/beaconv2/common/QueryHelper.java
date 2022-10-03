@@ -55,6 +55,10 @@ public class QueryHelper {
    * @return
    */
   public static OntologyTerm[] mapListToOntologyTerms(List<Map> mapList) {
+    if (mapList == null) {
+      return null;
+    }
+
     OntologyTerm[] result = new OntologyTerm[mapList.size()];
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
@@ -74,6 +78,9 @@ public class QueryHelper {
    */
   public static OntologyTerm mapToOntologyTerm(Map map) {
     OntologyTerm ontologyTerm = new OntologyTerm();
+    if (map == null) {
+      return null;
+    }
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     return ontologyTerm;
