@@ -131,8 +131,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
-    assertTrue(json.contains("\"resultsCount\" : 4,"));
-    assertEquals(2630, json.length());
+    assertTrue(json.contains("\"resultsCount\" : 5,"));
   }
 
   @Test
@@ -162,7 +161,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Biosamples biosamples = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    assertTrue(json.contains("\"resultsCount\" : 2,"));
+    assertTrue(json.contains("\"resultsCount\" : 3,"));
     assertTrue(
         json.contains(
             """
@@ -170,7 +169,6 @@ public class Beaconv2_ModelEndpointsTest {
                                       "procedureCode" : {
                                         "id" : "OBI:0002654",
                                         "label" : "needle biopsy\""""));
-    assertEquals(2105, json.length());
   }
 
   @Test
@@ -218,7 +216,6 @@ public class Beaconv2_ModelEndpointsTest {
                       {
                         "id" : "ISO3166:ES",
                         "label" : "Spain\""""));
-    assertEquals(3353, json.length());
   }
 
   @Test
@@ -320,10 +317,9 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
-    assertTrue(json.contains("\"resultsCount\" : 4,"));
+    assertTrue(json.contains("\"resultsCount\" : 5,"));
     assertTrue(
         json.contains("\"librarySource\" : {\n" + "              \"id\" : \"GENEPIO:0001966\","));
-    assertEquals(3390, json.length());
   }
 
   @Test
