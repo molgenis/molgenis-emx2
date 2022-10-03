@@ -19,24 +19,24 @@ GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibr
 Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
 Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,E.g. Analysis012345
 Analyses,,aligner,string,,,,,,,,http://edamontology.org/operation_0292,E.g. bwa-0.7.8
-Analyses,,analysisDate,date,,,,,,,,http://purl.obolibrary.org/obo/date,E.g. 2021-10-17
+Analyses,,analysisDate,date,,TRUE,,,,,,http://purl.obolibrary.org/obo/date,E.g. 2021-10-17
 Analyses,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. S0001
 Analyses,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. P0001
-Analyses,,pipelineName,string,,,,,,,,http://edamontology.org/data_2531,E.g. Pipeline-panel-0001-v1
+Analyses,,pipelineName,string,,TRUE,,,,,,http://edamontology.org/data_2531,E.g. Pipeline-panel-0001-v1
 Analyses,,pipelineRef,hyperlink,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17564,E.g. https://doi.org/10.48511/workflowhub.workflow.111.1
 Analyses,,runId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
 Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g. GATK4.0
 Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
 Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
-Biosamples,,biosampleStatus,ontology,,,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
-Biosamples,,sampleOriginType,ontology,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
+Biosamples,,biosampleStatus,ontology,,TRUE,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
+Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
 Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
-Biosamples,,obtentionProcedure,ontology,,,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
+Biosamples,,obtentionProcedure,ontology,,TRUE,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
 Cohorts,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C61512,Beacon v2 Cohorts
 Cohorts,,cohortId,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,E.g. cohort0001
-Cohorts,,cohortName,string,,,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
-Cohorts,,cohortType,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined"
+Cohorts,,cohortName,string,,TRUE,,,,,,http://edamontology.org/operation_0292,E.g. GCAT Genomes for Life
+Cohorts,,cohortType,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C142175,"Either study-defined, beacon-defined, or user-defined"
 Cohorts,,cohortDesign,ontology,,,,StudyDesign,,,,http://purl.obolibrary.org/obo/OBI_0500000,E.g. longitudinal study design
 Cohorts,,cohortSize,int,,,,,,,,http://purl.obolibrary.org/obo/CTO_0000028,E.g. 20000
 Cohorts,,inclusionCriteria_ageRange_start_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001878,E.g. P18Y
@@ -80,9 +80,9 @@ IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obo
 IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
 Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
 Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
-Runs,,biosampleId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
+Runs,,biosampleId,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
 Runs,,individualId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
-Runs,,runDate,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,E.g. 2021-10-18
+Runs,,runDate,string,,TRUE,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000069,E.g. 2021-10-18
 Runs,,librarySource,ontology,,,,LibrarySource,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source
 Runs,,librarySelection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method
 Runs,,libraryStrategy,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001973,E.g. WGS strategy
