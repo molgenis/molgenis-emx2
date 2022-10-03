@@ -605,7 +605,12 @@ public class GraphqlTableFieldFactory {
         q.offset((int) args.get(GraphqlConstants.OFFSET));
       }
       if (args.containsKey(GraphqlConstants.ORDERBY)) {
-        q.orderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
+        Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
+        Map<String, Order> unescapedMap = new HashMap<>();
+        for (var entry : orderBy.entrySet()) {
+          unescapedMap.put(entry.getKey().replace("__", "_"), entry.getValue());
+        }
+        q.orderBy(unescapedMap);
       }
 
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
