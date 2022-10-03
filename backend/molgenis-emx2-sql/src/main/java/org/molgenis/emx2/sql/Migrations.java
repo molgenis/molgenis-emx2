@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 5;
+  private static final int SOFTWARE_DATABASE_VERSION = 6;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -46,8 +46,11 @@ public class Migrations {
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
+          if (version < 5)
+            executeMigrationFile(
+                tdb, "migration5.sql", "database migration: add MOLGENIS.column_metadata.readonly");
 
-          if (version < 5) {
+          if (version < 6) {
             migration5addMgTableclassUpdateTrigger((SqlDatabase) tdb);
             logger.debug(
                 "Updated all tables to have mg_tableclass trigger to prevent accidental overwrite of subclass records with same primary key value");

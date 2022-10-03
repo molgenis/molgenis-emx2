@@ -269,57 +269,58 @@ public class SqlColumnExecutor {
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
-          new TableMetadata(column.getRefTableName())
-              .setDescription(column.getDescription())
-              .setTableType(TableType.ONTOLOGIES)
-              .add(
-                  column("order")
-                      .setType(INT)
-                      .setDescription("Order of this term within the code system")
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
-                  column("name")
-                      .setPkey()
-                      .setRequired(true)
-                      .setDescription("Short but user-friendly name for this term")
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
-                  column("codesystem")
-                      // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
-                      // check
-                      .setRequired(false)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
-                      .setDescription(
-                          "Abbreviation of the code system/ontology this term belongs to"),
-                  column("code")
-                      // .setKey(2)
-                      .setRequired(false)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
-                      .setDescription(
-                          "Identifier used for this term within this code system/ontology"),
-                  column("parent")
-                      .setType(REF)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
-                      .setRefTable(column.getRefTableName())
-                      .setDescription("The parent term, in case this code exists in a hierarchy"),
-                  column("ontologyTermURI")
-                      // .setKey(3) //todo: ideally, has a unique check
-                      .setType(HYPERLINK)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
-                      .setRequired(false)
-                      .setDescription("Reference to structured definition of this term"),
-                  column("definition")
-                      .setType(TEXT)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
-                      .setDescription("A concise explanation of the meaning of this term"),
-                  column("children")
-                      .setType(REFBACK)
-                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
-                      .setRefTable(column.getRefTableName())
-                      .setDescription("Child terms, in case this term is the parent of other terms")
-                      .setRefBack("parent"));
-
+          getOntologyTableDefinition(column.getRefTableName(), column.getDescription());
       // create the table
       refSchema.create(tm);
     }
+  }
+
+  public static TableMetadata getOntologyTableDefinition(String name, String description) {
+    return new TableMetadata(name)
+        .setDescription(description)
+        .setTableType(TableType.ONTOLOGIES)
+        .add(
+            column("order")
+                .setType(INT)
+                .setDescription("Order of this term within the code system")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
+            column("name")
+                .setPkey()
+                .setRequired(true)
+                .setDescription("Short but user-friendly name for this term")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
+            column("codesystem")
+                // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
+                // check
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
+                .setDescription("Abbreviation of the code system/ontology this term belongs to"),
+            column("code")
+                // .setKey(2)
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
+                .setDescription("Identifier used for this term within this code system/ontology"),
+            column("parent")
+                .setType(REF)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
+                .setRefTable(name)
+                .setDescription("The parent term, in case this code exists in a hierarchy"),
+            column("ontologyTermURI")
+                // .setKey(3) //todo: ideally, has a unique check
+                .setType(HYPERLINK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
+                .setRequired(false)
+                .setDescription("Reference to structured definition of this term"),
+            column("definition")
+                .setType(TEXT)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
+                .setDescription("A concise explanation of the meaning of this term"),
+            column("children")
+                .setType(REFBACK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
+                .setRefTable(name)
+                .setDescription("Child terms, in case this term is the parent of other terms")
+                .setRefBack("parent"));
   }
 
   static void validateColumn(Column c) {

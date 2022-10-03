@@ -63,6 +63,7 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
@@ -112,6 +113,9 @@ import SubTask from "../src/components/task/SubTask.vue";
 import Task from "../src/components/task/Task.vue";
 import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
+
+//utils
+import { deepClone } from "../src/components/utils";
 
 export {
   ContactDisplay,
@@ -213,4 +217,6 @@ export {
   StringDisplay,
   TextDisplay,
   Client,
+  Tooltip,
+  deepClone,
 };

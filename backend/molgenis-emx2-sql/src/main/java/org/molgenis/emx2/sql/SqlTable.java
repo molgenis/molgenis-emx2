@@ -412,7 +412,11 @@ class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      for (Column column : columns) {
+      // remove 'readonly' from the update list, unless mg_table
+      for (Column column :
+          columns.stream()
+              .filter(c -> c.getName().equals(MG_TABLECLASS) || !c.isReadonly())
+              .toList()) {
         step2.set(
             column.getJooqField(),
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
@@ -448,7 +452,10 @@ class SqlTable implements Table {
     }
 
     // get metadata
-    Set<Column> columns = table.getColumnsToBeUpdated(updateColumns);
+    Set<Column> columns =
+        table.getColumnsToBeUpdated(updateColumns).stream()
+            .filter(c -> !c.isReadonly())
+            .collect(Collectors.toSet());
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
 
     // check that columns exist for validation
