@@ -9,11 +9,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
+import spark.Response;
 
 public class Beaconv2_ModelEndpointsTest {
 
@@ -349,4 +352,63 @@ public class Beaconv2_ModelEndpointsTest {
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
     assertEquals(1525, json.length());
   }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_Hit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+						{
+						  "query": {
+							"filters": [
+							  {
+								"type": "SIO_001003",
+								"id": "Orphanet_1873",
+								"operator": "="
+							  }
+							]
+						  }
+						}""");
+
+    response.type("application/json");
+    List<Table> tables = List.of(beaconSchema.getTable("Individuals"));
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
+    assertTrue(jsonResponse.contains(" \"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+						{
+						  "query": {
+							"filters": [
+							  {
+								"type": "SIO_001003",
+								"id": "Orphanet_18730",
+								"operator": "="
+							  }
+							]
+						  }
+						}""");
+
+    response.type("application/json");
+    List<Table> tables = List.of(beaconSchema.getTable("Individuals"));
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
+    assertFalse(jsonResponse.contains(" \"numTotalResults\" : 1"));
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_MultipleFilters() throws Exception {
+
+  }
+
+
 }
