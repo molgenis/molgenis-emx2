@@ -16,7 +16,7 @@
 <script>
 import Vue from "vue";
 import { mapActions } from "vuex";
-import HarmonizationCell from "../components/harmonization/HarmonizationCell";
+import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
 
 export default {
   name: "HarmonizationRow",

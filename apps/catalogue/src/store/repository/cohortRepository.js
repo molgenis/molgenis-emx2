@@ -1,5 +1,5 @@
 import { request } from "graphql-request";
-import cohortQuery from "../query/cohortDetails.gql";
+import cohortQuery from "../query/cohortDetails.js";
 let cache = {};
 
 const fetchById = async (pid) => {

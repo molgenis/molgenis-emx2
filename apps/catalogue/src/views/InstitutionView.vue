@@ -34,11 +34,11 @@
 <script>
 import { request } from "graphql-request";
 import { MessageError } from "molgenis-components";
-import DatasourceList from "../components/DatasourceList";
-import DatabankList from "../components/DatabankList";
-import NetworkList from "../components/NetworkList";
-import ResourceHeader from "../components/ResourceHeader";
-import PartnerInList from "../components/PartnerInList";
+import DatasourceList from "../components/DatasourceList.vue";
+import DatabankList from "../components/DatabankList.vue";
+import NetworkList from "../components/NetworkList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import PartnerInList from "../components/PartnerInList.vue";
 
 export default {
   components: {

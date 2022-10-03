@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import ResourceHarmonizationDetails from "./ResourceHarmonizationDetails";
+import ResourceHarmonizationDetails from "./ResourceHarmonizationDetails.vue";
 
 export default {
   name: "SingleVarHarmonizationView",

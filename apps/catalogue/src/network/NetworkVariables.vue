@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import VariableExplorer from "../views/VariableExplorer";
+import VariableExplorer from "../views/VariableExplorer.vue";
 
 export default {
   components: { VariableExplorer },

@@ -166,10 +166,10 @@
 
 <script>
 import { request } from "graphql-request";
-import SearchResource from "../components/SearchResource";
+import SearchResource from "../components/SearchResource.vue";
 import BannerImage from "../components/display/BannerImage.vue";
 import IconCard from "../components/display/IconCard.vue";
-import homeViewQuery from "../store/query/homeView.gql";
+import homeViewQuery from "../store/query/homeView.js";
 
 import {} from "vue-tabler-icons";
 
