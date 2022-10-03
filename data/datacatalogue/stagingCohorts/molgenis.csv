@@ -50,8 +50,8 @@ Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive docum
 Resources,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this resource
 Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
 Resources,,partners,refback,,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
-Cohorts,,studies,refback,,,DataCatalogue,Studies,,cohorts,,,Listing of studies that used this cohort
-Cohorts,,networks,refback,,,DataCatalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
+Cohorts,,studies,ref_array,,,DataCatalogue,Studies,,cohorts,,,Listing of studies that used this cohort
+Cohorts,,networks,ref_array,,,DataCatalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Publications,,,,,,,,,,,,Publications following bibtex format
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
 Publications,,title,,,TRUE,,,,,,,Publication title
