@@ -127,8 +127,8 @@ export default {
   },
   methods: {
     AddItem(item) {
-      const column = item[this.selectedColumnHeader].name || 'not specified';
-      const row = item[this.selectedRowHeader].name || 'not specified';
+      const column = item[this.selectedColumnHeader].name || "not specified";
+      const row = item[this.selectedRowHeader].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -153,7 +153,6 @@ export default {
         this.graphQlEndpoint,
         this.getAggregateQuery
       );
-      console.log(responseData);
       responseData[this.tableName].forEach((item) => this.AddItem(item));
       this.loading = false;
     },
