@@ -22,6 +22,7 @@ public class Beaconv2_ModelEndpointsTest {
 
   static Database database;
   static Schema beaconSchema;
+  static List<Table> tables;
 
   @BeforeClass
   public static void setup() {
@@ -29,6 +30,7 @@ public class Beaconv2_ModelEndpointsTest {
     beaconSchema = database.dropCreateSchema("fairdatahub");
     FAIRDataHubLoader b2l = new FAIRDataHubLoader();
     b2l.load(beaconSchema, true);
+    tables = List.of(beaconSchema.getTable("Individuals"));
   }
 
   @Test
@@ -354,7 +356,100 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
-  public void test_EJP_RD_VP_API_FilterOnDisease_Hit() throws Exception {
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  },
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C20197",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16577",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.body())
@@ -365,18 +460,41 @@ public class Beaconv2_ModelEndpointsTest {
 							"filters": [
 							  {
 								"type": "SIO_001003",
-								"id": "Orphanet_1873",
+								"id": "Orphanet_1895",
+								"operator": "="
+							  },
+							  {
+								"type": "SIO_001003",
+								"id": "Orphanet_1955",
 								"operator": "="
 							  }
 							]
 						  }
 						}""");
-
-    response.type("application/json");
-    List<Table> tables = List.of(beaconSchema.getTable("Individuals"));
     String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
-    assertTrue(jsonResponse.contains(" \"numTotalResults\" : 1"));
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1955",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 2);
   }
 
   @Test
@@ -386,29 +504,337 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.body())
         .thenReturn(
             """
-						{
-						  "query": {
-							"filters": [
-							  {
-								"type": "SIO_001003",
-								"id": "Orphanet_18730",
-								"operator": "="
-							  }
-							]
-						  }
-						}""");
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_18730",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
 
-    response.type("application/json");
-    List<Table> tables = List.of(beaconSchema.getTable("Individuals"));
     String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
-    assertFalse(jsonResponse.contains(" \"numTotalResults\" : 1"));
+    assertHasResults(jsonResponse, 0);
   }
 
   @Test
-  public void test_EJP_RD_VP_API_FilterOnDisease_MultipleFilters() throws Exception {
+  public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 31,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
 
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
   }
 
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_TwoHits() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 33,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
 
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 30,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 3,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 91,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C156420",
+					"id": 20,
+					"operator": "="
+				  },
+				  {
+					"type": "NCIT_C156420",
+					"id": 2,
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C16612",
+					"id": "TTN",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C16612",
+					"id": "COL7A1",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotype_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_010056",
+					"id": "HP_0012651",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAndDisease_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			  "query": {
+				"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  },
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  }
+				]
+			  }
+			}""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGene_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "type": "SIO_001003",
+					 "id": "Orphanet_1895",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C16612",
+					 "id": "COL7A1",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body())
+        .thenReturn(
+            """
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "type": "SIO_001003",
+					 "id": "Orphanet_1873",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C16612",
+					 "id": "CHD7",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C28421",
+					 "id": "NCIT_C20197",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""");
+
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    assertHasResults(jsonResponse, 1);
+  }
+
+  /**
+   * Helper function to reduce code duplication
+   *
+   * @param jsonResponse
+   * @param nrOfHits
+   */
+  private void assertHasResults(String jsonResponse, int nrOfHits) {
+    if (nrOfHits > 0) {
+      assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
+      assertTrue(jsonResponse.contains("\"numTotalResults\" : " + nrOfHits));
+    } else {
+      assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
+      assertFalse(jsonResponse.contains("\"numTotalResults\""));
+    }
+  }
 }
