@@ -127,8 +127,8 @@ export default {
   },
   methods: {
     AddItem(item) {
-      const column = item[this.selectedColumnHeaderProperty].name;
-      const row = item[this.selectedRowHeaderProperty].name;
+      const column = item[this.selectedColumnHeader].name || 'not specified';
+      const row = item[this.selectedRowHeader].name || 'not specified';
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
