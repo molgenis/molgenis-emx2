@@ -20,4 +20,8 @@ public class IndividualsResultSets {
     this.resultsCount = results.length;
     this.results = results;
   }
+
+  public Integer getResultsCount() {
+    return resultsCount;
+  }
 }
