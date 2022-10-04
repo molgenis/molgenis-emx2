@@ -160,8 +160,8 @@ SourceTables,,mappings,refback,,,,TableMappings,,fromTable,,,list of mappings be
 TableMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 TableMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 TableMappings,,fromTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,name of the table being mapped from
-TableMappings,,toDataDictionary,ontology,1,TRUE,DataCatalogue,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-TableMappings,,toTable,ontology,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,name of the table being mapped to
+TableMappings,,toDataDictionary,ref,1,TRUE,DataCatalogue,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+TableMappings,,toTable,ref,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,name of the table being mapped to
 TableMappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
 TableMappings,,description,text,,,,,,,,,human readible description of the mapping
 TableMappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
