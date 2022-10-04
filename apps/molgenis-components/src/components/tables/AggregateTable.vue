@@ -38,7 +38,7 @@
       </template>
       <template #cell="cell">
         <div v-if="!cell.value" class="text-center text-black-50">-</div>
-        <div v-else-if="cell.value < 10">﹤10</div>
+        <div v-else-if="cell.value < minimumValue">﹤{{ minimumValue }}</div>
         <div v-else>{{ cell.value }}</div>
       </template>
     </TableStickyHeaders>
@@ -109,19 +109,17 @@ export default {
   },
   computed: {
     tableName() {
-      return `${this.table}_agg`;
+      return `${this.table}_groupBy`;
     },
     getAggregateQuery() {
       return `{ 
                 ${this.tableName} {
-                  groupBy {
-                    count,
-                    ${this.selectedColumnHeader} {
-                      ${this.columnHeaderNameProperty}
-                    },
-                    ${this.selectedRowHeader} {
-                      ${this.rowHeaderNameProperty}
-                    }
+                  count,
+                  ${this.selectedColumnHeader} {
+                    ${this.columnHeaderNameProperty}
+                  },
+                  ${this.selectedRowHeader} {
+                    ${this.rowHeaderNameProperty}
                   }
                 }
               }`;
@@ -147,13 +145,16 @@ export default {
     },
     async fetchData() {
       this.loading = true;
+      this.rows = [];
+      this.columns = [];
+      this.aggregateData = {};
+
       const responseData = await request(
         this.graphQlEndpoint,
         this.getAggregateQuery
       );
-      responseData[this.tableName].groupBy.forEach((item) =>
-        this.AddItem(item)
-      );
+      console.log(responseData);
+      responseData[this.tableName].forEach((item) => this.AddItem(item));
       this.loading = false;
     },
   },
@@ -175,7 +176,7 @@ export default {
       :columnHeaderNameProperty="columnNameProperty"
       :selectedRowHeaderProperty="rowName"
       :rowHeaderNameProperty="columnNameProperty"
-      :minimumValue="10"
+      :minimumValue="1"
     >
     </AggregateTable>
   </demo-item>
@@ -186,18 +187,15 @@ export default {
   data() {
     return {
       selectableColumns: [
-        "AnatomicalSites",
-        "DiagnosisTypes",
-        "Diseases",
-        "ImagingData",
-        "MaterialTypeDetailed",
-        "Ontologies",
-        "Sex",
+        "category",
+        "orders",
+        "user",
+        "tags"
       ],
-      tableName: "Samples",
-      endpoint: "SampleCatalogue/graphql",
-      columnName: "MaterialTypeDetailed",
-      rowName: "Diseases",
+      tableName: "Pet",
+      endpoint: "pet store/graphql",
+      columnName: "category",
+      rowName: "tags",
       columnNameProperty: "name",
     };
   },
