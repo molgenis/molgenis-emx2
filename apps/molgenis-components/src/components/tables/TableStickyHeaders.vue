@@ -53,7 +53,7 @@ table td {
   text-align: right;
   border-right: 0.5px solid var(--gray);
   border-bottom: 0.5px solid var(--gray);
-  padding: 0.1rem 0.6rem;
+  padding: 0.1rem 0.8rem;
 }
 .rotated-title {
   padding-top: 12rem;
