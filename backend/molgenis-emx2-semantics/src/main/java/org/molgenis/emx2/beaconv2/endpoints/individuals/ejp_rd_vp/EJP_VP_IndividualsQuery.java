@@ -161,10 +161,14 @@ public class EJP_VP_IndividualsQuery {
     List<IndividualsResultSets> resultSetsList =
         queryIndividuals(tables, filters.toArray(new String[0]));
 
+    // each table results in one IndividualsResultSets, add up the result counts
+    int totalCount = 0;
+    for (IndividualsResultSets individualsResultSets : resultSetsList) {
+      totalCount += individualsResultSets.getResultsCount();
+    }
+
     // return the individual counts
     return getWriter()
-        .writeValueAsString(
-            new BeaconCountResponse(
-                resultSetsList.size() > 0 ? true : false, resultSetsList.size()));
+        .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
   }
 }
