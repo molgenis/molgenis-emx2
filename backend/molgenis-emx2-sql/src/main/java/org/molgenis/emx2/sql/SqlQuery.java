@@ -234,9 +234,12 @@ public class SqlQuery extends QueryBean {
 
     // get the table from root select
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
-    if (table == null && select.getColumn().endsWith("_agg")) {
+    if (table == null && (select.getColumn().endsWith("_agg"))) {
       table =
           schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 4));
+    } else if (table == null && (select.getColumn().endsWith("_groupBy"))) {
+      table =
+          schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 8));
     }
     if (table == null) {
       throw new MolgenisException(
@@ -248,6 +251,10 @@ public class SqlQuery extends QueryBean {
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(
+              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+    } else if (select.getColumn().endsWith("_groupBy")) {
+      fields.add(
+          jsonGroupBySelect(
               table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
     } else {
       // select all on root level as default
@@ -321,17 +328,13 @@ public class SqlQuery extends QueryBean {
     }
 
     String agg =
-        select.getColumn().endsWith("_agg") || column != null && column.isRef() && !column.isArray()
+        select.getColumn().endsWith("_agg")
+                || select.getColumn().endsWith("_groupBy")
+                || column != null && column.isRef() && !column.isArray()
             ? ROW_TO_JSON_SQL
             : JSON_AGG_SQL;
 
-    if (select.getColumn().endsWith("_agg")) {
-      // ugly hack to ensure distinct here?
-      // this is artifact of joining groupBy into _agg
-      return field(jooq.selectDistinct(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
-    } else {
-      return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
-    }
+    return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
   }
 
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
@@ -460,7 +463,7 @@ public class SqlQuery extends QueryBean {
                 whereCondition(
                     c.getTableName(),
                     c.getName(),
-                    c.getColumnType(),
+                    c.getColumnType().getBaseType(),
                     f.getOperator(),
                     f.getValues()));
           }
@@ -504,8 +507,8 @@ public class SqlQuery extends QueryBean {
 
     for (SelectColumn select : selection.getSubselect()) {
       Column column =
-          select.getColumn().endsWith("_agg")
-              ? isValidColumn(table, select.getColumn().replace("_agg", ""))
+          select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
+              ? isValidColumn(table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
               : isValidColumn(table, select.getColumn());
 
       // add the fields, using subselects for references
@@ -515,6 +518,16 @@ public class SqlQuery extends QueryBean {
         // aggregation subselect
         fields.add(
             jsonAggregateSelect(
+                (SqlTableMetadata) column.getRefTable(),
+                column,
+                tableAlias,
+                select,
+                null,
+                new String[0]));
+      } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
+        // aggregation subselect
+        fields.add(
+            jsonGroupBySelect(
                 (SqlTableMetadata) column.getRefTable(),
                 column,
                 tableAlias,
@@ -585,9 +598,6 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn field : select.getSubselect()) {
       if (COUNT_FIELD.equals(field.getColumn())) {
         fields.add(count().as(COUNT_FIELD));
-      } else if (GROUPBY_FIELD.equals(field.getColumn())) {
-        fields.add(
-            jsonAggregateGroupBy(table, column, field, tableAlias, subAlias, filters, searchTerms));
       } else if (List.of(MAX_FIELD, MIN_FIELD, AVG_FIELD, SUM_FIELD).contains(field.getColumn())) {
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
@@ -613,15 +623,23 @@ public class SqlQuery extends QueryBean {
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
-  private Field<Object> jsonAggregateGroupBy(
+  private Field<Object> jsonGroupBySelect(
       SqlTableMetadata table,
       Column column,
-      SelectColumn groupBy,
       String tableAlias,
-      String subAlias,
+      SelectColumn groupBy,
       Filter filter,
       String[] searchTerms) {
     DSLContext jooq = table.getJooq();
+    String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
+
+    // need to create subquery for each column, because unnesting arrays can result in multiple
+    // records for one primary key
+    // then natural join them back on the primary key
+    // then we can aggregate on the resulting table.
+    // this to allow for cases when multiple columns are of type array; if you unnest in one go you
+    // will see 'null' counts for shorter arrays
+    // i.e. the wrong counts.
 
     if (groupBy.getSubselect(COUNT_FIELD) == null) {
       throw new MolgenisException("Count is required when using group by");
@@ -709,7 +727,7 @@ public class SqlQuery extends QueryBean {
     return field(
             jooq.select(field(JSON_AGG_SQL))
                 .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
-        .as(GROUPBY_FIELD);
+        .as(groupBy.getColumn());
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
@@ -936,7 +954,7 @@ public class SqlQuery extends QueryBean {
             whereCondition(
                 tableAlias,
                 column.getName(),
-                column.getColumnType(),
+                column.getColumnType().getBaseType(),
                 filters.getOperator(),
                 filters.getValues()));
       }

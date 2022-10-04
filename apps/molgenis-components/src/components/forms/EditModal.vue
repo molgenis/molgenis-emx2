@@ -142,8 +142,6 @@ export default {
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
-    this.rowData = this.defaultValue ? deepClone(this.defaultValue) : {};
-
     if (this.pkey) {
       this.rowData = await this.fetchRowData();
 
@@ -159,6 +157,8 @@ export default {
         );
       }
     }
+
+    this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
     this.loaded = true;
   },
 };

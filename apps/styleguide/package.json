@@ -14,7 +14,7 @@
   "main": "./dist/@mswertz/emx2-styleguide.common.js",
   "dependencies": {
     "@molgenis/expressions": "0.21.2",
-    "core-js": "3.25.2",
+    "core-js": "3.25.3",
     "graphql": "16.6.0",
     "graphql-request": "5.0.0",
     "object-path": "0.11.8",
@@ -31,7 +31,7 @@
     "@vue/cli-plugin-unit-jest": "4.5.19",
     "@vue/cli-service": "4.5.19",
     "@vue/eslint-config-prettier": "7.0.0",
-    "@vue/test-utils": "2.0.2",
+    "@vue/test-utils": "2.1.0",
     "babel-eslint": "10.1.0",
     "eslint": "7.32.0",
     "eslint-plugin-autofix": "1.1.0",

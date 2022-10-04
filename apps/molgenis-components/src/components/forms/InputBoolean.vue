@@ -30,7 +30,7 @@ export default {
   extends: BaseInput,
   props: {
     inplace: { type: Boolean, default: false },
-    isClearable: {type: Boolean, default: true}
+    isClearable: { type: Boolean, default: true },
   },
 };
 </script>

@@ -106,6 +106,8 @@ public class GraphqlSchemaFieldFactory {
       new GraphQLObjectType.Builder()
           .name("MolgenisColumnType")
           .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(TABLE).type(Scalars.GraphQLString))
+          .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
@@ -170,6 +172,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(VISIBLE_EXPRESSION)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(READONLY)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SEMANTICS)
@@ -315,6 +321,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(READONLY)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
                   .type(GraphQLList.list(Scalars.GraphQLString)))
           .field(
@@ -371,7 +381,7 @@ public class GraphqlSchemaFieldFactory {
     return dataFetchingEnvironment -> {
 
       // add tables
-      String json = JsonUtil.schemaToJson(schema.getMetadata());
+      String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
       // add members

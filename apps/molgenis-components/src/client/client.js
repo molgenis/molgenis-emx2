@@ -120,11 +120,16 @@ _schema {
       refLabel,
       refBack,
       required,
+      readonly,
       semantics,
       description,
       position,
       visible,
       validation
+    }
+    settings { 
+      key,
+      value 
     }
   }
 }}`;
@@ -228,11 +233,15 @@ const fetchTableData = async (
   return resp.data.data;
 };
 
-const request = async (url, graqphl) => {
-  const result = await axios.post(url, { query: graqphl }).catch((error) => {
-    return error;
-  });
-  return result.data.data;
+const request = async (url, graphql) => {
+  return axios
+    .post(url, { query: graphql })
+    .then((result) => {
+      return result?.data?.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
 };
 
 /**

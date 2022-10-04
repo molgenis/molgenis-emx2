@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointCatalog.extractItemAsIRI;
 import static org.molgenis.emx2.fairdatapoint.FAIRDataPointDistribution.FORMATS;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
 import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
@@ -107,8 +108,7 @@ public class FAIRDataPointDataset {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     URI requestURI = getURI(request.url());
-    String host =
-        requestURI.getScheme() + "://" + requestURI.getHost() + ":" + requestURI.getPort();
+    String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDistribution = apiFdp + "/distribution";
 
@@ -134,7 +134,7 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("spatial") != null) {
       ArrayList<IRI> spatials =
-          extractItemAsIRI((List<Map>) datasetFromJSON.get("spatial"), "ontologyTermURI");
+          extractItemAsIRI((List<LinkedHashMap>) datasetFromJSON.get("spatial"), "ontologyTermURI");
       for (IRI spatial : spatials) {
         builder.add(reqUrl, DCTERMS.SPATIAL, spatial);
       }
@@ -190,7 +190,8 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<Map>) datasetFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI(
+              (List<LinkedHashMap>) datasetFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }

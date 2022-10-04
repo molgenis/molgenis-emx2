@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { IconAction } from "@mswertz/emx2-styleguide";
+import { IconAction } from "molgenis-components";
 
 export default {
   name: "topic-selector",

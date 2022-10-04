@@ -19,7 +19,7 @@
 
 <script>
 import { fetchById } from "../../store/repository/repository";
-import { PageHeader, GridBlock, KeyValueBlock } from "@mswertz/emx2-styleguide";
+import { PageHeader, GridBlock, KeyValueBlock } from "molgenis-components";
 import { startEndYear } from "../../filters";
 
 export default {

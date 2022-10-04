@@ -115,35 +115,30 @@ export default {
 
 <docs>
 <template>
+
   <div>
-    <Pagination v-model="page" :count="29"/>
-    page = {{ page }}
+    <demo-item>
+      <Pagination v-model="pageValue1" :count="29" />
+      page = {{ pageValue1 }}
+    </demo-item>
+
+    <demo-item>
+      <pagination v-model="pageValue2" :count="250" />
+      <div>page number: {{ pageValue2 }}</div>
+    </demo-item>
   </div>
+
 </template>
+
 <script>
   export default {
     data() {
       return {
-        page: null
+        pageValue1: null,
+        pageValue2: 3,
       }
     }
   }
 </script>
-
-<docs>
-  <template>
-    <demo-item>
-      <pagination v-model="page" :count="250"/>
-      <div>page number: {{ page }}</div>
-    </demo-item>
-  </template>
-  <script>
-    export default {
-      data() {
-        return {
-          page: 3,
-        };
-      },
-    };
-  </script>
 </docs>
+
