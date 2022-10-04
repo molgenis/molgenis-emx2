@@ -21,49 +21,14 @@
 </template>
 
 <script>
-import TreeNode from "./TreeFilter.vue";
-import CohortSelection from "./CohortSelection";
 import VariablesList from "./VariablesList";
-import {
-  ButtonAction,
-  ButtonAlt,
-  DataTable,
-  InputCheckbox,
-  InputFile,
-  InputSearch,
-  InputSelect,
-  InputString,
-  LayoutCard,
-  LayoutNavTabs,
-  MessageError,
-  MessageSuccess,
-  Molgenis,
-  Pagination,
-  Spinner,
-} from "@mswertz/emx2-styleguide";
 import { request } from "graphql-request";
 import TopicFilter from "./TopicSelector";
 
 export default {
   components: {
     TopicFilter,
-    CohortSelection,
-    LayoutNavTabs,
-    TreeNode,
-    ButtonAction,
-    ButtonAlt,
-    InputFile,
-    DataTable,
-    InputSearch,
-    MessageError,
-    MessageSuccess,
-    LayoutCard,
-    Spinner,
-    Molgenis,
-    Pagination,
-    InputCheckbox,
-    InputString,
-    InputSelect,
+    
     VariablesList,
   },
   props: {

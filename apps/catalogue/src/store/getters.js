@@ -1,4 +1,20 @@
 export default {
+  canEdit(state) {
+    return (
+      state.session &&
+      (state.session.email == "admin" ||
+        (state.session.roles &&
+          (state.session.roles.includes("Editor") ||
+            state.session.roles.includes("Manager"))))
+    );
+  },
+  canManage(state) {
+    return (
+      state.session &&
+      (state.session.email == "admin" ||
+        state.session.roles.includes("Manager"))
+    );
+  },
   variables: (state) => state.variables,
   variableCount: (state) => state.variableCount,
   variableDetails: (state) => state.variableDetails,

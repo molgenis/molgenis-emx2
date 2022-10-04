@@ -1,27 +1,28 @@
 {
-  "name": "@mswertz/emx2-schema",
+  "name": "schema",
   "version": "0.0.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "vite --debug",
+    "build": "vite build",
+    "lint": "vite lint"
   },
   "dependencies": {
-    "@mswertz/emx2-styleguide": "*",
-    "core-js": "3.24.1",
-    "graphql-request": "4.3.0",
+    "core-js": "3.25.3",
+    "graphql-request": "5.0.0",
+    "molgenis-components": "*",
     "v-scroll-lock": "1.3.1",
-    "vue": "2.6.14",
-    "vue-router": "3.5.4",
+    "vue": "2.7.0",
+    "vue-router": "3.6.5",
     "vue-scrollto": "2.20.0",
-    "vuedraggable": "2.24.3"
+    "vuedraggable": "2.24.3",
+    "nomnoml": "1.5.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-router": "4.5.19"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ],
-  "license": "LGPL-3.0"
+    "@vitejs/plugin-vue2": "1.1.2",
+    "vite": "3.0.6"
+  }
 }

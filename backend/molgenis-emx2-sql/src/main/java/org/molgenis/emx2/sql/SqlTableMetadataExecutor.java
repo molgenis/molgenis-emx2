@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Name;
@@ -19,6 +20,8 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 class SqlTableMetadataExecutor {
+
+  public static final String MG_TABLECLASS_UPDATE = "_MG_TABLECLASS_UPDATE";
 
   private SqlTableMetadataExecutor() {}
 
@@ -82,13 +85,13 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (AuditUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
       // setup trigger processing function
       jooq.execute(
-          AuditUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
+          ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
 
       // set audit trigger, logs insert, update and delete actions on table
-      jooq.execute(AuditUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
+      jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
   }
 
@@ -120,7 +123,7 @@ class SqlTableMetadataExecutor {
 
   static void executeDropKey(DSLContext jooq, TableMetadata table, Integer key) {
     jooq.alterTable(table.getJooqTable())
-        .dropConstraint(name(table.getTableName() + "_KEY" + key))
+        .dropConstraintIfExists(name(table.getTableName() + "_KEY" + key))
         .execute();
   }
 
@@ -152,12 +155,68 @@ class SqlTableMetadataExecutor {
           column(MG_TABLECLASS)
               .setReadonly(true)
               .setPosition(10005)
-              .setDefaultValue(
-                  other.getSchemaName()
-                      + "."
-                      + other.getTableName())); // should not be user editable
+              .setDefaultValue(other.getSchemaName() + "." + other.getTableName()));
+
+      // should not be user editable, we add trigger
+      createMgTableClassCannotUpdateCheck((SqlTableMetadata) other, jooq);
     }
     createOrReplaceKey(jooq, table, 1, other.getKeyFields(1));
+  }
+
+  static void createMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
+    String functionName = table.getTableName() + MG_TABLECLASS_UPDATE;
+
+    String keyColumns =
+        table.getPrimaryKeyColumns().stream()
+            .map(keyColumn -> name(keyColumn.getName()).toString())
+            .collect(Collectors.joining(","));
+
+    String keyValues =
+        table.getPrimaryKeyColumns().stream()
+            .map(
+                keyColumn -> {
+                  if (keyColumn.isReference()) {
+                    return keyColumn.getReferences().stream()
+                        .map(ref -> "OLD." + name(ref.getName()))
+                        .collect(Collectors.joining("||','||"));
+                  } else {
+                    return "OLD." + name(keyColumn.getName());
+                  }
+                })
+            .collect(Collectors.joining("||','||"));
+
+    dropMgTableClassCannotUpdateCheck(table, jooq);
+
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+            + "\nBEGIN"
+            + "\n\tIF OLD.{1} <> NEW.{1} THEN"
+            + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
+            + ", MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint'"
+            + ", DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};"
+            + "\n\tEND IF;"
+            + "\n\tRETURN NEW;"
+            + "\nEND; $BODY$ LANGUAGE plpgsql;",
+        name(table.getSchemaName(), functionName),
+        name(MG_TABLECLASS),
+        inline(keyColumns),
+        keyword(keyValues));
+
+    jooq.execute(
+        "CREATE CONSTRAINT TRIGGER {0} "
+            + "\n\tAFTER UPDATE OF {1} ON {2}"
+            + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
+            + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+        name(functionName),
+        name(MG_TABLECLASS),
+        table.getJooqTable(),
+        name(table.getSchemaName(), functionName));
+  }
+
+  private static void dropMgTableClassCannotUpdateCheck(SqlTableMetadata table, DSLContext jooq) {
+    String functionName = table.getTableName() + MG_TABLECLASS_UPDATE;
+    jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table.getJooqTable());
+    jooq.execute("DROP FUNCTION IF EXISTS {0}", name(table.getSchemaName(), functionName));
   }
 
   static Name[] asJooqNames(List<String> strings) {
@@ -192,11 +251,15 @@ class SqlTableMetadataExecutor {
           "DROP FUNCTION IF EXISTS {0} CASCADE",
           name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
 
+      // drop trigger function if extended
+      dropMgTableClassCannotUpdateCheck((SqlTableMetadata) table, jooq);
+
       // drop audit trigger
       jooq.execute(
-          AuditUtils.buildAuditTriggerRemove(table.getSchema().getName(), table.getTableName()));
+          ChangeLogUtils.buildAuditTriggerRemove(
+              table.getSchema().getName(), table.getTableName()));
       jooq.execute(
-          AuditUtils.buildProcessAuditFunctionRemove(
+          ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
       // drop all triggers from all columns

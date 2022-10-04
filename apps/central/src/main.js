@@ -1,11 +1,12 @@
 import Vue from "vue";
 import App from "./App.vue";
 import VueRouter from "vue-router";
-import Groups from "./components/Groups";
-import Admin from "./components/admin/Admin";
-import ManageSettings from "./components/admin/ManageSettings";
-import ManageUsers from "./components/admin/ManageUsers";
-import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy";
+import Groups from "./components/Groups.vue";
+import Admin from "./components/admin/Admin.vue";
+import ManageSettings from "./components/admin/ManageSettings.vue";
+import ManageUsers from "./components/admin/ManageUsers.vue";
+import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
+import "molgenis-components/dist/style.css";
 
 Vue.config.productionTip = false;
 Vue.use(VueRouter);

@@ -2,12 +2,14 @@
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <RowEdit
+        v-if="loaded"
         :id="id"
         v-model="rowData"
         :pkey="pkey"
         :tableName="tableName"
         :tableMetaData="tableMetaData"
         :graphqlURL="graphqlURL"
+        :visibleColumns="visibleColumns"
         :clone="clone"
       >
       </RowEdit>
@@ -31,7 +33,7 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import RowEdit from "./RowEdit.vue";
-import { filterObject } from "../utils";
+import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
@@ -42,6 +44,7 @@ export default {
       tableMetaData: {},
       client: null,
       errorMessage: null,
+      loaded: true,
     };
   },
   props: {
@@ -75,7 +78,7 @@ export default {
     visibleColumns: {
       type: Array,
       required: false,
-      default: () => [],
+      default: () => null,
     },
     defaultValue: {
       type: Object,
@@ -116,7 +119,9 @@ export default {
         this.errorMessage =
           "Schema doesn't exist or permission denied. Do you need to Sign In?";
       } else {
-        this.errorMessage = error.response?.data?.errors[0]?.message || "An Error occurred during save";
+        this.errorMessage =
+          error.response?.data?.errors[0]?.message ||
+          "An Error occurred during save";
       }
     },
     async fetchRowData() {
@@ -133,6 +138,7 @@ export default {
     },
   },
   async mounted() {
+    this.loaded = false;
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -151,6 +157,9 @@ export default {
         );
       }
     }
+
+    this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
+    this.loaded = true;
   },
 };
 </script>

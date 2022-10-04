@@ -59,7 +59,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import HarmonizationRow from "./HarmonizationRow.vue";
-import { Spinner } from "@mswertz/emx2-styleguide";
+import { Spinner } from "molgenis-components";
 
 const INITIAL_PAGE_SIZE = 10;
 

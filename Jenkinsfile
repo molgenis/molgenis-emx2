@@ -71,9 +71,9 @@ pipeline {
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
-                    sh "rancher apps install " + 
+                    sh "rancher apps install " +
                         "-n ${NAME} " +
-                        "p-vx5vf:molgenis-helm3-emx2 " +
+                        "p-tl227:molgenis-helm3-emx2 " +
                         "${NAME} " +
                         "--no-prompt " +
                         "--set adminPassword=admin " +
@@ -107,7 +107,7 @@ pipeline {
                     script {
                         sh 'rancher context switch dev-molgenis'
                         env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} molgenis-emx2 ${CHART_VERSION}"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:molgenis-emx2 ${CHART_VERSION}"
                     }
                 }
             }
