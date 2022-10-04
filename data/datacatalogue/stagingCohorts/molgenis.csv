@@ -16,7 +16,7 @@ Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (
 Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,typeOther,,,,,,,,,,"If other, describe the type of resource"
 Cohorts,,design,ontology,,,CatalogueOntologies,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
-Cohorts,,designDescription,TEXT,,,,,,,,,Short description of the study design of this cohort
+Cohorts,,designDescription,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,designSchematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collectionType,ontology_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Resources,,institution,ref_array,,,SharedStaging,Institutions,,,,,Institution providing and/or coordinating access to this resource
