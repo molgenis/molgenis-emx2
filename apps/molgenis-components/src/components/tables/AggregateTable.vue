@@ -188,8 +188,6 @@ export default {
     return {
       selectableColumns: [
         "category",
-        "orders",
-        "user",
         "tags"
       ],
       tableName: "Pet",
