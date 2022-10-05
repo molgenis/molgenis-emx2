@@ -1,5 +1,5 @@
 <template>
-  <button type="button" class="btn btn-primary" @click="onClick">
+  <button type="button" class="btn btn-primary" @click.prevent="onClick">
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
   </button>

@@ -4,7 +4,9 @@
     @click="onClick"
   >
     <span v-if="label" class="mr-2">{{ label }}</span>
-    <i :class="'fas fa-fw fa-' + icon"></i>
+    <Tooltip :value="tooltip">
+      <i :class="'fas fa-fw fa-' + icon"></i>
+    </Tooltip>
   </button>
 </template>
 
@@ -18,11 +20,8 @@ export default {
 </script>
 
 <docs>
-Example
-
-```
 <template>
-  <IconDanger icon="times" @click="alert('clicked')"/>
+  <IconDanger icon="times" @click="alert('clicked')" tooltip="dangerous tooltip"/>
 </template>
 <script>
   export default {
@@ -33,6 +32,4 @@ Example
     }
   }
 </script>
-```
-
 </docs>
