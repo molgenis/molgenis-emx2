@@ -21,6 +21,7 @@
     "@nuxtjs/proxy": "2.1.0",
     "vue": "2.6.14",
     "vue-server-renderer": "2.6.14",
-    "vue-template-compiler": "2.6.14"
+    "vue-template-compiler": "2.6.14",
+    "@vue/cli-service": "4.5.19"
   }
 }
