@@ -23,16 +23,14 @@
 </template>
 
 <script>
-import { request, gql } from "graphql-request";
+import { gql } from "graphql-request";
 import {
   InputText,
   InputRadio,
   Spinner,
   privacyConstants,
+  request,
 } from "molgenis-components";
-// import Client from "../../client/client.js";
-
-// const client = Client.newClient("graphql");
 
 const { LEVEL_4, CUSTOM, POLICY_LEVEL_KEY, POLICY_TEXT_KEY, PREFABS } =
   privacyConstants;
