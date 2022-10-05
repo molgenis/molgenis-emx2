@@ -67,9 +67,7 @@ import InputCheckbox from "../forms/InputCheckbox.vue";
 import { request } from "../../client/client.js";
 import { privacyConstants } from "../constants.js";
 
-console.log(privacyConstants);
 const { POLICY_TEXT_KEY, LEVEL_4, PREFABS } = privacyConstants;
-
 const defaultPolicy = PREFABS[LEVEL_4];
 
 export default {
