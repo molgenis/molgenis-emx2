@@ -74,6 +74,13 @@ public class GraphqlTableFieldFactory {
     }
   }
 
+  public static String unEscape(String value) {
+    if (value == null) {
+      return null;
+    }
+    return value.replace("__", "_");
+  }
+
   // schema specific types
   public GraphQLFieldDefinition tableQueryField(Table table) {
     GraphQLObjectType tableType = createTableObjectType(table);
@@ -608,7 +615,7 @@ public class GraphqlTableFieldFactory {
         Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
         Map<String, Order> unescapedMap = new HashMap<>();
         for (var entry : orderBy.entrySet()) {
-          unescapedMap.put(entry.getKey().replace("__", "_"), entry.getValue());
+          unescapedMap.put(unEscape(entry.getKey()), entry.getValue());
         }
         q.orderBy(unescapedMap);
       }
