@@ -26,6 +26,7 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
+    "@babel/core": "7.19.3",
     "@vue/cli-plugin-babel": "4.5.19",
     "@vue/cli-plugin-eslint": "4.5.19",
     "@vue/cli-plugin-unit-jest": "4.5.19",
