@@ -65,6 +65,12 @@ import LayoutModal from "./LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
 import InputCheckbox from "../forms/InputCheckbox.vue";
 import { request } from "../../client/client.js";
+import { privacyConstants } from "../constants.js";
+
+console.log(privacyConstants);
+const { POLICY_TEXT_KEY, LEVEL_4, PREFABS } = privacyConstants;
+
+const defaultPolicy = PREFABS[LEVEL_4];
 
 export default {
   name: "MolgenisSignin",
@@ -117,19 +123,16 @@ export default {
       this.$emit("signInFailed", this.email);
     },
     onCancel() {
-      /**
-       * when cancel is pushed
-       */
       this.error = null;
       this.$emit("cancel");
     },
     async fetchPrivacyPolicy() {
       const response = await request("graphql", `{_settings{key, value}}`);
       const policyData = response._settings.find(
-        (item) => item.key === "PrivacyPolicy"
+        (item) => item.key === POLICY_TEXT_KEY
       );
-      if (policyData === undefined) {
-        this.privacyPolicy = "Policy 1";
+      if (!policyData) {
+        this.privacyPolicy = defaultPolicy;
       } else {
         this.privacyPolicy = policyData.value;
       }

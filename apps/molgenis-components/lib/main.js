@@ -116,6 +116,7 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
 import { deepClone } from "../src/components/utils";
+import constants, { privacyConstants } from "../src/components/constants";
 
 export {
   ContactDisplay,
@@ -219,4 +220,6 @@ export {
   Client,
   Tooltip,
   deepClone,
+  constants,
+  privacyConstants,
 };

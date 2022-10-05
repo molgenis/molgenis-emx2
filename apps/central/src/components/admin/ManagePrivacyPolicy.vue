@@ -1,97 +1,109 @@
 <template>
   <div>
     <h3>Privacy policy</h3>
-    <div>
-      <button
-        type="button"
-        class="btn btn-secondary mr-1 mb-1"
-        @click="setPrefabPolicy('policy1')"
-      >
-        Policy level 1
-      </button>
-      <button
-        type="button"
-        class="btn btn-secondary mr-1 mb-1"
-        @click="setPrefabPolicy('policy2')"
-      >
-        Policy level 2
-      </button>
-      <button
-        type="button"
-        class="btn btn-secondary mr-1 mb-1"
-        @click="setPrefabPolicy('policy3')"
-      >
-        Policy level 3
-      </button>
-      <button
-        type="button"
-        class="btn btn-secondary mr-1 mb-1"
-        @click="setPrefabPolicy('policy4')"
-      >
-        Policy level 4
-      </button>
+    <Spinner v-if="loading" />
+    <div v-else>
+      <InputRadio
+        id="input-radio-2"
+        label="Select policy level"
+        :value="policyLevel"
+        :options="['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Custom']"
+        :isClearable="false"
+        @input="updatePolicyLevel"
+      />
     </div>
     <InputText
       id="privacy-policy-text"
-      v-model="privacyPolicy"
+      v-model="policyText"
       placeholder="Enter the privacy policy"
+      :readonly="policyLevel !== 'Custom'"
     />
     <button type="button" class="btn btn-primary" @click="save">Save</button>
   </div>
 </template>
 
 <script>
-const prefabPrivacyPolicies = {
-  policy1: "Policy 1",
-  policy2: "Policy 2",
-  policy3: "Policy 3",
-  policy4: "Policy 4",
-};
-
 import { request, gql } from "graphql-request";
-import { InputText } from "molgenis-components";
+import {
+  InputText,
+  InputRadio,
+  Spinner,
+  privacyConstants,
+} from "molgenis-components";
+// import Client from "../../client/client.js";
+
+// const client = Client.newClient("graphql");
+
+const { LEVEL_4, CUSTOM, POLICY_LEVEL_KEY, POLICY_TEXT_KEY, PREFABS } =
+  privacyConstants;
 
 export default {
   name: "ManagePrivacyPolicy",
   components: {
     InputText,
+    InputRadio,
+    Spinner,
   },
   data() {
     return {
-      privacyPolicy: undefined,
+      policyText: null,
+      policyLevel: null,
+      loading: true,
     };
   },
   methods: {
-    setPrefabPolicy(policy) {
-      this.privacyPolicy = prefabPrivacyPolicies[policy];
+    updatePolicyLevel(newValue) {
+      this.policyLevel = newValue;
+      this.policyText = PREFABS[newValue];
     },
     async fetchPrivacyPolicy() {
       const response = await request("graphql", `{_settings{key, value}}`);
-      const policyData = response._settings.find(
-        (item) => item.key === "PrivacyPolicy"
-      );
-      if (policyData === undefined) {
-        this.setPrefabPolicy("policy1");
+      const policyLevel = response._settings.find(
+        (item) => item.key === POLICY_LEVEL_KEY
+      )?.value;
+      const policyText = response._settings.find(
+        (item) => item.key === POLICY_TEXT_KEY
+      )?.value;
+      if (!policyLevel) {
+        this.policyText = PREFABS[LEVEL_4];
+        this.policyLevel = LEVEL_4;
+      } else if (policyLevel === CUSTOM) {
+        this.policyText = policyText;
+        this.policyLevel = policyLevel;
       } else {
-        this.privacyPolicy = policyData.value;
+        this.policyText = PREFABS[policyLevel];
+        this.policyLevel = policyLevel;
       }
+      this.loading = false;
     },
     async save() {
       const createMutation = gql`
-        mutation createSetting($key: String, $value: String) {
-          createSetting(key: $key, value: $value) {
+        mutation createSetting(
+          $privacyPolicyLevel: String
+          $privacyPolicyText: String
+        ) {
+          updatePolicyLevel: createSetting(
+            key: "${POLICY_LEVEL_KEY}"
+            value: $privacyPolicyLevel
+          ) {
+            message
+          }
+          updatePolicyText: createSetting(
+            key: "${POLICY_TEXT_KEY}"
+            value: $privacyPolicyText
+          ) {
             message
           }
         }
       `;
 
       const variables = {
-        key: "PrivacyPolicy",
-        value: this.privacyPolicy,
+        privacyPolicyLevel: this.policyLevel,
+        privacyPolicyText: this.policyText,
       };
 
-      await request("graphql", createMutation, variables).catch((e) => {
-        console.error(e);
+      await request("graphql", createMutation, variables).catch((error) => {
+        console.error(error);
       });
     },
   },
