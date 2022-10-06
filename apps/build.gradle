@@ -56,7 +56,8 @@ subprojects {
             project.name == 'central' ||
             project.name == 'tables' ||
             project.name == 'schema' ||
-            project.name == 'helloworld'
+            project.name == 'helloworld' ||
+            project.name == 'updownload'
         ) {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
