@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import MenuDesign from "./MenuDesign";
+import MenuDesign from "./MenuDesign.vue";
 import {
   ButtonAction,
   ButtonAlt,
