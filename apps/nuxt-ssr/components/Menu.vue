@@ -40,7 +40,7 @@ export default {
     },
     logo: {
       type: String,
-      default: () => '/apps/styleguide/assets/img/molgenis_logo_white.png'
+      default: () => '/apps/molgenis-components/assets/img/molgenis_logo_white.png'
     }
   }
 };

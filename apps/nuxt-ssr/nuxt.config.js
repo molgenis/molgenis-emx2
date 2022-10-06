@@ -74,7 +74,7 @@ export default {
     "/**/*.woff2": `${BACKEND_LOCATION}`,
     "/**/*.woff": `${BACKEND_LOCATION}`,
     "/**/*.ttf": `${BACKEND_LOCATION}`,
-    "/apps/styleguide/assets/img/molgenis_logo_white.png": `${BACKEND_LOCATION}`,
+    "/apps/molgenis-components/assets/img/molgenis_logo_white.png": `${BACKEND_LOCATION}`,
     "/graphql": `${BACKEND_LOCATION}`,
     "/*/graphql": `${BACKEND_LOCATION}`,
   },
