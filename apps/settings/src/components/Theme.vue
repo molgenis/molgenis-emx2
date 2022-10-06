@@ -21,7 +21,7 @@ import {
   InputString,
   MessageError,
   MessageSuccess,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import VSwatches from "vue-swatches";
 import { request } from "graphql-request";
 import "vue-swatches/dist/vue-swatches.css";

@@ -17,8 +17,7 @@ Bootstrap, [The world’s most popular front-end open source toolkit](https://ge
 
 We also happy users of  [graphql-java](https://github.com/graphql-java/graphql-java) graphql+java
 implementation, [Jackson](https://github.com/FasterXML/jackson) data processing
-suite, [Vue Styleguidist](https://vue-styleguidist.github.io/) frontend component development environment with living
-styleguide, [rdf4j](https://rdf4j.org/)
+suite, [rdf4j](https://rdf4j.org/)
 modular Java framework for RDF data, [HikariCP](https://github.com/brettwooldridge/HikariCP) JDBC connection pool,
 log4j, junit, javers, font-awesome, vue-swatches, vuedraggable, v-scroll-lock, ckeditor4-vue, vue-flatpickr-component,
 vue-runtime-template-compiler.
