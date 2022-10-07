@@ -13,10 +13,5 @@
     "molgenis-components",
     "helloworld",
     "gendecs"
-  ],
-  "resolutions": {
-    "nuxt-ssr/**/css-loader": "4.3.0",
-    "vue-styleguidist/**/css-loader": "2.1.1",
-    "**/@vue/cli-service/css-loader": "3.6.0"
-  }
+  ]
 }
