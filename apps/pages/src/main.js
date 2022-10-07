@@ -1,10 +1,10 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import App from "./App";
-import ListPages from "./components/ListPages";
-import ViewPage from "./components/ViewPage";
-import EditPage from "./components/EditPage";
+import App from "./App.vue";
+import ListPages from "./components/ListPages.vue";
+import ViewPage from "./components/ViewPage.vue";
+import EditPage from "./components/EditPage.vue";
 
 import "molgenis-components/dist/style.css";
 
