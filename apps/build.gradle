@@ -57,6 +57,7 @@ subprojects {
             project.name == 'tables' ||
             project.name == 'schema' ||
             project.name == 'catalogue' ||
+            project.name == 'settings' ||
             project.name == 'helloworld' ||
             project.name == 'updownload' ||
             project.name == 'gendecs' ||
