@@ -56,7 +56,12 @@ subprojects {
             project.name == 'central' ||
             project.name == 'tables' ||
             project.name == 'schema' ||
-            project.name == 'settings'
+            project.name == 'settings' ||
+            project.name == 'helloworld' ||
+            project.name == 'updownload' ||
+            project.name == 'gendecs' ||
+            project.name == 'pages' ||
+            project.name == 'graphql-playground'
         ) {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
