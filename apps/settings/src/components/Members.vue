@@ -165,11 +165,3 @@ export default {
   },
 };
 </script>
-
-<docs>
-Example
-```
-<Download schema="pet store"/>
-
-```
-</docs>

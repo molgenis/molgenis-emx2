@@ -7,7 +7,7 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <label>Choose primary color</label><br />
       <v-swatches class="mb-2" v-model="primaryColor" show-fallback />
-      <InputString label="Set logo url" v-model="logoURL" />
+      <InputString id="theme-url-input" label="Set logo url" v-model="logoURL" />
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
       <a :href="this.session.settings.cssURL">view theme css</a>
