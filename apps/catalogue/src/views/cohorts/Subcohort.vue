@@ -121,11 +121,11 @@ export default {
     },
   },
   mounted: async function () {
-    fetchById("cohortDetails.gql", "Cohorts", {
+    fetchById("cohortDetails", "Cohorts", {
       pid: this.$route.params.cohort,
     }).then((data) => (this.cohortData = data));
 
-    this.subcohort = await fetchById("subcohortDetails.gql", "Subcohorts", {
+    this.subcohort = await fetchById("subcohortDetails", "Subcohorts", {
       pid: this.$route.params.cohort,
       name: this.name,
     });

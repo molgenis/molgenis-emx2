@@ -52,7 +52,7 @@ dd {
 <script>
 import { request } from "graphql-request";
 import { MessageError } from "molgenis-components";
-import HarmonisationDetails from "./HarmonisationDetails";
+import HarmonisationDetails from "./HarmonisationDetail.vue";
 
 export default {
   components: {

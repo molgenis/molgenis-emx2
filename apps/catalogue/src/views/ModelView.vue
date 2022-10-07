@@ -23,10 +23,10 @@
 <script>
 import { request } from "graphql-request";
 import { MessageError } from "molgenis-components";
-import DatabankList from "../components/DatabankList";
-import NetworkList from "../components/NetworkList";
-import ResourceHeader from "../components/ResourceHeader";
-import ResourceContext from "../components/ResourceContext";
+import DatabankList from "../components/DatabankList.vue";
+import NetworkList from "../components/NetworkList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import ResourceContext from "../components/ResourceContext.vue";
 
 export default {
   components: {

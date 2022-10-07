@@ -62,9 +62,9 @@
 <script>
 import { request } from "graphql-request";
 import { MessageError } from "molgenis-components";
-import ResourceHeader from "../components/ResourceHeader";
-import InstitutionList from "../components/InstitutionList";
-import OntologyTerms from "../components/OntologyTerms";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import InstitutionList from "../components/InstitutionList.vue";
+import OntologyTerms from "../components/OntologyTerms.vue";
 
 export default {
   components: {

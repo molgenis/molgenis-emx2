@@ -1,6 +1,6 @@
 import { request, gql } from "graphql-request";
-import schema from "./query/schema.gql";
-import mappings from "./query/mappings.gql";
+import schema from "./query/schema.js";
+import mappings from "./query/mappings.js";
 import { fetchResources } from "./repository/resourceRepository";
 
 export default {
