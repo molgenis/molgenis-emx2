@@ -29,7 +29,7 @@ Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g
 Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
 Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
 Biosamples,,biosampleStatus,ontology,,,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
-Biosamples,,sampleOriginType,ontology,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
+Biosamples,,sampleOriginType,ontology,,,,SampleOriginType,,,,http://purl.obolibrary.org/obo/NCIT_C42703,E.g. bone marrow specimen
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
 Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
 Biosamples,,obtentionProcedure,ontology,,,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
@@ -64,7 +64,7 @@ IndividualsMeasures,,assayCode,ontology,,,,AnalysesPerformed,,,,http://purl.obol
 IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03
 IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count
 IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
-IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_P355,E.g. Per Millimeter
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter
 IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
 Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
 Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401
