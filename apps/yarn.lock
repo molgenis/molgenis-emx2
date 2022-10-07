@@ -11226,10 +11226,10 @@ vue-swatches@2.1.1:
   resolved "https://registry.yarnpkg.com/vue-swatches/-/vue-swatches-2.1.1.tgz#26c467fb7648ff4ee0887aea36d1e03b15032b83"
   integrity sha512-YugkNbByxMz1dnx1nZyHSL3VSf/TnBH3/NQD+t8JKxPSqUmX87sVGBxjEaqH5IMraOLfVmU0pHCHl2BfXNypQg==
 
-vue-tabler-icons@1.13.0:
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-1.13.0.tgz#ff8a67975e891d4ae677c43a4d63fc64d01b770f"
-  integrity sha512-e4pYD4XqWvuOvvGGiR3kPCLMggEr780jdgnhGF8QNaK52pQgtS2GW/iXYzKV+bka+Yy2+SmCgyp3xduWW64/Kg==
+vue-tabler-icons@1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-1.14.0.tgz#df0027906f225c1501c2d1cfa9d844f8d50bc428"
+  integrity sha512-ZFYo5RWXhp9/Ky8CFWUQ65x2oZy0YkwdfB4b2+tT/hPqGdieQfa303UiiFeNMHFYrNSGouDAN1LvpDxaN/4X2g==
 
 vue-template-babel-compiler@^1.2.0:
   version "1.2.0"
