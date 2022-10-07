@@ -22,13 +22,6 @@ export default {
       type: String,
       required: true,
     },
-    name: {
-      type: String,
-      required: false,
-      default: function () {
-        return this.id;
-      },
-    },
     condition: {
       type: String,
       required: false,
