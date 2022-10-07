@@ -57,6 +57,7 @@ subprojects {
             project.name == 'tables' ||
             project.name == 'schema' ||
             project.name == 'helloworld' ||
+            project.name == 'pages' ||
             project.name == 'graphql-playground'
         ) {
             inputs.file('package.json')

@@ -9,7 +9,7 @@
           <th>Edit</th>
         </tr>
       </thead>
-      <tr v-for="page in pages">
+      <tr v-for="(page, index) in pages" :key="index">
         <td>{{ page }}</td>
         <td>
           <router-link :to="'/' + page">view</router-link>
@@ -23,23 +23,23 @@
 </template>
 
 <script>
-import {ShowMore} from "molgenis-components";
+import { ShowMore } from "molgenis-components";
 
 export default {
   components: {
-    ShowMore
+    ShowMore,
   },
   props: {
-    session: Object
+    session: Object,
   },
   computed: {
     pages() {
       if (this.session && this.session.settings) {
         return Object.keys(this.session.settings)
-          .filter(key => key.startsWith("page."))
-          .map(key => key.substring(5));
+          .filter((key) => key.startsWith("page."))
+          .map((key) => key.substring(5));
       }
-    }
-  }
+    },
+  },
 };
 </script>
