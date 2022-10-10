@@ -120,6 +120,7 @@ import { deepClone } from "../src/components/utils";
 //organisms
 import RowAddButton from "../src/components/organisms/RowAddButton.vue";
 import RowCloneButton from "../src/components/organisms/RowCloneButton.vue";
+import RowDeleteButton from "../src/components/organisms/RowDeleteButton.vue";
 import RowEditButton from "../src/components/organisms/RowEditButton.vue";
 
 export {
@@ -191,6 +192,7 @@ export {
   ResizableTextarea,
   RowAddButton,
   RowCloneButton,
+  RowDeleteButton,
   RowEdit,
   RowEditButton,
   RowEditFooter,
