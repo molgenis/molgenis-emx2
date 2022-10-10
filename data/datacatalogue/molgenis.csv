@@ -107,7 +107,7 @@ Cohorts,,dataAccessFee,bool,,,,,,,,,Does a fee apply to gain access to data of t
 Cohorts,,releaseType,ontology,,,CatalogueOntologies,ReleaseTypes,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
 Cohorts,,releaseDescription,text,,,,,,,,,Description of the release cycle of this resource
 Cohorts,,linkageOptions,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
-RWEresources,,Access,heading,,,,,,,,,Description of how access is permitted for DAPs and timing of access
+RWEresources,,access,heading,,,,,,,,,Description of how access is permitted for DAPs and timing of access
 Datasources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source
 Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank
 RWEresources,,informedConsent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?
