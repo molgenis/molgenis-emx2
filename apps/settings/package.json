@@ -17,7 +17,7 @@
     "vuedraggable": "2.24.3"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "3.1.0",
+    "@vitejs/plugin-vue": "3.1.2",
     "vite": "3.1.7",
     "vite-plugin-vue2": "2.0.2"
   },
