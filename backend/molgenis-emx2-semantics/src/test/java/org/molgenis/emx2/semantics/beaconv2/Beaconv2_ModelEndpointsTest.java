@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -357,11 +358,8 @@ public class Beaconv2_ModelEndpointsTest {
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -372,18 +370,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -399,18 +393,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 0);
+			}""",
+        0);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -421,18 +411,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 0);
+			}""",
+        0);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -443,45 +429,37 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
-						{
-						  "query": {
-							"filters": [
-							  {
-								"type": "SIO_001003",
-								"id": "Orphanet_1895",
-								"operator": "="
-							  },
-							  {
-								"type": "SIO_001003",
-								"id": "Orphanet_1955",
-								"operator": "="
-							  }
-							]
-						  }
-						}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  },
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1955",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -492,18 +470,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 2);
+			}""",
+        2);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -514,19 +488,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 0);
+			}""",
+        0);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -537,19 +506,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_TwoHits() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -560,19 +524,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 2);
+			}""",
+        2);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -583,19 +542,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 0);
+			}""",
+        0);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -606,19 +560,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -629,19 +578,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 0);
+			}""",
+        0);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -657,19 +601,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -680,19 +619,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -703,19 +637,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 2);
+			}""",
+        2);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnPhenotype_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"filters": [
@@ -726,19 +655,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnGenderAndDisease_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			  "query": {
 				"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
@@ -755,19 +679,14 @@ public class Beaconv2_ModelEndpointsTest {
 				  }
 				]
 			  }
-			}""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			}""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGene_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			   "query": {
 				 "filters": [
@@ -783,19 +702,14 @@ public class Beaconv2_ModelEndpointsTest {
 				   }
 				 ]
 			   }
-			 }""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			 }""",
+        1);
   }
 
   @Test
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
-    Request request = mock(Request.class);
-    Response response = mock(Response.class);
-    when(request.body())
-        .thenReturn(
-            """
+    assertNrOfHitsFor(
+        """
 			{
 			   "query": {
 				 "filters": [
@@ -816,22 +730,25 @@ public class Beaconv2_ModelEndpointsTest {
 				   }
 				 ]
 			   }
-			 }""");
-
-    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
-    assertHasResults(jsonResponse, 1);
+			 }""",
+        1);
   }
 
   /**
    * Helper function to reduce code duplication
    *
-   * @param jsonResponse
-   * @param nrOfHits
+   * @param body
+   * @param hits
+   * @throws JsonProcessingException
    */
-  private void assertHasResults(String jsonResponse, int nrOfHits) {
-    if (nrOfHits > 0) {
+  private void assertNrOfHitsFor(String body, int hits) throws JsonProcessingException {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body()).thenReturn(body);
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    if (hits > 0) {
       assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
-      assertTrue(jsonResponse.contains("\"numTotalResults\" : " + nrOfHits));
+      assertTrue(jsonResponse.contains("\"numTotalResults\" : " + hits));
     } else {
       assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
       assertFalse(jsonResponse.contains("\"numTotalResults\""));
