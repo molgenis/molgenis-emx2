@@ -11,7 +11,7 @@ spec:
       - cat
       tty: true
       resources:
-        requests:
+        limits:
           cpu: 2
           memory: 2Gi
     - name: postgres
@@ -20,7 +20,7 @@ spec:
       args: ["-c", "shared_buffers=256MB", "-c", "max_locks_per_transaction=1024"]
       tty: true
       resources:
-        requests:
+        limits:
           cpu: 1
           memory: 1Gi
       env:
