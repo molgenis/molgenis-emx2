@@ -84,8 +84,8 @@
 </template>
 
 <script>
-import HarmonisationDetails from "./HarmonisationDetails";
-import Property from "./Property";
+import HarmonisationDetails from "./HarmonisationDetails.vue";
+import Property from "./Property.vue";
 
 export default {
   props: {

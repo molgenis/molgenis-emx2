@@ -216,7 +216,7 @@
 <script>
 import { MessageError, ButtonAlt } from "molgenis-components";
 import { request } from "graphql-request";
-import OntologyTerms from "../components/OntologyTerms";
+import OntologyTerms from "../components/OntologyTerms.vue";
 
 export default {
   components: {

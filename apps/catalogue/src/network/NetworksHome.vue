@@ -61,7 +61,7 @@
 <script>
 import { request } from "graphql-request";
 
-import NetworkCard from "../components/NetworkCards";
+import NetworkCard from "../components/NetworkCards.vue";
 import { InputSearch } from "molgenis-components";
 
 export default {

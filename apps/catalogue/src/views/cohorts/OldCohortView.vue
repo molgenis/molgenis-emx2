@@ -87,17 +87,17 @@ import {
   Spinner,
 } from "molgenis-components";
 
-import OntologyTerms from "../../components/OntologyTerms";
-import ResourceHeader from "../../components/ResourceHeader";
-import InstitutionList from "../../components/InstitutionList";
-import ReleasesList from "../../components/ReleasesList";
-import DocumentationList from "../../components/DocumentationList";
-import NetworkList from "../../components/NetworkList";
-import Conditions from "../../components/Conditions";
-import ContributorList from "../../components/ContributorList";
-import PartnersList from "../../components/PartnersList";
-import CollectionEventsList from "../../components/CollectionEventsList";
-import SubcohortList from "../../components/SubcohortList";
+import OntologyTerms from "../../components/OntologyTerms.vue";
+import ResourceHeader from "../../components/ResourceHeader.vue";
+import InstitutionList from "../../components/InstitutionList.vue";
+import ReleasesList from "../../components/ReleasesList.vue";
+import DocumentationList from "../../components/DocumentationList.vue";
+import NetworkList from "../../components/NetworkList.vue";
+import Conditions from "../../components/Conditions.vue";
+import ContributorList from "../../components/ContributorList.vue";
+import PartnersList from "../../components/PartnersList.vue";
+import CollectionEventsList from "../../components/CollectionEventsList.vue";
+import SubcohortList from "../../components/SubcohortList.vue";
 
 export default {
   components: {

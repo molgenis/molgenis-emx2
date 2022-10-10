@@ -27,8 +27,8 @@ export default {
           href: "/apps/graphql-playground/",
         },
         {
-          label: "Styleguide (for developers)",
-          href: "/apps/styleguide/",
+          label: "Components (for developers)",
+          href: "/apps/molgenis-components/",
         },
         {
           label: "Help",

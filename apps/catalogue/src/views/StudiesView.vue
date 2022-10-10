@@ -41,12 +41,12 @@
 <script>
 import { request } from "graphql-request";
 import { MessageError } from "molgenis-components";
-import DatabankList from "../components/DatabankList";
-import DatasourceList from "../components/DatasourceList";
-import ResourceHeader from "../components/ResourceHeader";
-import ResourceContext from "../components/ResourceContext";
-import NetworkList from "../components/NetworkList";
-import OntologyTerms from "../components/OntologyTerms";
+import DatabankList from "../components/DatabankList.vue";
+import DatasourceList from "../components/DatasourceList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import ResourceContext from "../components/ResourceContext.vue";
+import NetworkList from "../components/NetworkList.vue";
+import OntologyTerms from "../components/OntologyTerms.vue";
 
 export default {
   components: {

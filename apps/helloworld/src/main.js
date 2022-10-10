@@ -1,9 +1,9 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import App from "./App";
-import HelloWorld from "./components/HelloWorld";
-import SomeQuery from "./components/SomeQuery";
+import App from "./App.vue";
+import HelloWorld from "./components/HelloWorld.vue";
+import SomeQuery from "./components/SomeQuery.vue";
 
 import "molgenis-components/dist/style.css";
 
