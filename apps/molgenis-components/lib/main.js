@@ -118,7 +118,8 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 import { deepClone } from "../src/components/utils";
 
 //organisms
-import RowEditButton  from "../src/components/organisms/RowEditButton.vue";
+import RowEditButton from "../src/components/organisms/RowEditButton.vue";
+import RowAddButton from "../src/components/organisms/RowAddButton.vue";
 
 export {
   ContactDisplay,
@@ -187,6 +188,7 @@ export {
   MessageError,
   MessageSuccess,
   ResizableTextarea,
+  RowAddButton,
   RowEdit,
   RowEditButton,
   RowEditFooter,
