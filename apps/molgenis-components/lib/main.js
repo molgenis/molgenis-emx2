@@ -118,7 +118,7 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 import { deepClone } from "../src/components/utils";
 
 //organisms
-import { RowEditButton } from "../src/components/organisms/RowEditButton.vue"
+import RowEditButton  from "../src/components/organisms/RowEditButton.vue";
 
 export {
   ContactDisplay,
