@@ -117,6 +117,9 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 //utils
 import { deepClone } from "../src/components/utils";
 
+//organisms
+import { RowEditButton } from "../src/components/organisms/RowEditButton.vue"
+
 export {
   ContactDisplay,
   GridBlock,
@@ -143,8 +146,10 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonSubmit,
+  Client,
   ConfirmModal,
   EditModal,
+  FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
@@ -183,6 +188,7 @@ export {
   MessageSuccess,
   ResizableTextarea,
   RowEdit,
+  RowEditButton,
   RowEditFooter,
   Breadcrumb,
   LayoutCard,
@@ -200,6 +206,8 @@ export {
   Task,
   TaskManager,
   TaskList,
+  TextDisplay,
+  Tooltip,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
@@ -207,16 +215,12 @@ export {
   MolgenisSignin,
   MolgenisSignup,
   ReadMore,
+  ShowHide,
   ShowMore,
+  StringDisplay,
   Pagination,
   RowButton,
-  ShowHide,
-  FileDisplay,
   ListDisplay,
   ObjectDisplay,
-  StringDisplay,
-  TextDisplay,
-  Client,
-  Tooltip,
   deepClone,
 };
