@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.List;
@@ -19,28 +20,28 @@ public class Diseases {
   private OntologyTerm severity;
   private OntologyTerm stage;
 
-  public static Diseases[] get(Object diseases) {
-    if (diseases == null) {
+  public static Diseases[] get(Object diseasesObj) {
+    if (diseasesObj == null) {
       return null;
     }
-    List<Map<String, Object>> diseasesCast = (List<Map<String, Object>>) diseases;
+    List<Map<String, Object>> diseasesCast = (List<Map<String, Object>>) diseasesObj;
     Diseases[] result = new Diseases[diseasesCast.size()];
     for (int i = 0; i < diseasesCast.size(); i++) {
       Map map = diseasesCast.get(i);
-      Diseases d = new Diseases();
-      d.diseaseCode = mapToOntologyTerm((Map) map.get("diseaseCode"));
-      d.ageOfOnset =
+      Diseases diseases = new Diseases();
+      diseases.diseaseCode = mapToOntologyTerm((Map) map.get(DISEASECODE));
+      diseases.ageOfOnset =
           new AgeAndAgeGroup(
-              mapToOntologyTerm((Map) map.get("ageOfOnset__ageGroup")),
-              TypeUtils.toString(map.get("ageOfOnset__age__iso8601duration")));
-      d.ageAtDiagnosis =
+              mapToOntologyTerm((Map) map.get(AGEOFONSET_AGEGROUP)),
+              TypeUtils.toString(map.get(AGEOFONSET_AGE_ISO8601DURATION)));
+      diseases.ageAtDiagnosis =
           new AgeAndAgeGroup(
-              mapToOntologyTerm((Map) map.get("ageAtDiagnosis__ageGroup")),
-              TypeUtils.toString(map.get("ageAtDiagnosis__age__iso8601duration")));
-      d.familyHistory = (Boolean) map.get("familyHistory");
-      d.severity = mapToOntologyTerm((Map) map.get("severity"));
-      d.stage = mapToOntologyTerm((Map) map.get("stage"));
-      result[i] = d;
+              mapToOntologyTerm((Map) map.get(AGEATDIAGNOSIS_AGEGROUP)),
+              TypeUtils.toString(map.get(AGEATDIAGNOSIS_AGE_ISO8601DURATION)));
+      diseases.familyHistory = (Boolean) map.get(FAMILYHISTORY);
+      diseases.severity = mapToOntologyTerm((Map) map.get(SEVERITY));
+      diseases.stage = mapToOntologyTerm((Map) map.get(STAGE));
+      result[i] = diseases;
     }
     return result;
   }

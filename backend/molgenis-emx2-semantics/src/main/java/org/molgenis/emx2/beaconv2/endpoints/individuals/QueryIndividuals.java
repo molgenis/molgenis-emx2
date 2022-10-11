@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapListToOntologyTerms;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.mapToOntologyTerm;
+import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -59,14 +60,22 @@ public class QueryIndividuals {
                   + "   modifiers{name,codesystem,code},"
                   + "   severity{name,codesystem,code}},"
                   + "diseases{"
-                  + "   diseaseCode{name,codesystem,code},"
-                  + "   ageOfOnset__ageGroup{name,codesystem,code},"
-                  + "   ageOfOnset__age__iso8601duration,"
-                  + "   ageAtDiagnosis__ageGroup{name,codesystem,code},"
-                  + "   ageAtDiagnosis__age__iso8601duration,"
-                  + "   familyHistory,"
-                  + "   severity{name,codesystem,code},"
-                  + "   stage{name,codesystem,code}},"
+                  + DISEASECODE
+                  + "{name,codesystem,code},"
+                  + AGEOFONSET_AGEGROUP
+                  + "{name,codesystem,code},"
+                  + AGEOFONSET_AGE_ISO8601DURATION
+                  + ","
+                  + AGEATDIAGNOSIS_AGEGROUP
+                  + "{name,codesystem,code},"
+                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
+                  + ","
+                  + FAMILYHISTORY
+                  + ","
+                  + SEVERITY
+                  + "{name,codesystem,code},"
+                  + STAGE
+                  + "{name,codesystem,code}},"
                   + "measures{"
                   + "   assayCode{name,codesystem,code},"
                   + "   date,"
