@@ -55,9 +55,9 @@ public class EJP_VP_IndividualsQuery {
        * All of the 'age' related queries. NCIT_C25150 = Age this year, i.e. 'age', EFO_0004847 =
        * Age at disease manifestation, i.e. 'age of onset', NCIT_C156420 = Age at diagnosis
        */
-      if (type.endsWith("NCIT_C25150")
-          || type.equals("EFO_0004847")
-          || type.equals("NCIT_C156420")) {
+      boolean isAgeQuery =
+          type.endsWith("NCIT_C25150") || type.equals("EFO_0004847") || type.equals("NCIT_C156420");
+      if (isAgeQuery) {
         int age = Integer.parseInt(id);
 
         if (type.endsWith("NCIT_C25150")) {
