@@ -9,4 +9,6 @@ public class IndividualsFields {
   public static String FAMILYHISTORY = "familyHistory";
   public static String SEVERITY = "severity";
   public static String STAGE = "stage";
+  public static String AGE_AGE_ISO8601DURATION = "age__age__iso8601duration";
+  public static String AGE_AGEGROUP = "age__ageGroup";
 }

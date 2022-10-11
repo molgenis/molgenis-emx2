@@ -2,6 +2,7 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.findColumnPath;
+import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 
@@ -63,33 +64,51 @@ public class EJP_VP_IndividualsQuery {
         if (type.endsWith("NCIT_C25150")) {
           // Age (Age this year)
           String ageFilter =
-              "{ _or: [{age__age__iso8601duration: {like: \"P"
+              "{ _or: [{"
+                  + AGE_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + age
-                  + "Y\"}}, {age__age__iso8601duration: {like: \"P"
+                  + "Y\"}}, {"
+                  + AGE_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age - 1)
-                  + "Y\"}}, {age__age__iso8601duration: {like: \"P"
+                  + "Y\"}}, {"
+                  + AGE_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age + 1)
                   + "Y\"}}]  }";
           filters.add(ageFilter);
         } else if (type.endsWith("EFO_0004847")) {
           // Age at disease manifestation
           String ageFilter =
-              "{ _or: [{diseases: {ageOfOnset__age__iso8601duration: {like: \"P"
+              "{ _or: [{diseases: {"
+                  + AGEOFONSET_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + age
-                  + "Y\"}}}, {diseases: {ageOfOnset__age__iso8601duration: {like: \"P"
+                  + "Y\"}}}, {diseases: {"
+                  + AGEOFONSET_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age - 1)
-                  + "Y\"}}}, {diseases: {ageOfOnset__age__iso8601duration: {like: \"P"
+                  + "Y\"}}}, {diseases: {"
+                  + AGEOFONSET_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age + 1)
                   + "Y\"}}}]  }";
           filters.add(ageFilter);
         } else {
           // has to be NCIT_C156420, Age at diagnosis
           String ageFilter =
-              "{ _or: [{diseases: {ageAtDiagnosis__age__iso8601duration: {like: \"P"
+              "{ _or: [{diseases: {"
+                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + age
-                  + "Y\"}}}, {diseases: {ageAtDiagnosis__age__iso8601duration: {like: \"P"
+                  + "Y\"}}}, {diseases: {"
+                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age - 1)
-                  + "Y\"}}}, {diseases: {ageAtDiagnosis__age__iso8601duration: {like: \"P"
+                  + "Y\"}}}, {diseases: {"
+                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
+                  + ": {like: \"P"
                   + (age + 1)
                   + "Y\"}}}]  }";
           filters.add(ageFilter);

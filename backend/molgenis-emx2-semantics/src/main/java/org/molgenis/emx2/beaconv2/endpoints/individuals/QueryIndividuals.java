@@ -50,8 +50,10 @@ public class QueryIndividuals {
                   + "{"
                   + "id,"
                   + "sex{name,codesystem,code},"
-                  + "age__ageGroup{name,codesystem,code},"
-                  + "age__age__iso8601duration,"
+                  + AGE_AGEGROUP
+                  + "{name,codesystem,code},"
+                  + AGE_AGE_ISO8601DURATION
+                  + ","
                   + "diseaseCausalGenes{name,codesystem,code},"
                   + "ethnicity{name,codesystem,code},"
                   + "geographicOrigin{name,codesystem,code},"
@@ -98,8 +100,8 @@ public class QueryIndividuals {
           individualsItem.setSex(mapToOntologyTerm(map.get("sex")));
           individualsItem.setAge(
               new AgeAndAgeGroup(
-                  mapToOntologyTerm(map.get("age__ageGroup")),
-                  TypeUtils.toString(map.get("age__age__iso8601duration"))));
+                  mapToOntologyTerm(map.get(AGE_AGEGROUP)),
+                  TypeUtils.toString(map.get(AGE_AGE_ISO8601DURATION))));
           individualsItem.setDiseaseCausalGenes(
               mapListToOntologyTerms(map.get("diseaseCausalGenes")));
           individualsItem.setEthnicity(mapToOntologyTerm((map.get("ethnicity"))));
