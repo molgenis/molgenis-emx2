@@ -95,15 +95,15 @@ public class QueryIndividuals {
         for (Map map : individualsListFromJSON) {
           IndividualsResultSetsItem individualsItem = new IndividualsResultSetsItem();
           individualsItem.setId(TypeUtils.toString(map.get("id")));
-          individualsItem.setSex(mapToOntologyTerm((Map) map.get("sex")));
+          individualsItem.setSex(mapToOntologyTerm(map.get("sex")));
           individualsItem.setAge(
               new AgeAndAgeGroup(
-                  mapToOntologyTerm((Map) map.get("age__ageGroup")),
+                  mapToOntologyTerm(map.get("age__ageGroup")),
                   TypeUtils.toString(map.get("age__age__iso8601duration"))));
           individualsItem.setDiseaseCausalGenes(
-              mapListToOntologyTerms((List<Map>) map.get("diseaseCausalGenes")));
-          individualsItem.setEthnicity(mapToOntologyTerm((Map) map.get("ethnicity")));
-          individualsItem.setGeographicOrigin(mapToOntologyTerm((Map) map.get("geographicOrigin")));
+              mapListToOntologyTerms(map.get("diseaseCausalGenes")));
+          individualsItem.setEthnicity(mapToOntologyTerm((map.get("ethnicity"))));
+          individualsItem.setGeographicOrigin(mapToOntologyTerm(map.get("geographicOrigin")));
           individualsItem.setPhenotypicFeatures(
               PhenotypicFeatures.get(map.get("phenotypicFeatures")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));

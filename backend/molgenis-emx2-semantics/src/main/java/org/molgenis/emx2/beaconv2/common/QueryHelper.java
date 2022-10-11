@@ -51,14 +51,14 @@ public class QueryHelper {
   /**
    * Convert list of maps to an array of ontology terms
    *
-   * @param mapList
+   * @param mapListObj
    * @return
    */
-  public static OntologyTerm[] mapListToOntologyTerms(List<Map> mapList) {
-    if (mapList == null) {
+  public static OntologyTerm[] mapListToOntologyTerms(Object mapListObj) {
+    if (mapListObj == null) {
       return null;
     }
-
+    List<Map> mapList = (List<Map>) mapListObj;
     OntologyTerm[] result = new OntologyTerm[mapList.size()];
     for (int i = 0; i < mapList.size(); i++) {
       OntologyTerm ontologyTerm = new OntologyTerm();
@@ -73,14 +73,15 @@ public class QueryHelper {
   /**
    * Convert a single map to an ontology term
    *
-   * @param map
+   * @param mapObj
    * @return
    */
-  public static OntologyTerm mapToOntologyTerm(Map map) {
+  public static OntologyTerm mapToOntologyTerm(Object mapObj) {
     OntologyTerm ontologyTerm = new OntologyTerm();
-    if (map == null) {
+    if (mapObj == null) {
       return null;
     }
+    Map map = (Map) mapObj;
     ontologyTerm.setId(map.get("codesystem") + ":" + TypeUtils.toString(map.get("code")));
     ontologyTerm.setLabel(TypeUtils.toString(map.get("name")));
     return ontologyTerm;
