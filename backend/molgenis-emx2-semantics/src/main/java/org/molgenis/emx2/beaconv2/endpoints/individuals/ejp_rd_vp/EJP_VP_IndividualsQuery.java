@@ -6,7 +6,6 @@ import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +32,12 @@ public class EJP_VP_IndividualsQuery {
     this.tables = tables;
   }
 
-  public String getPostResponse() throws JsonProcessingException {
+  public String getPostResponse() throws Exception {
+
+    if (this.tables == null || this.tables.isEmpty()) {
+      throw new Exception(
+          "No tables reachable for querying, perhaps permissions are not set correctly?");
+    }
 
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);

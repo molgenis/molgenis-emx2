@@ -741,7 +741,7 @@ public class Beaconv2_ModelEndpointsTest {
    * @param hits
    * @throws JsonProcessingException
    */
-  private void assertNrOfHitsFor(String body, int hits) throws JsonProcessingException {
+  private void assertNrOfHitsFor(String body, int hits) throws Exception {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.body()).thenReturn(body);
