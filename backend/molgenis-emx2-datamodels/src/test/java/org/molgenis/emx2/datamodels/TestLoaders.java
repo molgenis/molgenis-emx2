@@ -57,7 +57,7 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueNetworkStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(12, networkStaging.getTableNames().size());
+    assertEquals(13, networkStaging.getTableNames().size());
   }
 
   @Test
