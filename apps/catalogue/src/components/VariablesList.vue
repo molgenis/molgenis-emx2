@@ -41,7 +41,7 @@ import {
   MessageError,
   Pagination,
 } from "molgenis-components";
-import VariableCard from "./VariableCard";
+import VariableCard from "./VariableCard.vue";
 
 export default {
   components: {

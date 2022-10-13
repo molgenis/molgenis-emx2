@@ -63,6 +63,7 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
@@ -94,6 +95,11 @@ import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vu
 import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
+import RowButtonAdd from "../src/components/tables/RowButtonAdd.vue";
+import RowButtonClone from "../src/components/tables/RowButtonClone.vue";
+import RowButtonDelete from "../src/components/tables/RowButtonDelete.vue";
+import RowButtonEdit from "../src/components/tables/RowButtonEdit.vue";
+
 import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
@@ -112,6 +118,9 @@ import SubTask from "../src/components/task/SubTask.vue";
 import Task from "../src/components/task/Task.vue";
 import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
+
+//utils
+import { deepClone } from "../src/components/utils";
 
 export {
   ContactDisplay,
@@ -139,8 +148,10 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonSubmit,
+  Client,
   ConfirmModal,
   EditModal,
+  FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
@@ -178,7 +189,11 @@ export {
   MessageError,
   MessageSuccess,
   ResizableTextarea,
+  RowButtonAdd,
+  RowButtonClone,
+  RowButtonDelete,
   RowEdit,
+  RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
   LayoutCard,
@@ -196,6 +211,8 @@ export {
   Task,
   TaskManager,
   TaskList,
+  TextDisplay,
+  Tooltip,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
@@ -203,14 +220,12 @@ export {
   MolgenisSignin,
   MolgenisSignup,
   ReadMore,
+  ShowHide,
   ShowMore,
+  StringDisplay,
   Pagination,
   RowButton,
-  ShowHide,
-  FileDisplay,
   ListDisplay,
   ObjectDisplay,
-  StringDisplay,
-  TextDisplay,
-  Client,
+  deepClone,
 };

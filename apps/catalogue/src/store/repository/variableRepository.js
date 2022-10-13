@@ -1,6 +1,6 @@
 import { request } from "graphql-request";
-import variableDetails from "../query/variableDetails.gql";
-import fromVariableDetails from "../query/fromVariableDetails.gql";
+import variableDetails from "../query/variableDetails.js";
+import fromVariableDetails from "../query/fromVariableDetails.js";
 
 const fetchDetails = async (name, model, version) => {
   const params = {

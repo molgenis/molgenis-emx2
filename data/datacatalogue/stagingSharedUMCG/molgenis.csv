@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 CoreVariables,,,,,,,,,,,,Listing of core variables for cohorts
-Version,,,,,,,,,,,,2.6
+Version,,,,,,,,,,,,2.8
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Contacts,,,,,,,,,,,,
 Institutions,,pid,,1,true,,,,,,,Persistent identifier for this institution

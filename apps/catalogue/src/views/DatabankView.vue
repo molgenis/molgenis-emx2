@@ -66,13 +66,13 @@ import { request } from "graphql-request";
 import {
   MessageError,
 } from "molgenis-components";
-import OntologyTerms from "../components/OntologyTerms";
-import ResourceHeader from "../components/ResourceHeader";
-import InstitutionList from "../components/InstitutionList";
-import ReleasesList from "../components/ReleasesList";
-import DocumentationList from "../components/DocumentationList";
-import DatasourceList from "../components/DatasourceList";
-import Conditions from "../components/Conditions";
+import OntologyTerms from "../components/OntologyTerms.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import InstitutionList from "../components/InstitutionList.vue";
+import ReleasesList from "../components/ReleasesList.vue";
+import DocumentationList from "../components/DocumentationList.vue";
+import DatasourceList from "../components/DatasourceList.vue";
+import Conditions from "../components/Conditions.vue";
 
 export default {
   components: {

@@ -56,9 +56,9 @@
 
 <script>
 import { ButtonAlt, RowButton, Client, EditModal } from "molgenis-components";
-import ResourceHeader from "../components/ResourceHeader";
-import SectionIndex from "../components/detailView/SectionIndex";
-import SectionCard from "../components/detailView/SectionCard";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import SectionIndex from "../components/detailView/SectionIndex.vue";
+import SectionCard from "../components/detailView/SectionCard.vue";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
