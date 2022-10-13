@@ -457,7 +457,7 @@ public class TestGraphqSchemaFields {
       System.out.println(escape("Person details"));
 
       myschema.create(
-          table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
+          table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
           table(
               "Some",
               column("id").setPkey(),
@@ -466,13 +466,13 @@ public class TestGraphqSchemaFields {
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
-          "mutation{insert(Person_details:{First_name:\"blaata\",Last_name:\"blaata2\"}){message}}");
+          "mutation{insert(Person_details:{First_name:\"blaata\",Last__name:\"blaata2\"}){message}}");
 
       int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
 
       // insert should increase count
       execute(
-          "mutation{insert(Person_details:{First_name:\"blaatb\",Last_name:\"blaatb2\"}){message}}");
+          "mutation{insert(Person_details:{First_name:\"blaatb\",Last__name:\"blaatb2\"}){message}}");
       TestCase.assertEquals(
           count + 1,
           execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
@@ -490,9 +490,22 @@ public class TestGraphqSchemaFields {
               .at("/Person_details/0/First_name")
               .asText());
 
+      // order by should work with underscore
+      TestCase.assertEquals(
+          "blaata2",
+          execute("{Person_details(orderby:{Last__name:ASC}){Last__name}}")
+              .at("/Person_details/0/Last__name")
+              .asText());
+
+      TestCase.assertEquals(
+          "blaatb2",
+          execute("{Person_details(orderby:{Last__name:DESC}){Last__name}}")
+              .at("/Person_details/0/Last__name")
+              .asText());
+
       // delete
       execute(
-          "mutation{delete(Person_details:{First_name:\"blaata\",Last_name:\"blaata2\"}){message}}");
+          "mutation{delete(Person_details:{First_name:\"blaata\",Last__name:\"blaata2\"}){message}}");
       TestCase.assertEquals(
           count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
 
