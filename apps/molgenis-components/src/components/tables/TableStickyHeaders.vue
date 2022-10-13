@@ -148,11 +148,11 @@ table thead th:first-child {
   left: 0;
   z-index: 2;
 }
-table thead th:first-child::after {
+table tbody th:first-child::after {
   display: inline-block;
   content: "";
   width: 15px;
-  height: 100vh;
+  height:100%;
   background: linear-gradient(
     90deg,
     rgba(0, 0, 0, 0.05) 0%,

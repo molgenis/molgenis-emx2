@@ -126,7 +126,7 @@ export default {
     },
   },
   methods: {
-    AddItem(item) {
+    addItem(item) {
       const column = item[this.selectedColumnHeader].name || "not specified";
       const row = item[this.selectedRowHeader].name || "not specified";
 
@@ -152,8 +152,11 @@ export default {
       const responseData = await request(
         this.graphQlEndpoint,
         this.getAggregateQuery
-      );
-      responseData[this.tableName].forEach((item) => this.AddItem(item));
+      ).catch((reason) => {
+        this.$emit('error', reason)
+      });
+      
+      responseData[this.tableName].forEach((item) => this.addItem(item));
       this.loading = false;
     },
   },
