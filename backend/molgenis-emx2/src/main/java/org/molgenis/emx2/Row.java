@@ -65,10 +65,26 @@ public class Row {
   }
 
   public String getString(String name) {
+    if (values.get(name) == null) {
+      // if the key is present but no value, returning an empty string allows updating to an empty
+      // value in the database (returning null will result in no update being performed)
+      if (values.containsKey(name)) {
+        return "";
+      }
+      return null;
+    }
     return TypeUtils.toString(values.get(name));
   }
 
   public String[] getStringArray(String name) {
+    if (values.get(name) == null) {
+      // if the key is present but no value, returning an empty array allows updating to an empty
+      // value in the database  (returning null will result in no update being performed)
+      if (values.containsKey(name)) {
+        return new String[0];
+      }
+      return null;
+    }
     return TypeUtils.toStringArray(values.get(name));
   }
 
