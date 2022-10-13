@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <RowButton type="delete" @delete="isModalShown = true" />
     <ConfirmModal
       v-if="isModalShown"
@@ -8,10 +8,10 @@
       actionType="danger"
       :tableName="tableName"
       :pkey="pkey"
-      @close="isModalShown = false"
+      @close="handleClose"
       @confirmed="handleExecuteDelete"
     />
-  </div>
+  </span>
 </template>
 
 <script>
@@ -51,7 +51,6 @@ export default {
       if (!this.client) {
         this.client = Client.newClient(this.graphqlURL);
       }
-      this.isModalShown = false;
       this.client
         .deleteRow(this.pkey, this.tableName)
         .then(() => {
@@ -69,6 +68,11 @@ export default {
 
           this.$emit("error", { errorMessage, error });
         });
+      this.handleClose();
+    },
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
     },
   },
 };
@@ -116,6 +120,10 @@ export default {
       },
       handleClear() {
 
+      },
+      handleClose() {
+        this.isModalShown = false;
+        this.$emit('close');
       },
     },
   };

@@ -8,7 +8,7 @@
       :clone="true"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
   </div>
 </template>
@@ -43,6 +43,12 @@ export default {
     return {
       isModalShown: false,
     };
+  },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
   },
 };
 </script>

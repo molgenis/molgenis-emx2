@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <span>
     <RowButton type="add" @add="isModalShown = true" />
     <EditModal
       :id="id + 'add-modal'"
       :tableName="tableName"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      :defaultValue="defaultValue"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template>
 
 <script>
@@ -32,11 +33,21 @@ export default {
       required: false,
       default: () => "graphql",
     },
+    defaultValue: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
       isModalShown: false,
     };
+  },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
   },
 };
 </script>

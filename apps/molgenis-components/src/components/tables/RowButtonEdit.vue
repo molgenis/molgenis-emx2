@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
       :id="id + 'edit-modal'"
@@ -7,9 +7,9 @@
       :pkey="pkey"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template>
 
 <script>
@@ -41,6 +41,12 @@ export default {
     return {
       isModalShown: false,
     };
+  },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
   },
 };
 </script>
