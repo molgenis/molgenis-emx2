@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@vue/compiler-sfc": "3.2.40",
-    "core-js": "3.25.3",
+    "core-js": "3.25.5",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
     "vue": "2.6.14",
