@@ -71,7 +71,17 @@
         </td>
       </tr>
       <tr>
-        <th v-if="canEdit"><h6>#</h6></th>
+        <th v-if="canEdit">
+          <h6>
+            #
+            <RowButtonAdd
+              id="'row-button-add' + index"
+              tableName="VariableMappings"
+              @close="handleModalClose"
+              :defaultValue="defaultValueMapping"
+            />
+          </h6>
+        </th>
         <th><h6>Target column</h6></th>
         <th><h6>Origin column</h6></th>
         <th><h6>Rule</h6></th>
@@ -80,13 +90,20 @@
       </tr>
       <tr v-for="(m, index) in variablemappings" :key="index">
         <td v-if="canEdit">
-          <RowButton
-            v-if="canEdit"
-            type="edit"
-            table="VariableMappings"
-            @edit="handleRowAction(m)"
-            class="d-inline p-0"
-          />
+          <div class="d-flex flex-row">
+            <RowButtonEdit
+              id="'row-button-edit' + index"
+              tableName="VariableMappings"
+              :pkey="pkey(m)"
+              @close="handleModalClose"
+            />
+            <RowButtonDelete
+              id="'row-button-delete' + index"
+              tableName="VariableMappings"
+              :pkey="pkey(m)"
+              @close="handleModalClose"
+            />
+          </div>
         </td>
         <td v-if="m.toVariable">
           <RouterLink
@@ -144,15 +161,6 @@
         <td></td>
       </tr>
     </table>
-
-    <EditModal
-      v-if="isEditModalShown"
-      :isModalShown="true"
-      id="edit-variable-mapping-modal"
-      tableName="VariableMappings"
-      :pkey="editRowPrimaryKey"
-      @close="handleModalClose"
-    />
     <br />
 
     <!--{{ tablemapping }} -->
@@ -163,14 +171,22 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import { MessageError, RowButton, EditModal } from "molgenis-components";
+import {
+  MessageError,
+  RowButtonEdit,
+  RowButtonAdd,
+  RowButtonDelete,
+  EditModal,
+} from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
     EditModal,
     MessageError,
-    RowButton,
+    RowButtonEdit,
+    RowButtonAdd,
+    RowButtonDelete,
   },
   props: {
     fromPid: String,
@@ -185,7 +201,6 @@ export default {
       graphqlError: null,
       tablemapping: null,
       variablemappings: null,
-      isEditModalShown: false,
     };
   },
   computed: {
@@ -197,21 +212,41 @@ export default {
           .slice(0, -1);
       }
     },
+    defaultValueMapping() {
+      let fromDataDictionary = {
+        resource: { pid: this.fromPid },
+        version: this.fromVersion,
+      };
+      let toDataDictionary = {
+        resource: { pid: this.toPid },
+        version: this.toVersion,
+      };
+      return {
+        fromDataDictionary: fromDataDictionary,
+        fromTable: {
+          dataDictionary: fromDataDictionary,
+          name: this.fromTable,
+        },
+        toDataDictionary: toDataDictionary,
+        toTable: {
+          dataDictionary: toDataDictionary,
+          name: this.toTable,
+        },
+      };
+    },
   },
   methods: {
     ...mapActions(["reloadMetadata"]),
-    handleRowAction(mapping) {
-      this.editRowPrimaryKey = {
+    pkey(mapping) {
+      return {
         fromDataDictionary: mapping.fromDataDictionary,
         fromTable: mapping.fromTable,
         toDataDictionary: mapping.toDataDictionary,
         toTable: mapping.toTable,
         toVariable: mapping.toVariable,
       };
-      this.isEditModalShown = true;
     },
     handleModalClose() {
-      this.isEditModalShown = false;
       this.reload();
     },
     getType(mg_tableclass) {
