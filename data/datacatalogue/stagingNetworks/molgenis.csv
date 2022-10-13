@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.3
+Version,,,,,,,,,,,,2.8
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Models,Resources,,,,,,,,,,,Common Data Element models and Harmonization models
 Resources,,pid,,1,TRUE,,,,,,,Persistent identifier for this resource
@@ -20,21 +20,25 @@ CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCatego
 CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
 CollectionEvents,,standardizedTools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 CollectionEvents,,standardizedToolsOther,,,,,,,,,,"If 'other', please specify"
+CollectionEvents,,coreVariables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event
 CollectionEvents,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
 Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
 Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,,Subcohort description
 Subcohorts,,numberOfParticipants,int,,,,,,,,,Number of participants in this subcohort
+Subcohorts,,counts,refback,,,,SubcohortCounts,,subcohort,,,"Total number of unique individuals per age(group), gender and year"
 Subcohorts,,inclusionStart,int,,,,,,,,,Year of first included participant
 Subcohorts,,inclusionEnd,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
 Subcohorts,,ageGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups within this subcohort
 Subcohorts,,mainMedicalCondition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 classification"
+Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
 Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from
 Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from
 Subcohorts,,inclusionCriteria,text,,,,,,,,,Other inclusion criteria applied to this subcohort
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
+Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project"
 TargetDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for common data model
 TargetDataDictionaries,,resource,ref,1,TRUE,,Models,,,,,Link to the resource of which contents has been released
 TargetDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
@@ -79,3 +83,9 @@ TargetVariableValues,,label,,,TRUE,,,,,,,
 TargetVariableValues,,order,int,,,,,,,,,
 TargetVariableValues,,isMissing,bool,,,,,,,,,
 TargetVariableValues,,ontologyTermIRI,,,,,,,,,,reference to ontology term that defines this categorical value
+SubcohortCounts,,,,,,,,,,,,
+SubcohortCounts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
+SubcohortCounts,,ageGroup,ontology,1,TRUE,CatalogueOntologies,AgeGroups,,,,,
+SubcohortCounts,,N total,int,,,,,,,,,
+SubcohortCounts,,N female,int,,,,,,,,,
+SubcohortCounts,,N male,int,,,,,,,,,
