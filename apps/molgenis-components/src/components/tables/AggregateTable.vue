@@ -153,9 +153,9 @@ export default {
         this.graphQlEndpoint,
         this.getAggregateQuery
       ).catch((reason) => {
-        this.$emit('error', reason)
+        this.$emit("error", reason);
       });
-      
+
       responseData[this.tableName].forEach((item) => this.addItem(item));
       this.loading = false;
     },
@@ -170,35 +170,35 @@ export default {
 <template>
   <demo-item>
     <AggregateTable
-      :table="tableName"
-      :graphQlEndpoint="endpoint"
-      :columnHeaderProperties="selectableColumns"
-      :rowHeaderProperties="selectableColumns"
-      :selectedColumnHeaderProperty="columnName"
-      :columnHeaderNameProperty="columnNameProperty"
-      :selectedRowHeaderProperty="rowName"
-      :rowHeaderNameProperty="columnNameProperty"
-      :minimumValue="1"
+        :table="tableName"
+        :graphQlEndpoint="endpoint"
+        :columnHeaderProperties="selectableColumns"
+        :rowHeaderProperties="selectableColumns"
+        :selectedColumnHeaderProperty="columnName"
+        :columnHeaderNameProperty="columnNameProperty"
+        :selectedRowHeaderProperty="rowName"
+        :rowHeaderNameProperty="columnNameProperty"
+        :minimumValue="1"
     >
     </AggregateTable>
   </demo-item>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      selectableColumns: [
-        "category",
-        "tags"
-      ],
-      tableName: "Pet",
-      endpoint: "pet store/graphql",
-      columnName: "category",
-      rowName: "tags",
-      columnNameProperty: "name",
-    };
-  },
-};
+  export default {
+    data() {
+      return {
+        selectableColumns: [
+          'category',
+          'tags',
+        ],
+        tableName: 'Pet',
+        endpoint: '/pet store/graphql',
+        columnName: 'category',
+        rowName: 'tags',
+        columnNameProperty: 'name',
+      };
+    },
+  };
 </script>
 </docs>
