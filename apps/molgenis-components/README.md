@@ -36,3 +36,8 @@ This module helps developers create and share vue components for use with the mo
 - build and test your component
 - add a sample to your sfc by using the ```<docs></docs>``` tag
 - share component by adding it the lib/main.js export, and running the build
+
+
+# FAQ
+
+If there are no components showing on first install, remove the ```gen-docs``` folder
