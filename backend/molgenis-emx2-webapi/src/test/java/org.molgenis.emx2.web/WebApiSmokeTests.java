@@ -163,11 +163,11 @@ public class WebApiSmokeTests {
         "tableName,description,semantics\r\nTestMetaTable,,",
         "TestMetaTable,,,,,,,,,,,,,\r\n");
 
-    // restore to original state
+    // add values, but this time a string array for semantics
     addUpdateTableAndCompare(
         header,
-        "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+        "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
+        "TestMetaTable,,,,,,,,,,,,\"TestSem1,TestSem2\",TestDesc\r\n");
   }
 
   /**
