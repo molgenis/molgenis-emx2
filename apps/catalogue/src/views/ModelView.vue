@@ -22,33 +22,17 @@
 
 <script>
 import { request } from "graphql-request";
-import {
-  MessageError,
-  ReadMore,
-  InputSelect,
-  NavTabs,
-} from "@mswertz/emx2-styleguide";
-import HarmonisationList from "../components/HarmonisationList";
-import DatabankList from "../components/DatabankList";
-import NetworkList from "../components/NetworkList";
-import InstitutionList from "../components/InstitutionList";
-import PartnersList from "../components/PartnersList";
-import ResourceHeader from "../components/ResourceHeader";
-import ReleasesList from "../components/ReleasesList";
-import ResourceContext from "../components/ResourceContext";
+import { MessageError } from "molgenis-components";
+import DatabankList from "../components/DatabankList.vue";
+import NetworkList from "../components/NetworkList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import ResourceContext from "../components/ResourceContext.vue";
 
 export default {
   components: {
-    ReleasesList,
-    PartnersList,
-    InstitutionList,
     NetworkList,
     DatabankList,
-    HarmonisationList,
     MessageError,
-    ReadMore,
-    InputSelect,
-    NavTabs,
     ResourceHeader,
     ResourceContext,
   },

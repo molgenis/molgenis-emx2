@@ -51,20 +51,14 @@
 </template>
 
 <script>
-import { TableMixin } from "@mswertz/emx2-styleguide";
-
 import { request } from "graphql-request";
 
 import {
   PageHeader,
   GridBlock,
   KeyValueBlock,
-  ImageDisplay,
-  ContactDisplay,
   LinksList,
-  TableDisplay,
-  ImageCard,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   props: {

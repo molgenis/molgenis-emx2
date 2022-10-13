@@ -64,7 +64,7 @@
     <h6>Variables</h6>
     <TableExplorer
       v-if="tab == 'Variables'"
-      :table="
+      :tableName="
         tableName == 'SourceTables' ? 'SourceVariables' : 'TargetVariables'
       "
       :showHeader="false"
@@ -78,22 +78,19 @@
           resource: { pid: { equals: pid } },
         },
       }"
+      :canEdit="canEdit"
+      :canManage="canManage"
       @click="openVariable"
     />
   </div>
 </template>
 <script>
 import { request } from "graphql-request";
-import { MessageError, TableExplorer } from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import Property from "../components/Property";
-import OntologyTerms from "../components/OntologyTerms";
+import { TableExplorer, MessageError } from "molgenis-components";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
-    OntologyTerms,
-    VariablesList,
-    Property,
     MessageError,
     TableExplorer,
   },
@@ -111,6 +108,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["canEdit", "canManage"]),
     resourceType() {
       if (this.table.dataDictionary) {
         return this.table.dataDictionary.resource.mg_tableclass.split(".")[1];
@@ -127,6 +125,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["reloadMetadata"]),
     getType(mg_tableclass) {
       return mg_tableclass.split(".")[1];
     },
@@ -173,6 +172,7 @@ export default {
     },
   },
   created() {
+    this.reloadMetadata();
     this.reload();
   },
 };

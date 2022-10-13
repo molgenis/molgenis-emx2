@@ -26,26 +26,22 @@
   </div>
 </template>
 <script>
-import InstitutionList from "./InstitutionList";
-import ContactList from "./ContactList";
-import ReleasesList from "./ReleasesList";
-import DocumentationList from "./DocumentationList";
-import Conditions from "./Conditions";
-import PublicationList from "./PublicationList";
-import ContributorList from "./ContributorList";
-import NetworkList from "./NetworkList";
-import PartnersList from "./PartnersList";
-import ModelsList from "./ModelsList";
+import InstitutionList from "./InstitutionList.vue";
+import ContactList from "./ContactList.vue";
+import ReleasesList from "./ReleasesList.vue";
+import DocumentationList from "./DocumentationList.vue";
+import PublicationList from "./PublicationList.vue";
+import ContributorList from "./ContributorList.vue";
+import PartnersList from "./PartnersList.vue";
+import ModelsList from "./ModelsList.vue";
 
 export default {
   components: {
     PartnersList,
-    NetworkList,
     InstitutionList,
     ContactList,
     ReleasesList,
     DocumentationList,
-    Conditions,
     PublicationList,
     ContributorList,
     ModelsList,

@@ -142,6 +142,11 @@ public class SqlSchema implements Schema {
   }
 
   @Override
+  public Query groupBy(String tableName) {
+    return getTable(tableName).groupBy();
+  }
+
+  @Override
   public Query query(String field, SelectColumn... selection) {
     return new SqlQuery(this.getMetadata(), field, selection);
   }
@@ -253,7 +258,9 @@ public class SqlSchema implements Schema {
 
       // create table if not exists
       if (oldTable == null && !mergeTable.isDrop()) {
-        targetSchema.create(new TableMetadata(mergeTable.getTableName())); // only the name
+        targetSchema.create(
+            new TableMetadata(mergeTable.getTableName())
+                .setTableType(mergeTable.getTableType())); // only the name and type
       } else if (oldTable != null && !oldTable.getTableName().equals(mergeTable.getTableName())) {
         targetSchema.getMetadata().renameTable(oldTable, mergeTable.getTableName());
       }
@@ -283,8 +290,13 @@ public class SqlSchema implements Schema {
         if (!mergeTable.getSettings().isEmpty()) {
           oldTable.setSettings(mergeTable.getSettings());
         }
-        oldTable.setDescription(mergeTable.getDescription());
-        oldTable.setSemantics(mergeTable.getSemantics());
+        if (mergeTable.getDescription() != null) {
+          oldTable.setDescription(mergeTable.getDescription());
+        }
+        if (mergeTable.getSemantics() != null) {
+          oldTable.setSemantics(mergeTable.getSemantics());
+        }
+        // TableType is DATA by default and therefore never null
         oldTable.setTableType(mergeTable.getTableType());
         MetadataUtils.saveTableMetadata(targetSchema.getMetadata().getJooq(), oldTable);
 

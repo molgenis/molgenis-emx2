@@ -3,7 +3,6 @@
  */
 rootProject.name = 'emx2'
 include(':apps')
-include(':apps:styleguide')
 include(':apps:central')
 include(':apps:catalogue')
 include(':apps:settings')

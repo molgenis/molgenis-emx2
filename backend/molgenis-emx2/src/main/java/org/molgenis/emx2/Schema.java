@@ -27,6 +27,8 @@ public interface Schema {
 
   Query agg(String tableName);
 
+  Query groupBy(String tableName);
+
   Query query(String field, SelectColumn... selection);
 
   void migrate(SchemaMetadata from);

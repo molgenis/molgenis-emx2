@@ -13,11 +13,11 @@
 </template>
 
 <script>
-import { IconAction, InputCheckbox, Spinner } from "@mswertz/emx2-styleguide";
+import { IconAction, Spinner } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
-  components: { IconAction, InputCheckbox, Spinner },
+  components: { IconAction, Spinner },
   props: {
     value: Object,
   },

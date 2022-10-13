@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { InputCheckbox } from "@mswertz/emx2-styleguide";
+import { InputCheckbox } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {

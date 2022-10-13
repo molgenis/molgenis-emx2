@@ -125,7 +125,6 @@ public class Column implements Comparable<Column> {
     required = column.required;
     key = column.key;
     readonly = column.readonly;
-    description = column.description;
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
@@ -188,7 +187,7 @@ public class Column implements Comparable<Column> {
                 + getTableName()
                 + "."
                 + getName()
-                + "'");
+                + "'. Do you have access permissions?");
       }
     }
 

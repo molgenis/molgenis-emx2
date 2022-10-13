@@ -3,11 +3,12 @@
     <Molgenis
       v-model="session"
       :key="JSON.stringify(session)"
+      @error="handleError"
     >
-      <Spinner v-if="!session || !session.roles" />
-      <div v-else-if="!session.roles || !session.roles.includes('Viewer')">
-        <h1 class="text-centered">You have to login to view the data.</h1>
-      </div>
+      <Spinner v-if="!error && !session" />
+      <MessageWarning v-else-if="error && !session.roles">{{
+        error
+      }}</MessageWarning>
       <div v-else class="container-fluid">
         <RouterView />
       </div>
@@ -16,17 +17,27 @@
 </template>
 
 <script>
-import { Molgenis, Spinner } from "@mswertz/emx2-styleguide";
+import { Molgenis, Spinner, MessageWarning } from "molgenis-components";
 
 export default {
   components: {
     Molgenis,
     Spinner,
+    MessageWarning,
   },
   data() {
     return {
       session: {},
+      error: null,
     };
+  },
+  methods: {
+    handleError(error) {
+      this.error =
+        typeof error === "string"
+          ? error
+          : "An error occurred while trying to load the session data";
+    },
   },
 };
 </script>

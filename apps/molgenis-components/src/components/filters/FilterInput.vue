@@ -87,13 +87,6 @@ export default {
       type: Array,
       required: true,
     },
-    name: {
-      type: String,
-      required: false,
-      default: function () {
-        return this.id;
-      },
-    },
     tableName: {
       type: String,
       required: false,

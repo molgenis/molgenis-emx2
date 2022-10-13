@@ -1,9 +1,39 @@
 import { request, gql } from "graphql-request";
-import schema from "./query/schema.gql";
-import mappings from "./query/mappings.gql";
+import schema from "./query/schema.js";
+import mappings from "./query/mappings.js";
 import { fetchResources } from "./repository/resourceRepository";
 
 export default {
+  reloadMetadata({ state }) {
+    state.isLoading = true;
+    state.graphqlError = null;
+    request(
+      state.graphqlURL,
+      `{
+          _session { email,roles } _schema {
+            name, tables {
+              name, tableType, id, description, externalSchema, semantics, columns {
+                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
+                semantics, description, position, validation, visible
+              } settings { key, value }
+            }
+          }
+        }`
+    )
+      .then((data) => {
+        state.session = data._session;
+        state.schema = data._schema;
+        state.isLoading = false;
+      })
+      .catch((error) => {
+        if (Array.isArray(error.response.errors)) {
+          state.graphqlError = error.response.errors[0].message;
+        } else {
+          state.graphqlError = error;
+        }
+        state.isLoading = false;
+      });
+  },
   fetchSchema: async ({ state, commit }) => {
     const resp = await request("graphql", schema).catch((e) => {
       console.error(e);

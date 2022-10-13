@@ -25,23 +25,13 @@ subprojects {
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         node { with nodeSpec }
-        // force build order: molgenis-components > styleguide > ...apps
-        if (project.name != 'styleguide' && project.name != 'molgenis-components') {
-            dependsOn ":apps:styleguide:build"
+        // force build order: molgenis-components > ...apps
+        if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
         }
 
         // set input out out put for each app type
-        if (project.name == 'styleguide') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('tests'))
-            inputs.files(fileTree('public'))
-            inputs.file('styleguide.config.js')
-            inputs.file('vue.config.js')
-            outputs.dir('build')
-            outputs.dir('dist')
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -64,10 +54,11 @@ subprojects {
             outputs.dir('.nuxt')
         } else {
             inputs.file('package.json')
-            inputs.file('vue.config.js')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
-            inputs.files(fileTree('tests'))
+            inputs.files(fileTree('assets'))
+            inputs.file('vite.config.js')
+            inputs.file('index.html')
             outputs.dir('dist')
         }
 
@@ -76,20 +67,6 @@ subprojects {
         args = ['run', 'build']
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-    }
-
-    if (project.name == 'styleguide') {
-        task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.file('package.json')
-            inputs.file('styleguide.config.js')
-            inputs.file('vue.config.js')
-            outputs.dir('build')
-            outputs.cacheIf { true }
-            args = ['run', 'styleguide:build']
-        }
     }
 
     if (project.name == 'molgenis-components') {
@@ -115,17 +92,12 @@ subprojects {
     }
 
     task copyDistFiles(type: Copy) {
-        if (project.name == 'styleguide') {
-            dependsOn buildStyleguidist
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             dependsOn buildComponentsShowcase
         } else {
             dependsOn build
         }
-        if (project.name == 'styleguide') {
-            from "build"
-            inputs.dir("build")
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
         } else {

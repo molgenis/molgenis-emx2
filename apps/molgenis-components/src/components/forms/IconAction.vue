@@ -6,19 +6,26 @@
     <span v-if="label" class="mr-2">
       {{ label }}
     </span>
-    <i :class="'fas fa-fw fa-' + icon" />
+    <Tooltip :value="tooltip">
+      <i :class="'fas fa-fw fa-' + icon" />
+    </Tooltip>
   </button>
 </template>
 
 <script>
 import ButtonAction from "./ButtonAction.vue";
+import Tooltip from "./Tooltip.vue";
 
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
   extends: ButtonAction,
+  components: {
+    Tooltip,
+  },
   props: {
     label: String,
     icon: String,
+    tooltip: String,
   },
 };
 </script>
@@ -42,6 +49,10 @@ export default {
     <label>snowflake</label>
     <demo-item>
       <icon-action icon="snowflake" @click="alert('clicked')"></icon-action>
+    </demo-item>
+    <label>withToolTip</label>
+    <demo-item>
+      <icon-action icon="snowflake" @click="alert('clicked')" tooltip="this is a snowflake"></icon-action>
     </demo-item>
   </div>
 </template>

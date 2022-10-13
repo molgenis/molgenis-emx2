@@ -5,7 +5,7 @@ let queryCache = {};
 const fetchById = async (query, type, variables) => {
   const dataKey = JSON.stringify(variables);
   if (!queryCache[query]) {
-    queryCache[query] = await import(`../query/${query}`).catch(() => {
+    queryCache[query] = await import(`../query/${query}.js`).catch(() => {
       console.error("failed to load query");
       return null;
     });

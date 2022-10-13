@@ -19,6 +19,9 @@ public class Measures {
   private ObservationMoment observationMoment;
 
   public static Measures[] get(Object measures) {
+    if (measures == null) {
+      return null;
+    }
     List<Map<String, Object>> measuresCast = (List<Map<String, Object>>) measures;
     Measures[] result = new Measures[measuresCast.size()];
     for (int i = 0; i < measuresCast.size(); i++) {

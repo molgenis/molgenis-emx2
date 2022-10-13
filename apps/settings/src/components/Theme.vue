@@ -7,7 +7,7 @@
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <label>Choose primary color</label><br />
       <v-swatches class="mb-2" v-model="primaryColor" show-fallback />
-      <InputString label="Set logo url" v-model="logoURL" />
+      <InputString id="theme-url-input" label="Set logo url" v-model="logoURL" />
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
       <a :href="this.session.settings.cssURL">view theme css</a>
@@ -21,7 +21,7 @@ import {
   InputString,
   MessageError,
   MessageSuccess,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import VSwatches from "vue-swatches";
 import { request } from "graphql-request";
 import "vue-swatches/dist/vue-swatches.css";

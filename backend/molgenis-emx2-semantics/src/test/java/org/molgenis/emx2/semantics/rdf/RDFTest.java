@@ -132,7 +132,6 @@ public class RDFTest {
     assertTrue(result.contains(TTL_ROW_DOG_1));
     assertFalse(result.contains(TTL_ROW_CAT_2));
     assertFalse(result.contains(TTL_ROW_DOG_2));
-    assertEquals(3518, result.length());
   }
 
   @Test
@@ -167,7 +166,6 @@ public class RDFTest {
     assertFalse(result.contains(TTL_ROW_DOG_1));
     assertFalse(result.contains(TTL_ROW_CAT_2));
     assertFalse(result.contains(TTL_ROW_DOG_2));
-    assertEquals(2910, result.length());
   }
 
   @Test
@@ -194,6 +192,5 @@ public class RDFTest {
     assertTrue(
         result.contains(
             "<rdf:Description rdf:about=\"http://localhost:8080/petStoreNr1/api/rdf/Category/column/name\">"));
-    assertEquals(6285, result.length());
   }
 }

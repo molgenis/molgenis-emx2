@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "dependencies": {
     "molgenis-components": "*",
@@ -15,6 +15,11 @@
     "vue-router": "3.6.5",
     "vue-swatches": "2.1.1",
     "vuedraggable": "2.24.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "3.1.2",
+    "vite": "3.1.8",
+    "vite-plugin-vue2": "2.0.2"
   },
   "browserslist": [
     "> 1%",

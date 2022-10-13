@@ -34,6 +34,12 @@
       "matchPackagePrefixes": [
         "org.apache.logging.log4j"
       ]
+    },
+    {
+      "groupName": "org.graalvm.js",
+      "matchPackagePrefixes": [
+        "org.graalvm.js"
+      ]
     }
   ]
 }

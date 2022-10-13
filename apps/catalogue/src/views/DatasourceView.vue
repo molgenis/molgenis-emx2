@@ -39,31 +39,20 @@
 import { request } from "graphql-request";
 import {
   MessageError,
-  ReadMore,
-  InputSelect,
-  NavTabs,
-} from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import DatabankList from "../components/DatabankList";
-import InstitutionList from "../components/InstitutionList";
-import ResourceHeader from "../components/ResourceHeader";
-import NetworkList from "../components/NetworkList";
-import OntologyTerms from "../components/OntologyTerms";
-import ResourceContext from "../components/ResourceContext";
+} from "molgenis-components";
+import DatabankList from "../components/DatabankList.vue";
+import InstitutionList from "../components/InstitutionList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import OntologyTerms from "../components/OntologyTerms.vue";
+
 
 export default {
   components: {
-    ResourceContext,
     OntologyTerms,
     ResourceHeader,
     MessageError,
-    ReadMore,
-    VariablesList,
-    InputSelect,
-    NavTabs,
     DatabankList,
     InstitutionList,
-    NetworkList,
   },
   props: {
     pid: String,
