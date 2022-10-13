@@ -12,14 +12,15 @@
       @confirmed="handleExecuteDelete"
     />
   </div>
-</template> 
+</template>
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import Client from "../../client/client.js";
+
 export default {
-  name: "RowDeleteButton",
+  name: "RowButtonDelete",
   components: { RowButton, ConfirmModal },
   props: {
     id: {
@@ -74,37 +75,37 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-delete-btn-sample">Row delete button with delete handler included</label>
     <div>
-      <label for="row-delete-btn-sample">Row delete button with delete handler included</label>
-      <div>
-        <RowDeleteButton 
-          id="row-delete-btn-sample" 
+      <RowButtonDelete
+          id="row-delete-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
           @error="handleError"
           @success="handleSuccess"
-        />
-      </div>
-      <div v-if="error">
-        <p class="text-danger">
-        {{ error.errorMessage }}
-        </p>
-     </div>
-      <div v-if="success">
-        <p class="text-success">Success: delete {{ success.deletedKey }} from {{ success.deletedKey }}</p>
-      </div>
-      <button v-if="error || success" class="btn btn-secondary" @click="">clear</button>
+      />
     </div>
-  </template>
-  <script>
+    <div v-if="error">
+      <p class="text-danger">
+        {{ error.errorMessage }}
+      </p>
+    </div>
+    <div v-if="success">
+      <p class="text-success">Success: delete {{ success.deletedKey }} from {{ success.deletedKey }}</p>
+    </div>
+    <button v-if="error || success" class="btn btn-secondary" @click="">clear</button>
+  </div>
+</template>
+<script>
   export default {
-    data () {
-    return {
+    data() {
+      return {
         error: null,
-        success: null
-      }
+        success: null,
+      };
     },
     methods: {
       handleError(error) {
@@ -114,10 +115,10 @@ export default {
         this.success = success;
       },
       handleClear() {
-        
-      }
-    }
-  }
 
-  </script>
+      },
+    },
+  };
+
+</script>
 </docs>

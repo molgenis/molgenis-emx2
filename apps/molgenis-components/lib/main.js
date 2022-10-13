@@ -95,6 +95,11 @@ import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vu
 import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
+import RowButtonAdd from "../src/components/tables/RowButtonAdd.vue";
+import RowButtonClone from "../src/components/tables/RowButtonClone.vue";
+import RowButtonDelete from "../src/components/tables/RowButtonDelete.vue";
+import RowButtonEdit from "../src/components/tables/RowButtonEdit.vue";
+
 import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
@@ -118,12 +123,6 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
 import { deepClone } from "../src/components/utils";
-
-//organisms
-import RowAddButton from "../src/components/organisms/RowAddButton.vue";
-import RowCloneButton from "../src/components/organisms/RowCloneButton.vue";
-import RowDeleteButton from "../src/components/organisms/RowDeleteButton.vue";
-import RowEditButton from "../src/components/organisms/RowEditButton.vue";
 
 export {
   ContactDisplay,
@@ -192,11 +191,11 @@ export {
   MessageError,
   MessageSuccess,
   ResizableTextarea,
-  RowAddButton,
-  RowCloneButton,
-  RowDeleteButton,
+  RowButtonAdd,
+  RowButtonClone,
+  RowButtonDelete,
   RowEdit,
-  RowEditButton,
+  RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
   LayoutCard,

@@ -1,23 +1,22 @@
 <template>
   <div>
-    <RowButton type="clone" @clone="isModalShown = true" />
+    <RowButton type="add" @add="isModalShown = true" />
     <EditModal
-      :id="id + 'edit-modal'"
+      :id="id + 'add-modal'"
       :tableName="tableName"
-      :pkey="pkey"
-      :clone="true"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
       @close="isModalShown = false"
     />
   </div>
-</template> 
+</template>
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
 import EditModal from "../forms/EditModal.vue";
+
 export default {
-  name: "RowCloneButton",
+  name: "RowButtonAdd",
   components: { RowButton, EditModal },
   props: {
     id: {
@@ -26,10 +25,6 @@ export default {
     },
     tableName: {
       type: String,
-      required: true,
-    },
-    pkey: {
-      type: Object,
       required: true,
     },
     graphqlURL: {
@@ -47,17 +42,16 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
     <div>
-      <label for="row-clone-btn-sample">composition of RowButton and EditModal configured for row clone</label>
-      <div>
-        <RowCloneButton 
-          id="row-clone-btn-sample" 
+      <RowButtonAdd
+          id="row-add-btn-sample"
           tableName="Pet"
-          :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
-        />
-      </div>
+      />
     </div>
-  </template>
+  </div>
+</template>
 </docs>
