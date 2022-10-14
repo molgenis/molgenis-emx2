@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -86,7 +85,6 @@ public class FAIRDataPointTest {
   }
 
   @Test
-  @Ignore("unstable array order, needs fix or rewrite")
   public void FDPDataset() throws Exception {
     Request request = mock(Request.class);
     when(request.url())
@@ -97,67 +95,25 @@ public class FAIRDataPointTest {
     fairDataPointDataset.setIssued("2022-09-19T11:57:06");
     fairDataPointDataset.setModified("2022-09-19T11:57:07");
     String result = fairDataPointDataset.getResult();
-    assertEquals(
-        """
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-            @prefix dcterms: <http://purl.org/dc/terms/> .
-            @prefix ldp: <http://www.w3.org/ns/ldp#> .
-            @prefix dcat: <http://www.w3.org/ns/dcat#> .
-            @prefix lang: <http://lexvo.org/id/iso639-3/> .
-            @prefix odrl: <http://www.w3.org/ns/odrl/2/> .
-            @prefix prov: <http://www.w3.org/ns/prov#> .
-
-            <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01> a dcat:Dataset;
-              dcat:distribution <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/graphql>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-jsonld>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-n3>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-nquads>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ntriples>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-trig>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ttl>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-xml>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip>;
-              dcterms:accrualPeriodicity "datasetAccrualPeriodicity01";
-              dcterms:spatial <https://www.iso.org/obp/ui/#iso:code:3166:FR>, <https://www.iso.org/obp/ui/#iso:code:3166:ES>;
-              dcat:spatialResolutionInMeters 1.0E1;
-              dcterms:temporal "datasetTemporal01";
-              dcat:temporalResolution "datasetTemporalResolution01";
-              prov:wasGeneratedBy "datasetWasGeneratedBy01";
-              dcterms:accessRights "datasetAccessRights01";
-              dcat:contactPoint "datasetContactPoint01";
-              dcterms:creator "datasetCreator01";
-              dcterms:description "datasetDescription01";
-              odrl:hasPolicy "datasetDescription01";
-              dcterms:identifier "datasetId01";
-              dcterms:isReferencedBy "datasetIsReferencedBy01";
-              dcat:keyword "datasetKeyword01";
-              dcat:landingPage "datasetLandingPage01";
-              dcterms:license "datasetLicense01";
-              dcterms:language lang:eng, lang:nld;
-              dcterms:relation "datasetRelation01";
-              dcterms:rights "datasetRights01";
-              dcat:qualifiedRelation "datasetQualifiedRelation01";
-              dcterms:publisher "datasetPublisher01";
-              dcterms:issued "2022-09-19T11:57:06"^^xsd:dateTime;
-              dcat:theme <http://edamontology.org/topic_3325>, <http://purl.obolibrary.org/obo/NCIT_C16960>;
-              dcterms:title "datasetTitle01";
-              dcterms:type "datasetType01";
-              dcterms:modified "2022-09-19T11:57:07"^^xsd:dateTime;
-              prov:qualifiedAttribution "datasetQualifiedAttribution01" .
-
-            <http://localhost:8080/api/fdp/distribution> a ldp:DirectContainer;
-              dcterms:title "Distributions";
-              ldp:membershipResource <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01>;
-              ldp:hasMemberRelation dcat:Distribution;
-              ldp:contains <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/csv>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/excel>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/graphql>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-jsonld>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-n3>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-nquads>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ntriples>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-trig>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ttl>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-xml>, <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl>,
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/zip> .
-                """,
-        result);
+    assertTrue(
+        result.contains(
+            "http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01> a dcat:Dataset"));
+    assertTrue(
+        result.contains(
+            "http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/graphql"));
+    assertTrue(
+        result.contains(
+            "http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/rdf-ntriples"));
+    assertTrue(result.contains("dcterms:issued \"2022-09-19T11:57:06\"^^xsd:dateTime"));
+    assertTrue(result.contains("https://www.iso.org/obp/ui/#iso:code:3166:FR"));
+    assertTrue(result.contains("dcat:spatialResolutionInMeters 1.0E1"));
+    assertTrue(result.contains("http://edamontology.org/topic_3325"));
+    assertTrue(
+        result.contains("http://localhost:8080/api/fdp/distribution> a ldp:DirectContainer"));
+    assertTrue(result.contains("ldp:contains"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/jsonld>"));
   }
 
   @Test

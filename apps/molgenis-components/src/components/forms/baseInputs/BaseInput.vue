@@ -17,9 +17,6 @@ export default {
     name: {
       type: String,
       required: false,
-      default: function () {
-        return this.id;
-      },
     },
     value: {
       type: [String, Number, Object, Array, Boolean],

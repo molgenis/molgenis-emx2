@@ -12,6 +12,9 @@ spec:
       tty: true
       resources:
         requests:
+          cpu: 1
+          memory: 1Gi
+        limits:
           cpu: 2
           memory: 2Gi
     - name: postgres
@@ -21,6 +24,9 @@ spec:
       tty: true
       resources:
         requests:
+          cpu: 1
+          memory: 1Gi
+        limits:
           cpu: 1
           memory: 1Gi
       env:

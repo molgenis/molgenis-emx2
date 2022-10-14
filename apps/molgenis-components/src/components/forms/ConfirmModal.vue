@@ -65,10 +65,7 @@ export default {
   computed: {
     pkeyAsString() {
       return this.flattenObject(this.pkey);
-    },
-    tableId() {
-      return this.table.replaceAll(" ", "_");
-    },
+    }
   },
 };
 </script>

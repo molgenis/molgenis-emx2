@@ -52,31 +52,13 @@ subprojects {
             inputs.files(fileTree('store'))
             inputs.file('nuxt.config.js')
             outputs.dir('.nuxt')
-        } else if (
-            project.name == 'central' ||
-            project.name == 'tables' ||
-            project.name == 'schema' ||
-            project.name == 'catalogue' ||
-            project.name == 'settings' ||
-            project.name == 'helloworld' ||
-            project.name == 'updownload' ||
-            project.name == 'gendecs' ||
-            project.name == 'pages' ||
-            project.name == 'graphql-playground'
-        ) {
+        } else {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
             inputs.files(fileTree('assets'))
             inputs.file('vite.config.js')
             inputs.file('index.html')
-            outputs.dir('dist')
-        } else {
-            inputs.file('package.json')
-            inputs.file('vue.config.js')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('tests'))
             outputs.dir('dist')
         }
 
