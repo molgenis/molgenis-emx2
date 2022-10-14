@@ -92,10 +92,7 @@ subprojects {
                 args = ['run', 'build-showcase']
             }
         }
-    }
-
-    task test(type: YarnTask) {
-        if (project.name == 'molgenis-components') {
+        task test(type: YarnTask) {
             args = ['run', 'test-ci']
         }
     }
