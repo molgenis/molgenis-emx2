@@ -7,7 +7,12 @@ console.log(error);
 
 <template>
   <div>
-    <h1>Hello catalogue</h1>
-    <div>{{ data }}</div>
+    <h1 class="font-semibold">Schemas:</h1>
+    <ul v-if="data.Schemas" class="pl-6">
+      <li v-for="schema in data.Schemas" :key="schema.name">
+        {{ schema.name }}
+      </li>
+    </ul>
+    <div v-if="error">{{ error }}</div>
   </div>
 </template>
