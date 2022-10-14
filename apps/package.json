@@ -1,4 +1,5 @@
 {
+  "name": "emx-ui",
   "private": true,
   "workspaces": [
     "catalogue",
@@ -14,5 +15,9 @@
     "helloworld",
     "gendecs"
    ],
-  "nohoist": ["**/**/**"]
+  "devDependencies": {
+    "@vitejs/plugin-vue": "3.1.2",
+    "vite": "3.1.8",
+    "vite-plugin-vue2": "2.0.2"
+  }
 }
