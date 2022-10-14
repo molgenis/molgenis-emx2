@@ -64,11 +64,11 @@ public class Row {
     return TypeUtils.toUuidArray(values.get(name));
   }
 
-  public String getString(String name) {
+  public String getString(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty string allows updating to an empty
       // value in the database (returning null will result in no update being performed)
-      if (values.containsKey(name)) {
+      if (!emptyAsNull && values.containsKey(name)) {
         return "";
       }
       return null;
@@ -76,11 +76,19 @@ public class Row {
     return TypeUtils.toString(values.get(name));
   }
 
+  public String getString(String name) {
+    return getString(name, true);
+  }
+
   public String[] getStringArray(String name) {
+    return getStringArray(name, true);
+  }
+
+  public String[] getStringArray(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty array allows updating to an empty
       // value in the database  (returning null will result in no update being performed)
-      if (values.containsKey(name)) {
+      if (!emptyAsNull && values.containsKey(name)) {
         return new String[0];
       }
       return null;

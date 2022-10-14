@@ -52,10 +52,10 @@ public class Emx2 {
 
       // load table metadata, this is when columnName is empty
       if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION));
+        schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION, false));
         schema.getTableMetadata(tableName).setInherit(r.getString(TABLE_EXTENDS));
         schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
-        schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS));
+        schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
         if (r.getString(TABLE_TYPE) != null) {
           schema
               .getTableMetadata(tableName)
