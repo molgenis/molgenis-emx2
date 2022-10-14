@@ -5,26 +5,36 @@ plugins {
     id "com.github.node-gradle.node" version "3.3.0"
 }
 
-def nodeSpec = {
-    version = '16.16.0'
-    yarnVersion = '1.22.19'
-    npmVersion = "8.17.0"
-    download = true
-}
-
+//'apps' project will take care to install yarn, npm
+def yarnVersion = '1.22.19'
+def nodeVersion = '16.16.0'
+def npmVersion = '8.17.0'
 node {
-    with nodeSpec
+    version = nodeVersion
+    yarnVersion = yarnVersion
+    npmVersion = npmVersion
+    download = true
 }
 
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
-    yarnSetup.dependsOn parent.yarnSetup
-    npmSetup.dependsOn parent.npmSetup
-    nodeSetup.dependsOn parent.nodeSetup
+    //subprojects will reuse the yarn installed in parent task
+    node {
+        version = nodeVersion
+        yarnVersion = yarnVersion
+        npmVersion = npmVersion
+        download = false
+        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+        yarnWorkDir = file("${parent.projectDir}/.gradle/yarn")
+    }
+
+    //disable yarn_install, only parent should run install in yarn workspaces
+    yarnSetup.enabled = false;
+    yarn_install.enabled = false;
+
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
-        node { with nodeSpec }
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
@@ -71,7 +81,6 @@ subprojects {
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
