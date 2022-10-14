@@ -13,6 +13,5 @@
     "molgenis-components",
     "helloworld",
     "gendecs"
-   ],
-  "nohoist": ["**/**/**"]
+   ]
 }
