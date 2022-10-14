@@ -31,7 +31,9 @@ subprojects {
 
     //disable yarn_install, only parent should run install in yarn workspaces
     yarn_install.enabled = false;
-    yarnSetup.dependsOn = parent.yarnSetup
+    yarnSetup {
+        dependsOn parent.yarnSetup
+    }
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
         // force build order: molgenis-components > ...apps
