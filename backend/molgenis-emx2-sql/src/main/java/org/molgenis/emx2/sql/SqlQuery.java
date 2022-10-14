@@ -670,9 +670,9 @@ public class SqlQuery extends QueryBean {
             table.getPrimaryKeyFields().stream()
                 .map(f -> f.as(name("pkey_" + f.getName())))
                 .collect(Collectors.toList()));
+        selectFields.add(c.getJooqField());
         // in case of 'ref' we subselect
         if (c.isRef()) {
-          selectFields.add(field(name(c.getName())));
           subselectFields.add(
               jsonSubselect(
                       (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0])
@@ -680,8 +680,6 @@ public class SqlQuery extends QueryBean {
         }
         // in case of ref_array we must unnest the values
         else if (c.isRefArray()) {
-          // only divergent selectField
-          selectFields.add(field(name(c.getName())));
           subselectFields.add(
               // coalesce to also return the nulls
               field(
@@ -700,10 +698,8 @@ public class SqlQuery extends QueryBean {
         // date)
         // if array we unnest
         else if (c.getColumnType().isArray()) {
-          selectFields.add(c.getJooqField());
           subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
         } else {
-          selectFields.add(c.getJooqField());
           subselectFields.add(c.getJooqField());
         }
         if (condition != null) {
