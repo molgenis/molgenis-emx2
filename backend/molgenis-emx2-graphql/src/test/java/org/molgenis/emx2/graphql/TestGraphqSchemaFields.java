@@ -314,7 +314,7 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
     // 1 with no tags
     TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
-    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+    TestCase.assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
 
     result = execute("{Pet_groupBy{count,category{name}}}");
     TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
