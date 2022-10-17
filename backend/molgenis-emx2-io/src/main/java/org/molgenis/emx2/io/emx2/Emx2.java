@@ -161,8 +161,8 @@ public class Emx2 {
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
-      row.setStringArray(SEMANTICS, t.getSemantics());
-      row.setString(DESCRIPTION, t.getDescription());
+      if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
+      if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
     }
 
