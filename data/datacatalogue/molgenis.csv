@@ -39,7 +39,7 @@ Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which
 Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource"
 DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Resources,,website,,,,,,,,,,Link to the website or homepage
-Resources,,leadInstitution,ref,,,,Institutions,,,,,Name of lead institution that conducted the study
+Resources,,leadInstitution,ref,,,,Institutions,,,,,Name of lead institution for this resource
 Resources,,description,text,,,,,,,,,Short description
 Studies,,studyStatus,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
 Models,,releaseFrequency,int,,,,,,,,,Refreshing rate (in months)
@@ -158,7 +158,7 @@ Databanks,,qualityValidationResults,,,,,,,,,,"If available, provide a link to a 
 DataResources,,otherInformation,heading,,,,,,,,,Other information
 DataResources,,designPaper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
 Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-RWEresources,,fundingSources,ontology_array,,,,FundingTypes,,,,,Statement listing funding that was obtained for this resource
+RWEresources,,fundingSources,ontology_array,,,CatalogueOntologies,FundingTypes,,,,,Statement listing funding that was obtained for this resource
 Studies,,fundingScheme,ontology_array,,,CatalogueOntologies,StudyFunding,,,,,The source of funding for the study. Select all that apply.
 Resources,,fundingStatement,text,,,,,,,,,Statement listing funding that was obtained for this resource
 Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
@@ -231,7 +231,7 @@ DatasourceDatabanks,,linkageVariableUnique,bool,,,,,,,,,"If a single variable is
 DatasourceDatabanks,,linkageCompleteness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).
 QuantitativeInformation,,,,,,,,,,,,Quantitative information on the resource
 QuantitativeInformation,,resource,ref,1,,,Resources,,,,,
-QuantitativeInformation,,ageGroup,ref,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information
+QuantitativeInformation,,ageGroup,ontology,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information
 QuantitativeInformation,,populationSize,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,activeSize,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
 QuantitativeInformation,,noIndividualsWithSamples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year "
@@ -279,7 +279,7 @@ Networks,,cohorts,ref_array,,,,Cohorts,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
 Networks,,studies,refback,,,,Studies,,networks,,,
 Studies,,requiredByRegulator,bool,,,,,,,,,Was the study requested by a regulatory body?
-Studies,,requiredByRMP,ontology,,,,RMPRequirements,,,,,Was the study required by a Risk Management Plan (RMP)?
+Studies,,requiredByRMP,ontology,,,CatalogueOntologies,RMPRequirements,,,,,Was the study required by a Risk Management Plan (RMP)?
 Studies,,regulatoryProcedureNumber,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only"
 Studies,,dateOfSiginingFundingContractPlanned,date,,,,,,,,,"Date when funding contract was signed, planned"
 Studies,,dateOfSiginingFundingContractActual,date,,,,,,,,,"Date when funding contract was signed, actual"
@@ -299,11 +299,11 @@ Studies,,studyFeatures,ontology_array,,,CatalogueOntologies,StudyFeatures,,,,,Da
 Studies,,dataCharacterisationDetails,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
 Studies,,dataSourceTypes,ontology_array,,,CatalogueOntologies,StudyDatasourceTypes,,,,,Types of data sources used
 Studies,,dataSourceTypesOther,text,,,,,,,,,"Sources of data, if other"
-Studies,,qualityMarks,ontology_array,,,,StudyQualityMarks,,,,,"Quality marks, such as ENCePP seal"
-Studies,,medicinesStudiedCodes,ontology_array,,,,MedicineCodes,,,,,Codes of medicines studied
+Studies,,qualityMarks,ontology_array,,,CatalogueOntologies,StudyQualityMarks,,,,,"Quality marks, such as ENCePP seal"
+Studies,,medicinesStudiedCodes,ontology_array,,,CatalogueOntologies,MedicineCodes,,,,,Codes of medicines studied
 Studies,,medicinesStudiedBrands,text,,,,,,,,,Brand names of medicines studied
-Studies,,medicalConditionsStudied,ontology_array,,,,MedicalConditions,,,,,Codes of the medical conditions studied
-Studies,,medicalConditionsStudiedOther,text,,,,MedicalConditions,,,,,Codes of the medical conditions studied
+Studies,,medicalConditionsStudied,ontology_array,,,CatalogueOntologies,MedicalConditions,,,,,Codes of the medical conditions studied
+Studies,,medicalConditionsStudiedOther,text,,,,,,,,,Codes of the medical conditions studied
 Studies,,dateCollectionEndPlanned,date,,,,,,,,,The date of the end of the data collection for the study- planned
 Studies,,dateCollectionEndActual,date,,,,,,,,,"Data collection end, actual"
 Studies,,dataExtractionDate,date,,,,,,,,,Date on which the study data was extracted
@@ -321,8 +321,8 @@ Studies,,studyDesign,text,,,,,,,,,A brief summary of the study design
 Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract)
 Studies,,topic,ontology,,,CatalogueOntologies,StudyTopics,,,,,An initial classification of the study purpose
 Studies,,topicOther,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details."
-Studies,,trialRegulatoryScope,ontology_array,,,,StudyTrialRegulatoryScopes,,,,,"If the study is not concerning any of the proposed categories, please specify the details."
-Studies,,studyDesignClassification,ontology,,,CatalogueOntologies,StudyDesignClassification,,,,,Classification of the clinical trial in relation to the medicines authorisation
+Studies,,trialRegulatoryScope,ontology_array,,,CatalogueOntologies,StudyTrialRegulatoryScopes,,,,,Classification of the clinical trial in relation to the medicines authorisation
+Studies,,studyDesignClassification,ontology,,,CatalogueOntologies,StudyDesignClassification,,,,,If Study type: clinical trials. Select one of the following
 Studies,,studyDesignClassificationOther,text,,,,,,,,,Further details on design
 Studies,,studyScope,ontology_array,,,CatalogueOntologies,StudyScopes,,,,,Scope of the study
 Studies,,studyScopeOther,text,,,,,,,,,If scope 'other'
@@ -345,7 +345,7 @@ SourceDataDictionaries,,description,text,,,,,,,,,notes specific to this data dic
 DataDictionaryMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 DataDictionaryMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 DataDictionaryMappings,,toDataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-DataDictionaryMappings,,mappingStatus,ontology,,,,MappingStatus,,,,,Has the data been ETL-ed to a common data model?
+DataDictionaryMappings,,mappingStatus,ontology,,,CatalogueOntologies,MappingStatus,,,,,Has the data been ETL-ed to a common data model?
 DataDictionaryMappings,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months"
 AllSourceVariables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
 AllSourceVariables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
