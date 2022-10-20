@@ -65,7 +65,7 @@ pipeline {
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
                         env.TAG_NAME = props.tagName
-                        sh "./gradlew helmLintMainChart --info"
+                        sh "./gradlew --no-daemon helmLintMainChart --info"
                     }
                 }
                 container('rancher') {
