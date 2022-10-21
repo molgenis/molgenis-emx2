@@ -88,7 +88,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES);
     if (init) {
       try {
-        // elevate privileges for init
+        // elevate privileges for init (prevent reload)
         this.connectionProvider.setActiveUser(ADMIN_USER);
         this.init();
       } finally {

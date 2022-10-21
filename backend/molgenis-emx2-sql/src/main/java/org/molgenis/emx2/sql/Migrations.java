@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 6;
+  private static final int SOFTWARE_DATABASE_VERSION = 7;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -69,8 +69,8 @@ public class Migrations {
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.
-          if (version < 5)
-            executeMigration5(
+          if (version < 7)
+            executeMigration7(
                 (SqlDatabase) tdb,
                 "refactor settings, rename molgenis_version table to database_metadata");
 
@@ -79,7 +79,7 @@ public class Migrations {
         });
   }
 
-  private static void executeMigration5(SqlDatabase tdb, String message) {
+  private static void executeMigration7(SqlDatabase tdb, String message) {
     DSLContext jooq = tdb.getJooq();
     // rename table
     jooq.alterTableIfExists(table(name(MOLGENIS, "version_metadata")))
@@ -93,6 +93,7 @@ public class Migrations {
     jooq.alterTableIfExists(table(name(MOLGENIS, "schema_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "table_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "users_metadata"))).addColumn(SETTINGS).execute();
+    //todo: do we also want column settings?
 
     // copy settings table into schema and table respectively
     Result<Record> previousSettings =
