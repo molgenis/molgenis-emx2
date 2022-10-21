@@ -248,11 +248,3 @@ export default {
   },
 };
 </script>
-
-<docs>
-Example
-```
-<Import schema="pet store"/>
-
-```
-</docs>

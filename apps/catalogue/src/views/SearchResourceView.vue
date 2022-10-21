@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import SearchResource from "../components/SearchResource";
+import SearchResource from "../components/SearchResource.vue";
 
 export default {
   name: "SearchResourceView",

@@ -21,9 +21,9 @@
 </template>
 
 <script>
-import VariablesList from "./VariablesList";
+import VariablesList from "./VariablesList.vue";
 import { request } from "graphql-request";
-import TopicFilter from "./TopicSelector";
+import TopicFilter from "./TopicSelector.vue";
 
 export default {
   components: {

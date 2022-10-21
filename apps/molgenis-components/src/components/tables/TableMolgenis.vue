@@ -237,8 +237,8 @@ export default {
                       :columns.sync="remoteColumns"
                       :data="remoteTableData"
                       @click="click"
-      >
-      </table-molgenis id="table-molgenis-empty" label="Empty Table Molgenis">
+      />
+      <table-molgenis id="table-molgenis-empty" label="Empty Table Molgenis"/>
     </demo-item>
     <DemoItem>
       <label class="font-italic">Example without data</label>

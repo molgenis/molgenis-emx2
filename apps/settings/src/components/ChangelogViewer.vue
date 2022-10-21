@@ -12,7 +12,7 @@
 
 <script>
 import { request } from "graphql-request";
-import { TableDisplay } from "@mswertz/emx2-styleguide";
+import { TableDisplay } from "molgenis-components";
 
 export default {
   name: "LogViewer",

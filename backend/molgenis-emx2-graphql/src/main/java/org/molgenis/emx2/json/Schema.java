@@ -43,6 +43,9 @@ public class Schema {
       tm.setSettings(
           t.getSettings().stream().collect(Collectors.toMap(Setting::key, Setting::value)));
       tm.setOldName(t.getOldName());
+      if (t.getTableType() != null) {
+        tm.setTableType(t.getTableType());
+      }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
       tm.setDescription(t.getDescription());

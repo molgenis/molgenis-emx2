@@ -120,11 +120,16 @@ _schema {
       refLabel,
       refBack,
       required,
+      readonly,
       semantics,
       description,
       position,
       visible,
       validation
+    }
+    settings { 
+      key,
+      value 
     }
   }
 }}`;

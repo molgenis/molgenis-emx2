@@ -28,11 +28,11 @@
 
 <script>
 import { request } from "graphql-request";
-import ResourceHeader from "../components/ResourceHeader";
-import DatasourceList from "../components/DatasourceList";
-import DatabankList from "../components/DatabankList";
-import CohortList from "../components/CohortList";
-import ResourceContext from "../components/ResourceContext";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import DatasourceList from "../components/DatasourceList.vue";
+import DatabankList from "../components/DatabankList.vue";
+import CohortList from "../components/CohortList.vue";
+import ResourceContext from "../components/ResourceContext.vue";
 
 export default {
   components: {

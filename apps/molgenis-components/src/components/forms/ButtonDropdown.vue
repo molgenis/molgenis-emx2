@@ -4,7 +4,7 @@
       type="button"
       ref="showInputButton"
       class="btn btn-outline-primary"
-      :class="{ 'dropdown-toggle': !icon }"
+      :class="{ 'dropdown-toggle': !icon, 'nav-link': isMenuItem }"
       @click="toggle"
     >
       <span v-if="label">{{ label }}</span>

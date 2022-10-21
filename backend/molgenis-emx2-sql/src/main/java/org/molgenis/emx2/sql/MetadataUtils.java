@@ -89,6 +89,8 @@ public class MetadataUtils {
       field(name("indexed"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_CASCADE =
       field(name("cascade"), BOOLEAN.nullable(true));
+  private static final Field<Boolean> COLUMN_READONLY =
+      field(name("readonly"), BOOLEAN.nullable(true));
 
   // users
   private static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -490,6 +492,7 @@ public class MetadataUtils {
             COLUMN_INDEXED,
             COLUMN_CASCADE,
             COLUMN_DESCRIPTION,
+            COLUMN_READONLY,
             COLUMN_SEMANTICS,
             COLUMN_VISIBLE)
         .values(
@@ -510,6 +513,7 @@ public class MetadataUtils {
             column.isIndexed(),
             column.isCascadeDelete(),
             column.getDescription(),
+            column.isReadonly(),
             column.getSemantics(),
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
@@ -528,6 +532,7 @@ public class MetadataUtils {
         .set(COLUMN_INDEXED, column.isIndexed())
         .set(COLUMN_CASCADE, column.isCascadeDelete())
         .set(COLUMN_DESCRIPTION, column.getDescription())
+        .set(COLUMN_READONLY, column.isReadonly())
         .set(COLUMN_SEMANTICS, column.getSemantics())
         .set(COLUMN_VISIBLE, column.getVisible())
         .execute();
@@ -561,6 +566,7 @@ public class MetadataUtils {
     c.setComputed(col.get(COLUMN_COMPUTED, String.class));
     c.setDescription(col.get(COLUMN_DESCRIPTION, String.class));
     c.setCascadeDelete(col.get(COLUMN_CASCADE, Boolean.class));
+    c.setReadonly(col.get(COLUMN_READONLY, Boolean.class));
     c.setSemantics(col.get(COLUMN_SEMANTICS, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     return c;

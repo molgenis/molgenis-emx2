@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import CohortCards from "../components/CohortCards";
+import CohortCards from "../components/CohortCards.vue";
 
 export default {
   components: {

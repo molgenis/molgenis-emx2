@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import TreeListFilter from "./TreeListFilter";
+import TreeListFilter from "./TreeListFilter.vue";
 
 export default {
   components: { TreeListFilter },

@@ -86,8 +86,7 @@
 </template>
 <script>
 import { request } from "graphql-request";
-import { TableExplorer } from "molgenis-components";
-import { MessageError } from "molgenis-components";
+import { TableExplorer, MessageError } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 export default {
