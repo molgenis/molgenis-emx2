@@ -11,12 +11,16 @@
         :graphqlURL="graphqlURL"
         :visibleColumns="visibleColumns"
         :clone="clone"
+        :page="currentPage"
+        @setCurrentPage="pageCount = $event"
       >
       </EditModalWizard>
     </template>
     <template #footer>
+      <div v-if="pageCount > 1" class="d-flex mr-auto">
+        <Pagination v-model="currentPage" :count="pageCount" :limit="1" />
+      </div>
       <RowEditFooter
-        class="modal-footer"
         :id="id + '-footer'"
         :tableName="tableName"
         :errorMessage="errorMessage"
@@ -45,6 +49,8 @@ export default {
       client: null,
       errorMessage: null,
       loaded: true,
+      currentPage: 1,
+      pageCount: 1,
     };
   },
   props: {
@@ -88,7 +94,23 @@ export default {
   },
   computed: {
     title() {
-      return this.titlePrefix + " " + this.tableName;
+      return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
+    },
+    pageName() {
+      if (this.currentPage > 1) {
+        const pageHeadings = this.tableMetaData.columns.reduce(
+          (accum, column) => {
+            if (column.columnType === "HEADING") {
+              accum.push(column.name);
+            }
+            return accum;
+          },
+          []
+        );
+        return " - " + pageHeadings[this.currentPage - 2];
+      } else {
+        return "";
+      }
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";

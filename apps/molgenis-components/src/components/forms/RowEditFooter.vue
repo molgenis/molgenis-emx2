@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex" style="gap: 0.5rem">
     <MessageSuccess v-if="successMessage">{{ successMessage }}</MessageSuccess>
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     <ButtonAlt @click="$emit('cancel')">Close</ButtonAlt>

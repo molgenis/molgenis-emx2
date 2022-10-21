@@ -7,7 +7,7 @@
       :tableName="tableName"
       :tableMetaData="tableMetaData"
       :graphqlURL="graphqlURL"
-      :visibleColumns="columnsSplitByHeadings[page]"
+      :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
       @input="$emit('input', $event)"
     />
@@ -15,13 +15,14 @@
 </template>
 
 <script>
+import Pagination from "../tables/Pagination.vue";
+
 export default {
   name: "EditModalWizard",
-  components: {},
+  components: { Pagination },
   data() {
     return {
-      page: 0,
-      columnsSplitByHeadings: splitColumnsByHeadings(
+      columnsSplitByHeadings: this.splitColumnsByHeadings(
         this.tableMetaData.columns
       ),
     };
@@ -34,6 +35,10 @@ export default {
     id: {
       type: String,
       required: true,
+    },
+    page: {
+      type: Number,
+      default: 1,
     },
     tableName: {
       type: String,
@@ -57,21 +62,24 @@ export default {
       type: String,
     },
   },
+  methods: {
+    splitColumnsByHeadings(columns) {
+      const visualColumns = columns.reduce((accum, column) => {
+        if (column.columnType === "HEADING") {
+          accum.push([{ name: column.name }]);
+        } else {
+          if (accum.length === 0) {
+            accum.push([]);
+          }
+          accum[accum.length - 1].push({ name: column.name });
+        }
+        return accum;
+      }, []);
+      this.$emit("setCurrentPage", visualColumns.length);
+      return visualColumns;
+    },
+  },
 };
-
-function splitColumnsByHeadings(columns) {
-  return columns.reduce((accum, column) => {
-    if (column.columnType === "HEADING") {
-      accum.push([{ name: column.name }]);
-    } else {
-      if (accum.length === 0) {
-        accum.push([]);
-      }
-      accum[accum.length - 1].push({ name: column.name });
-    }
-    return accum;
-  }, []);
-}
 </script>
 
 <docs>
