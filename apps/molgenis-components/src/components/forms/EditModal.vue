@@ -1,7 +1,7 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <RowEdit
+      <EditModalWizard
         v-if="loaded"
         :id="id"
         v-model="rowData"
@@ -12,7 +12,7 @@
         :visibleColumns="visibleColumns"
         :clone="clone"
       >
-      </RowEdit>
+      </EditModalWizard>
     </template>
     <template #footer>
       <RowEditFooter
@@ -32,12 +32,12 @@
 import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
-import RowEdit from "./RowEdit.vue";
+import EditModalWizard from "./EditModalWizard.vue";
 import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
-  components: { LayoutModal, RowEditFooter, RowEdit },
+  components: { LayoutModal, RowEditFooter, EditModalWizard },
   data() {
     return {
       rowData: {},

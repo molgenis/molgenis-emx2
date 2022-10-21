@@ -141,6 +141,7 @@ export default {
       return true;
     },
     validateTable() {
+      // TODO: only loop over visible
       if (this.tableMetaData && this.tableMetaData.columns) {
         this.tableMetaData.columns.forEach((column) => {
           this.errorPerColumn[column.id] = this.getColumnError(
