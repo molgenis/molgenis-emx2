@@ -285,7 +285,7 @@ AllSourceVariables,,label,,,,,,,,,,
 AllSourceVariables,,collectionEvent,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
 AllSourceVariables,,mappings,refback,,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable
 SourceVariables,AllSourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-SourceVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
+SourceVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,integer,decimal,date,datetime etc"
 SourceVariables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
 SourceVariables,,references,ref,,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
 SourceVariables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
@@ -307,7 +307,7 @@ AllTargetVariables,,label,,,,,,,,,,
 AllTargetVariables,,collectionEvent,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
 AllTargetVariables,,mappings,refback,,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s)
 TargetVariables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-TargetVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
+TargetVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,integer,decimal,date,datetime etc"
 TargetVariables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
 TargetVariables,,references,ref,,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
 TargetVariables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
