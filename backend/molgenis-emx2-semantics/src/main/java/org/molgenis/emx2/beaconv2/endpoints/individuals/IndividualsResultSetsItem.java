@@ -52,4 +52,40 @@ public class IndividualsResultSetsItem {
   public void setMeasures(Measures[] measures) {
     this.measures = measures;
   }
+
+  public String getId() {
+    return id;
+  }
+
+  public OntologyTerm getSex() {
+    return sex;
+  }
+
+  public AgeAndAgeGroup getAge() {
+    return age;
+  }
+
+  public OntologyTerm[] getDiseaseCausalGenes() {
+    return diseaseCausalGenes;
+  }
+
+  public OntologyTerm getEthnicity() {
+    return ethnicity;
+  }
+
+  public OntologyTerm getGeographicOrigin() {
+    return geographicOrigin;
+  }
+
+  public Diseases[] getDiseases() {
+    return diseases;
+  }
+
+  public Measures[] getMeasures() {
+    return measures;
+  }
+
+  public PhenotypicFeatures[] getPhenotypicFeatures() {
+    return phenotypicFeatures;
+  }
 }

@@ -11,4 +11,12 @@ public class AgeAndAgeGroup {
     this.ageGroup = ageGroup;
     this.age = new ISO8601duration(age);
   }
+
+  public OntologyTerm getAgeGroup() {
+    return ageGroup;
+  }
+
+  public ISO8601duration getAge() {
+    return age;
+  }
 }
