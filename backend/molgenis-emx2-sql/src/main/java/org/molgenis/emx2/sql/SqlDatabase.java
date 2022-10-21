@@ -627,6 +627,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public User getUser(String userName) {
-    return MetadataUtils.loadUserMetadata(this, userName);
+    if (hasUser(userName)) {
+      User user = MetadataUtils.loadUserMetadata(this, userName);
+      // might not yet have any metadata saved
+      return user != null ? user : new User(this, userName);
+    }
+    return null;
   }
 }

@@ -93,7 +93,7 @@ public class Migrations {
     jooq.alterTableIfExists(table(name(MOLGENIS, "schema_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "table_metadata"))).addColumn(SETTINGS).execute();
     jooq.alterTableIfExists(table(name(MOLGENIS, "users_metadata"))).addColumn(SETTINGS).execute();
-    //todo: do we also want column settings?
+    // todo: do we also want column settings?
 
     // copy settings table into schema and table respectively
     Result<Record> previousSettings =

@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.*;
 import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
-import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
 
 import java.util.*;
 import org.jooq.*;
@@ -635,7 +634,7 @@ public class MetadataUtils {
     // don't update password via this route
     jooq.insertInto(USERS_METADATA)
         .columns(USER_NAME, SETTINGS)
-        .values(MG_USER_PREFIX + user.getUsername(), user.getSettings())
+        .values(user.getUsername(), user.getSettings())
         .onConflict(USER_NAME)
         .doUpdate()
         .set(SETTINGS, user.getSettings())
@@ -644,10 +643,7 @@ public class MetadataUtils {
 
   public static User loadUserMetadata(SqlDatabase db, String userName) {
     org.jooq.Record userRecord =
-        db.getJooq()
-            .selectFrom(USERS_METADATA)
-            .where(USER_NAME.eq(MG_USER_PREFIX + userName))
-            .fetchOne();
+        db.getJooq().selectFrom(USERS_METADATA).where(USER_NAME.eq(userName)).fetchOne();
     if (userRecord != null) {
       User result = new User(db, userName);
       result.setSettings(userRecord.get(SETTINGS, Map.class));

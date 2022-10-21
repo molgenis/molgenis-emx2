@@ -18,6 +18,7 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.User;
 
 public class GraphqlSessionFieldFactory {
 
@@ -56,7 +57,7 @@ public class GraphqlSessionFieldFactory {
                 return new GraphqlApiMutationResult(FAILED, "Password too short");
               }
               if (database.hasUser(userName)) {
-                return new GraphqlApiMutationResult(FAILED, "Username already exists");
+                return new GraphqlApiMutationResult(FAILED, "Email already exists");
               }
               database.tx(
                   db -> {
@@ -140,9 +141,9 @@ public class GraphqlSessionFieldFactory {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               result.put(SCHEMAS, database.getSchemaNames());
+              User user = database.getUser(database.getActiveUser());
               result.put(
-                  SETTINGS,
-                  mapSettingsToGraphql(database.getUser(database.getActiveUser()).getSettings()));
+                  SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
               result.put(
                   TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
               return result;
@@ -163,16 +164,16 @@ public class GraphqlSessionFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
-              String userEmail = dataFetchingEnvironment.getArgument(EMAIL);
-              if (userEmail == null) {
-                userEmail = database.getActiveUser();
+              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              if (userName == null) {
+                userName = database.getActiveUser();
               }
               return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
-                  JWTgenerator.createNamedTokenForUser(database, userEmail, tokenId),
+                  JWTgenerator.createNamedTokenForUser(database, userName, tokenId),
                   "Token '%s' created for user '%s'",
                   tokenId,
-                  userEmail);
+                  userName);
             })
         .build();
   }
@@ -183,14 +184,14 @@ public class GraphqlSessionFieldFactory {
             .name("changePassword")
             .type(typeForMutationResult);
     if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
+      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     }
     return builder
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(USERNAME);
+              String username = dataFetchingEnvironment.getArgument(EMAIL);
               if (username == null) {
                 username = database.getActiveUser();
               }
