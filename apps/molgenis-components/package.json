@@ -34,7 +34,7 @@
     "v-click-outside": "3.2.0",
     "vite-plugin-vue2": "2.0.2",
     "vue": "2.6.14",
-    "vue-flatpickr-component": "8.1.7"
+    "vue-flatpickr-component": "10.0.0"
   },
   "devDependencies": {
     "vite": "3.1.8",
