@@ -6,26 +6,12 @@ export default defineNuxtConfig({
     // See options here https://github.com/chimurai/http-proxy-middleware#options
     proxy: {
         options: {
-            logLevel: 'debug',
             target: 'http://localhost:8080/',
-            changeOrigin: true,
-            // pathRewrite: {
-            //     '^/api/todos': '/todos',
-            //     '^/api/users': '/users'
-            // },
             pathFilter: [
                 '**/*/graphql'
             ],
         }
-    },
-    vite: {
-        server: {
-            proxy: {
-                "/graphql": { target: "http://localhost:8080/", changeOrigin: true },
-                "/*/graphql": { target: "http://localhost:8080/", changeOrigin: true },
-            },
-        },
-    },
+    }
 })
 
     

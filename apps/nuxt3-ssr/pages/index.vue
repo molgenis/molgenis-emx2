@@ -1,11 +1,11 @@
 <script setup>
 const query = `{ Schemas { name description } }`;
-const { data, error } = await fetchGql("/apps/graphql", query);
+const { data, error } = await fetchGql("apps/graphql", query);
 console.log(data);
 console.log(error);
 const catalogueQuery = `{_schema{name}, Institutions_agg{count}, Studies_agg{count}, Cohorts_agg{count}}`;
 const catalogueResp = await fetchGql(
-  "/catalogue/catalogue/graphql",
+  "catalogue/catalogue/graphql",
   catalogueQuery
 );
 console.log(catalogueResp);
