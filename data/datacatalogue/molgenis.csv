@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tableName_before,columnName_before
-Version,,,,,,,,,,,,3.0,Version,
+Version,,,,,,,,,,,,3,Version,
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes",Institutions,
 Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution,Institutions,pid
 Institutions,,name,,2,,,,,,,,Official full name of the institution or organisation as used in EU projects,Institutions,name
@@ -85,7 +85,7 @@ Data resources,,contents,heading,,,,,,,,,Data model and contents,DataResources,c
 Studies,,cdm,ref_array,,,,Models,,,,,Common data model(s) used in this study,Studies,cdm
 RWE resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information,,,,,Areas of information that were collected,RWEresources,areasOfInformation
 Data sources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures.",Datasources,qualityOfLifeOther
-Data sources,,databanks,refback,,,,Datasource databanks,,datasource,,,List of databanks that are included in this datasource,Datasources,databanks
+Data sources,,databanks,refback,,,,Data source databanks,,datasource,,,List of databanks that are included in this datasource,Datasources,databanks
 Cohorts,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,Cohorts,collectionEvents
 Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,Databanks,dataDictionaryAvailable
 RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",RWEresources,languages
@@ -352,9 +352,9 @@ All source variables,,data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,d
 All source variables,,table,ref,1,TRUE,,Source tables,data dictionary,,,,table this variable is part of,AllSourceVariables,table
 All source variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table",AllSourceVariables,name
 All source variables,,label,,,,,,,,,,,AllSourceVariables,label
-All source variables,,collection event,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,AllSourceVariables,collectionEvent
-All source variables,,mappings,refback,,,,VariableMappings,,from table,,,list of mappings between this variable and standard/harmonized variable,AllSourceVariables,mappings
-Source variables,AllSourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",SourceVariables,
+All source variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,AllSourceVariables,collectionEvent
+All source variables,,mappings,refback,,,,Variable mappings,,from table,,,list of mappings between this variable and standard/harmonized variable,AllSourceVariables,mappings
+Source variables,All source variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",SourceVariables,
 Source variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc",SourceVariables,format
 Source variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology,SourceVariables,unit
 Source variables,,references,ref,,,,All source variables,data dictionary,,,,to define foreign key relationships between variables within or across tables,SourceVariables,references
@@ -362,12 +362,12 @@ Source variables,,mandatory,bool,,,,,,,,,whether this variable is required withi
 Source variables,,description,text,,,,,,,,,,SourceVariables,description
 Source variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,SourceVariables,order
 Source variables,,example values,string_array,,,,,,,,,,SourceVariables,exampleValues
-Source variables,,permitted values,refback,,,,Source variables values,,variable,,,,SourceVariables,permittedValues
+Source variables,,permitted values,refback,,,,Source variable values,,variable,,,,SourceVariables,permittedValues
 Source variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,SourceVariables,keywords
 Source variables,,repeats,refback,,,,Repeated source variables,,is repeat of,,,listing of all repeated variables defined for this variable,SourceVariables,repeats
 Source variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,SourceVariables,vocabularies
 Source variables,,notes,text,,,,,,,,,Any other information on this variable,SourceVariables,notes
-Repeated source variables,AllSourceVariables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.,RepeatedSourceVariables,
+Repeated source variables,All source variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.,RepeatedSourceVariables,
 Repeated source variables,,is repeat of,ref,,TRUE,,Source variables,data dictionary,,,,reference to the definition of the sourceVariable that is being repeated,RepeatedSourceVariables,isRepeatOf
 All target variables,,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead",AllTargetVariables,
 All target variables,,data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,data dictionary of the target model,AllTargetVariables,dataDictionary
@@ -376,7 +376,7 @@ All target variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a 
 All target variables,,label,,,,,,,,,,,AllTargetVariables,label
 All target variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,AllTargetVariables,collectionEvent
 All target variables,,mappings,refback,,,,Variable mappings,,to variable,,,list of mappings between this variable and source variable(s),AllTargetVariables,mappings
-Target variables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",TargetVariables,
+Target variables,All target variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",TargetVariables,
 Target variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc",TargetVariables,format
 Target variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology,TargetVariables,unit
 Target variables,,references,ref,,,,All target variables,data dictionary,,,,to define foreign key relationships between variables within or across tables,TargetVariables,references
@@ -384,12 +384,12 @@ Target variables,,mandatory,bool,,,,,,,,,whether this variable is required withi
 Target variables,,description,text,,,,,,,,,,TargetVariables,description
 Target variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,TargetVariables,order
 Target variables,,example values,string_array,,,,,,,,,,TargetVariables,exampleValues
-Target variables,,permitted values,refback,,,,Source variables values,,variable,,,,TargetVariables,permittedValues
+Target variables,,permitted values,refback,,,,Target variable values,,variable,,,,TargetVariables,permittedValues
 Target variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,TargetVariables,keywords
 Target variables,,repeats,refback,,,,Repeated target variables,,is repeat of,,,listing of all repeated variables defined for this variable,TargetVariables,repeats
 Target variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,TargetVariables,vocabularies
 Target variables,,notes,text,,,,,,,,,Any other information on this variable,TargetVariables,notes
-Repeated target variables,AllTargetVariables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.,RepeatedTargetVariables,
+Repeated target variables,All target variables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.,RepeatedTargetVariables,
 Repeated target variables,,is repeat of,ref,,TRUE,,Target variables,data dictionary,,,,reference to the definition of the targetVariable that is being repeated,RepeatedTargetVariables,isRepeatOf
 Target tables,,,,,,,,,,,,Definition of a table within a (common) data model,TargetTables,
 Target tables,,data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,resource + version this table is defined for,TargetTables,dataDictionary
@@ -462,9 +462,9 @@ Submissions,,submitter name,string,1,TRUE,,,,,,,Name of person who submitted.,Su
 Submissions,,resources,ref_array,,TRUE,,Resources,,,,,Resource(s) that this submission is related to.,Submissions,resources
 Submissions,,submitter email,string,,TRUE,,,,,,,Email of person who submitted.,Submissions,submitterEmail
 Submissions,,submitter institution,ref,,,,Institutions,,,,,Institution of submitter.,Submissions,submitterInstitution
-Submissions,,submitter role,ontology,,,,Submitter roles,,,,,Role of submitter in institution.,Submissions,submitterRole
-Submissions,,submitter role other,text,,,,Submitter roles,,,,,"Role of submitter in institution, if other than above",Submissions,submitterRoleOther
-Submissions,,submission type,ontology,,,,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'",Submissions,submissionType
-Submissions,,submission description,text,,,,Submission types,,,,,"Description of the submission, if applicable",Submissions,submissionDescription
+Submissions,,submitter role,ontology,,,CatalogueOntologies,Submitter roles,,,,,Role of submitter in institution.,Submissions,submitterRole
+Submissions,,submitter role other,text,,,,,,,,,"Role of submitter in institution, if other than above",Submissions,submitterRoleOther
+Submissions,,submission type,ontology,,,CatalogueOntologies,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'",Submissions,submissionType
+Submissions,,submission description,text,,,,,,,,,"Description of the submission, if applicable",Submissions,submissionDescription
 Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission.,Submissions,responsiblePersons
 Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted.,Submissions,acceptanceDate
