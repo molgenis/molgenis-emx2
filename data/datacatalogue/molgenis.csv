@@ -1,470 +1,470 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3
-Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
-Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
-Institutions,,name,,2,,,,,,,,Official full name of the institution or organisation as used in EU projects
-Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicable"
-Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
-Institutions,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Institutions,,website,,,,,,,,,,Link to the homepage of this institution
-Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Institutions,,description,text,,,,,,,,,General description of the institution
-Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre
-Institutions,,networks,refback,,,,Networks,,institution,,,"Is the institution a member of an existing research network or consortium? If so, provide a list of the names of the networks or consortia the institution participates in."
-Institutions,,cohorts,refback,,,,Cohorts,,institution,,,Cohorts that this institution is involved in
-Institutions,,databanks,refback,,,,Databanks,,institution,,,Databanks that this institution is involved in
-Institutions,,Data sources,refback,,,,Data sources,,institution,,,Data sources that this institution is involved in
-Institutions,,studies,refback,,,,Studies,,leadInstitution,,,A list of studies that have been conducted by the institution that are recorded in the catalogue
-Institutions,,provider of,refback,,,,DAPs,,institution,,,"Query that lists all resources (Data sources, databanks, cohorts, networks) that this institution is access provider of"
-Institutions,,logo,file,,,,,,,,,Institution logo
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Models,Resources,,,,,,,,,,,Data models
-Data resources,Resources,,,,,,,,,,,Resources for data
-Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
-RWE resources,Data resources,,,,,,,,,,,Resources for real world evidence such as data source and databanks
-Databanks,RWE resources,,,,,,,,,,,Data collections such as registries or biobanks
-Data sources,RWE resources,,,,,,,,,,,Collections of data banks covering the same population
-Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
-Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
-Resources,,overview,heading,,,,,,,,,General information about this resource
-Resources,,pid,,1,TRUE,,,,,,,Persistent identifier
-Resources,,external identifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
-Resources,,acronym,,,,,,,,,,Resource acronym
-Resources,,name,text,2,TRUE,,,,,,,Name used in European projects
-Data resources,,local name,,,,,,,,,,"If different from above, name in the national language"
-Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network, e.g. h2020 project"
-Studies,,type,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
-Studies,,type other,,,,,,,,,,"If other, describe the type of study"
-Data sources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which of the following families of data sources best describe this data source
-Data sources,,type other,,,,,,,,,,"If other, describe the type of datasource"
-Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
-Resources,,website,,,,,,,,,,Link to the website or homepage
-Resources,,lead institution,ref,,,,Institutions,,,,,Name of lead institution for this resource
-Resources,,description,text,,,,,,,,,Short description
-Studies,,study status,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
-Models,,release frequency,int,,,,,,,,,Refreshing rate (in months)
-Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort
-Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
-Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
-Cohorts,,type other,,,,,,,,,,"If other, describe the type of resource"
-Cohorts,,design,ontology,,,CatalogueOntologies,CohortDesigns,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
-Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort
-Cohorts,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
-Cohorts,,collection type,ontology_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
-Databanks,,databank family,ontology,,,CatalogueOntologies,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
-Databanks,,databank families other,text,,,,,,,,,"If 'other' selected above, describe the type of data bank"
-Cohorts,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this cohort
-Databanks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this databank
-Data sources,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this datasource
-Networks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this network
-Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
-Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
-Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
-Data resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected
-Databanks,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description
-Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
-Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
-Data resources,,population age groups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups of the participants of this resource
-Cohorts,,inclusion criteria,text,,,,InclusionCriteria,,,,,Inclusion criteria applied to the participants of this resource
-Data resources,,start year,int,,,,,,,,,Year when first data was collected
-Data resources,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
-Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
-RWE resources,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
-RWE resources,,population entry,ontology_array,,,CatalogueOntologies,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
-RWE resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
-RWE resources,,population exit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
-RWE resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
-Databanks,,population pregnancy,bool,,,,,,,,,Does the data bank collect information on pregnant women and/or neonatal subpopulation?
-RWE resources,,population disease,text,,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
-RWE resources,,population coverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?"
-RWE resources,,population coverage percentage,int,,,,,,,,,What percentage of the underlying population is covered by the data bank?
-RWE resources,,time span description,text,,,,,,,,,Description of time span
-RWE resources,,care setting,ontology_array,,,CatalogueOntologies,CareSettings,,,,,Type of care setting(s) covered
-RWE resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care"
-Data resources,,contents,heading,,,,,,,,,Data model and contents
-Studies,,cdm,ref_array,,,,Models,,,,,Common data model(s) used in this study
-RWE resources,,areas of information,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were collected
-Data sources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures."
-Data sources,,databanks,refback,,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
-Cohorts,,collection events,refback,,,,CollectionEvents,,resource,,,List of collection events defined for this resource
-Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?
-RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
-RWE resources,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
-Databanks,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level."
-RWE resources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
-RWE resources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?"
-RWE resources,,data dictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this databank or datasource
-Models,,data dictionaries,refback,,,,TargetDataDictionaries,,resource,,,Data dictionary for this model
-Cohorts,,data dictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this cohort
-RWE resources,,quantitative descriptors,heading,,,,,,,,,Numerical summaries describing resource population
-RWE resources,,quantantitative information,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
-RWE resources,,counts,refback,,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
-Data resources,,access,heading,,,,,,,,,Access and validation information
-Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,DataAccessConditions,,,,,Codes defining data access terms and conditions
-Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,DataUseConditions,,,,,Codes defining data use terms and conditions
-Cohorts,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions
-Cohorts,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?
-Cohorts,,release type,ontology,,,CatalogueOntologies,ReleaseTypes,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
-Cohorts,,release description,text,,,,,,,,,Description of the release cycle of this resource
-Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
-RWE resources,,access,heading,,,,,,,,,Description of how access is permitted for DAPs and timing of access
-Data sources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source
-Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank
-RWE resources,,informed consent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?
-RWE resources,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required"
-RWE resources,,access identifiable data,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?
-RWE resources,,access identifiable data route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
-RWE resources,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?
-RWE resources,,access subject details route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
-RWE resources,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?"
-Databanks,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?
-Databanks,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted"
-Databanks,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
-Databanks,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
-Databanks,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?
-RWE resources,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
-RWE resources,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted."
-Databanks,,data controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank.
-RWE resources,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
-RWE resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data
-RWE resources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
-RWE resources,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
-Databanks,,origin,heading,,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
-Databanks,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
-Databanks,,date established,date,,,,,,,,,Date that the data bank was first established.
-RWE resources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
-RWE resources,,record prompt,text,,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
-Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?"
-Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?"
-Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags
-Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records
-Databanks,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
-RWE resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
-RWE resources,,preservation duration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?"
-RWE resources,,refresh period,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
-RWE resources,,date last refresh,date,,,,,,,,,Date of last update/refresh
-Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
-Databanks,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count)
-Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)."
-Databanks,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time"
-Databanks,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?
-Databanks,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
-Databanks,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
-RWE resources,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
-Databanks,,quality validation frequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?
-Databanks,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?
-Databanks,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?
-Databanks,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results."
-Data resources,,other information,heading,,,,,,,,,Other information
-Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
-Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
-RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,FundingTypes,,,,,Statement listing funding that was obtained for this resource
-Studies,,funding scheme,ontology_array,,,CatalogueOntologies,StudyFunding,,,,,The source of funding for the study. Select all that apply.
-Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource
-Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
-Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
-Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource
-Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations
-Cohorts,,studies,refback,,,,Studies,,cohorts,,,Listing of studies that used this cohort
-RWE resources,,studies,refback,,,,Studies,,databanks,,,Listing of studies that used this databank
-Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
-Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
-Databanks,,datasource,refback,,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
-Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
-Databanks,,cdms,ref,,,,Models,,,,,Common data models used by this databank
-Data sources,,networks,refback,,,,Networks,,Data sources,,,List of networks that this datasource is associated with
-Data sources,,studies,refback,,,,Studies,,Data sources,,,List of studies that this datasource is associated with
-Publications,,,,,,,,,,,,Publications following bibtex format
-Publications,,doi,,1,TRUE,,,,,,,Digital object identifier
-Publications,,title,,,,,,,,,,Publication title
-Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author"
-Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)"
-Publications,,journal,,,,,,,,,,Journal or magazine the work was published in
-Publications,,volume,int,,,,,,,,,Journal or magazine volume
-Publications,,number,int,,,,,,,,,Journal or maragzine issue number
-Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens."
-Publications,,publisher,,,,,,,,,,Publisher's name
-Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis)
-Publications,,abstract,text,,,,,,,,,Publication abstract
-Publications,,resources,refback,,,,Resources,,publications,,,List of resources that refer to this publication
-Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
-Contacts,,contribution type,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type(s) of contribution
-Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person
-Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
-Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
-Contacts,,initials,,,,,,,,,,Initials of the contact person
-Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
-Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
-Contacts,,email,,2,,,,,,,,Contact's email address
-Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
-Contacts,,homepage,,,,,,,,,,Link to contact's homepage
-Contacts,,photo,file,,,,,,,,,Contact's photograph
-Contacts,,expertise,,,,,,,,,,Description of contact's expertise
-Documentation,,,,,,,,,,,,Documentation attached to a resource
-Documentation,,resource,ref,1,TRUE,,Resources,,,,,The resource this documentation is for
-Documentation,,name,,1,TRUE,,,,,,,Document name
-Documentation,,type,ontology,,,CatalogueOntologies,DocumentTypes,,,,,Type of documentation
-Documentation,,description,text,,,,,,,,,Description of the document
-Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
-Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource
-DAPs,,institution,ref,1,TRUE,,Institutions,,,,,Group that provides access
-DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to
-DAPs,,department,text,,,,,,,,,"optionally, the organisational unit(s) that play a role as data access provider"
-DAPs,,contact,ref_array,,,,Contacts,,,,,Whom to contact for information and access
-DAPs,,population subset,ontology_array,,,CatalogueOntologies,PopulationSubsets,,,,,"If the institution can only access a subset, which subsets can it access"
-DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed"
-DAPs,,access level,ontology,,,CatalogueOntologies,DAPsAccessLevels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?
-DAPs,,access completeness,ontology,,,CatalogueOntologies,DAPsAccessCompleteness,,,,,Can the institution access the whole data source or only an extract of the data source?
-DAPs,,reason access,ontology,,,CatalogueOntologies,DAPsReasonsForAccess,,,,,What is the reason for being able to access (an extract of) the data source?
-DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source"
-DAPs,,access permission,ontology,,,CatalogueOntologies,DAPsAccessPermissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?"
-DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?"
-DAPs,,fees,bool,,,,,,,,,Are there fees for data access?
-Datasource databanks,,,,,,,,,,,,Links between datasource and databank
-Datasource databanks,,datasource,ref,1,,,Data sources,,,,,
-Datasource databanks,,databank,ref,1,,,Databanks,,,,,
-Datasource databanks,,linkage strategy,ontology,,,CatalogueOntologies,LinkageStrategies,,,,,The linkage method that was used to link data banks. One entry per data bank
-Datasource databanks,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank"
-Datasource databanks,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank"
-Datasource databanks,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).
-Quantitative information,,,,,,,,,,,,Quantitative information on the resource
-Quantitative information,,resource,ref,1,,,Resources,,,,,
-Quantitative information,,age group,ontology,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information
-Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
-Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year"
-Quantitative information,,no individuals with samples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year "
-Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count)
-Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count)
-Quantitative information,,median age,int,,,,,,,,,Median age of individuals within data source
-Quantitative information,,proportion female,int,,,,,,,,,Proportion of females in the data source
-Quantitative information,,proportion etnicity,text,,,,,,,,,Proportion per etnicity in the data source
-Collection events,,,,,,,,,,,,Definition of a data collection event for a resource
-Collection events,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of
-Collection events,,name,,1,TRUE,,,,,,,Name of the collection event
-Collection events,,description,text,,,,,,,,,Description of the collection event
-Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event
-Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection
-Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection
-Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing
-Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing
-Collection events,,age groups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups included in this data collection event
-Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event
-Collection events,,areas of information,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event
-Collection events,,data categories,ontology_array,,,CatalogueOntologies,DataCategories,,,,,Methods of data collection used in this collection event
-Collection events,,sample categories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event
-Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
-Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify"
-Collection events,,core variables,ontology_array,,,CatalogueOntologies,CoreVariables,,,,,Select 10-20 relevant variables that were collected in this collection event
-Collection events,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this collection event
-Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource
-Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
-Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
-Subcohorts,,description,text,,,,,,,,,Subcohort description
-Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort
-Subcohorts,,counts,refback,,,,SubcohortCounts,,subcohort,,,"Total number of unique individuals per age(group), gender and year"
-Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant
-Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing
-Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups within this subcohort
-Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications"
-Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification"
-Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from
-Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from
-Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort
-Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
-Networks,,Data sources,ref_array,,,,Data sources,,,,,
-Networks,,databanks,ref_array,,,,Databanks,,,,,
-Networks,,cohorts,ref_array,,,,Cohorts,,,,,
-Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
-Networks,,studies,refback,,,,Studies,,networks,,,
-Studies,,required by regulator,bool,,,,,,,,,Was the study requested by a regulatory body?
-Studies,,required by RMP,ontology,,,CatalogueOntologies,RMPRequirements,,,,,Was the study required by a Risk Management Plan (RMP)?
-Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only"
-Studies,,date of sigining funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned"
-Studies,,date of sigining funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual"
-Studies,,collection start planned,date,,,,,,,,,When was the data collection planned to start?
-Studies,,collection start actual,date,,,,,,,,,When was the data collection actually start?
-Studies,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?
-Studies,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?
-Studies,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected"
-Studies,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected"
-Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned"
-Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual"
-Studies,,data,heading,,,,,,,,,Data management
-Studies,,Data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study
-Studies,,databanks,ref_array,,,,Databanks,,,,,Databanks that provided data into this study
-Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study
-Studies,,study features,ontology_array,,,CatalogueOntologies,StudyFeatures,,,,,Data features
-Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process
-Studies,,data source types,ontology_array,,,CatalogueOntologies,StudyDatasourceTypes,,,,,Types of data sources used
-Studies,,data source types other,text,,,,,,,,,"Sources of data, if other"
-Studies,,quality marks,ontology_array,,,CatalogueOntologies,StudyQualityMarks,,,,,"Quality marks, such as ENCePP seal"
-Studies,,medicines studied codes,ontology_array,,,CatalogueOntologies,MedicineCodes,,,,,Codes of medicines studied
-Studies,,medicines studied brands,text,,,,,,,,,Brand names of medicines studied
-Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,MedicalConditions,,,,,Codes of the medical conditions studied
-Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied
-Studies,,date collection end planned,date,,,,,,,,,The date of the end of the data collection for the study- planned
-Studies,,date collection end actual,date,,,,,,,,,"Data collection end, actual"
-Studies,,data extraction date,date,,,,,,,,,Date on which the study data was extracted
-Studies,,methods,heading,,,,,,,,,Methodological aspects
-Studies,,study setting,text,,,,,,,,,A short description of the study setting
-Studies,,analysis plan,text,,,,,,,,,"A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)"
-Studies,,population,text,,,,,,,,,A short description of the study population
-Studies,,number of subjects,int,,,,,,,,,Estimated number of subjects
-Studies,,age groups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Which population age groups are studied
-Studies,,objectives,text,,,,,,,,,A short description of the study objective
-Studies,,interventions,text,,,,,,,,,A short description of the study interventions
-Studies,,comparators,text,,,,,,,,,A short description of the study comparators
-Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes
-Studies,,study design,text,,,,,,,,,A brief summary of the study design
-Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract)
-Studies,,topic,ontology,,,CatalogueOntologies,StudyTopics,,,,,An initial classification of the study purpose
-Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details."
-Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,StudyTrialRegulatoryScopes,,,,,Classification of the clinical trial in relation to the medicines authorisation
-Studies,,study design classification,ontology,,,CatalogueOntologies,StudyDesignClassification,,,,,If Study type: clinical trials. Select one of the following
-Studies,,study design classification other,text,,,,,,,,,Further details on design
-Studies,,study scope,ontology_array,,,CatalogueOntologies,StudyScopes,,,,,Scope of the study
-Studies,,study scope other,text,,,,,,,,,If scope 'other'
-Studies,,population of interest,ontology_array,,,CatalogueOntologies,PopulationOfInterest,,,,,"If population of interest is 'Other', please specify which other population has been studied"
-Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied"
-Target data dictionaries,,,,,,,,,,,,Definition of a data dictionary for common data model
-Target data dictionaries,,resource,ref,1,TRUE,,Models,,,,,Link to the resource of which contents has been released
-Target data dictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-Target data dictionaries,,tables,refback,,,,TargetTables,,dataDictionary,,,tables part of this data dictionary
-Target data dictionaries,,models,ref_array,,,,Models,,,,,existing data models that are used to produce this data dictionary
-Target data dictionaries,,date,date,,,,,,,,,date of creation
-Target data dictionaries,,description,text,,,,,,,,,notes specific to this data dictionary
-Source data dictionaries,,,,,,,,,,,,"Definition of a data dictionary for a cohort, databank or datasource"
-Source data dictionaries,,resource,ref,1,TRUE,,Resources,,,,,Link to the resource of which contents has been released
-Source data dictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-Source data dictionaries,,tables,refback,,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
-Source data dictionaries,,mappings,refback,,,,DataDictionaryMappings,,fromDataDictionary,,,tables part of this data dictionary
-Source data dictionaries,,date,date,,,,,,,,,date of creation
-Source data dictionaries,,description,text,,,,,,,,,notes specific to this data dictionary
-Data dictionary mappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-Data dictionary mappings,,from data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
-Data dictionary mappings,,to data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-Data dictionary mappings,,mapping status,ontology,,,CatalogueOntologies,MappingStatus,,,,,Has the data been ETL-ed to a common data model?
-Data dictionary mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months"
-All source variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
-All source variables,,data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
-All source variables,,table,ref,1,TRUE,,SourceTables,dataDictionary,,,,table this variable is part of
-All source variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
-All source variables,,label,,,,,,,,,,
-All source variables,,collection event,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-All source variables,,mappings,refback,,,,VariableMappings,,fromTable,,,list of mappings between this variable and standard/harmonized variable
-Source variables,AllSourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-Source variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
-Source variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
-Source variables,,references,ref,,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-Source variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
-Source variables,,description,text,,,,,,,,,
-Source variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
-Source variables,,example values,string_array,,,,,,,,,
-Source variables,,permitted values,refback,,,,SourceVariableValues,,variable,,,
-Source variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
-Source variables,,repeats,refback,,,,RepeatedSourceVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-Source variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
-Source variables,,notes,text,,,,,,,,,Any other information on this variable
-Repeated source variables,AllSourceVariables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
-Repeated source variables,,is repeat of,ref,,TRUE,,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated
-All target variables,,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead"
-All target variables,,data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,data dictionary of the target model
-All target variables,,table,ref,1,TRUE,,TargetTables,dataDictionary,,,,table this variable is part of
-All target variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
-All target variables,,label,,,,,,,,,,
-All target variables,,collection event,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
-All target variables,,mappings,refback,,,,VariableMappings,,toVariable,,,list of mappings between this variable and source variable(s)
-Target variables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
-Target variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
-Target variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
-Target variables,,references,ref,,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
-Target variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
-Target variables,,description,text,,,,,,,,,
-Target variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
-Target variables,,example values,string_array,,,,,,,,,
-Target variables,,permitted values,refback,,,,TargetVariableValues,,variable,,,
-Target variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
-Target variables,,repeats,refback,,,,RepeatedTargetVariables,,isRepeatOf,,,listing of all repeated variables defined for this variable
-Target variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
-Target variables,,notes,text,,,,,,,,,Any other information on this variable
-Repeated target variables,AllTargetVariables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
-Repeated target variables,,is repeat of,ref,,TRUE,,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
-Target tables,,,,,,,,,,,,Definition of a table within a (common) data model
-Target tables,,data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,resource + version this table is defined for
-Target tables,,name,,1,TRUE,,,,,,,unique table name in the model
-Target tables,,label,,,,,,,,,,short human readible description
-Target tables,,unit of observation,ontology,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
-Target tables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
-Target tables,,description,text,,,,,,,,,description of the role/function of this table
-Target tables,,number of rows,int,,,,,,,,,count of the numbe of records in this table
-Target tables,,mappings,refback,,,,TableMappings,,toTable,,,
-Source tables,,,,,,,,,,,,Definition of a table within a data dictionary
-Source tables,,data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,resource + data dictionary this table is defined for
-Source tables,,name,,1,TRUE,,,,,,,unique table name in the data dictionary
-Source tables,,label,,,,,,,,,,short human readible description
-Source tables,,unit of observation,ontology,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
-Source tables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
-Source tables,,description,text,,,,,,,,,description of the role/function of this table
-Source tables,,number of rows,int,,,,,,,,,count of the numbe of records in this table
-Source tables,,mappings,refback,,,,TableMappings,,fromTable,,,list of mappings between this table and standard/harmonized tables
-Table mappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-Table mappings,,from data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
-Table mappings,,from table,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,name of the table being mapped from
-Table mappings,,to data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-Table mappings,,to table,ref,1,TRUE,,TargetTables,toDataDictionary,,,,name of the table being mapped to
-Table mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
-Table mappings,,description,text,,,,,,,,,human readible description of the mapping
-Table mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
-Source variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-Source variable values,,data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,
-Source variable values,,variable,ref,1,TRUE,,SourceVariables,dataDictionary,,,,e.g. PATO
-Source variable values,,value,,1,TRUE,,,,,,,e.g. '1'
-Source variable values,,label,,,TRUE,,,,,,,
-Source variable values,,order,int,,,,,,,,,
-Source variable values,,is missing,bool,,,,,,,,,
-Source variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value
-Target variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-Target variable values,,data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
-Target variable values,,variable,ref,1,TRUE,,TargetVariables,dataDictionary,,,,e.g. PATO
-Target variable values,,value,,1,TRUE,,,,,,,e.g. '1'
-Target variable values,,label,,,TRUE,,,,,,,
-Target variable values,,order,int,,,,,,,,,
-Target variable values,,is missing,bool,,,,,,,,,
-Target variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value
-Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-Variable mappings,,from data dictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,
-Variable mappings,,from table,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,
-Variable mappings,,from variable,ref_array,,,,AllSourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
-Variable mappings,,from variables other tables,ref_array,,,,AllSourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
-Variable mappings,,to data dictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
-Variable mappings,,to table,ref,1,TRUE,,TargetTables,toDataDictionary,,,,
-Variable mappings,,to variable,ref,1,TRUE,,AllTargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
-Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
-Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
-Variable mappings,,description,text,,,,,,,,,human readible description of the mapping
-Variable mappings,,comments,text,,,,,,,,,additional notes and comments
-Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
-Counts,,resource,ref,1,TRUE,,RWE resources,,,,,
-Counts,,year,int,1,TRUE,,,,,,,
-Counts,,ageband,,1,TRUE,,,,,,,
-Counts,,gender,,1,TRUE,,,,,,,
-Counts,,N,int,,TRUE,,,,,,,
-Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
-Subcohort counts,,age group,ref,1,TRUE,CatalogueOntologies,AgeGroups,,,,,
-Subcohort counts,,N total,int,,,,,,,,,
-Subcohort counts,,N female,int,,,,,,,,,
-Subcohort counts,,N male,int,,,,,,,,,
-Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource.
-Submissions,,submission date,datetime,1,TRUE,,,,,,,Date of submission.
-Submissions,,submitter name,string,1,TRUE,,,,,,,Name of person who submitted.
-Submissions,,resources,ref_array,,TRUE,,Resources,,,,,Resource(s) that this submission is related to.
-Submissions,,submitter email,string,,TRUE,,,,,,,Email of person who submitted.
-Submissions,,submitter institution,ref,,,,Institutions,,,,,Institution of submitter.
-Submissions,,submitter role,ontology,,,,SubmitterRoles,,,,,Role of submitter in institution.
-Submissions,,submitter role other,text,,,,SubmitterRoles,,,,,"Role of submitter in institution, if other than above"
-Submissions,,submission type,ontology,,,,SubmissionTypes,,,,,"Type of submission, e.g. 'new entry', 'correction'"
-Submissions,,submission description,text,,,,SubmissionTypes,,,,,"Description of the submission, if applicable"
-Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission.
-Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted.
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,tableName_before,columnName_before
+Version,,,,,,,,,,,,3.0,Version,
+Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes",Institutions,
+Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution,Institutions,pid
+Institutions,,name,,2,,,,,,,,Official full name of the institution or organisation as used in EU projects,Institutions,name
+Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicable",Institutions,acronym
+Institutions,,type,ontology,,,CatalogueOntologies,Institution types,,,,,Type of organisation; in which sector is the institution active?,Institutions,type
+Institutions,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation",Institutions,typeOther
+Institutions,,website,,,,,,,,,,Link to the homepage of this institution,Institutions,website
+Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,Institutions,country
+Institutions,,description,text,,,,,,,,,General description of the institution,Institutions,description
+Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre,Institutions,address
+Institutions,,networks,refback,,,,Networks,,institution,,,"Is the institution a member of an existing research network or consortium? If so, provide a list of the names of the networks or consortia the institution participates in.",Institutions,networks
+Institutions,,cohorts,refback,,,,Cohorts,,institution,,,Cohorts that this institution is involved in,Institutions,cohorts
+Institutions,,databanks,refback,,,,Databanks,,institution,,,Databanks that this institution is involved in,Institutions,databanks
+Institutions,,data sources,refback,,,,Data sources,,institution,,,Data sources that this institution is involved in,Institutions,datasources
+Institutions,,studies,refback,,,,Studies,,lead institution,,,A list of studies that have been conducted by the institution that are recorded in the catalogue,Institutions,studies
+Institutions,,provider of,refback,,,,DAPs,,institution,,,"Query that lists all resources (Data sources, databanks, cohorts, networks) that this institution is access provider of",Institutions,providerOf
+Institutions,,logo,file,,,,,,,,,Institution logo,Institutions,logo
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",Resources,
+Models,Resources,,,,,,,,,,,Data models,Models,
+Data resources,Resources,,,,,,,,,,,Resources for data,DataResources,
+Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic,Cohorts,
+RWE resources,Data resources,,,,,,,,,,,Resources for real world evidence such as data source and databanks,RWEresources,
+Databanks,RWE resources,,,,,,,,,,,Data collections such as registries or biobanks,Databanks,
+Data sources,RWE resources,,,,,,,,,,,Collections of data banks covering the same population,Datasources,
+Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions,Networks,
+Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks",Studies,
+Resources,,overview,heading,,,,,,,,,General information about this resource,Resources,overview
+Resources,,pid,,1,TRUE,,,,,,,Persistent identifier,Resources,pid
+Resources,,external identifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)",Resources,externalIdentifiers
+Resources,,acronym,,,,,,,,,,Resource acronym,Resources,acronym
+Resources,,name,text,2,TRUE,,,,,,,Name used in European projects,Resources,name
+Data resources,,local name,,,,,,,,,,"If different from above, name in the national language",DataResources,localName
+Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,,"Type of network, e.g. h2020 project",Networks,type
+Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,Studies,type
+Studies,,type other,,,,,,,,,,"If other, describe the type of study",Studies,typeOther
+Data sources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of data sources best describe this data source,Datasources,type
+Data sources,,type other,,,,,,,,,,"If other, describe the type of datasource",Datasources,typeOther
+Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.,DataResources,keywords
+Resources,,website,,,,,,,,,,Link to the website or homepage,Resources,website
+Resources,,lead institution,ref,,,,Institutions,,,,,Name of lead institution for this resource,Resources,leadInstitution
+Resources,,description,text,,,,,,,,,Short description,Resources,description
+Studies,,study status,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,Studies,studyStatus
+Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),Models,releaseFrequency
+Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort,Cohorts,contactEmail
+Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource,Resources,contacts
+Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank",Cohorts,type
+Cohorts,,type other,,,,,,,,,,"If other, describe the type of resource",Cohorts,typeOther
+Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal",Cohorts,design
+Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort,Cohorts,designDescription
+Cohorts,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort,Cohorts,designSchematic
+Cohorts,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both",Cohorts,collectionType
+Databanks,,databank family,ontology,,,CatalogueOntologies,Databank families,,,,,Which of the following families of data banks best describe this data bank?,Databanks,databankFamily
+Databanks,,databank families other,text,,,,,,,,,"If 'other' selected above, describe the type of data bank",Databanks,databankFamiliesOther
+Cohorts,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this cohort,Cohorts,institution
+Databanks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this databank,Databanks,institution
+Data sources,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this datasource,Datasources,institution
+Networks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this network,Networks,institution
+Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.",Resources,logo
+Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,DataResources,population
+Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,DataResources,numberOfParticipants
+Data resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,DataResources,numberOfParticipantsWithSamples
+Databanks,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,Databanks,underlyingPopulation
+Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,Resources,countries
+Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,DataResources,regions
+Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups of the participants of this resource,DataResources,populationAgeGroups
+Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,Cohorts,inclusionCriteria
+Data resources,,start year,int,,,,,,,,,Year when first data was collected,DataResources,startYear
+Data resources,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,DataResources,endYear
+Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,Cohorts,subcohorts
+RWE resources,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records,RWEresources,originator
+RWE resources,,population entry,ontology_array,,,CatalogueOntologies,Population entry causes,,,,,Select the possible causes for a person to enter the underlying population of the data bank,RWEresources,populationEntry
+RWE resources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",RWEresources,populationEntryOther
+RWE resources,,population exit,ontology_array,,,CatalogueOntologies,Population exit causes,,,,,Select the possible causes for a person to exit the underlying population of the data bank,RWEresources,populationExit
+RWE resources,,population exit other,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",RWEresources,populationExitOther
+Databanks,,population pregnancy,bool,,,,,,,,,Does the data bank collect information on pregnant women and/or neonatal subpopulation?,Databanks,populationPregnancy
+RWE resources,,population disease,text,,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",RWEresources,populationDisease
+RWE resources,,population coverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?",RWEresources,populationCoverage
+RWE resources,,population coverage percentage,int,,,,,,,,,What percentage of the underlying population is covered by the data bank?,RWEresources,populationCoveragePercentage
+RWE resources,,time span description,text,,,,,,,,,Description of time span,RWEresources,timeSpanDescription
+RWE resources,,care setting,ontology_array,,,CatalogueOntologies,Care settings,,,,,Type of care setting(s) covered,RWEresources,careSetting
+RWE resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",RWEresources,careSettingOther
+Data resources,,contents,heading,,,,,,,,,Data model and contents,DataResources,contents
+Studies,,cdm,ref_array,,,,Models,,,,,Common data model(s) used in this study,Studies,cdm
+RWE resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information,,,,,Areas of information that were collected,RWEresources,areasOfInformation
+Data sources,,quality of life other,text,,,,,,,,,"If other, specify additional quality of life measures.",Datasources,qualityOfLifeOther
+Data sources,,databanks,refback,,,,Datasource databanks,,datasource,,,List of databanks that are included in this datasource,Datasources,databanks
+Cohorts,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,Cohorts,collectionEvents
+Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,Databanks,dataDictionaryAvailable
+RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",RWEresources,languages
+RWE resources,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,RWEresources,hasIdentifier
+Databanks,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level.",Databanks,identifierDescription
+RWE resources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",RWEresources,ETLstandardVocabularies
+RWE resources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",RWEresources,ETLstandardVocabulariesOther
+RWE resources,,data dictionaries,refback,,,,Source data dictionaries,,resource,,,Data dictionary for this databank or datasource,RWEresources,dataDictionaries
+Models,,data dictionaries,refback,,,,Target data dictionaries,,resource,,,Data dictionary for this model,Models,dataDictionaries
+Cohorts,,data dictionaries,refback,,,,Source data dictionaries,,resource,,,Data dictionary for this cohort,Cohorts,dataDictionaries
+RWE resources,,quantitative descriptors,heading,,,,,,,,,Numerical summaries describing resource population,RWEresources,quantitativeDescriptors
+RWE resources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,RWEresources,quantantitativeInformation
+RWE resources,,counts,refback,,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year",RWEresources,counts
+Data resources,,access,heading,,,,,,,,,Access and validation information,DataResources,access
+Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,Cohorts,dataAccessConditions
+Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,Cohorts,dataUseConditions
+Cohorts,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,Cohorts,dataAccessConditionsDescription
+Cohorts,,data access fee,bool,,,,,,,,,Does a fee apply to gain access to data of this cohort?,Cohorts,dataAccessFee
+Cohorts,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,Cohorts,releaseType
+Cohorts,,release description,text,,,,,,,,,Description of the release cycle of this resource,Cohorts,releaseDescription
+Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,Cohorts,linkageOptions
+RWE resources,,access,heading,,,,,,,,,Description of how access is permitted for DAPs and timing of access,RWEresources,access
+Data sources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source,Datasources,DAPs
+Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank,Databanks,controller
+RWE resources,,informed consent,ontology,,,CatalogueOntologies,Informed consents,,,,,Is informed consent required for use of the data for research purposes?,RWEresources,informedConsent
+RWE resources,,informed consent other,text,,,,,,,,,"If other, describe the conditions when informed consent is required",RWEresources,informedConsentOther
+RWE resources,,access identifiable data,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?,RWEresources,accessIdentifiableData
+RWE resources,,access identifiable data route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?",RWEresources,accessIdentifiableDataRoute
+RWE resources,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,RWEresources,accessSubjectDetails
+RWE resources,,access subject details route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?",RWEresources,accessSubjectDetailsRoute
+RWE resources,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",RWEresources,auditPossible
+Databanks,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?,Databanks,accessThirdParty
+Databanks,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted",Databanks,accessThirdPartyConditions
+Databanks,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?,Databanks,accessNonEU
+Databanks,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted",Databanks,accessNonEUConditions
+Databanks,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,Databanks,standardOperatingProcedures
+RWE resources,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",RWEresources,biospecimenAccess
+RWE resources,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted.",RWEresources,biospecimenAccessConditions
+Databanks,,data controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank.,Databanks,dataController
+RWE resources,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",RWEresources,governanceDetails
+RWE resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,RWEresources,approvalForPublication
+RWE resources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification",RWEresources,qualifications
+RWE resources,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted.",RWEresources,qualificationsDescription
+Databanks,,origin,heading,,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank,Databanks,origin
+Databanks,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",Databanks,reasonSustained
+Databanks,,date established,date,,,,,,,,,Date that the data bank was first established.,Databanks,dateEstablished
+RWE resources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank,RWEresources,prompt
+RWE resources,,record prompt,text,,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",RWEresources,recordPrompt
+Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",Databanks,unitOfObservation
+Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",Databanks,multipleEntries
+Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags,Databanks,updates
+Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records,Databanks,refresh
+Databanks,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",Databanks,lagTime
+RWE resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,RWEresources,preservation
+RWE resources,,preservation duration,text,,,,,,,,,"If no to the above, for how long are records preserved in the data bank?",RWEresources,preservationDuration
+RWE resources,,refresh period,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",RWEresources,refreshPeriod
+RWE resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,RWEresources,dateLastRefresh
+Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,Databanks,quality
+Databanks,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),Databanks,numberOfRecords
+Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values).",Databanks,completeness
+Databanks,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",Databanks,completenessOverTime
+Databanks,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?,Databanks,completenessResults
+Databanks,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)",Databanks,qualityDescription
+Databanks,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time,Databanks,qualityOverTime
+RWE resources,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",RWEresources,accessForValidation
+Databanks,,quality validation frequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?,Databanks,qualityValidationFrequency
+Databanks,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?,Databanks,qualityValidationMethods
+Databanks,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,Databanks,correctionMethods
+Databanks,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results.",Databanks,qualityValidationResults
+Data resources,,other information,heading,,,,,,,,,Other information,DataResources,otherInformation
+Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,DataResources,designPaper
+Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,Resources,publications
+RWE resources,,funding sources,ontology_array,,,CatalogueOntologies,Funding types,,,,,Statement listing funding that was obtained for this resource,RWEresources,fundingSources
+Studies,,funding scheme,ontology_array,,,CatalogueOntologies,Study funding,,,,,The source of funding for the study. Select all that apply.,Studies,fundingScheme
+Resources,,funding statement,text,,,,,,,,,Statement listing funding that was obtained for this resource,Resources,fundingStatement
+Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource,Resources,acknowledgements
+Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent",Resources,documentation
+Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,DataResources,supplementaryInformation
+Resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,Resources,collaborations
+Cohorts,,studies,refback,,,,Studies,,cohorts,,,Listing of studies that used this cohort,Cohorts,studies
+RWE resources,,studies,refback,,,,Studies,,databanks,,,Listing of studies that used this databank,RWEresources,studies
+Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,Cohorts,networks
+Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of,Studies,networks
+Databanks,,datasource,refback,,,,Data source databanks,,databank,,,"What datasource this databank is part of, if applicable",Databanks,datasource
+Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in,Databanks,networks
+Databanks,,cdms,ref,,,,Models,,,,,Common data models used by this databank,Databanks,cdms
+Data sources,,networks,refback,,,,Networks,,data sources,,,List of networks that this datasource is associated with,Datasources,networks
+Data sources,,studies,refback,,,,Studies,,data sources,,,List of studies that this datasource is associated with,Datasources,studies
+Publications,,,,,,,,,,,,Publications following bibtex format,Publications,
+Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,Publications,doi
+Publications,,title,,,,,,,,,,Publication title,Publications,title
+Publications,,authors,string_array,,,,,,,,,"List of authors, one entry per author",Publications,authors
+Publications,,year,int,,,,,,,,,"Year of publication (or, if unpublished, year of creation)",Publications,year
+Publications,,journal,,,,,,,,,,Journal or magazine the work was published in,Publications,journal
+Publications,,volume,int,,,,,,,,,Journal or magazine volume,Publications,volume
+Publications,,number,int,,,,,,,,,Journal or maragzine issue number,Publications,number
+Publications,,pagination,,,,,,,,,,"Page numbers, separated either by commas or double-hyphens.",Publications,pagination
+Publications,,publisher,,,,,,,,,,Publisher's name,Publications,publisher
+Publications,,school,,,,,,,,,,School where the thesis was written (in case of thesis),Publications,school
+Publications,,abstract,text,,,,,,,,,Publication abstract,Publications,abstract
+Publications,,resources,refback,,,,Resources,,publications,,,List of resources that refer to this publication,Publications,resources
+Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,Contacts,resource
+Contacts,,contribution type,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution,Contacts,contributionType
+Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person,Contacts,firstName
+Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person,Contacts,surname
+Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",Contacts,prefix
+Contacts,,initials,,,,,,,,,,Initials of the contact person,Contacts,initials
+Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,Contacts,title
+Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person,Contacts,institution
+Contacts,,department,text,,,,,,,,,Affiliated department of the contact person,Contacts,department
+Contacts,,email,,2,,,,,,,,Contact's email address,Contacts,email
+Contacts,,orcid,,3,,,,,,,,Orcid of the contact person,Contacts,orcid
+Contacts,,homepage,,,,,,,,,,Link to contact's homepage,Contacts,homepage
+Contacts,,photo,file,,,,,,,,,Contact's photograph,Contacts,photo
+Contacts,,expertise,,,,,,,,,,Description of contact's expertise,Contacts,expertise
+Documentation,,,,,,,,,,,,Documentation attached to a resource,Documentation,
+Documentation,,resource,ref,1,TRUE,,Resources,,,,,The resource this documentation is for,Documentation,resource
+Documentation,,name,,1,TRUE,,,,,,,Document name,Documentation,name
+Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of documentation,Documentation,type
+Documentation,,description,text,,,,,,,,,Description of the document,Documentation,description
+Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation,Documentation,url
+Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,Documentation,file
+DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,DAPs,
+DAPs,,institution,ref,1,TRUE,,Institutions,,,,,Group that provides access,DAPs,institution
+DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to,DAPs,resource
+DAPs,,department,text,,,,,,,,,"optionally, the organisational unit(s) that play a role as data access provider",DAPs,department
+DAPs,,contact,ref_array,,,,Contacts,,,,,Whom to contact for information and access,DAPs,contact
+DAPs,,population subset,ontology_array,,,CatalogueOntologies,Population subsets,,,,,"If the institution can only access a subset, which subsets can it access",DAPs,populationSubset
+DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",DAPs,populationSubsetOther
+DAPs,,access level,ontology,,,CatalogueOntologies,DAPs access levels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?,DAPs,accessLevel
+DAPs,,access completeness,ontology,,,CatalogueOntologies,DAPs access completeness,,,,,Can the institution access the whole data source or only an extract of the data source?,DAPs,accessCompleteness
+DAPs,,reason access,ontology,,,CatalogueOntologies,DAPs reasons for access,,,,,What is the reason for being able to access (an extract of) the data source?,DAPs,reasonAccess
+DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",DAPs,reasonAccessOther
+DAPs,,access permission,ontology,,,CatalogueOntologies,DAPs access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?",DAPs,accessPermission
+DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",DAPs,processTime
+DAPs,,fees,bool,,,,,,,,,Are there fees for data access?,DAPs,fees
+Data source databanks,,,,,,,,,,,,Links between datasource and databank,DatasourceDatabanks,
+Data source databanks,,datasource,ref,1,,,Data sources,,,,,,DatasourceDatabanks,datasource
+Data source databanks,,databank,ref,1,,,Databanks,,,,,,DatasourceDatabanks,databank
+Data source databanks,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,DatasourceDatabanks,linkageStrategy
+Data source databanks,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",DatasourceDatabanks,linkageVariable
+Data source databanks,,linkage variable unique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank",DatasourceDatabanks,linkageVariableUnique
+Data source databanks,,linkage completeness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).,DatasourceDatabanks,linkageCompleteness
+Quantitative information,,,,,,,,,,,,Quantitative information on the resource,QuantitativeInformation,
+Quantitative information,,resource,ref,1,,,Resources,,,,,,QuantitativeInformation,resource
+Quantitative information,,age group,ontology,,,CatalogueOntologies,Age groups,,,,,Select the relevant age group for this quantitative information,QuantitativeInformation,ageGroup
+Quantitative information,,population size,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",QuantitativeInformation,populationSize
+Quantitative information,,active size,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",QuantitativeInformation,activeSize
+Quantitative information,,no individuals with samples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year ",QuantitativeInformation,noIndividualsWithSamples
+Quantitative information,,mean observation years,int,,,,,,,,,Median years for which unique individuals with records captured in the data source are observable (most recent count),QuantitativeInformation,meanObservationYears
+Quantitative information,,mean years active,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),QuantitativeInformation,meanYearsActive
+Quantitative information,,median age,int,,,,,,,,,Median age of individuals within data source,QuantitativeInformation,medianAge
+Quantitative information,,proportion female,int,,,,,,,,,Proportion of females in the data source,QuantitativeInformation,proportionFemale
+Quantitative information,,proportion etnicity,text,,,,,,,,,Proportion per etnicity in the data source,QuantitativeInformation,proportionEtnicity
+Collection events,,,,,,,,,,,,Definition of a data collection event for a resource,CollectionEvents,
+Collection events,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of,CollectionEvents,resource
+Collection events,,name,,1,TRUE,,,,,,,Name of the collection event,CollectionEvents,name
+Collection events,,description,text,,,,,,,,,Description of the collection event,CollectionEvents,description
+Collection events,,subcohorts,ref_array,,,,Subcohorts,resource,,,,Subcohorts that are targetted by this collection event,CollectionEvents,subcohorts
+Collection events,,start year,ontology,,,CatalogueOntologies,Years,,,,,Start year of data collection,CollectionEvents,startYear
+Collection events,,start month,ontology,,,CatalogueOntologies,Months,,,,,Start month of data collection,CollectionEvents,startMonth
+Collection events,,end year,ontology,,,CatalogueOntologies,Years,,,,,End year of data collection. Leave empty if collection is ongoing,CollectionEvents,endYear
+Collection events,,end month,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing,CollectionEvents,endMonth
+Collection events,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups included in this data collection event,CollectionEvents,ageGroups
+Collection events,,number of participants,int,,,,,,,,,Number of participants sampled in this data collection event,CollectionEvents,numberOfParticipants
+Collection events,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information,,,,,Areas of information that were extracted in this data collection event,CollectionEvents,areasOfInformation
+Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,,Methods of data collection used in this collection event,CollectionEvents,dataCategories
+Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection event,CollectionEvents,sampleCategories
+Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event",CollectionEvents,standardizedTools
+Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify",CollectionEvents,standardizedToolsOther
+Collection events,,core variables,ontology_array,,,CatalogueOntologies,Core variables,,,,,Select 10-20 relevant variables that were collected in this collection event,CollectionEvents,coreVariables
+Collection events,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this collection event,CollectionEvents,supplementaryInformation
+Subcohorts,,,,,,,,,,,,Subcohorts defined for this resource,Subcohorts,
+Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of,Subcohorts,resource
+Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'",Subcohorts,name
+Subcohorts,,description,text,,,,,,,,,Subcohort description,Subcohorts,description
+Subcohorts,,number of participants,int,,,,,,,,,Number of participants in this subcohort,Subcohorts,numberOfParticipants
+Subcohorts,,counts,refback,,,,Subcohort counts,,subcohort,,,"Total number of unique individuals per age(group), gender and year",Subcohorts,counts
+Subcohorts,,inclusion start,int,,,,,,,,,Year of first included participant,Subcohorts,inclusionStart
+Subcohorts,,inclusion end,int,,,,,,,,,Year of last included participant. Leave empty if collection is ongoing,Subcohorts,inclusionEnd
+Subcohorts,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Age groups within this subcohort,Subcohorts,ageGroups
+Subcohorts,,main medical condition,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Disease groups within this subcohort, based on ICD-10 and ORPHA code classifications",Subcohorts,mainMedicalCondition
+Subcohorts,,comorbidity,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Comorbidity within this subcohort, based on ICD-10 classification",Subcohorts,comorbidity
+Subcohorts,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this subcohort largely originate from,Subcohorts,countries
+Subcohorts,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this subcohort largely originate from,Subcohorts,regions
+Subcohorts,,inclusion criteria,text,,,,,,,,,Inclusion criteria applied to this subcohort,Subcohorts,inclusionCriteria
+Subcohorts,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort,Subcohorts,supplementaryInformation
+Networks,,data sources,ref_array,,,,Data sources,,,,,,Networks,datasources
+Networks,,databanks,ref_array,,,,Databanks,,,,,,Networks,databanks
+Networks,,cohorts,ref_array,,,,Cohorts,,,,,,Networks,cohorts
+Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network,Networks,models
+Networks,,studies,refback,,,,Studies,,networks,,,,Networks,studies
+Studies,,required by regulator,bool,,,,,,,,,Was the study requested by a regulatory body?,Studies,requiredByRegulator
+Studies,,required by RMP,ontology,,,CatalogueOntologies,RMP requirements,,,,,Was the study required by a Risk Management Plan (RMP)?,Studies,requiredByRMP
+Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only",Studies,regulatoryProcedureNumber
+Studies,,date of sigining funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned",Studies,dateOfSiginingFundingContractPlanned
+Studies,,date of sigining funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual",Studies,dateOfSiginingFundingContractActual
+Studies,,collection start planned,date,,,,,,,,,When was the data collection planned to start?,Studies,collectionStartPlanned
+Studies,,collection start actual,date,,,,,,,,,When was the data collection actually start?,Studies,collectionStartActual
+Studies,,analysis start planned,date,,,,,,,,,When was the data analysis planned to start?,Studies,analysisStartPlanned
+Studies,,analysis start actual,date,,,,,,,,,When did the data analysis actually start?,Studies,analysisStartActual
+Studies,,interim report planned,date,,,,,,,,,"Planned date of interim report, if expected",Studies,interimReportPlanned
+Studies,,interim report actual,date,,,,,,,,,"Actual date of interim report, if expected",Studies,interimReportActual
+Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned",Studies,finalReportPlanned
+Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual",Studies,finalReportActual
+Studies,,data,heading,,,,,,,,,Data management,Studies,data
+Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study,Studies,datasources
+Studies,,databanks,ref_array,,,,Databanks,,,,,Databanks that provided data into this study,Studies,databanks
+Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study,Studies,cohorts
+Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,Studies,studyFeatures
+Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,Studies,dataCharacterisationDetails
+Studies,,data source types,ontology_array,,,CatalogueOntologies,Study data source types,,,,,Types of data sources used,Studies,dataSourceTypes
+Studies,,data source types other,text,,,,,,,,,"Sources of data, if other",Studies,dataSourceTypesOther
+Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal",Studies,qualityMarks
+Studies,,medicines studied codes,ontology_array,,,CatalogueOntologies,Medicine codes,,,,,Codes of medicines studied,Studies,medicinesStudiedCodes
+Studies,,medicines studied brands,text,,,,,,,,,Brand names of medicines studied,Studies,medicinesStudiedBrands
+Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,Medical conditions,,,,,Codes of the medical conditions studied,Studies,medicalConditionsStudied
+Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,Studies,medicalConditionsStudiedOther
+Studies,,date collection end planned,date,,,,,,,,,The date of the end of the data collection for the study- planned,Studies,dateCollectionEndPlanned
+Studies,,date collection end actual,date,,,,,,,,,"Data collection end, actual",Studies,dateCollectionEndActual
+Studies,,data extraction date,date,,,,,,,,,Date on which the study data was extracted,Studies,dataExtractionDate
+Studies,,methods,heading,,,,,,,,,Methodological aspects,Studies,methods
+Studies,,study setting,text,,,,,,,,,A short description of the study setting,Studies,studySetting
+Studies,,analysis plan,text,,,,,,,,,"A brief summary of the analysis method (e.g. risk estimation, measures of risk, internal/external validity)",Studies,analysisPlan
+Studies,,population,text,,,,,,,,,A short description of the study population,Studies,population
+Studies,,number of subjects,int,,,,,,,,,Estimated number of subjects,Studies,numberOfSubjects
+Studies,,age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are studied,Studies,ageGroups
+Studies,,objectives,text,,,,,,,,,A short description of the study objective,Studies,objectives
+Studies,,interventions,text,,,,,,,,,A short description of the study interventions,Studies,interventions
+Studies,,comparators,text,,,,,,,,,A short description of the study comparators,Studies,comparators
+Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes,Studies,outcomes
+Studies,,study design,text,,,,,,,,,A brief summary of the study design,Studies,studyDesign
+Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),Studies,results
+Studies,,topic,ontology,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,Studies,topic
+Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details.",Studies,topicOther
+Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,Studies,trialRegulatoryScope
+Studies,,study design classification,ontology,,,CatalogueOntologies,Study design classification,,,,,If Study type: clinical trials. Select one of the following,Studies,studyDesignClassification
+Studies,,study design classification other,text,,,,,,,,,Further details on design,Studies,studyDesignClassificationOther
+Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,Studies,studyScope
+Studies,,study scope other,text,,,,,,,,,If scope 'other',Studies,studyScopeOther
+Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied",Studies,PopulationOfInterest
+Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied",Studies,PopulationOfInterestOther
+Target data dictionaries,,,,,,,,,,,,Definition of a data dictionary for common data model,TargetDataDictionaries,
+Target data dictionaries,,resource,ref,1,TRUE,,Models,,,,,Link to the resource of which contents has been released,TargetDataDictionaries,resource
+Target data dictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)",TargetDataDictionaries,version
+Target data dictionaries,,tables,refback,,,,Target tables,,data dictionary,,,tables part of this data dictionary,TargetDataDictionaries,tables
+Target data dictionaries,,models,ref_array,,,,Models,,,,,existing data models that are used to produce this data dictionary,TargetDataDictionaries,models
+Target data dictionaries,,date,date,,,,,,,,,date of creation,TargetDataDictionaries,date
+Target data dictionaries,,description,text,,,,,,,,,notes specific to this data dictionary,TargetDataDictionaries,description
+Source data dictionaries,,,,,,,,,,,,"Definition of a data dictionary for a cohort, databank or datasource",SourceDataDictionaries,
+Source data dictionaries,,resource,ref,1,TRUE,,Resources,,,,,Link to the resource of which contents has been released,SourceDataDictionaries,resource
+Source data dictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)",SourceDataDictionaries,version
+Source data dictionaries,,tables,refback,,,,Source tables,,data dictionary,,,tables part of this data dictionary,SourceDataDictionaries,tables
+Source data dictionaries,,mappings,refback,,,,Data dictionary mappings,,from data dictionary,,,tables part of this data dictionary,SourceDataDictionaries,mappings
+Source data dictionaries,,date,date,,,,,,,,,date of creation,SourceDataDictionaries,date
+Source data dictionaries,,description,text,,,,,,,,,notes specific to this data dictionary,SourceDataDictionaries,description
+Data dictionary mappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes",DataDictionaryMappings,
+Data dictionary mappings,,from data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version",DataDictionaryMappings,fromDataDictionary
+Data dictionary mappings,,to data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",DataDictionaryMappings,toDataDictionary
+Data dictionary mappings,,mapping status,ontology,,,CatalogueOntologies,Mapping status,,,,,Has the data been ETL-ed to a common data model?,DataDictionaryMappings,mappingStatus
+Data dictionary mappings,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",DataDictionaryMappings,etlFrequency
+All source variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",AllSourceVariables,
+All source variables,,data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,data dictionary of the resource,AllSourceVariables,dataDictionary
+All source variables,,table,ref,1,TRUE,,Source tables,data dictionary,,,,table this variable is part of,AllSourceVariables,table
+All source variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table",AllSourceVariables,name
+All source variables,,label,,,,,,,,,,,AllSourceVariables,label
+All source variables,,collection event,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,AllSourceVariables,collectionEvent
+All source variables,,mappings,refback,,,,VariableMappings,,from table,,,list of mappings between this variable and standard/harmonized variable,AllSourceVariables,mappings
+Source variables,AllSourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",SourceVariables,
+Source variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc",SourceVariables,format
+Source variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology,SourceVariables,unit
+Source variables,,references,ref,,,,All source variables,data dictionary,,,,to define foreign key relationships between variables within or across tables,SourceVariables,references
+Source variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection,SourceVariables,mandatory
+Source variables,,description,text,,,,,,,,,,SourceVariables,description
+Source variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,SourceVariables,order
+Source variables,,example values,string_array,,,,,,,,,,SourceVariables,exampleValues
+Source variables,,permitted values,refback,,,,Source variables values,,variable,,,,SourceVariables,permittedValues
+Source variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,SourceVariables,keywords
+Source variables,,repeats,refback,,,,Repeated source variables,,is repeat of,,,listing of all repeated variables defined for this variable,SourceVariables,repeats
+Source variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,SourceVariables,vocabularies
+Source variables,,notes,text,,,,,,,,,Any other information on this variable,SourceVariables,notes
+Repeated source variables,AllSourceVariables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.,RepeatedSourceVariables,
+Repeated source variables,,is repeat of,ref,,TRUE,,Source variables,data dictionary,,,,reference to the definition of the sourceVariable that is being repeated,RepeatedSourceVariables,isRepeatOf
+All target variables,,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead",AllTargetVariables,
+All target variables,,data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,data dictionary of the target model,AllTargetVariables,dataDictionary
+All target variables,,table,ref,1,TRUE,,Target tables,data dictionary,,,,table this variable is part of,AllTargetVariables,table
+All target variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table",AllTargetVariables,name
+All target variables,,label,,,,,,,,,,,AllTargetVariables,label
+All target variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,AllTargetVariables,collectionEvent
+All target variables,,mappings,refback,,,,Variable mappings,,to variable,,,list of mappings between this variable and source variable(s),AllTargetVariables,mappings
+Target variables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",TargetVariables,
+Target variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc",TargetVariables,format
+Target variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology,TargetVariables,unit
+Target variables,,references,ref,,,,All target variables,data dictionary,,,,to define foreign key relationships between variables within or across tables,TargetVariables,references
+Target variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection,TargetVariables,mandatory
+Target variables,,description,text,,,,,,,,,,TargetVariables,description
+Target variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,TargetVariables,order
+Target variables,,example values,string_array,,,,,,,,,,TargetVariables,exampleValues
+Target variables,,permitted values,refback,,,,Source variables values,,variable,,,,TargetVariables,permittedValues
+Target variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,,TargetVariables,keywords
+Target variables,,repeats,refback,,,,Repeated target variables,,is repeat of,,,listing of all repeated variables defined for this variable,TargetVariables,repeats
+Target variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,,TargetVariables,vocabularies
+Target variables,,notes,text,,,,,,,,,Any other information on this variable,TargetVariables,notes
+Repeated target variables,AllTargetVariables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.,RepeatedTargetVariables,
+Repeated target variables,,is repeat of,ref,,TRUE,,Target variables,data dictionary,,,,reference to the definition of the targetVariable that is being repeated,RepeatedTargetVariables,isRepeatOf
+Target tables,,,,,,,,,,,,Definition of a table within a (common) data model,TargetTables,
+Target tables,,data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,resource + version this table is defined for,TargetTables,dataDictionary
+Target tables,,name,,1,TRUE,,,,,,,unique table name in the model,TargetTables,name
+Target tables,,label,,,,,,,,,,short human readible description,TargetTables,label
+Target tables,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,TargetTables,unitOfObservation
+Target tables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree,TargetTables,keywords
+Target tables,,description,text,,,,,,,,,description of the role/function of this table,TargetTables,description
+Target tables,,number of rows,int,,,,,,,,,count of the numbe of records in this table,TargetTables,numberOfRows
+Target tables,,mappings,refback,,,,Table mappings,,to table,,,,TargetTables,mappings
+Source tables,,,,,,,,,,,,Definition of a table within a data dictionary,SourceTables,
+Source tables,,data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,resource + data dictionary this table is defined for,SourceTables,dataDictionary
+Source tables,,name,,1,TRUE,,,,,,,unique table name in the data dictionary,SourceTables,name
+Source tables,,label,,,,,,,,,,short human readible description,SourceTables,label
+Source tables,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,SourceTables,unitOfObservation
+Source tables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree,SourceTables,keywords
+Source tables,,description,text,,,,,,,,,description of the role/function of this table,SourceTables,description
+Source tables,,number of rows,int,,,,,,,,,count of the numbe of records in this table,SourceTables,numberOfRows
+Source tables,,mappings,refback,,,,Table mappings,,from table,,,list of mappings between this table and standard/harmonized tables,SourceTables,mappings
+Table mappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes",TableMappings,
+Table mappings,,from data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version",TableMappings,fromDataDictionary
+Table mappings,,from table,ref,1,TRUE,,Source tables,from data dictionary,,,,name of the table being mapped from,TableMappings,fromTable
+Table mappings,,to data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",TableMappings,toDataDictionary
+Table mappings,,to table,ref,1,TRUE,,Target tables,to data dictionary,,,,name of the table being mapped to,TableMappings,toTable
+Table mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,TableMappings,order
+Table mappings,,description,text,,,,,,,,,human readible description of the mapping,TableMappings,description
+Table mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code",TableMappings,syntax
+Source variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,SourceVariableValues,
+Source variable values,,data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,,SourceVariableValues,dataDictionary
+Source variable values,,variable,ref,1,TRUE,,Source variables,data dictionary,,,,e.g. PATO,SourceVariableValues,variable
+Source variable values,,value,,1,TRUE,,,,,,,e.g. '1',SourceVariableValues,value
+Source variable values,,label,,,TRUE,,,,,,,,SourceVariableValues,label
+Source variable values,,order,int,,,,,,,,,,SourceVariableValues,order
+Source variable values,,is missing,bool,,,,,,,,,,SourceVariableValues,isMissing
+Source variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value,SourceVariableValues,ontologyTermURI
+Target variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,TargetVariableValues,
+Target variable values,,data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,,TargetVariableValues,dataDictionary
+Target variable values,,variable,ref,1,TRUE,,Target variables,data dictionary,,,,e.g. PATO,TargetVariableValues,variable
+Target variable values,,value,,1,TRUE,,,,,,,e.g. '1',TargetVariableValues,value
+Target variable values,,label,,,TRUE,,,,,,,,TargetVariableValues,label
+Target variable values,,order,int,,,,,,,,,,TargetVariableValues,order
+Target variable values,,is missing,bool,,,,,,,,,,TargetVariableValues,isMissing
+Target variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value,TargetVariableValues,ontologyTermURI
+Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax.",VariableMappings,
+Variable mappings,,from data dictionary,ref,1,TRUE,,Source data dictionaries,,,,,,VariableMappings,fromDataDictionary
+Variable mappings,,from table,ref,1,TRUE,,Source tables,from data dictionary,,,,,VariableMappings,fromTable
+Variable mappings,,from variable,ref_array,,,,All source variables,from table,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)",VariableMappings,fromVariable
+Variable mappings,,from variables other tables,ref_array,,,,All source variables,from data dictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases",VariableMappings,fromVariablesOtherTables
+Variable mappings,,to data dictionary,ref,1,TRUE,,Target data dictionaries,,,,,,VariableMappings,toDataDictionary
+Variable mappings,,to table,ref,1,TRUE,,Target tables,to data dictionary,,,,,VariableMappings,toTable
+Variable mappings,,to variable,ref,1,TRUE,,All target variables,to table,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable.",VariableMappings,toVariable
+Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'",VariableMappings,match
+Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final,VariableMappings,status
+Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,VariableMappings,description
+Variable mappings,,comments,text,,,,,,,,,additional notes and comments,VariableMappings,comments
+Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code",VariableMappings,syntax
+Counts,,resource,ref,1,TRUE,,RWE resources,,,,,,Counts,resource
+Counts,,year,int,1,TRUE,,,,,,,,Counts,year
+Counts,,ageband,,1,TRUE,,,,,,,,Counts,ageband
+Counts,,gender,,1,TRUE,,,,,,,,Counts,gender
+Counts,,N,int,,TRUE,,,,,,,,Counts,N
+Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,,SubcohortCounts,subcohort
+Subcohort counts,,age group,ref,1,TRUE,CatalogueOntologies,Age groups,,,,,,SubcohortCounts,ageGroup
+Subcohort counts,,N total,int,,,,,,,,,,SubcohortCounts,N total
+Subcohort counts,,N female,int,,,,,,,,,,SubcohortCounts,N female
+Subcohort counts,,N male,int,,,,,,,,,,SubcohortCounts,N male
+Submissions,,,,,,,,,,,,Documentation of data submissions related to a resource.,Submissions,
+Submissions,,submission date,datetime,1,TRUE,,,,,,,Date of submission.,Submissions,submissionDate
+Submissions,,submitter name,string,1,TRUE,,,,,,,Name of person who submitted.,Submissions,submitterName
+Submissions,,resources,ref_array,,TRUE,,Resources,,,,,Resource(s) that this submission is related to.,Submissions,resources
+Submissions,,submitter email,string,,TRUE,,,,,,,Email of person who submitted.,Submissions,submitterEmail
+Submissions,,submitter institution,ref,,,,Institutions,,,,,Institution of submitter.,Submissions,submitterInstitution
+Submissions,,submitter role,ontology,,,,Submitter roles,,,,,Role of submitter in institution.,Submissions,submitterRole
+Submissions,,submitter role other,text,,,,Submitter roles,,,,,"Role of submitter in institution, if other than above",Submissions,submitterRoleOther
+Submissions,,submission type,ontology,,,,Submission types,,,,,"Type of submission, e.g. 'new entry', 'correction'",Submissions,submissionType
+Submissions,,submission description,text,,,,Submission types,,,,,"Description of the submission, if applicable",Submissions,submissionDescription
+Submissions,,responsible persons,text,,,,,,,,,List of responsible persons related to this submission.,Submissions,responsiblePersons
+Submissions,,acceptance date,datetime,,,,,,,,,Date submission was accepted.,Submissions,acceptanceDate
