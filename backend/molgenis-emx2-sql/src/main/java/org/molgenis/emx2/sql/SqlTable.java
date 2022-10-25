@@ -415,7 +415,8 @@ class SqlTable implements Table {
       // remove 'readonly' from the update list, unless mg_table
       for (Column column :
           columns.stream()
-              .filter(c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
+              .filter(
+                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
               .toList()) {
         step2.set(
             column.getJooqField(),
