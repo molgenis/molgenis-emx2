@@ -19,6 +19,9 @@ public class FAIRDataHubLoader implements AvailableDataModels.DataModelLoader {
     // load ontologies
     MolgenisIO.fromClasspathDirectory("fairdatahub/ontologies", schema, false);
 
+    // apply ontology semantics
+    createSchema(schema, "fairdatahub/ontologies/SEMANTICS.csv");
+
     // optionally, load demo data
     if (includeDemoData) {
       MolgenisIO.fromClasspathDirectory("fairdatahub/beaconv2/demodata", schema, false);
