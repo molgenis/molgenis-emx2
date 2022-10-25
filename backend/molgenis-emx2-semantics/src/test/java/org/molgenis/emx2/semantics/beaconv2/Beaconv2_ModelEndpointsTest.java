@@ -4,21 +4,26 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.datamodels.FAIRDataHubLoader;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import spark.Request;
+import spark.Response;
 
 public class Beaconv2_ModelEndpointsTest {
 
   static Database database;
   static Schema beaconSchema;
+  static List<Table> tables;
 
   @BeforeClass
   public static void setup() {
@@ -26,6 +31,7 @@ public class Beaconv2_ModelEndpointsTest {
     beaconSchema = database.dropCreateSchema("fairdatahub");
     FAIRDataHubLoader b2l = new FAIRDataHubLoader();
     b2l.load(beaconSchema, true);
+    tables = List.of(beaconSchema.getTable("Individuals"));
   }
 
   @Test
@@ -131,8 +137,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Analyses analyses = new Analyses(request, List.of(beaconSchema.getTable("Analyses")));
     String json = JsonUtil.getWriter().writeValueAsString(analyses);
-    assertTrue(json.contains("\"resultsCount\" : 4,"));
-    assertEquals(2630, json.length());
+    assertTrue(json.contains("\"resultsCount\" : 5,"));
   }
 
   @Test
@@ -162,7 +167,7 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Biosamples biosamples = new Biosamples(request, List.of(beaconSchema.getTable("Biosamples")));
     String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    assertTrue(json.contains("\"resultsCount\" : 2,"));
+    assertTrue(json.contains("\"resultsCount\" : 3,"));
     assertTrue(
         json.contains(
             """
@@ -170,7 +175,6 @@ public class Beaconv2_ModelEndpointsTest {
                                       "procedureCode" : {
                                         "id" : "OBI:0002654",
                                         "label" : "needle biopsy\""""));
-    assertEquals(2105, json.length());
   }
 
   @Test
@@ -218,7 +222,6 @@ public class Beaconv2_ModelEndpointsTest {
                       {
                         "id" : "ISO3166:ES",
                         "label" : "Spain\""""));
-    assertEquals(3353, json.length());
   }
 
   @Test
@@ -255,7 +258,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(individuals);
     assertTrue(json.contains("\"id\" : \"Ind001\","));
     assertTrue(json.contains("\"id\" : \"Ind002\","));
-    assertEquals(5918, json.length());
   }
 
   @Test
@@ -298,7 +300,6 @@ public class Beaconv2_ModelEndpointsTest {
             "observationMoment" : {
                               "age" : {
                                 "iso8601duration" : "P75Y9M11D\""""));
-    assertEquals(3408, json.length());
   }
 
   @Test
@@ -322,10 +323,9 @@ public class Beaconv2_ModelEndpointsTest {
     Request request = mock(Request.class);
     Runs runs = new Runs(request, List.of(beaconSchema.getTable("Runs")));
     String json = JsonUtil.getWriter().writeValueAsString(runs);
-    assertTrue(json.contains("\"resultsCount\" : 4,"));
+    assertTrue(json.contains("\"resultsCount\" : 5,"));
     assertTrue(
         json.contains("\"librarySource\" : {\n" + "              \"id\" : \"GENEPIO:0001966\","));
-    assertEquals(3390, json.length());
   }
 
   @Test
@@ -354,5 +354,404 @@ public class Beaconv2_ModelEndpointsTest {
     assertFalse(json.contains("\"id\" : \"SRR10903402\","));
     assertFalse(json.contains("\"id\" : \"SRR10903404\","));
     assertEquals(1525, json.length());
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  },
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C20197",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16577",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  },
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1955",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1955",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_18730",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 31,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 33,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAge_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 30,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 3,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 91,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C156420",
+					"id": 20,
+					"operator": "="
+				  },
+				  {
+					"type": "NCIT_C156420",
+					"id": 2,
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C16612",
+					"id": "TTN",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C16612",
+					"id": "COL7A1",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotype_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "SIO_010056",
+					"id": "HP_0012651",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAndDisease_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
+				"filters": [
+				  {
+					"type": "NCIT_C28421",
+					"id": "NCIT_C16576",
+					"operator": "="
+				  },
+				  {
+					"type": "SIO_001003",
+					"id": "Orphanet_1895",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGene_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "type": "SIO_001003",
+					 "id": "Orphanet_1895",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C16612",
+					 "id": "COL7A1",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "type": "SIO_001003",
+					 "id": "Orphanet_1873",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C16612",
+					 "id": "CHD7",
+					 "operator": "="
+				   },
+				   {
+					 "type": "NCIT_C28421",
+					 "id": "NCIT_C20197",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""",
+        1);
+  }
+
+  /**
+   * Helper function to reduce code duplication
+   *
+   * @param body
+   * @param hits
+   * @throws JsonProcessingException
+   */
+  private void assertNrOfHitsFor(String body, int hits) throws JsonProcessingException {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.body()).thenReturn(body);
+    String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    if (hits > 0) {
+      assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
+      assertTrue(jsonResponse.contains("\"numTotalResults\" : " + hits));
+    } else {
+      assertTrue(jsonResponse.contains("\"exists\" : \"false\""));
+      assertFalse(jsonResponse.contains("\"numTotalResults\""));
+    }
   }
 }
