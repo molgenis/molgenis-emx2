@@ -41,7 +41,7 @@ DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this re
 Resources,,website,,,,,,,,,,Link to the website or homepage
 Resources,,leadInstitution,ref,,,,Institutions,,,,,Name of lead institution for this resource
 Resources,,description,text,,,,,,,,,Short description
-Studies,,studyStatus,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
+Studies,,studyStatus,ontology,,,CatalogueOntologies,StudyStatus,,,,,Status of the study
 Models,,releaseFrequency,int,,,,,,,,,Refreshing rate (in months)
 Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
 Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
