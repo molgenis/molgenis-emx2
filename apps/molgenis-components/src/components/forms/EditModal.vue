@@ -2,7 +2,7 @@
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <EditModalWizard
-        v-if="loaded"
+        v-if="loaded && tableMetaData"
         :id="id"
         v-model="rowData"
         :pkey="pkey"
@@ -12,7 +12,7 @@
         :visibleColumns="visibleColumns"
         :clone="clone"
         :page="currentPage"
-        @setCurrentPage="pageCount = $event"
+        @setPageCount="pageCount = $event"
       >
       </EditModalWizard>
     </template>
@@ -46,7 +46,7 @@ export default {
   data() {
     return {
       rowData: {},
-      tableMetaData: {},
+      tableMetaData: null,
       client: null,
       errorMessage: null,
       loaded: true,
@@ -97,19 +97,17 @@ export default {
     title() {
       return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
     },
+    pageHeadings() {
+      return this.tableMetaData.columns
+        .filter((column) => column.columnType === "HEADING")
+        .map((column) => column.name);
+    },
     pageName() {
       if (this.currentPage > 1) {
         return " - " + this.pageHeadings[this.currentPage - 2];
       } else {
         return "";
       }
-    },
-    pageHeadings() {
-      return this.tableMetaData.columns
-        .filter((column) => {
-          column.columnType === "HEADING";
-        })
-        .map((column) => column.name);
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";

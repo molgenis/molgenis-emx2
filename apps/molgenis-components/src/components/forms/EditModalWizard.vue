@@ -1,6 +1,7 @@
 <template>
   <div>
     <RowEdit
+      v-if="columnsSplitByHeadings"
       :id="id"
       :value="value"
       :pkey="pkey"
@@ -21,11 +22,7 @@ export default {
   name: "EditModalWizard",
   components: { RowEdit },
   data() {
-    return {
-      columnsSplitByHeadings: this.splitColumnsByHeadings(
-        this.tableMetaData.columns
-      ),
-    };
+    return { columnsSplitByHeadings: null };
   },
   props: {
     value: {
@@ -62,24 +59,27 @@ export default {
       type: String,
     },
   },
-  methods: {
-    splitColumnsByHeadings(columns) {
-      const visualColumns = columns.reduce((accum, column) => {
-        if (column.columnType === "HEADING") {
-          accum.push([{ name: column.name }]);
-        } else {
-          if (accum.length === 0) {
-            accum.push([]);
-          }
-          accum[accum.length - 1].push({ name: column.name });
-        }
-        return accum;
-      }, []);
-      this.$emit("setCurrentPage", visualColumns.length);
-      return visualColumns;
-    },
+  mounted() {
+    this.columnsSplitByHeadings = splitColumnsByHeadings(
+      this.tableMetaData.columns
+    );
+    this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
 };
+
+function splitColumnsByHeadings(columns) {
+  return columns.reduce((accum, column) => {
+    if (column.columnType === "HEADING") {
+      accum.push([{ name: column.name }]);
+    } else {
+      if (accum.length === 0) {
+        accum.push([]);
+      }
+      accum[accum.length - 1].push({ name: column.name });
+    }
+    return accum;
+  }, []);
+}
 </script>
 
 <docs>
