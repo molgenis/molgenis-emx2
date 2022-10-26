@@ -14,7 +14,7 @@
   <p v-else>N/A</p>
 </template>
 <script>
-import OntologyTerms from "./OntologyTerms";
+import OntologyTerms from "./OntologyTerms.vue";
 
 export default {
   components: { OntologyTerms },

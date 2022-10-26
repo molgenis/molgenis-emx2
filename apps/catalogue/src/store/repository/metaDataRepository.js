@@ -1,5 +1,5 @@
 import { request } from "graphql-request";
-import schemaMetaQuery from "../query/schemaMetaData.gql";
+import schemaMetaQuery from "../query/schemaMetaData.js";
 
 const fetchSchemaMetaData = async () => {
   return request("graphql", schemaMetaQuery).catch((e) => {

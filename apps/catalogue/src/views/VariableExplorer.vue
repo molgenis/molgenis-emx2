@@ -98,8 +98,8 @@
 </template>
 
 <script>
-import VariablesDetailsView from "./VariablesDetailsView";
-import HarmonizationView from "./HarmonizationView";
+import VariablesDetailsView from "./VariablesDetailsView.vue";
+import HarmonizationView from "./HarmonizationView.vue";
 import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
 import {
   InputSearch,

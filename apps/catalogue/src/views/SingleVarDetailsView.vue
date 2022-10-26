@@ -71,7 +71,7 @@
 <script>
 import VariableDetails from "../components/VariableDetails.vue";
 import { fetchResources } from "../store/repository/resourceRepository";
-import HarmonizationCell from "../components/harmonization/HarmonizationCell";
+import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
 
 export default {
   name: "SingleVarDetailsView",

@@ -40,10 +40,10 @@ import { request } from "graphql-request";
 import {
   MessageError,
 } from "molgenis-components";
-import DatabankList from "../components/DatabankList";
-import InstitutionList from "../components/InstitutionList";
-import ResourceHeader from "../components/ResourceHeader";
-import OntologyTerms from "../components/OntologyTerms";
+import DatabankList from "../components/DatabankList.vue";
+import InstitutionList from "../components/InstitutionList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import OntologyTerms from "../components/OntologyTerms.vue";
 
 
 export default {

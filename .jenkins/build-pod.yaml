@@ -13,7 +13,10 @@ spec:
       resources:
         requests:
           cpu: 2
-          memory: 2Gi
+          memory: 1Gi
+        limits:
+          cpu: 2
+          memory: 4Gi
     - name: postgres
       image: postgres:14-alpine
       imagePullPolicy: IfNotPresent
@@ -21,6 +24,9 @@ spec:
       tty: true
       resources:
         requests:
+          cpu: 1
+          memory: 1Gi
+        limits:
           cpu: 1
           memory: 1Gi
       env:
