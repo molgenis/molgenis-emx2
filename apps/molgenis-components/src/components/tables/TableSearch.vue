@@ -84,6 +84,8 @@ import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import Client from "../../client/client.js";
 import RowAddButton from "../organisms/RowAddButton.vue";
+import RowEditButton from "../organisms/RowEditButton.vue";
+import RowDeleteButton from "../organisms/RowDeleteButton.vue";
 
 export default {
    name: "TableSearch",
@@ -94,6 +96,8 @@ export default {
     Pagination,
     Spinner,
     RowAddButton,
+    RowEditButton,
+    RowDeleteButton
   },
   props: {
     lookupTableName: {
