@@ -1,10 +1,10 @@
 name,definition,codesystem,code,ontologyTermURI
 Disease causing,"Variation is causative of disease.",VariO,0294,http://purl.obolibrary.org/obo/VariO_0294
 Disease associated,"Variation is disease related.",VariO,0296,http://purl.obolibrary.org/obo/VariO_0296
-Modulator,"Variation that activates or represses the genetic machinery",NCIT,C90063,http://purl.obolibrary.org/obo/NCIT_C90063
+Modulator,"Variation that activates or represses the genetic machinery.",NCIT,C90063,http://purl.obolibrary.org/obo/NCIT_C90063
 Modifier,"Variation that modifies one or more aspects of a disease, such as temporal pattern, age of onset and mortality.",SCDO,0000444,http://purl.obolibrary.org/obo/SCDO_0000444
 Mediator,"Variation that increases cell proliferation, pluripotency or survival in cancer.",NCIT,C61426,http://purl.obolibrary.org/obo/NCIT_C61426
-Risk factor,"Variation that increases the genetic susceptibility of a disease",OGSF,0000004,http://purl.obolibrary.org/obo/OGSF_0000004
+Risk factor,"Variation that increases the genetic susceptibility of a disease.",OGSF,0000004,http://purl.obolibrary.org/obo/OGSF_0000004
 Protective factor,"Variation that reduces the risk of developing a disease or delays onset.",OMIT,0028766,http://purl.obolibrary.org/obo/OMIT_0028766
 Incidental finding,"An abnormality noted on diagnostic testing that was not related to the reason that prompted the analysis.",NCIT,C187663,http://purl.obolibrary.org/obo/NCIT_C187663
 Low penetrance,"Variation with a low probability of expression as a phenotype.",NCIT,C48666,http://purl.obolibrary.org/obo/NCIT_C48666
