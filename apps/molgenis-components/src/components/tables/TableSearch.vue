@@ -29,6 +29,15 @@
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
+          <template v-slot:rowcolheader>
+            <RowAddButton
+              v-if="canEdit"
+              :id="'row-button-add-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              class="d-inline p-0"
+            />
+          </template>
           <template v-slot:colheader="slotProps">
             <slot
               name="colheader"
@@ -45,6 +54,22 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
+             <RowEditButton
+              v-if="canEdit"
+              :id="'row-button-edit-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+            />
+            <RowDeleteButton
+              v-if="canEdit"
+              :id="'row-button-del-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+            />
           </template>
         </TableMolgenis>
       </div>
@@ -59,14 +84,21 @@ import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import Client from "../../client/client.js";
+import RowAddButton from "../organisms/RowAddButton.vue";
+import RowEditButton from "../organisms/RowEditButton.vue";
+import RowDeleteButton from "../organisms/RowDeleteButton.vue";
 
 export default {
+   name: "TableSearch",
   components: {
     TableMolgenis,
     MessageError,
     InputSearch,
     Pagination,
     Spinner,
+    RowAddButton,
+    RowEditButton,
+    RowDeleteButton
   },
   props: {
     lookupTableName: {
@@ -97,8 +129,8 @@ export default {
     },
     filter: {
       type: Object,
-      required: false
-    }
+      required: false,
+    },
   },
   data: function () {
     return {
@@ -171,6 +203,14 @@ export default {
 <docs>
 <template>
   <demo-item>
+    <div class="border-bottom mb-3 p-2">
+        <h5>synced demo props: </h5>
+        <div>
+          <label for="canEdit" class="pr-1">can edit: </label>
+          <input type="checkbox" id="canEdit" v-model="canEdit">
+        </div>
+      </div>
+    </div>
     <table-search
         id="my-search-table"
         :selection.sync="selected"
@@ -178,7 +218,7 @@ export default {
         :lookupTableName="'Pet'"
         :showSelect="false"
         :graphqlURL="'/pet store/graphql'"
-        :canEdit="true"
+        :canEdit="canEdit"
         @select="click"
         @deselect="click"
         @click="click"
@@ -210,6 +250,7 @@ export default {
         remoteSelected: [],
         remoteColumns: [],
         remoteTableData: null,
+        canEdit: false
       };
     },
     methods: {
