@@ -14,4 +14,8 @@ public class ISO8601duration {
   public ISO8601duration(String value) {
     this.iso8601duration = value;
   }
+
+  public String getIso8601duration() {
+    return iso8601duration;
+  }
 }

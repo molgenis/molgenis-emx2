@@ -6,14 +6,16 @@ import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.ColumnPath;
+import org.molgenis.emx2.beaconv2.endpoints.individuals.Diseases;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
+import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsItem;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.requests.Filter;
 import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
@@ -33,10 +35,17 @@ public class EJP_VP_IndividualsQuery {
     this.tables = tables;
   }
 
-  public String getPostResponse() throws JsonProcessingException {
+  public String getPostResponse() throws Exception {
+
+    if (this.tables == null || this.tables.isEmpty()) {
+      throw new Exception(
+          "No tables reachable for querying, perhaps permissions are not set correctly?");
+    }
 
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
+
+    List<AgeQuery> ageQueries = new ArrayList<>();
 
     List<String> filters = new ArrayList<>();
     for (Filter filter : beaconRequestBody.getQuery().getFilters()) {
@@ -60,59 +69,8 @@ public class EJP_VP_IndividualsQuery {
           type.endsWith("NCIT_C25150") || type.equals("EFO_0004847") || type.equals("NCIT_C156420");
       if (isAgeQuery) {
         int age = Integer.parseInt(id);
-
-        if (type.endsWith("NCIT_C25150")) {
-          // Age (Age this year)
-          String ageFilter =
-              "{ _or: [{"
-                  + AGE_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + age
-                  + "Y\"}}, {"
-                  + AGE_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age - 1)
-                  + "Y\"}}, {"
-                  + AGE_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age + 1)
-                  + "Y\"}}]  }";
-          filters.add(ageFilter);
-        } else if (type.endsWith("EFO_0004847")) {
-          // Age at disease manifestation
-          String ageFilter =
-              "{ _or: [{diseases: {"
-                  + AGEOFONSET_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + age
-                  + "Y\"}}}, {diseases: {"
-                  + AGEOFONSET_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age - 1)
-                  + "Y\"}}}, {diseases: {"
-                  + AGEOFONSET_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age + 1)
-                  + "Y\"}}}]  }";
-          filters.add(ageFilter);
-        } else {
-          // has to be NCIT_C156420, Age at diagnosis
-          String ageFilter =
-              "{ _or: [{diseases: {"
-                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + age
-                  + "Y\"}}}, {diseases: {"
-                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age - 1)
-                  + "Y\"}}}, {diseases: {"
-                  + AGEATDIAGNOSIS_AGE_ISO8601DURATION
-                  + ": {like: \"P"
-                  + (age + 1)
-                  + "Y\"}}}]  }";
-          filters.add(ageFilter);
-        }
+        AgeQuery ageQuery = new AgeQuery(type, age, operator);
+        ageQueries.add(ageQuery);
       }
 
       /** Sex (i.e. GenderAtBirth) but requires mapping NCIT to GSSO */
@@ -180,14 +138,130 @@ public class EJP_VP_IndividualsQuery {
     List<IndividualsResultSets> resultSetsList =
         queryIndividuals(tables, filters.toArray(new String[0]));
 
+    // only works because we only do AND queries, so one unmatched filter means no hit
+    List<String> removeIndividualIDs = new ArrayList<>();
+    for (AgeQuery ageQuery : ageQueries) {
+      for (IndividualsResultSets resultSet : resultSetsList) {
+        for (IndividualsResultSetsItem individual : resultSet.getResults()) {
+          List<String> ageStr = new ArrayList<>();
+          if (ageQuery.getType().endsWith("NCIT_C25150")) {
+            // Age (Age this year)
+            if (individual.getAge().getAge().getIso8601duration() != null) {
+              ageStr.add(individual.getAge().getAge().getIso8601duration());
+            }
+          } else if (ageQuery.getType().endsWith("EFO_0004847")) {
+            // Age at disease manifestation (i.e. Age of onset)
+            if (individual.getDiseases() != null) {
+              for (Diseases diseases : individual.getDiseases()) {
+                if (diseases.getAgeOfOnset().getAge().getIso8601duration() != null) {
+                  ageStr.add(diseases.getAgeOfOnset().getAge().getIso8601duration());
+                }
+              }
+            }
+          } else {
+            // has to be NCIT_C156420, Age at diagnosis
+            if (individual.getDiseases() != null) {
+              for (Diseases diseases : individual.getDiseases()) {
+                if (diseases.getAgeAtDiagnosis().getAge().getIso8601duration() != null) {
+                  ageStr.add(diseases.getAgeAtDiagnosis().getAge().getIso8601duration());
+                }
+              }
+            }
+          }
+          int[] ageYears = iso8601StringToIntYears(ageStr);
+          boolean ageQueryPositiveMatch =
+              evalAgeQuery(ageQuery.getValue(), ageYears, ageQuery.getOperator());
+          if (!ageQueryPositiveMatch) {
+            removeIndividualIDs.add(resultSet.getId() + "@" + individual.getId());
+          }
+        }
+      }
+    }
+
+    // use list of 'removed' individuals to rebuild the result set
+    List<IndividualsResultSets> filteredResultSetsList = new ArrayList<>();
+    for (IndividualsResultSets resultSet : resultSetsList) {
+      List<IndividualsResultSetsItem> filteredIndividuals = new ArrayList<>();
+      for (IndividualsResultSetsItem individual : resultSet.getResults()) {
+        String currentId = resultSet.getId() + "@" + individual.getId();
+        if (!removeIndividualIDs.contains(currentId)) {
+          filteredIndividuals.add(individual);
+        }
+      }
+      if (filteredIndividuals.size() > 0) {
+        IndividualsResultSetsItem[] filteredIndividualsArr =
+            filteredIndividuals.toArray(new IndividualsResultSetsItem[0]);
+        IndividualsResultSets filteredResultSet =
+            new IndividualsResultSets(resultSet.getId(), filteredIndividualsArr);
+        filteredResultSetsList.add(filteredResultSet);
+      }
+    }
+
     // each table results in one IndividualsResultSets, add up the result counts
     int totalCount = 0;
-    for (IndividualsResultSets individualsResultSets : resultSetsList) {
+    for (IndividualsResultSets individualsResultSets : filteredResultSetsList) {
       totalCount += individualsResultSets.getResultsCount();
     }
 
     // return the individual counts
     return getWriter()
         .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
+  }
+
+  /**
+   * Helper function to apply age queries
+   *
+   * @param queryValue
+   * @param databaseValues
+   * @param operator
+   * @return
+   */
+  private boolean evalAgeQuery(int queryValue, int[] databaseValues, String operator) {
+    if (operator.equals("=")) {
+      for (int i = 0; i < databaseValues.length; i++) {
+        if (queryValue == databaseValues[i]
+            || queryValue == (databaseValues[i] - 1)
+            || queryValue == (databaseValues[i] + 1)) {
+          return true;
+        }
+      }
+      return false;
+    } else if (operator.contains(">")) {
+      for (int i = 0; i < databaseValues.length; i++) {
+        if (databaseValues[i] > queryValue) {
+          return true;
+        }
+        if (operator.equals(">=") && databaseValues[i] == queryValue) {
+          return true;
+        }
+      }
+      return false;
+    } else if (operator.contains("<")) {
+      for (int i = 0; i < databaseValues.length; i++) {
+        if (databaseValues[i] < queryValue) {
+          return true;
+        }
+        if (operator.equals("<=") && databaseValues[i] == queryValue) {
+          return true;
+        }
+      }
+      return false;
+    }
+    return false;
+  }
+
+  /**
+   * Helper function to convert ISO8601 duration to number of years as integer
+   *
+   * @param ageStr
+   * @return
+   */
+  private int[] iso8601StringToIntYears(List<String> ageStr) {
+    int[] result = new int[ageStr.size()];
+    for (int i = 0; i < ageStr.size(); i++) {
+      Period period = Period.parse(ageStr.get(i));
+      result[i] = period.getYears();
+    }
+    return result;
   }
 }
