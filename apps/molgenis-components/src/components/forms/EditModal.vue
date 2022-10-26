@@ -37,11 +37,12 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
+import Pagination from "../tables/Pagination.vue";
 import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
-  components: { LayoutModal, RowEditFooter, EditModalWizard },
+  components: { LayoutModal, RowEditFooter, EditModalWizard, Pagination },
   data() {
     return {
       rowData: {},
@@ -98,19 +99,17 @@ export default {
     },
     pageName() {
       if (this.currentPage > 1) {
-        const pageHeadings = this.tableMetaData.columns.reduce(
-          (accum, column) => {
-            if (column.columnType === "HEADING") {
-              accum.push(column.name);
-            }
-            return accum;
-          },
-          []
-        );
-        return " - " + pageHeadings[this.currentPage - 2];
+        return " - " + this.pageHeadings[this.currentPage - 2];
       } else {
         return "";
       }
+    },
+    pageHeadings() {
+      return this.tableMetaData.columns
+        .filter((column) => {
+          column.columnType === "HEADING";
+        })
+        .map((column) => column.name);
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
@@ -188,75 +187,84 @@ export default {
 
 <docs>
   <template>
-    <demo-item label="Edit Modal">
-
-      <button 
-        class="btn btn-primary" 
-        @click="isModalShown = !isModalShown">
-          Show {{demoMode}} {{tableName}}
-      </button>
-
-      <label for="table-selector" class="ml-5 pr-1">table</label>
-      <select id="table-selector"  v-model="tableName">
-        <option>Pet</option>
-        <option>Order</option>
-        <option>Category</option>
-        <option>User</option>
-      </select>
-
-      <input type="radio" id="insert" value="insert" v-model="demoMode" class="ml-5">
-      <label for="insert" class="pl-1">Insert</label>
-    
-      <input type="radio" id="update" value="update" v-model="demoMode" class="ml-1 pr-1">
-      <label for="update" class="pl-1">Update</label>
-   
-      <input type="radio" id="clone" value="clone" v-model="demoMode" class="ml-1 pr-1">
-      <label for="clone" class="pl-1">Clone</label>
-
-      <EditModal 
-        :key="tableName + demoKey + demoMode"
-        id="edit-modal" 
-        :tableName="tableName" 
-        :pkey="demoKey"
-        :clone="demoMode === 'clone'"
-        :isModalShown="isModalShown" 
-        :graphqlURL="graphqlURL"
-        @close="isModalShown = false"
-      />
-
-    </demo-item>
-  </template>
+  <demo-item label="Edit Modal">
+    <button class="btn btn-primary" @click="isModalShown = !isModalShown">
+      Show {{ demoMode }} {{ tableName }}
+    </button>
+    <label for="table-selector" class="ml-5 pr-1">table</label>
+    <select id="table-selector" v-model="tableName">
+      <option>Pet</option>
+      <option>Order</option>
+      <option>Category</option>
+      <option>User</option>
+    </select>
+    <input
+      type="radio"
+      id="insert"
+      value="insert"
+      v-model="demoMode"
+      class="ml-5"
+    />
+    <label for="insert" class="pl-1">Insert</label>
+    <input
+      type="radio"
+      id="update"
+      value="update"
+      v-model="demoMode"
+      class="ml-1 pr-1"
+    />
+    <label for="update" class="pl-1">Update</label>
+    <input
+      type="radio"
+      id="clone"
+      value="clone"
+      v-model="demoMode"
+      class="ml-1 pr-1"
+    />
+    <label for="clone" class="pl-1">Clone</label>
+    <EditModal
+      :key="tableName + demoKey + demoMode"
+      id="edit-modal"
+      :tableName="tableName"
+      :pkey="demoKey"
+      :clone="demoMode === 'clone'"
+      :isModalShown="isModalShown"
+      :graphqlURL="graphqlURL"
+      @close="isModalShown = false"
+    />
+  </demo-item>
+</template>
   <script>
-  export default {
-    data: function () {
-      return {
-        tableName: "Pet",
-        demoMode: "insert", // one of [insert, update, clone] 
-        demoKey: null, // empty in case of insert 
-        isModalShown: false,
-        graphqlURL: "/pet store/graphql",
-      };
+export default {
+  data: function () {
+    return {
+      tableName: "Pet",
+      demoMode: "insert", // one of [insert, update, clone]
+      demoKey: null, // empty in case of insert
+      isModalShown: false,
+      graphqlURL: "/pet store/graphql",
+    };
+  },
+  methods: {
+    async reload() {
+      const client = this.$Client.newClient(this.graphqlURL);
+      const tableMetaData = await client.fetchTableMetaData(this.tableName);
+      const rowData = await client.fetchTableDataValues(this.tableName);
+      this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
     },
-    methods: {
-      async reload () {
-        const client = this.$Client.newClient(this.graphqlURL);
-        const tableMetaData = await client.fetchTableMetaData(this.tableName);
-        const rowData = await client.fetchTableDataValues(this.tableName);
-        this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData)
-      },
-      onModeChange () {
-        if(this.demoMode !== 'insert') {
-          this.reload();
-        } else {
-          this.demoKey = null;
-        }
+    onModeChange() {
+      if (this.demoMode !== "insert") {
+        this.reload();
+      } else {
+        this.demoKey = null;
       }
     },
-    watch: {
-      demoMode () {
-        this.onModeChange()
-      }
-    }
-  };
-  </script>
+  },
+  watch: {
+    demoMode() {
+      this.onModeChange();
+    },
+  },
+};
+</script>
 </docs>

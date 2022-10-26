@@ -15,11 +15,11 @@
 </template>
 
 <script>
-import Pagination from "../tables/Pagination.vue";
+import RowEdit from "./RowEdit.vue";
 
 export default {
   name: "EditModalWizard",
-  components: { Pagination },
+  components: { RowEdit },
   data() {
     return {
       columnsSplitByHeadings: this.splitColumnsByHeadings(
