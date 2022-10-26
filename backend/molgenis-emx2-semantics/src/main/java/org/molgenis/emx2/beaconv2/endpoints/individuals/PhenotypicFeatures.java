@@ -11,7 +11,7 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PhenotypicFeatures {
 
-  private OntologyTerm featureType;
+  private OntologyTerm[] featureType;
   private OntologyTerm[] modifiers;
   private OntologyTerm severity;
 
@@ -25,8 +25,8 @@ public class PhenotypicFeatures {
     for (int i = 0; i < phenotypicFeaturesCast.size(); i++) {
       Map map = phenotypicFeaturesCast.get(i);
       PhenotypicFeatures pf = new PhenotypicFeatures();
-      pf.featureType = mapToOntologyTerm((Map) map.get("featureType"));
-      pf.modifiers = mapListToOntologyTerms((List<Map>) map.get("modifiers"));
+      pf.featureType = mapListToOntologyTerms(map.get("featureType"));
+      pf.modifiers = mapListToOntologyTerms(map.get("modifiers"));
       pf.severity = mapToOntologyTerm((Map) map.get("severity"));
       result[i] = pf;
     }
