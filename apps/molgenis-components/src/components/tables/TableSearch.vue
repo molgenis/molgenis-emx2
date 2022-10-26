@@ -35,6 +35,7 @@
               :id="'row-button-add-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
+              class="d-inline p-0"
             />
           </template>
           <template v-slot:colheader="slotProps">
