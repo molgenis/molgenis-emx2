@@ -196,8 +196,8 @@ Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
-Contacts,,email,,2,,,,,,,,Contact's email address
-Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
+Contacts,,email,,,,,,,,,,Contact's email address
+Contacts,,orcid,,,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
 Contacts,,expertise,,,,,,,,,,Description of contact's expertise
@@ -442,7 +442,7 @@ VariableMappings,,toDataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
 VariableMappings,,toTable,ref,1,TRUE,,TargetTables,toDataDictionary,,,,
 VariableMappings,,toVariable,ref,1,TRUE,,AllTargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
 VariableMappings,,match,ontology,,TRUE,CatalogueOntologies,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
-VariableMappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
+VariableMappings,,year,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
 VariableMappings,,description,text,,,,,,,,,human readible description of the mapping
 VariableMappings,,comments,text,,,,,,,,,additional notes and comments
 VariableMappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
