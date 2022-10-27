@@ -170,7 +170,17 @@ public class GenomicVariantsResponse {
                   + "   clinicalRelevance{name,codesystem,code},"
                   + "   conditionId,"
                   + "   effect{name,codesystem,code}"
-                  + "}}}");
+                  + "},"
+                  + "caseLevelData{"
+                  + "   individualId{id},"
+                  + "   clinicalInterpretations{"
+                  + "      category{name,codesystem,code},"
+                  + "      clinicalRelevance{name,codesystem,code},"
+                  + "      conditionId,"
+                  + "      effect{name,codesystem,code}"
+                  + "    }"
+                  + "  }"
+                  + "}}");
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
 
       Map<String, Object> result = executionResult.toSpecification();
@@ -195,11 +205,15 @@ public class GenomicVariantsResponse {
                   new Long[] {TypeUtils.toLong(map.get("position__start"))},
                   new Long[] {TypeUtils.toLong(map.get("position__end")).longValue()}));
           VariantLevelData variantLevelData =
-              new VariantLevelData(ClinicalInterpretations.get(map.get("clinicalInterpretations")));
+              new VariantLevelData(ClinicalInterpretations.get(map.get("caseLevelData")));
           if (variantLevelData != null
               && variantLevelData.getClinicalInterpretations() != null
               && variantLevelData.getClinicalInterpretations().length > 0) {
             genomicVariantsItem.setVariantLevelData(variantLevelData);
+          }
+          CaseLevelData[] caseLevelData = CaseLevelData.get(map.get("caseLevelData"));
+          if (caseLevelData != null) {
+            genomicVariantsItem.setCaseLevelData(caseLevelData);
           }
           genomicVariantsItemList.add(genomicVariantsItem);
         }
