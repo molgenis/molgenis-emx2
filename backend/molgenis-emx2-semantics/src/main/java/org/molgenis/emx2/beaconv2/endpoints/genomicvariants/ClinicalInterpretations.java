@@ -11,7 +11,7 @@ import org.molgenis.emx2.beaconv2.common.OntologyTerm;
 public class ClinicalInterpretations {
 
   private OntologyTerm category;
-  private String clinicalRelevance;
+  private OntologyTerm clinicalRelevance;
   private String conditionId;
   private OntologyTerm effect;
 
@@ -28,7 +28,8 @@ public class ClinicalInterpretations {
         clinicalInterpretations.category = mapToOntologyTerm((Map) map.get("category"));
       }
       if (map.get("clinicalRelevance") != null) {
-        clinicalInterpretations.clinicalRelevance = (String) map.get("clinicalRelevance");
+        clinicalInterpretations.clinicalRelevance =
+            mapToOntologyTerm((Map) map.get("clinicalRelevance"));
       }
       if (map.get("conditionId") != null) {
         clinicalInterpretations.conditionId = (String) map.get("conditionId");

@@ -68,7 +68,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1595, json.length());
   }
 
   @Test
@@ -99,7 +98,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertEquals(3073, json.length());
   }
 
   @Test
@@ -114,8 +112,13 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
     assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
-    assertTrue(json.contains("\"clinicalRelevance\" : \"pathogenic\""));
-    assertEquals(3541, json.length());
+    assertTrue(
+        json.contains(
+            """
+			"clinicalRelevance" : {
+			     "id" : "NCIT:C168799",
+			     "label" : "Pathogenic\""""
+                .indent(15)));
   }
 
   @Test
@@ -129,7 +132,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertEquals(2406, json.length());
   }
 
   @Test
