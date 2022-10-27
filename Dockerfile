@@ -6,7 +6,8 @@
 FROM node:lts-gallium
 
 ## Copy the files need from the contaxt into to image
-COPY ./nuxt3-ssr/.output /app/
+COPY ./.nuxt /app/
+COPY ./.output /app/
 
 WORKDIR /app
 
