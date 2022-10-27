@@ -112,7 +112,7 @@ export default {
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
-            s.value.startsWith("[") || s.value.startsWith("{")
+             s.value !== undefined && (s.value.startsWith("[") || s.value.startsWith("{"))
               ? this.parseJson(s.value)
               : s.value)
       );
