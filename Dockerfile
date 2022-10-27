@@ -14,8 +14,8 @@ WORKDIR /app/build
 RUN yarn install
 RUN yarn build
 
-RUM mv /app/build/.output /app/.output
-RUM mv /app/build/.nuxt /app/.nuxt
+RUN mv /app/build/.output /app/.output
+RUN mv /app/build/.nuxt /app/.nuxt
 RUN rm -rf /app/build/
 
 # Expose $PORT on container.
