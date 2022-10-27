@@ -56,6 +56,7 @@ Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/ob
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland
+Individuals,,hasVariation,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/TODO,E.g. TODO
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001
