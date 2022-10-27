@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "core-js": "3.25.3",
+    "core-js": "3.26.0",
     "graphql-request": "5.0.0",
     "vue": "2.6.14"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "3.1.2",
-    "vite": "3.1.7",
+    "vite": "3.2.0",
     "vite-plugin-vue2": "2.0.2"
   },
   "browserslist": [

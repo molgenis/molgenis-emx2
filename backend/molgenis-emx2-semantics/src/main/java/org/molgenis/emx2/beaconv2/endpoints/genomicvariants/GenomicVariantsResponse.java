@@ -167,7 +167,7 @@ public class GenomicVariantsResponse {
                   + "geneId,"
                   + "clinicalInterpretations{"
                   + "   category{name,codesystem,code},"
-                  + "   clinicalRelevance,"
+                  + "   clinicalRelevance{name,codesystem,code},"
                   + "   conditionId,"
                   + "   effect{name,codesystem,code}"
                   + "}}}");

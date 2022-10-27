@@ -68,7 +68,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"resultsCount\" : 1,"));
-    assertEquals(1595, json.length());
   }
 
   @Test
@@ -99,7 +98,6 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"resultsCount\" : 2,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
-    assertEquals(3073, json.length());
   }
 
   @Test
@@ -114,8 +112,13 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
     assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
-    assertTrue(json.contains("\"clinicalRelevance\" : \"pathogenic\""));
-    assertEquals(3541, json.length());
+    assertTrue(
+        json.contains(
+            """
+			"clinicalRelevance" : {
+			     "id" : "NCIT:C168799",
+			     "label" : "Pathogenic\""""
+                .indent(15)));
   }
 
   @Test
@@ -129,7 +132,6 @@ public class Beaconv2_ModelEndpointsTest {
     String json = JsonUtil.getWriter().writeValueAsString(genomicVariations);
     assertTrue(json.contains("\"resultsCount\" : 1,"));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447951..2447952c>g\","));
-    assertEquals(2406, json.length());
   }
 
   @Test
@@ -547,6 +549,96 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeGreaterThan_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 33,
+					"operator": ">"
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_ThreeHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 50,
+					"operator": "<"
+				  }
+				]
+			  }
+			}""",
+        3);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 34,
+					"operator": "<"
+				  }
+				]
+			  }
+			}""",
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThanOrEquals_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 2,
+					"operator": "<="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThan_NoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 2,
+					"operator": "<"
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnAgeOfOnset_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
@@ -583,6 +675,60 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 25,
+					"operator": ">"
+				  }
+				]
+			  }
+			}""",
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThan_NoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 89,
+					"operator": ">"
+				  }
+				]
+			  }
+			}""",
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeOfOnsetGreaterThanOrEquals_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "EFO_0004847",
+					"id": 89,
+					"operator": ">="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosis_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
@@ -598,6 +744,24 @@ public class Beaconv2_ModelEndpointsTest {
 					"type": "NCIT_C156420",
 					"id": 2,
 					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeAtDiagnosisLessThan_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C156420",
+					"id": 50,
+					"operator": "<"
 				  }
 				]
 			  }
@@ -707,6 +871,29 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void test_EJP_RD_VP_API_FilterOnAgeLessThanAndGene_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "NCIT_C25150",
+					"id": 50,
+					"operator": "<"
+				  },
+				  {
+					"type": "NCIT_C16612",
+					"id": "TTN",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGender_OneHit() throws Exception {
     assertNrOfHitsFor(
         """
@@ -741,12 +928,14 @@ public class Beaconv2_ModelEndpointsTest {
    * @param hits
    * @throws JsonProcessingException
    */
-  private void assertNrOfHitsFor(String body, int hits) throws JsonProcessingException {
+  private void assertNrOfHitsFor(String body, int hits) throws Exception {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.body()).thenReturn(body);
     String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
     if (hits > 0) {
+      System.out.println("HITS ::: " + hits);
+      System.out.println("JSON = " + jsonResponse);
       assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
       assertTrue(jsonResponse.contains("\"numTotalResults\" : " + hits));
     } else {
