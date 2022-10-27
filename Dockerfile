@@ -6,13 +6,17 @@
 FROM node:lts-gallium
 
 ## Copy the files need from the contaxt into to image
-COPY ./.nuxt /app/
-COPY ./.output /app/
+COPY ./nuxt3-ssr /app/build
 
-WORKDIR /app
+WORKDIR /app/build
 
 ## Generate both server and client in production mode
+RUN yarn install
 RUN yarn build
+
+RUM mv /app/build/.output /app/.output
+RUM mv /app/build/.nuxt /app/.nuxt
+RUN rm -rf /app/build/
 
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
@@ -29,6 +33,8 @@ ENV PROXY_API=$PROXY_API
 
 # Set the browser base url
 ENV PROXY_LOGIN=$PROXY_LOGIN
+
+WORKDIR /app
 
 ## Start the server
 CMD node .output/server/index.mjs

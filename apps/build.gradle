@@ -76,7 +76,9 @@ subprojects {
 
         outputs.cacheIf { false }
 
-        args = ['run', 'build']
+        if (project.name != 'nuxt3-ssr'){
+            args = ['run', 'build']
+        }
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
