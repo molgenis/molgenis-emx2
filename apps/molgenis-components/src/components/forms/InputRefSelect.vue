@@ -31,6 +31,7 @@
             :lookupTableName="tableName"
             :filter="filter"
             :graphqlURL="graphqlURL"
+            :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
@@ -83,6 +84,14 @@ export default {
     },
     filter: Object,
     refLabel: String,
+    /**
+     * if table that this input is selecting from can be edited by the current user
+     *  */
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
   },
   computed: {
     title() {
