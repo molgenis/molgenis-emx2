@@ -139,31 +139,35 @@ public class WebApiSmokeTests {
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
         "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
 
-    // update only description
+    // update table without new description or semantics, values should be untouched
+    addUpdateTableAndCompare(
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+
+    // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
         "TestMetaTable,,,,,,,,,,,,TestSem,NewTestDesc\r\n");
 
-    // make semantics empty by not supplying a value
+    // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
         "TestMetaTable,,,,,,,,,,,,,NewTestDesc\r\n");
 
-    // make description empty but add new value for semantics
+    // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
         "TestMetaTable,,,,,,,,,,,,NewTestSem,\r\n");
 
-    // empty both
+    // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
         "TestMetaTable,,,,,,,,,,,,,\r\n");
 
-    // add values, but this time a string array for semantics
+    // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
