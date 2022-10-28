@@ -1,5 +1,6 @@
 export const fetchGql = async (url: string, query: string) => {
-    return await $fetch(`http://localhost:3000/${url}`, {
+    const config = useRuntimeConfig();
+    return await $fetch(`${config.API_BASE_URL }/${url}`, {
         method: "POST",
         body: {
             query,

@@ -5,6 +5,9 @@ export default defineNuxtConfig({
     css: ["assets/css/main.css"],
     modules: ['nuxt-proxy', '@nuxt/image-edge', '@nuxtjs/tailwindcss'],
     // See options here https://github.com/chimurai/http-proxy-middleware#options
+    publicRuntimeConfig: {
+        API_BASE_URL: process.env.API_BASE_URL
+    },
     proxy: {
         options: {
             target: 'http://localhost:8080/',
