@@ -1,10 +1,14 @@
 <template>
-  <div>
-    <!-- Markup shared across all pages, ex: NavBar -->
-    <NuxtPage />
+  <!-- Markup shared across all pages, ex: NavBar -->
+  <div class="min-h-screen bg-base-gradient">
+    <slot name="header"></slot>
+    <main>
+      <slot> <NuxtPage /></slot>
+    </main>
+    <slot name="footer"></slot>
   </div>
 </template>
 
 <script>
-import '@/assets/css/main.css'
+import "@/assets/css/main.css";
 </script>
