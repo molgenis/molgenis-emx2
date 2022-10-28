@@ -16,10 +16,10 @@ GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://p
 GenomicVariationsClinInterpr,,clinicalRelevance,ontology,,,,VariationClinicalRelevance,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign
 GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1
 GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
-GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/TODO,E.g. Var001_CLD01
-GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/TODO,Beacon v2 GenomicVariations Case Level Data
-GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/TODO,E.g. Var001_CLD01
-GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/TODO,E.g. Ind001
+GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/GSSO_000660,E.g. Var001_CLD01
+GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,Beacon v2 GenomicVariations Case Level Data
+GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01
+GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
 GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001
 Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
 Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,E.g. Analysis012345
@@ -57,7 +57,7 @@ Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/ob
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland
-Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/TODO,NON-STANDARD FIELD. E.g. TODO
+Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001
