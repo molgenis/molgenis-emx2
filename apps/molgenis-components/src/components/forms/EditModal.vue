@@ -32,9 +32,6 @@
       </div>
     </template>
     <template #footer>
-      <div v-if="pageCount > 1" class="d-flex mr-auto">
-        <Pagination v-model="currentPage" :count="pageCount" :limit="1" />
-      </div>
       <RowEditFooter
         :id="id + '-footer'"
         :tableName="tableName"
@@ -42,7 +39,15 @@
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
-      ></RowEditFooter>
+      >
+        <Pagination
+          v-if="pageCount > 1"
+          class="mr-auto"
+          v-model="currentPage"
+          :count="pageCount"
+          :limit="1"
+        />
+      </RowEditFooter>
     </template>
   </LayoutModal>
 </template>
@@ -110,7 +115,7 @@ export default {
   },
   computed: {
     title() {
-      return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
+      return `${this.titlePrefix} ${this.tableName}`;
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns
@@ -120,13 +125,6 @@ export default {
         return headings;
       } else {
         return ["First chapter"].concat(headings);
-      }
-    },
-    pageName() {
-      if (this.pageCount > 1) {
-        return " - " + this.pageHeadings[this.currentPage - 1];
-      } else {
-        return "";
       }
     },
     titlePrefix() {
