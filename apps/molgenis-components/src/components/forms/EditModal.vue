@@ -1,20 +1,35 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <EditModalWizard
-        v-if="loaded && tableMetaData"
-        :id="id"
-        v-model="rowData"
-        :pkey="pkey"
-        :tableName="tableName"
-        :tableMetaData="tableMetaData"
-        :graphqlURL="graphqlURL"
-        :visibleColumns="visibleColumns"
-        :clone="clone"
-        :page="currentPage"
-        @setPageCount="pageCount = $event"
-      >
-      </EditModalWizard>
+      <div class="d-flex">
+        <EditModalWizard
+          v-if="loaded && tableMetaData"
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          :page="currentPage"
+          @setPageCount="pageCount = $event"
+          class="flex-grow-1"
+        >
+        </EditModalWizard>
+        <div v-if="pageCount > 1" class="ml-3">
+          <div class="mb-1"><b>Chapters</b></div>
+          <div v-for="(heading, index) in pageHeadings">
+            <button
+              type="button"
+              class="btn btn-link"
+              @click="setCurrentPage(index + 1)"
+            >
+              {{ heading }}
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
     <template #footer>
       <div v-if="pageCount > 1" class="d-flex mr-auto">
@@ -98,13 +113,18 @@ export default {
       return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
     },
     pageHeadings() {
-      return this.tableMetaData.columns
+      const headings = this.tableMetaData.columns
         .filter((column) => column.columnType === "HEADING")
         .map((column) => column.name);
+      if (this.tableMetaData.columns[0].columnType === "HEADING") {
+        return headings;
+      } else {
+        return ["First chapter"].concat(headings);
+      }
     },
     pageName() {
-      if (this.currentPage > 1) {
-        return " - " + this.pageHeadings[this.currentPage - 2];
+      if (this.pageCount > 1) {
+        return " - " + this.pageHeadings[this.currentPage - 1];
       } else {
         return "";
       }
@@ -114,6 +134,9 @@ export default {
     },
   },
   methods: {
+    setCurrentPage(newPage) {
+      this.currentPage = newPage;
+    },
     handleSaveRequest() {
       this.save({ ...this.rowData, mg_draft: false });
     },
