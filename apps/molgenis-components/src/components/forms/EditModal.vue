@@ -17,9 +17,6 @@
       </EditModalWizard>
     </template>
     <template #footer>
-      <div v-if="pageCount > 1" class="d-flex mr-auto">
-        <Pagination v-model="currentPage" :count="pageCount" :limit="1" />
-      </div>
       <RowEditFooter
         :id="id + '-footer'"
         :tableName="tableName"
@@ -27,7 +24,15 @@
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
-      ></RowEditFooter>
+      >
+        <Pagination
+          v-if="pageCount > 1"
+          class="mr-auto"
+          v-model="currentPage"
+          :count="pageCount"
+          :limit="1"
+        />
+      </RowEditFooter>
     </template>
   </LayoutModal>
 </template>
