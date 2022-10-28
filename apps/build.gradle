@@ -61,7 +61,6 @@ subprojects {
             inputs.file('app.vue')
             inputs.file('router.options.ts')
             inputs.file('tailwind.config.ts')
-            inputs.file('tsconfig.json')
             outputs.dir('.nuxt')
             outputs.dir('.output')
         } else {

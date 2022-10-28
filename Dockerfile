@@ -2,8 +2,8 @@
 ## Build file for server side rendered (ssr) catalogue application for use with molgenis EMX2 backend
 ###
 
-## Base image to have a node runtime ( todo replace with smaller/minimal image)
-FROM node:lts-gallium
+## Base image to have a node runtime
+FROM node:16.18.0-alpine
 
 ## Copy the files need from the contaxt into to image
 COPY ./nuxt3-ssr /app/build
