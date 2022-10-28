@@ -25,8 +25,8 @@ RUN rm -rf .output
 RUN rm -rf .nuxt
 
 ## Generate both server and client in production mode
-RUN npx nuxi clean
 RUN yarn install
+RUN npx nuxi clean
 RUN npx nuxi prepare
 RUN yarn build
 
