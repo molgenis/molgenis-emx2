@@ -98,13 +98,18 @@ export default {
       return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
     },
     pageHeadings() {
-      return this.tableMetaData.columns
+      const headings = this.tableMetaData.columns
         .filter((column) => column.columnType === "HEADING")
         .map((column) => column.name);
+      if (this.tableMetaData.columns[0].columnType === "HEADING") {
+        return headings;
+      } else {
+        return ["First chapter"].concat(headings);
+      }
     },
     pageName() {
-      if (this.currentPage > 1) {
-        return " - " + this.pageHeadings[this.currentPage - 2];
+      if (this.pageCount > 1) {
+        return " - " + this.pageHeadings[this.currentPage - 1];
       } else {
         return "";
       }
