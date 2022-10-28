@@ -5,22 +5,6 @@
 ## Base image to have a node runtime
 FROM node:16.18.0-alpine
 
-## Copy the files need from the contaxt into to image
-COPY ./nuxt3-ssr /app/build
-
-WORKDIR /app/build
-
-## Generate both server and client in production mode
-
-RUN yarn install
-RUN npx nuxi clean
-RUN npx nuxi prepare
-RUN yarn build
-
-RUN mv /app/build/.output /app/.output
-RUN mv /app/build/.nuxt /app/.nuxt
-RUN rm -rf /app/build/
-
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
 EXPOSE $PORT
@@ -28,14 +12,27 @@ EXPOSE $PORT
 # Set host to localhost / the docker image
 ENV NUXT_HOST=0.0.0.0
 
-# Set app port
-ENV NUXT_PORT=$PORT
+ENV API_PROXY_TARGET=http://host.docker.internal:8080/
 
-# Set the base url
-ENV PROXY_API=$PROXY_API
+## Copy the files need from the contaxt into to image
+COPY ./nuxt3-ssr /app/build
 
-# Set the browser base url
-ENV PROXY_LOGIN=$PROXY_LOGIN
+WORKDIR /app/build
+
+## Clean files that where that should not have been copied
+#RUN rm .env
+RUN rm -rf .output
+RUN rm -rf .nuxt
+
+## Generate both server and client in production mode
+RUN npx nuxi clean
+RUN yarn install
+RUN npx nuxi prepare
+RUN yarn build
+
+RUN mv /app/build/.output /app/.output
+RUN mv /app/build/.nuxt /app/.nuxt
+RUN rm -rf /app/build/
 
 WORKDIR /app
 
