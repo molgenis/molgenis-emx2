@@ -13,7 +13,7 @@ const cohortCount = catalogueResp.data.Cohorts_agg.count;
 </script>
 
 <template>
-  <div class="min-h-screen bg-base-gradient">
+  <div>
     <h1 class="text-center text-5xl">
       European Networks Health Data & Cohort Catalogue.
     </h1>
