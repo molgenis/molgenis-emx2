@@ -12,6 +12,11 @@ export default defineNuxtConfig({
                 '**/*/graphql'
             ],
         }
+    },
+    typescript: {
+        tsConfig: {
+            "extends": "./.nuxt/tsconfig.json"
+        }
     }
 })
 

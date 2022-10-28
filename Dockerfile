@@ -11,7 +11,10 @@ COPY ./nuxt3-ssr /app/build
 WORKDIR /app/build
 
 ## Generate both server and client in production mode
+
 RUN yarn install
+RUN npx nuxi clean
+RUN npx nuxi prepare
 RUN yarn build
 
 RUN mv /app/build/.output /app/.output
