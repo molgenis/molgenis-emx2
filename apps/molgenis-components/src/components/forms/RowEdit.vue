@@ -145,9 +145,9 @@ export default {
         this.tableMetaData.columns
           .filter((column) => {
             if (this.visibleColumns) {
-              return this.visibleColumns.find((visibleColumn) => {
-                column.name === visibleColumn.name;
-              });
+              return this.visibleColumns.find(
+                (visibleColumn) => column.name === visibleColumn.name
+              );
             } else {
               return true;
             }
