@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
+import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.CaseLevelData;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -87,7 +88,16 @@ public class QueryIndividuals {
                   + "   measurementValue__value,"
                   + "   measurementValue__units{name,codesystem,code},"
                   + "   observationMoment__age__iso8601duration"
-                  + "}}}");
+                  + "},"
+                  + "hasGenomicVariations{"
+                  + "clinicalInterpretations{"
+                  + "   category{name,codesystem,code},"
+                  + "   clinicalRelevance{name,codesystem,code},"
+                  + "   conditionId,"
+                  + "   effect{name,codesystem,code}"
+                  + "},"
+                  + "}"
+                  + "}}");
 
       Map<String, Object> result = executionResult.toSpecification();
 
@@ -112,6 +122,10 @@ public class QueryIndividuals {
               PhenotypicFeatures.get(map.get("phenotypicFeatures")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));
           individualsItem.setMeasures(Measures.get(map.get("measures")));
+          CaseLevelData[] hasGenomicVariations = CaseLevelData.get(map.get("hasGenomicVariations"));
+          if (hasGenomicVariations != null) {
+            individualsItem.setHasGenomicVariations(hasGenomicVariations);
+          }
           individualsItemList.add(individualsItem);
         }
       }

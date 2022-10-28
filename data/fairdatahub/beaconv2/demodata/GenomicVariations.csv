@@ -5,4 +5,5 @@ variantInternalId,variantType,referenceBases,alternateBases,position_assemblyId,
 20:2447961..2447963c>g,SNP,c,g,GRCh37,20,2447961,2447963,SNORD119,,
 EmptyVar,,,,,,,,,,
 MinVar,,,,,,,,,MinVar_CI,MinVarCase
-CaseLevelVar,SNP,c,g,GRCh37,20,2447971,2447973,SNORD119,,VarCaseInd001
+CaseLevelVar1,SNP,c,g,GRCh37,20,2447971,2447973,SNORD119,,VarCaseInd001
+CaseLevelVar2,SNP,t,a,GRCh37,20,2447981,2447983,SNORD119,,"VarCaseInd001,MinVarCase"
