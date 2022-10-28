@@ -141,7 +141,6 @@ export default {
       return true;
     },
     validateTable() {
-      // TODO: only loop over visible
       if (this.tableMetaData?.columns) {
         this.tableMetaData.columns
           .filter((column) => {
