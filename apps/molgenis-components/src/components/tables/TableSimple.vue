@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     tableHover() {
-      return this.selectColumn || (this.$listeners && this.$listeners.click);
+      return this.selectColumn;
     },
     hasColheader() {
       return (

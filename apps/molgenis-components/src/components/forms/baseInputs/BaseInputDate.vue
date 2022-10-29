@@ -11,7 +11,7 @@
   <FlatPickr
     v-else
     :id="id"
-    :value="value"
+    v-model="value"
     style="background: white"
     class="form-control active"
     :config="config"
@@ -23,13 +23,13 @@
 
 <script>
 import BaseInput from "./BaseInput.vue";
-import FlatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
+//import FlatPickr from "vue-flatpickr-component";
+//import "flatpickr/dist/flatpickr.css";
 
 export default {
   extends: BaseInput,
   components: {
-    FlatPickr,
+   // FlatPickr,
   },
   props: {
     readonly: { type: Boolean, default: false },

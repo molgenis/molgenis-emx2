@@ -4,8 +4,7 @@
       v-if="typeToInput"
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
-      v-bind="$props"
-      v-on="$listeners"
+      v-bind="$attrs"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>

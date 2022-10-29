@@ -11,12 +11,11 @@
   </div>
   <InputRadio
     v-else
-    v-bind="$props"
+    v-bind="$attrs"
     :value="value"
     :options="[true, false]"
     :isClearable="isClearable"
     @input="$emit('input', value)"
-    v-on="$listeners"
   />
 </template>
 
