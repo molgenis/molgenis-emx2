@@ -3,7 +3,7 @@
     :id="id"
     type="number"
     step="1"
-    :value="value"
+    :modelValue="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"
@@ -27,16 +27,18 @@ export default {
   methods: {
     emitIfValid(event) {
       const value = parseFloat(event.target.value);
-      if (event.target.value === "") {
-        this.$emit("input", null);
+      if (event.target.value === "" || isNaN(value)) {
+        this.$emit("update:modelValue", null);
       } else if (!isNaN(value)) {
-        this.$emit("input", value);
+        this.$emit("update:modelValue", event.target.value);
       }
     },
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
+      const value = parseFloat(event.target.value);
       if (keyCode === CODE_MINUS) {
-        this.$emit("input", flipSign(event.target.value));
+        let result = flipSign(value);
+        this.$emit("update:modelValue", result);
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

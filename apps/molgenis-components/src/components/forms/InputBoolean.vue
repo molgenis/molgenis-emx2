@@ -2,20 +2,21 @@
   <div v-if="inplace">
     <input
       :id="id"
-      :checked="value"
+      :checked="modelValue"
       type="checkbox"
       :aria-describedby="id + 'Help'"
-      @change="$emit('input', $event.target.checked)"
+      @change="$emit('update:modelValue', $event.target.checked)"
     />
     <label class="ml-1" :for="id">{{ label }}</label>
   </div>
   <InputRadio
     v-else
-    v-bind="$attrs"
-    :value="value"
+    v-bind="$props"
+    :id="id"
+    :modelValue="modelValue"
     :options="[true, false]"
     :isClearable="isClearable"
-    @input="$emit('input', value)"
+    @update:modelValue="$emit('update:modelValue', $event)"
   />
 </template>
 
@@ -39,27 +40,31 @@ export default {
     <div>
       <DemoItem>
         <p>InputBoolean:</p>
-        <InputBoolean id="input-boolean" v-model="value" label="My first boolean" description="do you need some boolean help?"/>
+        <InputBoolean id="input-boolean" v-model="value1" label="My first boolean" description="do you need some boolean help?"/>
+        You choose: <div>value: {{ value1 }}</div>
       </DemoItem>
       <DemoItem>
         <p>InputBoolean:</p>
-        <InputBoolean id="input-boolean2" v-model="secondValue" :isClearable="false" label="real boolean" description="can not be cleared"/>
+        <InputBoolean id="input-boolean2" v-model="value2" :isClearable="false" label="real boolean" description="can not be cleared"/>
+        You choose: <div>value: {{ value2 }}</div>
       </DemoItem>
       <DemoItem>
         <p>InputBoolean - inplace:</p>
-        <InputBoolean id="input-boolean-inplace" :inplace="true" v-model="value" label="My inplace boolean"
+        <InputBoolean id="input-boolean-inplace" :inplace="true" v-model="value3" label="My inplace boolean"
                       description="do you need some boolean help?"/>
+        You choose: <div>value: {{ value3 }}</div>
       </DemoItem>
-      <div>value: {{ value }}</div>
-      <div>non clearable value: {{ secondValue }}</div>
+      <div>non clearable value: {{ value4 }}</div>
     </div>
   </template>
   <script>
     export default {
       data() {
         return {
-          value: true,
-          secondValue: false
+          value1: true,
+          value2: false,
+          value3: true,
+          value4: true
         }
       }
     }

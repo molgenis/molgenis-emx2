@@ -2,7 +2,7 @@
   <InputRefList
     :id="id"
     :value="condition"
-    @input="onUpdateCondition"
+    @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :graphqlURL="graphqlURL"
   />

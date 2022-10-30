@@ -78,11 +78,11 @@ export default {
   },
   methods: {
     handleFileUpload() {
-      this.$emit("input", this.$refs.file.files[0]);
+      this.$emit("update:modelValue", this.$refs.file.files[0]);
     },
     clearInput() {
       this.$refs.file.value = "";
-      this.$emit("input", null);
+      this.$emit("update:modelValue", null);
     },
   },
 };

@@ -1,10 +1,11 @@
 <template>
-  <component :is="inplace ? 'InlineInput' : 'span'" :value="value">
+  <component :is="inplace ? 'InlineInput' : 'span'" :value="modelValue" :id="id">
     <component
       v-if="typeToInput"
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
-      v-bind="$attrs"
+      v-bind="$props"
+      @update:modelValue="$emit('update:modelValue',$event)"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>

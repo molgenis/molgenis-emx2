@@ -111,7 +111,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
-import vClickOutside from "v-click-outside";
+import vClickOutside from "click-outside-vue3";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -337,9 +337,9 @@ export default {
           return { name: term.name };
         });
       if (this.isMultiSelect) {
-        this.$emit("input", selectedTerms);
+        this.$emit("update:modelValue", selectedTerms);
       } else {
-        this.$emit("input", selectedTerms[0]);
+        this.$emit("update:modelValue", selectedTerms[0]);
       }
     },
     applySelection(value) {
@@ -432,7 +432,7 @@ export default {
     },
     value() {
       if (this.terms.size > 0) {
-        this.applySelection(this.value);
+        this.applySelection(this.modelValue);
       }
     },
     data() {
@@ -477,7 +477,7 @@ export default {
           this.searchResultCount++;
         });
         this.terms = terms;
-        this.applySelection(this.value);
+        this.applySelection(this.modelValue);
       }
     },
   },

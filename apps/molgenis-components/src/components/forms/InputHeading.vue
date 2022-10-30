@@ -6,7 +6,6 @@
     </span>
     <textarea
       v-else
-      v-focus="inplace || editMeta"
       :value="description"
       :class="{
         'form-control': true,

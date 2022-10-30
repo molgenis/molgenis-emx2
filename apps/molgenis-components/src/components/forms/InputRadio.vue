@@ -62,13 +62,13 @@ export default {
   },
   data() {
     return {
-      radioValue: this.value,
+      radioValue: this.modelValue,
       isMouseOver: false,
     };
   },
   watch: {
     radioValue() {
-      this.$emit("input", this.radioValue);
+      this.$emit("update:modelValue", this.radioValue);
     },
   },
   computed: {

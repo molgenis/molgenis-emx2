@@ -40,6 +40,7 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import InputString from "../forms/InputString.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "./LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
@@ -53,6 +54,7 @@ export default {
     InputPassword,
     InputString,
     MessageError,
+    MessageSuccess,
     LayoutForm,
     LayoutModal,
     ButtonSubmit,

@@ -14,8 +14,8 @@
         :id="id"
         :ref="id"
         :name="name"
-        :value="value"
-        @input="$emit('input', $event.target.value)"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
         type="text"
         class="form-control"
         :class="{ 'is-invalid': stringError }"
@@ -23,7 +23,6 @@
         :placeholder="placeholderValue"
         :readonly="readonly"
       />
-
       <template v-slot:append>
         <slot name="append"></slot>
       </template>
@@ -48,13 +47,13 @@ export default {
   },
   computed: {
     stringError() {
-      if (this.value && this.value.length && this.value.length > this.stringLength) {
+      if (this.modelValue && this.modelValue.length && this.modelValue.length > this.stringLength) {
         return `Please limit to ${this.stringLength} characters.`;
       } else {
         return this.errorMessage;
       }
     },
-  },
+  }
 };
 </script>
 
@@ -72,11 +71,11 @@ span:hover .hoverIcon {
 <template>
   <div>
     <InputString id="input-string1" v-model="value" label="My string input label" description="Some help needed?"/>
-    You typed: {{ JSON.stringify(value) }}
+    You typed: {{ JSON.stringify(value) }}<br/>
     <b>Readonly</b>
     <InputString id="input-string2" label="test" :readonly="true" value="can't change me"
                  description="Should not be able to edit this"/>
-    <b>In place some</b>
+    <b>In place some</b><br/>
     <InputString id="input-string3" label="test" v-model="value" :inplace="true"
                  description="Should be able to edit in place"/>
     text.<br/>

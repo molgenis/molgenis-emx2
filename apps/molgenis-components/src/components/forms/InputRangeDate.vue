@@ -12,7 +12,7 @@
 
       <BaseInputDate
         :id="id + '-from'"
-        :value="value[0]"
+        :value="modelValue[0]"
         :readonly="readonly"
         :config="config"
         @input="emitValue($event, 0)"
@@ -22,7 +22,7 @@
 
       <BaseInputDate
         :id="id + '-to'"
-        :value="value[1]"
+        :value="modelValue[1]"
         :readonly="readonly"
         :config="config"
         @input="emitValue($event, 1)"
@@ -46,7 +46,7 @@ export default {
   components: { BaseInputDate, FormGroup, InputGroup },
   extends: BaseInput,
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => [null, null],
     },
@@ -54,9 +54,9 @@ export default {
   },
   methods: {
     emitValue(event, index) {
-      let result = [...this.value];
-      result[index] = event;
-      this.$emit("input", result);
+      let result = [...this.modelValue];
+      result[index] = event.target.value;
+      this.$emit("update:modelValue", result);
     },
   },
   computed: {

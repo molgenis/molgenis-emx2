@@ -86,6 +86,7 @@ export default {
       this.expand = !this.expand;
     }
   },
+  emits:["update:selection"]
 };
 </script>
 

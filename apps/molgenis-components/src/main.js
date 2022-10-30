@@ -1,4 +1,5 @@
-import {createApp} from 'vue';
+// we use this bundle to enable template at runtime
+import {createApp} from 'vue/dist/vue.esm-bundler';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";

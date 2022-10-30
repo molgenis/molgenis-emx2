@@ -18,7 +18,7 @@ export default {
       type: String,
       required: false,
     },
-    value: {
+    modelValue: {
       type: [String, Number, Object, Array, Boolean],
       default: null,
     },
@@ -64,5 +64,6 @@ export default {
         : this.label;
     },
   },
+  emits: ['update:modelValue']
 };
 </script>

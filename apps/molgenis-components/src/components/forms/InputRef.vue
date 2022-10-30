@@ -9,7 +9,7 @@
     <div>
       <div>
         <ButtonAlt
-          v-if="value !== null"
+          v-if="modelValue !== null"
           class="pl-1"
           icon="fa fa-clear"
           @click="clearValue"
@@ -34,7 +34,7 @@
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
-            @change="$emit('input', getPrimaryKey(row, tableMetaData))"
+            @change="$emit('update:modelValue', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
@@ -57,7 +57,7 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection="[value]"
+            :selection="[modelValue]"
             :lookupTableName="tableName"
             :filter="filter"
             @select="select($event)"
@@ -126,10 +126,10 @@ export default {
   methods: {
     getPrimaryKey,
     clearValue() {
-      this.$emit("input", null);
+      this.$emit("update:modelValue", null);
     },
     select(event) {
-      this.$emit("input", event);
+      this.$emit("update:modelValue", event);
     },
     openSelect() {
       this.showSelect = true;
@@ -140,7 +140,7 @@ export default {
     isSelected(row) {
       return (
         this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.value ? this.value.name : "")
+        (this.modelValue ? this.modelValue.name : "")
       );
     },
     flattenObject,

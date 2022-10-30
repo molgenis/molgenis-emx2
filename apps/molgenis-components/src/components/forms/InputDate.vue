@@ -9,13 +9,13 @@
     <InputGroup>
       <BaseInputDate
         :id="id"
-        :value="value"
+        :value="modelValue"
         :placeholder="placeholder"
         :readonly="readonly"
         :class="{ 'is-invalid': errorMessage }"
         :required="required"
         :config="config"
-        @input="$emit('input', $event)"
+        @input="$emit('update:modelValue', $event.target.value)"
       />
       <template v-slot:append>
         <slot name="append"></slot>

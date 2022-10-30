@@ -3,7 +3,7 @@
     v-if="readonly"
     :id="id"
     readonly
-    v-model="value"
+    :value="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :required="required"
@@ -11,25 +11,25 @@
   <FlatPickr
     v-else
     :id="id"
-    v-model="value"
+    :modelValue="modelValue"
     style="background: white"
     class="form-control active"
     :config="config"
     :placeholder="placeholder"
     :disabled="readonly"
-    @input="$emit('input', $event)"
+    @on-change="$emit('update:modelValue', $event)"
   />
 </template>
 
 <script>
 import BaseInput from "./BaseInput.vue";
-//import FlatPickr from "vue-flatpickr-component";
-//import "flatpickr/dist/flatpickr.css";
+import FlatPickr from "vue-flatpickr-component";
+import "flatpickr/dist/flatpickr.css";
 
 export default {
   extends: BaseInput,
   components: {
-   // FlatPickr,
+   FlatPickr,
   },
   props: {
     readonly: { type: Boolean, default: false },

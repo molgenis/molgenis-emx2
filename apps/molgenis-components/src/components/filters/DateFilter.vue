@@ -1,5 +1,5 @@
 <template>
-  <InputRangeDate :id="id" :value="condition" @input="onUpdateCondition">
+  <InputRangeDate :id="id" v-model="condition" @update:modelValue="onUpdateCondition">
     <template v-slot:append>
       <button
         v-if="condition"
@@ -47,5 +47,6 @@ export default {
       this.$emit("updateCondition", $event);
     },
   },
+  emits:['updateCondition','clearCondition','addCondition']
 };
 </script>

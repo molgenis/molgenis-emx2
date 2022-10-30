@@ -1,5 +1,5 @@
 <template>
-  <FormGroup v-bind="$attrs">
+  <FormGroup v-bind="$props">
     <Spinner v-if="isLoading"/>
     <TableMolgenis
         v-else-if="refTablePrimaryKeyObject"
@@ -250,7 +250,6 @@ export default {
 
     <div class="my-3">
       <label for="refback1">When row has not been saved ( has not key) </label>
-
       <InputRefBack
           id="refback1"
           label="Orders"
@@ -277,7 +276,6 @@ export default {
 
     <div class="my-3">
       <label for="refback3">When row has a key and can be edited </label>
-
       <InputRefBack
           id="refback3"
           canEdit

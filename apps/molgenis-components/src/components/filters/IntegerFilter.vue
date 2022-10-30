@@ -1,5 +1,5 @@
 <template>
-  <InputRangeInt :id="id" :value="condition" @input="onUpdateCondition">
+  <InputRangeInt :id="id" v-model="condition" @update:modelValue="onUpdateCondition">
     <template v-slot:append>
       <button v-if="condition" @click="$emit('clearCondition')" class="btn btn-outline-primary" type="button">
         <i class="fas fa-fw fa-times"></i>
@@ -37,5 +37,6 @@ export default {
       this.$emit("updateCondition", $event);
     },
   },
+  emits:['updateCondition','clearCondition','addCondition']
 };
 </script>

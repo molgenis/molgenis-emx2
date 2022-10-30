@@ -10,7 +10,7 @@
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
           :exclude="['HEADING', 'FILE']"
@@ -19,7 +19,7 @@
         />
 
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
           label="columns"
@@ -67,7 +67,7 @@
 
       <InputSearch
         class="mx-1 inline-form-group"
-        id="explorer-table-search"
+        :id="'explorer-table-search' + Date.now()"
         :value="searchTerms"
         @input="setSearchTerms($event)"
       />
@@ -88,14 +88,16 @@
           @input="setLimit($event)"
           class="mb-0"
         />
-        <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
+        <SelectionBox v-if="showSelect" :selection="selectedItems" @update:selection="selectedItems = $event"/>
       </div>
 
       <div class="btn-group" v-if="canManage">
         <TableSettings
           :tableName="tableName"
-          :cardTemplate.sync="cardTemplate"
-          :recordTemplate.sync="recordTemplate"
+          :cardTemplate="cardTemplate"
+          @update:cardTemplate="cardTemplate = $event"
+          :recordTemplate="recordTemplate"
+          @update:recordTemplate="recordTemplate = $event"
           :graphqlURL="graphqlURL"
         />
 
@@ -108,7 +110,7 @@
     <div class="d-flex">
       <div v-if="countFilters" class="col-3 pl-0">
         <FilterSidebar
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           :graphqlURL="graphqlURL"
         />
@@ -118,7 +120,7 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
         />
@@ -154,8 +156,10 @@
         />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
-          :selection.sync="selectedItems"
-          :columns.sync="columns"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+          :columns="columns"
+          @update:colums="columns = $event"
           :table-metadata="tableMetadata"
           :data="dataRows"
           :showSelect="showSelect"
@@ -529,16 +533,18 @@ export default {
       });
       this.reload();
     },
-    emitColumns() {
+    emitColumns(event) {
+      this.columns = event;
       this.$emit(
         "updateShowColumns",
         getColumnNames(this.columns, "showColumn")
       );
     },
-    emitFilters() {
+    emitFilters(event) {
+      this.columns = event;
       this.$emit(
         "updateShowFilters",
-        getColumnNames(this.columns, "showFilter")
+        getColumnNames(event, "showFilter")
       );
     },
     emitConditions() {
@@ -624,6 +630,7 @@ export default {
     this.setTableMetadata(newTableMetadata);
     await this.reload();
   },
+  emits:["updateShowFilters","click","updateShowLimit","updateShowPage","updateConditions","updateShowColumns","updateShowOrder","searchTerms"]
 };
 
 function getColumnNames(columns, property) {

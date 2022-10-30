@@ -12,13 +12,13 @@
       </template>
       <BaseInputDecimal
         :id="id + '-from'"
-        :value="value[0]"
+        :value="modelValue[0]"
         @input="emitValue($event, 0)"
         placeholder="from"
       />
       <BaseInputDecimal
         :id="id + '-to'"
-        :value="value[1]"
+        :value="modelValue[1]"
         @input="emitValue($event, 1)"
         placeholder="to"
       />
@@ -39,16 +39,16 @@ export default {
   components: { FormGroup, BaseInputDecimal, InputGroup },
   extends: BaseInput,
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => [null, null],
     },
   },
   methods: {
     emitValue(event, index) {
-      let result = [...this.value];
-      result[index] = event;
-      this.$emit("input", result);
+      let result = [...this.modelValue];
+     result[index] = event.target.value;
+      this.$emit("update:modelValue", result);
     },
   },
 };

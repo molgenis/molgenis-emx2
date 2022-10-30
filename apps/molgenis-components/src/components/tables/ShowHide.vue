@@ -104,6 +104,7 @@ export default {
       this.$emit("update:columns", update);
     },
   },
+  emits:["update:columns"]
 };
 </script>
 
@@ -114,7 +115,7 @@ export default {
       label="filters"
       icon="filter"
       checkAttribute="showFilter"
-      :columns.sync="columns"
+      :columns ="columns"
       :exclude="['HEADING', 'FILE']"
       @update:columns="onUpdateColumns"
     />
@@ -124,10 +125,11 @@ export default {
       label="columns"
       icon="columns"
       checkAttribute="showColumn"
-      :columns.sync="columns"
+      :columns ="columns"
       :defaultValue="true"
       @update:columns="onUpdateColumns"
     />
+    <br/>Columns state:<br/> {{columns}}
   </demo-item>
 </template>
 
@@ -139,8 +141,8 @@ export default {
     };
   },
   methods: {
-    onUpdateColumns() {
-      console.log("onUpdateColumns");
+    onUpdateColumns($event) {
+      this.columns = $event;
     },
   },
   mounted: async function () {

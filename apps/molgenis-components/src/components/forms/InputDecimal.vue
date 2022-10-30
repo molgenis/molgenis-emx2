@@ -9,11 +9,11 @@
     <InputGroup>
       <BaseInputDecimal
         :id="id"
-        :value="value"
+        :value="modelValue"
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="placeholder"
         :required="required"
-        @input="$emit('input', $event)"
+        @input="$emit('update:modelValue', $event.target.value === NaN ? null : parseFloat($event.target.value))"
       />
       <template v-slot:append>
         <slot name="append" />
