@@ -460,4 +460,5 @@ const router = createRouter({  history: createWebHistory(),
 
 const app = createApp(App);
 app.use(router);
+app.use(store);
 app.mount("#app")
