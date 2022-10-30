@@ -1,5 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import {createApp} from 'vue';
+import { createRouter, createWebHistory } from 'vue-router';
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
@@ -27,12 +27,7 @@ Vue.config.productionTip = false;
 
 import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-// workaround for not importing recursive component
-Vue.component("EditModal", EditModal);
-
-const router = new VueRouter({
+const router = createRouter({  history: createWebHistory(),
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Home", path: "/home", component: HomeView },
@@ -463,8 +458,6 @@ const router = new VueRouter({
   ],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-  store,
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app")
