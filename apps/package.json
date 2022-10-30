@@ -11,8 +11,7 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
-    "helloworld",
-    "gendecs"
+    "helloworld"
    ]
 }
 
