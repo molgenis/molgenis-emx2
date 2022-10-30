@@ -13,8 +13,8 @@
     "graphql-request": "5.0.0",
     "vue": "3.2.41",
     "vue-router": "4.1.6",
-    "vue-swatches": "2.1.1",
-    "vuedraggable": "2.24.3"
+    "vue3-swatches": "1.0.10",
+    "vuedraggable@next": "4.1.0"
   },
   "devDependencies": {
     "vite": "3.2.1",

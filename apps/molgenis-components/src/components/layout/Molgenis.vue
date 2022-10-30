@@ -168,7 +168,7 @@ export default {
             this.logoURL = this.session.settings.logoURL;
           }
         }
-        this.$emit("input", this.session);
+        this.$emit("update:modelValue", this.session);
       },
     },
   },
@@ -177,6 +177,7 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
   },
+  emits:["update:modelValue","error"]
 };
 </script>
 

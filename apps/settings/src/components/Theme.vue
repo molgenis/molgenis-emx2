@@ -21,10 +21,10 @@ import {
   InputString,
   MessageError,
   MessageSuccess,
+  Spinner
 } from "molgenis-components";
-import VSwatches from "vue-swatches";
+import VSwatches from "vue3-swatches";
 import { request } from "graphql-request";
-import "vue-swatches/dist/vue-swatches.css";
 
 export default {
   components: {
@@ -33,6 +33,7 @@ export default {
     MessageError,
     MessageSuccess,
     VSwatches,
+    Spinner
   },
   props: {
     session: Object,
@@ -127,5 +128,6 @@ export default {
       }
     },
   },
+  emits:["reload"]
 };
 </script>

@@ -86,6 +86,7 @@ export default {
       document.removeEventListener("keydown", this.escapeKeyHandler);
     }
   },
+  emits:["close"]
 };
 </script>
 
