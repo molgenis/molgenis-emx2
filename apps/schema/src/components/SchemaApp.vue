@@ -35,7 +35,7 @@
         <SchemaToc
           v-model="schema"
           v-if="schema.tables"
-          @input="handleInput"
+          @update:modelValue="handleInput"
           :key="key"
           :isManager="isManager"
         />
@@ -46,7 +46,7 @@
         <SchemaView
           v-model="schema"
           :schemaNames="schemaNames"
-          @input="handleInput"
+          @update:modelValue="handleInput"
           :isManager="isManager"
         />
       </div>
@@ -105,7 +105,7 @@ export default {
       this.dirty = true;
       this.success = null;
       this.key = Date.now();
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
     toggleShowDiagram() {
       this.showDiagram = !this.showDiagram;

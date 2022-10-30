@@ -74,7 +74,7 @@ export default {
   },
   props: {
     /** Existing Table metadata object entered as v-model. In case of a new table this should be left empty. */
-    value: {
+    modelValue: {
       type: Object,
       required: false,
     },
@@ -91,7 +91,7 @@ export default {
     /** action, either 'add' or 'input */
     operation: {
       type: String,
-      default: "input",
+      default: "update:modelValue",
     },
     /** type, either 'ontology' or nothing*/
     tableType: {
@@ -135,7 +135,7 @@ export default {
         return "Name is required and can only contain 'azAZ_ '";
       }
       if (
-        this.value?.name !== this.table.name &&
+        this.modelValue?.name !== this.table.name &&
         ((this.schema.tables &&
           this.schema.tables.filter(
             (table) =>
@@ -165,7 +165,7 @@ export default {
   },
   methods: {
     showModal() {
-      if (!this.value) {
+      if (!this.modelValue) {
         this.table = {};
       }
       this.show = true;
@@ -176,8 +176,8 @@ export default {
     },
     cancel() {
       //set
-      if (this.value) {
-        this.table = deepClone(this.value);
+      if (this.modelValue) {
+        this.table = deepClone(this.modelValue);
       } else {
         this.table = {};
       }
@@ -186,11 +186,12 @@ export default {
   },
   created() {
     //deep copy
-    if (this.value) {
-      this.table = deepClone(this.value);
+    if (this.modelValue) {
+      this.table = deepClone(this.modelValue);
     } else {
       this.table = {};
     }
   },
+  emits: ["add","update:modelValue"]
 };
 </script>

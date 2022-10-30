@@ -3,7 +3,6 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: "",
   server: {
     proxy: require("../dev-proxy.config"),
   },
