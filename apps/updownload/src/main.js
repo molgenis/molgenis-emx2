@@ -1,9 +1,6 @@
-import Vue from "vue";
+import {createApp} from 'vue';
 import App from "./App.vue";
 import "molgenis-components/dist/style.css";
 
-Vue.config.productionTip = false;
-
-new Vue({
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.mount("#app")
