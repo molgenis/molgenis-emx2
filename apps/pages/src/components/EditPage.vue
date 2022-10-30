@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-link :to="'/' + page">< view page</router-link>
+    <router-link :to="'/' + page">view page</router-link>
     <h1>{{ title }}</h1>
     <Spinner v-if="loading" />
     <div v-else>
