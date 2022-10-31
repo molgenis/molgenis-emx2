@@ -24,6 +24,8 @@ subprojects {
         maven {
             url = "https://registry.molgenis.org/repository/maven-public"
         }
+        google()
+        mavenCentral()
     }
 
     spotless {
