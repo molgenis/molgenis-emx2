@@ -2,6 +2,7 @@
   <div>
     <RowButton type="clone" @clone="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"
