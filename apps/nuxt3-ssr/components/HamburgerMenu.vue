@@ -1,5 +1,7 @@
 <script setup>
-import { Dropdown as VDropdown } from "floating-vue";
+import pkg from "floating-vue";
+const { Dropdown } = pkg;
+const VDropdown = Dropdown;
 import "floating-vue/dist/style.css";
 import BaseIcon from "./BaseIcon.vue";
 import Button from "./Button.vue";

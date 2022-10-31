@@ -1,6 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { Tooltip } from "floating-vue";
+import pkg from "floating-vue";
+const { Tooltip } = pkg;
+const VTooltip = Tooltip;
 import BaseIcon from "./BaseIcon.vue";
 import "floating-vue/dist/style.css";
 

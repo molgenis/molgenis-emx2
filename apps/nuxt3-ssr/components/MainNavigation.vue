@@ -1,5 +1,7 @@
 <script setup>
-import { Menu as VMenu } from "floating-vue";
+import pkg from "floating-vue";
+const { Menu } = pkg;
+const VMenu = Menu;
 import "floating-vue/dist/style.css";
 import BaseIcon from "./BaseIcon.vue";
 defineProps({
