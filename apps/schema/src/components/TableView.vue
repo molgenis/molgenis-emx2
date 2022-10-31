@@ -145,23 +145,23 @@
                 <th scope="col">description</th>
               </tr>
             </thead>
-            <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
-              <ColumnView
-                v-for="(column, columnIndex) in table.columns"
-                :key="columnIndex + column.name + table.columns.length"
-                :style="
-                  isSubclassDropped(column)
-                    ? 'text-decoration: line-through'
-                    : ''
-                "
-                v-model="table.columns[columnIndex]"
-                :schema="schema"
-                :schemaNames="schemaNames"
-                @update:modelValue="updateColumn(columnIndex, $event)"
-                @add="addColumn(columnIndex, $event)"
-                @delete="deleteColumn(columnIndex)"
-                :isManager="isManager"
-              />
+            <Draggable v-model="table.columns" tag="tbody" @end="applyPosition" item-key="name">
+              <template #item="{element,index}">
+                <ColumnView
+                  :style="
+                    isSubclassDropped(element)
+                      ? 'text-decoration: line-through'
+                      : ''
+                  "
+                  v-model="table.columns[index]"
+                  :schema="schema"
+                  :schemaNames="schemaNames"
+                  @update:modelValue="updateColumn(index, $event)"
+                  @add="addColumn(index, $event)"
+                  @delete="deleteColumn(index)"
+                  :isManager="isManager"
+                />
+              </template>
             </Draggable>
           </table>
         </div>
@@ -221,9 +221,6 @@ export default {
     };
   },
   methods: {
-    scrollToTop() {
-      this.$s;
-    },
     updateColumn(index, column) {
       this.table.columns.splice(index, 1, column);
       this.$emit("update:modelValue", this.table);
@@ -293,7 +290,7 @@ export default {
     createSubclass(subclass) {
       if (!this.table.subclasses) {
         //need to $set otherwise vue doesn't see the change
-        this.$set(this.table, "subclasses", []);
+        this.table.subclasses = [];
       }
       this.table.subclasses.unshift(subclass);
       this.$emit("update:modelValue", this.table);

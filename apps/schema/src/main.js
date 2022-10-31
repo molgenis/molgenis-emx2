@@ -8,7 +8,7 @@ import VueScrollTo from "vue-scrollto";
 import "molgenis-components/dist/style.css";
 
 const router = createRouter({  history: createWebHistory(),
-  routes: [{ name: "simple", path: "/", component: Schema }],
+  routes: [{ path: "/", component: Schema }],
 });
 
 const app = createApp(App);

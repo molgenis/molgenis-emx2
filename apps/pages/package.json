@@ -1,11 +1,11 @@
 {
   "name": "pages",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "lint": "vite lint"
   },
   "dependencies": {
     "molgenis-components": "*",

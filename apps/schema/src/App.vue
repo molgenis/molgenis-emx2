@@ -1,6 +1,6 @@
 <template>
     <Molgenis id="__top" v-model="session">
-      <router-view :session="session" :key="session.email" />
+      <router-view :session="session" />
     </Molgenis>
 </template>
 
@@ -13,7 +13,7 @@ export default {
   },
   data() {
     return {
-      session: {},
+      session: null,
     };
   }
 };

@@ -66,7 +66,7 @@
         <a
           :href="'#'"
           v-scroll-to="{
-            el: '#' + (ontology.name ? ontology.name.replaceAll(' ', '_') : ''),
+            el: '#' + ontology.name ? ontology.name.replaceAll(' ', '_') : '',
             offset: -200,
           }"
         >

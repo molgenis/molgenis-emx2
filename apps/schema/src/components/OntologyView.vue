@@ -104,9 +104,9 @@ export default {
       }
       if (!ontology.drop) {
         //need to do deep set otherwise vue doesn't see it
-        this.$set(ontology, "drop", true);
+        ontology.drop = true;
       } else {
-        this.$set(ontology, "drop", false);
+        ontology.drop = false;
       }
       this.$emit("update:modelValue", ontology);
     },

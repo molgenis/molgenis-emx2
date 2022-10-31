@@ -155,7 +155,7 @@ export default {
       tables.push(...schema.ontologies);
       request(
         "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`,
+        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message} }`,
         {
           tables: tables,
         }
@@ -183,7 +183,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible}}}}"
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
       )
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
