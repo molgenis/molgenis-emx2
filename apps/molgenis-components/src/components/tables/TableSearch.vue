@@ -89,6 +89,7 @@ import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
 
+
 export default {
    name: "TableSearch",
   components: {
