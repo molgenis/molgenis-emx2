@@ -35,7 +35,9 @@ public class QueryIndividuals {
     for (String filter : filters) {
       concatFilters.append(filter + ",");
     }
-    concatFilters.deleteCharAt(concatFilters.length() - 1);
+    if (concatFilters.length() > 0) {
+      concatFilters.deleteCharAt(concatFilters.length() - 1);
+    }
 
     for (Table table : tables) {
       List<IndividualsResultSetsItem> individualsItemList = new ArrayList<>();
@@ -118,7 +120,6 @@ public class QueryIndividuals {
         IndividualsResultSets individualsResultSets =
             new IndividualsResultSets(
                 table.getSchema().getName(),
-                individualsItemList.size(),
                 individualsItemList.toArray(
                     new IndividualsResultSetsItem[individualsItemList.size()]));
         resultSetsList.add(individualsResultSets);

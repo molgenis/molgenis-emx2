@@ -211,7 +211,7 @@ public class TestQueryJsonGraph {
     assertEquals(null, ((Map) result.get("Pet_groupBy").get(0).get("tags")).get("name"));
     assertEquals(1, result.get("Pet_groupBy").get(1).get("count"));
     assertEquals("blue", ((Map) result.get("Pet_groupBy").get(1).get("tags")).get("name"));
-    assertEquals(1, result.get("Pet_groupBy").get(2).get("count"));
+    assertEquals(3, result.get("Pet_groupBy").get(2).get("count"));
     assertEquals("green", ((Map) result.get("Pet_groupBy").get(2).get("tags")).get("name"));
 
     // tests below use non-reference types, do we want to enable group by on those??

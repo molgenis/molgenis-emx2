@@ -10,15 +10,13 @@
       @close="handleClose"
     />
   </span>
-</template>
+</template> 
 
 <script>
 import RowButton from "./RowButton.vue";
-import EditModal from "../forms/EditModal.vue";
-
 export default {
   name: "RowButtonEdit",
-  components: { RowButton, EditModal },
+  components: { RowButton },
   props: {
     id: {
       type: String,
@@ -52,17 +50,17 @@ export default {
 </script>
 
 <docs>
-<template>
-  <div>
-    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+  <template>
     <div>
-      <RowButtonEdit
-          id="row-edit-btn-sample"
+      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+      <div>
+        <RowButtonEdit 
+          id="row-edit-btn-sample" 
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
-      />
+        />
+      </div>
     </div>
-  </div>
-</template>
+  </template>
 </docs>

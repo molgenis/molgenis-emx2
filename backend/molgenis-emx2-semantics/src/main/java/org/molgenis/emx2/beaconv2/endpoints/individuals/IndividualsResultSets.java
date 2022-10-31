@@ -12,7 +12,7 @@ public class IndividualsResultSets {
   private Integer resultsCount;
   private IndividualsResultSetsItem[] results;
 
-  public IndividualsResultSets(String id, int resultsCount, IndividualsResultSetsItem[] results) {
+  public IndividualsResultSets(String id, IndividualsResultSetsItem[] results) {
     this.id = id;
     this.type = "dataset";
     this.setType = "biosamples";
@@ -23,5 +23,13 @@ public class IndividualsResultSets {
 
   public Integer getResultsCount() {
     return resultsCount;
+  }
+
+  public IndividualsResultSetsItem[] getResults() {
+    return results;
+  }
+
+  public String getId() {
+    return id;
   }
 }
