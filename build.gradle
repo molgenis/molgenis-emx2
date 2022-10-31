@@ -44,6 +44,9 @@ repositories {
     maven {
         url = "https://registry.molgenis.org/repository/maven-public"
     }
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
     mavenCentral()
 }
 
