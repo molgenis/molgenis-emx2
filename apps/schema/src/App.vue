@@ -1,5 +1,5 @@
 <template>
-    <Molgenis  id="__top" v-model="session">
+    <Molgenis id="__top" v-model="session">
       <router-view :session="session" :key="session.email" />
     </Molgenis>
 </template>

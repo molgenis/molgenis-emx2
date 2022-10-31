@@ -33,7 +33,7 @@
     <div v-else class="row">
       <div class="col-2 bg-white">
         <SchemaToc
-          v-model="schema"
+          :modelValue="schema"
           v-if="schema.tables"
           @update:modelValue="handleInput"
           :key="key"
@@ -44,7 +44,7 @@
         <a id="molgenis_diagram_anchor"></a>
         <NomnomDiagram :schema="schema" v-if="showDiagram" />
         <SchemaView
-          v-model="schema"
+          :modelValue="schema"
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
