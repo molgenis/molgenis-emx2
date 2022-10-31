@@ -10,6 +10,7 @@ import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
@@ -628,5 +629,18 @@ public class Column implements Comparable<Column> {
 
   public boolean isOntology() {
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Column column = (Column) o;
+    return table.equals(column.table) && columnName.equals(column.columnName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(table, columnName);
   }
 }
