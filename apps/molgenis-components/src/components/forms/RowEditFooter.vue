@@ -1,10 +1,19 @@
 <template>
-  <div>
-    <MessageSuccess v-if="successMessage">{{ successMessage }}</MessageSuccess>
-    <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-    <ButtonAlt @click="$emit('cancel')">Close</ButtonAlt>
-    <ButtonOutline @click="$emit('saveDraft')">Save draft</ButtonOutline>
-    <ButtonAction @click="$emit('save')">Save {{ tableName }}</ButtonAction>
+  <div class="w-100">
+    <div>
+      <MessageSuccess v-if="successMessage">
+        {{ successMessage }}
+      </MessageSuccess>
+    </div>
+    <div>
+      <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
+    </div>
+    <div class="d-flex" style="gap: 0.5rem">
+      <slot></slot>
+      <ButtonAlt @click="$emit('cancel')">Close</ButtonAlt>
+      <ButtonOutline @click="$emit('saveDraft')">Save draft</ButtonOutline>
+      <ButtonAction @click="$emit('save')">Save {{ tableName }}</ButtonAction>
+    </div>
   </div>
 </template>
 
