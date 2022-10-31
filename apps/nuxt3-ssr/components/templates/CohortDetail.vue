@@ -1,30 +1,32 @@
 <script setup>
-const query = `{ Schemas { name description } }`;
-const { data, error } = await fetchGql("apps/graphql", query);
-console.log(data);
-console.log(error);
-const catalogueQuery = `{_schema{name}, Institutions_agg{count}, Studies_agg{count}, Cohorts_agg{count}}`;
-const catalogueResp = await fetchGql(
-  "catalogue/catalogue/graphql",
-  catalogueQuery
-);
-console.log(catalogueResp);
-const cohortCount = catalogueResp.data.Cohorts_agg.count;
+import AppWrapper from "../AppWrapper.vue";
+import AppHeader from "../AppHeader.vue";
+import DetailPage from "../layouts/DetailPage.vue";
+import SideNavigation from "../SideNavigation.vue";
+import ContentBlocks from "../ContentBlocks.vue";
+import ContentBlockIntro from "../ContentBlockIntro.vue";
+import ContentBlockDescription from "../ContentBlockDescription.vue";
+import ContentBlockGeneralDesign from "../ContentBlockGeneralDesign.vue";
+import ContentBlockAttachedFiles from "../ContentBlockAttachedFiles.vue";
+import ContentBlockContact from "../ContentBlockContact.vue";
+import ContentBlockVariables from "../ContentBlockVariables.vue";
+import ContentBlockData from "../ContentBlockData.vue";
+import ContentBlockSubpopulations from "../ContentBlockSubpopulations.vue";
+import ContentBlockCollectionEvents from "../ContentBlockCollectionEvents.vue";
+import ContentBlockNetwork from "../ContentBlockNetwork.vue";
+import ContentBlockPartners from "../ContentBlockPartners.vue";
+import BreadCrumbs from "../BreadCrumbs.vue";
+import PageHeader from "../PageHeader.vue";
+import IconButton from "../IconButton.vue";
 </script>
 
 <template>
-  <!-- <div>
-    <h1 class="text-center text-5xl">
-      European Networks Health Data & Cohort Catalogue.
-    </h1>
-    <ul v-if="data.Schemas" class="pl-6">
-      <li v-for="schema in data.Schemas" :key="schema.name">
-        {{ schema.name }}
-      </li>
-    </ul>
-    <div v-if="error">{{ error }}</div>
-    <div>{{ catalogueResp.data }}</div> -->
-    <LayoutsDetailPage>
+  <AppWrapper>
+    <template #header>
+      <AppHeader />
+    </template>
+
+    <DetailPage>
       <template #header>
         <PageHeader
           title="Lifelines Next"
@@ -75,6 +77,6 @@ const cohortCount = catalogueResp.data.Cohorts_agg.count;
           />
         </ContentBlocks>
       </template>
-    </LayoutsDetailPage>
-  <!-- </div> -->
+    </DetailPage>
+  </AppWrapper>
 </template>

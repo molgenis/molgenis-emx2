@@ -1,0 +1,66 @@
+<script setup>
+
+import SearchBar from "./SearchBar.vue";
+import MainNavigation from "./MainNavigation.vue";
+
+import HeaderButton from "./HeaderButton.vue";
+import Container from "./Container.vue";
+
+import { computed } from "vue";
+import LogoMobile from "./LogoMobile.vue";
+import HamburgerMenu from "./HamburgerMenu.vue";
+
+const props = defineProps({
+  background: {
+    type: String,
+    default: "default",
+    enum: ["default", "white"],
+  },
+});
+
+const BACKGROUND_MAPPING = {
+  default: "md:bg-black md:bg-opacity-10",
+  white: "md:bg-white",
+};
+
+const backgroundClass = computed(() => {
+  return BACKGROUND_MAPPING[props.background];
+});
+</script>
+
+<template>
+  <header :class="backgroundClass" class="antialiased">
+    <Container>
+      <div class="items-center justify-between hidden md:flex h-25">
+        <Logo />
+        <MainNavigation />
+        <div class="w-[450px]">
+          <SearchBar />
+        </div>
+
+        <HeaderButton label="Favorites" icon="star" />
+        <HeaderButton label="Account" icon="user" />
+      </div>
+
+      <div class="pt-5 md:hidden">
+        <div class="relative flex items-center h-12.5 justify-between mb-4">
+          <HamburgerMenu />
+
+          <div class="absolute -translate-x-1/2 left-1/2">
+            <LogoMobile />
+          </div>
+
+          <div class="flex gap-3">
+            <HeaderButton label="Favorites" icon="star" />
+            <HeaderButton label="Account" icon="user" />
+          </div>
+        </div>
+
+        <MainNavigation :showMoreButton="false" />
+        <div class="w-full pt-6">
+          <SearchBar />
+        </div>
+      </div>
+    </Container>
+  </header>
+</template>
