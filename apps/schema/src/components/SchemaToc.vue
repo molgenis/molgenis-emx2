@@ -79,11 +79,7 @@
 </template>
 
 <script>
-import Vue from "vue";
-import VueScrollTo from "vue-scrollto";
 import TableEditModal from "./TableEditModal.vue";
-
-Vue.use(VueScrollTo);
 
 export default {
   components: { TableEditModal },
