@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -121,6 +122,74 @@ public class WebApiSmokeTests {
 
     // delete the new schema
     db.dropSchema("pet store zip");
+  }
+
+  @Test
+  public void testCsvApi_csvTableMetadataUpdate() throws IOException {
+
+    // fresh schema for testing
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    // full table header present in exported table metadata
+    String header =
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description\r\n";
+
+    // add new table with description and semantics as metadata
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
+        "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+
+    // update table without new description or semantics, values should be untouched
+    addUpdateTableAndCompare(
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+
+    // update only description, semantics should be untouched
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description\r\nTestMetaTable,NewTestDesc",
+        "TestMetaTable,,,,,,,,,,,,TestSem,NewTestDesc\r\n");
+
+    // make semantics empty by not supplying a value, description  should be untouched
+    addUpdateTableAndCompare(
+        header,
+        "tableName,semantics\r\nTestMetaTable,",
+        "TestMetaTable,,,,,,,,,,,,,NewTestDesc\r\n");
+
+    // make description empty while also adding a new value for semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
+        "TestMetaTable,,,,,,,,,,,,NewTestSem,\r\n");
+
+    // empty both description and semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,,",
+        "TestMetaTable,,,,,,,,,,,,,\r\n");
+
+    // add description value, and string array value for semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
+        "TestMetaTable,,,,,,,,,,,,\"TestSem1,TestSem2\",TestDesc\r\n");
+  }
+
+  /**
+   * Helper function to prevent code duplication
+   *
+   * @param header
+   * @param tableMeta
+   * @param expected
+   * @throws IOException
+   */
+  private void addUpdateTableAndCompare(String header, String tableMeta, String expected)
+      throws IOException {
+    byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
+    File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
+    acceptFileUpload(addUpdateTableFile, "molgenis");
+    String actual = getContentAsString("/api/csv");
+    assertEquals(header + expected, actual);
   }
 
   @Test

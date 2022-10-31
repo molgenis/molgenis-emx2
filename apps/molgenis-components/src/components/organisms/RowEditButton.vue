@@ -14,10 +14,9 @@
 
 <script>
 import RowButton from "../tables/RowButton.vue";
-import EditModal from "../forms/EditModal.vue";
 export default {
   name: "RowEditButton",
-  components: { RowButton, EditModal },
+  components: { RowButton },
   props: {
     id: {
       type: String,
