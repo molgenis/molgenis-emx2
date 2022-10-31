@@ -30,10 +30,16 @@ import {
   Spinner,
   privacyConstants,
   request,
+  requestWithBody,
 } from "molgenis-components";
 
-const { LEVEL_4, CUSTOM, POLICY_LEVEL_KEY, POLICY_TEXT_KEY, PREFABS } =
-  privacyConstants;
+const {
+  LEVEL_4,
+  CUSTOM,
+  POLICY_LEVEL_KEY,
+  POLICY_TEXT_KEY,
+  PREFABS,
+} = privacyConstants;
 
 export default {
   name: "ManagePrivacyPolicy",
@@ -75,7 +81,7 @@ export default {
       this.loading = false;
     },
     async save() {
-      const createMutation = gql`
+      const query = gql`
         mutation createSetting(
           $privacyPolicyLevel: String
           $privacyPolicyText: String
@@ -100,7 +106,13 @@ export default {
         privacyPolicyText: this.policyText,
       };
 
-      await request("graphql", createMutation, variables).catch((error) => {
+      const body = {
+        operationName: "createSetting",
+        query,
+        variables,
+      };
+
+      await requestWithBody("graphql", body).catch((error) => {
         console.error(error);
       });
     },

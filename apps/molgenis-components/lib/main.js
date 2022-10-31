@@ -1,5 +1,5 @@
 import Client from "../src/client/client.js";
-import { request } from "../src/client/client.js";
+import { request, requestWithBody } from "../src/client/client.js";
 
 //display
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
@@ -238,4 +238,5 @@ export {
   constants,
   privacyConstants,
   request,
+  requestWithBody,
 };

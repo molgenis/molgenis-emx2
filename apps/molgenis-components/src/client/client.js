@@ -1,7 +1,7 @@
 import axios from "axios";
 import { deepClone } from "../components/utils";
 
-export { request };
+export { request, requestWithBody };
 
 export default {
   newClient: (graphqlURL, externalAxios) => {
@@ -243,6 +243,17 @@ const request = async (url, graphql) => {
       throw error;
     });
 };
+
+async function requestWithBody(url, body) {
+  return axios
+    .post(url, body)
+    .then((result) => {
+      return result?.data?.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
 
 /**
  *
