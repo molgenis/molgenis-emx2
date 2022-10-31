@@ -112,7 +112,9 @@ public class QueryHelper {
       // if reference, also step in recursively
       if (column.isReference()) {
         Table refTable = table.getSchema().getTable(column.getRefTableName());
-        boolean isNotACircularReference = !refTable.getName().equals(table.getName());
+        boolean isNotACircularReference =
+            !refTable.getName().equals(table.getName())
+                && !buildGraphQLFilter.contains(column.getName());
         if (isNotACircularReference) {
           ColumnPath columnPath =
               findColumnPath(
