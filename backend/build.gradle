@@ -17,6 +17,7 @@ subprojects {
     apply plugin: "com.diffplug.spotless"
 
     repositories {
+        gradlePluginPortal()
         mavenLocal()
         maven {
             url = 'https://repo.maven.apache.org/maven2'
