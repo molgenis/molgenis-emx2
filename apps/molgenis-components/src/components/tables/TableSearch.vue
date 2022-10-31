@@ -35,6 +35,7 @@
               :id="'row-button-add-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
+              @close="loadData"
               class="d-inline p-0"
             />
           </template>

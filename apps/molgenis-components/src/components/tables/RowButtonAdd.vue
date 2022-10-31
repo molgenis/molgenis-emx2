@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <RowButton type="add" @add="isModalShown = true" />
     <EditModal
       :id="id + 'add-modal'"
@@ -8,7 +8,7 @@
       :graphqlURL="graphqlURL"
       @close="handleClose"
     />
-  </div>
+  </span>
 </template> 
 
 <script>
