@@ -36,6 +36,7 @@
         :id="id + '-footer'"
         :tableName="tableName"
         :errorMessage="errorMessage"
+        :isSaveDisabled="isSaveDisabled"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
@@ -130,6 +131,9 @@ export default {
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
+    isSaveDisabled() {
+      return this.pageCount > 1 ? this.pageCount !== this.currentPage : false;
+    },
   },
   methods: {
     setCurrentPage(newPage) {
@@ -206,7 +210,7 @@ export default {
 
 <docs>
   <template>
-  <demo-item label="Edit Modal">
+  <DemoItem label="Edit Modal">
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -251,9 +255,10 @@ export default {
       :graphqlURL="graphqlURL"
       @close="isModalShown = false"
     />
-  </demo-item>
+  </DemoItem>
 </template>
-  <script>
+
+<script>
 export default {
   data: function () {
     return {
