@@ -124,9 +124,9 @@ public class EJP_VP_IndividualsQuery {
        * filter dynamically. Right now only columns of type Ontology are supported.
        */
       else {
-        ColumnPath columnPath = findColumnPath("", type, this.tables.get(0));
+        ColumnPath columnPath = findColumnPath(new ArrayList<>(), type, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
-          String dynamicFilter = columnPath.getPath() + "ontologyTermURI: {like: \"" + id + "\"";
+          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + id + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
           return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));

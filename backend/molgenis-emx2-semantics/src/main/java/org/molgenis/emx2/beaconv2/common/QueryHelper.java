@@ -90,13 +90,14 @@ public class QueryHelper {
   /**
    * Find column and GraphQL path to that column in a table based on a semantic tag.
    *
-   * @param buildGraphQLFilter Supply empty string, will be filled by function recursively
-   * @param columnSemanticTagOrIRI Find column that matches this semantic tag
-   * @param table Table structure to search in
+   * @param pathToColumn Supply empty ArrayList, will be filled by function recursively
+   * @param columnSemanticTagOrIRI Find the column that matches this semantic tag
+   * @param table Table structure to start search in, pathToColumn will be relative to this
    * @return
    */
   public static ColumnPath findColumnPath(
-      String buildGraphQLFilter, String columnSemanticTagOrIRI, Table table) {
+      ArrayList<Column> pathToColumn, String columnSemanticTagOrIRI, Table table) {
+
     for (Column column : table.getMetadata().getColumns()) {
       if (column.getName().startsWith("mg_")) {
         continue;
@@ -105,7 +106,7 @@ public class QueryHelper {
       // check semantics, return if found
       for (String semantics : column.getSemantics()) {
         if (semantics.endsWith(columnSemanticTagOrIRI)) {
-          return new ColumnPath(column, buildGraphQLFilter + " {" + column.getName() + ": {");
+          return new ColumnPath(column, pathToColumn);
         }
       }
 
@@ -113,16 +114,15 @@ public class QueryHelper {
       if (column.isReference()) {
         Table refTable = table.getSchema().getTable(column.getRefTableName());
         boolean isNotACircularReference =
-            !refTable.getName().equals(table.getName())
-                && !buildGraphQLFilter.contains(column.getName());
+            !refTable.getName().equals(table.getName()) && !pathToColumn.contains(column);
         if (isNotACircularReference) {
-          ColumnPath columnPath =
-              findColumnPath(
-                  buildGraphQLFilter + " {" + column.getName() + ": ",
-                  columnSemanticTagOrIRI,
-                  refTable);
+          pathToColumn.add(column);
+          ColumnPath columnPath = findColumnPath(pathToColumn, columnSemanticTagOrIRI, refTable);
           if (columnPath != null) {
             return columnPath;
+          } else {
+            // if not found, remove last path entry
+            pathToColumn.remove(pathToColumn.size() - 1);
           }
         }
       }
