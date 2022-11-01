@@ -8,6 +8,7 @@ const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(),vue()],
+  base:"",
   server: {
     proxy: {
       "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
