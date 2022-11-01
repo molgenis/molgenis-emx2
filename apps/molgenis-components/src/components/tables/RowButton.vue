@@ -33,7 +33,8 @@ export default {
     icon () {
       return iconMap[this.type]
     }
-  }
+  },
+  emits:['add','edit','delete','clone']
 };
 </script>
 

@@ -3,7 +3,7 @@
     <RowEdit
       v-if="columnsSplitByHeadings"
       :id="id"
-      :value="value"
+      :modelValue="modelValue"
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
@@ -25,7 +25,7 @@ export default {
     return { columnsSplitByHeadings: null };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
