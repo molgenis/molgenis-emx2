@@ -61,7 +61,48 @@ mutation {
 
 ```
 
-### retrieve session object
+### createToken
+
+Create a token
+```graphql
+mutation {
+  createToken(email: "admin", tokenName: "mytoken") {
+    token
+    message
+  }
+}
+
+```
+
+See tokens for current user
+```graphql
+{
+  _session {
+    settings {
+      key
+      value
+    }
+  }
+}
+```
+
+See tokens for all users, in settings 'access-tokens'
+```graphql
+{
+  _admin {
+    users {
+      email
+      settings {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+
+### session object
 
 In the session object you can get active account ('email'), the roles of this user, and a listing of the schema's in the
 system.
@@ -76,10 +117,9 @@ system.
 }
 ```
 
-### retrieve settings
+### settings
 
-MOLGENIS has a generic key/value settings for storing settings. Settings can be set on level of whole system, and per
-database (per database includes the overal settings).
+MOLGENIS has a generic key/value settings query for storing settings on database level
 
 ```graphql
 {
@@ -87,6 +127,79 @@ database (per database includes the overal settings).
         key
         value
     }
+}
+```
+
+On level of schema, tables you can follow similar queries
+```graphql
+{
+  _schema {
+    settings {
+      key
+      value
+    }
+    tables {
+      settings {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+For current user you can query settings following same pattern
+```graphql
+{
+  _session {
+    settings {
+      key
+      value
+    }
+  }
+}
+```
+
+To get settings for all users
+```graphql
+{
+  _admin {
+    users {
+      email
+      settings {
+        key
+        value
+      }
+    }
+  }
+}
+
+```
+
+To change settings you can use the 'change' mutation, e.g.
+
+Database or schema settings (depending on database vs schema api):
+```graphql
+mutation {
+  change(settings: [{ key: "key", value: "value" }]){message}
+}
+```
+
+Table settings:
+```graphql
+mutation {
+  change(
+    tables: [{ name: "mytable", settings: [{ key: "key", value: "value" }] }]
+  ){message}
+}
+```
+
+User settings (only as admin, or settings of current user):
+```graphql
+mutation {
+  change(
+    users:[{email:"bofke", settings: [{ key: "key", value: "value" }]}]
+  ){message}
 }
 ```
 
