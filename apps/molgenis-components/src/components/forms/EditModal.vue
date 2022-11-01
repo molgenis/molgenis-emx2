@@ -26,6 +26,7 @@
             <button
               type="button"
               class="btn btn-link p-0"
+              :class="{ 'font-weight-bold': index + 1 === currentPage }"
               @click="setCurrentPage(index + 1)"
             >
               {{ heading }}
