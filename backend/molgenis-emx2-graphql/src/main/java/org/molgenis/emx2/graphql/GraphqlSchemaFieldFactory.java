@@ -78,7 +78,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(COLUMN)
                   .type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLInputObjectType inputDropSettingType =
+  static final GraphQLInputObjectType inputDropSettingType =
       new GraphQLInputObjectType.Builder()
           .name("DropSettingsInput")
           .field(

@@ -7,8 +7,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.inputSettingsMetadataType;
-import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -239,7 +238,7 @@ public class GraphqlDatabaseFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
-                .type(GraphQLList.list(inputSettingsMetadataType)))
+                .type(GraphQLList.list(inputDropSettingType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
