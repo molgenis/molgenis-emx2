@@ -142,13 +142,23 @@ export default {
       return true;
     },
     validateTable() {
-      if (this.tableMetaData && this.tableMetaData.columns) {
-        this.tableMetaData.columns.forEach((column) => {
-          this.errorPerColumn[column.id] = this.getColumnError(
-            column,
-            this.internalValues
-          );
-        });
+      if (this.tableMetaData?.columns) {
+        this.tableMetaData.columns
+          .filter((column) => {
+            if (this.visibleColumns) {
+              return this.visibleColumns.find(
+                (visibleColumn) => column.name === visibleColumn.name
+              );
+            } else {
+              return true;
+            }
+          })
+          .forEach((column) => {
+            this.errorPerColumn[column.id] = this.getColumnError(
+              column,
+              this.internalValues
+            );
+          });
       }
     },
     getColumnError(column, values) {
