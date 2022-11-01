@@ -139,48 +139,44 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
-      const createMutation = gql`
-        mutation createSetting($key: String, $value: String) {
-          createSetting(key: $key, value: $value) {
-            message
-          }
+      const createMutation = gql`mutation change($settings:[MolgenisSettingsInput]){
+        change(settings:$settings){
+          message
         }
-      `;
+       }`;
 
       const variables = {
-        key: this.settingKey,
-        value: this.settingValue,
+        settings: {
+          key: this.settingKey,
+          value: this.settingValue
+        }
       };
 
-      const resp = await request("graphql", createMutation, variables).catch(
-        (e) => {
-          console.error(e);
-        }
-      );
+      await request("graphql", createMutation, variables).catch((e) => {
+        console.error(e);
+      });
       this.fetchSettings();
       this.showModal = false;
     },
     async deleteSetting() {
-      const deleteMutation = gql`
-        mutation deleteSetting($key: String) {
-          deleteSetting(key: $key) {
-            message
-          }
+      const deleteMutation = gql`mutation drop($settings:[DropSettingsInput]){
+        drop(settings:$settings){
+          message
         }
-      `;
+      }`;
 
       const variables = {
-        key: this.settingKey,
+        settings: {
+          key: this.settingKey,
+        }
       };
 
-      const resp = await request("graphql", deleteMutation, variables).catch(
-        (e) => {
-          console.error(e);
-        }
-      );
+      await request("graphql", deleteMutation, variables).catch((e) => {
+        console.error(e);
+      });
       this.fetchSettings();
       this.showModal = false;
-    },
+    }
   },
   mounted() {
     this.fetchSettings();
