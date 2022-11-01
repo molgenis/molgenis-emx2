@@ -48,6 +48,9 @@ repositories {
         url "https://plugins.gradle.org/m2/"
     }
     mavenCentral()
+    gradlePluginPortal()
+    google()
+    google()
 }
 
 dependencies {
