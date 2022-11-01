@@ -17,12 +17,15 @@
           class="flex-grow-1"
         >
         </EditModalWizard>
-        <div v-if="pageCount > 1" class="ml-3">
+        <div
+          v-if="pageCount > 1"
+          class="border-left bg-white my-n3 ml-3 mr-n3 p-3"
+        >
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
             <button
               type="button"
-              class="btn btn-link"
+              class="btn btn-link p-0"
               @click="setCurrentPage(index + 1)"
             >
               {{ heading }}
@@ -207,6 +210,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.side-menu {
+  background: white;
+  margin: -1rem;
+  padding: 1rem;
+}
+</style>
 
 <docs>
   <template>
