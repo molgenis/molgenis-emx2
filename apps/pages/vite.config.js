@@ -5,5 +5,5 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: require("../dev-proxy.config"),
-  },
+  }
 });
