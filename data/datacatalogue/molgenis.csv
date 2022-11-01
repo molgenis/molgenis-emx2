@@ -66,16 +66,21 @@ Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countrie
 DataResources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
 DataResources,,populationAgeGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups of the participants of this resource
 Cohorts,,inclusionCriteria,text,,,,InclusionCriteria,,,,,Inclusion criteria applied to the participants of this resource
-DataResources,,startYear,int,,,,,,,,,Year when first data was collected
-DataResources,,endYear,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
+Cohorts,,startYear,int,,,,,,,,,Year when first data was collected
+Cohorts,,endYear,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
+RWEresources,,dateEstablished,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06."
+RWEresources,,startDataCollection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06."
+RWEresources,,endDataCollection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06."
 RWEresources,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
 RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
 RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
 RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
 RWEresources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
 Databanks,,populationPregnancy,bool,,,,,,,,,Does the data bank collect information on pregnant women and/or neonatal subpopulation?
+RWEresources,,diseaseData,bool,,,,,,,,,Does the data source collect information on a specific disease?
 RWEresources,,populationDisease,text,,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
+RWEresources,,populationNotCovered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) "
 RWEresources,,populationCoverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?"
 RWEresources,,populationCoveragePercentage,int,,,,,,,,,What percentage of the underlying population is covered by the data bank?
 RWEresources,,timeSpanDescription,text,,,,,,,,,Description of time span
@@ -128,6 +133,7 @@ Databanks,,dataController,ref,,,,Institutions,,,,,The name of the institution or
 RWEresources,,governanceDetails,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
 RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data
 RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
+RWEresources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?"
 RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted."
 Databanks,,origin,heading,,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
 Databanks,,reasonSustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
@@ -171,7 +177,7 @@ Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that 
 Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
 Databanks,,datasource,refback,,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
-Databanks,,cdms,ref,,,,Models,,,,,Common data models used by this databank
+RWEresources,,cdms,ref_array,,,,Models,,,,,Common data models used by this databank
 Datasources,,networks,refback,,,,Networks,,datasources,,,List of networks that this datasource is associated with
 Datasources,,studies,refback,,,,Studies,,datasources,,,List of studies that this datasource is associated with
 Publications,,,,,,,,,,,,Publications following bibtex format
