@@ -26,7 +26,6 @@ import { EditModal } from "molgenis-components";
 Vue.config.productionTip = false;
 
 import "molgenis-components/dist/style.css";
-import {createWebHashHistory} from 'vue-router/dist/vue-router';
 
 const router = createRouter({   history: createWebHashHistory(),
   routes: [
