@@ -44,13 +44,22 @@
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
       >
-        <Pagination
-          v-if="pageCount > 1"
-          class="mr-auto"
-          v-model="currentPage"
-          :count="pageCount"
-          :limit="1"
-        />
+        <div v-if="pageCount > 1" class="mr-auto">
+          <ButtonAction
+            @click="setCurrentPage(currentPage - 1)"
+            :disabled="currentPage <= 1"
+            class="mr-2 pr-3"
+          >
+            <i :class="'fas fa-fw fa-chevron-left'" /> Previous
+          </ButtonAction>
+          <ButtonAction
+            @click="setCurrentPage(currentPage + 1)"
+            :disabled="currentPage >= pageCount"
+            class="pl-3"
+          >
+            Next <i :class="'fas fa-fw fa-chevron-right'" />
+          </ButtonAction>
+        </div>
       </RowEditFooter>
     </template>
   </LayoutModal>
@@ -62,11 +71,18 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import Pagination from "../tables/Pagination.vue";
+import ButtonAction from "./ButtonAction.vue";
 import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
-  components: { LayoutModal, RowEditFooter, EditModalWizard, Pagination },
+  components: {
+    LayoutModal,
+    RowEditFooter,
+    EditModalWizard,
+    Pagination,
+    ButtonAction,
+  },
   data() {
     return {
       rowData: {},
