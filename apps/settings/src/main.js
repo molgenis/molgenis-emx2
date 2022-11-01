@@ -1,5 +1,5 @@
 import {createApp} from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import App from "./App.vue";
 import Members from "./components/Members.vue";
 import Theme from "./components/Theme.vue";
@@ -10,7 +10,7 @@ import SettingsManager from "./components/SettingsManager.vue";
 
 import "molgenis-components/dist/style.css";
 
-const router = createRouter({  history: createWebHistory(),
+const router = createRouter({  history: createWebHashHistory(),
   routes: [
     {
       name: "Theme",

@@ -1,6 +1,6 @@
 // we use this bundle to enable template at runtime
 import {createApp} from 'vue/dist/vue.esm-bundler';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";
 import Sidebar from "./Sidebar.vue";
@@ -69,7 +69,7 @@ Object.entries(components).forEach(([path, definition]) => {
 app.component("DemoItem", DemoItem);
 
 // connect the router
-const router = createRouter({  history: createWebHistory(), routes });
+const router = createRouter({  history: createWebHashHistory(), routes });
 app.use(router);
 
 // render the whole thing
