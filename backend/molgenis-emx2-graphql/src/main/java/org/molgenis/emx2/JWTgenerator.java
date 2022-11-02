@@ -63,7 +63,8 @@ public class JWTgenerator {
   /* Temporary token has an expiration time */
   public static String createTemporaryToken(Database db, String user) {
     return createNamedTokenForUser(
-        db, user, "temporary", new Date(new Date().getTime() + 60 * 1000));
+        // half our in future, is 30 * 60 * 1000 milliseconds
+        db, user, "temporary", new Date(System.currentTimeMillis() + 60 * 30 * 1000));
   }
 
   private static String createNamedTokenForUser(

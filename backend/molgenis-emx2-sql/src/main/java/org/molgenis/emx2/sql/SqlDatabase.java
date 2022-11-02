@@ -287,7 +287,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (this.schemaNames.isEmpty()) {
       this.schemaNames = MetadataUtils.loadSchemaNames(this);
     }
-    return this.schemaNames;
+    return List.copyOf(this.schemaNames);
   }
 
   @Override
@@ -295,7 +295,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (this.schemaInfos.isEmpty()) {
       this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
     }
-    return this.schemaInfos;
+    return List.copyOf(this.schemaInfos);
   }
 
   @Override
