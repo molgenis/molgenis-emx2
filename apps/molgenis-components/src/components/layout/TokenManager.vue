@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="accessTokens.length > 0">
+    <div v-if="accessTokens.length">
     <label><b>Access tokens</b></label>
     <ul >
       <li v-for="(tokenName,idx) in accessTokens" :key="tokenName">{{ tokenName }}
