@@ -6,9 +6,9 @@ plugins {
 }
 
 def nodeSpec = {
-    version = '16.16.0'
+    version = '18.12.0'
     yarnVersion = '1.22.19'
-    npmVersion = "8.17.0"
+    npmVersion = "8.19.2"
     download = true
 }
 
