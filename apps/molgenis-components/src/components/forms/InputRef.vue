@@ -34,7 +34,9 @@
             type="radio"
             :modelValue="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
-            @change="$emit('update:modelValue', getPrimaryKey(row, tableMetaData))"
+            @change="
+              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
+            "
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />

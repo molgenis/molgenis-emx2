@@ -144,6 +144,6 @@ export default {
   created() {
     this.column = this.modelValue;
   },
-  emits:["update:modelValue", "add","delete"]
+  emits: ["update:modelValue", "add", "delete"],
 };
 </script>

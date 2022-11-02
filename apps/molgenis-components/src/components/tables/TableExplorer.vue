@@ -88,7 +88,11 @@
           @input="setLimit($event)"
           class="mb-0"
         />
-        <SelectionBox v-if="showSelect" :selection="selectedItems" @update:selection="selectedItems = $event"/>
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+        />
       </div>
 
       <div class="btn-group" v-if="canManage">
@@ -542,10 +546,7 @@ export default {
     },
     emitFilters(event) {
       this.columns = event;
-      this.$emit(
-        "updateShowFilters",
-        getColumnNames(event, "showFilter")
-      );
+      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -630,7 +631,16 @@ export default {
     this.setTableMetadata(newTableMetadata);
     await this.reload();
   },
-  emits:["updateShowFilters","click","updateShowLimit","updateShowPage","updateConditions","updateShowColumns","updateShowOrder","searchTerms"]
+  emits: [
+    "updateShowFilters",
+    "click",
+    "updateShowLimit",
+    "updateShowPage",
+    "updateConditions",
+    "updateShowColumns",
+    "updateShowOrder",
+    "searchTerms",
+  ],
 };
 
 function getColumnNames(columns, property) {

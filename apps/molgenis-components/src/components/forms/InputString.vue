@@ -47,13 +47,17 @@ export default {
   },
   computed: {
     stringError() {
-      if (this.modelValue && this.modelValue.length && this.modelValue.length > this.stringLength) {
+      if (
+        this.modelValue &&
+        this.modelValue.length &&
+        this.modelValue.length > this.stringLength
+      ) {
         return `Please limit to ${this.stringLength} characters.`;
       } else {
         return this.errorMessage;
       }
     },
-  }
+  },
 };
 </script>
 

@@ -47,6 +47,6 @@ export default {
       this.$emit("updateCondition", $event);
     },
   },
-  emits:['updateCondition','clearCondition','addCondition']
+  emits: ["updateCondition", "clearCondition", "addCondition"],
 };
 </script>

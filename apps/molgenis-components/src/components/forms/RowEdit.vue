@@ -85,7 +85,7 @@ export default {
       default: () => true,
     },
   },
-  emits: ['update:modelValue'],
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },

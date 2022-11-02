@@ -3,72 +3,72 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div v-else style="text-align: center">
       <form
-          v-if="showHeaderIfNeeded"
-          class="form-inline justify-content-between mb-2 bg-white"
+        v-if="showHeaderIfNeeded"
+        class="form-inline justify-content-between mb-2 bg-white"
       >
         <InputSearch
-            id="input-search"
-            v-if="lookupTableName"
-            v-model="searchTerms"
+          id="input-search"
+          v-if="lookupTableName"
+          v-model="searchTerms"
         />
-        <Pagination class="ml-2" v-model="page" :limit="limit" :count="count"/>
+        <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
-      <Spinner v-if="loading"/>
+      <Spinner v-if="loading" />
       <div v-else>
         <TableMolgenis
-            :selection="selection"
-            :tableMetadata="tableMetadata"
-            :columns="columnsVisible"
-            :data="data"
-            :showSelect="showSelect"
-            @update:selection="$emit('update:selection', $event)"
-            @select="select"
-            @deselect="deselect"
+          :selection="selection"
+          :tableMetadata="tableMetadata"
+          :columns="columnsVisible"
+          :data="data"
+          :showSelect="showSelect"
+          @update:selection="$emit('update:selection', $event)"
+          @select="select"
+          @deselect="deselect"
         >
           <template v-slot:header>
-            <slot name="colheader" v-bind="$props"/>
+            <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
             <RowAddButton
-                v-if="canEdit"
-                :id="'row-button-add-' + lookupTableName"
-                :tableName="lookupTableName"
-                :graphqlURL="graphqlURL"
-                class="d-inline p-0"
+              v-if="canEdit"
+              :id="'row-button-add-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              class="d-inline p-0"
             />
           </template>
           <template v-slot:colheader="slotProps">
             <slot
-                name="colheader"
-                v-bind="$props"
-                :canEdit="canEdit"
-                :reload="loadData"
-                :grapqlURL="graphqlURL"
+              name="colheader"
+              v-bind="$props"
+              :canEdit="canEdit"
+              :reload="loadData"
+              :grapqlURL="graphqlURL"
             />
           </template>
           <template v-slot:rowheader="slotProps">
             <slot
-                name="rowheader"
-                :row="slotProps.row"
-                :metadata="tableMetadata"
-                :rowkey="slotProps.rowkey"
+              name="rowheader"
+              :row="slotProps.row"
+              :metadata="tableMetadata"
+              :rowkey="slotProps.rowkey"
             />
             <RowEditButton
-                v-if="canEdit"
-                :id="'row-button-edit-' + lookupTableName"
-                :tableName="lookupTableName"
-                :graphqlURL="graphqlURL"
-                :pkey="slotProps.rowkey"
-                @close="loadData"
+              v-if="canEdit"
+              :id="'row-button-edit-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
             />
             <RowDeleteButton
-                v-if="canEdit"
-                :id="'row-button-del-' + lookupTableName"
-                :tableName="lookupTableName"
-                :graphqlURL="graphqlURL"
-                :pkey="slotProps.rowkey"
-                @close="loadData"
+              v-if="canEdit"
+              :id="'row-button-del-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
             />
           </template>
         </TableMolgenis>
@@ -78,18 +78,18 @@
 </template>
 
 <script>
-import TableMolgenis from './TableMolgenis.vue';
-import MessageError from '../forms/MessageError.vue';
-import InputSearch from '../forms/InputSearch.vue';
-import Pagination from './Pagination.vue';
-import Spinner from '../layout/Spinner.vue';
-import Client from '../../client/client.js';
-import RowAddButton from '../organisms/RowAddButton.vue';
-import RowEditButton from '../organisms/RowEditButton.vue';
-import RowDeleteButton from '../organisms/RowDeleteButton.vue';
+import TableMolgenis from "./TableMolgenis.vue";
+import MessageError from "../forms/MessageError.vue";
+import InputSearch from "../forms/InputSearch.vue";
+import Pagination from "./Pagination.vue";
+import Spinner from "../layout/Spinner.vue";
+import Client from "../../client/client.js";
+import RowAddButton from "../organisms/RowAddButton.vue";
+import RowEditButton from "../organisms/RowEditButton.vue";
+import RowDeleteButton from "../organisms/RowDeleteButton.vue";
 
 export default {
-  name: 'TableSearch',
+  name: "TableSearch",
   components: {
     TableMolgenis,
     MessageError,
@@ -110,7 +110,7 @@ export default {
       required: true,
     },
     /** two-way binding of the selection */
-    selection: {type: Array, default: () => []},
+    selection: { type: Array, default: () => [] },
     /** enables checkbox to select rows */
     showSelect: {
       type: Boolean,
@@ -132,14 +132,14 @@ export default {
       required: false,
     },
   },
-  data: function() {
+  data: function () {
     return {
       page: 1,
       limit: 20,
       count: 0,
       loading: true,
       graphqlError: null,
-      searchTerms: '',
+      searchTerms: "",
     };
   },
   computed: {
@@ -148,18 +148,18 @@ export default {
     },
     columnsVisible() {
       return this.tableMetadata.columns.filter(
-          (column) =>
-              (this.showColumns == null && !column.name.startsWith('mg_')) ||
-              (this.showColumns != null && this.showColumns.includes(column.name)),
+        (column) =>
+          (this.showColumns == null && !column.name.startsWith("mg_")) ||
+          (this.showColumns != null && this.showColumns.includes(column.name))
       );
     },
   },
   methods: {
     select(value) {
-      this.$emit('select', value);
+      this.$emit("select", value);
     },
     deselect(value) {
-      this.$emit('deselect', value);
+      this.$emit("deselect", value);
     },
     async loadData() {
       this.loading = true;
@@ -171,12 +171,15 @@ export default {
       };
 
       const client = Client.newClient(this.graphqlURL);
-      const remoteMetaData = await client.fetchMetaData().catch(() => (this.graphqlError = 'Failed to load meta data'));
-      const gqlResponse = await client.fetchTableData(this.lookupTableName, queryOptions).
-          catch(() => (this.graphqlError = 'Failed to load data'));
+      const remoteMetaData = await client
+        .fetchMetaData()
+        .catch(() => (this.graphqlError = "Failed to load meta data"));
+      const gqlResponse = await client
+        .fetchTableData(this.lookupTableName, queryOptions)
+        .catch(() => (this.graphqlError = "Failed to load data"));
 
       this.tableMetadata = remoteMetaData.tables.find(
-          (table) => table.name === this.lookupTableName,
+        (table) => table.name === this.lookupTableName
       );
       this.data = gqlResponse[this.lookupTableName];
       this.count = gqlResponse[`${this.lookupTableName}_agg`].count;

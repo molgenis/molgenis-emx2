@@ -192,6 +192,6 @@ export default {
       this.table = {};
     }
   },
-  emits: ["add","update:modelValue"]
+  emits: ["add", "update:modelValue"],
 };
 </script>

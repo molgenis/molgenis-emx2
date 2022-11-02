@@ -12,7 +12,9 @@
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)"
+        :value="
+          refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)
+        "
       />
       <template v-slot:append>
         <button

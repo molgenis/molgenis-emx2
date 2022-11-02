@@ -104,7 +104,7 @@ export default {
       this.$emit("update:columns", update);
     },
   },
-  emits:["update:columns"]
+  emits: ["update:columns"],
 };
 </script>
 

@@ -83,7 +83,9 @@ export default {
     },
     getSelectState(term) {
       if (term.selected == "complete") {
-        return this.isMultiSelect ? "fas fa-check-square" : "fas fa-check-circle";
+        return this.isMultiSelect
+          ? "fas fa-check-square"
+          : "fas fa-check-circle";
       } else if (term.selected == "partial") {
         return this.isMultiSelect ? "far fa-check-square" : "far fa-circle";
       } else {

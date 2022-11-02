@@ -48,7 +48,7 @@ export function deepClone(original) {
   // node js may not have structuredClone function, then fallback to deep clone via JSON
   // return typeof structuredClone === "function"
   //   ? structuredClone(original)
- //   :
+  //   :
   //structuredClone doesn't work in vue 3
   return JSON.parse(JSON.stringify(original));
 }

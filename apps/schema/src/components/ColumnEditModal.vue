@@ -306,7 +306,8 @@ export default {
         return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
       }
       if (
-        (this.modelValue === undefined || this.modelValue.name !== this.column.name) &&
+        (this.modelValue === undefined ||
+          this.modelValue.name !== this.column.name) &&
         this.table.columns?.filter((c) => c.name === this.column.name).length >
           0
       ) {
@@ -382,6 +383,6 @@ export default {
   created() {
     this.reset();
   },
-  emits:["add","update:modelValue"]
+  emits: ["add", "update:modelValue"],
 };
 </script>

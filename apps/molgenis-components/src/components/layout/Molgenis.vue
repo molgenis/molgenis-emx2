@@ -177,7 +177,7 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
   },
-  emits:["update:modelValue","error"]
+  emits: ["update:modelValue", "error"],
 };
 </script>
 

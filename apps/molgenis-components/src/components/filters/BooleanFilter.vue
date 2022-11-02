@@ -32,6 +32,6 @@ export default {
       }
     },
   },
-  emits:['updateCondition','clearCondition','addCondition']
+  emits: ["updateCondition", "clearCondition", "addCondition"],
 };
 </script>

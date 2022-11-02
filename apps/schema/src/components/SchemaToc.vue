@@ -121,6 +121,6 @@ export default {
   created() {
     this.schema = this.modelValue;
   },
-  emits:["update:modelValue"]
+  emits: ["update:modelValue"],
 };
 </script>
