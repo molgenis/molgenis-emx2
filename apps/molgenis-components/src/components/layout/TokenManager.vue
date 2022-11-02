@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="accessTokens.length > 0">
+    <div v-if="accessTokens.length">
     <label><b>Access tokens</b></label>
     <ul >
-      <li v-for="(tokenName,idx) in accessTokens" :key="tokenName">{{ tokenName }}
+      <li v-for="(tokenName, idx) in accessTokens" :key="tokenName">{{ tokenName }}
         <IconDanger @click="deleteToken(idx)" icon="times"/>
       </li>
     </ul>
@@ -18,7 +18,7 @@
     <form class="form-inline">
     <InputString id="token-name" placeholder="new token name"
                  v-model="tokenName"/>
-    <ButtonAction v-if="tokenName  !== '' && tokenName  !== null" :key="tokenName" @click="createToken">Create token
+    <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken">Create token
     </ButtonAction>
     </form>
   </div>
