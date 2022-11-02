@@ -144,7 +144,6 @@ export default {
       }
     },
     handleSaveError(error) {
-      console.log("blaat" + error)
       if (error.response?.status === 403) {
         this.errorMessage =
           "Schema doesn't exist or permission denied. Do you need to Sign In?";
