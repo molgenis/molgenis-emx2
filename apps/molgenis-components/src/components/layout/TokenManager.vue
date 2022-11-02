@@ -18,7 +18,7 @@
     <form class="form-inline">
     <InputString id="token-name" placeholder="new token name"
                  v-model="tokenName"/>
-    <ButtonAction v-if="tokenName  !== '' && tokenName  !== null" :key="tokenName" @click="createToken">Create token
+    <ButtonAction v-if="tokenName" :key="tokenName" @click="createToken">Create token
     </ButtonAction>
     </form>
   </div>
