@@ -114,6 +114,8 @@ Cohorts,,releaseDescription,text,,,,,,,,,Description of the release cycle of thi
 Cohorts,,linkageOptions,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
 RWEresources,,access,heading,,,,,,,,,Description of how access is permitted for DAPs and timing of access
 Datasources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source
+Datasources,,linkageOptions,text,,,,,,,,,Can this data source be linked to other data sources?
+Datasources,,dataSources,text,,,,,,,,,Data source linked or possible to link to.
 Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank
 RWEresources,,informedConsent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?
 RWEresources,,informedConsentOther,text,,,,,,,,,"If other, describe the conditions when informed consent is required"
@@ -231,10 +233,12 @@ DAPs,,fees,bool,,,,,,,,,Are there fees for data access?
 DatasourceDatabanks,,,,,,,,,,,,Links between datasource and databank
 DatasourceDatabanks,,datasource,ref,1,,,Datasources,,,,,
 DatasourceDatabanks,,databank,ref,1,,,Databanks,,,,,
+DatasourceDatabanks,,linkageDescription,text,,,,,,,,,Provide a high-level description of the linkages that are either currently available between data sources in the data source (when pre-linked = yes) or linkages that are possible when using the data source
 DatasourceDatabanks,,linkageStrategy,ontology,,,CatalogueOntologies,LinkageStrategies,,,,,The linkage method that was used to link data banks. One entry per data bank
 DatasourceDatabanks,,linkageVariable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank"
 DatasourceDatabanks,,linkageVariableUnique,bool,,,,,,,,,"If a single variable is used to link a data bank to others, is the variable a unique identifier? One entry per data bank"
 DatasourceDatabanks,,linkageCompleteness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words).
+DatasourceDatabanks,,preLinked,bool,,,,,,,,,Does the data source constitute of linked data sources?
 QuantitativeInformation,,,,,,,,,,,,Quantitative information on the resource
 QuantitativeInformation,,resource,ref,1,,,Resources,,,,,
 QuantitativeInformation,,ageGroup,ontology,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information
@@ -306,6 +310,8 @@ Studies,,dataCharacterisationDetails,text,,,,,,,,,Provide a summary description 
 Studies,,dataSourceTypes,ontology_array,,,CatalogueOntologies,StudyDatasourceTypes,,,,,Types of data sources used
 Studies,,dataSourceTypesOther,text,,,,,,,,,"Sources of data, if other"
 Studies,,qualityMarks,ontology_array,,,CatalogueOntologies,StudyQualityMarks,,,,,"Quality marks, such as ENCePP seal"
+Studies,,enceppCodeOfConduct,bool,,,,,,,,,Is this study performed in line with the ENCePP Code of conduct?
+Studies,,numberOfDataSources,,,,,,,,,,Total number of data sources included in the study
 Studies,,medicinesStudiedCodes,ontology_array,,,CatalogueOntologies,MedicineCodes,,,,,Codes of medicines studied
 Studies,,medicinesStudiedBrands,text,,,,,,,,,Brand names of medicines studied
 Studies,,medicalConditionsStudied,ontology_array,,,CatalogueOntologies,MedicalConditions,,,,,Codes of the medical conditions studied

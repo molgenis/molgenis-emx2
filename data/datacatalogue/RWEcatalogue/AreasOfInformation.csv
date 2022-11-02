@@ -34,6 +34,7 @@ Hospital discharge,Is information on hospital discharge available?,Clinical data
 ICU admission,Is information on intensive care unit admission available?,Clinical data
 Cause of death,Is cause of death available?,Clinical data
 Rare diseases,Are rare diseases (<1 in 2000 people) captured?,Clinical data
+Family linkage,Is any linkage available in the data source and /or can it be created on an ad-hoc basis?,
 Prescriptions included,Is information on prescription of medications included?,Clinical data
 Dispensings included,Is information on dispensing of medications included?,Clinical data
 ATC,,Dispensings included
@@ -80,6 +81,7 @@ SMASH,,Biomarker data
 FOBI,,Biomarker data
 Other biomarker data,,Biomarker data
 Patient-generated data,"Is patient-generated information (e.g.,from wearable devices) available?",
+Patient-reported data,"Are patient-reported outcomes (e.g quality of life) available?",
 Quality of life,Are quality of life measures available? Select all that apply,
 AQoL-8D,,Quality of life
 QOLS,,Quality of life
