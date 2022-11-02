@@ -71,7 +71,6 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
-import Pagination from "../tables/Pagination.vue";
 import ButtonAction from "./ButtonAction.vue";
 import { filterObject, deepClone } from "../utils";
 
@@ -81,7 +80,6 @@ export default {
     LayoutModal,
     RowEditFooter,
     EditModalWizard,
-    Pagination,
     ButtonAction,
   },
   data() {
