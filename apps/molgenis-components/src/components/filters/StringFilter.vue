@@ -1,5 +1,5 @@
 <template>
-  <InputString :id="id" v-model="condition" @update:modelValue="onUpdateCondition">
+  <InputString :id="id" :modelValue="condition" @update:modelValue="onUpdateCondition">
     <template v-slot:append>
       <button v-if="condition" @click="$emit('clearCondition')" class="btn btn-outline-primary" type="button">
         <i class="fas fa-fw fa-times"></i>

@@ -32,7 +32,7 @@
             :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
             :name="id"
             type="radio"
-            :value="getPrimaryKey(row, tableMetaData)"
+            :modelValue="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
             @change="$emit('update:modelValue', getPrimaryKey(row, tableMetaData))"
             class="form-check-input"

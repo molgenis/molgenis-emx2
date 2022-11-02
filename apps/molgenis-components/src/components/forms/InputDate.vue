@@ -9,7 +9,7 @@
     <InputGroup>
       <BaseInputDate
         :id="id"
-        :value="modelValue"
+        :modelValue="modelValue"
         :placeholder="placeholder"
         :readonly="readonly"
         :class="{ 'is-invalid': errorMessage }"

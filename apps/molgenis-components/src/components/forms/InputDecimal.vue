@@ -9,7 +9,7 @@
     <InputGroup>
       <BaseInputDecimal
         :id="id"
-        :value="modelValue"
+        :modelValue="modelValue"
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="placeholder"
         :required="required"

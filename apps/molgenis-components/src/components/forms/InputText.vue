@@ -9,7 +9,7 @@
     <InputGroup>
         <textarea
             ref="textarea"
-            v-model="content"
+            :modelValue="content"
             class="form-control"
             :class="{ 'is-invalid': errorMessage }"
             :aria-describedby="id + 'Help'"

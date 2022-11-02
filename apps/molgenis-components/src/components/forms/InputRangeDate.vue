@@ -12,7 +12,7 @@
 
       <BaseInputDate
         :id="id + '-from'"
-        :value="modelValue[0]"
+        :modelValue="modelValue[0]"
         :readonly="readonly"
         :config="config"
         @input="emitValue($event, 0)"
@@ -22,7 +22,7 @@
 
       <BaseInputDate
         :id="id + '-to'"
-        :value="modelValue[1]"
+        :modelValue="modelValue[1]"
         :readonly="readonly"
         :config="config"
         @input="emitValue($event, 1)"

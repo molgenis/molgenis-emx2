@@ -12,7 +12,7 @@
     <select
       v-else-if="!readonly"
       :id="id"
-      :value="modelValue"
+      :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
       @change="$emit('update:modelValue', $event.target.value)"

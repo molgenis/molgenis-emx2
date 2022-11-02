@@ -3,7 +3,7 @@
     :id="id"
     type="number"
     step="1"
-    :modelValue="modelValue"
+    :value="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"

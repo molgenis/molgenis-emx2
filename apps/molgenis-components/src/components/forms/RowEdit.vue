@@ -4,7 +4,7 @@
       v-for="column in columnsWithoutMeta.filter(showColumn)"
       :key="column.name"
       :id="`${id}-${column.name}`"
-       v-model="internalValues[column.id]"
+      v-model="internalValues[column.id]"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"

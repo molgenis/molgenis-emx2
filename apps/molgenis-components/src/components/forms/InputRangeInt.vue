@@ -12,14 +12,14 @@
 
       <BaseIntInput
         :id="id + '-from'"
-        :value="modelValue[0]"
+        :modelValue="modelValue[0]"
         @input="emitValue($event, 0)"
         placeholder="from"
         :class="{ 'is-invalid': errorMessage }"
       />
       <BaseIntInput
         :id="id + '-to'"
-        :value="modelValue[1]"
+        :modelValue="modelValue[1]"
         @input="emitValue($event, 1)"
         placeholder="to"
         :class="{ 'is-invalid': errorMessage }"

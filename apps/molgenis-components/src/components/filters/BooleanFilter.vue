@@ -1,7 +1,7 @@
 <template>
   <InputBoolean
     :id="id"
-    v-model="condition"
+    :modelValue="condition"
     @update:modelValue="onUpdateCondition"
     @clearCondition="$emit('clearCondition')"
   />

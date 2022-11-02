@@ -17,14 +17,14 @@
           id="table-settings-card-template"
           name="cardTemplate"
           label="cardTemplate"
-          :value="cardTemplate"
+          :modelValue="cardTemplate"
           @update:modelValue="emitCardTemplate"
         />
         <InputText
           id="table-settings-record-template"
           name="recordTemplate"
           label="recordTemplate"
-          :value="recordTemplate"
+          :modelValue="recordTemplate"
           @update:modelValue="emitRecordTemplate"
         />
         <ButtonAlt @click="show = false">Close</ButtonAlt>

@@ -1,7 +1,7 @@
 <template>
   <InputRefList
     :id="id"
-    :value="condition"
+    :modelValue="condition"
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :graphqlURL="graphqlURL"
