@@ -3,7 +3,7 @@
     <div v-if="accessTokens.length">
     <label><b>Access tokens</b></label>
     <ul >
-      <li v-for="(tokenName,idx) in accessTokens" :key="tokenName">{{ tokenName }}
+      <li v-for="(tokenName, idx) in accessTokens" :key="tokenName">{{ tokenName }}
         <IconDanger @click="deleteToken(idx)" icon="times"/>
       </li>
     </ul>
