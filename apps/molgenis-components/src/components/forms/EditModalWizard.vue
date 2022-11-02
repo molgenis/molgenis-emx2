@@ -65,7 +65,7 @@ export default {
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
-  emits:["setPageCount","update:modelValue"]
+  emits: ["setPageCount", "update:modelValue"],
 };
 
 function splitColumnsByHeadings(columns) {

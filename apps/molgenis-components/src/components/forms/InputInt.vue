@@ -1,33 +1,38 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="errorMessage"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <BaseIntInput
-          :id="id"
-          :modelValue="modelValue"
-          :placeholder="placeholder"
-          :readonly="readonly"
-          :required="required"
-          :class="{ 'is-invalid': errorMessage }"
-          @input="$emit('update:modelValue', $event.target.value === NaN ? null : parseInt($event.target.value))"
+        :id="id"
+        :modelValue="modelValue"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        :class="{ 'is-invalid': errorMessage }"
+        @input="
+          $emit(
+            'update:modelValue',
+            $event.target.value === NaN ? null : parseInt($event.target.value)
+          )
+        "
       />
       <template v-slot:append>
-        <slot name="append"/>
+        <slot name="append" />
       </template>
     </InputGroup>
   </FormGroup>
 </template>
 
 <script>
-import BaseInput from './baseInputs/BaseInput.vue';
-import BaseIntInput from './baseInputs/BaseInputInt.vue';
-import FormGroup from './FormGroup.vue';
-import InputGroup from './InputGroup.vue';
+import BaseInput from "./baseInputs/BaseInput.vue";
+import BaseIntInput from "./baseInputs/BaseInputInt.vue";
+import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
   extends: BaseInput,

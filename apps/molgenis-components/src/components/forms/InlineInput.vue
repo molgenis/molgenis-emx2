@@ -25,7 +25,10 @@ export default {
   components: { IconAction },
   name: "InlineInput",
   props: {
-    modelValue: { type: [String, Number, Object, Array, Boolean], default: null },
+    modelValue: {
+      type: [String, Number, Object, Array, Boolean],
+      default: null,
+    },
   },
   data() {
     return {

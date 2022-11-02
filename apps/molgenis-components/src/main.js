@@ -1,6 +1,6 @@
 // we use this bundle to enable template at runtime
-import {createApp} from 'vue/dist/vue.esm-bundler';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createApp } from "vue/dist/vue.esm-bundler";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";
 import Sidebar from "./Sidebar.vue";
@@ -26,9 +26,9 @@ const routes = [
 // define routes for generated docs; add docsMap
 Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   const componentName = path
-  .split("/")
-  .pop()
-  .replace(/\.\w+$/, "");
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
 
   routes[0].components[componentName] = definition.default; // for listing
   routes.push({
@@ -41,7 +41,6 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
 
-
 // construct app
 const app = createApp(App);
 
@@ -52,16 +51,16 @@ app.config.globalProperties.$utils = utils;
 app.config.globalProperties.$docsMap = docsMap;
 
 //add directives
-app.directive('scroll-to', VueScrollTo);
+app.directive("scroll-to", VueScrollTo);
 
 //add components
 Object.entries(components).forEach(([path, definition]) => {
   // Get name of component, based on filename
   // "./components/Fruits.vue" will become "Fruits"
   const componentName = path
-  .split("/")
-  .pop()
-  .replace(/\.\w+$/, "");
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
 
   // Register component on this Vue instance
   app.component(componentName, definition.default);
@@ -69,8 +68,8 @@ Object.entries(components).forEach(([path, definition]) => {
 app.component("DemoItem", DemoItem);
 
 // connect the router
-const router = createRouter({  history: createWebHashHistory(), routes });
+const router = createRouter({ history: createWebHashHistory(), routes });
 app.use(router);
 
 // render the whole thing
-app.mount("#app")
+app.mount("#app");

@@ -29,14 +29,14 @@ import "flatpickr/dist/flatpickr.css";
 export default {
   extends: BaseInput,
   components: {
-   FlatPickr,
+    FlatPickr,
   },
   props: {
     readonly: { type: Boolean, default: false },
     config: {
       type: Object,
       required: true,
-    }
+    },
   },
 };
 </script>

@@ -1,5 +1,5 @@
-import {createApp} from 'vue';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ListTables from "./components/ListTables.vue";
 import ViewTable from "./components/ViewTable.vue";
@@ -7,7 +7,8 @@ import { EditModal } from "molgenis-components";
 
 import "molgenis-components/dist/style.css";
 
-const router = createRouter({  history: createWebHashHistory(),
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",
@@ -26,4 +27,4 @@ const app = createApp(App);
 app.use(router);
 // workaround for not importing recursive component
 app.component("EditModal", EditModal);
-app.mount("#app")
+app.mount("#app");

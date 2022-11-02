@@ -1,5 +1,5 @@
-import {createApp} from 'vue';
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
@@ -22,12 +22,12 @@ import NetworkVariables from "./network/NetworkVariables.vue";
 import NetworkCohorts from "./network/NetworkCohorts.vue";
 import NetworkDetails from "./network/NetworkDetails.vue";
 import HomeView from "./views/HomeView.vue";
-import { EditModal } from "molgenis-components";
 Vue.config.productionTip = false;
 
 import "molgenis-components/dist/style.css";
 
-const router = createRouter({   history: createWebHashHistory(),
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Home", path: "/home", component: HomeView },
@@ -354,13 +354,15 @@ const router = createRouter({   history: createWebHashHistory(),
     },
     {
       name: "VariableMappings-details",
-      path: "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
+      path:
+        "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
+      path:
+        "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },
@@ -441,7 +443,8 @@ const router = createRouter({   history: createWebHashHistory(),
     },
     {
       name: "NetworkCohortCollectionEvent",
-      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      path:
+        "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
     },
@@ -461,4 +464,4 @@ const router = createRouter({   history: createWebHashHistory(),
 const app = createApp(App);
 app.use(router);
 app.use(store);
-app.mount("#app")
+app.mount("#app");

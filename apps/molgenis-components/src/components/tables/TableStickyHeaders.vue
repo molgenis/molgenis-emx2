@@ -152,7 +152,7 @@ table tbody th:first-child::after {
   display: inline-block;
   content: "";
   width: 15px;
-  height:100%;
+  height: 100%;
   background: linear-gradient(
     90deg,
     rgba(0, 0, 0, 0.05) 0%,

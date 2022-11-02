@@ -64,6 +64,6 @@ export default {
         : this.label;
     },
   },
-  emits: ['update:modelValue']
+  emits: ["update:modelValue"],
 };
 </script>

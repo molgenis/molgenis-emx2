@@ -15,7 +15,10 @@
             v-for="(item, index2) in docsTree[key]"
             :key="index2"
             href.prevent="#"
-            v-scroll-to="{el: '#'+item.name, container: '#page-content-wrapper'}"
+            v-scroll-to="{
+              el: '#' + item.name,
+              container: '#page-content-wrapper',
+            }"
             class="list-group-item"
             >{{ item.name }}</a
           >

@@ -57,8 +57,8 @@ export default {
     isClearable: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
@@ -73,16 +73,15 @@ export default {
   },
   computed: {
     isClearShown() {
-      if(this.isClearable !== undefined && this.isClearable === false) {
+      if (this.isClearable !== undefined && this.isClearable === false) {
         return false;
       } else {
         return (
-            this.isMouseOver &&
-            this.radioValue !== null &&
-            this.radioValue !== undefined
+          this.isMouseOver &&
+          this.radioValue !== null &&
+          this.radioValue !== undefined
         );
       }
-
     },
   },
 };

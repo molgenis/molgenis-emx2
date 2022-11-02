@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     onUpdateCondition($event) {
-      console.log(this.condition)
+      console.log(this.condition);
       if ($event === null) {
         this.$emit("clearCondition", $event);
       } else {
@@ -33,6 +33,6 @@ export default {
       }
     },
   },
-  emits:['updateCondition','clearCondition','addCondition']
+  emits: ["updateCondition", "clearCondition", "addCondition"],
 };
 </script>

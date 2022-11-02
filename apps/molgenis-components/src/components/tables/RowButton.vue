@@ -1,6 +1,10 @@
 <template>
   <span>
-    <component :is="type === 'delete' ? 'IconDanger' : 'IconAction'" :icon="icon" @click="$emit(type)" />
+    <component
+      :is="type === 'delete' ? 'IconDanger' : 'IconAction'"
+      :icon="icon"
+      @click="$emit(type)"
+    />
   </span>
 </template>
 
@@ -9,16 +13,16 @@ import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 
 const iconMap = {
-  "add": "plus",
-  "edit": "pencil-alt",
-  "delete": "trash",
-  "clone": "copy"
-}
+  add: "plus",
+  edit: "pencil-alt",
+  delete: "trash",
+  clone: "copy",
+};
 
 export default {
   components: {
     IconAction,
-    IconDanger
+    IconDanger,
   },
   props: {
     type: {
@@ -30,11 +34,11 @@ export default {
     },
   },
   computed: {
-    icon () {
-      return iconMap[this.type]
-    }
+    icon() {
+      return iconMap[this.type];
+    },
   },
-  emits:['add','edit','delete','clone']
+  emits: ["add", "edit", "delete", "clone"],
 };
 </script>
 

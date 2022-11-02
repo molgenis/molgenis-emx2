@@ -1,22 +1,22 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="errorMessage"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
-        <textarea
-            ref="textarea"
-            v-model="content"
-            class="form-control"
-            :class="{ 'is-invalid': errorMessage }"
-            :aria-describedby="id + 'Help'"
-            :placeholder="placeholder"
-            :readonly="readonly"
-            @input="$emit('update:modelValue', $event.target.value)"
-        />
+      <textarea
+        ref="textarea"
+        v-model="content"
+        class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
+        :aria-describedby="id + 'Help'"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        @input="$emit('update:modelValue', $event.target.value)"
+      />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>
@@ -25,10 +25,10 @@
 </template>
 
 <script>
-import BaseInput from './baseInputs/BaseInput.vue';
-import FormGroup from './FormGroup.vue';
-import InputGroup from './InputGroup.vue';
-import {nextTick} from 'vue';
+import BaseInput from "./baseInputs/BaseInput.vue";
+import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
+import { nextTick } from "vue";
 
 export default {
   extends: BaseInput,
@@ -38,32 +38,32 @@ export default {
   },
   data() {
     return {
-      content: ""
-    }
+      content: "",
+    };
   },
   methods: {
     resizeTextarea(event) {
-      event.target.style.height = 'auto';
-      event.target.style.height = event.target.scrollHeight + 'px';
+      event.target.style.height = "auto";
+      event.target.style.height = event.target.scrollHeight + "px";
     },
   },
   mounted() {
     const el = this.$refs.textarea;
     nextTick(() => {
       el.setAttribute(
-          'style',
-          'height:' + el.scrollHeight + 'px;overflow-y:hidden;',
+        "style",
+        "height:" + el.scrollHeight + "px;overflow-y:hidden;"
       );
     });
-    el.addEventListener('input', this.resizeTextarea);
+    el.addEventListener("input", this.resizeTextarea);
   },
   beforeDestroy() {
-    this.$refs.textarea.addEventListener('input', this.resizeTextarea);
+    this.$refs.textarea.addEventListener("input", this.resizeTextarea);
   },
   created() {
     nextTick(() => {
       this.content = this.modelValue;
-    })
+    });
   },
 };
 </script>

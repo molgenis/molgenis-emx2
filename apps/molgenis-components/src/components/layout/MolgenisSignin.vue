@@ -109,7 +109,7 @@ export default {
       this.$refs.email.$el.children[1].focus();
     },
   },
-  emits:["cancel","signInFailed","siginin"]
+  emits: ["cancel", "signInFailed", "siginin"],
 };
 </script>
 

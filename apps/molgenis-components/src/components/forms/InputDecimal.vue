@@ -13,7 +13,12 @@
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="placeholder"
         :required="required"
-        @input="$emit('update:modelValue', $event.target.value === NaN ? null : parseFloat($event.target.value))"
+        @input="
+          $emit(
+            'update:modelValue',
+            $event.target.value === NaN ? null : parseFloat($event.target.value)
+          )
+        "
       />
       <template v-slot:append>
         <slot name="append" />

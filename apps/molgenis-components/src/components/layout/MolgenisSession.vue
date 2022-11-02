@@ -202,7 +202,7 @@ export default {
       this.reload();
     },
   },
-  emits:["update:modelValue","error"]
+  emits: ["update:modelValue", "error"],
 };
 </script>
 

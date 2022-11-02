@@ -91,7 +91,7 @@ export default {
       this.$emit("cancel");
     },
   },
-  emits:["cancel"]
+  emits: ["cancel"],
 };
 </script>
 

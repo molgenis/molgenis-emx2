@@ -142,7 +142,7 @@ export default {
       this.fieldCount = this.isMultiConditionFilter ? 1 : newValue.length || 1;
     },
   },
-  emits: ['updateConditions']
+  emits: ["updateConditions"],
 };
 </script>
 
