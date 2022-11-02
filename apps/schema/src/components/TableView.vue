@@ -145,8 +145,13 @@
                 <th scope="col">description</th>
               </tr>
             </thead>
-            <Draggable v-model="table.columns" tag="tbody" @end="applyPosition" item-key="name">
-              <template #item="{element,index}">
+            <Draggable
+              v-model="table.columns"
+              tag="tbody"
+              @end="applyPosition"
+              item-key="name"
+            >
+              <template #item="{ element, index }">
                 <ColumnView
                   :style="
                     isSubclassDropped(element)
@@ -299,6 +304,6 @@ export default {
   created() {
     this.table = deepClone(this.modelValue);
   },
-  emits:["update:modelValue","delete"]
+  emits: ["update:modelValue", "delete"],
 };
 </script>

@@ -114,6 +114,6 @@ export default {
   created() {
     this.ontology = this.modelValue;
   },
-  emits:["update:modelValue","delete"]
+  emits: ["update:modelValue", "delete"],
 };
 </script>
