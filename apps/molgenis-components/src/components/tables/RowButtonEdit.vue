@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
       :id="id + 'edit-modal'"
@@ -7,15 +7,15 @@
       :pkey="pkey"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template> 
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
 export default {
-  name: "RowEditButton",
+  name: "RowButtonEdit",
   components: { RowButton },
   props: {
     id: {
@@ -40,6 +40,12 @@ export default {
       isModalShown: false,
     };
   },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
+  },
 };
 </script>
 
@@ -48,7 +54,7 @@ export default {
     <div>
       <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
       <div>
-        <RowEditButton 
+        <RowButtonEdit 
           id="row-edit-btn-sample" 
           tableName="Pet"
           :pkey="{name: 'pooky'}"
