@@ -77,8 +77,6 @@ RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEnt
 RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
 RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
 RWEresources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
-Databanks,,populationPregnancy,bool,,,,,,,,,Does the data bank collect information on pregnant women and/or neonatal subpopulation?
-RWEresources,,diseaseData,bool,,,,,,,,,Does the data source collect information on a specific disease?
 RWEresources,,populationDisease,text,,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
 RWEresources,,populationNotCovered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) "
 RWEresources,,populationCoverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?"

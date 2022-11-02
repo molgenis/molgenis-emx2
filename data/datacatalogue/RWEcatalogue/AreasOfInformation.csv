@@ -27,6 +27,7 @@ Tobacco use,,Lifestyle
 Alcohol use,,Lifestyle
 Frequency of exercise,,Lifestyle
 Lifestyle other,,Lifestyle
+Population pregnancy and neonates,Does the data source collect information on pregnant women and/or neonatal subpopulation?,
 Clinical data,,
 Diagnoses codes included,Are diagnostic codes included?,Clinical data
 Hospital admission,Is information on hospital admission available?,Clinical data
@@ -34,37 +35,49 @@ Hospital discharge,Is information on hospital discharge available?,Clinical data
 ICU admission,Is information on intensive care unit admission available?,Clinical data
 Cause of death,Is cause of death available?,Clinical data
 Rare diseases,Are rare diseases (<1 in 2000 people) captured?,Clinical data
-Family linkage,Is any linkage available in the data source and /or can it be created on an ad-hoc basis?,
-Prescriptions included,Is information on prescription of medications included?,Clinical data
-Dispensings included,Is information on dispensing of medications included?,Clinical data
-ATC,,Dispensings included
-RxNorm,,Dispensings included
-EphMRA,,Dispensings included
-ALT,,Dispensings included
-DrugBank,,Dispensings included
-Not coded (Free text),,Dispensings included
-Dispensings other,,Dispensings included
+Prescriptions or dispensings included,Is information on prescriptions or dispensings of medications included?,Clinical data
+ATC,,Prescriptions or dispensings included
+RxNorm,,Prescriptions or dispensings included
+EphMRA,,Prescriptions or dispensings included
+ALT,,Prescriptions or dispensings included
+DrugBank,,Prescriptions or dispensings included
+Not coded (Free text),,Prescriptions or dispensings included
+Dispensings other,,Prescriptions or dispensings included
 Product information,Is product information available? Select all items that apply,Clinical data
 Brand name,,Product information
 Batch number,,Product information
 Formulation,,Product information
 Strength,,Product information
 Package size,,Product information
-Product information vocabulary,Is product information available? Select all items vocabularies that apply,Clinical data
-ART 57,,Product information vocabulary
-IFA GmbH,,Product information vocabulary
-EQDM,,Product information vocabulary
-SPN,,Product information vocabulary
-MTHSPL,,Product information vocabulary
-Product information not coded (Free text),,Product information vocabulary
-ATMP,Is information on advanced therapy medicinal products included?,
+Medicinal product information vocabulary,Is medicinal product information available? Select all items vocabularies that apply,Clinical data
+ART 57,,Medicinal product information vocabulary
+IFA GmbH,,Medicinal product information vocabulary
+EQDM,,Medicinal product information vocabulary
+SPN,,Medicinal product information vocabulary
+MTHSPL,,Medicinal product information vocabulary
+Product information not coded (Free text),,Medicinal product information vocabulary
+ATMP,Is information on advanced therapy medicinal products included?,Clinical data
 Contraception,Is information on contraceptives included?,
-Indication for use,"If medicines information is captured,is the indication for use recorded?",
+Indication for use,"If medicines information is captured,is the indication for use recorded? Select all items vocabularies that apply",Clinical data
+ICPC,,Indication for use 
+ICD9,,Indication for use
+ICD10,,Indication for use
+ICD1,,Indication for use
+Read,,Indication for use
+SNOMED,,Indication for use
+SNOMED CT,,Indication for use
+MedDRA,,Indication for use
+OPCS,,Indication for use
+CCS,,Indication for use
+EDC,,Indication for use
+Other,,Indication for use
+
+
+
 Administration vaccines,Administration vaccines included,
-Administration other injectable medicines,Is information on the administration of other injectable medicines included?,
-Medical devices,Is information on medical devices included?,
-Procedures,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",
-Clinical measures,"Is information on clinical measures included (e.g., BMI, blood pressure)?",
+Medical devices,Is information on medical devices included?,Clinical data
+Procedures,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data
+Clinical measures,"Is information on clinical measures included (e.g., BMI, blood pressure)?",Clinical data
 Healthcare centre,"Is information on the healthcare centre (e.g., pharmacy, general practice, hospital) available?",
 Healthcare provider,"Is information on the person providing healthcare (e.g., physician, pharmacist, specialist) available?",
 Genetic data,Is genotyping information available?,
