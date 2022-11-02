@@ -25,7 +25,6 @@ export default {
   },
   methods: {
     onUpdateCondition($event) {
-      console.log(this.condition)
       if ($event === null) {
         this.$emit("clearCondition", $event);
       } else {
