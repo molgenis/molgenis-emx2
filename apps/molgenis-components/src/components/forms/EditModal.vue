@@ -17,15 +17,13 @@
           class="flex-grow-1"
         >
         </EditModalWizard>
-        <div
-          v-if="pageCount > 1"
-          class="border-left bg-white my-n3 ml-3 mr-n3 p-3"
-        >
+        <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
             <button
               type="button"
-              class="btn btn-link p-0"
+              class="btn btn-link"
+              :title="heading"
               :class="{ 'font-weight-bold': index + 1 === currentPage }"
               @click="setCurrentPage(index + 1)"
             >
@@ -45,21 +43,23 @@
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
       >
-        <div v-if="pageCount > 1" class="mr-auto">
-          <ButtonAction
-            @click="setCurrentPage(currentPage - 1)"
-            :disabled="currentPage <= 1"
-            class="mr-2 pr-3"
-          >
-            <i :class="'fas fa-fw fa-chevron-left'" /> Previous
-          </ButtonAction>
-          <ButtonAction
-            @click="setCurrentPage(currentPage + 1)"
-            :disabled="currentPage >= pageCount"
-            class="pl-3"
-          >
-            Next <i :class="'fas fa-fw fa-chevron-right'" />
-          </ButtonAction>
+        <div class="mr-auto">
+          <div v-if="pageCount > 1">
+            <ButtonAction
+              @click="setCurrentPage(currentPage - 1)"
+              :disabled="currentPage <= 1"
+              class="mr-2 pr-3"
+            >
+              <i :class="'fas fa-fw fa-chevron-left'" /> Previous
+            </ButtonAction>
+            <ButtonAction
+              @click="setCurrentPage(currentPage + 1)"
+              :disabled="currentPage >= pageCount"
+              class="pl-3"
+            >
+              Next <i :class="'fas fa-fw fa-chevron-right'" />
+            </ButtonAction>
+          </div>
         </div>
       </RowEditFooter>
     </template>
@@ -227,10 +227,19 @@ export default {
 </script>
 
 <style scoped>
-.side-menu {
-  background: white;
-  margin: -1rem;
+.chapter-menu {
   padding: 1rem;
+  margin: -1rem -1rem -1rem 1rem;
+  max-width: 16rem;
+  overflow: hidden;
+}
+
+.chapter-menu button {
+  padding: 0;
+  max-width: 14rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 </style>
 
