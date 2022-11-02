@@ -13,13 +13,13 @@
       <BaseInputDecimal
         :id="id + '-from'"
         :modelValue="modelValue[0]"
-        @input="emitValue($event, 0)"
+        @update:modelValue="emitValue($event, 0)"
         placeholder="from"
       />
       <BaseInputDecimal
         :id="id + '-to'"
         :modelValue="modelValue[1]"
-        @input="emitValue($event, 1)"
+        @update:modelValue="emitValue($event, 1)"
         placeholder="to"
       />
       <template v-slot:append>
@@ -45,9 +45,10 @@ export default {
     },
   },
   methods: {
-    emitValue(event, index) {
+    emitValue(value, index) {
+      console.log(value)
       let result = [...this.modelValue];
-      result[index] = event.target.value;
+      result[index] = value;
       this.$emit("update:modelValue", result);
     },
   },

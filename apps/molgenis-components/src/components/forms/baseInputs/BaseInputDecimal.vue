@@ -27,10 +27,10 @@ export default {
   methods: {
     emitIfValid(event) {
       const value = parseFloat(event.target.value);
-      if (event.target.value === "" || isNaN(value)) {
+      if (event.target == null || event.target.value == null) {
         this.$emit("update:modelValue", null);
       } else if (!isNaN(value)) {
-        this.$emit("update:modelValue", event.target.value);
+        this.$emit("update:modelValue", event.target.value );
       }
     },
     handleKeyValidity(event) {

@@ -13,10 +13,10 @@
         :class="{ 'is-invalid': errorMessage }"
         :placeholder="placeholder"
         :required="required"
-        @input="
+        @update:modelValue="
           $emit(
             'update:modelValue',
-            $event.target.value === NaN ? null : parseFloat($event.target.value)
+            $event
           )
         "
       />
