@@ -2,6 +2,7 @@
   <div>
     <RowButton type="add" @add="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'add-modal'"
       :tableName="tableName"
       :isModalShown="isModalShown"

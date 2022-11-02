@@ -140,7 +140,7 @@ export default {
         this.graphqlURL
       ).catch(this.handleSaveError);
       if (result) {
-        this.$emit("close");
+        this.handleClose();
       }
     },
     handleSaveError(error) {
