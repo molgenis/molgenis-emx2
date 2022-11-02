@@ -52,7 +52,9 @@ public class MolgenisSessionManager {
         String user =
             JWTgenerator.getUserFromToken(
                 session.getDatabase(), request.headers("x-molgenis-token"));
-        session.getDatabase().setActiveUser(user);
+        if (!session.getDatabase().getActiveUser().equals(user)) {
+          session.getDatabase().setActiveUser(user);
+        }
       }
 
       logger.info(
