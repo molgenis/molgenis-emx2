@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <span>
     <RowButton type="add" @add="isModalShown = true" />
     <EditModal
       v-if="isModalShown"
@@ -7,16 +7,16 @@
       :tableName="tableName"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template> 
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
 
 export default {
-  name: "RowAddButton",
+  name: "RowButtonAdd",
   components: { RowButton },
   props: {
     id: {
@@ -38,6 +38,12 @@ export default {
       isModalShown: false,
     };
   },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
+  },
 };
 </script>
 
@@ -46,7 +52,7 @@ export default {
     <div>
       <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
       <div>
-        <RowAddButton 
+        <RowButtonAdd 
           id="row-add-btn-sample" 
           tableName="Pet"
           graphqlURL="/pet store/graphql"

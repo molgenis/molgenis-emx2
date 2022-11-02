@@ -9,16 +9,17 @@
       :clone="true"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
   </div>
-</template> 
+</template>
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
 import EditModal from "../forms/EditModal.vue";
+
 export default {
-  name: "RowCloneButton",
+  name: "RowButtonClone",
   components: { RowButton, EditModal },
   props: {
     id: {
@@ -44,21 +45,27 @@ export default {
       isModalShown: false,
     };
   },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
+  },
 };
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-clone-btn-sample">composition of RowButton and EditModal configured for row clone</label>
     <div>
-      <label for="row-clone-btn-sample">composition of RowButton and EditModal configured for row clone</label>
-      <div>
-        <RowCloneButton 
-          id="row-clone-btn-sample" 
+      <RowButtonClone
+          id="row-clone-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
-        />
-      </div>
+      />
     </div>
-  </template>
+  </div>
+</template>
 </docs>
