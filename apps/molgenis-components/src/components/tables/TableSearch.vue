@@ -30,11 +30,12 @@
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
-            <RowAddButton
+            <RowButtonAdd
               v-if="canEdit"
               :id="'row-button-add-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
+              @close="loadData"
               class="d-inline p-0"
             />
           </template>
@@ -54,15 +55,16 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
-            <RowEditButton
+             <RowButtonEdit
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
               :pkey="slotProps.rowkey"
               @close="loadData"
+              class="text-left"
             />
-            <RowDeleteButton
+            <RowButtonDelete
               v-if="canEdit"
               :id="'row-button-del-' + lookupTableName"
               :tableName="lookupTableName"
@@ -84,9 +86,10 @@ import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import Client from "../../client/client.js";
-import RowAddButton from "../organisms/RowAddButton.vue";
-import RowEditButton from "../organisms/RowEditButton.vue";
-import RowDeleteButton from "../organisms/RowDeleteButton.vue";
+import RowButtonAdd from "./RowButtonAdd.vue";
+import RowButtonEdit from "./RowButtonEdit.vue";
+import RowButtonDelete from "./RowButtonDelete.vue";
+
 
 export default {
   name: "TableSearch",
@@ -96,9 +99,9 @@ export default {
     InputSearch,
     Pagination,
     Spinner,
-    RowAddButton,
-    RowEditButton,
-    RowDeleteButton,
+    RowButtonAdd,
+    RowButtonEdit,
+    RowButtonDelete
   },
   props: {
     lookupTableName: {
