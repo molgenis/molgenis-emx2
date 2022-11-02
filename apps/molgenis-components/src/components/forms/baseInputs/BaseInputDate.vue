@@ -3,7 +3,7 @@
     v-if="readonly"
     :id="id"
     readonly
-    :value="modelValue"
+    v-model="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :required="required"
