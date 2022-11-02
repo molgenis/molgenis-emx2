@@ -70,6 +70,7 @@
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
+            :canEdit="canEdit"
           />
         </template>
         <template v-slot:footer>
@@ -119,6 +120,14 @@ export default {
     tableName: {
       type: String,
       required: true,
+    },
+    /**
+     * Whether or not the buttons are show to edit the referenced table
+     *  */
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => false,
     },
   },
   computed: {
@@ -176,6 +185,14 @@ export default {
 <template>
   <div>
     You have to be have server running and be signed in for this to work
+    <div class="border-bottom mb-3 p-2">
+      <h5>synced demo props: </h5>
+        <div>
+          <label for="canEdit" class="pr-1">can edit: </label>
+          <input type="checkbox" id="canEdit" v-model="canEdit">
+        </div>
+        <p class="font-italic">view in table mode to see edit action buttons</p>
+    </div>
     <DemoItem>
       <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
       <InputRefList
@@ -185,6 +202,7 @@ export default {
         tableName="Pet"
         description="Standard input"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -197,6 +215,7 @@ export default {
         description="This is a default value"
         :defaultValue="defaultValue"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -209,6 +228,7 @@ export default {
         description="Filter by name"
         :filter="{ category: { name: { equals: 'pooky' } } }"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -221,6 +241,7 @@ export default {
         description="This is a multi column input"
         graphqlURL="/pet store/graphql"
         multipleColumns
+        :canEdit="canEdit"
       />
       Selection: {{ multiColumnValue }}
     </DemoItem>
@@ -235,6 +256,7 @@ export default {
       defaultValue: [{ name: "pooky" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
+      canEdit: false
     };
   },
 };
