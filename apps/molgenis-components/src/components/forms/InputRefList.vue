@@ -88,13 +88,14 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import FilterWell from "../filters/FilterWell.vue"
+import FilterWell from "../filters/FilterWell.vue";
 import { flattenObject, getPrimaryKey } from "../utils";
 
 export default {
   extends: BaseInput,
   data: function () {
     return {
+      client: null,
       showSelect: false,
       data: [],
       selection: this.value,
@@ -156,23 +157,30 @@ export default {
       this.showSelect = true;
     },
     closeSelect() {
+      this.loadOptions();
       this.showSelect = false;
     },
     flattenObject,
+    async loadOptions() {
+      const options = {
+        limit: this.maxNum,
+      };
+      const response = await this.client.fetchTableData(
+        this.tableName,
+        options
+      );
+      this.data = response[this.tableName];
+      this.count = response[this.tableName + "_agg"].count;
+    },
   },
   async mounted() {
-    const client = Client.newClient(this.graphqlURL);
-    const allMetaData = await client.fetchMetaData();
+    this.client = Client.newClient(this.graphqlURL);
+    const allMetaData = await this.client.fetchMetaData();
     this.tableMetaData = allMetaData.tables.find(
       (table) => table.id === this.tableName
     );
 
-    const options = {
-      limit: this.maxNum,
-    };
-    const response = await client.fetchTableData(this.tableName, options);
-    this.data = response[this.tableName];
-    this.count = response[this.tableName + "_agg"].count;
+    await this.loadOptions();
 
     if (!this.value) {
       this.selection = [];

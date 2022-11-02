@@ -62,6 +62,7 @@
             :filter="filter"
             @select="select($event)"
             @deselect="clearValue"
+            @close="loadOptions"
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
@@ -117,6 +118,7 @@ export default {
   },
   data: function () {
     return {
+      client: null,
       showSelect: false,
       data: [],
       count: 0,
@@ -144,6 +146,7 @@ export default {
       this.showSelect = true;
     },
     closeSelect() {
+      this.loadOptions();
       this.showSelect = false;
     },
     isSelected(row) {
@@ -153,18 +156,24 @@ export default {
       );
     },
     flattenObject,
+    async loadOptions() {
+      const options = {
+        limit: this.maxNum,
+      };
+      const response = await this.client.fetchTableData(
+        this.tableName,
+        options
+      );
+      this.data = response[this.tableName];
+      this.count = response[this.tableName + "_agg"].count;
+    },
   },
   async mounted() {
-    const client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await client.fetchMetaData()).tables.find(
+    this.client = Client.newClient(this.graphqlURL);
+    this.tableMetaData = (await this.client.fetchMetaData()).tables.find(
       (table) => table.id === this.tableName
     );
-    const options = {
-      limit: this.maxNum,
-    };
-    const response = await client.fetchTableData(this.tableName, options);
-    this.data = response[this.tableName];
-    this.count = response[this.tableName + "_agg"].count;
+    this.loadOptions();
   },
 };
 </script>
