@@ -1,21 +1,22 @@
 <template>
-  <div>
-    <RowButton type="edit" @edit="isModalShown = true" />
+  <span>
+    <RowButton type="add" @add="isModalShown = true" />
     <EditModal
-      :id="id + 'edit-modal'"
+      v-if="isModalShown"
+      :id="id + 'add-modal'"
       :tableName="tableName"
-      :pkey="pkey"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template> 
 
 <script>
-import RowButton from "../tables/RowButton.vue";
+import RowButton from "./RowButton.vue";
+
 export default {
-  name: "RowEditButton",
+  name: "RowButtonAdd",
   components: { RowButton },
   props: {
     id: {
@@ -31,14 +32,17 @@ export default {
       required: false,
       default: () => "graphql",
     },
-    pkey: {
-      type: Object,
-    },
   },
   data() {
     return {
       isModalShown: false,
     };
+  },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
   },
 };
 </script>
@@ -46,12 +50,11 @@ export default {
 <docs>
   <template>
     <div>
-      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+      <label for="row-add-btn-sample">composition of RowButton and EditModal configured for row add/insert</label>
       <div>
-        <RowEditButton 
-          id="row-edit-btn-sample" 
+        <RowButtonAdd 
+          id="row-add-btn-sample" 
           tableName="Pet"
-          :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
         />
       </div>
