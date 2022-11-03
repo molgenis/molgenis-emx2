@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import Spinner from "./Spinner.vue";
+import Spinner from "../layout/Spinner.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 

@@ -41,7 +41,7 @@ import InputString from "../forms/InputString.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import MessageError from "../forms/MessageError.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";
-import LayoutModal from "./LayoutModal.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
 
 import { request } from "../../client/client.js";

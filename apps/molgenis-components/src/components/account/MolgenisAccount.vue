@@ -38,8 +38,8 @@ import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
-import Spinner from "./Spinner.vue";
-import LayoutModal from "./LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import TokenManager from './TokenManager.vue';
 
