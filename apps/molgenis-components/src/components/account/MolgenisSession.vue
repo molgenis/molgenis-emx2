@@ -3,12 +3,11 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <a
-          href="#"
-          @click.prevent="showChangePasswordForm = true"
+        <ButtonAlt
+          @click="showChangePasswordForm = true"
           class="text-light"
         >
-          Hi {{ session.email }}</a
+          Hi {{ session.email }}</ButtonAlt
         >&nbsp;
         <MolgenisAccount
           v-if="showChangePasswordForm"

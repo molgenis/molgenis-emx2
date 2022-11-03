@@ -62,7 +62,7 @@ export default {
   computed: {
     accessTokens() {
       if (this.session && this.session.settings) {
-        let result = this.session.settings.filter(setting => setting && setting.key === 'access-tokens' && setting.value).
+        const result = this.session.settings.filter(setting => setting && setting.key === 'access-tokens' && setting.value).
             map(setting => setting.value.split(',').filter(value => value !== ""))
         if(result.length == 1) {
           return [
@@ -83,12 +83,10 @@ export default {
       this.lastTokenValue = null;
     },
     async deleteToken(idx) {
-      console.log(idx)
       this.clean();
 
       let newTokens = this.accessTokens;
       newTokens.splice(idx, 1);
-      console.log(newTokens)
 
       const variables = {
         users:

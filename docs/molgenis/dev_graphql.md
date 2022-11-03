@@ -382,7 +382,7 @@ wildcards to pass a json object in combintation with your query. Example:
 //untested
 import {request} from 'graphql-request'
 
-let row = {name: "mickey", category: {name: "cat"}}
+const row = {name: "mickey", category: {name: "cat"}}
 let query = `mutation insert($row: [PetInput]) {
   insert(Pet: $row) {
     message

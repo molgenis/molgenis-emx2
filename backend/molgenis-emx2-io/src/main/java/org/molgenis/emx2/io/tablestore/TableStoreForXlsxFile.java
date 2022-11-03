@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
+  public static final int ROW_ACCESS_WINDOW_SIZE = 100;
   private Path excelFilePath;
   private Map<String, List<Row>> cache;
   private static Logger logger = LoggerFactory.getLogger(TableStoreForXlsxFile.class);
@@ -44,7 +45,7 @@ public class TableStoreForXlsxFile implements TableStore {
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
       // streaming workbook
       if (!Files.exists(excelFilePath)) {
-        wb = new SXSSFWorkbook(100);
+        wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
         // move to a temp file so we can merge result into the original file location
         File tempFile = Files.createTempFile("copy", ".xlsx").toFile();
@@ -53,7 +54,7 @@ public class TableStoreForXlsxFile implements TableStore {
         tempFile.setExecutable(true, true);
         Path temp =
             Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), 100);
+        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
       if (rows.iterator().hasNext()) {
         writeRowsToSheet(name, rows, wb);
@@ -126,7 +127,7 @@ public class TableStoreForXlsxFile implements TableStore {
   private void cache() {
     long start = System.currentTimeMillis();
     try (InputStream is = new FileInputStream(excelFilePath.toFile());
-        Workbook workbook = StreamingReader.builder().rowCacheSize(100).bufferSize(4096).open(is)) {
+        Workbook workbook = StreamingReader.builder().rowCacheSize(ROW_ACCESS_WINDOW_SIZE).bufferSize(4096).open(is)) {
       this.cache = new LinkedHashMap<>();
       for (Sheet sheet : workbook) {
         String sheetName = sheet.getSheetName();
