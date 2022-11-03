@@ -10,6 +10,8 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -53,7 +55,10 @@ public class JWTgenerator {
   public static String createNamedTokenForUser(Database db, String user, String tokenId) {
     Calendar c = Calendar.getInstance();
     c.setTime(new Date());
-    c.add(Calendar.YEAR, 10);
+    // no enddate for these tokens (100 years), but lets put a century so code checking date does
+    // work
+    // future enhancement is to make duration configurable
+    c.add(Calendar.YEAR, 100);
     String token = createNamedTokenForUser(db, user, tokenId, c.getTime());
     // add token to user settings
     db.getUser(user).addToken(tokenId);
@@ -64,7 +69,7 @@ public class JWTgenerator {
   public static String createTemporaryToken(Database db, String user) {
     return createNamedTokenForUser(
         // half our in future, is 30 * 60 * 1000 milliseconds
-        db, user, "temporary", new Date(System.currentTimeMillis() + 60 * 30 * 1000));
+        db, user, "temporary", Date.from(Instant.now().plus(30, ChronoUnit.MINUTES)));
   }
 
   private static String createNamedTokenForUser(
@@ -117,8 +122,8 @@ public class JWTgenerator {
         User user = database.getUser(userName);
         // if temp token we must verify has experationTime not too far in the future
         if (user != null && "temporary".equals(tokenId)) {
-          Date thirtyMinutes = new Date(System.currentTimeMillis() + (30 * 60 * 1000));
-          if (experationTime.before(thirtyMinutes)) {
+          Instant thirtyMinutes = Instant.now().plus(30, ChronoUnit.MINUTES);
+          if (experationTime.before(Date.from(thirtyMinutes))) {
             return user.getUsername();
           }
         }
