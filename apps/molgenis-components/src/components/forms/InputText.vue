@@ -9,7 +9,7 @@
     <InputGroup>
         <textarea
             ref="textarea"
-            :modelValue="content"
+            :value="modelValue"
             class="form-control"
             :class="{ 'is-invalid': errorMessage }"
             :aria-describedby="id + 'Help'"
@@ -36,11 +36,6 @@ export default {
     FormGroup,
     InputGroup,
   },
-  data() {
-    return {
-      content: "",
-    };
-  },
   methods: {
     resizeTextarea(event) {
       event.target.style.height = "auto";
@@ -59,11 +54,6 @@ export default {
   },
   beforeDestroy() {
     this.$refs.textarea.addEventListener("input", this.resizeTextarea);
-  },
-  created() {
-    nextTick(() => {
-      this.content = this.modelValue;
-    });
   },
 };
 </script>
