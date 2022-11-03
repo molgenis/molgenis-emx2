@@ -3,7 +3,7 @@
     type="button"
     class="btn btn-primary"
     :disabled="disabled"
-    @click.prevent="onClick"
+    @click.self="onClick"
   >
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
@@ -28,6 +28,7 @@ export default {
       }
     },
   },
+  emits:["click"]
 };
 </script>
 
@@ -43,6 +44,7 @@ export default {
   export default {
     methods: {
       alert(text) {
+        console.log('click')
         alert(text);
       },
     },
