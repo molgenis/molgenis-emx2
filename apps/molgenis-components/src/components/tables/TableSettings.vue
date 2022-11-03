@@ -100,9 +100,10 @@ export default {
           },
         ])
         .catch((error) => {
-          this.graphqlError = error.response.errors[0].message;
+          alert(JSON.stringify(error.response.data.errors[0]))
+          this.graphqlError = error.response.data.errors[0].message;
         });
-      this.success = resp.data.data.change.message;
+      this.success = resp.change.message;
       this.loading = false;
     },
   },
