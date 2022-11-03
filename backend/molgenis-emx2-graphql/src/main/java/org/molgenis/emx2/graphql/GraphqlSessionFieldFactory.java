@@ -15,10 +15,7 @@ import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.JWTgenerator;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.User;
+import org.molgenis.emx2.*;
 
 public class GraphqlSessionFieldFactory {
 
@@ -156,17 +153,16 @@ public class GraphqlSessionFieldFactory {
         GraphQLFieldDefinition.newFieldDefinition()
             .name("createToken")
             .type(GraphqlApiMutationResultWithToken.typeForSignResult);
-    if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
-    }
+    builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     return builder
         .argument(GraphQLArgument.newArgument().name(TOKEN_NAME).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
-              if (userName == null) {
-                userName = database.getActiveUser();
+              if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
+                throw new MolgenisException(
+                    "Create token failed: Only admins can create tokens for other users");
               }
               return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
