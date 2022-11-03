@@ -628,7 +628,8 @@ public class WebApiSmokeTests {
     result =
         given()
             .header(MOLGENIS_TOKEN, token)
-            .body("{\"query\":\"mutation{createToken(tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\",tokenName:\\\"mytoken\\\"){message,token}}\"}")
             .when()
             .post("/api/graphql")
             .getBody()
