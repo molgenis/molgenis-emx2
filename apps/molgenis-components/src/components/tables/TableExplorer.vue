@@ -68,12 +68,12 @@
       <InputSearch
         class="mx-1 inline-form-group"
         :id="'explorer-table-search' + Date.now()"
-        :value="searchTerms"
-        @input="setSearchTerms($event)"
+        :modelValue="searchTerms"
+        @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
-        :value="page"
-        @input="setPage($event)"
+        :modelValue="page"
+        @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
@@ -82,10 +82,10 @@
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
-          :value="limit"
+          :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
-          @input="setLimit($event)"
+          @update:modelValue="setLimit($event)"
           class="mb-0"
         />
         <SelectionBox
