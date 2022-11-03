@@ -73,6 +73,7 @@ import {
   Spinner,
   deepClone,
 } from "molgenis-components";
+import VueScrollTo from 'vue-scrollto';
 
 export default {
   components: {
@@ -109,7 +110,7 @@ export default {
     },
     toggleShowDiagram() {
       this.showDiagram = !this.showDiagram;
-      this.$scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
+      VueScrollTo.scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
     },
     saveSchema() {
       this.loading = true;
