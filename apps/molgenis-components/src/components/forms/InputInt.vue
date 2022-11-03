@@ -14,10 +14,10 @@
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage }"
-        @input="
+        @update:modelValue="
           $emit(
             'update:modelValue',
-            $event.target.value === NaN ? null : parseInt($event.target.value)
+            $event === NaN ? null : parseInt($event)
           )
         "
       />

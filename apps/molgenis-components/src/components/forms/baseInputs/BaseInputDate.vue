@@ -17,7 +17,7 @@
     :config="config"
     :placeholder="placeholder"
     :disabled="readonly"
-    @on-change="$emit('update:modelValue', $event)"
+    @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
 
@@ -36,7 +36,7 @@ export default {
     config: {
       type: Object,
       required: true,
-    },
+    }
   },
 };
 </script>

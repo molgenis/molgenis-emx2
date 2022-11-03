@@ -46,7 +46,6 @@ export default {
   },
   methods: {
     emitValue(value, index) {
-      console.log(value)
       let result = [...this.modelValue];
       result[index] = value;
       this.$emit("update:modelValue", result);

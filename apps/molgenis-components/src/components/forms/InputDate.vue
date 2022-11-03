@@ -15,7 +15,7 @@
         :class="{ 'is-invalid': errorMessage }"
         :required="required"
         :config="config"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append"></slot>

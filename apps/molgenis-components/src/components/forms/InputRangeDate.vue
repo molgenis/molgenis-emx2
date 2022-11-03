@@ -15,7 +15,7 @@
         :modelValue="modelValue[0]"
         :readonly="readonly"
         :config="config"
-        @input="emitValue($event, 0)"
+        @update:modelValue="emitValue($event, 0)"
         placeholder="from"
         class="m-0"
       />
@@ -25,7 +25,7 @@
         :modelValue="modelValue[1]"
         :readonly="readonly"
         :config="config"
-        @input="emitValue($event, 1)"
+        @update:modelValue="emitValue($event, 1)"
         placeholder="to"
         class="m-0"
       />
@@ -53,9 +53,9 @@ export default {
     readonly: { type: Boolean, default: false },
   },
   methods: {
-    emitValue(event, index) {
+    emitValue(value, index) {
       let result = [...this.modelValue];
-      result[index] = event.target.value;
+      result[index] = value;
       this.$emit("update:modelValue", result);
     },
   },
