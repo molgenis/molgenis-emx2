@@ -72,7 +72,6 @@ export default {
       }
     },
     rowRange(value, limit, count) {
-      console.log(value)
       if (count === 0) {
         return "-";
       } else {
