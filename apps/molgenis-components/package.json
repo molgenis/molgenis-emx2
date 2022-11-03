@@ -29,7 +29,6 @@
   "dependencies": {
     "@vue/compiler-sfc": "3.2.37",
     "axios": "0.27.2",
-    "graphql-request": "5.0.0",
     "cross-env": "7.0.3",
     "popper.js": "1.16.1",
     "v-click-outside": "3.2.0",

@@ -29,15 +29,15 @@ import IconDanger from '../forms/IconDanger.vue';
 import InputString from '../forms/InputString.vue';
 import MessageSuccess from '../forms/MessageSuccess.vue';
 import MessageError from '../forms/MessageError.vue';
-import {request, gql} from 'graphql-request';
+import {request} from '../../client/client.js'
 
-const query = gql`{_session { email, token, settings{key,value}}}`;
-const changeMutation = gql`mutation change($users:[UsersInput]){
+const query = `{_session { email, token, settings{key,value}}}`;
+const changeMutation = `mutation change($users:[UsersInput]){
         change(users:$users){
             message
           }
         }`;
-const createMutation = gql`mutation createToken($email:String,$tokenName:String){
+const createMutation = `mutation createToken($email:String,$tokenName:String){
         createToken(email:$email,tokenName:$tokenName){
             message,token
           }
