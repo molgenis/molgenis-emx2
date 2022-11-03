@@ -91,11 +91,10 @@ export default {
         }
       },
       saveTableSettings: async (settings) => {
-        return axios.post(graphqlURL ? graphqlURL : "graphql", {
-          query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
-          variables: { settings },
-        });
-      },
+        return request(graphqlURL ? graphqlURL : "graphql",
+            `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+            {settings: settings});
+      }
     };
   },
 };
@@ -225,7 +224,6 @@ const fetchTableData = async (
   const resp = await axios
     .post(url, { query: tableDataQuery, variables: { filter, orderby } })
     .catch((error) => {
-      console.log(error);
       if (typeof onError === "function") {
         onError(error);
       }
@@ -245,6 +243,7 @@ const request = async (url, graphql, variables) => {
     })
     .catch((error) => {
       throw error;
+      error
     });
 };
 
