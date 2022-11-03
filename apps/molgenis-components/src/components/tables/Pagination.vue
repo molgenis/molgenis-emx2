@@ -72,6 +72,7 @@ export default {
       }
     },
     rowRange(value, limit, count) {
+      console.log(value)
       if (count === 0) {
         return "-";
       } else {
@@ -106,7 +107,7 @@ export default {
     },
   },
   created() {
-    if (this.value < 1) {
+    if (this.modelValue < 1) {
       this.$emit("update:modelValue", 1);
     }
   },

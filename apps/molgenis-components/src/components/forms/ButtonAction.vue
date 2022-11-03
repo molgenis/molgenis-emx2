@@ -44,7 +44,6 @@ export default {
   export default {
     methods: {
       alert(text) {
-        console.log('click')
         alert(text);
       },
     },
