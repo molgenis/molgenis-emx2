@@ -1,14 +1,7 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Version,,,,,,,,,,,,3
-Organisations,,,,,,,,,,,,Research departments and research groups
-Organisations,,resource,,1,TRUE,,,,,,,Persistent identifier for this institution
-Organisations,,name,,1,TRUE,,,,,,,Organisation name
-Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,website,,,,,,,,,,Link to the homepage of this institution
-Organisations,,institution,ontology,,,CatalogueOntologies,Institutions,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
+Organisations,Resource,,,,,,,,,,,Research departments and research groups
 Models,Resources,,,,,,,,,,,Data models
 DataResources,Resources,,,,,,,,,,,Resources for data
 Cohorts,DataResources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -22,6 +15,10 @@ Resources,,pid,,1,TRUE,,,,,,,Persistent identifier
 Resources,,externalIdentifiers,refback,,,,Identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
 Resources,,acronym,,,,,,,,,,Resource acronym
 Resources,,name,text,2,TRUE,,,,,,,Name used in European projects
+Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?
+Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
+Organisations,,institution,ontology,,,CatalogueOntologies,Institutions,,,,,"University, company, medical centre or research institutes this organisation is part of"
+Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
 DataResources,,localName,,,,,,,,,,"If different from above, name in the national language"
 Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network, e.g. h2020 project"
 Studies,,type,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
