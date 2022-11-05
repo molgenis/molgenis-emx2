@@ -1,7 +1,15 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Version,,,,,,,,,,,,3
-Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Organisations,Resource,,,,,,,,,,,Research departments and research groups
+Version,,,,,,,,,,,,3,
+Organisations,,,,,,,,,,,,Research departments and research groups
+Organisations,,name,,1,TRUE,,,,,,,Organisation name
+Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?
+Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
+Organisations,,organisation,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
+Organisations,,organisationAcronym,string,,,,,,,,,"Short name of the organisation"
+Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
+Organisations,,expertise,text,,,,,,,,,Country in which the institution head office or coordinating centre is located
+Organisations,,features,ontology_array,,,CatalogueOntologies,OrganisationFeatures,,,,,Features that describe this organisation
+Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",
 Models,Resources,,,,,,,,,,,Data models
 DataResources,Resources,,,,,,,,,,,Resources for data
 Cohorts,DataResources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -9,27 +17,24 @@ RWEresources,DataResources,,,,,,,,,,,Resources for real world evidence such as d
 Databanks,RWEresources,,,,,,,,,,,Data collections such as registries or biobanks
 Datasources,RWEresources,,,,,,,,,,,Collections of data banks covering the same population
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
-Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
+Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks",
 Resources,,overview,heading,,,,,,,,,General information about this resource
-Resources,,pid,,1,TRUE,,,,,,,Persistent identifier
+Resources,,pid,,1,TRUE,,,,,,,Persistent identifier,EMA
 Resources,,externalIdentifiers,refback,,,,Identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Resources,,acronym,,,,,,,,,,Resource acronym
-Resources,,name,text,2,TRUE,,,,,,,Name used in European projects
-Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,institution,ontology,,,CatalogueOntologies,Institutions,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
+Resources,,acronym,,,,,,,,,,Acronym if applicable,EMA
+Resources,,name,text,2,TRUE,,,,,,,Name used in European projects,EMA
 DataResources,,localName,,,,,,,,,,"If different from above, name in the national language"
 Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network, e.g. h2020 project"
+Networks,,features,ontology_array,,,CatalogueOntologies,NetworkFeatures,,,,,"Characterizations of the network"
 Studies,,type,ontology,,,CatalogueOntologies,StudyTypes,,,,,Select 1 of the following types of study
 Studies,,typeOther,,,,,,,,,,"If other, describe the type of study"
-Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which of the following families of data sources best describe this data source
-Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource"
+Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which of the following families of data sources best describe this data source,EMA
+Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource",EMA
 DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description
-Resources,,website,,,,,,,,,,Link to the website or homepage
-Resources,,leadOrganisation,refback,,,,Organisations,,resource,,,Name of lead organisation (e.g. research department or group) for this resource
-Resources,,description,text,,,,,,,,,Short description
-Studies,,studyStatus,ontology,,,CatalogueOntologies,StudyStatus,,,,,Status of the study
+Resources,,website,,,,,,,,,,Link to the website or homepage,EMA
+Resources,,leadOrganisation,ref,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA
+Resources,,description,text,,,,,,,,,Short description,EMA
+Studies,,status,ontology,,,CatalogueOntologies,StudyStatus,,,,,Status of the study
 Models,,releaseFrequency,int,,,,,,,,,Refreshing rate (in months)
 Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
 Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
@@ -41,48 +46,43 @@ Cohorts,,designSchematic,file,,,,,,,,,A schematic depiction of the study design 
 Cohorts,,collectionType,ontology_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Databanks,,databankFamily,ontology,,,CatalogueOntologies,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,,"If 'other' selected above, describe the type of data bank"
-Cohorts,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this cohort
-Databanks,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this databank
-Datasources,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this datasource
-Networks,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this network
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 DataResources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
 DataResources,,numberOfParticipants,int,,,,,,,,,Total number of individuals for which data is collected
 DataResources,,numberOfParticipantsWithSamples,int,,,,,,,,,Number of individuals for which samples are collected
 Databanks,,underlyingPopulation,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description
 Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from
-DataResources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from
+DataResources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA
 DataResources,,populationAgeGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups of the participants of this resource
 Cohorts,,inclusionCriteria,text,,,,InclusionCriteria,,,,,Inclusion criteria applied to the participants of this resource
 Cohorts,,startYear,int,,,,,,,,,Year when first data was collected
 Cohorts,,endYear,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource
-RWEresources,,dateEstablished,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
-RWEresources,,startDataCollection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
-RWEresources,,endDataCollection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06"
-RWEresources,,originator,ref,,,,Institutions,,,,,Name of the organisation that maintains the collection of records
-RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank
-RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
-RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
-RWEresources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
-RWEresources,,populationDisease,ontology_array,,,CatalogueOntology,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
-RWEresources,,populationNotCovered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) "
-RWEresources,,populationCoverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?"
-RWEresources,,populationCoveragePercentage,int,,,,,,,,,What percentage of the underlying population is covered by the data bank?
+RWEresources,,dateEstablished,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA
+RWEresources,,firstDataCollection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA
+RWEresources,,lastDataCollection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA
+RWEresources,,dataHolder,ref,,,,Organisations,,,,,Name of the organisation that maintains the collection of records,EMA
+RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEntryCauses,,,,,Select the possible causes for a person to enter the underlying population of the data bank,EMA
+RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA
+RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank,EMA
+RWEresources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA
+RWEresources,,populationDisease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",EMA
+RWEresources,,populationCoverage,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",EMA
+RWEresources,,populationNotCovered,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?",EMA
 RWEresources,,timeSpanDescription,text,,,,,,,,,Description of time span
 RWEresources,,careSetting,ontology_array,,,CatalogueOntologies,CareSettings,,,,,Type of care setting(s) covered
 RWEresources,,careSettingOther,text,,,,,,,,,"If 'other,' description of the setting of care"
 DataResources,,contents,heading,,,,,,,,,Data model and contents
 Studies,,cdm,ref_array,,,,Models,,,,,Common data model(s) used in this study
-RWEresources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were collected
-Datasources,,qualityOfLifeOther,text,,,,,,,,,"If other, specify additional quality of life measures"
-Datasources,,causeOfDeathCodeOther,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?"
-Datasources,,indicationVocabularyOther,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?"
-Datasources,,geneticDataVocabularyOther,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?"
+RWEresources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were collected,EMA
+Datasources,,qualityOfLifeOther,text,,,,,,,,,"If other, specify additional quality of life measures",EMA
+Datasources,,causeOfDeathCodeOther,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?",EMA
+Datasources,,indicationVocabularyOther,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA
+Datasources,,geneticDataVocabularyOther,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA
 Datasources,,databanks,refback,,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,,CollectionEvents,,resource,,,List of collection events defined for this resource
 Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data model available?
-RWEresources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)"
+RWEresources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA
 RWEresources,,hasIdentifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?
 Databanks,,identifierDescription,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level"
 RWEresources,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?"
@@ -91,7 +91,7 @@ RWEresources,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Dat
 Models,,dataDictionaries,refback,,,,TargetDataDictionaries,,resource,,,Data dictionary for this model
 Cohorts,,dataDictionaries,refback,,,,SourceDataDictionaries,,resource,,,Data dictionary for this cohort
 RWEresources,,quantitativeDescriptors,heading,,,,,,,,,Numerical summaries describing resource population
-RWEresources,,quantantitativeInformation,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population
+RWEresources,,quantantitativeInformation,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population,EMA
 RWEresources,,counts,refback,,,,Counts,,resource,,,"Total number of unique individuals, stratified by age, gender year"
 DataResources,,access,heading,,,,,,,,,Access and validation information
 Cohorts,,dataAccessConditions,ontology_array,,,CatalogueOntologies,DataAccessConditions,,,,,Codes defining data access terms and conditions
@@ -101,16 +101,20 @@ Cohorts,,dataAccessFee,bool,,,,,,,,,Does a fee apply to gain access to data of t
 Cohorts,,releaseType,ontology,,,CatalogueOntologies,ReleaseTypes,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis
 Cohorts,,releaseDescription,text,,,,,,,,,Description of the release cycle of this resource
 Cohorts,,linkageOptions,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
+RWEresources,,linkageDescription,text,,,,,,,,,"Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source",EMA
+RWEresources,,linkageStrategy,ontology,,,CatalogueOntologies,LinkageStrategies,,,,,The linkage method that was used,EMA
+RWEresources,,linkageVariable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA
+RWEresources,,linkageCompleteness,text,,,,,,,,,Provide a high-level description of the completeness of linkages that are currently available between data banks in the data source (max 100 words),EMA
+RWEresources,,preLinked,bool,,,,,,,,,Does the data source constitute of linked data sources?,EMA
 RWEresources,,linkageOptions,bool,,,,,,,,,Can this data source be linked to other data sources?
-Datasources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source
-Datasources,,dataSources,ref_array,,,,Datasources,,,,,Data source linked or possible to link to
-Datasources,,dataSourcesOther,text,,,,,,,,,"If other, enter the name of the data source(s)"
-Databanks,,controller,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank
-RWEresources,,informedConsent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?
-RWEresources,,informedConsentOther,text,,,,,,,,,"If other, describe the conditions when informed consent is required"
+Resources,,organisations,refback,,,,ResourceOrganisations,,resource,,,List of organisations that are listed in the catalogue as having (conditional) permission to access (an extract of) the data source
+Datasources,,dataSources,ref_array,,,,Datasources,,,,,Data source linked or possible to link to,EMA
+Datasources,,dataSourcesOther,text,,,,,,,,,"If other, enter the name of the data source(s)",EMA
+RWEresources,,informedConsent,ontology,,,CatalogueOntologies,InformedConsents,,,,,Is informed consent required for use of the data for research purposes?,EMA
+RWEresources,,informedConsentOther,text,,,,,,,,,"If other, describe the conditions when informed consent is required",EMA
 RWEresources,,accessIdentifiableData,text,,,,,,,,,Can identifiable data be accessed in the data bank (including patient/practitioner name/practice name)?
 RWEresources,,accessIdentifiableDataRoute,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
-RWEresources,,accessSubjectDetails,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?
+RWEresources,,accessSubjectDetails,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,EMA
 RWEresources,,accessSubjectDetailsRoute,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?"
 RWEresources,,auditPossible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?"
 Databanks,,accessThirdParty,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?
@@ -118,28 +122,29 @@ Databanks,,accessThirdPartyConditions,text,,,,,,,,,"If above is 'yes', describe 
 Databanks,,accessNonEU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?
 Databanks,,accessNonEUConditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted"
 Databanks,,standardOperatingProcedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?
-RWEresources,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?"
-RWEresources,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted"
-Databanks,,dataController,ref,,,,Institutions,,,,,The name of the institution or organisation that is responsible for governance of the data bank
+RWEresources,,biospecimenAccess,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",EMA
+RWEresources,,biospecimenCollected,ontology_array,,,CatalogueOntologies,InformedConsents,,,,,"If the data bank contains biospecimens, what types of specimen"
+RWEresources,,biospecimenAccessConditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",EMA
+Databanks,,dataController,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank
 RWEresources,,governanceDetails,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)"
-RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data
-RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification"
-RWEresources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?"
-RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted"
+RWEresources,,approvalForPublication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,EMA
+RWEresources,,qualifications,heading,,,,,,,,,"Description of any qualifications that the data source has successfully undergone, such as EMA qualification",EMA
+RWEresources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",
+RWEresources,,qualificationsDescription,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",EMA
 Databanks,,origin,heading,,,,,,,,,Information on the institution or body that sustains or maintains the collection of records in the data bank
 Databanks,,reasonSustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)"
 Databanks,,dateEstablished,date,,,,,,,,,Date that the data bank was first established
-RWEresources,,prompt,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank
-RWEresources,,recordPrompt,text,,,,,,,,,"What prompts the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly"
+RWEresources,,creation,heading,,,,,,,,,Information on which event(s) trigger the creation of a record in the data bank,EMA
+RWEresources,,recordTrigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA
 Databanks,,unitOfObservation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?"
 Databanks,,multipleEntries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?"
 Databanks,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags
 Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records
 Databanks,,lagTime,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)"
-RWEresources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?
-RWEresources,,preservationDuration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?"
-RWEresources,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:"
-RWEresources,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh
+RWEresources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,EMA
+RWEresources,,preservationDuration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?",EMA
+RWEresources,,refreshPeriod,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",EMA
+RWEresources,,dateLastRefresh,date,,,,,,,,,Date of last update/refresh,EMA
 Databanks,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank
 Databanks,,numberOfRecords,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count)
 Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)"
@@ -147,17 +152,17 @@ Databanks,,completenessOverTime,text,,,,,,,,,"Describe any changes in completene
 Databanks,,completenessResults,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?
 Databanks,,qualityDescription,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)"
 Databanks,,qualityOverTime,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time
-RWEresources,,accessForValidation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?"
+RWEresources,,accessForValidation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",EMA
 Databanks,,qualityValidationFrequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?
 Databanks,,qualityValidationMethods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?
 Databanks,,correctionMethods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?
 Databanks,,qualityValidationResults,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results"
 DataResources,,otherInformation,heading,,,,,,,,,Other information
 DataResources,,designPaper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource
-Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource
+Resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA
 RWEresources,,fundingSources,ontology_array,,,CatalogueOntologies,FundingTypes,,,,,Statement listing funding that was obtained for this resource
 Studies,,fundingScheme,ontology_array,,,CatalogueOntologies,StudyFunding,,,,,The source of funding for the study. Select all that apply
-Resources,,fundingStatement,text,,,,,,,,,Statement listing funding that was obtained for this resource
+Resources,,fundingStatement,text,,,,,,,,,Specify the main financial support sources for the data source in the last 3 years. Select all that apply,EMA
 Resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and citation regulation for this resource
 Resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent"
 DataResources,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this resource
@@ -168,7 +173,9 @@ Cohorts,,networks,refback,,,,Networks,,cohorts,,,The consortia or networks that 
 Studies,,networks,ref_array,,,,Networks,,,,,The consortia or networks that this study is part of
 Databanks,,datasource,refback,,,,DatasourceDatabanks,,databank,,,"What datasource this databank is part of, if applicable"
 Databanks,,networks,refback,,,,Networks,,databanks,,,The consortia or networks that this databank is involved in
-RWEresources,,cdms,ref_array,,,,Models,,,,,Common data models used by this databank
+RWEresources,,cdms,ref_array,,,,Models,,,,,"Common data models used or ETL to by this databank",EMA
+RWEresources,,cdmsOther,text,,,,,,,,,"Common data models, if not from above", EMA
+RWEresources,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months"
 Datasources,,networks,refback,,,,Networks,,datasources,,,List of networks that this datasource is associated with
 Datasources,,studies,refback,,,,Studies,,datasources,,,List of studies that this datasource is associated with
 Publications,,,,,,,,,,,,Publications following bibtex format
@@ -185,14 +192,13 @@ Publications,,school,,,,,,,,,,School where the thesis was written (in case of th
 Publications,,abstract,text,,,,,,,,,Publication abstract
 Publications,,resources,refback,,,,Resources,,publications,,,List of resources that refer to this publication
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with
-Contacts,,contributionType,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type(s) of contribution
+Contacts,,role,ontology_array,,,CatalogueOntologies,ContributionTypes,,,,,Type(s) of contribution or role in the resource
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,institution,ontology_array,,,CatalogueOntologies,Institutions,,,,,Affiliated institution of the contact person
-Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
+Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
@@ -205,20 +211,12 @@ Documentation,,type,ontology,,,CatalogueOntologies,DocumentTypes,,,,,Type of doc
 Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-DAPs,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource
-DAPs,,organisation,refback,1,TRUE,,Organisations,,,,,Group that provides access
-DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to
-DAPs,,department,text,,,,,,,,,"optionally, the organisational unit(s) that play a role as data access provider"
-DAPs,,contact,ref_array,,,,Contacts,,,,,Whom to contact for information and access
-DAPs,,populationSubset,ontology_array,,,CatalogueOntologies,PopulationSubsets,,,,,"If the institution can only access a subset, which subsets can it access"
-DAPs,,populationSubsetOther,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed"
-DAPs,,accessLevel,ontology,,,CatalogueOntologies,DAPsAccessLevels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?
-DAPs,,accessCompleteness,ontology,,,CatalogueOntologies,DAPsAccessCompleteness,,,,,Can the institution access the whole data source or only an extract of the data source?
-DAPs,,reasonAccess,ontology,,,CatalogueOntologies,DAPsReasonsForAccess,,,,,What is the reason for being able to access (an extract of) the data source?
-DAPs,,reasonAccessOther,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source"
-DAPs,,accessPermission,ontology,,,CatalogueOntologies,DAPsAccessPermissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?"
-DAPs,,processTime,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?"
-DAPs,,fees,bool,,,,,,,,,Are there fees for data access?
+ResourceOrganisations,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource
+ResourceOrganisations,,organisation,ref,1,TRUE,,Organisations,,,,,Group that provides access
+ResourceOrganisations,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to
+ResourceOrganisations,,isDataAccessProvider,ontology_array,,,CatalogueOntologies,DataAccessProviderInformation,,,,,"Description of data access levels, completenes, reason for access, fees, processTime"
+ResourceOrganisations,,populationSubsetOther,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed"
+ResourceOrganisations,,reasonAccessOther,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source"
 DatasourceDatabanks,,,,,,,,,,,,Links between datasource and databank
 DatasourceDatabanks,,datasource,ref,1,,,Datasources,,,,,
 DatasourceDatabanks,,databank,ref,1,,,Databanks,,,,,
@@ -347,7 +345,6 @@ DataDictionaryMappings,,,,,,,,,,,,"Mapping from collected tables to standard/har
 DataDictionaryMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 DataDictionaryMappings,,toDataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
 DataDictionaryMappings,,mappingStatus,ontology,,,CatalogueOntologies,MappingStatus,,,,,Has the data been ETL-ed to a common data model?
-DataDictionaryMappings,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months"
 AllSourceVariables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
 AllSourceVariables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
 AllSourceVariables,,table,ref,1,TRUE,,SourceTables,dataDictionary,,,,table this variable is part of
@@ -462,7 +459,7 @@ Submissions,,submissionDate,datetime,1,TRUE,,,,,,,Date of submission
 Submissions,,submitterName,string,1,TRUE,,,,,,,Name of person who submitted
 Submissions,,resources,ref_array,,TRUE,,Resources,,,,,Resource(s) that this submission is related to
 Submissions,,submitterEmail,string,,TRUE,,,,,,,Email of person who submitted
-Submissions,,submitterInstitution,ref,,,,Institutions,,,,,Institution of submitter
+Submissions,,submitterInstitution,ref,,,CatalogueOntologies,Institutions,,,,,Institution of submitter
 Submissions,,submitterRole,ontology,,,,SubmitterRoles,,,,,Role of submitter in institution
 Submissions,,submitterRoleOther,text,,,,SubmitterRoles,,,,,"Role of submitter in institution, if other than above"
 Submissions,,submissionType,ontology,,,,SubmissionTypes,,,,,"Type of submission, e.g. 'new entry', 'correction'"
