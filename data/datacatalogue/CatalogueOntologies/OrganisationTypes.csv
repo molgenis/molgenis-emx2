@@ -1,4 +1,4 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+name,
 Academic institution,,,,,,
 Civic authority,,,,,,
 Government agency,,,,,,
@@ -10,5 +10,4 @@ Private organisation,,,,,,
 Public health authority,,,,,,
 Research centre,,,,,,
 Statistical authority,,,,,,
-SME,small or medium enterprise,,
-
+"SME,small or medium enterprise"

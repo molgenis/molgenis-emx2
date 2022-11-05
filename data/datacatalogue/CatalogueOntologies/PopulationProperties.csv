@@ -1,0 +1,32 @@
+name,parent,description
+PopulationEntry
+Birth,PopulationEntry
+Immigration,PopulationEntry
+Residency obtained,PopulationEntry
+Insurance coverage start,PopulationEntry
+Disease diagnosis,PopulationEntry
+Treatment started,PopulationEntry
+Practice registration,PopulationEntry
+Other entry causes,PopulationEntry
+PopulationExit,
+Death,PopulationExit
+Emigration,PopulationExit
+Insurance coverage end,PopulationExit
+Practice deregistration,PopulationExit
+Loss to follow up,PopulationExit
+Other exit causes
+PopulationAgeGroups
+Prenatal,PopulationAgeGroups,<birth,,,
+All ages,PopulationAgeGroups,all ages,,,
+Infant (0-23 months),PopulationAgeGroups,0-23 months,All ages,,
+Newborn (0-1 months),PopulationAgeGroups,0-1 months,Infant (0-23 months),,
+Infants and toddlers (2-23 months),PopulationAgeGroups,2-23 months,Infant (0-23 months),,
+Child (2-12 years),PopulationAgeGroups,2-12 years,All ages,,
+Adolescent (13-17 years),PopulationAgeGroups,13-17 years,All ages,,
+Adult (18+ years),PopulationAgeGroups,18+ years,All ages,,
+Young adult (18-24 years),PopulationAgeGroups,18-24 years,Adult (18+ years),,
+Adult (25-44 years),PopulationAgeGroups,25-44 years,Adult (18+ years),,
+Middle-aged (45-64 years),PopulationAgeGroups,45-64 years,Adult (18+ years),,
+Aged (65+ years),PopulationAgeGroups,65+ years,Adult (18+ years),,
+Aged (65-79 years),PopulationAgeGroups,65-79 years,Aged (65-79 years),,
+Aged (80+ years),PopulationAgeGroups,80+ years,Aged (80+ years),,
