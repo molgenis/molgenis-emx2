@@ -71,54 +71,28 @@
 </template>
 
 <script>
-import TreeNode from "./components//TreeFilter.vue";
-import CohortSelection from "./components/CohortSelection";
-import VariablePanel from "./components/VariablePanel";
 import {
-  ButtonAction,
-  ButtonAlt,
   FilterSidebar,
   FilterWells,
   InputCheckbox,
-  InputFile,
   InputSearch,
-  InputSelect,
-  InputString,
-  LayoutCard,
-  LayoutNavTabs,
   MessageError,
   MessageSuccess,
   Molgenis,
-  Pagination,
   Spinner,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { request } from "graphql-request";
-import TreeMultiFilter from "./components/TreeMultiFilter";
-import FilterView from "./components/FilterView";
 
 export default {
   components: {
-    TreeMultiFilter,
     FilterSidebar,
     FilterWells,
-    CohortSelection,
-    LayoutNavTabs,
-    TreeNode,
-    ButtonAction,
-    FilterView,
-    ButtonAlt,
-    InputFile,
     InputSearch,
     MessageError,
     MessageSuccess,
-    LayoutCard,
     Spinner,
     Molgenis,
-    Pagination,
     InputCheckbox,
-    InputString,
-    InputSelect,
-    VariablePanel,
   },
   data: function () {
     return {

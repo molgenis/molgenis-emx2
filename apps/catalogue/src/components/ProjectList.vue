@@ -23,9 +23,9 @@
 </template>
 
 <script>
-import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
+import { MessageError, Pagination } from "molgenis-components";
 import { request } from "graphql-request";
-import ProjectCard from "./ProjectCard";
+import ProjectCard from "./ProjectCard.vue";
 
 export default {
   components: {

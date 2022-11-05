@@ -1,27 +1,67 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <RowEdit
-        :id="id"
-        v-model="rowData"
-        :pkey="pkey"
-        :tableName="tableName"
-        :tableMetaData="tableMetaData"
-        :graphqlURL="graphqlURL"
-        :clone="clone"
-      >
-      </RowEdit>
+      <div class="d-flex">
+        <EditModalWizard
+          v-if="loaded && tableMetaData"
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          :page="currentPage"
+          @setPageCount="pageCount = $event"
+          class="flex-grow-1"
+        >
+        </EditModalWizard>
+        <div v-if="pageCount > 1" class="border-left chapter-menu">
+          <div class="mb-1"><b>Chapters</b></div>
+          <div v-for="(heading, index) in pageHeadings">
+            <button
+              type="button"
+              class="btn btn-link"
+              :title="heading"
+              :class="{ 'font-weight-bold': index + 1 === currentPage }"
+              @click="setCurrentPage(index + 1)"
+            >
+              {{ heading }}
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
     <template #footer>
       <RowEditFooter
-        class="modal-footer"
         :id="id + '-footer'"
         :tableName="tableName"
         :errorMessage="errorMessage"
+        :isSaveDisabled="isSaveDisabled"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
-      ></RowEditFooter>
+      >
+        <div class="mr-auto">
+          <div v-if="pageCount > 1">
+            <ButtonAction
+              @click="setCurrentPage(currentPage - 1)"
+              :disabled="currentPage <= 1"
+              class="mr-2 pr-3"
+            >
+              <i :class="'fas fa-fw fa-chevron-left'" /> Previous
+            </ButtonAction>
+            <ButtonAction
+              @click="setCurrentPage(currentPage + 1)"
+              :disabled="currentPage >= pageCount"
+              class="pl-3"
+            >
+              Next <i :class="'fas fa-fw fa-chevron-right'" />
+            </ButtonAction>
+          </div>
+        </div>
+      </RowEditFooter>
     </template>
   </LayoutModal>
 </template>
@@ -30,18 +70,27 @@
 import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
-import RowEdit from "./RowEdit.vue";
-import { filterObject } from "../utils";
+import EditModalWizard from "./EditModalWizard.vue";
+import ButtonAction from "./ButtonAction.vue";
+import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
-  components: { LayoutModal, RowEditFooter, RowEdit },
+  components: {
+    LayoutModal,
+    RowEditFooter,
+    EditModalWizard,
+    ButtonAction,
+  },
   data() {
     return {
       rowData: {},
-      tableMetaData: {},
+      tableMetaData: null,
       client: null,
       errorMessage: null,
+      loaded: true,
+      currentPage: 1,
+      pageCount: 1,
     };
   },
   props: {
@@ -75,7 +124,7 @@ export default {
     visibleColumns: {
       type: Array,
       required: false,
-      default: () => [],
+      default: () => null,
     },
     defaultValue: {
       type: Object,
@@ -85,13 +134,29 @@ export default {
   },
   computed: {
     title() {
-      return this.titlePrefix + " " + this.tableName;
+      return `${this.titlePrefix} ${this.tableName}`;
+    },
+    pageHeadings() {
+      const headings = this.tableMetaData.columns
+        .filter((column) => column.columnType === "HEADING")
+        .map((column) => column.name);
+      if (this.tableMetaData.columns[0].columnType === "HEADING") {
+        return headings;
+      } else {
+        return ["First chapter"].concat(headings);
+      }
     },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
+    isSaveDisabled() {
+      return this.pageCount > 1 ? this.pageCount !== this.currentPage : false;
+    },
   },
   methods: {
+    setCurrentPage(newPage) {
+      this.currentPage = newPage;
+    },
     handleSaveRequest() {
       this.save({ ...this.rowData, mg_draft: false });
     },
@@ -108,7 +173,7 @@ export default {
         this.graphqlURL
       ).catch(this.handleSaveError);
       if (result) {
-        this.$emit("close");
+        this.handleClose();
       }
     },
     handleSaveError(error) {
@@ -116,7 +181,9 @@ export default {
         this.errorMessage =
           "Schema doesn't exist or permission denied. Do you need to Sign In?";
       } else {
-        this.errorMessage = error.response?.data?.errors[0]?.message || "An Error occurred during save";
+        this.errorMessage =
+          error.response?.data?.errors[0]?.message ||
+          "An Error occurred during save";
       }
     },
     async fetchRowData() {
@@ -133,6 +200,7 @@ export default {
     },
   },
   async mounted() {
+    this.loaded = false;
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -151,81 +219,111 @@ export default {
         );
       }
     }
+
+    this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
+    this.loaded = true;
   },
 };
 </script>
 
+<style scoped>
+.chapter-menu {
+  padding: 1rem;
+  margin: -1rem -1rem -1rem 1rem;
+  max-width: 16rem;
+  overflow: hidden;
+}
+
+.chapter-menu button {
+  padding: 0;
+  max-width: 14rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+</style>
+
 <docs>
   <template>
-    <demo-item label="Edit Modal">
+  <DemoItem label="Edit Modal">
+    <button class="btn btn-primary" @click="isModalShown = !isModalShown">
+      Show {{ demoMode }} {{ tableName }}
+    </button>
+    <label for="table-selector" class="ml-5 pr-1">table</label>
+    <select id="table-selector" v-model="tableName">
+      <option>Pet</option>
+      <option>Order</option>
+      <option>Category</option>
+      <option>User</option>
+    </select>
+    <input
+      type="radio"
+      id="insert"
+      value="insert"
+      v-model="demoMode"
+      class="ml-5"
+    />
+    <label for="insert" class="pl-1">Insert</label>
+    <input
+      type="radio"
+      id="update"
+      value="update"
+      v-model="demoMode"
+      class="ml-1 pr-1"
+    />
+    <label for="update" class="pl-1">Update</label>
+    <input
+      type="radio"
+      id="clone"
+      value="clone"
+      v-model="demoMode"
+      class="ml-1 pr-1"
+    />
+    <label for="clone" class="pl-1">Clone</label>
+    <EditModal
+      :key="tableName + demoKey + demoMode"
+      id="edit-modal"
+      :tableName="tableName"
+      :pkey="demoKey"
+      :clone="demoMode === 'clone'"
+      :isModalShown="isModalShown"
+      :graphqlURL="graphqlURL"
+      @close="isModalShown = false"
+    />
+  </DemoItem>
+</template>
 
-      <button 
-        class="btn btn-primary" 
-        @click="isModalShown = !isModalShown">
-          Show {{demoMode}} {{tableName}}
-      </button>
-
-      <label for="table-selector" class="ml-5 pr-1">table</label>
-      <select id="table-selector"  v-model="tableName">
-        <option>Pet</option>
-        <option>Order</option>
-        <option>Category</option>
-        <option>User</option>
-      </select>
-
-      <input type="radio" id="insert" value="insert" v-model="demoMode" class="ml-5">
-      <label for="insert" class="pl-1">Insert</label>
-    
-      <input type="radio" id="update" value="update" v-model="demoMode" class="ml-1 pr-1">
-      <label for="update" class="pl-1">Update</label>
-   
-      <input type="radio" id="clone" value="clone" v-model="demoMode" class="ml-1 pr-1">
-      <label for="clone" class="pl-1">Clone</label>
-
-      <EditModal 
-        :key="tableName + demoKey + demoMode"
-        id="edit-modal" 
-        :tableName="tableName" 
-        :pkey="demoKey"
-        :clone="demoMode === 'clone'"
-        :isModalShown="isModalShown" 
-        :graphqlURL="graphqlURL"
-        @close="isModalShown = false"
-      />
-
-    </demo-item>
-  </template>
-  <script>
-  export default {
-    data: function () {
-      return {
-        tableName: "Pet",
-        demoMode: "insert", // one of [insert, update, clone] 
-        demoKey: null, // empty in case of insert 
-        isModalShown: false,
-        graphqlURL: "/pet store/graphql",
-      };
+<script>
+export default {
+  data: function () {
+    return {
+      tableName: "Pet",
+      demoMode: "insert", // one of [insert, update, clone]
+      demoKey: null, // empty in case of insert
+      isModalShown: false,
+      graphqlURL: "/pet store/graphql",
+    };
+  },
+  methods: {
+    async reload() {
+      const client = this.$Client.newClient(this.graphqlURL);
+      const tableMetaData = await client.fetchTableMetaData(this.tableName);
+      const rowData = await client.fetchTableDataValues(this.tableName);
+      this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
     },
-    methods: {
-      async reload () {
-        const client = this.$Client.newClient(this.graphqlURL);
-        const tableMetaData = await client.fetchTableMetaData(this.tableName);
-        const rowData = await client.fetchTableDataValues(this.tableName);
-        this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData)
-      },
-      onModeChange () {
-        if(this.demoMode !== 'insert') {
-          this.reload();
-        } else {
-          this.demoKey = null;
-        }
+    onModeChange() {
+      if (this.demoMode !== "insert") {
+        this.reload();
+      } else {
+        this.demoKey = null;
       }
     },
-    watch: {
-      demoMode () {
-        this.onModeChange()
-      }
-    }
-  };
-  </script>
+  },
+  watch: {
+    demoMode() {
+      this.onModeChange();
+    },
+  },
+};
+</script>
 </docs>

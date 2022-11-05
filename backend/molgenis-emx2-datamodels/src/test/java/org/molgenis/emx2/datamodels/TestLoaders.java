@@ -54,19 +54,19 @@ public class TestLoaders {
   @Test
   public void testFAIRDataHubLoader() {
     AvailableDataModels.FAIR_DATA_HUB.install(fairDataHubSchema, true);
-    assertEquals(27, fairDataHubSchema.getTableNames().size());
+    assertEquals(33, fairDataHubSchema.getTableNames().size());
   }
 
   @Test
   public void testDataCatalogueCohortStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(17, cohortStaging.getTableNames().size());
+    assertEquals(18, cohortStaging.getTableNames().size());
   }
 
   @Test
   public void testDataCatalogueNetworkStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(12, networkStaging.getTableNames().size());
+    assertEquals(13, networkStaging.getTableNames().size());
   }
 
   @Test
@@ -76,6 +76,6 @@ public class TestLoaders {
     assertEquals(4, sharedStagingUMCG.getTableNames().size());
 
     MolgenisIO.fromClasspathDirectory("datacatalogue/stagingCohorts", cohortStagingUMMCG, false);
-    assertEquals(17, cohortStagingUMMCG.getTableNames().size());
+    assertEquals(18, cohortStagingUMMCG.getTableNames().size());
   }
 }

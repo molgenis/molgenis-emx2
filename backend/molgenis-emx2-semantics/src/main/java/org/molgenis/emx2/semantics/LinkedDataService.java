@@ -151,10 +151,15 @@ public class LinkedDataService {
             final Column ref = temp;
             final String prefix = prefixTemp;
             if (c.isRef() && !c.isOntology()) {
-              row.put(c.getName(), ((Map<String, Object>) row.get(c.getName())).get(ref.getName()));
+              Map map = ((Map<String, Object>) row.get(c.getName()));
+              if (map != null) {
+                row.put(c.getName(), map.get(ref.getName()));
+              }
             } else if (c.isOntology()) {
-              row.put(
-                  c.getName(), ((Map<String, Object>) row.get(c.getName())).get("ontologyTermURI"));
+              List<Map> mapList = (List<Map>) row.get(c.getName());
+              if (mapList != null) {
+                for (Map map : mapList) row.put(c.getName(), map.get("ontologyTermURI"));
+              }
             } else {
               // list of maps
               List<Map<String, Object>> listOfObjects =

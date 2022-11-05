@@ -11,6 +11,7 @@ public class GenomicVariantsResultSetsItem {
   private String alternateBases;
   private Position position;
   private String geneId;
+  private VariantLevelData variantLevelData;
 
   public void setVariantInternalId(String variantInternalId) {
     this.variantInternalId = variantInternalId;
@@ -34,5 +35,13 @@ public class GenomicVariantsResultSetsItem {
 
   public void setGeneId(String geneId) {
     this.geneId = geneId;
+  }
+
+  public VariantLevelData getVariantLevelData() {
+    return variantLevelData;
+  }
+
+  public void setVariantLevelData(VariantLevelData variantLevelData) {
+    this.variantLevelData = variantLevelData;
   }
 }

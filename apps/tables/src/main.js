@@ -1,9 +1,14 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import ListTables from "./components/ListTables";
-import ViewTable from "./components/ViewTable";
+import ListTables from "./components/ListTables.vue";
+import ViewTable from "./components/ViewTable.vue";
+import { EditModal } from "molgenis-components";
 
-import App from "./App";
+import "molgenis-components/dist/style.css";
+// workaround for not importing recursive component
+Vue.component("EditModal", EditModal);
+
+import App from "./App.vue";
 
 Vue.use(VueRouter);
 
@@ -13,17 +18,17 @@ const router = new VueRouter({
     {
       path: "/",
       component: ListTables,
-      props: true
+      props: true,
     },
     {
       path: "/:table",
       component: ViewTable,
-      props: true
-    }
-  ]
+      props: true,
+    },
+  ],
 });
 
 new Vue({
   router,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount("#app");

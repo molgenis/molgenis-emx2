@@ -1,12 +1,14 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import App from "./App.vue";
-import Members from "./components/Members";
-import Theme from "./components/Theme";
-import MenuManager from "./components/MenuManager";
-import PageManager from "./components/PageManager";
-import LogViewer from "./components/LogViewer"; 
-import SettingsManager from "./components/SettingsManager"
+import Members from "./components/Members.vue";
+import Theme from "./components/Theme.vue";
+import MenuManager from "./components/MenuManager.vue";
+import PageManager from "./components/PageManager.vue";
+import ChangelogViewer from "./components/ChangelogViewer.vue";
+import SettingsManager from "./components/SettingsManager.vue";
+
+import "molgenis-components/dist/style.css";
 
 Vue.config.productionTip = false;
 
@@ -36,9 +38,9 @@ const router = new VueRouter({
       component: PageManager,
     },
     {
-      name: "Change log",
-      path: "/log",
-      component: LogViewer,
+      name: "Changelog",
+      path: "/changelog",
+      component: ChangelogViewer,
     },
     {
       name: "Advanced settings",

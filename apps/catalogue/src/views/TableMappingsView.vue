@@ -71,6 +71,17 @@
         </td>
       </tr>
       <tr>
+        <th v-if="canEdit">
+          <h6>
+            #
+            <RowButtonAdd
+              id="'row-button-add' + index"
+              tableName="VariableMappings"
+              @close="handleModalClose"
+              :defaultValue="defaultValueMapping"
+            />
+          </h6>
+        </th>
         <th><h6>Target column</h6></th>
         <th><h6>Origin column</h6></th>
         <th><h6>Rule</h6></th>
@@ -78,6 +89,22 @@
         <th><h6>Notes</h6></th>
       </tr>
       <tr v-for="(m, index) in variablemappings" :key="index">
+        <td v-if="canEdit">
+          <div class="d-flex flex-row">
+            <RowButtonEdit
+              id="'row-button-edit' + index"
+              tableName="VariableMappings"
+              :pkey="pkey(m)"
+              @close="handleModalClose"
+            />
+            <RowButtonDelete
+              id="'row-button-delete' + index"
+              tableName="VariableMappings"
+              :pkey="pkey(m)"
+              @close="handleModalClose"
+            />
+          </div>
+        </td>
         <td v-if="m.toVariable">
           <RouterLink
             :to="{
@@ -136,26 +163,30 @@
     </table>
     <br />
 
-    <!--{{ tablemapping }}
+    <!--{{ tablemapping }} -->
 
-    {{ variablemappings }}-->
+    <!-- {{ variablemappings }} -->
   </div>
 </template>
 
 <script>
-import { request } from "graphql-request";
-import { MessageError, TableExplorer } from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import Property from "../components/Property";
-import OntologyTerms from "../components/OntologyTerms";
+import { request, gql } from "graphql-request";
+import {
+  MessageError,
+  RowButtonEdit,
+  RowButtonAdd,
+  RowButtonDelete,
+  EditModal,
+} from "molgenis-components";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
-    OntologyTerms,
-    VariablesList,
-    Property,
+    EditModal,
     MessageError,
-    TableExplorer,
+    RowButtonEdit,
+    RowButtonAdd,
+    RowButtonDelete,
   },
   props: {
     fromPid: String,
@@ -173,6 +204,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["canEdit"]),
     resourceType() {
       if (this.tablemapping.release) {
         return this.tablemapping.release.resource.mg_tableclass
@@ -180,8 +212,43 @@ export default {
           .slice(0, -1);
       }
     },
+    defaultValueMapping() {
+      let fromDataDictionary = {
+        resource: { pid: this.fromPid },
+        version: this.fromVersion,
+      };
+      let toDataDictionary = {
+        resource: { pid: this.toPid },
+        version: this.toVersion,
+      };
+      return {
+        fromDataDictionary: fromDataDictionary,
+        fromTable: {
+          dataDictionary: fromDataDictionary,
+          name: this.fromTable,
+        },
+        toDataDictionary: toDataDictionary,
+        toTable: {
+          dataDictionary: toDataDictionary,
+          name: this.toTable,
+        },
+      };
+    },
   },
   methods: {
+    ...mapActions(["reloadMetadata"]),
+    pkey(mapping) {
+      return {
+        fromDataDictionary: mapping.fromDataDictionary,
+        fromTable: mapping.fromTable,
+        toDataDictionary: mapping.toDataDictionary,
+        toTable: mapping.toTable,
+        toVariable: mapping.toVariable,
+      };
+    },
+    handleModalClose() {
+      this.reload();
+    },
     getType(mg_tableclass) {
       return mg_tableclass.split(".")[1].slice(0, -1);
     },
@@ -199,24 +266,110 @@ export default {
     reload() {
       request(
         "graphql",
-        `
-query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid:String,$toVersion:String,$toTable:String)
-{
-  TableMappings(filter:{
-  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
-  })
-  {
-    description
-  },
-  VariableMappings(filter:{
-  fromDataDictionary:{version:{equals:[$fromVersion]},resource:{pid:{equals:[$fromPid]}}},fromTable:{name:{equals:[$fromTable]}},
-  toDataDictionary:{version:{equals:[$toVersion]},resource:{pid:{equals:[$toPid]}}},toTable:{name:{equals:[$toTable]}}
-  })
-  {
-    description,fromVariable{name},toVariable{name},syntax,fromVariablesOtherTables{table{name},name}
-  }
-}`,
+        gql`
+          query TableMappings(
+            $fromPid: String
+            $fromVersion: String
+            $fromTable: String
+            $toPid: String
+            $toVersion: String
+            $toTable: String
+          ) {
+            TableMappings(
+              filter: {
+                fromDataDictionary: {
+                  version: { equals: [$fromVersion] }
+                  resource: { pid: { equals: [$fromPid] } }
+                }
+                fromTable: { name: { equals: [$fromTable] } }
+                toDataDictionary: {
+                  version: { equals: [$toVersion] }
+                  resource: { pid: { equals: [$toPid] } }
+                }
+                toTable: { name: { equals: [$toTable] } }
+              }
+            ) {
+              description
+            }
+            VariableMappings(
+              filter: {
+                fromDataDictionary: {
+                  version: { equals: [$fromVersion] }
+                  resource: { pid: { equals: [$fromPid] } }
+                }
+                fromTable: { name: { equals: [$fromTable] } }
+                toDataDictionary: {
+                  version: { equals: [$toVersion] }
+                  resource: { pid: { equals: [$toPid] } }
+                }
+                toTable: { name: { equals: [$toTable] } }
+              }
+            ) {
+              description
+              fromVariable {
+                name
+              }
+              toVariable {
+                name
+              }
+              syntax
+              fromVariablesOtherTables {
+                table {
+                  name
+                }
+                name
+              }
+              fromDataDictionary {
+                resource {
+                  pid
+                }
+                version
+              }
+              fromTable {
+                dataDictionary {
+                  resource {
+                    pid
+                  }
+                  version
+                }
+                name
+              }
+              toDataDictionary {
+                resource {
+                  pid
+                }
+                version
+              }
+              toTable {
+                dataDictionary {
+                  resource {
+                    pid
+                  }
+                  version
+                }
+                name
+              }
+              toVariable {
+                dataDictionary {
+                  resource {
+                    pid
+                  }
+                  version
+                }
+                table {
+                  dataDictionary {
+                    resource {
+                      pid
+                    }
+                    version
+                  }
+                  name
+                }
+                name
+              }
+            }
+          }
+        `,
         {
           fromPid: this.fromPid,
           fromVersion: this.fromVersion,
@@ -241,6 +394,7 @@ query TableMappings($fromPid:String,$fromVersion:String,$fromTable:String,$toPid
     },
   },
   created() {
+    this.reloadMetadata();
     this.reload();
   },
 };

@@ -19,7 +19,7 @@
 
 <script>
 import { fetchById } from "../../store/repository/repository";
-import { PageHeader, GridBlock, KeyValueBlock } from "@mswertz/emx2-styleguide";
+import { PageHeader, GridBlock, KeyValueBlock } from "molgenis-components";
 import { startEndYear } from "../../filters";
 
 export default {
@@ -104,12 +104,12 @@ export default {
     },
   },
   mounted: async function () {
-    fetchById("cohortDetails.gql", "Cohorts", {
+    fetchById("cohortDetails", "Cohorts", {
       pid: this.$route.params.cohort,
     }).then((data) => (this.cohortData = data));
 
     this.collectionEvent = await fetchById(
-      "collectionEvent.gql",
+      "collectionEvent",
       "CollectionEvents",
       {
         pid: this.$route.params.cohort,

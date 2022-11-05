@@ -84,49 +84,32 @@
 import { request } from "graphql-request";
 import {
   MessageError,
-  ReadMore,
-  InputSelect,
-  NavTabs,
   Spinner,
-} from "@mswertz/emx2-styleguide";
-import VariablesList from "../../components/VariablesList";
-import OntologyTerms from "../../components/OntologyTerms";
-import PublicationList from "../../components/PublicationList";
-import ResourceHeader from "../../components/ResourceHeader";
-import InstitutionList from "../../components/InstitutionList";
-import ReleasesList from "../../components/ReleasesList";
-import ContactList from "../../components/ContactList";
-import DocumentationList from "../../components/DocumentationList";
-import DatasourceList from "../../components/DatasourceList";
-import NetworkList from "../../components/NetworkList";
-import Conditions from "../../components/Conditions";
-import ContributorList from "../../components/ContributorList";
-import ResourceContext from "../../components/ResourceContext";
-import PartnerInList from "../../components/PartnerInList";
-import PartnersList from "../../components/PartnersList";
-import CollectionEventsList from "../../components/CollectionEventsList";
-import SubcohortList from "../../components/SubcohortList";
+} from "molgenis-components";
+
+import OntologyTerms from "../../components/OntologyTerms.vue";
+import ResourceHeader from "../../components/ResourceHeader.vue";
+import InstitutionList from "../../components/InstitutionList.vue";
+import ReleasesList from "../../components/ReleasesList.vue";
+import DocumentationList from "../../components/DocumentationList.vue";
+import NetworkList from "../../components/NetworkList.vue";
+import Conditions from "../../components/Conditions.vue";
+import ContributorList from "../../components/ContributorList.vue";
+import PartnersList from "../../components/PartnersList.vue";
+import CollectionEventsList from "../../components/CollectionEventsList.vue";
+import SubcohortList from "../../components/SubcohortList.vue";
 
 export default {
   components: {
     SubcohortList,
     CollectionEventsList,
     PartnersList,
-    PartnerInList,
-    ResourceContext,
     NetworkList,
-    DatasourceList,
-    ContactList,
     ReleasesList,
     ResourceHeader,
     InstitutionList,
-    PublicationList,
     OntologyTerms,
     MessageError,
-    ReadMore,
-    VariablesList,
-    NavTabs,
-    InputSelect,
     DocumentationList,
     Conditions,
     ContributorList,

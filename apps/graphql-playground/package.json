@@ -5,9 +5,15 @@
   "dependencies": {
     "graphql-playground-react": "1.7.28"
   },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "3.2.0",
+    "vite": "3.2.2",
+    "vite-plugin-vue2": "2.0.2"
+  },
   "scripts": {
-    "build": "vue-cli-service build",
-    "serve": "vue-cli-service serve"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "browserslist": {
     "production": [

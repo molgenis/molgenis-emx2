@@ -1,5 +1,5 @@
 import { request } from "graphql-request";
-import resources from "../query/resources.gql";
+import resources from "../query/resources.js";
 let cache = null;
 
 const fetchResources = async () => {

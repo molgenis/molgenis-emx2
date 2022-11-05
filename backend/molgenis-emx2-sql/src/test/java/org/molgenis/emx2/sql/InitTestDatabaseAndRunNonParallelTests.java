@@ -4,7 +4,10 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
+import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTrigger;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +15,7 @@ import org.jooq.DSLContext;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 
 public class InitTestDatabaseAndRunNonParallelTests {
 
@@ -88,5 +92,13 @@ public class InitTestDatabaseAndRunNonParallelTests {
             .where(field("rolname").eq("MG_ROLE_TESTMIGRATIONS/Viewer"))
             .fetch()
             .size());
+
+    // create test schema and run migration 5
+    Schema testSchemm =
+        database.dropCreateSchema(InitTestDatabaseAndRunNonParallelTests.class.getSimpleName());
+    testSchemm.getMetadata().create(table("pet", column("name").setPkey()));
+    testSchemm.getMetadata().create(table("cat").setInherit("pet"));
+
+    migration5addMgTableclassUpdateTrigger(database);
   }
 }

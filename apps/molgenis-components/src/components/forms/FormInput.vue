@@ -450,7 +450,7 @@ export default {
       textValue: "example text",
       textValueArray: ["text", "more text"],
       longValue: "1337",
-      longValueArray: ["0", "1.1"],
+      longValueArray: ["0", "101"],
       decimalValue: 3.7,
       decimalValueArray: [4.2, 13.37],
       booleanValue: true,

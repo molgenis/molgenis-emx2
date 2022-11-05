@@ -1,5 +1,14 @@
 ## Todo and open issues
 
+Idea:
+
+* move all columns except primary key from subclass table to rootclass table
+* then 
+  * queries are much simpler and faster (no silly joining needed)
+  * metadata of a table subclass tree is easily managed
+  * columns can be easily added/removed from/to subclasses
+  * still, foreign key constraints can be checked against a subclass table
+
 ### Done
 
 * composite foreign key
@@ -44,10 +53,15 @@
 * breaking change: mg_* columns
 * first save draft with pkeys only
 * Databank.type should only types relevant to conception (but we also want type on this position)
+* oicd integration
+* as admin can use user manager so I can update passwords for users
+* check roundtrip download/update of data and model and settings ('all')
+* enable tagging of tables as 'metadata' (or create seperate view for ontologies???)
+
 
 ### todo first
 
-* oicd integration
+
 * test ERN data models against EMX2 (to see if we need additional visible/validation options)
 * enable autosave; first only show pkey and then all items (like 'new' and 'save')
 * add query option to per table csv/excel endpoints to download what you see
@@ -69,10 +83,8 @@ conception
 
 * enable a 'not null' filter
 * for ref/ref_array/refback show only filter options for which you have values, incl counts
-* as admin can use user manager so I can update passwords for users
 * extend catalogue to have all we need to replace lifecycle (i.e. tree filter view)
 * hide mg_modifiedBy columns when not editor
-* enable tagging of tables as 'metadata' (or create seperate view for ontologies???)
 * group subclasses in a tree? remodel repeated variables?
 
 ### todo next
@@ -80,7 +92,6 @@ conception
 * enable ref_array to have a 'format' in which it is shown as a sub table
 * add favicon and fonts to the theme settings
 * enable upload of logo and favicon files instead of linking them
-* check roundtrip download/update of data and model and settings ('all')
 * add audit trail log
 * download using filter that is applied in explorer view
 * filter option for 'null' and 'not_null'

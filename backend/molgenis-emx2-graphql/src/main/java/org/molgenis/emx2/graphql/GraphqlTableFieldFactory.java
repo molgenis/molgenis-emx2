@@ -58,6 +58,11 @@ public class GraphqlTableFieldFactory {
             // fix pitfall of unneeded escape
             result.replaceAll("__agg", "_agg");
       }
+      if (result.endsWith("__groupBy")) {
+        result =
+            // fix pitfall of unneeded escape
+            result.replaceAll("__groupBy", "_groupBy");
+      }
       if (result.contains("mg__")) {
         result =
             // fix pitfall of unneeded escape
@@ -100,6 +105,24 @@ public class GraphqlTableFieldFactory {
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ORDERBY)
                 .type(createTableOrderByInputObjectType(table))
+                .build())
+        .build();
+  }
+
+  public GraphQLFieldDefinition tableGroupByField(Table table) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name(escape(table.getName() + "_groupBy"))
+        .type(GraphQLList.list(createTableGroupByType(table)))
+        .dataFetcher(fetcherForTableQueryField(table))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.FILTER_ARGUMENT)
+                .type(getTableFilterInputObjectType(table.getMetadata()))
+                .build())
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.SEARCH)
+                .type(Scalars.GraphQLString)
                 .build())
         .build();
   }
@@ -225,6 +248,10 @@ public class GraphqlTableFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id + "_agg")
                   .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()) + "Aggregate")));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_groupBy")
+                  .type(GraphQLTypeReference.typeRef(escape(col.getRefTableName()) + "GroupBy")));
           break;
         default:
           throw new UnsupportedOperationException(
@@ -232,6 +259,26 @@ public class GraphqlTableFieldFactory {
       }
     }
     return tableBuilder.build();
+  }
+
+  private GraphQLObjectType createTableGroupByType(Table table) {
+    String tableName = escape(table.getName());
+
+    // group by options, for now only ref, refArray
+    GraphQLObjectType.Builder groupByBuilder =
+        GraphQLObjectType.newObject().name(tableName + "GroupBy");
+    groupByBuilder.field(
+        GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
+    for (Column column : table.getMetadata().getColumns()) {
+      // for now only 'ref' types. We might want to have truncating actions for the other types.
+      if (column.isRef() || column.isRefArray()) {
+        groupByBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition()
+                .name(escape(column.getName()))
+                .type(GraphQLTypeReference.typeRef(escape(column.getRefTableName()))));
+      }
+    }
+    return groupByBuilder.build();
   }
 
   private GraphQLObjectType createTableAggregationType(Table table) {
@@ -277,7 +324,7 @@ public class GraphqlTableFieldFactory {
           .field(GraphQLFieldDefinition.newFieldDefinition().name(AVG_FIELD).type(avg))
           .field(GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sum));
     }
-    // todo group by options
+
     return builder.build();
   }
 
@@ -492,7 +539,10 @@ public class GraphqlTableFieldFactory {
           if (column.isPresent()) {
             SelectColumn sc =
                 new SelectColumn(
-                    column.get().getName() + (s.getName().endsWith("_agg") ? "_agg" : ""),
+                    column.get().getName()
+                        + (s.getName().endsWith("_agg")
+                            ? "_agg"
+                            : s.getName().endsWith("_groupBy") ? "_groupBy" : ""),
                     convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
             // get limit and offset for the selection
             Map<String, Object> args = s.getArguments();
@@ -519,7 +569,11 @@ public class GraphqlTableFieldFactory {
   private Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
       return aTable.getColumns().stream()
-          .filter(c -> escape(c.getName()).equals(id) || (escape(c.getName()) + "_agg").equals(id))
+          .filter(
+              c ->
+                  escape(c.getName()).equals(id)
+                      || (escape(c.getName()) + "_agg").equals(id)
+                      || (escape(c.getName()) + "_groupBy").equals(id))
           .findFirst();
     } else {
       return Optional.empty();
@@ -533,6 +587,8 @@ public class GraphqlTableFieldFactory {
       String fieldName = dataFetchingEnvironment.getField().getName();
       if (fieldName.endsWith("_agg")) {
         q = table.agg();
+      } else if (fieldName.endsWith("_groupBy")) {
+        q = table.groupBy();
       }
       q.select(
           convertMapSelection(aTable.getMetadata(), dataFetchingEnvironment.getSelectionSet()));
@@ -549,7 +605,17 @@ public class GraphqlTableFieldFactory {
         q.offset((int) args.get(GraphqlConstants.OFFSET));
       }
       if (args.containsKey(GraphqlConstants.ORDERBY)) {
-        q.orderBy((Map<String, Order>) args.get(GraphqlConstants.ORDERBY));
+        Map<String, Order> orderBy = (Map<String, Order>) args.get(ORDERBY);
+        Map<String, Order> unescapedMap = new HashMap<>();
+        for (var entry : orderBy.entrySet()) {
+          Optional<Column> column = findColumnById(aTable.getMetadata(), entry.getKey());
+          if (column.isPresent()) {
+            unescapedMap.put(column.get().getName(), entry.getValue());
+          } else {
+            throw new MolgenisException("Unknown order by column id: " + entry.getKey());
+          }
+        }
+        q.orderBy(unescapedMap);
       }
 
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
@@ -559,8 +625,11 @@ public class GraphqlTableFieldFactory {
 
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer
-      if (result != null) return ((Map<String, Object>) result).get(fieldName);
-      return null;
+      if (result != null) {
+        return ((Map<String, Object>) result).get(fieldName);
+      } else {
+        return null;
+      }
     };
   }
 
