@@ -1,22 +1,13 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Version,,,,,,,,,,,,3
-Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
-Institutions,,pid,,1,TRUE,,,,,,,Persistent identifier for this institution
-Institutions,,name,,2,,,,,,,,Official full name of the institution or organisation as used in EU projects
-Institutions,,acronym,,,,,,,,,,"Official acronym of the institution, if applicable"
-Institutions,,type,ontology,,,CatalogueOntologies,InstitutionTypes,,,,,Type of organisation; in which sector is the institution active?
-Institutions,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Institutions,,website,,,,,,,,,,Link to the homepage of this institution
-Institutions,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Institutions,,description,text,,,,,,,,,General description of the institution
-Institutions,,address,text,,,,,,,,,Full address of the institution head office or coordinating centre
-Institutions,,networks,refback,,,,Networks,,institution,,,"Is the institution a member of an existing research network or consortium? If so, provide a list of the names of the networks or consortia the institution participates in"
-Institutions,,cohorts,refback,,,,Cohorts,,institution,,,Cohorts that this institution is involved in
-Institutions,,databanks,refback,,,,Databanks,,institution,,,Databanks that this institution is involved in
-Institutions,,datasources,refback,,,,Datasources,,institution,,,Datasources that this institution is involved in
-Institutions,,studies,refback,,,,Studies,,leadInstitution,,,A list of studies that have been conducted by the institution that are recorded in the catalogue
-Institutions,,providerOf,refback,,,,DAPs,,institution,,,"Query that lists all resources (datasources, databanks, cohorts, networks) that this institution is access provider of"
-Institutions,,logo,file,,,,,,,,,Institution logo
+Organisations,,,,,,,,,,,,Research departments and research groups
+Organisations,,resource,,1,TRUE,,,,,,,Persistent identifier for this institution
+Organisations,,name,,1,TRUE,,,,,,,Organisation name
+Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?
+Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation"
+Organisations,,website,,,,,,,,,,Link to the homepage of this institution
+Organisations,,institution,ontology,,,CatalogueOntologies,Institutions,,,,,"University, company, medical centre or research institutes this organisation is part of"
+Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Models,Resources,,,,,,,,,,,Data models
 DataResources,Resources,,,,,,,,,,,Resources for data
@@ -39,7 +30,7 @@ Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Which
 Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource"
 DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description
 Resources,,website,,,,,,,,,,Link to the website or homepage
-Resources,,leadInstitution,ref,,,,Institutions,,,,,Name of lead institution for this resource
+Resources,,leadOrganisation,refback,,,,Organisations,,resource,,,Name of lead organisation (e.g. research department or group) for this resource
 Resources,,description,text,,,,,,,,,Short description
 Studies,,studyStatus,ontology,,,CatalogueOntologies,StudyStatus,,,,,Status of the study
 Models,,releaseFrequency,int,,,,,,,,,Refreshing rate (in months)
@@ -53,10 +44,10 @@ Cohorts,,designSchematic,file,,,,,,,,,A schematic depiction of the study design 
 Cohorts,,collectionType,ontology_array,,,CatalogueOntologies,CollectionTypes,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
 Databanks,,databankFamily,ontology,,,CatalogueOntologies,DatabankFamilies,,,,,Which of the following families of data banks best describe this data bank?
 Databanks,,databankFamiliesOther,text,,,,,,,,,"If 'other' selected above, describe the type of data bank"
-Cohorts,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this cohort
-Databanks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this databank
-Datasources,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this datasource
-Networks,,institution,ref_array,,,,Institutions,,,,,Institution providing and/or coordinating access to this network
+Cohorts,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this cohort
+Databanks,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this databank
+Datasources,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this datasource
+Networks,,organisation,refback,,,,Organisations,,resource,,,Organisation (e.g. research department or group) providing and/or coordinating access to this network
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 DataResources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
 DataResources,,numberOfParticipants,int,,,,,,,,,Total number of individuals for which data is collected
@@ -203,7 +194,7 @@ Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
+Contacts,,institution,ontology_array,,,CatalogueOntologies,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
@@ -217,8 +208,8 @@ Documentation,,type,ontology,,,CatalogueOntologies,DocumentTypes,,,,,Type of doc
 Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource
-DAPs,,institution,ref,1,TRUE,,Institutions,,,,,Group that provides access
+DAPs,,,,,,,,,,,,Data access provider relationship where an organisation can provide access to (parts of) a resource
+DAPs,,organisation,refback,1,TRUE,,Organisations,,,,,Group that provides access
 DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to
 DAPs,,department,text,,,,,,,,,"optionally, the organisational unit(s) that play a role as data access provider"
 DAPs,,contact,ref_array,,,,Contacts,,,,,Whom to contact for information and access
