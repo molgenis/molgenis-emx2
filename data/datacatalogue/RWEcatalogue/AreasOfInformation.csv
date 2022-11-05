@@ -71,9 +71,6 @@ OPCS,,Indication for use
 CCS,,Indication for use
 EDC,,Indication for use
 Other,,Indication for use
-
-
-
 Administration vaccines,Administration vaccines included,
 Medical devices,Is information on medical devices included?,Clinical data
 Procedures,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data
@@ -110,3 +107,9 @@ HUI,,Quality of life
 QoL other,,Quality of life
 Health care costs,Is information on costs of healthcare available?,
 Free text,Is free text information available?,
+Care setting
+General population,Care setting
+Primary care,Care setting
+Secondary care,Care setting
+Tertiary care,Care setting
+Care setting other,Care setting
