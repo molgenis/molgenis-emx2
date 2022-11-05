@@ -28,7 +28,7 @@ Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
 Studies,Resources,,,,,,,,,,,"Collaborations of multiple institutions, addressing research questions using data sources and/or data banks"
 Resources,,overview,heading,,,,,,,,,General information about this resource
 Resources,,pid,,1,TRUE,,,,,,,Persistent identifier
-Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
+Resources,,externalIdentifiers,refback,,,,Identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
 Resources,,acronym,,,,,,,,,,Resource acronym
 Resources,,name,text,2,TRUE,,,,,,,Name used in European projects
 DataResources,,localName,,,,,,,,,,"If different from above, name in the national language"
@@ -77,7 +77,7 @@ RWEresources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEnt
 RWEresources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population"
 RWEresources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExitCauses,,,,,Select the possible causes for a person to exit the underlying population of the data bank
 RWEresources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population"
-RWEresources,,populationDisease,text,,,,,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
+RWEresources,,populationDisease,ontology_array,,,CatalogueOntology,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?"
 RWEresources,,populationNotCovered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) "
 RWEresources,,populationCoverage,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?"
 RWEresources,,populationCoveragePercentage,int,,,,,,,,,What percentage of the underlying population is covered by the data bank?
@@ -88,6 +88,9 @@ DataResources,,contents,heading,,,,,,,,,Data model and contents
 Studies,,cdm,ref_array,,,,Models,,,,,Common data model(s) used in this study
 RWEresources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were collected
 Datasources,,qualityOfLifeOther,text,,,,,,,,,"If other, specify additional quality of life measures"
+Datasources,,causeOfDeathCodeOther,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?"
+Datasources,,indicationVocabularyOther,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?"
+Datasources,,geneticDataVocabularyOther,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?"
 Datasources,,databanks,refback,,,,DatasourceDatabanks,,datasource,,,List of databanks that are included in this datasource
 Cohorts,,collectionEvents,refback,,,,CollectionEvents,,resource,,,List of collection events defined for this resource
 Databanks,,dataDictionaryAvailable,bool,,,,,,,,,Are a data dictionary and a data model available?
@@ -478,3 +481,7 @@ Submissions,,submissionType,ontology,,,,SubmissionTypes,,,,,"Type of submission,
 Submissions,,submissionDescription,text,,,,SubmissionTypes,,,,,"Description of the submission, if applicable"
 Submissions,,responsiblePersons,text,,,,,,,,,List of responsible persons related to this submission
 Submissions,,acceptanceDate,datetime,,,,,,,,,Date submission was accepted
+Identifiers,,resource,ref,1,TRUE,,Resources,,,,,Resource that this external identifier belongs to
+Identifiers,,identifier,text,1,TRUE,,,,,,,External identifier
+Identifiers,,externalIdentifierType,ontology,,,CatalogueOntologies,ExternalIdentifiers,,,,,External identifier type
+Identifiers,,externalIdentifierTypeOther,text,,,,,,,,,"If other, enter external identifier type"
