@@ -70,6 +70,9 @@ export default {
     radioValue() {
       this.$emit("input", this.radioValue);
     },
+    value(newValue) {
+      this.radioValue = newValue
+    }
   },
   computed: {
     isClearShown() {
