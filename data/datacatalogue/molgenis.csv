@@ -439,5 +439,5 @@ Submissions,,responsiblePersons,text,,,,,,,,,List of responsible persons related
 Submissions,,acceptanceDate,datetime,,,,,,,,,Date submission was accepted,,,,,,,,,,,,,
 ExternalIdentifiers,,resource,ref,1,TRUE,,Resources,,,,,Resource that this external identifier belongs to,,,,,,,,,,,,,
 ExternalIdentifiers,,identifier,text,1,TRUE,,,,,,,External identifier,,,,,,,,,,,,,
-ExternalIdentifiers,,externalIdentifierType,ontology,,,CatalogueOntologies,ExternalIdentifiers,,,,,External identifier type,,,,,,,,,,,,,
+ExternalIdentifiers,,externalIdentifierType,ontology,,,CatalogueOntologies,ExternalIdentifierTypes,,,,,External identifier type,,,,,,,,,,,,,
 ExternalIdentifiers,,externalIdentifierTypeOther,text,,,,,,,,,"If other, enter external identifier type",,,,,,,,,,,,,
