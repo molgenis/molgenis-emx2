@@ -158,15 +158,15 @@ SourceTables,,description,text,,,,,,,,,description of the role/function of this 
 SourceTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
 SourceTables,,mappings,refback,,,,TableMappings,,fromTable,,,list of mappings between this table and standard/harmonized tables
 TableMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-TableMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
-TableMappings,,fromTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,name of the table being mapped from
-TableMappings,,toDataDictionary,ref,1,TRUE,DataCatalogue,TargetDataDictionaries,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-TableMappings,,toTable,ref,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,name of the table being mapped to
+TableMappings,,source,ref,1,TRUE,,DataResources,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
+TableMappings,,sourceTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,name of the table being mapped from
+TableMappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+TableMappings,,targetTable,ref,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,name of the table being mapped to
 TableMappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
 TableMappings,,description,text,,,,,,,,,human readible description of the mapping
 TableMappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
 SourceVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-SourceVariableValues,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,
+SourceVariableValues,,source,ref,1,TRUE,,DataRwesources,,,,,
 SourceVariableValues,,variable,ref,1,TRUE,,SourceVariables,dataDictionary,,,,e.g. PATO
 SourceVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 SourceVariableValues,,label,,,TRUE,,,,,,,

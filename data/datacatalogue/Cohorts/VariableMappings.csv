@@ -1,10 +1,10 @@
-fromDataDictionary.resource,fromDataDictionary.version,fromTable,fromVariables,toDataDictionary.resource,toDataDictionary.version,toTable,toVariable,match,description,syntax
-ALSPAC,1.0.0,followup1,smoking,EUChildNetworkCDM,1.0.0,core,smoking,complete,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
-BIB,1.0.0,baseline,smokingAtBaseline,EUChildNetworkCDM,1.0.0,core,smoking,partial,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
-ALSPAC,1.0.0,followup1,hasDiabetes,EUChildNetworkCDM,1.0.0,core,diabetes,partial,"Gestational diabetes coded as 1, preexisting diabetes, Glycosuria and no diabetes coded as 0","preg_dia = case_when(
+source,sourceTable,sourceVariables,target,targetTable,targetVariable,match,description,syntax
+ALSPAC,followup1,smoking,EUChildNetworkCDM,core,smoking,complete,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
+BIB,baseline,smokingAtBaseline,EUChildNetworkCDM,core,smoking,partial,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
+ALSPAC,followup1,hasDiabetes,EUChildNetworkCDM,core,diabetes,partial,"Gestational diabetes coded as 1, preexisting diabetes, Glycosuria and no diabetes coded as 0","preg_dia = case_when(
           pregnancy_diabetes == 2 ~ 1,
           pregnancy_diabetes %in% c(0, 1, 3) ~ 0)"
-BIB,1.0.0,baseline,"glucose,pregnant",EUChildNetworkCDM,1.0.0,core,diabetes,complete,"Mother's diagnosis of GDM obtained from maternity records and from previously derived 'prepreg_dia'; If records = 'yes' or prepreg_dia=2 or prepreg_dia=3, preg_dia = 1; if records = 'no', preg_dia = 0, else pre_dia is missing.","allid <- var %>% distinct(ChildID, .keep_all = TRUE)
+BIB,baseline,"glucose,pregnant",EUChildNetworkCDM,core,diabetes,complete,"Mother's diagnosis of GDM obtained from maternity records and from previously derived 'prepreg_dia'; If records = 'yes' or prepreg_dia=2 or prepreg_dia=3, preg_dia = 1; if records = 'no', preg_dia = 0, else pre_dia is missing.","allid <- var %>% distinct(ChildID, .keep_all = TRUE)
 var1 <- var
 var1$gdm <- NA
 var1$gdm <- ifelse(var1$prnprebprggdm==""Not documented"", 5,
@@ -49,4 +49,4 @@ var <- mrg[,c(""ChildID"", ""prepreg_dia"",""prnbpgdm"")]
 var$preg_dia <- NA
 var$preg_dia <- as.factor(ifelse((var$prnbpgdm==""Yes"" | var$prepreg_dia==2 | var$prepreg_dia==3), 1,
                              ifelse(var$prnbpgdm==""No"", 0, NA)))"
-ALSPAC,1.0.0,followup1,,EUChildNetworkCDM,1.0.0,core,age,nza,,
+ALSPAC,followup1,,EUChildNetworkCDM,core,age,nza,,
