@@ -56,8 +56,10 @@ Cohorts,,endYear,int,,,,,,,,,Year when last data was collected. Leave empty if c
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,
 Datasources,,firstDataCollection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA
 Datasources,,lastDataCollection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA
-Datasources,,populationProperties,ontology_array,,,CatalogueOntologies,PopulationProperties,,,,,Select the possible causes for a person to enter the underlying population of the data bank,EMA
+Datasources,,populationAgeGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Which population age groups are captured in the data source? Select all that are relevant.,EMA
+Datasources,,populationEntry,ontology_array,,,CatalogueOntologies,PopulationEntry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA
 Datasources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA
+Datasources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA
 Datasources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA
 Datasources,,populationDisease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",EMA
 Datasources,,populationCoverage,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",EMA
@@ -208,7 +210,7 @@ LinkedDatasources,,linkageCompleteness,text,,,,,,,,,Provide a high-level descrip
 LinkedDatasources,,preLinked,bool,,,,,,,,,Does the data source constitute of linked data sources?,
 QuantitativeInformation,,,,,,,,,,,,Quantitative information on the resource,
 QuantitativeInformation,,resource,ref,1,,,Resources,,,,,,
-QuantitativeInformation,,ageGroup,ontology,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information,
+QuantitativeInformation,,ageGroup,,1,ontology,,,CatalogueOntologies,AgeGroups,,,,,Select the relevant age group for this quantitative information,
 QuantitativeInformation,,populationSize,int,,,,,,,,,"Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
 QuantitativeInformation,,activeSize,int,,,,,,,,,"Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year",
 QuantitativeInformation,,noIndividualsWithSamples,int,,,,,,,,,"Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year ",
