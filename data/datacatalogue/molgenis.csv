@@ -217,7 +217,7 @@ QuantitativeInformation,,meanObservationYears,int,,,,,,,,,Median years for which
 QuantitativeInformation,,meanYearsActive,int,,,,,,,,,Median time for which unique individuals with records captured in the data source are observable (most recent count),,,,,,,,,,,,,
 QuantitativeInformation,,medianAge,int,,,,,,,,,Median age of individuals within data source,,,,,,,,,,,,,
 QuantitativeInformation,,proportionFemale,int,,,,,,,,,Proportion of females in the data source,,,,,,,,,,,,,
-QuantitativeInformation,,proportionEtnicity,text,,,,,,,,,Proportion per etnicity in the data source,,,,,,,,,,,,,
+QuantitativeInformation,,proportionEthnicity,text,,,,,,,,,Proportion per ethnicity in the data source,,,,,,,,,,,,,
 CollectionEvents,,,,,,,,,,,,Definition of a data collection event for a resource,,,,,,,,,,,,,
 CollectionEvents,,resource,ref,1,TRUE,,Resources,,,,,Resource this collection event is part of,,,,,,,,,,,,,
 CollectionEvents,,name,,1,TRUE,,,,,,,Name of the collection event,,,,,,,,,,,,,
