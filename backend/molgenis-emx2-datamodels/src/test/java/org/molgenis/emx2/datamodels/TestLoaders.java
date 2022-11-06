@@ -42,7 +42,7 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueLoader() {
     AvailableDataModels.DATA_CATALOGUE.install(dataCatalogue, true);
-    assertEquals(47, dataCatalogue.getTableNames().size());
+    assertEquals(36, dataCatalogue.getTableNames().size());
   }
 
   @Test
@@ -60,13 +60,13 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueCohortStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING.install(cohortStaging, true);
-    assertEquals(18, cohortStaging.getTableNames().size());
+    assertEquals(17, cohortStaging.getTableNames().size());
   }
 
   @Test
   public void testDataCatalogueNetworkStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(13, networkStaging.getTableNames().size());
+    assertEquals(12, networkStaging.getTableNames().size());
   }
 
   @Test
@@ -76,6 +76,6 @@ public class TestLoaders {
     assertEquals(4, sharedStagingUMCG.getTableNames().size());
 
     MolgenisIO.fromClasspathDirectory("datacatalogue/stagingCohorts", cohortStagingUMMCG, false);
-    assertEquals(18, cohortStagingUMMCG.getTableNames().size());
+    assertEquals(17, cohortStagingUMMCG.getTableNames().size());
   }
 }

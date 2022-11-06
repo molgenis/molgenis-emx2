@@ -150,7 +150,7 @@ SourceTables,,unitOfObservation,ontology,,,CatalogueOntologies,ObservationTarget
 SourceTables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
 SourceTables,,description,text,,,,,,,,,description of the role/function of this table
 SourceTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
-SourceTables,,mappings,refback,,,,TableMappings,,fromTable,,,list of mappings between this table and standard/harmonized tables
+SourceTables,,mappings,refback,,,,TableMappings,,sourceTable,,,list of mappings between this table and standard/harmonized tables
 TableMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
 TableMappings,,source,ref,1,TRUE,,Cohorts,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 TableMappings,,sourceTable,ref,1,TRUE,,SourceTables,source,,,,name of the table being mapped from
@@ -160,7 +160,7 @@ TableMappings,,order,int,,,,,,,,,Order in which table ETLs should be executed fo
 TableMappings,,description,text,,,,,,,,,human readible description of the mapping
 TableMappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
 SourceVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-SourceVariableValues,,source,ref,1,TRUE,,DataRwesources,,,,,
+SourceVariableValues,,source,ref,1,TRUE,,Cohorts,,,,,
 SourceVariableValues,,variable,ref,1,TRUE,,SourceVariables,source,,,,e.g. PATO
 SourceVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 SourceVariableValues,,label,,,TRUE,,,,,,,
@@ -168,10 +168,10 @@ SourceVariableValues,,order,int,,,,,,,,,
 SourceVariableValues,,isMissing,bool,,,,,,,,,
 SourceVariableValues,,ontologyTermURI,,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-VariableMappings,,source,ref,1,TRUE,,SourceDataDictionaries,,,,,
-VariableMappings,,sourceTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,
-VariableMappings,,sourceVariable,ref_array,,,,AllSourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
-VariableMappings,,sourceVariablesOtherTables,ref_array,,,,AllSourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
+VariableMappings,,source,ref,1,TRUE,,Cohorts,,,,,
+VariableMappings,,sourceTable,ref,1,TRUE,,SourceTables,source,,,,
+VariableMappings,,sourceVariable,ref_array,,,,AllSourceVariables,sourceTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
+VariableMappings,,sourceVariablesOtherTables,ref_array,,,,AllSourceVariables,source,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
 VariableMappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,
 VariableMappings,,targetTable,ref,1,TRUE,DataCatalogue,TargetTables,target,,,,
 VariableMappings,,targetVariable,ref,1,TRUE,DataCatalogue,AllTargetVariables,targetTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."

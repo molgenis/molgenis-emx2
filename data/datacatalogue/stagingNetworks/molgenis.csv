@@ -39,23 +39,16 @@ Subcohorts,,inclusionCriteria,text,,,,,,,,,Other inclusion criteria applied to t
 Subcohorts,,supplementaryInformation,text,,,,,,,,,Any other information that needs to be disclosed for this subcohort
 Networks,Resources,,,,,,,,,,,Collaborations of multiple institutions
 Networks,,type,ontology_array,,,CatalogueOntologies,NetworkTypes,,,,,"Type of network,e.g. h2020 project"
-TargetDataDictionaries,,,,,,,,,,,,Definition of a data dictionary for common data model
-TargetDataDictionaries,,resource,ref,1,TRUE,,Models,,,,,Link to the resource of which contents has been released
-TargetDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-TargetDataDictionaries,,tables,refback,,,,TargetTables,,dataDictionary,,,tables part of this data dictionary
-TargetDataDictionaries,,models,ref_array,,,,Models,,,,,existing data models that are used to produce this data dictionary
-TargetDataDictionaries,,date,date,,,,,,,,,date of creation
-TargetDataDictionaries,,description,text,,,,,,,,,notes specific to this data dictionary
 AllTargetVariables,,,,,,,,,,,,"Generic listing of all target variables. Should not be used directly, please use TargetVariables or RepeatedTargetVariables instead"
-AllTargetVariables,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,data dictionary of the target model
-AllTargetVariables,,table,ref,1,TRUE,,TargetTables,dataDictionary,,,,table this variable is part of
+AllTargetVariables,,target,ref,1,TRUE,,Models,,,,,data dictionary of the target model
+AllTargetVariables,,table,ref,1,TRUE,,TargetTables,target,,,,table this variable is part of
 AllTargetVariables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
 AllTargetVariables,,label,,,,,,,,,,
 AllTargetVariables,,collectionEvent,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
 TargetVariables,AllTargetVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 TargetVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
 TargetVariables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
-TargetVariables,,references,ref,,,,AllTargetVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
+TargetVariables,,references,ref,,,,AllTargetVariables,target,,,,to define foreign key relationships between variables within or across tables
 TargetVariables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
 TargetVariables,,description,text,,,,,,,,,
 TargetVariables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
@@ -66,9 +59,9 @@ TargetVariables,,repeats,refback,,,,RepeatedTargetVariables,,isRepeatOf,,,listin
 TargetVariables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
 TargetVariables,,notes,text,,,,,,,,,Any other information on this variable
 RepeatedTargetVariables,AllTargetVariables,,,,,,,,,,,Definition of a repeated targetVariable. Refers to another variable for its definition.
-RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,,TargetVariables,dataDictionary,,,,reference to the definition of the targetVariable that is being repeated
+RepeatedTargetVariables,,isRepeatOf,ref,,TRUE,,TargetVariables,target,,,,reference to the definition of the targetVariable that is being repeated
 TargetTables,,,,,,,,,,,,Definition of a table within a (common) data model
-TargetTables,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,resource + version this table is defined for
+TargetTables,,target,ref,1,TRUE,,Models,,,,,resource + version this table is defined for
 TargetTables,,name,,1,TRUE,,,,,,,unique table name in the model
 TargetTables,,label,,,,,,,,,,short human readible description
 TargetTables,,unitOfObservation,ontology,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
@@ -76,8 +69,8 @@ TargetTables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables
 TargetTables,,description,text,,,,,,,,,description of the role/function of this table
 TargetTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
 TargetVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-TargetVariableValues,,dataDictionary,ref,1,TRUE,,TargetDataDictionaries,,,,,
-TargetVariableValues,,variable,ref,1,TRUE,,TargetVariables,dataDictionary,,,,e.g. PATO
+TargetVariableValues,,target,ref,1,TRUE,,Models,,,,,
+TargetVariableValues,,variable,ref,1,TRUE,,TargetVariables,target,,,,e.g. PATO
 TargetVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 TargetVariableValues,,label,,,TRUE,,,,,,,
 TargetVariableValues,,order,int,,,,,,,,,
