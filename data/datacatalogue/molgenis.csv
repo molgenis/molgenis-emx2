@@ -64,7 +64,7 @@ Datasources,,populationCoverage,text,,,,,,,,,"Description of the population cove
 Datasources,,populationNotCovered,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?",EMA
 Datasources,,quantantitativeInformation,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population,EMA
 DataResources,,contents,heading,,,,,,,,,Data model and contents,
-Datasources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were collected,EMA
+Datasources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformationDataSources,,,,,Areas of information that were collected,EMA
 Datasources,,qualityOfLifeOther,text,,,,,,,,,"If other, specify additional quality of life measures",EMA
 Datasources,,causeOfDeathCodeOther,text,,,,,,,,,"If 'other,' what cause of death vocabulary is used?",EMA
 Datasources,,indicationVocabularyOther,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA
@@ -228,7 +228,7 @@ CollectionEvents,,endYear,ontology,,,CatalogueOntologies,Years,,,,,End year of d
 CollectionEvents,,endMonth,ontology,,,CatalogueOntologies,Months,,,,,End month of data collection. Leave empty if collection is ongoing,
 CollectionEvents,,ageGroups,ontology_array,,,CatalogueOntologies,AgeGroups,,,,,Age groups included in this data collection event,
 CollectionEvents,,numberOfParticipants,int,,,,,,,,,Number of participants sampled in this data collection event,
-CollectionEvents,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformation,,,,,Areas of information that were extracted in this data collection event,
+CollectionEvents,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformationCohorts,,,,,Areas of information that were extracted in this data collection event,
 CollectionEvents,,dataCategories,ontology_array,,,CatalogueOntologies,DataCategories,,,,,Methods of data collection used in this collection event,
 CollectionEvents,,sampleCategories,ontology_array,,,CatalogueOntologies,SampleCategories,,,,,Samples that were collected in this collection event,
 CollectionEvents,,standardizedTools,ontology_array,,,CatalogueOntologies,StandardizedTools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event",

@@ -21,12 +21,12 @@ Living in rural area,,Sociodemographics
 Health area,,Sociodemographics
 Deprivation index,,Sociodemographics
 Pharmaceutical copayment,,Sociodemographics
-Other,,Sociodemographics
+Other sociodemographics,,Sociodemographics
 Lifestyle,,
 Tobacco use,,Lifestyle
 Alcohol use,,Lifestyle
 Frequency of exercise,,Lifestyle
-Lifestyle other,,Lifestyle
+Other lifestyle,,Lifestyle
 Population pregnancy and neonates,Does the data source collect information on pregnant women and/or neonatal subpopulation?,
 Clinical data,,
 Diagnoses codes included,Are diagnostic codes included?,Clinical data
@@ -42,7 +42,7 @@ EphMRA,,Prescriptions or dispensings included
 ALT,,Prescriptions or dispensings included
 DrugBank,,Prescriptions or dispensings included
 Not coded (Free text),,Prescriptions or dispensings included
-Dispensings other,,Prescriptions or dispensings included
+Other prescriptions or dispendings,,Prescriptions or dispensings included
 Product information,Is product information available? Select all items that apply,Clinical data
 Brand name,,Product information
 Batch number,,Product information
@@ -70,7 +70,7 @@ MedDRA,,Indication for use
 OPCS,,Indication for use
 CCS,,Indication for use
 EDC,,Indication for use
-Other,,Indication for use
+Other indication for use,,Indication for use
 Administration vaccines,Administration vaccines included,
 Medical devices,Is information on medical devices included?,Clinical data
 Procedures,"Is information on procedures (e.g., diagnostic tests, therapeutic, surgical) included?",Clinical data
@@ -104,7 +104,7 @@ EQ5D,,Quality of life
 SF-36,,Quality of life
 SF-6D,,Quality of life
 HUI,,Quality of life
-QoL other,,Quality of life
+Other quality of life,,Quality of life
 Health care costs,Is information on costs of healthcare available?,
 Free text,Is free text information available?,
 Care setting

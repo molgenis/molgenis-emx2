@@ -121,22 +121,16 @@ SubcohortCounts,,ageGroup,ontology,1,TRUE,CatalogueOntologies,AgeGroups,,,,,
 SubcohortCounts,,N total,int,,,,,,,,,
 SubcohortCounts,,N female,int,,,,,,,,,
 SubcohortCounts,,N male,int,,,,,,,,,
-SourceDataDictionaries,,,,,,,,,,,,"Definition of a data dictionary for a cohort, databank or datasource"
-SourceDataDictionaries,,resource,ref,1,TRUE,,Resources,,,,,Link to the resource of which contents has been released
-SourceDataDictionaries,,version,,1,TRUE,,,,,,,"version of the data dictionary, use semantic versioning (https://semver.org/)"
-SourceDataDictionaries,,tables,refback,,,,SourceTables,,dataDictionary,,,tables part of this data dictionary
-SourceDataDictionaries,,date,date,,,,,,,,,date of creation
-SourceDataDictionaries,,description,text,,,,,,,,,notes specific to this data dictionary
 AllSourceVariables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
-AllSourceVariables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,data dictionary of the resource
-AllSourceVariables,,table,ref,1,TRUE,,SourceTables,dataDictionary,,,,table this variable is part of
+AllSourceVariables,,source,ref,1,TRUE,,Cohorts,,,,,data dictionary of the resource
+AllSourceVariables,,table,ref,1,TRUE,,SourceTables,source,,,,table this variable is part of
 AllSourceVariables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
 AllSourceVariables,,label,,,,,,,,,,
 AllSourceVariables,,collectionEvent,ref,,,,CollectionEvents,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
 SourceVariables,AllSourceVariables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
 SourceVariables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"string,int,decimal,date,datetime etc"
 SourceVariables,,unit,ontology,,,CatalogueOntologies,Units,,,,,unit ontology
-SourceVariables,,references,ref,,,,AllSourceVariables,dataDictionary,,,,to define foreign key relationships between variables within or across tables
+SourceVariables,,references,ref,,,,AllSourceVariables,source,,,,to define foreign key relationships between variables within or across tables
 SourceVariables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
 SourceVariables,,description,text,,,,,,,,,
 SourceVariables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
@@ -147,9 +141,9 @@ SourceVariables,,repeats,refback,,,,RepeatedSourceVariables,,isRepeatOf,,,listin
 SourceVariables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
 SourceVariables,,notes,text,,,,,,,,,Any other information on this variable
 RepeatedSourceVariables,AllSourceVariables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
-RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,,SourceVariables,dataDictionary,,,,reference to the definition of the sourceVariable that is being repeated
+RepeatedSourceVariables,,isRepeatOf,ref,,TRUE,,SourceVariables,source,,,,reference to the definition of the sourceVariable that is being repeated
 SourceTables,,,,,,,,,,,,Definition of a table within a data dictionary
-SourceTables,,dataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,resource + data dictionary this table is defined for
+SourceTables,,source,ref,1,TRUE,,Cohorts,,,,,resource + data dictionary this table is defined for
 SourceTables,,name,,1,TRUE,,,,,,,unique table name in the data dictionary
 SourceTables,,label,,,,,,,,,,short human readible description
 SourceTables,,unitOfObservation,ontology,,,CatalogueOntologies,ObservationTargets,,,,,defines what each record in this table describes
@@ -158,29 +152,29 @@ SourceTables,,description,text,,,,,,,,,description of the role/function of this 
 SourceTables,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
 SourceTables,,mappings,refback,,,,TableMappings,,fromTable,,,list of mappings between this table and standard/harmonized tables
 TableMappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-TableMappings,,source,ref,1,TRUE,,DataResources,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
-TableMappings,,sourceTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,name of the table being mapped from
+TableMappings,,source,ref,1,TRUE,,Cohorts,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
+TableMappings,,sourceTable,ref,1,TRUE,,SourceTables,source,,,,name of the table being mapped from
 TableMappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
-TableMappings,,targetTable,ref,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,name of the table being mapped to
+TableMappings,,targetTable,ref,1,TRUE,DataCatalogue,TargetTables,target,,,,name of the table being mapped to
 TableMappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
 TableMappings,,description,text,,,,,,,,,human readible description of the mapping
 TableMappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
 SourceVariableValues,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
 SourceVariableValues,,source,ref,1,TRUE,,DataRwesources,,,,,
-SourceVariableValues,,variable,ref,1,TRUE,,SourceVariables,dataDictionary,,,,e.g. PATO
+SourceVariableValues,,variable,ref,1,TRUE,,SourceVariables,source,,,,e.g. PATO
 SourceVariableValues,,value,,1,TRUE,,,,,,,e.g. '1'
 SourceVariableValues,,label,,,TRUE,,,,,,,
 SourceVariableValues,,order,int,,,,,,,,,
 SourceVariableValues,,isMissing,bool,,,,,,,,,
 SourceVariableValues,,ontologyTermURI,,,,,,,,,,reference to ontology term that defines this categorical value
 VariableMappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-VariableMappings,,fromDataDictionary,ref,1,TRUE,,SourceDataDictionaries,,,,,
-VariableMappings,,fromTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,
-VariableMappings,,fromVariable,ref_array,,,,AllSourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
-VariableMappings,,fromVariablesOtherTables,ref_array,,,,AllSourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
-VariableMappings,,toDataDictionary,ref,1,TRUE,DataCatalogue,TargetDataDictionaries,,,,,
-VariableMappings,,toTable,ref,1,TRUE,DataCatalogue,TargetTables,toDataDictionary,,,,
-VariableMappings,,toVariable,ref,1,TRUE,DataCatalogue,AllTargetVariables,toTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
+VariableMappings,,source,ref,1,TRUE,,SourceDataDictionaries,,,,,
+VariableMappings,,sourceTable,ref,1,TRUE,,SourceTables,fromDataDictionary,,,,
+VariableMappings,,sourceVariable,ref_array,,,,AllSourceVariables,fromTable,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
+VariableMappings,,sourceVariablesOtherTables,ref_array,,,,AllSourceVariables,fromDataDictionary,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
+VariableMappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,
+VariableMappings,,targetTable,ref,1,TRUE,DataCatalogue,TargetTables,target,,,,
+VariableMappings,,targetVariable,ref,1,TRUE,DataCatalogue,AllTargetVariables,targetTable,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
 VariableMappings,,match,ontology,,TRUE,CatalogueOntologies,StatusDetails,,,,,"e.g. 'complete, partial, planned, no-match'"
 VariableMappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
 VariableMappings,,description,text,,,,,,,,,human readible description of the mapping
