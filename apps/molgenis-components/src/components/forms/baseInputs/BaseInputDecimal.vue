@@ -27,7 +27,7 @@ export default {
   methods: {
     emitIfValid(event) {
       const value = parseFloat(event.target.value);
-      if (event.target == null || event.target.value == null) {
+      if (event.target?.value == null) {
         this.$emit("update:modelValue", null);
       } else if (!isNaN(value)) {
         this.$emit("update:modelValue", event.target.value );

@@ -27,8 +27,6 @@
         </tr>
       </tbody>
     </table>
-    {{settingValue}}
-
     <LayoutModal v-if="showModal" :title="modalTitle" :show="true" @close="showModal = false">
       <template v-slot:body>
         <div>

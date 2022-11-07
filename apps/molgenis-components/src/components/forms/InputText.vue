@@ -101,7 +101,7 @@ export default {
     data: function() {
       return {
         value: null,
-        value2: 'this is a default value',
+        value2: "this is a default value",
       };
     },
   };
