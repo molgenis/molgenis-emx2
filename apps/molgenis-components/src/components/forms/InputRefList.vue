@@ -61,7 +61,7 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection.sync="selection"
+            v-model:selection="selection"
             @update:selection="$emit('update:modelValue', $event)"
             :lookupTableName="tableName"
             :filter="filter"
