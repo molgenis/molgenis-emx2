@@ -93,7 +93,7 @@ public class SqlDatabase implements Database {
         this.becomeAdmin();
         this.init();
       } finally {
-        // always sure to return to anonyous
+        // always sure to return to anonymous
         this.clearActiveUser();
       }
     }
@@ -154,10 +154,17 @@ public class SqlDatabase implements Database {
       }
 
       if (getSettingValue(Constants.IS_OIDC_ENABLED) == null) {
-        // use environment property unless overriden in settings
+        // use environment property unless overridden in settings
         this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
+      if (getSettingValue(Constants.PRIVACY_POLICY_LEVEL) == null) {
+        this.createSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
+      }
+
+      if (getSettingValue(Constants.PRIVACY_POLICY_TEXT) == null) {
+        this.createSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
+      }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
