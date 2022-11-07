@@ -26,7 +26,11 @@
           description="Please enter the provided password"
           @enterPressed="signin"
         />
-        <div class="alert alert-info" role="alert">
+        <div
+          v-if="isPrivacyPolicyEnabled"
+          class="alert alert-info"
+          role="alert"
+        >
           <b>Privacy policy</b>
           <p>
             {{ privacyPolicy }}
@@ -47,7 +51,9 @@
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
       <ButtonSubmit
         form="signin-form"
-        :disabled="userAgrees[0] !== privacyPolicyLabel"
+        :disabled="
+          isPrivacyPolicyEnabled && userAgrees[0] !== privacyPolicyLabel
+        "
       >
         Sign in
       </ButtonSubmit>
@@ -91,6 +97,7 @@ export default {
       userAgrees: [],
       privacyPolicyLabel: "Agree with privacy policy",
       privacyPolicy: "",
+      isPrivacyPolicyEnabled: false,
     };
   },
   methods: {
@@ -126,14 +133,16 @@ export default {
     },
     async fetchPrivacyPolicy() {
       const response = await request("graphql", `{_settings{key, value}}`);
+
       const policyData = response._settings.find(
         (item) => item.key === POLICY_TEXT_KEY
       );
-      if (!policyData) {
-        this.privacyPolicy = defaultPolicy;
-      } else {
-        this.privacyPolicy = policyData.value;
-      }
+      this.privacyPolicy = policyData?.value;
+
+      const policyEnabledSettings = response._settings.find((item) => {
+        return item.key === "isPrivacyPolicyEnabled";
+      });
+      this.isPrivacyPolicyEnabled = policyEnabledSettings?.value === "true";
     },
   },
   watch: {

@@ -11,13 +11,13 @@
         :isClearable="false"
         @input="updatePolicyLevel"
       />
+      <InputText
+        id="privacy-policy-text"
+        v-model="policyText"
+        placeholder="Enter the privacy policy"
+        :readonly="policyLevel !== 'Custom'"
+      />
     </div>
-    <InputText
-      id="privacy-policy-text"
-      v-model="policyText"
-      placeholder="Enter the privacy policy"
-      :readonly="policyLevel !== 'Custom'"
-    />
     <button type="button" class="btn btn-primary" @click="save">Save</button>
   </div>
 </template>

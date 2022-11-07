@@ -158,6 +158,10 @@ public class SqlDatabase implements Database {
         this.createSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
+      if (getSettingValue(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
+        this.createSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
+      }
+
       if (getSettingValue(Constants.PRIVACY_POLICY_LEVEL) == null) {
         this.createSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
       }

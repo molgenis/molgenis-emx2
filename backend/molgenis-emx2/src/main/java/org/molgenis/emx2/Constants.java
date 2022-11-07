@@ -84,6 +84,7 @@ public class Constants {
   public static final String PRIVACY_POLICY_LEVEL_DEFAULT = "Level 4";
   public static final String PRIVACY_POLICY_TEXT = "PrivacyPolicyText";
   public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
+  public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
 
   private Constants() {
     // hide constructor
