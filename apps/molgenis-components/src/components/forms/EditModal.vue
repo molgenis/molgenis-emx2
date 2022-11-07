@@ -1,37 +1,66 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <EditModalWizard
-        v-if="loaded && tableMetaData"
-        :id="id"
-        v-model="rowData"
-        :pkey="pkey"
-        :tableName="tableName"
-        :tableMetaData="tableMetaData"
-        :graphqlURL="graphqlURL"
-        :visibleColumns="visibleColumns"
-        :clone="clone"
-        :page="currentPage"
-        @setPageCount="pageCount = $event"
-      >
-      </EditModalWizard>
+      <div class="d-flex">
+        <EditModalWizard
+          v-if="loaded && tableMetaData"
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          :page="currentPage"
+          @setPageCount="pageCount = $event"
+          class="flex-grow-1"
+        >
+        </EditModalWizard>
+        <div v-if="pageCount > 1" class="border-left chapter-menu">
+          <div class="mb-1"><b>Chapters</b></div>
+          <div v-for="(heading, index) in pageHeadings">
+            <button
+              type="button"
+              class="btn btn-link"
+              :title="heading"
+              :class="{ 'font-weight-bold': index + 1 === currentPage }"
+              @click="setCurrentPage(index + 1)"
+            >
+              {{ heading }}
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
     <template #footer>
       <RowEditFooter
         :id="id + '-footer'"
         :tableName="tableName"
         :errorMessage="errorMessage"
+        :isSaveDisabled="isSaveDisabled"
         @cancel="handleClose"
         @saveDraft="handleSaveDraftRequest"
         @save="handleSaveRequest"
       >
-        <Pagination
-          v-if="pageCount > 1"
-          class="mr-auto"
-          v-model="currentPage"
-          :count="pageCount"
-          :limit="1"
-        />
+        <div class="mr-auto">
+          <div v-if="pageCount > 1">
+            <ButtonAction
+              @click="setCurrentPage(currentPage - 1)"
+              :disabled="currentPage <= 1"
+              class="mr-2 pr-3"
+            >
+              <i :class="'fas fa-fw fa-chevron-left'" /> Previous
+            </ButtonAction>
+            <ButtonAction
+              @click="setCurrentPage(currentPage + 1)"
+              :disabled="currentPage >= pageCount"
+              class="pl-3"
+            >
+              Next <i :class="'fas fa-fw fa-chevron-right'" />
+            </ButtonAction>
+          </div>
+        </div>
       </RowEditFooter>
     </template>
   </LayoutModal>
@@ -42,12 +71,17 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
-import Pagination from "../tables/Pagination.vue";
+import ButtonAction from "./ButtonAction.vue";
 import { filterObject, deepClone } from "../utils";
 
 export default {
   name: "EditModal",
-  components: { LayoutModal, RowEditFooter, EditModalWizard, Pagination },
+  components: {
+    LayoutModal,
+    RowEditFooter,
+    EditModalWizard,
+    ButtonAction,
+  },
   data() {
     return {
       rowData: {},
@@ -100,7 +134,7 @@ export default {
   },
   computed: {
     title() {
-      return `${this.titlePrefix} ${this.tableName} ${this.pageName}`;
+      return `${this.titlePrefix} ${this.tableName}`;
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns
@@ -112,18 +146,17 @@ export default {
         return ["First chapter"].concat(headings);
       }
     },
-    pageName() {
-      if (this.pageCount > 1) {
-        return " - " + this.pageHeadings[this.currentPage - 1];
-      } else {
-        return "";
-      }
-    },
     titlePrefix() {
       return this.pkey && this.clone ? "copy" : this.pkey ? "update" : "insert";
     },
+    isSaveDisabled() {
+      return this.pageCount > 1 ? this.pageCount !== this.currentPage : false;
+    },
   },
   methods: {
+    setCurrentPage(newPage) {
+      this.currentPage = newPage;
+    },
     handleSaveRequest() {
       this.save({ ...this.rowData, mg_draft: false });
     },
@@ -140,7 +173,7 @@ export default {
         this.graphqlURL
       ).catch(this.handleSaveError);
       if (result) {
-        this.$emit("close");
+        this.handleClose();
       }
     },
     handleSaveError(error) {
@@ -193,9 +226,26 @@ export default {
 };
 </script>
 
+<style scoped>
+.chapter-menu {
+  padding: 1rem;
+  margin: -1rem -1rem -1rem 1rem;
+  max-width: 16rem;
+  overflow: hidden;
+}
+
+.chapter-menu button {
+  padding: 0;
+  max-width: 14rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+</style>
+
 <docs>
   <template>
-  <demo-item label="Edit Modal">
+  <DemoItem label="Edit Modal">
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -240,9 +290,10 @@ export default {
       :graphqlURL="graphqlURL"
       @close="isModalShown = false"
     />
-  </demo-item>
+  </DemoItem>
 </template>
-  <script>
+
+<script>
 export default {
   data: function () {
     return {

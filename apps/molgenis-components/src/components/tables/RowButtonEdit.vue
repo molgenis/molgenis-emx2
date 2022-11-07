@@ -1,24 +1,22 @@
 <template>
-  <div>
-    <RowButton type="clone" @clone="isModalShown = true" />
+  <span>
+    <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"
-      :clone="true"
       :isModalShown="isModalShown"
       :graphqlURL="graphqlURL"
-      @close="isModalShown = false"
+      @close="handleClose"
     />
-  </div>
+  </span>
 </template> 
 
 <script>
-import RowButton from "../tables/RowButton.vue";
-import EditModal from "../forms/EditModal.vue";
+import RowButton from "./RowButton.vue";
 export default {
-  name: "RowCloneButton",
-  components: { RowButton, EditModal },
+  name: "RowButtonEdit",
+  components: { RowButton },
   props: {
     id: {
       type: String,
@@ -28,14 +26,13 @@ export default {
       type: String,
       required: true,
     },
-    pkey: {
-      type: Object,
-      required: true,
-    },
     graphqlURL: {
       type: String,
       required: false,
       default: () => "graphql",
+    },
+    pkey: {
+      type: Object,
     },
   },
   data() {
@@ -43,16 +40,22 @@ export default {
       isModalShown: false,
     };
   },
+  methods: {
+    handleClose() {
+      this.isModalShown = false;
+      this.$emit("close");
+    },
+  },
 };
 </script>
 
 <docs>
   <template>
     <div>
-      <label for="row-clone-btn-sample">composition of RowButton and EditModal configured for row clone</label>
+      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
       <div>
-        <RowCloneButton 
-          id="row-clone-btn-sample" 
+        <RowButtonEdit 
+          id="row-edit-btn-sample" 
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           graphqlURL="/pet store/graphql"
