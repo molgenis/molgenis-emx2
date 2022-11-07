@@ -32,7 +32,7 @@
             :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
             :name="id"
             type="radio"
-            :modelValue="getPrimaryKey(row, tableMetaData)"
+            :value="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
             @change="
               $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
@@ -104,6 +104,7 @@ export default {
     },
     filter: Object,
     multipleColumns: Boolean,
+    itemsPerColumn: {type: Number, default: 12},
     maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
@@ -132,8 +133,7 @@ export default {
       return "Select " + this.tableName;
     },
     showMultipleColumns() {
-      const itemsPerColumn = 12;
-      return this.multipleColumns && this.count > itemsPerColumn;
+      return this.multipleColumns && this.count > this.itemsPerColumn;
     },
   },
   methods: {
@@ -162,6 +162,9 @@ export default {
       const options = {
         limit: this.maxNum,
       };
+      if(this.filter) {
+        options.filter = this.filter;
+      }
       const response = await this.client.fetchTableData(
         this.tableName,
         options
@@ -225,7 +228,7 @@ export default {
         v-model="filterValue"
         tableName="Pet"
         description="Filter by name"
-        :filter="{ category: { name: { equals: 'pooky' } } }"
+        :filter="{ category: { name: { equals: 'cat' } } }"
         graphqlURL="/pet store/graphql"
         :canEdit="canEdit"
       />
@@ -240,6 +243,7 @@ export default {
         description="This is a multi column input"
         graphqlURL="/pet store/graphql"
         multipleColumns
+        :itemsPerColumn="3"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
