@@ -118,7 +118,7 @@ export default {
   <demo-item>
     <MolgenisSignin
         v-if="isShown"
-        @onCancel="isShown = false"
+        @cancel="isShown = false"
         @requestSignIn="handleSignInRequest(...arguments)"
     />
     <button type="button" class="btn" @click="isShown = true">Show</button>
