@@ -28,7 +28,8 @@
         />
         <div
           v-if="isPrivacyPolicyEnabled"
-          class="alert alert-info"
+          class="alert"
+          :class="error === privacyError ? 'alert-danger' : 'alert-info'"
           role="alert"
         >
           <b>Privacy policy</b>
@@ -49,14 +50,7 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
-      <ButtonSubmit
-        form="signin-form"
-        :disabled="
-          isPrivacyPolicyEnabled && userAgrees[0] !== privacyPolicyLabel
-        "
-      >
-        Sign in
-      </ButtonSubmit>
+      <ButtonSubmit form="signin-form"> Sign in </ButtonSubmit>
     </template>
   </LayoutModal>
 </template>
@@ -73,8 +67,7 @@ import InputCheckbox from "../forms/InputCheckbox.vue";
 import { request } from "../../client/client.js";
 import { privacyConstants } from "../constants.js";
 
-const { POLICY_TEXT_KEY, LEVEL_4, PREFABS } = privacyConstants;
-const defaultPolicy = PREFABS[LEVEL_4];
+const { POLICY_TEXT_KEY } = privacyConstants;
 
 export default {
   name: "MolgenisSignin",
@@ -98,12 +91,18 @@ export default {
       privacyPolicyLabel: "Agree with privacy policy",
       privacyPolicy: "",
       isPrivacyPolicyEnabled: false,
+      privacyError: "Please agree with the privacy policy",
     };
   },
   methods: {
     async signin() {
       if (!this.email || !this.password) {
         this.error = "Email and password should be filled in";
+      } else if (
+        this.isPrivacyPolicyEnabled &&
+        this.userAgrees[0] !== this.privacyPolicyLabel
+      ) {
+        this.error = this.privacyError;
       } else {
         this.error = null;
         this.loading = true;
