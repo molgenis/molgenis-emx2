@@ -1,20 +1,20 @@
 <template>
   <button
-    class="btn p-1 mt-n1 mb-n1 btn-outline-primary border-0"
-    @click.prevent="onClick"
+      class="btn p-0 m-0 btn-outline-primary border-0"
+      @click.prevent="onClick"
   >
-    <span v-if="label" class="mr-2">
+    <Tooltip :value="tooltip" class="mt-n1 mb-n1 p-1">
+      <span v-if="label" class="mr-2">
       {{ label }}
-    </span>
-    <Tooltip :value="tooltip">
-      <i :class="'fas fa-fw fa-' + icon" />
+      </span>
+      <i :class="'fas fa-fw fa-' + icon"/>
     </Tooltip>
   </button>
 </template>
 
 <script>
-import ButtonAction from "./ButtonAction.vue";
-import Tooltip from "./Tooltip.vue";
+import ButtonAction from './ButtonAction.vue';
+import Tooltip from './Tooltip.vue';
 
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {
@@ -62,8 +62,8 @@ export default {
     methods: {
       alert(text) {
         alert(text);
-      }
-    }
+      },
+    },
   };
 </script>
 </docs>
