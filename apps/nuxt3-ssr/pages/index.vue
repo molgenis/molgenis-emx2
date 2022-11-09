@@ -3,7 +3,7 @@ const query = `{ Schemas { name description } }`;
 const { data, error } = await fetchGql("apps/graphql", query);
 console.log(data);
 console.log(error);
-const catalogueQuery = `{_schema{name}, Institutions_agg{count}, Studies_agg{count}, Cohorts_agg{count}}`;
+const catalogueQuery = `{_schema{name}, Cohorts_agg{count}}`;
 const catalogueResp = await fetchGql(
   "catalogue/catalogue/graphql",
   catalogueQuery
@@ -13,68 +13,54 @@ const cohortCount = catalogueResp.data.Cohorts_agg.count;
 </script>
 
 <template>
-  <!-- <div>
-    <h1 class="text-center text-5xl">
-      European Networks Health Data & Cohort Catalogue.
-    </h1>
-    <ul v-if="data.Schemas" class="pl-6">
-      <li v-for="schema in data.Schemas" :key="schema.name">
-        {{ schema.name }}
-      </li>
-    </ul>
-    <div v-if="error">{{ error }}</div>
-    <div>{{ catalogueResp.data }}</div> -->
-    <LayoutsDetailPage>
-      <template #header>
-        <PageHeader
-          title="Lifelines Next"
-          description="Short description of the cohort could be placed here."
-        >
-          <template #prefix>
-            <BreadCrumbs />
-          </template>
-          <template #title-suffix>
-            <IconButton icon="star" label="Favorite" />
-          </template>
-        </PageHeader>
+  <LayoutsSearchPage>
+      <template #side>
+        <SearchFilter title="Filters">
+          <SearchFilterGroup title="Search in networks" />
+          <SearchFilterGroup title="Countries" />
+          <SearchFilterGroup title="Institutions" />
+        </SearchFilter>
       </template>
-      <template #side> <SideNavigation /> </template>
       <template #main>
-        <ContentBlocks>
-          <ContentBlockIntro />
-          <ContentBlockDescription
-            title="Description"
-            description="Lifelines NEXT is a prospective birth cohort aiming to include 1.500 pregnant women and their children residing in the northern provinces of The Netherlands. The women are followed from the third month of their pregnancy with the aim of investigating in pregnants/mothers and their child the effect of early life or pre-conceptional transgenerational events on healthy ageing and chronic disease in (early) childhood. As of xxxx, partners were also invited to enroll in Lifelines NEXT. Standardized protocols and guidelines are available upon request.<br><br><strong>Keywords</strong><br>Children of the 90s, birth,  Genetics, DNA, RNA, Genetic disease, heritable disease "
-          />
-          <ContentBlockGeneralDesign title="General Design" />
-          <ContentBlockAttachedFiles title="Attached Files Generic Example" />
-          <ContentBlockContact title="Contact and Contributers" />
-          <ContentBlockVariables
-            title="Variables & Topics"
-            description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-          <ContentBlockData
-            title="Available Data & Samples"
-            description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-          <ContentBlockSubpopulations
-            title="Subpopulations"
-            description="Explanation about subpopulations and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-          <ContentBlockCollectionEvents
-            title="Collection Events"
-            description="Explanation about collection events and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-          <ContentBlockNetwork
-            title="Networks"
-            description="Networks Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-          <ContentBlockPartners
-            title="Partners"
-            description="Partners Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-          />
-        </ContentBlocks>
+        <SearchResults>
+          <template #header>
+            <PageHeader
+              title="Cohorts"
+              description="Group of individuals sharing a defining demographic characteristic."
+              icon="image-link"
+            >
+              <template #suffix>
+                <SearchResultsViewTabs
+                  buttonLeftLabel="Detailed"
+                  buttonLeftName="detailed"
+                  buttonLeftIcon="view-normal"
+                  buttonRightLabel="Compact"
+                  buttonRightName="compact"
+                  buttonRightIcon="view-compact"
+                  activeName="compact"
+                />
+              </template>
+            </PageHeader>
+          </template>
+
+          <template #search-results>
+            <SearchResultsList>
+              <CardList>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+              </CardList>
+            </SearchResultsList>
+          </template>
+
+          <template #pagination>
+            <Pagination />
+          </template>
+        </SearchResults>
       </template>
-    </LayoutsDetailPage>
-  <!-- </div> -->
+    </LayoutsSearchPage>
+
 </template>
