@@ -2,17 +2,12 @@
 ## Build file for server side rendered (ssr) catalogue application for use with molgenis EMX2 backend
 ###
 
-## Base image to have a node runtime ( todo replace with smaller/minimal image)
-FROM node:lts-gallium
+## Base image to have a node runtime
+FROM node:18.12.0-alpine
 
 ## Copy the files need from the contaxt into to image
-COPY ./.nuxt /app/
-COPY ./.output /app/
-
-WORKDIR /app
-
-## Generate both server and client in production mode
-RUN yarn build
+COPY ./nuxt3-ssr/.nuxt /
+COPY ./nuxt3-ssr/.output /
 
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
