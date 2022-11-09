@@ -2,7 +2,6 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.findColumnPath;
-import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 
@@ -11,6 +10,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.ColumnPath;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.Diseases;
@@ -26,7 +27,6 @@ import spark.Response;
 public class EJP_VP_IndividualsQuery {
 
   private Request request;
-  private Response response;
   private List<Table> tables;
 
   public EJP_VP_IndividualsQuery(Request request, Response response, List<Table> tables) {
@@ -35,13 +35,14 @@ public class EJP_VP_IndividualsQuery {
     this.tables = tables;
   }
 
-  public String getPostResponse() throws Exception {
+  public String getPostResponse() throws MolgenisException {
 
     if (this.tables == null || this.tables.isEmpty()) {
-      throw new Exception(
+      throw new MolgenisException(
           "No tables reachable for querying, perhaps permissions are not set correctly?");
     }
 
+    try{
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
@@ -129,7 +130,7 @@ public class EJP_VP_IndividualsQuery {
           String dynamicFilter = columnPath.getPath() + "ontologyTermURI: {like: \"" + id + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
-          return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));
+            return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));
         }
       }
     }
@@ -188,7 +189,7 @@ public class EJP_VP_IndividualsQuery {
           filteredIndividuals.add(individual);
         }
       }
-      if (filteredIndividuals.size() > 0) {
+      if (!filteredIndividuals.isEmpty()) {
         IndividualsResultSetsItem[] filteredIndividualsArr =
             filteredIndividuals.toArray(new IndividualsResultSetsItem[0]);
         IndividualsResultSets filteredResultSet =
@@ -206,6 +207,9 @@ public class EJP_VP_IndividualsQuery {
     // return the individual counts
     return getWriter()
         .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
+    } catch(Exception e) {
+      throw new MolgenisException(e.getMessage());
+    }
   }
 
   /**

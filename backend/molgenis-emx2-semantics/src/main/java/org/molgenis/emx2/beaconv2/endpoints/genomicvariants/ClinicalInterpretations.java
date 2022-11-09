@@ -29,7 +29,7 @@ public class ClinicalInterpretations {
       }
       if (map.get("clinicalRelevance") != null) {
         clinicalInterpretations.clinicalRelevance =
-            mapToOntologyTerm((Map) map.get("clinicalRelevance"));
+            mapToOntologyTerm(map.get("clinicalRelevance"));
       }
       if (map.get("conditionId") != null) {
         clinicalInterpretations.conditionId = (String) map.get("conditionId");
