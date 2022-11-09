@@ -31,7 +31,7 @@
     "cross-env": "7.0.3",
     "popper.js": "1.16.1",
     "click-outside-vue3": "4.0.1",
-    "vue": "3.2.41",
+    "vue": "3.2.44",
     "vue-flatpickr-component": "11.0.1"
   },
   "devDependencies": {

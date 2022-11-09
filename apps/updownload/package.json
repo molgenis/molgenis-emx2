@@ -11,7 +11,7 @@
     "molgenis-components": "*",
     "core-js": "3.26.0",
     "graphql-request": "5.0.0",
-    "vue": "3.2.41"
+    "vue": "3.2.44"
 
   },
   "devDependencies": {
