@@ -13,8 +13,8 @@
 </template>
 
 <script>
-import ButtonAction from './ButtonAction.vue';
-import Tooltip from './Tooltip.vue';
+import ButtonAction from "./ButtonAction.vue";
+import Tooltip from "./Tooltip.vue";
 
 /** Button that is shown as a icon. Choose font-awesome icon name as 'icon' parameter to show particular icon. */
 export default {

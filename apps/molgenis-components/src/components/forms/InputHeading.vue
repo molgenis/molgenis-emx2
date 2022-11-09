@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import IconAction from './IconAction.vue';
+import IconAction from "./IconAction.vue";
 
 /**
  * This is an component that does not have an input field but instead shows an header.
