@@ -74,14 +74,14 @@ export default {
   components: {
     RenderValue,
     RowButton,
-    VueTemplate
+    VueTemplate,
   },
   props: {
     columns: Array,
     tableName: String,
     row: Object,
     template: String,
-    canEdit: Boolean
+    canEdit: Boolean,
   },
   methods: {
     getKey(row) {
@@ -90,7 +90,7 @@ export default {
         .filter((c) => c.key == 1)
         .map((c) => (result[c.name] = row[c.name]));
       return result;
-    }
-  }
+    },
+  },
 };
 </script>

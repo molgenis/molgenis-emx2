@@ -57,18 +57,18 @@ export default {
     isClearable: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
-      radioValue: this.value,
+      radioValue: this.modelValue,
       isMouseOver: false,
     };
   },
   watch: {
     radioValue() {
-      this.$emit("input", this.radioValue);
+      this.$emit("update:modelValue", this.radioValue);
     },
     value(newValue) {
       this.radioValue = newValue
@@ -76,16 +76,15 @@ export default {
   },
   computed: {
     isClearShown() {
-      if(this.isClearable !== undefined && this.isClearable === false) {
+      if (this.isClearable !== undefined && this.isClearable === false) {
         return false;
       } else {
         return (
-            this.isMouseOver &&
-            this.radioValue !== null &&
-            this.radioValue !== undefined
+          this.isMouseOver &&
+          this.radioValue !== null &&
+          this.radioValue !== undefined
         );
       }
-
     },
   },
 };

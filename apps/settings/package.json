@@ -11,15 +11,14 @@
     "molgenis-components": "*",
     "core-js": "3.26.0",
     "graphql-request": "5.0.0",
-    "vue": "2.6.14",
-    "vue-router": "3.6.5",
-    "vue-swatches": "2.1.1",
-    "vuedraggable": "2.24.3"
+    "vue": "3.2.41",
+    "vue-router": "4.1.6",
+    "vue3-swatches": "1.0.10",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "3.2.0",
     "vite": "3.2.2",
-    "vite-plugin-vue2": "2.0.2"
+    "@vitejs/plugin-vue": "3.2.0"
   },
   "browserslist": [
     "> 1%",

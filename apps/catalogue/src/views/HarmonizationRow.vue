@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import Vue from "vue";
 import { mapActions } from "vuex";
 import HarmonizationCell from "../components/harmonization/HarmonizationCell.vue";
 
@@ -39,7 +38,7 @@ export default {
     async fetchData() {
       this.resourceMappings = await this.fetchMappings(this.variable);
       this.resourceStatusMap = this.resources.reduce((statusMap, resource) => {
-        Vue.set(statusMap, resource.pid, this.getMatchStatus(resource));
+        statusMap[resource.pid] = this.getMatchStatus(resource);
         return statusMap;
       }, {});
     },

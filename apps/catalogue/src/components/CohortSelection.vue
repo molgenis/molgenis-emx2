@@ -7,7 +7,7 @@
       :options="options"
       v-model="value"
       :list="true"
-      @input="emitValue()"
+      @update:modelValue="emitValue()"
     />
   </div>
 </template>
@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     emitValue() {
-      this.$emit("input", this.value);
+      this.$emit("update:modelValue", this.value);
     },
   },
   created() {

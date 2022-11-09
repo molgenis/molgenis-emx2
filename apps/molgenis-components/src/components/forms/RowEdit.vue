@@ -33,12 +33,12 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: deepClone(this.modelValue),
       errorPerColumn: {},
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -85,6 +85,7 @@ export default {
       default: () => true,
     },
   },
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -257,7 +258,7 @@ export default {
     internalValues: {
       handler(newValue) {
         this.validateTable();
-        this.$emit("input", newValue);
+        this.$emit("update:modelValue", newValue);
       },
       deep: true,
     },

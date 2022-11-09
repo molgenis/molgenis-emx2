@@ -116,6 +116,7 @@ import {
   Spinner,
   MessageWarning,
   InputSearch,
+  MessageError
 } from "molgenis-components";
 import LastUpdateField from "./LastUpdateField.vue";
 
@@ -129,6 +130,7 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
+    MessageError,
     InputSearch,
     LastUpdateField,
   },
