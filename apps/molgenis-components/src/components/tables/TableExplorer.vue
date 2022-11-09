@@ -93,10 +93,9 @@
 
       <div class="btn-group" v-if="canManage">
         <TableSettings
-          :tableName="tableName"
-          :cardTemplate.sync="cardTemplate"
-          :recordTemplate.sync="recordTemplate"
+          :tableMetadata="tableMetadata"
           :graphqlURL="graphqlURL"
+          @update:settings="reload"
         />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">

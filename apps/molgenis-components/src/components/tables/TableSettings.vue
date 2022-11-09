@@ -2,6 +2,7 @@
   <IconAction v-if="!show" icon="cog" @click="show = true" />
   <LayoutModal v-else title="Table Settings" @close="show = false" :show="show">
     <template v-slot:body>
+      {{tableMetadata}}
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <Spinner v-if="loading" />
@@ -35,7 +36,7 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import {request} from "../../client/client.js";
 import IconAction from "../forms/IconAction.vue";
 import InputText from "../forms/InputText.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
@@ -62,9 +63,7 @@ export default {
       type: String,
       default: "graphql",
     },
-    tableName: String,
-    cardTemplate: String,
-    recordTemplate: String,
+    tableMetadata: {type: Object, required: true}
   },
   data() {
     return {
@@ -74,38 +73,51 @@ export default {
       loading: false,
     };
   },
+  computed: {
+    cardTemplate() {
+      return this.tableMetadata.settings?.filter(setting => setting.key === "cardTemplate").map(setting => setting.value)[0];
+    },
+    recordTemplate() {
+      return this.tableMetadata.settings?.filter(setting => setting.key === "recordTemplate").map(setting => setting.value)[0];
+    }
+  },
   methods: {
     emitCardTemplate(value) {
-      this.$emit("update:cardTemplate", value);
+      if(!this.tableMetadata.settings) {
+        this.tableMetadata.settings = [];
+      }
+      //remove old
+      this.tableMetadata.settings = this.tableMetadata.settings.filter(setting => setting.key !== "cardTemplate");
+      //set new
+      this.tableMetadata.settings.push({key:"cardTemplate", value: value});
     },
     emitRecordTemplate(value) {
-      this.$emit("update:recordTemplate", value);
+      console.log(value)
+      if(!this.tableMetadata.settings) {
+        this.tableMetadata.settings = [];
+      }
+      //remove old
+      this.tableMetadata.settings = this.tableMetadata.settings.filter(setting => setting.key !== "recordTemplate");
+      //set new
+      this.tableMetadata.settings.push({key:"recordTemplate", value: value});
     },
     async saveSettings() {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
-      const client = Client.newClient(this.graphqlURL);
-      const resp = await client
-        .saveTableSettings([
-          {
-            table: this.tableName,
-            key: "cardTemplate",
-            value: this.cardTemplate,
-          },
-          {
-            table: this.tableName,
-            key: "recordTemplate",
-            value: this.recordTemplate,
-          },
-        ])
+      const resp = await request(this.graphqlURL, `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, {tables:[this.tableMetadata]})
         .catch((error) => {
-          alert(JSON.stringify(error.response.data.errors[0]))
           this.graphqlError = error.response.data.errors[0].message;
         });
       this.success = resp.change.message;
       this.loading = false;
+      this.$emit("update:settings")
     },
   },
+  created() {
+    if(!this.tableMetadata.settings) {
+      this.tableMetadata.settings = []
+    }
+  }
 };
 </script>
