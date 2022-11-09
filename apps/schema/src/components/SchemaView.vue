@@ -8,7 +8,7 @@
             v-model="schema.tables[index]"
             :schema="schema"
             :schemaNames="schemaNames"
-            @input="$emit('input', schema)"
+            @update:modelValue="$emit('update:modelValue', schema)"
             @delete="deleteTable(index)"
             :isManager="isManager"
           />
@@ -24,7 +24,7 @@
             operation="add"
             tableType="ontology"
             :schema="schema"
-            @input="$emit('input', schema)"
+            @update:modelValue="$emit('update:modelValue', schema)"
           />
         </div>
         <table
@@ -44,7 +44,7 @@
               v-model="schema.ontologies[index]"
               :schema="schema"
               :schemaNames="schemaNames"
-              @input="$emit('input', schema)"
+              @update:modelValue="$emit('update:modelValue', schema)"
               @delete="deleteOntology(index)"
               :isManager="isManager"
             />
@@ -68,7 +68,7 @@ export default {
     TableEditModal,
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -93,19 +93,20 @@ export default {
       }
       ontology.tableType = "ONTOLOGIES";
       this.schema.ontologies.push(ontology);
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
     deleteTable(index) {
       this.schema.tables.splice(index, 1);
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
     deleteOntology(index) {
       this.schema.ontologies.splice(index, 1);
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
   },
   created() {
-    this.schema = this.value;
+    this.schema = this.modelValue;
   },
+  emits: ["update:modelValue"],
 };
 </script>

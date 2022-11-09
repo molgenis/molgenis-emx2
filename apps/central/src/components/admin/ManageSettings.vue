@@ -30,7 +30,6 @@
         </tr>
       </tbody>
     </table>
-
     <LayoutModal
       v-if="showModal"
       :title="modalTitle"
@@ -119,7 +118,7 @@ export default {
       this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
-      this.modalTitle = `Delete ${setting.key} setting`;
+      this.modalTitle = `Delete ${setting.key} setting`
       this.settingActionLabel = "Delete Setting";
       this.settingKey = setting.key;
       this.settingValue = setting.value;

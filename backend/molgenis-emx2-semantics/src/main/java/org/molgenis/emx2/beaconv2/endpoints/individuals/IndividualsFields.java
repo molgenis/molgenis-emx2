@@ -4,7 +4,6 @@ public class IndividualsFields {
   private IndividualsFields() {
     // prevent construction, make sonar happy
   }
-
   public static String AGEOFONSET_AGEGROUP = "ageOfOnset__ageGroup";
   public static String AGEOFONSET_AGE_ISO8601DURATION = "ageOfOnset__age__iso8601duration";
   public static String DISEASECODE = "diseaseCode";

@@ -95,6 +95,7 @@ export default {
       this.$emit("cancel");
     },
   },
+  emits: ["cancel"],
 };
 </script>
 

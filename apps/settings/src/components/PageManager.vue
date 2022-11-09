@@ -22,11 +22,7 @@
 </template>
 
 <script>
-import {
-  ButtonAction,
-  IconAction,
-  InputString,
-} from "molgenis-components";
+import { ButtonAction, IconAction, InputString } from "molgenis-components";
 
 export default {
   components: {
@@ -52,7 +48,7 @@ export default {
       if (this.pages.includes(this.newPage)) {
         return "Page name already exists";
       } else {
-        return undefined
+        return undefined;
       }
     },
     pages() {

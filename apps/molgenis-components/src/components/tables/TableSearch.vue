@@ -92,7 +92,7 @@ import RowButtonDelete from "./RowButtonDelete.vue";
 
 
 export default {
-   name: "TableSearch",
+  name: "TableSearch",
   components: {
     TableMolgenis,
     MessageError,
@@ -207,11 +207,10 @@ export default {
 <template>
   <demo-item>
     <div class="border-bottom mb-3 p-2">
-        <h5>synced demo props: </h5>
-        <div>
-          <label for="canEdit" class="pr-1">can edit: </label>
-          <input type="checkbox" id="canEdit" v-model="canEdit">
-        </div>
+      <h5>synced demo props: </h5>
+      <div>
+        <label for="canEdit" class="pr-1">can edit: </label>
+        <input type="checkbox" id="canEdit" v-model="canEdit">
       </div>
     </div>
     <table-search
@@ -236,29 +235,29 @@ export default {
       return {
         selected: [],
         columns: [
-          {id: "col1", name: "col1", columnType: "STRING", key: 1},
+          {id: 'col1', name: 'col1', columnType: 'STRING', key: 1},
           {
-            id: "ref1",
-            name: "ref1",
-            columnType: "REF",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref1',
+            name: 'ref1',
+            columnType: 'REF',
+            refColumns: ['firstName', 'lastName'],
           },
           {
-            id: "ref_arr1",
-            name: "ref_arr1",
-            columnType: "REF_ARRAY",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref_arr1',
+            name: 'ref_arr1',
+            columnType: 'REF_ARRAY',
+            refColumns: ['firstName', 'lastName'],
           },
         ],
         remoteSelected: [],
         remoteColumns: [],
         remoteTableData: null,
-        canEdit: false
+        canEdit: false,
       };
     },
     methods: {
       click(value) {
-        alert("click " + JSON.stringify(value));
+        alert('click ' + JSON.stringify(value));
       },
     },
   };

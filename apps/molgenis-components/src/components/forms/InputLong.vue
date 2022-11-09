@@ -9,7 +9,7 @@
     <InputGroup>
       <input
         :id="id"
-        :value="value"
+        :value="modelValue"
         class="form-control"
         :class="{ 'is-invalid': errorMessage || bigIntError }"
         :aria-describedby="id + 'Help'"
@@ -50,14 +50,14 @@ export default {
   },
   computed: {
     bigIntError() {
-      return getBigIntError(this.value);
+      return getBigIntError(this.modelValue);
     },
   },
   methods: {
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("input", flipSign(this.value));
+        this.$emit("update:modelValue", flipSign(event.target.value));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
@@ -66,9 +66,9 @@ export default {
     inputHandler(event) {
       const value = event.target.value;
       if (value?.length) {
-        this.$emit("input", value);
+        this.$emit("update:modelValue", value);
       } else {
-        this.$emit("input", null);
+        this.$emit("update:modelValue", null);
       }
     },
   },

@@ -61,7 +61,7 @@
               id="column_refSchema"
               v-model="column.refSchema"
               :options="schemaNames"
-              @input="loadRefSchema"
+              @update:modelValue="loadRefSchema"
               label="refSchema"
               description="When you want to refer to table in another schema"
             />
@@ -211,7 +211,7 @@ export default {
   },
   props: {
     /** Column metadata object entered as v-model in case of updates*/
-    value: {
+    modelValue: {
       type: Object,
     },
     /** schema  column is part of, used for ref options*/
@@ -231,7 +231,7 @@ export default {
     /** can be set to 'add' */
     operation: {
       type: String,
-      default: "input",
+      default: "update:modelValue",
     },
     /** Optional tooltip*/
     tooltip: {
@@ -306,7 +306,8 @@ export default {
         return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
       }
       if (
-        (this.value === undefined || this.value.name !== this.column.name) &&
+        (this.modelValue === undefined ||
+          this.modelValue.name !== this.column.name) &&
         this.table.columns?.filter((c) => c.name === this.column.name).length >
           0
       ) {
@@ -336,7 +337,7 @@ export default {
         .filter(
           (c) =>
             (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
-            c.name !== this.value.name
+            c.name !== this.modelValue.name
         )
         .map((c) => c.name);
     },
@@ -368,8 +369,8 @@ export default {
     },
     reset() {
       //deep copy so it doesn't update during edits
-      if (this.value) {
-        this.column = deepClone(this.value);
+      if (this.modelValue) {
+        this.column = deepClone(this.modelValue);
       } else {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
@@ -382,5 +383,6 @@ export default {
   created() {
     this.reset();
   },
+  emits: ["add", "update:modelValue"],
 };
 </script>
