@@ -33,12 +33,12 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: deepClone(this.modelValue),
       errorPerColumn: {},
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -85,6 +85,7 @@ export default {
       default: () => true,
     },
   },
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -248,7 +249,7 @@ export default {
         return (
           value &&
           refValue &&
-          JSON.stringify(value) !== JSON.stringify(refValue)
+          !JSON.stringify(value).includes(JSON.stringify(refValue))
         );
       }
     },
@@ -257,7 +258,7 @@ export default {
     internalValues: {
       handler(newValue) {
         this.validateTable();
-        this.$emit("input", newValue);
+        this.$emit("update:modelValue", newValue);
       },
       deep: true,
     },
@@ -285,12 +286,12 @@ export default {
       <div class="col-6">
         <label class="border-bottom">In create mode</label>
         <RowEdit
-          v-if="showRowEdit"
-          id="row-edit"
-          v-model="rowData"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+            v-if="showRowEdit"
+            id="row-edit"
+            v-model="rowData"
+            :tableName="tableName"
+            :tableMetaData="tableMetaData"
+            :graphqlURL="graphqlURL"
         />
       </div>
       <div class="col-6 border-left">
@@ -317,41 +318,41 @@ export default {
   </DemoItem>
 </template>
 <script>
-export default {
-  data: function () {
-    return {
-      showRowEdit: true,
-      tableName: "Pet",
-      tableMetaData: {
-        columns: [],
-      },
-      rowData: {},
-      graphqlURL: "/pet store/graphql",
-    };
-  },
-  watch: {
-    async tableName(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.rowData = {};
-        await this.reload();
-      }
+  export default {
+    data: function() {
+      return {
+        showRowEdit: true,
+        tableName: 'Pet',
+        tableMetaData: {
+          columns: [],
+        },
+        rowData: {},
+        graphqlURL: '/pet store/graphql',
+      };
     },
-  },
-  methods: {
-    async reload () {
-      // force complete component reload to have a clean demo component and hit all lifecycle events
-      this.showRowEdit = false
-      const client = this.$Client.newClient(this.graphqlURL);
-      this.tableMetaData = (await client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableName
-      );
-      // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
-      this.showRowEdit = true
-    }
-  },
-  async mounted() {
-    this.reload()
-  },
-};
+    watch: {
+      async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+    },
+    methods: {
+      async reload() {
+        // force complete component reload to have a clean demo component and hit all lifecycle events
+        this.showRowEdit = false;
+        const client = this.$Client.newClient(this.graphqlURL);
+        this.tableMetaData = (await client.fetchMetaData()).tables.find(
+            (table) => table.id === this.tableName,
+        );
+        // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+        this.showRowEdit = true;
+      },
+    },
+    async mounted() {
+      this.reload();
+    },
+  };
 </script>
 </docs>

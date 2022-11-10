@@ -12,12 +12,14 @@
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="refLabel ? applyJsTemplate(value) : flattenObject(value)"
+        :value="
+          refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)
+        "
       />
       <template v-slot:append>
         <button
-          v-if="value"
-          @click="$emit('input', null)"
+          v-if="modelValue"
+          @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
         >
@@ -106,7 +108,7 @@ export default {
     },
     select(event) {
       this.showSelect = false;
-      this.$emit("input", event);
+      this.$emit("update:modelValue", event);
     },
     applyJsTemplate(object) {
       if (object === undefined || object === null) {

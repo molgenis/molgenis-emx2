@@ -3,7 +3,7 @@
     v-if="readonly"
     :id="id"
     readonly
-    v-model="value"
+    v-model="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :required="required"
@@ -11,13 +11,13 @@
   <FlatPickr
     v-else
     :id="id"
-    :value="value"
+    :modelValue="modelValue"
     style="background: white"
     class="form-control active"
     :config="config"
     :placeholder="placeholder"
     :disabled="readonly"
-    @input="$emit('input', $event)"
+    @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
 

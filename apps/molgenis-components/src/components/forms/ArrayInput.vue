@@ -51,7 +51,7 @@ export default {
   extends: BaseInput,
   components: { FormGroup },
   data() {
-    return { values: this.value || [null] };
+    return { values: this.modelValue || [null] };
   },
   props: {
     columnType: {
@@ -78,13 +78,13 @@ export default {
   methods: {
     addItem(index) {
       this.values.splice(index + 1, 0, null);
-      this.$emit("input", this.values);
+      this.$emit("update:modelValue", this.values);
     },
     clearInput(index) {
       if (this.values.length > 1) {
         this.values.splice(index, 1);
       }
-      this.$emit("input", this.values);
+      this.$emit("update:modelValue", this.values);
     },
   },
 };

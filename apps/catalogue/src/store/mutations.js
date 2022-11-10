@@ -1,8 +1,6 @@
-import Vue from "vue";
-
 export default {
   setVariables(state, variables) {
-    Vue.set(state, "variables", Array.isArray(variables) ? variables : []);
+    Vstate.variables = Array.isArray(variables) ? variables : [];
   },
   addVariables(state, variables) {
     state.variables = state.variables.concat(variables);
@@ -11,14 +9,10 @@ export default {
     state.variableCount = variableCount;
   },
   setVariableDetails(state, { variableName, variableDetails }) {
-    Vue.set(state.variableDetails, variableName, variableDetails);
+    state.variableDetails[variableName] = variableDetails;
   },
   setVariableMappingDetails(state, { variableName, mappingName, details }) {
-    Vue.set(
-      state.variableDetails[variableName].mappings[mappingName],
-      "details",
-      details
-    );
+      state.variableDetails[variableName].mappings[mappingName].details = details;
   },
   setSearchInput(state, searchInput) {
     state.searchInput = searchInput;
@@ -39,7 +33,7 @@ export default {
     state.keywords = keywords;
   },
   setResources(state, resources) {
-    Vue.set(state, "resources", resources);
+    state.resources = resources;
   },
   setSchema(state, schema) {
     state.schema = schema;

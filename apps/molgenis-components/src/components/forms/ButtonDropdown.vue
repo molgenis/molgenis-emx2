@@ -29,7 +29,7 @@ span.mg-dropdown-drop {
 </style>
 
 <script>
-import vClickOutside from "v-click-outside";
+import vClickOutside from "click-outside-vue3";
 import Popper from "popper.js";
 
 export default {

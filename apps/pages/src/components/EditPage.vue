@@ -1,12 +1,13 @@
 <template>
   <div>
-    <router-link :to="'/' + page">< view page</router-link>
+    {{page}}
+    <router-link :to="'/' + page">view page</router-link>
     <h1>{{ title }}</h1>
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <ckeditor v-model="draft" :config="editorConfig" :key="page" />
+      <QuillEditor v-model:content="draft" toolbar="full" class="bg-white" contentType="html"/>
       <div class="mt-2 float-right">
         <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
       </div>
@@ -15,22 +16,26 @@
 </template>
 
 <script>
-import CKEditor from "ckeditor4-vue";
+
 import {
   ButtonAction,
   ButtonAlt,
   MessageError,
   MessageSuccess,
+  Spinner
 } from "molgenis-components";
 import { request } from "graphql-request";
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 export default {
   components: {
-    ckeditor: CKEditor.component,
     ButtonAction,
     ButtonAlt,
     MessageError,
     MessageSuccess,
+    Spinner,
+    QuillEditor
   },
   data() {
     return {
@@ -38,53 +43,6 @@ export default {
       success: null,
       loading: false,
       draft: "<h1>New page</h1><p>Add your contents here</p>",
-      editorConfig: {
-        toolbar: [
-          {
-            name: "basicstyles",
-            groups: ["basicstyles", "cleanup"],
-            items: [
-              "Bold",
-              "Italic",
-              "Underline",
-              "Strike",
-              "Subscript",
-              "Superscript",
-            ],
-          },
-          {
-            name: "paragraph",
-            groups: ["list", "indent", "blocks", "align", "bidi"],
-            items: [
-              "NumberedList",
-              "BulletedList",
-              "-",
-              "Outdent",
-              "Indent",
-              "-",
-              "Blockquote",
-              "-",
-              "JustifyLeft",
-              "JustifyCenter",
-              "JustifyRight",
-              "JustifyBlock",
-            ],
-          },
-          { name: "links", items: ["Link", "Unlink", "Anchor"] },
-          {
-            name: "insert",
-            items: ["Image", "SpecialChar"],
-          },
-          { name: "styles", items: ["Format", "Font", "FontSize"] },
-          { name: "tools", items: ["Maximize"] },
-          {
-            name: "document",
-            groups: ["mode"],
-            items: ["Source"],
-          },
-        ],
-        removeButtons: "",
-      },
     };
   },
   props: {

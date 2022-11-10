@@ -27,7 +27,6 @@
         </tr>
       </tbody>
     </table>
-
     <LayoutModal v-if="showModal" :title="modalTitle" :show="true" @close="showModal = false">
       <template v-slot:body>
         <div>
@@ -82,34 +81,34 @@ export default {
       this.settings = resp._settings;
     },
     handleRowEditRequest(setting) {
-      this.modalTitle = `Edit ${setting.key} setting`
-      this.settingActionLabel = "Edit Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-      this.isValueReadOnly = false,
-      this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = `Edit ${setting.key} setting`;
+      this.settingActionLabel = "Edit Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      this.isKeyReadOnly = true;
+      this.isValueReadOnly = false;
+      this.actionFunction = this.createSetting;
+      this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
       this.modalTitle = `Delete ${setting.key} setting`
-      this.settingActionLabel = "Delete Setting"
-      this.settingKey = setting.key
-      this.settingValue = setting.value
-      this.isKeyReadOnly = true,
-      this.isValueReadOnly = true,
-      this.actionFunction = this.deleteSetting
-      this.showModal = true
+      this.settingActionLabel = "Delete Setting";
+      this.settingKey = setting.key;
+      this.settingValue = setting.value;
+      this.isKeyReadOnly = true;
+      this.isValueReadOnly = true;
+      this.actionFunction = this.deleteSetting;
+      this.showModal = true;
     },
     handleCreateRequest() {
-      this.modalTitle = "Create new setting"
-      this.settingActionLabel = "Create Setting"
-      this.settingKey = ""
-      this.settingValue = ""
-      this.isKeyReadOnly = false,
-      this.isValueReadOnly = false,
-      this.actionFunction = this.createSetting
-      this.showModal = true
+      this.modalTitle = "Create new setting";
+      this.settingActionLabel = "Create Setting";
+      this.settingKey = "";
+      this.settingValue = "";
+      this.isKeyReadOnly = false;
+      this.isValueReadOnly = false;
+      this.actionFunction = this.createSetting;
+      this.showModal = true;
     },
     async createSetting() {
       const createMutation = gql`mutation createSetting($key:String, $value:String) {

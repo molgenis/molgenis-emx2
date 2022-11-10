@@ -1,5 +1,10 @@
 <template>
-  <button type="button" class="btn btn-primary" @click.prevent="onClick">
+  <button
+    type="button"
+    class="btn btn-primary"
+    :disabled="disabled"
+    @click.prevent="onClick"
+  >
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
   </button>
@@ -11,6 +16,7 @@ export default {
   props: {
     href: { type: String, required: false },
     icon: { type: String, required: false },
+    disabled: { type: Boolean, required: false },
   },
   methods: {
     onClick() {
@@ -22,6 +28,7 @@ export default {
       }
     },
   },
+  emits:["click"]
 };
 </script>
 

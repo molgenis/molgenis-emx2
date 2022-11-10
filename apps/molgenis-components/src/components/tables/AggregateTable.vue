@@ -7,9 +7,9 @@
           <InputSelect
             class="m-0 mr-2"
             id="column-select"
-            v-model="selectedColumnHeader"
+            :valueModel="selectedColumnHeader"
             :options="columnHeaderProperties"
-            @input="fetchData"
+            @update:modelValue="fetchData"
           />
         </li>
         <li>
@@ -18,7 +18,7 @@
             id="row-select"
             v-model="selectedRowHeader"
             :options="rowHeaderProperties"
-            @input="fetchData"
+            @update:modelValue="fetchData"
           />
         </li>
       </ul>

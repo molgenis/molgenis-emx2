@@ -65,7 +65,7 @@ export default {
   computed: {
     pkeyAsString() {
       return this.flattenObject(this.pkey);
-    }
+    },
   },
 };
 </script>

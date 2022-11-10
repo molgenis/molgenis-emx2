@@ -8,8 +8,8 @@
     <input
       :id="id"
       :name="name"
-      :value="value"
-      @input="$emit('input', $event.target.value)"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
       type="password"
       class="form-control"
       :aria-describedby="id"
