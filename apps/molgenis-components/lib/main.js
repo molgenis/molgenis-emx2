@@ -68,7 +68,6 @@ import Tooltip from "../src/components/forms/Tooltip.vue";
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
-import ResizableTextarea from "../src/components/forms/ResizableTextarea.vue";
 import RowEdit from "../src/components/forms/RowEdit.vue";
 import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
@@ -190,7 +189,6 @@ export {
   InputText,
   MessageError,
   MessageSuccess,
-  ResizableTextarea,
   RowButtonAdd,
   RowButtonClone,
   RowButtonDelete,

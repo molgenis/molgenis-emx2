@@ -4,46 +4,54 @@
 
     <table class="table table-hover table-bordered bg-white">
       <thead>
-      <th style="width: 1px">
-        <IconAction icon="plus" @click="handleCreateRequest"/>
-      </th>
-      <th>key</th>
-      <th>value</th>
+        <th style="width: 1px">
+          <IconAction icon="plus" @click="handleCreateRequest" />
+        </th>
+        <th>key</th>
+        <th>value</th>
       </thead>
       <tbody v-if="settings">
-      <tr v-for="setting in settings" :key="setting.key">
-        <td>
-          <div style="display: flex">
-            <IconAction icon="edit" @click="handleRowEditRequest(setting)"/>
-            <IconDanger icon="trash" @click="handleRowDeleteRequest(setting)"/>
-          </div>
-        </td>
-        <td>
-          {{ setting.key }}
-        </td>
-        <td>
-          {{ setting.value }}
-        </td>
-      </tr>
+        <tr v-for="setting in settings" :key="setting.key">
+          <td>
+            <div style="display: flex">
+              <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
+              <IconDanger
+                icon="trash"
+                @click="handleRowDeleteRequest(setting)"
+              />
+            </div>
+          </td>
+          <td>
+            {{ setting.key }}
+          </td>
+          <td>
+            {{ setting.value }}
+          </td>
+        </tr>
       </tbody>
     </table>
 
-    <LayoutModal v-if="showModal" :title="modalTitle" :show="true" @close="showModal = false">
+    <LayoutModal
+      v-if="showModal"
+      :title="modalTitle"
+      :show="true"
+      @close="showModal = false"
+    >
       <template v-slot:body>
         <div>
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm>
             <InputString
-                id="setting-key"
-                v-model="settingKey"
-                label="key"
-                :readonly="isKeyReadOnly"
+              id="setting-key"
+              v-model="settingKey"
+              label="key"
+              :readonly="isKeyReadOnly"
             />
             <InputText
-                id="setting-value"
-                v-model="settingValue"
-                label="setting value"
-                :readonly="isValueReadOnly"
+              id="setting-value"
+              v-model="settingValue"
+              label="setting value"
+              :readonly="isValueReadOnly"
             />
           </LayoutForm>
         </div>
@@ -51,7 +59,7 @@
       <template v-slot:footer>
         <ButtonAlt @click="showModal = false">Cancel</ButtonAlt>
         <ButtonAction @click="actionFunction"
-        >{{ settingActionLabel }}
+          >{{ settingActionLabel }}
         </ButtonAction>
       </template>
     </LayoutModal>
@@ -59,7 +67,7 @@
 </template>
 
 <script>
-import {request, gql} from "graphql-request";
+import { request, gql } from "graphql-request";
 import {
   IconAction,
   IconDanger,
@@ -68,12 +76,21 @@ import {
   InputString,
   InputText,
   ButtonAlt,
-  ButtonAction
+  ButtonAction,
 } from "molgenis-components";
 
 export default {
   name: "ManageSettings",
-  components: {IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction},
+  components: {
+    IconAction,
+    IconDanger,
+    LayoutModal,
+    LayoutForm,
+    InputString,
+    InputText,
+    ButtonAlt,
+    ButtonAction,
+  },
   data() {
     return {
       settings: null,
@@ -85,13 +102,13 @@ export default {
       isKeyReadOnly: true,
       isValueReadOnly: true,
       graphqlError: null,
-      actionFunction: null
+      actionFunction: null,
     };
   },
   methods: {
     async fetchSettings() {
       const resp = await request("graphql", `{_settings{key, value}}`);
-      this.settings = resp._settings.filter(s => s.key !== "isOidcEnabled");
+      this.settings = resp._settings.filter((s) => s.key !== "isOidcEnabled");
     },
     handleRowEditRequest(setting) {
       this.modalTitle = `Edit ${setting.key} setting`;
@@ -124,17 +141,19 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
-      const createMutation = gql`mutation change($settings:[MolgenisSettingsInput]){
-        change(settings:$settings){
-          message
+      const createMutation = gql`
+        mutation change($settings: [MolgenisSettingsInput]) {
+          change(settings: $settings) {
+            message
+          }
         }
-       }`;
+      `;
 
       const variables = {
         settings: {
           key: this.settingKey,
-          value: this.settingValue
-        }
+          value: this.settingValue,
+        },
       };
 
       await request("graphql", createMutation, variables).catch((e) => {
@@ -144,16 +163,18 @@ export default {
       this.showModal = false;
     },
     async deleteSetting() {
-      const deleteMutation = gql`mutation drop($settings:[DropSettingsInput]){
-        drop(settings:$settings){
-          message
+      const deleteMutation = gql`
+        mutation drop($settings: [DropSettingsInput]) {
+          drop(settings: $settings) {
+            message
+          }
         }
-      }`;
+      `;
 
       const variables = {
         settings: {
           key: this.settingKey,
-        }
+        },
       };
 
       await request("graphql", deleteMutation, variables).catch((e) => {
@@ -161,7 +182,7 @@ export default {
       });
       this.fetchSettings();
       this.showModal = false;
-    }
+    },
   },
   mounted() {
     this.fetchSettings();

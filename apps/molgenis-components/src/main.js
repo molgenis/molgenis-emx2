@@ -1,5 +1,6 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+// we use this bundle to enable template at runtime
+import { createApp } from "vue/dist/vue.esm-bundler";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ClientView from "./ClientView.vue";
 import Sidebar from "./Sidebar.vue";
@@ -9,33 +10,20 @@ import VueScrollTo from "vue-scrollto";
 import Client from "./client/client.js";
 import * as utils from "./components/utils";
 
+//load the components
 const components = import.meta.globEager("./components/**/*.vue");
 const generatedDocumentComponents = import.meta.globEager(
   "../gen-docs/**/*.vue"
 );
 
-Object.entries(components).forEach(([path, definition]) => {
-  // Get name of component, based on filename
-  // "./components/Fruits.vue" will become "Fruits"
-  const componentName = path
-    .split("/")
-    .pop()
-    .replace(/\.\w+$/, "");
-
-  // Register component on this Vue instance
-  Vue.component(componentName, definition.default);
-});
-
-Vue.component("DemoItem", DemoItem);
+let docsMap = {};
 
 const routes = [
   { path: "/", components: { sidebar: Sidebar } },
   { path: "/client", component: ClientView },
 ];
 
-let docsMap = {};
-
-// create routes for generated docs
+// define routes for generated docs; add docsMap
 Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   const componentName = path
     .split("/")
@@ -52,27 +40,36 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
   folderPath.pop(); // remove component name
   docsMap[componentName] = { name: componentName, path: folderPath };
 });
-// global variable
-Vue.prototype.$docsMap = docsMap;
-Vue.prototype.$Client = Client;
-Vue.prototype.$utils = utils;
 
-Vue.use(VueRouter);
-const router = new VueRouter({ routes });
+// construct app
+const app = createApp(App);
 
-// use for in page routing
-Vue.use(VueScrollTo, {
-  container: "#page-content-wrapper",
+//add tools
+app.config.globalProperties.$axios = axios;
+app.config.globalProperties.$Client = Client;
+app.config.globalProperties.$utils = utils;
+app.config.globalProperties.$docsMap = docsMap;
+
+//add directives
+app.directive("scroll-to", VueScrollTo);
+
+//add components
+Object.entries(components).forEach(([path, definition]) => {
+  // Get name of component, based on filename
+  // "./components/Fruits.vue" will become "Fruits"
+  const componentName = path
+    .split("/")
+    .pop()
+    .replace(/\.\w+$/, "");
+
+  // Register component on this Vue instance
+  app.component(componentName, definition.default);
 });
+app.component("DemoItem", DemoItem);
 
-// Add axios to demo app global vue as plugin, will not be part of exposed library
-Vue.use({
-  install(Vue) {
-    Vue.prototype.$axios = axios;
-  },
-});
+// connect the router
+const router = createRouter({ history: createWebHashHistory(), routes });
+app.use(router);
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+// render the whole thing
+app.mount("#app");

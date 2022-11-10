@@ -76,15 +76,13 @@ export default {
   },
   computed: {
     tableHover() {
-      return this.selectColumn || (this.$listeners && this.$listeners.click);
+      return this.selectColumn;
     },
     hasColheader() {
       return (
         this.selectColumn ||
         !!this.$slots["colheader"] ||
-        !!this.$scopedSlots["colheader"] ||
-        !!this.$slots["rowheader"] ||
-        !!this.$scopedSlots["rowheader"]
+        !!this.$slots["rowheader"]
       );
     },
   },

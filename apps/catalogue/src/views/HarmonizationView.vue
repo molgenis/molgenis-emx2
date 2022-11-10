@@ -28,9 +28,8 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="variable in variablePage">
+          <template v-for="variable in variablePage" :key="variable.name">
             <harmonization-row
-              :key="variable.name"
               :variable="variable"
               :resources="resourcesWithoutModels"
             />

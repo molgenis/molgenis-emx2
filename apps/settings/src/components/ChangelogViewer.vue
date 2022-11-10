@@ -1,11 +1,12 @@
 <template>
   <div>
     <h1>Changes</h1>
-    <h5>The changelog is currently
+    <h5>
+      The changelog is currently
       <template v-if="isChangelogEnabled">enabled</template>
       <template v-else>disabled</template>
     </h5>
-    <p v-if="changesCount">{{changesCount}} changes where made</p>
+    <p v-if="changesCount">{{ changesCount }} changes where made</p>
     <table-display :columns="columns" :rows="changes" />
   </div>
 </template>
@@ -29,14 +30,18 @@ export default {
       ],
       changes: [],
       changesCount: null,
-      isChangelogEnabled: null
+      isChangelogEnabled: null,
     };
   },
   methods: {
-    async fetchIsChangelogEnabled () {
+    async fetchIsChangelogEnabled() {
       const resp = await request("graphql", `{_settings{key, value}}`);
-      const changelogSetting = resp._settings.find(s => s.key === "isChangelogEnabled");
-      const changelogValue = changelogSetting ? changelogSetting.value : "false";
+      const changelogSetting = resp._settings.find(
+        (s) => s.key === "isChangelogEnabled"
+      );
+      const changelogValue = changelogSetting
+        ? changelogSetting.value
+        : "false";
       this.isChangelogEnabled = changelogValue.toLowerCase() === "true";
     },
     async fetchChanges() {
@@ -48,7 +53,7 @@ export default {
         .map(this.formatOperation)
         .map(this.formatDateTime)
         .map(this.formatRowData);
-      this.changesCount = resp._changesCount
+      this.changesCount = resp._changesCount;
     },
     formatOperation(change) {
       if (change.operation === "I") {
@@ -68,8 +73,12 @@ export default {
       return change;
     },
     formatRowData(change) {
-      change.oldRowData = change.oldRowData ? JSON.stringify(change.oldRowData, null, 2) : '-';
-      change.newRowData = change.newRowData ? JSON.stringify(change.newRowData, null, 2) : '-';
+      change.oldRowData = change.oldRowData
+        ? JSON.stringify(change.oldRowData, null, 2)
+        : "-";
+      change.newRowData = change.newRowData
+        ? JSON.stringify(change.newRowData, null, 2)
+        : "-";
       return change;
     },
   },

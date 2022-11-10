@@ -15,7 +15,7 @@
         <a
           class="page-link"
           href="#"
-          @click.prevent="emitValue(Math.max(value - 1, 1), isFirstPage)"
+          @click.prevent="emitValue(Math.max(modelValue - 1, 1), isFirstPage)"
         >
           <span aria-hidden="true">&lsaquo;</span>
           <span class="sr-only">Previous</span>
@@ -23,7 +23,7 @@
       </li>
       <li class="page-item disabled">
         <a class="page-link text-nowrap" href="#">{{
-          rowRange(value, limit, count)
+          rowRange(modelValue, limit, count)
         }}</a>
       </li>
       <li class="page-item" :class="{ disabled: isLastPage }">
@@ -31,7 +31,7 @@
           class="page-link"
           href="#"
           @click.prevent="
-            emitValue(Math.min(value + 1, totalPages), isLastPage)
+            emitValue(Math.min(modelValue + 1, totalPages), isLastPage)
           "
         >
           <span aria-hidden="true">&rsaquo;</span>
@@ -61,14 +61,14 @@
 <script>
 export default {
   props: {
-    value: { type: Number, default: 1 },
+    modelValue: { type: Number, default: 1 },
     count: Number,
     limit: { type: Number, default: 10 },
   },
   methods: {
     emitValue(page, isDisabled) {
       if (!isDisabled) {
-        this.$emit("input", page);
+        this.$emit("update:modelValue", page);
       }
     },
     rowRange(value, limit, count) {
@@ -86,28 +86,28 @@ export default {
       return Math.ceil(this.count / this.limit);
     },
     isFirstPage() {
-      return this.value === 1;
+      return this.modelValue === 1;
     },
     isLastPage() {
-      return this.value === this.totalPages || this.count === 0;
+      return this.modelValue === this.totalPages || this.count === 0;
     },
   },
   watch: {
     value() {
-      if (this.value < 1) {
-        this.$emit("input", 1);
+      if (this.modelValue < 1) {
+        this.$emit("update:modelValue", 1);
       }
     },
     count() {
       //reset page to within range in case count changes
       if (this.page > this.totalPages) {
-        this.$emit("input", 1);
+        this.$emit("update:modelValue", 1);
       }
     },
   },
   created() {
-    if (this.value < 1) {
-      this.$emit("input", 1);
+    if (this.modelValue < 1) {
+      this.$emit("update:modelValue", 1);
     }
   },
 };
