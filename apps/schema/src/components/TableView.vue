@@ -25,7 +25,7 @@
             v-if="isManager"
             v-model="table"
             :schema="schema"
-            @input="$emit('input', table)"
+            @update:modelValue="$emit('update:modelValue', table)"
           />
           <IconDanger
             v-if="isManager"
@@ -97,7 +97,7 @@
                       v-model="table.subclasses[index]"
                       :schema="schema"
                       :rootTable="table"
-                      @input="$emit('input', table)"
+                      @update:modelValue="$emit('update:modelValue', table)"
                     />
                     <IconDanger
                       v-if="isManager"
@@ -145,23 +145,28 @@
                 <th scope="col">description</th>
               </tr>
             </thead>
-            <Draggable v-model="table.columns" tag="tbody" @end="applyPosition">
-              <ColumnView
-                v-for="(column, columnIndex) in table.columns"
-                :key="columnIndex + column.name + table.columns.length"
-                :style="
-                  isSubclassDropped(column)
-                    ? 'text-decoration: line-through'
-                    : ''
-                "
-                v-model="table.columns[columnIndex]"
-                :schema="schema"
-                :schemaNames="schemaNames"
-                @input="updateColumn(columnIndex, $event)"
-                @add="addColumn(columnIndex, $event)"
-                @delete="deleteColumn(columnIndex)"
-                :isManager="isManager"
-              />
+            <Draggable
+              v-model="table.columns"
+              tag="tbody"
+              @end="applyPosition"
+              item-key="name"
+            >
+              <template #item="{ element, index }">
+                <ColumnView
+                  :style="
+                    isSubclassDropped(element)
+                      ? 'text-decoration: line-through'
+                      : ''
+                  "
+                  v-model="table.columns[index]"
+                  :schema="schema"
+                  :schemaNames="schemaNames"
+                  @update:modelValue="updateColumn(index, $event)"
+                  @add="addColumn(index, $event)"
+                  @delete="deleteColumn(index)"
+                  :isManager="isManager"
+                />
+              </template>
             </Draggable>
           </table>
         </div>
@@ -197,7 +202,7 @@ export default {
     ColumnEditModal,
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -221,12 +226,9 @@ export default {
     };
   },
   methods: {
-    scrollToTop() {
-      this.$s;
-    },
     updateColumn(index, column) {
       this.table.columns.splice(index, 1, column);
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     addColumn(index, column) {
       if (this.table.columns == undefined) {
@@ -234,12 +236,12 @@ export default {
       }
       this.table.columns.splice(index, 0, column);
       this.applyPosition();
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     applyPosition() {
       let position = 1;
       this.table.columns.forEach((column) => (column.position = position++));
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     validateName() {
       if (!this.name) {
@@ -258,7 +260,7 @@ export default {
       } else {
         this.table.drop = false;
       }
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     deleteColumn(index) {
       if (this.table.columns[index].oldName === undefined) {
@@ -266,7 +268,7 @@ export default {
       } else {
         this.table.columns[index].drop = !this.table.columns[index].drop;
       }
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     deleteSubclass(subclass) {
       if (!subclass.oldName) {
@@ -279,7 +281,7 @@ export default {
       } else {
         subclass.drop = false;
       }
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
     isSubclassDropped(column) {
       if (column.table === this.table.name) {
@@ -293,14 +295,15 @@ export default {
     createSubclass(subclass) {
       if (!this.table.subclasses) {
         //need to $set otherwise vue doesn't see the change
-        this.$set(this.table, "subclasses", []);
+        this.table.subclasses = [];
       }
       this.table.subclasses.unshift(subclass);
-      this.$emit("input", this.table);
+      this.$emit("update:modelValue", this.table);
     },
   },
   created() {
-    this.table = deepClone(this.value);
+    this.table = deepClone(this.modelValue);
   },
+  emits: ["update:modelValue", "delete"],
 };
 </script>

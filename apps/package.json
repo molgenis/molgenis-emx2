@@ -9,9 +9,9 @@
     "updownload",
     "pages",
     "graphql-playground",
-    "nuxt-ssr",
+    "nuxt3-ssr",
     "molgenis-components",
-    "helloworld",
-    "gendecs"
+    "helloworld"
    ]
 }
+

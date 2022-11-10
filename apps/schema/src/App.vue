@@ -1,9 +1,7 @@
 <template>
-  <div id="app">
-    <Molgenis id="__top" v-model="session">
-      <RouterView :session="session" :key="session.email" />
-    </Molgenis>
-  </div>
+  <Molgenis id="__top" v-model="session">
+    <router-view :session="session" />
+  </Molgenis>
 </template>
 
 <script>
@@ -15,7 +13,7 @@ export default {
   },
   data() {
     return {
-      session: {},
+      session: null,
     };
   },
 };

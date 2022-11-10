@@ -47,17 +47,22 @@ subprojects {
             outputs.dir('dist')
             outputs.dir('gen-docs')
             outputs.dir('showCase')
-        } else if (project.name == 'nuxt-ssr') {
+        } else if (project.name == 'nuxt3-ssr') {
             inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('layouts'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
             inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.js')
+            inputs.file('nuxt.config.ts')
+            inputs.file('app.vue')
+            inputs.file('router.options.ts')
+            inputs.file('tailwind.config.ts')
             outputs.dir('.nuxt')
+            outputs.dir('.output')
         } else {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
@@ -68,7 +73,7 @@ subprojects {
             outputs.dir('dist')
         }
 
-        outputs.cacheIf { true }
+        outputs.cacheIf { false }
 
         args = ['run', 'build']
 
@@ -117,6 +122,7 @@ subprojects {
         project.delete(files("build"))
         project.delete(files("node_modules"))
         project.delete(files(".nuxt"))
+        project.delete(files(".output"))
         project.delete(files("showCase"))
     }
 

@@ -1,11 +1,10 @@
-import vue from "@vitejs/plugin-vue2";
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
 
-export default {
-  //relative path
-  base: "",
+export default defineConfig({
   plugins: [vue()],
+  base: "",
   server: {
-    port: 9090,
     proxy: require("../dev-proxy.config"),
   },
-};
+});

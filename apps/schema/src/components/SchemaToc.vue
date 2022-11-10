@@ -7,7 +7,7 @@
         @add="addTable"
         operation="add"
         :schema="schema"
-        @input="$emit('input', schema)"
+        @update:modelValue="$emit('update:modelValue', schema)"
       />
     </div>
     <div v-if="schema.tables?.length > 0">
@@ -54,7 +54,7 @@
         operation="add"
         tableType="ontology"
         :schema="schema"
-        @input="$emit('input', schema)"
+        @update:modelValue="$emit('update:modelValue', schema)"
       />
     </div>
     <div v-if="schema.ontologies?.length > 0">
@@ -66,7 +66,7 @@
         <a
           :href="'#'"
           v-scroll-to="{
-            el: '#' + (ontology.name ? ontology.name.replaceAll(' ', '_') : ''),
+            el: '#' + ontology.name ? ontology.name.replaceAll(' ', '_') : '',
             offset: -200,
           }"
         >
@@ -79,17 +79,13 @@
 </template>
 
 <script>
-import Vue from "vue";
-import VueScrollTo from "vue-scrollto";
 import TableEditModal from "./TableEditModal.vue";
-
-Vue.use(VueScrollTo);
 
 export default {
   components: { TableEditModal },
   props: {
     /** schema v-model */
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -110,7 +106,7 @@ export default {
         this.schema.tables = [];
       }
       this.schema.tables.push(table);
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
     addOntology(ontology) {
       this.$scrollTo("#molgenis_bottom_ontologies_anchor");
@@ -119,11 +115,12 @@ export default {
       }
       ontology.tableType = "ONTOLOGIES";
       this.schema.ontologies.push(ontology);
-      this.$emit("input", this.schema);
+      this.$emit("update:modelValue", this.schema);
     },
   },
   created() {
-    this.schema = this.value;
+    this.schema = this.modelValue;
   },
+  emits: ["update:modelValue"],
 };
 </script>

@@ -7,18 +7,16 @@
     :errorMessage="errorMessage"
   >
     <InputGroup>
-      <ResizableTextarea>
         <textarea
-          :id="id"
-          :value="value"
-          class="form-control"
-          :class="{ 'is-invalid': errorMessage }"
-          :aria-describedby="id + 'Help'"
-          :placeholder="placeholder"
-          :readonly="readonly"
-          @input="$emit('input', $event.target.value)"
+            ref="textarea"
+            :value="modelValue"
+            class="form-control"
+            :class="{ 'is-invalid': errorMessage }"
+            :aria-describedby="id + 'Help'"
+            :placeholder="placeholder"
+            :readonly="readonly"
+            @input="$emit('update:modelValue', $event.target.value)"
         />
-      </ResizableTextarea>
       <template v-slot:append>
         <slot name="append"></slot>
       </template>
@@ -29,15 +27,33 @@
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
-import ResizableTextarea from "./ResizableTextarea.vue";
 import InputGroup from "./InputGroup.vue";
+import { nextTick } from "vue";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
     InputGroup,
-    ResizableTextarea,
+  },
+  methods: {
+    resizeTextarea(event) {
+      event.target.style.height = "auto";
+      event.target.style.height = event.target.scrollHeight + "px";
+    },
+  },
+  mounted() {
+    const el = this.$refs.textarea;
+    nextTick(() => {
+      el.setAttribute(
+        "style",
+        "height:" + el.scrollHeight + "px;overflow-y:hidden;"
+      );
+    });
+    el.addEventListener("input", this.resizeTextarea);
+  },
+  beforeDestroy() {
+    this.$refs.textarea.addEventListener("input", this.resizeTextarea);
   },
 };
 </script>
@@ -54,7 +70,8 @@ export default {
           placeholder="type here your text"
           description="Some help needed?"
       />
-      You typed: {{ value }}
+      You typed:<br/>
+      <pre>{{ value }}</pre>
     </demo-item>
     <label>Empty input text</label>
     <demo-item>
@@ -65,6 +82,9 @@ export default {
           placeholder="type here your text"
           description="This should have default value?"
       />
+      <br/>
+      You typed:<br/>
+      <pre>{{ value2 }}</pre>
     </demo-item>
     <demo-item>
       <InputText
@@ -78,12 +98,12 @@ export default {
 </template>
 <script>
   export default {
-    data: function () {
+    data: function() {
       return {
         value: null,
-        value2: "this is a default value"
+        value2: "this is a default value",
       };
-    }
+    },
   };
 </script>
 </docs>

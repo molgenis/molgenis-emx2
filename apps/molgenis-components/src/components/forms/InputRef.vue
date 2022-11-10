@@ -9,7 +9,7 @@
     <div>
       <div>
         <ButtonAlt
-          v-if="value !== null"
+          v-if="modelValue !== null"
           class="pl-1"
           icon="fa fa-clear"
           @click="clearValue"
@@ -34,7 +34,9 @@
             type="radio"
             :value="getPrimaryKey(row, tableMetaData)"
             :checked="isSelected(row)"
-            @change="$emit('input', getPrimaryKey(row, tableMetaData))"
+            @change="
+              $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
+            "
             class="form-check-input"
             :class="{ 'is-invalid': errorMessage }"
           />
@@ -57,7 +59,7 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection="[value]"
+            :selection="[modelValue]"
             :lookupTableName="tableName"
             :filter="filter"
             @select="select($event)"
@@ -102,6 +104,7 @@ export default {
     },
     filter: Object,
     multipleColumns: Boolean,
+    itemsPerColumn: {type: Number, default: 12},
     maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
@@ -130,17 +133,16 @@ export default {
       return "Select " + this.tableName;
     },
     showMultipleColumns() {
-      const itemsPerColumn = 12;
-      return this.multipleColumns && this.count > itemsPerColumn;
+      return this.multipleColumns && this.count > this.itemsPerColumn;
     },
   },
   methods: {
     getPrimaryKey,
     clearValue() {
-      this.$emit("input", null);
+      this.$emit("update:modelValue", null);
     },
     select(event) {
-      this.$emit("input", event);
+      this.$emit("update:modelValue", event);
     },
     openSelect() {
       this.showSelect = true;
@@ -152,7 +154,7 @@ export default {
     isSelected(row) {
       return (
         this.getPrimaryKey(row, this.tableMetaData)?.name ===
-        (this.value ? this.value.name : "")
+        (this.modelValue ? this.modelValue.name : "")
       );
     },
     flattenObject,
@@ -160,6 +162,9 @@ export default {
       const options = {
         limit: this.maxNum,
       };
+      if(this.filter) {
+        options.filter = this.filter;
+      }
       const response = await this.client.fetchTableData(
         this.tableName,
         options
@@ -223,7 +228,7 @@ export default {
         v-model="filterValue"
         tableName="Pet"
         description="Filter by name"
-        :filter="{ category: { name: { equals: 'pooky' } } }"
+        :filter="{ category: { name: { equals: 'cat' } } }"
         graphqlURL="/pet store/graphql"
         :canEdit="canEdit"
       />
@@ -238,6 +243,7 @@ export default {
         description="This is a multi column input"
         graphqlURL="/pet store/graphql"
         multipleColumns
+        :itemsPerColumn="3"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
