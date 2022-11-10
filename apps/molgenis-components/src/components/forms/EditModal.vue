@@ -85,6 +85,7 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
+import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
 import { filterObject, deepClone } from "../utils.js";
 import constants from "../constants";
@@ -96,6 +97,7 @@ export default {
   components: {
     LayoutModal,
     RowEditFooter,
+    RowEdit,
     EditModalWizard,
     ButtonAction,
   },
