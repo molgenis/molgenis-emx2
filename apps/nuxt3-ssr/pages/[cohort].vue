@@ -1,26 +1,35 @@
 <script setup>
-const query = `query Cohorts ($pid: String){
+const query = `
+  query Cohorts ($pid: String) {
     Cohorts(filter: { pid: { equals: [$pid] } }){
         name
         description
-    }}`;
-const route = useRoute()
-console.log(route.params.cohort);
+        website
+        logo{
+          url
+        }
+        contactEmail
+        institution{
+          acronym
+        }
+    }
+  }`;
+const route = useRoute();
 const variables = { pid: route.params.cohort };
 const resp = await fetchGql(
   "catalogue/catalogue/graphql",
   query,
   variables
 ).catch((error) => console.log(error));
-console.log(resp);
 const cohort = resp?.data?.Cohorts[0];
 </script>
+
 <template>
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="cohort.name"
-        description="Short description of the cohort could be placed here."
+        :title="cohort?.name"
+        :description="cohort?.institution?.acronym"
       >
         <template #prefix>
           <BreadCrumbs />
@@ -33,10 +42,15 @@ const cohort = resp?.data?.Cohorts[0];
     <template #side> <SideNavigation /> </template>
     <template #main>
       <ContentBlocks>
-        <ContentBlockIntro />
+        <ContentBlockIntro
+          :image="cohort?.logo?.url"
+          :link="cohort?.website"
+          :contact="`mailto:${cohort?.contactEmail}`"
+        />
+
         <ContentBlockDescription
           title="Description"
-          description="Lifelines NEXT is a prospective birth cohort aiming to include 1.500 pregnant women and their children residing in the northern provinces of The Netherlands. The women are followed from the third month of their pregnancy with the aim of investigating in pregnants/mothers and their child the effect of early life or pre-conceptional transgenerational events on healthy ageing and chronic disease in (early) childhood. As of xxxx, partners were also invited to enroll in Lifelines NEXT. Standardized protocols and guidelines are available upon request.<br><br><strong>Keywords</strong><br>Children of the 90s, birth,  Genetics, DNA, RNA, Genetic disease, heritable disease "
+          :description="cohort?.description"
         />
         <ContentBlockGeneralDesign title="General Design" />
         <ContentBlockAttachedFiles title="Attached Files Generic Example" />
