@@ -5,9 +5,11 @@
 ## Base image to have a node runtime
 FROM node:18.12.0-alpine
 
+WORKDIR /
+
 ## Copy the files need from the contaxt into to image
-COPY ./nuxt3-ssr/.nuxt /
-COPY ./nuxt3-ssr/.output /
+COPY ./nuxt3-ssr/.nuxt /.nuxt
+COPY ./nuxt3-ssr/.output /.output
 
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
