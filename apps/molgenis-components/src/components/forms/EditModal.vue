@@ -340,7 +340,7 @@ export default {
       this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
       const settings = await client.fetchSettings(this.graphqlURL);
       this.useChapters =
-        settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !=
+        settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
         "false";
     },
     onModeChange() {
