@@ -90,7 +90,7 @@ import ButtonAction from "./ButtonAction.vue";
 import { filterObject, deepClone } from "../utils.js";
 import constants from "../constants";
 
-const { IS_CHAPTERS_ENABLED } = constants;
+const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
 export default {
   name: "EditModal",
@@ -225,8 +225,8 @@ export default {
     const settings = await this.client.fetchSettings(this.graphqlURL);
 
     this.useChapters =
-      settings.find((item) => item.key === IS_CHAPTERS_ENABLED)?.value !=
-      "false";
+      settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)
+        ?.value !== "false";
 
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
@@ -340,7 +340,7 @@ export default {
       this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
       const settings = await this.client.fetchSettings(this.graphqlURL);
       this.useChapters =
-        settings.find((item) => item.key === IS_CHAPTERS_ENABLED)?.value !=
+        settings.find((item) => item.key === )?.value !==
         "false";
     },
     onModeChange() {
