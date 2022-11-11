@@ -1,36 +1,33 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div class="d-flex">
-        <template v-if="useChapters">
-          <EditModalWizard
-            v-if="loaded && tableMetaData"
-            :id="id"
-            v-model="rowData"
-            :pkey="pkey"
-            :tableName="tableName"
-            :tableMetaData="tableMetaData"
-            :graphqlURL="graphqlURL"
-            :visibleColumns="visibleColumns"
-            :clone="clone"
-            :page="currentPage"
-            @setPageCount="pageCount = $event"
-            class="flex-grow-1"
-          />
-        </template>
-        <template v-else>
-          <RowEdit
-            :id="id"
-            v-model="rowData"
-            :pkey="pkey"
-            :tableName="tableName"
-            :tableMetaData="tableMetaData"
-            :graphqlURL="graphqlURL"
-            :visibleColumns="visibleColumns"
-            :clone="clone"
-            class="flex-grow-1"
-          />
-        </template>
+      <div class="d-flex" v-if="loaded && tableMetaData">
+        <EditModalWizard
+          v-if="useChapters"
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          :page="currentPage"
+          @setPageCount="pageCount = $event"
+          class="flex-grow-1"
+        />
+        <RowEdit
+          v-else
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          class="flex-grow-1"
+        />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
