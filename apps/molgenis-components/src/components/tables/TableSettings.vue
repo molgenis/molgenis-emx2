@@ -2,7 +2,6 @@
   <IconAction v-if="!show" icon="cog" @click="show = true" />
   <LayoutModal v-else title="Table Settings" @close="show = false" :show="show">
     <template v-slot:body>
-      {{tableMetadata}}
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <Spinner v-if="loading" />
@@ -92,7 +91,6 @@ export default {
       this.tableMetadata.settings.push({key:"cardTemplate", value: value});
     },
     emitRecordTemplate(value) {
-      console.log(value)
       if(!this.tableMetadata.settings) {
         this.tableMetadata.settings = [];
       }
@@ -107,7 +105,7 @@ export default {
       this.success = null;
       const resp = await request(this.graphqlURL, `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, {tables:[this.tableMetadata]})
         .catch((error) => {
-          this.graphqlError = error.response.data.errors[0].message;
+          this.graphqlError = error.errors[0].message;
         });
       this.success = resp.change.message;
       this.loading = false;
@@ -115,9 +113,10 @@ export default {
     },
   },
   created() {
-    if(!this.tableMetadata.settings) {
+    if(this.tableMetadata && !this.tableMetadata.settings) {
       this.tableMetadata.settings = []
     }
-  }
+  },
+  emits:["update:settings"]
 };
 </script>
