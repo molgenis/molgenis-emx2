@@ -94,7 +94,15 @@ export default {
         return request(graphqlURL ? graphqlURL : "graphql",
             `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
             {settings: settings});
-      }
+      },
+      fetchSettings: async () => {
+        return (
+          await request(
+            graphqlURL ? graphqlURL : "graphql",
+            "{_settings{key, value}}"
+          )
+        )._settings;
+      },
     };
   },
 };

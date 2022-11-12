@@ -1,9 +1,9 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div class="d-flex">
+      <div class="d-flex" v-if="loaded && tableMetaData">
         <EditModalWizard
-          v-if="loaded && tableMetaData"
+          v-if="useChapters"
           :id="id"
           v-model="rowData"
           :pkey="pkey"
@@ -15,8 +15,19 @@
           :page="currentPage"
           @setPageCount="pageCount = $event"
           class="flex-grow-1"
-        >
-        </EditModalWizard>
+        />
+        <RowEdit
+          v-else
+          :id="id"
+          v-model="rowData"
+          :pkey="pkey"
+          :tableName="tableName"
+          :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL"
+          :visibleColumns="visibleColumns"
+          :clone="clone"
+          class="flex-grow-1"
+        />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
@@ -71,14 +82,19 @@ import Client from "../../client/client.js";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
+import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone } from "../utils";
+import { filterObject, deepClone } from "../utils.js";
+import constants from "../constants";
+
+const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
 
 export default {
   name: "EditModal",
   components: {
     LayoutModal,
     RowEditFooter,
+    RowEdit,
     EditModalWizard,
     ButtonAction,
   },
@@ -91,6 +107,7 @@ export default {
       loaded: true,
       currentPage: 1,
       pageCount: 1,
+      useChapters: true,
     };
   },
   props: {
@@ -202,6 +219,12 @@ export default {
   async mounted() {
     this.loaded = false;
     this.client = Client.newClient(this.graphqlURL);
+    const settings = await this.client.fetchSettings(this.graphqlURL);
+
+    this.useChapters =
+      settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)
+        ?.value !== "false";
+
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
 
     if (this.pkey) {
@@ -246,6 +269,7 @@ export default {
 <docs>
   <template>
   <DemoItem label="Edit Modal">
+  <p>This component can be used in chapter mode split the form into multiple chapter based on headings. Use the "isChaptersEnabled" schema setting to switch mode. <br/>Current value: <pre style='display:inline'>{{useChapters}}</pre></p>
     <button class="btn btn-primary" @click="isModalShown = !isModalShown">
       Show {{ demoMode }} {{ tableName }}
     </button>
@@ -302,6 +326,7 @@ export default {
       demoKey: null, // empty in case of insert
       isModalShown: false,
       graphqlURL: "/pet store/graphql",
+      useChapters: true
     };
   },
   methods: {
@@ -310,6 +335,10 @@ export default {
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName);
       this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
+      const settings = await client.fetchSettings(this.graphqlURL);
+      this.useChapters =
+        settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
+        "false";
     },
     onModeChange() {
       if (this.demoMode !== "insert") {
