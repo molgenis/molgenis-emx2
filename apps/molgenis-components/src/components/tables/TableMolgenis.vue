@@ -1,34 +1,45 @@
 /* eslint-disable vue/no-unused-components */
 <template>
-  <div style="max-width: 100%" class="flex-grow-1">
+  <div style="max-width: 100%;" class="flex-grow-1">
     <table
       class="table table-sm bg-white table-bordered table-hover"
       :class="{ 'table-hover': showSelect }"
     >
-      <thead>
-        <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
-          <h6 class="mb-0 mt-2 d-inline">#</h6>
-          <span style="text-align: left; font-weight: normal">
-            <slot name="rowcolheader" />
-          </span>
-        </th>
-        <th
-          v-for="col in columnsWithoutMeta"
-          :key="col.name + col.showColumn"
-          scope="col"
-          class="column-drag-header"
-          :style="col.showColumn ? '' : 'display: none'"
-        >
-          <h6
-            class="mb-0 align-text-bottom text-nowrap"
-            @click="onColumnClick(col)"
+      <Draggable
+        v-model="columns"
+        handle=".column-drag-header"
+        ghost-class="border-primary"
+        tag="thead"
+        @end="$emit('update:columns', $event)"
+        class="column-drag-header"
+      >
+        <template #header>
+          <th v-if="hasColheader" slot="header" scope="col" style="width: 1px;">
+            <h6 class="mb-0 mt-2 d-inline">#</h6>
+            <span style="text-align: left; font-weight: normal;">
+              <slot name="rowcolheader" />
+            </span>
+          </th>
+        </template>
+        <template #item="{ element, index }">
+          <th
+            :style="element.showColumn ? '' : 'display: none'"
+            class="hoverContainer"
           >
-            {{ col.name }}
-            <slot name="colheader" :col="col" />
-          </h6>
-        </th>
-      </thead>
-
+            <h6
+              class="mb-0 align-text-bottom text-nowrap d-inline-block"
+              @click="onColumnClick(element)"
+            >
+              {{ element.name }}
+              <slot name="colheader" :col="element" />
+            </h6>
+            <IconAction
+              icon="grip-vertical"
+              class="hoverIcon fas column-drag-header float-left"
+            ></IconAction>
+          </th>
+        </template>
+      </Draggable>
       <tbody>
         <tr v-if="data && !data.length">
           <td :colspan="columnsWithoutMeta.length + 1" class="alert-warning">
@@ -45,7 +56,7 @@
           "
         >
           <td v-if="hasColheader">
-            <div style="display: flex">
+            <div style="display: flex;">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
                 <input
                   type="checkbox"
@@ -68,7 +79,7 @@
           <td
             v-for="col in columnsWithoutMeta"
             :key="idx + col.name + isSelected(row)"
-            style="cursor: pointer"
+            style="cursor: pointer;"
             :style="col.showColumn ? '' : 'display: none'"
             @click="onRowClick(row)"
           >
@@ -95,6 +106,14 @@ th {
 .column-drag-header:hover .column-remove {
   visibility: visible;
 }
+
+.hoverIcon {
+  visibility: hidden;
+}
+
+.hoverContainer:hover .hoverIcon {
+  visibility: visible;
+}
 </style>
 
 <script>
@@ -103,10 +122,12 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import DataDisplayCell from "./DataDisplayCell.vue";
+import IconAction from "../forms/IconAction.vue";
 import { getPrimaryKey } from "../utils";
+import Draggable from "vuedraggable";
 
 export default {
-  components: { DataDisplayCell },
+  components: { DataDisplayCell, Draggable, IconAction },
   props: {
     /** selection, two-way binded*/
     selection: { type: Array, required: false },
@@ -263,63 +284,63 @@ export default {
 </template>
 
 <script>
-import Client from "../../../src/client/client.js";
+  import Client from '../../../src/client/client.js';
 
-export default {
-  data() {
-    return {
-      selected: [],
-      columns: [
-        { id: "col1", name: "col1", columnType: "STRING", key: 1 },
-        {
-          id: "ref1",
-          name: "ref1",
-          columnType: "REF",
-          refColumns: ["firstName", "lastName"],
-        },
-        {
-          id: "ref_arr1",
-          name: "ref_arr1",
-          columnType: "REF_ARRAY",
-          refColumns: ["firstName", "lastName"],
-        },
-      ],
-      data: [
-        {
-          col1: "row1",
-          ref1: { firstName: "katrien", lastName: "duck" },
-          ref_arr1: [
-            { firstName: "kwik", lastName: "duck" },
-            {
-              firstName: "kwek",
-              lastName: "duck",
-            },
-            { firstName: "kwak", lastName: "duck" },
-          ],
-        },
-        {
-          col1: "row2",
-        },
-      ],
-      remoteSelected: [],
-      remoteColumns: [],
-      remoteTableData: null,
-    };
-  },
-  methods: {
-    click(value) {
-      alert("click " + JSON.stringify(value));
+  export default {
+    data() {
+      return {
+        selected: [],
+        columns: [
+          {id: 'col1', name: 'col1', columnType: 'STRING', key: 1},
+          {
+            id: 'ref1',
+            name: 'ref1',
+            columnType: 'REF',
+            refColumns: ['firstName', 'lastName'],
+          },
+          {
+            id: 'ref_arr1',
+            name: 'ref_arr1',
+            columnType: 'REF_ARRAY',
+            refColumns: ['firstName', 'lastName'],
+          },
+        ],
+        data: [
+          {
+            col1: 'row1',
+            ref1: {firstName: 'katrien', lastName: 'duck'},
+            ref_arr1: [
+              {firstName: 'kwik', lastName: 'duck'},
+              {
+                firstName: 'kwek',
+                lastName: 'duck',
+              },
+              {firstName: 'kwak', lastName: 'duck'},
+            ],
+          },
+          {
+            col1: 'row2',
+          },
+        ],
+        remoteSelected: [],
+        remoteColumns: [],
+        remoteTableData: null,
+      };
     },
-  },
-  async mounted() {
-    const client = Client.newClient("/pet store/graphql", this.$axios);
-    const remoteMetaData = await client.fetchMetaData();
-    const petColumns = remoteMetaData.tables.find(
-      (t) => t.name === "Pet"
-    ).columns;
-    this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
-    this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
-  },
-};
+    methods: {
+      click(value) {
+        alert('click ' + JSON.stringify(value));
+      },
+    },
+    async mounted() {
+      const client = Client.newClient('/pet store/graphql', this.$axios);
+      const remoteMetaData = await client.fetchMetaData();
+      const petColumns = remoteMetaData.tables.find(
+          (t) => t.name === 'Pet',
+      ).columns;
+      this.remoteColumns = petColumns.filter((c) => !c.name.startsWith('mg_'));
+      this.remoteTableData = (await client.fetchTableData('Pet')).Pet;
+    },
+  };
 </script>
 </docs>

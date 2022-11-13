@@ -1,20 +1,26 @@
 <template>
   <div class="sidebar-container">
-    <FilterContainer
-      v-for="(filter, index) in visibleFilters"
-      :key="filter.name"
-      :title="filter.name"
-      :conditions="filter.conditions"
+    <Draggable
+      v-model="filters"
+      tag="span"
+      item-key="name"
+      handle=".filter-header "
+      ghost-class="border-primary"
     >
-      <FilterInput
-        :id="'filter-' + filter.name"
-        :conditions="visibleFilters[index].conditions"
-        @updateConditions="handleUpdateFilter(index, $event)"
-        :columnType="filter.columnType"
-        :tableName="filter.refTable"
-        :graphqlURL="graphqlURL"
-      />
-    </FilterContainer>
+      <template #item="{ element, index }">
+        <FilterContainer :title="element.name" :conditions="element.conditions">
+          <FilterInput
+            v-if="element.columnType !== 'HEADING'"
+            :id="'filter-' + element.name"
+            :conditions="filters[index].conditions"
+            @updateConditions="handleUpdateFilter(index, $event)"
+            :columnType="element.columnType"
+            :tableName="element.refTable"
+            :graphqlURL="graphqlURL"
+          />
+        </FilterContainer>
+      </template>
+    </Draggable>
   </div>
 </template>
 
@@ -27,12 +33,14 @@
 <script>
 import FilterContainer from "./FilterContainer.vue";
 import FilterInput from "./FilterInput.vue";
+import Draggable from "vuedraggable";
 
 export default {
   name: "FilterSidebar",
   components: {
     FilterInput,
     FilterContainer,
+    Draggable,
   },
   props: {
     filters: {
@@ -42,13 +50,6 @@ export default {
     graphqlURL: {
       type: String,
       default: () => "graphql",
-    },
-  },
-  computed: {
-    visibleFilters() {
-      return this.filters.filter(
-        (column) => column.showFilter && column.columnType !== "HEADING"
-      );
     },
   },
   methods: {
@@ -77,71 +78,71 @@ export default {
 </template>
 <script>
   export default {
-    data: function () {
+    data: function() {
       return {
         filters: [
           {
-            name: "orderId",
+            name: 'orderId',
             pkey: true,
-            columnType: "STRING",
+            columnType: 'STRING',
             showFilter: true,
-            conditions: ["test123"]
+            conditions: ['test123'],
           },
           {
-            name: "pets",
-            columnType: "REF",
+            name: 'pets',
+            columnType: 'REF',
             showFilter: false,
             expanded: true,
             conditions: [],
-            refTable: "Pet",
+            refTable: 'Pet',
           },
           {
-            name: "quantity",
-            columnType: "INT",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "price",
-            columnType: "DECIMAL",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "complete",
-            columnType: "BOOL",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "status",
-            columnType: "STRING",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "birthday",
-            columnType: "DATE",
-            showFilter: true,
-            conditions: []
-          },
-          {
-            name: "tags",
-            columnType: "ONTOLOGY_ARRAY",
+            name: 'quantity',
+            columnType: 'INT',
             showFilter: true,
             conditions: [],
-            refTable: "Tag",
+          },
+          {
+            name: 'price',
+            columnType: 'DECIMAL',
+            showFilter: true,
+            conditions: [],
+          },
+          {
+            name: 'complete',
+            columnType: 'BOOL',
+            showFilter: true,
+            conditions: [],
+          },
+          {
+            name: 'status',
+            columnType: 'STRING',
+            showFilter: true,
+            conditions: [],
+          },
+          {
+            name: 'birthday',
+            columnType: 'DATE',
+            showFilter: true,
+            conditions: [],
+          },
+          {
+            name: 'tags',
+            columnType: 'ONTOLOGY_ARRAY',
+            showFilter: true,
+            conditions: [],
+            refTable: 'Tag',
           },
         ],
       };
     },
     methods: {
       showAlert() {
-        alert("clicked");
+        alert('clicked');
       },
       onUpdate(update) {
-        this.filters = update
-      }
+        this.filters = update;
+      },
     },
   };
 </script>
