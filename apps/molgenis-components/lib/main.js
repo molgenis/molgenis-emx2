@@ -54,6 +54,7 @@ import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
 import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
+import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
@@ -178,6 +179,7 @@ export {
   InputRangeDate,
   InputRangeDateTime,
   InputRangeInt,
+  InputRangeLong,
   InputRef,
   InputRefBack,
   InputRefList,

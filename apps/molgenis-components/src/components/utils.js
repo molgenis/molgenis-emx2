@@ -1,6 +1,6 @@
 import constants from "./constants";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } = constants;
 
 export function isNumericKey(event) {
   const keyCode = event.which ? event.which : event.keyCode;
@@ -75,4 +75,21 @@ export function flipSign(value) {
         return "-" + value;
       }
   }
+}
+
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+
+export function getBigIntError(value) {
+  if (value === "-" || isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
+  } else {
+    return undefined;
+  }
+}
+
+export function isInvalidBigInt(value) {
+  return (
+      value !== null &&
+      (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
+  );
 }
