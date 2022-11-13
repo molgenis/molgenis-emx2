@@ -332,7 +332,7 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected === "complete")
+        .filter((term) => term.selected === "complete" && !term.children)
         .map((term) => {
           return { name: term.name };
         });
@@ -353,7 +353,10 @@ export default {
         value.forEach((v) => {
           let term = this.terms[v.name];
           if (term) {
-            term.selected = "complete";
+            //select if doesn't have children
+            if(this.getAllChildren(term).length == 0) {
+              term.selected = "complete";
+            }
             if (this.isMultiSelect) {
               //if list also select its children
               this.getAllChildren(term).forEach(
@@ -430,10 +433,12 @@ export default {
       }
       this.key++;
     },
-    value() {
-      if (this.terms.size > 0) {
-        this.applySelection(this.modelValue);
-      }
+    modelValue: {
+        deep: true,
+        handler() {
+          this.applySelection(this.modelValue);
+          this.key++;
+       }
     },
     data() {
       if (this.data) {

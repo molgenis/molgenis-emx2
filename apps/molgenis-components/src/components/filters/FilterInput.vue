@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div v-for="index in fieldCount" :key="index">
+    <div v-if="isMultiConditionFilter">
+      <component
+          :is="filterType"
+          :id="id"
+          :condition="conditions"
+          @updateCondition="updateCondition(index - 1, $event)"
+          :tableName="tableName"
+          :graphqlURL="graphqlURL"
+      ></component>
+   </div>
+    <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
         :id="id + index"
