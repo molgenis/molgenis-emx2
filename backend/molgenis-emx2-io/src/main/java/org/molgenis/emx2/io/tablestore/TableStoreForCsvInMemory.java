@@ -27,6 +27,15 @@ public class TableStoreForCsvInMemory implements TableStore {
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
+      // make sure first row has all columnNames
+      for (Row row : rows) {
+        for (String columnName : columnNames) {
+          if (!row.getColumnNames().contains(columnName)) {
+            row.set(columnName, null);
+          }
+        }
+        break;
+      }
       if (rows.iterator().hasNext()) {
         CsvTableWriter.write(rows, bufferedWriter, separator);
       } else {

@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.emx2;
 
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -12,6 +13,8 @@ public class Emx2 {
 
   public static final String TABLE_NAME = "tableName";
   public static final String COLUMN_NAME = "columnName";
+  public static final String OLD_NAME = "oldName";
+  public static final String DROP = "drop";
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
@@ -61,6 +64,12 @@ public class Emx2 {
               .getTableMetadata(tableName)
               .setTableType(TableType.valueOf(r.getString(TABLE_TYPE)));
         }
+        if (r.getString(OLD_NAME) != null) {
+          schema.getTableMetadata(tableName).setOldName(r.getString(OLD_NAME));
+        }
+        if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) {
+          schema.getTableMetadata(tableName).drop();
+        }
       }
 
       // load column metadata
@@ -88,6 +97,8 @@ public class Emx2 {
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
+          if (r.notNull(OLD_NAME)) column.setOldName(r.getString(OLD_NAME));
+          if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) column.drop();
           else
             column.setPosition(
                 columnPosition++); // this ensures positions accross table hiearchy matches those in

@@ -212,6 +212,30 @@ The changelog can be enabled after schema creation via adding a setting with key
 value to ```true```.
 Disabling the changelog is done the setting the value to ```false``` or removing the setting
 
+## Simple migrations
+
+An advanced use case is if you want to use the molgenis.csv upload for simple migrations such as to rename or drop tables and/or columns in batch.
+This functionality is also available in GraphQL (and is used by the schema editor app)
+
+To use migrations you can annotate your molgenis.csv with
+* oldName - will be used to rename columns or tables
+* drop - will mark tables or columns to be deleted.
+
+For example
+
+|tableName |columnName |oldName  | drop  |
+|----------|-----------|---------|-------|
+|newTable  |           |oldTable |       |
+|newName   |columnB    |columnA  |       |
+|newName   |columnC    |         | true  |
+|tableC    |           |         | true  |
+
+Will respectively
+* rename oldName to newName
+* rename columnA to columnB (even if it was in table oldTable)
+* drop columnC
+  * drop TableC
+
 ## FAQ
 
 Q: Do you support automatic values, such as auto-increment identifiers or dates?
