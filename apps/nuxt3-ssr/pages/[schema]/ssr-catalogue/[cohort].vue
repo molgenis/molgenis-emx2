@@ -18,7 +18,7 @@ const query = `query Cohorts ($pid: String){
 const variables = { pid: route.params.cohort };
 
 const { data, pending, error, refresh } = await useFetch(
-    "/catalogue/catalogue/graphql",
+    `/${route.params.schema}/catalogue/graphql`,
     {
         baseURL: config.public.apiBase,
         method: "POST",
@@ -33,7 +33,7 @@ const { data, pending, error, refresh } = await useFetch(
             <PageHeader :title="data?.data?.Cohorts[0]?.name"
                 :description="data?.data?.Cohorts[0]?.institution?.acronym">
                 <template #prefix>
-                    <BreadCrumbs :crumbs="{ Home: '/catalogue/ssr-catalogue', Cohorts: '/catalogue/ssr-catalogue' } "/>
+                    <BreadCrumbs :crumbs="{ Home: `/${route.params.schema}/ssr-catalogue`, Cohorts: `/${route.params.schema}/ssr-catalogue` } "/>
                 </template>
                 <template #title-suffix>
                     <IconButton icon="star" label="Favorite" />

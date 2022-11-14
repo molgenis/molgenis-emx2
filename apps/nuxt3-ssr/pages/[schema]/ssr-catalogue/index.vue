@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+const route = useRoute()
 const config = useRuntimeConfig()
 const catalogueQuery = `
   {
@@ -26,7 +26,7 @@ const catalogueQuery = `
 `;
 
 const { data, pending, error, refresh } = await useFetch(
-    "/catalogue/catalogue/graphql",
+    `/${route.params.schema}/catalogue/graphql`,
     {
         baseURL: config.public.apiBase,
         method: "POST",
