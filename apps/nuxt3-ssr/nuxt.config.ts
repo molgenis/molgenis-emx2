@@ -5,7 +5,8 @@ const devProxy = {
   options: {
     target: process.env.PROXY_TARGET || 'https://umcgresearchdatacatalogue.nl/', // 'http://localhost:8080/',
     pathFilter: [
-      '**/*/graphql'
+      '**/*/graphql',
+      '**/api/file/**'
     ],
     changeOrigin: true, secure: false, logLevel: "debug"
   }
