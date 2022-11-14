@@ -3,7 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 const devProxy = {
   options: {
-    target: process.env.PROXY_TARGET || 'http://localhost:8080/',
+    target: process.env.PROXY_TARGET || 'https://umcgresearchdatacatalogue.nl/', // 'http://localhost:8080/',
     pathFilter: [
       '**/*/graphql'
     ],

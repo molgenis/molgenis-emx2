@@ -6,6 +6,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  schema: {
+    type: String,
+    required: true
+  },
   compact: {
     type: Boolean,
   },
@@ -35,7 +39,7 @@ const iconStarClasses = computed(() => {
 <template>
   <article :class="articleClasses">
     <header :class="headerClasses" class="flex">
-      <NuxtLink :to="`/catalogue/ssr-catalogue/${cohort.pid}`">
+      <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`">
         <h2 class="text-body-base font-extrabold text-blue-500 min-w-[160px] mr-4 md:inline-block block">
           {{ cohort.name }}
         </h2>
@@ -45,7 +49,7 @@ const iconStarClasses = computed(() => {
 
       <div class="flex">
         <!-- <IconButton icon="star" :class="iconStarClasses" class="text-blue-500" /> -->
-        <NuxtLink :to="`/catalogue/ssr-catalogue/${cohort.pid}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`">
           <IconButton icon="arrow-right" class="text-blue-500 hidden xl:block" />
         </NuxtLink>
       </div>
