@@ -25,13 +25,13 @@ import SectionArrayValue from "./SectionArrayValue.vue";
 import RefBackFieldValue from "./RefBackFieldValue.vue";
 import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
-import RefFieldValue from "./RefFieldValue";
-import TextFieldValue from "./TextFieldValue";
+import RefFieldValue from "./RefFieldValue.vue";
+import TextFieldValue from "./TextFieldValue.vue";
 import {
   StringDisplay,
   FileDisplay,
   ObjectDisplay,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 
 export default {
   name: "SectionField",

@@ -1,8 +1,8 @@
 <template>
   <InputBoolean
     :id="id"
-    :value="condition"
-    @input="onUpdateCondition"
+    :modelValue="condition"
+    @update:modelValue="onUpdateCondition"
     @clearCondition="$emit('clearCondition')"
   />
 </template>
@@ -18,26 +18,20 @@ export default {
       type: String,
       required: true,
     },
-    name: {
-      type: String,
-      required: false,
-      default: function () {
-        return this.id;
-      },
-    },
     condition: {
       type: Boolean,
       required: false,
     },
   },
   methods: {
-    onUpdateCondition(newValue) {
-      if (newValue === null) {
-        this.$emit("clearCondition", newValue);
+    onUpdateCondition($event) {
+      if ($event === null) {
+        this.$emit("clearCondition", $event);
       } else {
-        this.$emit("updateCondition", newValue);
+        this.$emit("updateCondition", $event);
       }
     },
   },
+  emits: ["updateCondition", "clearCondition", "addCondition"],
 };
 </script>

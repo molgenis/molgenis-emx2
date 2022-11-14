@@ -1,5 +1,7 @@
 const state = {
   isLoading: false,
+  graphqlURL: 'graphql',
+  session: null,
   schema: null,
   variables: [],
   variableDetails: {},

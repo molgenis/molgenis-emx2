@@ -54,25 +54,37 @@ export default {
       type: Array,
       required: true,
     },
+    isClearable: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   data() {
     return {
-      radioValue: this.value,
+      radioValue: this.modelValue,
       isMouseOver: false,
     };
   },
   watch: {
     radioValue() {
-      this.$emit("input", this.radioValue);
+      this.$emit("update:modelValue", this.radioValue);
     },
+    value(newValue) {
+      this.radioValue = newValue
+    }
   },
   computed: {
     isClearShown() {
-      return (
-        this.isMouseOver &&
-        this.radioValue !== null &&
-        this.radioValue != undefined
-      );
+      if (this.isClearable !== undefined && this.isClearable === false) {
+        return false;
+      } else {
+        return (
+          this.isMouseOver &&
+          this.radioValue !== null &&
+          this.radioValue !== undefined
+        );
+      }
     },
   },
 };

@@ -151,10 +151,19 @@ export default {
       }
 
       this.loading = false;
-      this.$emit("input", this.session);
+      this.$emit("update:modelValue", this.session);
     },
     handleError(reason) {
       this.error = "internal server error " + reason;
+      if (
+        reason?.response?.data?.errors &&
+        reason.response.data.errors[0] &&
+        reason.response.data.errors[0].message
+      ) {
+        this.$emit("error", reason.response.data.errors[0].message);
+      } else {
+        this.$emit("error", this.error);
+      }
     },
     parseJson(value) {
       try {
@@ -167,7 +176,7 @@ export default {
     changed() {
       this.reload();
       this.showSigninForm = false;
-      this.$emit("input", this.session);
+      this.$emit("update:modelValue", this.session);
     },
     closeSigninForm() {
       this.showSigninForm = false;
@@ -189,10 +198,11 @@ export default {
         this.error = "sign out failed";
       }
       this.loading = false;
-      this.$emit("input", this.session);
+      this.$emit("update:modelValue", this.session);
       this.reload();
     },
   },
+  emits: ["update:modelValue", "error"],
 };
 </script>
 

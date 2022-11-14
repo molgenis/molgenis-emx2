@@ -7,13 +7,13 @@
       :options="options"
       v-model="value"
       :list="true"
-      @input="emitValue()"
+      @update:modelValue="emitValue()"
     />
   </div>
 </template>
 
 <script>
-import { InputCheckbox } from "@mswertz/emx2-styleguide";
+import { InputCheckbox } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     emitValue() {
-      this.$emit("input", this.value);
+      this.$emit("update:modelValue", this.value);
     },
   },
   created() {

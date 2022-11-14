@@ -81,5 +81,18 @@ public class TestOntologyTableIsGenerated {
 
     assertNotNull(
         db.getSchema(TestOntologyTableIsGenerated.class.getSimpleName()).getTable("CodeTable3"));
+
+    // test simple ontology table creation
+    String schema3 = TestOntologyTableIsGenerated.class.getSimpleName() + "3";
+    s = db.dropCreateSchema(schema3);
+
+    s.create(table("test_ontology").setTableType(TableType.ONTOLOGIES));
+    assertNotNull(db.getSchema(schema3).getTable("test_ontology"));
+    assertTrue(
+        db.getSchema(schema3)
+            .getTable("test_ontology")
+            .getMetadata()
+            .getColumnNames()
+            .contains("name"));
   }
 }

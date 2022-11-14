@@ -51,9 +51,9 @@
 
 <script>
 import { fetchDetails } from "../store/repository/variableRepository";
-import SingleVarDetailsView from "./SingleVarDetailsView";
-import SingleVarHarmonizationView from "./SingleVarHarmonizationView";
-import FromVariableDetails from "./FromVariableDetails";
+import SingleVarDetailsView from "./SingleVarDetailsView.vue";
+import SingleVarHarmonizationView from "./SingleVarHarmonizationView.vue";
+import FromVariableDetails from "./FromVariableDetails.vue";
 
 export default {
   name: "VariableDetailView",

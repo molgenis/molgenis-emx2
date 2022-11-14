@@ -160,13 +160,8 @@ public class SchemaMetadata {
     return this;
   }
 
-  public String getSetting(String key) {
-    for (Setting s : getSettings()) {
-      if (s.key().equals(key)) {
-        return s.value();
-      }
-    }
-    return null;
+  public Optional<String> findSettingValue(String key) {
+    return getSettings().stream().filter(s -> s.key().equals(key)).findFirst().map(Setting::value);
   }
 
   public List<TableMetadata> getTablesIncludingExternal() {

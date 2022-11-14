@@ -1,17 +1,17 @@
-import Vue from "vue";
-import App from "./App";
-import VueRouter from "vue-router";
-import SchemaSimple from "./components/SchemaSimple";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import App from "./App.vue";
+import Schema from "./components/Schema.vue";
+import VueScrollTo from "vue-scrollto";
 
-Vue.config.productionTip = false;
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-const router = new VueRouter({
-  routes: [{ name: "simple", path: "/", component: SchemaSimple }],
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [{ path: "/", component: Schema }],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.directive("scroll-to", VueScrollTo);
+app.mount("#app");

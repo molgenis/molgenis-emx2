@@ -3,7 +3,7 @@
     :id="id"
     type="number"
     step="1"
-    :value="value"
+    :value="modelValue"
     class="form-control"
     :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"
@@ -17,20 +17,27 @@
 
 <script>
 import BaseInput from "./BaseInput.vue";
-import { isNumericKey } from "../../utils";
+import { isNumericKey, flipSign } from "../../utils";
+import constants from "../../constants";
+
+const { CODE_MINUS } = constants;
 
 export default {
   extends: BaseInput,
   methods: {
     emitIfValid(event) {
       const value = parseFloat(event.target.value);
-      if (event.target.value === "") {
-        this.$emit("input", null);
+      if (event.target?.value === null) {
+        this.$emit("update:modelValue", null);
       } else if (!isNaN(value)) {
-        this.$emit("input", value);
+        this.$emit("update:modelValue", event.target.value );
       }
     },
     handleKeyValidity(event) {
+      const keyCode = event.which ? event.which : event.keyCode;
+      if (keyCode === CODE_MINUS) {
+        this.$emit("update:modelValue", flipSign(parseFloat(event.target.value)));
+      }
       if (!isNumericKey(event)) {
         event.preventDefault();
       }

@@ -13,11 +13,12 @@
           <div class="modal-header">
             <h5 class="modal-title">{{ title }}</h5>
             <button
+              v-if="isCloseButtonShown"
               type="button"
               class="close"
               data-dismiss="modal"
               aria-label="Close"
-              @click="close"
+              @click.prevent="close"
             >
               <span aria-hidden="true">&times;</span>
             </button>
@@ -62,6 +63,7 @@ export default {
     },
     /** Shown as the title of the model */
     title: { type: String, default: "" },
+    isCloseButtonShown: { type: Boolean, default: true },
   },
   methods: {
     close() {
@@ -75,15 +77,16 @@ export default {
     },
   },
   beforeMount() {
-    if(document && document.addEventListener) {
+    if (document && document.addEventListener) {
       document.addEventListener("keydown", this.escapeKeyHandler);
     }
   },
   beforeDestroy() {
-    if(document && document.removeEventListener) {
+    if (document && document.removeEventListener) {
       document.removeEventListener("keydown", this.escapeKeyHandler);
     }
   },
+  emits: ["close"],
 };
 </script>
 

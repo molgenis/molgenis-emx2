@@ -1,5 +1,0 @@
-query Schema {
-  _schema {
-    name
-  }
-}

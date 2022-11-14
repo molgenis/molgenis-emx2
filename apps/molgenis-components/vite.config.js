@@ -1,18 +1,14 @@
 import { defineConfig } from "vite";
-import { createVuePlugin } from "vite-plugin-vue2";
 import path from "path";
 import docTagPlugin from "./docs-plugin.js";
+import vue from '@vitejs/plugin-vue'
 
 const BACKEND_LOCATION = process.env.PROXY_API || "http://localhost:8080/";
 
 // basic build conf fo both library and showCase builds
 let conf = {
-  plugins: [docTagPlugin(), createVuePlugin()],
-  resolve: {
-    alias: {
-      vue: require.resolve("vue/dist/vue.js"),
-    },
-  },
+  plugins: [docTagPlugin(),vue()],
+  base:"",
   server: {
     proxy: {
       "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
@@ -36,6 +32,11 @@ let conf = {
         secure: false,
       },
       "^/apps/resources/webfonts/.*": {
+        target: `${BACKEND_LOCATION}`,
+        changeOrigin: true,
+        secure: false,
+      },
+      "/js/expressions/0.21.2/expressions.js": {
         target: `${BACKEND_LOCATION}`,
         changeOrigin: true,
         secure: false,

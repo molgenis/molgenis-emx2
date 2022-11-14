@@ -1,14 +1,13 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import App from "./App.vue";
+import HelloWorld from "./components/HelloWorld.vue";
+import SomeQuery from "./components/SomeQuery.vue";
 
-import App from "./App";
-import HelloWorld from "./components/HelloWorld";
-import SomeQuery from "./components/SomeQuery";
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-/** use vue router only to react to change url attributes */
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",
@@ -23,7 +22,6 @@ const router = new VueRouter({
   ],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app");

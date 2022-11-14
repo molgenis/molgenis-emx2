@@ -12,12 +12,12 @@ cd apps
 yarn install
 ```
 
-There is one shared library called 'styleguide' that contains all shared components (using bootstrap for styling). Note
+There is one shared library called 'molgenis-components' that contains all shared components (using bootstrap for styling). Note
 it is also an 'app' so it can be shown inside MOLGENIS. To view this run:
 
 ```console
 cd apps
-yarn styleguide
+yarn molgenis-components
 ```
 
 All other folders contain apps created using vue-cli. In order to develop you need to start a molgenis-exm2 backend as

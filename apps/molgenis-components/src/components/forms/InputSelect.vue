@@ -12,17 +12,17 @@
     <select
       v-else-if="!readonly"
       :id="id"
-      :value="value"
+      :modelValue="modelValue"
       :readonly="readonly"
       class="form-control"
-      @change="$emit('input', $event.target.value)"
+      @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="!required" :selected="value === undefined" />
+      <option v-if="!required" :selected="modelValue === undefined" />
       <option
         v-for="(option, index) in options"
         :key="index"
         :value="option"
-        :selected="value == option"
+        :selected="modelValue == option"
       >
         {{ option }}
       </option>
@@ -33,7 +33,7 @@
       class="form-control"
       type="text"
       readonly
-      :value="value"
+      :value="modelValue"
     />
   </FormGroup>
 </template>

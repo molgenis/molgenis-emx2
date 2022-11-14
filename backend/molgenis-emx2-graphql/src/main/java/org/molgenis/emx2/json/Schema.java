@@ -39,6 +39,9 @@ public class Schema {
       tm.setInherit(t.getInherit());
       tm.setSettings(t.getSettings());
       tm.setOldName(t.getOldName());
+      if (t.getTableType() != null) {
+        tm.setTableType(t.getTableType());
+      }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
       tm.setDescription(t.getDescription());

@@ -118,6 +118,7 @@ export default {
       this.$emit("close");
     },
   },
+  emits: ["close"],
 };
 </script>
 

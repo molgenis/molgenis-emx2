@@ -12,12 +12,14 @@
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="refLabel ? applyJsTemplate(value) : flattenObject(value)"
+        :value="
+          refLabel ? applyJsTemplate(modelValue) : flattenObject(modelValue)
+        "
       />
       <template v-slot:append>
         <button
-          v-if="value"
-          @click="$emit('input', null)"
+          v-if="modelValue"
+          @click="$emit('update:modelValue', null)"
           class="btn btn-outline-primary"
           type="button"
         >
@@ -31,6 +33,7 @@
             :lookupTableName="tableName"
             :filter="filter"
             :graphqlURL="graphqlURL"
+            :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
@@ -51,6 +54,7 @@
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
+import InputGroup from "./InputGroup.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
@@ -72,6 +76,7 @@ export default {
     FormGroup,
     ButtonAction,
     ButtonAlt,
+    InputGroup,
   },
   props: {
     tableName: String,
@@ -81,6 +86,14 @@ export default {
     },
     filter: Object,
     refLabel: String,
+    /**
+     * if table that this input is selecting from can be edited by the current user
+     *  */
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
   },
   computed: {
     title() {
@@ -95,7 +108,7 @@ export default {
     },
     select(event) {
       this.showSelect = false;
-      this.$emit("input", event);
+      this.$emit("update:modelValue", event);
     },
     applyJsTemplate(object) {
       if (object === undefined || object === null) {

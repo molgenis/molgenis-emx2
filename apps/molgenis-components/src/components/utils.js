@@ -46,9 +46,11 @@ export function getPrimaryKey(row, tableMetaData) {
 
 export function deepClone(original) {
   // node js may not have structuredClone function, then fallback to deep clone via JSON
-  return typeof structuredClone === "function"
-    ? structuredClone(original)
-    : JSON.parse(JSON.stringify(original));
+  // return typeof structuredClone === "function"
+  //   ? structuredClone(original)
+  //   :
+  //structuredClone doesn't work in vue 3
+  return JSON.parse(JSON.stringify(original));
 }
 
 export function filterObject(object, filter) {
@@ -58,4 +60,19 @@ export function filterObject(object, filter) {
     }
     return accum;
   }, {});
+}
+
+export function flipSign(value) {
+  switch (value) {
+    case "-":
+      return null;
+    case null:
+      return "-";
+    default:
+      if (value.toString().charAt(0) === "-") {
+        return value.toString().substring(1);
+      } else {
+        return "-" + value;
+      }
+  }
 }

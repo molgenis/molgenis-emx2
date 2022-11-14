@@ -33,12 +33,12 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: deepClone(this.modelValue),
       errorPerColumn: {},
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -64,7 +64,7 @@ export default {
       type: Boolean,
       required: false,
     },
-    // visibleColumns:  visible columns, useful if you only want to allow partial edit (array of strings)
+    // visibleColumns:  visible columns, useful if you only want to allow partial edit (column of object)
     visibleColumns: {
       type: Array,
       required: false,
@@ -85,14 +85,17 @@ export default {
       default: () => true,
     },
   },
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
   computed: {
     columnsWithoutMeta() {
-      return this.tableMetaData.columns.filter(
-        (column) => !column.name.startsWith("mg_")
-      );
+      return this?.tableMetaData?.columns
+        ? this.tableMetaData.columns.filter(
+            (column) => !column.name.startsWith("mg_")
+          )
+        : [];
     },
     graphqlFilter() {
       if (this.tableMetaData && this.pkey) {
@@ -110,20 +113,21 @@ export default {
   methods: {
     getPrimaryKey,
     showColumn(column) {
-      const hasRefValue =
-        !column.refLink || this.internalValues[column.refLink];
-      const isColumnVisible =
-        !this.visibleColumns || this.visibleColumns.includes(column.name);
+      const isColumnVisible = Array.isArray(this.visibleColumns)
+        ? this.visibleColumns.map((column) => column.name).includes(column.name)
+        : true;
+
       return (
-        isColumnVisible &&
-        this.visible(column.visible, column.id) &&
-        column.name != "mg_tableclass" &&
-        hasRefValue
+        (isColumnVisible &&
+          this.visible(column.visible, column.id) &&
+          column.name !== "mg_tableclass" &&
+          !column.refLink) ||
+        this.internalValues[column.refLink]
       );
     },
     visible(expression, columnId) {
       // eslint-disable-next-line no-undef
-      if (typeof Expressions !== 'undefined' && expression) {
+      if (typeof Expressions !== "undefined" && expression) {
         try {
           // eslint-disable-next-line no-undef
           return Expressions.evaluate(expression, this.internalValues);
@@ -138,12 +142,24 @@ export default {
       return true;
     },
     validateTable() {
-      this.tableMetaData?.columns.forEach((column) => {
-        this.errorPerColumn[column.id] = this.getColumnError(
-          column,
-          this.internalValues
-        );
-      });
+      if (this.tableMetaData?.columns) {
+        this.tableMetaData.columns
+          .filter((column) => {
+            if (this.visibleColumns) {
+              return this.visibleColumns.find(
+                (visibleColumn) => column.name === visibleColumn.name
+              );
+            } else {
+              return true;
+            }
+          })
+          .forEach((column) => {
+            this.errorPerColumn[column.id] = this.getColumnError(
+              column,
+              this.internalValues
+            );
+          });
+      }
     },
     getColumnError(column, values) {
       const value = values[column.id];
@@ -198,7 +214,7 @@ export default {
     },
     evaluateValidationExpression(column, values) {
       // eslint-disable-next-line no-undef
-      if (typeof Expressions !== 'undefined') {
+      if (typeof Expressions !== "undefined") {
         try {
           // eslint-disable-next-line no-undef
           if (!Expressions.evaluate(column.validation, values)) {
@@ -233,7 +249,7 @@ export default {
         return (
           value &&
           refValue &&
-          JSON.stringify(value) !== JSON.stringify(refValue)
+          !JSON.stringify(value).includes(JSON.stringify(refValue))
         );
       }
     },
@@ -242,7 +258,7 @@ export default {
     internalValues: {
       handler(newValue) {
         this.validateTable();
-        this.$emit("input", newValue);
+        this.$emit("update:modelValue", newValue);
       },
       deep: true,
     },
@@ -270,12 +286,12 @@ export default {
       <div class="col-6">
         <label class="border-bottom">In create mode</label>
         <RowEdit
-          v-if="showRowEdit"
-          id="row-edit"
-          v-model="rowData"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+            v-if="showRowEdit"
+            id="row-edit"
+            v-model="rowData"
+            :tableName="tableName"
+            :tableMetaData="tableMetaData"
+            :graphqlURL="graphqlURL"
         />
       </div>
       <div class="col-6 border-left">
@@ -302,41 +318,41 @@ export default {
   </DemoItem>
 </template>
 <script>
-export default {
-  data: function () {
-    return {
-      showRowEdit: true,
-      tableName: "Pet",
-      tableMetaData: {
-        columns: [],
-      },
-      rowData: {},
-      graphqlURL: "/pet store/graphql",
-    };
-  },
-  watch: {
-    async tableName(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.rowData = {};
-        await this.reload();
-      }
+  export default {
+    data: function() {
+      return {
+        showRowEdit: true,
+        tableName: 'Pet',
+        tableMetaData: {
+          columns: [],
+        },
+        rowData: {},
+        graphqlURL: '/pet store/graphql',
+      };
     },
-  },
-  methods: {
-    async reload () {
-      // force complete component reload to have a clean demo component and hit all lifecycle events
-      this.showRowEdit = false
-      const client = this.$Client.newClient(this.graphqlURL);
-      this.tableMetaData = (await client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableName
-      );
-      // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
-      this.showRowEdit = true
-    }
-  },
-  async mounted() {
-    this.reload()
-  },
-};
+    watch: {
+      async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+    },
+    methods: {
+      async reload() {
+        // force complete component reload to have a clean demo component and hit all lifecycle events
+        this.showRowEdit = false;
+        const client = this.$Client.newClient(this.graphqlURL);
+        this.tableMetaData = (await client.fetchMetaData()).tables.find(
+            (table) => table.id === this.tableName,
+        );
+        // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+        this.showRowEdit = true;
+      },
+    },
+    async mounted() {
+      this.reload();
+    },
+  };
 </script>
 </docs>

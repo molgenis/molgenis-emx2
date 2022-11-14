@@ -1,19 +1,17 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
-import Members from "./components/Members";
-import Theme from "./components/Theme";
-import MenuManager from "./components/MenuManager";
-import PageManager from "./components/PageManager";
-import LogViewer from "./components/LogViewer"; 
-import SettingsManager from "./components/SettingsManager"
+import Members from "./components/Members.vue";
+import Theme from "./components/Theme.vue";
+import MenuManager from "./components/MenuManager.vue";
+import PageManager from "./components/PageManager.vue";
+import ChangelogViewer from "./components/ChangelogViewer.vue";
+import SettingsManager from "./components/SettingsManager.vue";
 
-Vue.config.productionTip = false;
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-/** use vue router only to react to change url attributes */
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       name: "Theme",
@@ -36,9 +34,9 @@ const router = new VueRouter({
       component: PageManager,
     },
     {
-      name: "Change log",
-      path: "/log",
-      component: LogViewer,
+      name: "Changelog",
+      path: "/changelog",
+      component: ChangelogViewer,
     },
     {
       name: "Advanced settings",
@@ -52,7 +50,6 @@ const router = new VueRouter({
   ],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app");

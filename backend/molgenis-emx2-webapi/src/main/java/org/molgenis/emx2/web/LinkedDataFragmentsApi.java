@@ -27,6 +27,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String jsonldTable(Request request, Response response) {
+    response.type("application/ld+json");
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForTable(table, new PrintWriter(sw));
@@ -34,6 +35,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String jsonld(Request request, Response response) {
+    response.type("application/ld+json");
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getJsonLdForSchema(schema, new PrintWriter(sw));
@@ -41,6 +43,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String ttl(Request request, Response response) {
+    response.type("text/turtle");
     Schema schema = getSchema(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getTtlForSchema(schema, new PrintWriter(sw));
@@ -48,6 +51,7 @@ public class LinkedDataFragmentsApi {
   }
 
   private static String ttlTable(Request request, Response response) {
+    response.type("text/turtle");
     Table table = getTable(request);
     StringWriter sw = new StringWriter();
     LinkedDataService.getTtlForTable(table, new PrintWriter(sw));

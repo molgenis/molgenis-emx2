@@ -1,17 +1,16 @@
 <template>
   <div>
-    <div v-for="idx in columns.keys()">
+    <div v-for="idx in columns.keys()" :key="idx">
       <TreeListFilter v-model="columns[idx]" />
     </div>
   </div>
 </template>
 
 <script>
-import { IconAction } from "@mswertz/emx2-styleguide";
-import TreeListFilter from "./TreeListFilter";
+import TreeListFilter from "./TreeListFilter.vue";
 
 export default {
-  components: { IconAction, TreeListFilter },
+  components: { TreeListFilter },
   props: {
     columns: Array,
   },

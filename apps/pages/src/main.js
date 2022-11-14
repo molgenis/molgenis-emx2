@@ -1,35 +1,33 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import App from "./App.vue";
+import ListPages from "./components/ListPages.vue";
+import ViewPage from "./components/ViewPage.vue";
+import EditPage from "./components/EditPage.vue";
 
-import App from "./App";
-import ListPages from "./components/ListPages";
-import ViewPage from "./components/ViewPage";
-import EditPage from "./components/EditPage";
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-/** use vue router only to react to change url attributes */
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",
       component: ListPages,
-      props: true
+      props: true,
     },
     {
       path: "/:page",
       component: ViewPage,
-      props: true
+      props: true,
     },
     {
       path: "/:page/edit",
       component: EditPage,
-      props: true
-    }
-  ]
+      props: true,
+    },
+  ],
 });
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app");

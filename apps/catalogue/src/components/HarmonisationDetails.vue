@@ -132,14 +132,13 @@ dd {
 <script>
 import {
   ButtonAction,
-  ButtonAlt,
   LayoutModal,
   MessageError,
-} from "@mswertz/emx2-styleguide";
+} from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
-  components: { LayoutModal, ButtonAlt, MessageError, ButtonAction },
+  components: { LayoutModal, MessageError, ButtonAction },
   props: {
     sourceCollection: String,
     sourceTable: String,

@@ -17,11 +17,8 @@ export default {
     name: {
       type: String,
       required: false,
-      default: function () {
-        return this.id;
-      },
     },
-    value: {
+    modelValue: {
       type: [String, Number, Object, Array, Boolean],
       default: null,
     },
@@ -67,5 +64,6 @@ export default {
         : this.label;
     },
   },
+  emits: ["update:modelValue"],
 };
 </script>

@@ -17,14 +17,17 @@
                 theme: 'Theme',
                 menu: 'Menu',
                 pages: 'Pages',
-                log: 'Change log',
-                settings: 'Advanced settings'
+                changelog: 'Changelog',
+                settings: 'Advanced settings',
               }"
               :key="key"
             >
               <router-link
                 class="nav-link"
-                :class="{ active: selected == label, 'text-danger': key === 'settings' }"
+                :class="{
+                  active: selected == label,
+                  'text-danger': key === 'settings',
+                }"
                 :to="key"
                 >{{ label }}
               </router-link>

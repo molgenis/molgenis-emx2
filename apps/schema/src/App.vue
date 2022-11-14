@@ -1,13 +1,11 @@
 <template>
-  <div id="app">
-    <Molgenis id="__top" v-model="session">
-      <RouterView :session="session" :key="JSON.stringify(session)" />
-    </Molgenis>
-  </div>
+  <Molgenis id="__top" v-model="session">
+    <router-view :session="session" />
+  </Molgenis>
 </template>
 
 <script>
-import { Molgenis } from "@mswertz/emx2-styleguide";
+import { Molgenis } from "molgenis-components";
 
 export default {
   components: {
@@ -15,7 +13,7 @@ export default {
   },
   data() {
     return {
-      session: {},
+      session: null,
     };
   },
 };

@@ -1,6 +1,6 @@
 <template>
-  <FormGroup v-bind="$props" v-on="$listeners">
-    <Spinner v-if="!this.tableMetadata || !this.data" />
+  <FormGroup v-bind="$props">
+    <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="refTablePrimaryKeyObject"
       :data="data"
@@ -19,11 +19,7 @@
         <RowButton
           v-if="canEdit"
           type="add"
-          :table="tableName"
-          :graphqlURL="graphqlURL"
-          :visible-columns="visibleColumnNames"
-          :default-value="defaultValue"
-          @close="reload"
+          @add="handleRowAction('add')"
           class="d-inline p-0"
         />
       </template>
@@ -40,8 +36,13 @@
           :table="tableName"
           :graphqlURL="graphqlURL"
           :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="getPrimaryKey(slotProps.row, tableMetadata)"
+          :refTablePrimaryKeyObject="
+            getPrimaryKey(slotProps.row, tableMetadata)
+          "
           @close="reload"
+          @edit="
+            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
+          "
         />
         <RowButton
           v-if="canEdit"
@@ -49,23 +50,52 @@
           :table="tableName"
           :graphqlURL="graphqlURL"
           :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
-          @close="reload"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
+          @clone="
+            handleRowAction(
+              'clone',
+              getPrimaryKey(slotProps.row, tableMetadata)
+            )
+          "
         />
         <RowButton
           v-if="canEdit"
           type="delete"
-          :table="tableName"
-          :graphqlURL="graphqlURL"
-          :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
-          @close="reload"
+          @delete="
+            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
+          "
         />
       </template>
     </TableMolgenis>
     <MessageWarning v-else>
       This can only be filled in after you have saved (or saved draft).
     </MessageWarning>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+
+    <EditModal
+      v-if="isEditModalShown"
+      :isModalShown="true"
+      :id="tableName + '-edit-modal'"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      :visibleColumns="visibleColumns"
+      :clone="editMode === 'clone'"
+      :graphqlURL="graphqlURL"
+      :defaultValue="defaultValue"
+      @close="handleModalClose"
+    />
+
+    <ConfirmModal
+      v-if="isDeleteModalShown"
+      :title="'Delete from ' + tableName"
+      actionLabel="Delete"
+      actionType="danger"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      @close="isDeleteModalShown = false"
+      @confirmed="handleExecuteDelete"
+    />
   </FormGroup>
 </template>
 
@@ -77,6 +107,7 @@ import TableMolgenis from "../tables/TableMolgenis.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageWarning from "./MessageWarning.vue";
 import Spinner from "../layout/Spinner.vue";
+import ConfirmModal from "./ConfirmModal.vue";
 import { getPrimaryKey } from "../utils";
 
 export default {
@@ -88,19 +119,20 @@ export default {
     RowButton,
     Spinner,
     MessageWarning,
+    ConfirmModal,
   },
   props: {
     /** name of the table from which is referred back to this field */
     tableName: {
       type: String,
-      required: true
+      required: true,
     },
     /** name of the column in the other table */
     refBack: {
       type: String,
       required: true,
     },
-    /** 
+    /**
      * primary key of the current table that refback should point to
      * when empty ( in case of draft , add message is shown instead of the table)
      *  */
@@ -112,7 +144,7 @@ export default {
       type: String,
       default: "graphql",
     },
-    /** 
+    /**
      * if table (that has a column that is referred to by this table) can be edited
      *  */
     canEdit: {
@@ -125,8 +157,14 @@ export default {
     return {
       client: null,
       tableMetadata: null,
-      data: null
-    }
+      data: null,
+      isLoading: false,
+      isEditModalShown: false,
+      isDeleteModalShown: false,
+      editMode: "add", // add, edit, clone
+      editRowPrimaryKey: null,
+      graphqlError: null,
+    };
   },
   computed: {
     defaultValue() {
@@ -152,18 +190,53 @@ export default {
         );
       }
       return [];
-    }
+    },
   },
   methods: {
     getPrimaryKey,
-    async reload () {
-      this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
-    }
+    async reload() {
+      this.isLoading = true;
+      this.data = await this.client.fetchTableDataValues(this.tableName, {
+        filter: this.graphqlFilter,
+      });
+      this.isLoading = false;
+    },
+    handleRowAction(type, key) {
+      this.editMode = type;
+      this.editRowPrimaryKey = key;
+      this.isEditModalShown = true;
+    },
+    handleModalClose() {
+      this.isEditModalShown = false;
+      this.reload();
+    },
+    handleDeleteRowRequest(key) {
+      this.editRowPrimaryKey = key;
+      this.isDeleteModalShown = true;
+    },
+    async handleExecuteDelete() {
+      this.isDeleteModalShown = false;
+      const resp = await this.client
+        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .catch(this.handleError);
+      if (resp) {
+        this.reload();
+      }
+    },
+    handleError(error) {
+      if (Array.isArray(error?.response?.data?.errors)) {
+        this.graphqlError = error.response.data.errors[0].message;
+      } else {
+        this.graphqlError = error;
+      }
+      this.loading = false;
+    },
   },
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
+    this.isLoading = true;
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
-    this.data = await this.client.fetchTableDataValues(this.tableName, { filter: this.graphqlFilter });
+    await this.reload();
   },
 };
 </script>
@@ -171,53 +244,51 @@ export default {
 <docs>
 
 <template>
-<div>
-<p>
-note, this input doesn't have value on its own, it just allows you to edit the refback in context.
-This also means you cannot do this unless your current record has a refTablePrimaryKeyObject to point to
-</p>
+  <div>
+    <p>
+      note, this input doesn't have value on its own, it just allows you to edit the refback in context.
+      This also means you cannot do this unless your current record has a refTablePrimaryKeyObject to point to
+    </p>
 
-  <div class="my-3">
-  <label for="refback1">When row has not been saved ( has not key) </label>
+    <div class="my-3">
+      <label for="refback1">When row has not been saved ( has not key) </label>
+      <InputRefBack
+          id="refback1"
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject=null
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
 
-  <InputRefBack
-      id="refback1"
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject=null
-      graphqlURL="/pet store/graphql"
-  />
+
+    <div class="my-3">
+      <label for="refback2">When row has a key but can not be edited </label>
+
+      <InputRefBack
+          id="refback2"
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject="{name:'spike'}"
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
+
+    <div class="my-3">
+      <label for="refback3">When row has a key and can be edited </label>
+      <InputRefBack
+          id="refback3"
+          canEdit
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject="{name:'spike'}"
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
   </div>
-
-
-  <div class="my-3">
-  <label for="refback2">When row has a key but can not be edited </label>
-
-  <InputRefBack
-      id="refback2"
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject="{name:'spike'}"
-      graphqlURL="/pet store/graphql"
-  />
-  </div>
-
-   <div class="my-3">
-  <label for="refback3">When row has a key and can be edited </label>
-
-  <InputRefBack
-      id="refback3"
-      canEdit
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject="{name:'spike'}"
-      graphqlURL="/pet store/graphql"
-  />
-  </div>
-</div>
 
 </template>
 </docs>

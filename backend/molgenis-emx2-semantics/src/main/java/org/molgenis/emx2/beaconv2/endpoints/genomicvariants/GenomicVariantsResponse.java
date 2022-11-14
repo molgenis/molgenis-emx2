@@ -1,18 +1,20 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
 import static org.molgenis.emx2.FilterBean.*;
-import static org.molgenis.emx2.Operator.BETWEEN;
-import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.beaconv2.common.QueryHelper.selectColumns;
+import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
+import java.util.Map;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 /**
@@ -93,71 +95,114 @@ public class GenomicVariantsResponse {
     // each row becomes a GenomicVariantsResultSetsItem
     for (Table table : genomicVariantTables) {
 
+      GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+      ExecutionResult executionResult =
+          grapql.execute(
+              "{GenomicVariations"
+
+                  // todo optional parameter: variantType OR alternateBases OR aminoacidChange
+                  // todo optional parameter: variantMinLength
+                  // todo optional parameter: variantMaxLength
+                  + (genomicQueryType == GENEID
+                      ? "(filter:{geneId: {equals:\"" + qGeneId + "\"}})"
+                      : "")
+
+                  // todo optional parameter: datasetIds
+                  // todo optional parameter: filters
+                  // fixme 'like' is greedy but allows case insensitivity...
+                  + (genomicQueryType == SEQUENCE
+                      ? "(filter: { _and: [ { position__start: {equals:"
+                          + qStart[0]
+                          + "}}, {position__refseqId: {equals:\""
+                          + qReferenceName
+                          + "\"}}, {referenceBases: {like: \""
+                          + qReferenceBases
+                          + "\"}}, {alternateBases: {like: \""
+                          + qAlternateBases
+                          + "\"}}]}) "
+                      : "")
+
+                  // todo optional parameter: variantType OR alternateBases OR aminoacidChange
+                  // todo optional parameter: variantMinLength
+                  // todo optional parameter: variantMaxLength
+                  + (genomicQueryType == RANGE
+                      ? "(filter: { _or: [ { _and: [{ position__refseqId: { equals:\""
+                          + qReferenceName
+                          + "\"}}, { position__start: { between: ["
+                          + qStart[0]
+                          + ","
+                          + qEnd[0]
+                          + "]}}]}, { _and: [{ position__refseqId: { equals:\""
+                          + qReferenceName
+                          + "\"}} ,{ position__end: { between: ["
+                          + qStart[0]
+                          + ","
+                          + qEnd[0]
+                          + "]}}]}]})"
+                      : "")
+
+                  // todo optional parameter: variantType
+                  + (genomicQueryType == BRACKET
+                      ? "(filter: { _and: [{position__refseqId: { equals:\""
+                          + qReferenceName
+                          + "\"}},{position__start: { between: ["
+                          + qStart[0]
+                          + ","
+                          + qStart[1]
+                          + "]}},{position__end: { between: ["
+                          + qEnd[0]
+                          + ","
+                          + qEnd[1]
+                          + "]}}]})"
+                      : "")
+                  + "{"
+                  + "variantInternalId,"
+                  + "variantType,"
+                  + "referenceBases,"
+                  + "alternateBases,"
+                  + "position__assemblyId,"
+                  + "position__refseqId,"
+                  + "position__start,"
+                  + "position__end,"
+                  + "geneId,"
+                  + "clinicalInterpretations{"
+                  + "   category{name,codesystem,code},"
+                  + "   clinicalRelevance{name,codesystem,code},"
+                  + "   conditionId,"
+                  + "   effect{name,codesystem,code}"
+                  + "}}}");
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
-      Query query = table.query();
-      selectColumns(table, query);
 
-      switch (genomicQueryType) {
-        case SEQUENCE -> query.where(
-            and(
-                f("position_start", EQUALS, qStart[0]),
-                f("position_refseqId", EQUALS, qReferenceName),
-                or(
-                    f("referenceBases", EQUALS, qReferenceBases.toLowerCase()),
-                    f("referenceBases", EQUALS, qReferenceBases.toUpperCase())),
-                or(
-                    f("alternateBases", EQUALS, qAlternateBases.toLowerCase()),
-                    f("alternateBases", EQUALS, qAlternateBases.toUpperCase()))));
-
-          // todo optional parameter: datasetIds
-          // todo optional parameter: filters
-        case RANGE ->
-        // "Range Query"
-        query.where(
-            or(
-                and(
-                    f("position_start", BETWEEN, (Object[]) new Long[] {qStart[0], qEnd[0]}),
-                    f("position_refseqId", EQUALS, qReferenceName)),
-                and(
-                    f("position_end", BETWEEN, (Object[]) new Long[] {qStart[0], qEnd[0]}),
-                    f("position_refseqId", EQUALS, qReferenceName))));
-
-          // todo optional parameter: variantType OR alternateBases OR aminoacidChange
-          // todo optional parameter: variantMinLength
-          // todo optional parameter: variantMaxLength
-        case BRACKET -> query.where(
-            and(
-                f("position_start", BETWEEN, (Object[]) new Long[] {qStart[0], qStart[1]}),
-                f("position_end", BETWEEN, (Object[]) new Long[] {qEnd[0], qEnd[1]}),
-                f("position_refseqId", EQUALS, qReferenceName)));
-
-          // todo optional parameter: variantType
-
-        case GENEID ->
-        // "GeneId Query"
-        query.where(f("geneId", EQUALS, qGeneId));
-
-          // todo: required parameter 'geneId'
-          // todo optional parameter: variantType OR alternateBases OR aminoacidChange
-          // todo optional parameter: variantMinLength
-          // todo optional parameter: variantMaxLength
-      }
+      Map<String, Object> result = executionResult.toSpecification();
+      List<Map<String, Object>> gvarListFromJSON =
+          (List<Map<String, Object>>)
+              ((HashMap<String, Object>) result.get("data")).get("GenomicVariations");
 
       List<GenomicVariantsResultSetsItem> genomicVariantsItemList = new ArrayList<>();
-      for (Row row : query.retrieveRows()) {
-        GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
-        genomicVariantsItem.setVariantInternalId(row.getString("variantInternalId"));
-        genomicVariantsItem.setVariantType(row.getString("variantType"));
-        genomicVariantsItem.setReferenceBases(row.getString("referenceBases"));
-        genomicVariantsItem.setAlternateBases(row.getString("alternateBases"));
-        genomicVariantsItem.setGeneId(row.getString("geneId"));
-        genomicVariantsItem.setPosition(
-            new Position(
-                row.getString("position_assemblyId"),
-                row.getString("position_refseqId"),
-                new Long[] {row.getLong("position_start")},
-                new Long[] {row.getLong("position_end")}));
-        genomicVariantsItemList.add(genomicVariantsItem);
+
+      if (gvarListFromJSON != null) {
+        for (Map map : gvarListFromJSON) {
+          GenomicVariantsResultSetsItem genomicVariantsItem = new GenomicVariantsResultSetsItem();
+          genomicVariantsItem.setVariantInternalId((String) map.get("variantInternalId"));
+          genomicVariantsItem.setVariantType((String) map.get("variantType"));
+          genomicVariantsItem.setReferenceBases((String) map.get("referenceBases"));
+          genomicVariantsItem.setAlternateBases((String) map.get("alternateBases"));
+          genomicVariantsItem.setGeneId((String) map.get("geneId"));
+          genomicVariantsItem.setPosition(
+              new Position(
+                  TypeUtils.toString(map.get("position__assemblyId")),
+                  TypeUtils.toString(map.get("position__refseqId")),
+                  new Long[] {TypeUtils.toLong(map.get("position__start"))},
+                  new Long[] {TypeUtils.toLong(map.get("position__end")).longValue()}));
+          VariantLevelData variantLevelData =
+              new VariantLevelData(ClinicalInterpretations.get(map.get("clinicalInterpretations")));
+          if (variantLevelData != null
+              && variantLevelData.getClinicalInterpretations() != null
+              && variantLevelData.getClinicalInterpretations().length > 0) {
+            genomicVariantsItem.setVariantLevelData(variantLevelData);
+          }
+          genomicVariantsItemList.add(genomicVariantsItem);
+        }
       }
       if (genomicVariantsItemList.size() > 0) {
         GenomicVariantsResultSets genomicVariantsResultSets =

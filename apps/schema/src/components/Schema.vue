@@ -1,377 +1,296 @@
 <template>
-  <div>
-    <div class="row">
-      <div v-if="tables" class="col-2">
-        <div class="fixedContainer">
-          <h1>Tables:</h1>
-          <p
-            v-for="table in tables.filter((t) => t.externalSchema == undefined)"
-            :key="table.name"
+  <div class="container-fluid bg-white">
+    <div class="sticky-top bg-white">
+      <div class="d-flex flex-row">
+        <h1>Schema: {{ schema.name }}</h1>
+        <div class="form-inline">
+          <ButtonAction v-if="dirty" @click="saveSchema" class="ml-2">
+            Save
+          </ButtonAction>
+          <ButtonAction v-if="dirty" @click="loadSchema" class="ml-2">
+            Reset
+          </ButtonAction>
+          <ButtonAction
+            v-if="schema.tables?.length > 0"
+            @click="toggleShowDiagram"
+            class="ml-2"
           >
-            <a v-scroll-to="'#' + table.name" href=".">{{ table.name }}</a>
-          </p>
+            {{ showDiagram ? "Hide" : "Show" }} Diagram
+          </ButtonAction>
+          <MessageError v-if="error" class="ml-2 m-0 p-2">
+            {{ error }}
+          </MessageError>
+          <MessageWarning v-if="warning" class="ml-2 m-0 p-2">
+            {{ warning }}
+          </MessageWarning>
+          <MessageSuccess v-if="success" class="ml-2 m-0 p-2">
+            {{ success }}
+          </MessageSuccess>
         </div>
       </div>
-      <div class="col-10">
-        <RouterLink to="/formeditor">TO FORM EDITOR (Alpha!)</RouterLink>
-        <RouterLink to="/simple">TO INPLACE TABLE EDITOR (Alpha!)</RouterLink>
-        <TableEditModal
-          v-if="tableAdd"
-          :schema="schema"
-          @close="
-            tableAdd = false;
-            loadSchema();
-          "
+    </div>
+    <Spinner v-if="loading === true" />
+    <div v-else class="row">
+      <div class="col-2 bg-white">
+        <SchemaToc
+          :modelValue="schema"
+          v-if="schema.tables"
+          @update:modelValue="handleInput"
+          :key="key"
+          :isManager="isManager"
         />
-        <TableEditModal
-          v-if="tableAlter"
-          :schema="schema"
-          :table="currentTable"
-          @close="
-            tableAlter = false;
-            loadSchema();
-          "
+      </div>
+      <div class="bg-white col ml-2 overflow-auto">
+        <a id="molgenis_diagram_anchor"></a>
+        <NomnomDiagram :schema="schema" v-if="showDiagram" />
+        <SchemaView
+          :modelValue="schema"
+          :schemaNames="schemaNames"
+          @update:modelValue="handleInput"
+          :isManager="isManager"
         />
-        <TableDropModal
-          v-if="tableDrop"
-          :schema="schema"
-          :table="currentTable.name"
-          @close="
-            tableDrop = false;
-            loadSchema();
-          "
-        />
-        <ColumnEditModal
-          v-if="columnAlter"
-          :defaultValue="currentColumn"
-          :metadata="tables"
-          :schema="schema"
-          :table="currentTable.name"
-          @close="
-            columnAlter = false;
-            loadSchema();
-          "
-        />
-        <ColumnEditModal
-          v-if="columnAdd"
-          :metadata="tables"
-          :schema="schema"
-          :show="true"
-          :table="currentTable.name"
-          @close="
-            columnAdd = false;
-            loadSchema();
-          "
-        />
-        <ColumnDropModal
-          v-if="columnDrop"
-          :column="currentColumn.name"
-          :schema="schema"
-          :table="currentTable.name"
-          @close="
-            columnDrop = false;
-            loadSchema();
-          "
-        />
-        <Spinner v-if="loading" />
-        <MessageError v-else-if="graphqlError">{{ graphqlError }}</MessageError>
-        <Yuml v-else :schema="{tables: tables}" />
-
-        <div>
-          {{ count }} tables found
-          <IconAction v-if="canEdit" icon="plus" @click="tableAdd = true" />
-          <div class="table-responsive" v-if="tables">
-            <table class="table table-hover table-sm table-bordered">
-              <tbody
-                v-for="table in tables.filter(
-                  (t) => t.externalSchema == undefined
-                )"
-                :key="table.name"
-              >
-                <tr>
-                  <td>
-                    <IconBar class="text-nowrap mt-4">
-                      <IconAction
-                        icon="edit"
-                        @click="
-                          currentTable = table;
-                          tableAlter = true;
-                        "
-                      />
-                      <IconDanger
-                        icon="trash"
-                        @click="
-                          currentTable = table;
-                          tableDrop = true;
-                        "
-                      />
-                    </IconBar>
-                  </td>
-                  <td colspan="4">
-                    <h3
-                      :id="table.name"
-                      style="text-transform: none"
-                      class="mt-3"
-                    >
-                      {{ table.name }}
-                      <span
-                        v-if="table.semantics"
-                        style="font-size: small; text-transform: none"
-                      >
-                        <i>semantics:{{ table.semantics }}</i> <br />
-                      </span>
-                    </h3>
-                    <small v-if="table.description">
-                      <i>Description: {{ table.description }}</i></small
-                    >
-                  </td>
-                  <td><a v-scroll-to="'#__top'" href=".">back to top</a></td>
-                </tr>
-                <tr>
-                  <th scope="col">
-                    <IconAction
-                      icon="plus"
-                      @click="
-                        currentTable = table;
-                        columnAdd = true;
-                      "
-                    />
-                  </th>
-                  <th scope="col">name</th>
-                  <th scope="col">type</th>
-                  <th scope="col">key</th>
-                  <th scope="col">description</th>
-                  <th scope="col">semantics</th>
-                </tr>
-                <tr
-                  v-for="column in table.columns == null
-                    ? []
-                    : table.columns.filter((c) => {
-                        return c.name != 'mg_tableclass' && !c.inherited;
-                      })"
-                  :key="column.name"
-                >
-                  <td>
-                    <IconAction
-                      icon="edit"
-                      @click="
-                        currentTable = table;
-                        currentColumn = column;
-                        columnAlter = true;
-                      "
-                    />
-                    <IconDanger
-                      icon="trash"
-                      @click="
-                        currentTable = table;
-                        currentColumn = column;
-                        columnDrop = true;
-                      "
-                    />
-                  </td>
-                  <td>
-                    {{ column.name }}
-                  </td>
-                  <td>
-                    <span>{{ column.columnType }}</span>
-                    <span v-if="column.refTable">({{ column.refTable }})</span
-                    >&nbsp;
-                    <span v-if="column.required">required&nbsp;</span>
-                    <span v-if="column.refLink">
-                      refLink({{ column.refLink }})&nbsp;
-                    </span>
-                    <span v-if="column.refBack">
-                      refBack({{ column.refBack }})&nbsp;
-                    </span>
-                  </td>
-                  <td>{{ column.key }}</td>
-                  <td>{{ column.description }}</td>
-                  <td>{{ column.semantics }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.fixedContainer {
-  position: -webkit-sticky; /* Safari */
-  position: sticky;
-  top: 0;
-}
-
-@media (hover: hover) {
-  .hover {
-    opacity: 0;
-  }
-}
-
-.hover {
-  float: left;
-  white-space: nowrap;
-}
-
-h1 {
-  display: inline-block;
-}
-
-th {
-  font-weight: bold;
-}
-
-table tr:hover .hover {
-  opacity: 1;
-}
-
-table th:hover .hover {
-  opacity: 1;
-}
-
-.img-fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-  overflow: auto;
-  background: rgb(250, 250, 250);
-}
-
-.fullscreen-icon {
-  float: right;
-  top: 0px;
-  right: 0px;
+table {
+  table-layout: fixed;
 }
 </style>
 
 <script>
-import {request} from 'graphql-request';
-import Vue from 'vue';
-import VScrollLock from 'v-scroll-lock';
+import { request } from "graphql-request";
+import SchemaView from "./SchemaView.vue";
+import SchemaToc from "./SchemaToc.vue";
+import NomnomDiagram from "./NomnomDiagram.vue";
 import {
-  IconAction,
-  IconBar,
-  IconDanger,
+  ButtonAction,
   MessageError,
-  Spinner
-} from '@mswertz/emx2-styleguide';
-import ColumnEditModal from './ColumnEditModal';
-import ColumnDropModal from './ColumnDropModal';
-import TableEditModal from './TableEditModal';
-import TableDropModal from './TableDropModal';
-import Yuml from './Yuml';
-
+  MessageSuccess,
+  MessageWarning,
+  Spinner,
+  deepClone,
+} from "molgenis-components";
 import VueScrollTo from 'vue-scrollto';
-
-Vue.use(VScrollLock);
-Vue.use(VueScrollTo);
 
 export default {
   components: {
-    IconBar,
-    IconAction,
-    IconDanger,
-    Spinner,
+    SchemaView,
+    ButtonAction,
     MessageError,
-    TableEditModal,
-    ColumnEditModal,
-    ColumnDropModal,
-    TableDropModal,
-    Yuml
+    MessageWarning,
+    MessageSuccess,
+    SchemaToc,
+    Spinner,
+    NomnomDiagram,
   },
-  props: {
-    session: Object
-  },
-  data: function () {
+  data() {
     return {
-      schema: null,
-      showAttributes: [],
+      rawSchema: {}, //for debug purposes
+      schema: {},
       loading: false,
-      loadingYuml: false,
-      tables: null,
-      graphqlError: null,
-      currentTable: null,
-      currentColumn: null,
-      columnAlter: false,
-      columnAdd: false,
-      columnDrop: false,
-      tableAdd: false,
-      tableAlter: false,
-      tableDrop: false,
-      imgFullscreen: false
+      error: null,
+      warning: null,
+      success: null,
+      showDiagram: false,
+      schemaNames: [],
+      dirty: false,
+      key: Date.now(),
+      isManager: false,
     };
   },
   methods: {
-    // alter(column) {},
-    // drop(column) {},
-    loadSchema() {
-      this.graphqlError = null;
+    handleInput() {
+      this.dirty = true;
+      this.success = null;
+      this.key = Date.now();
+      this.$emit("update:modelValue", this.schema);
+    },
+    toggleShowDiagram() {
+      this.showDiagram = !this.showDiagram;
+      VueScrollTo.scrollTo({ el: "#molgenis_diagram_anchor", offset: -50 });
+    },
+    saveSchema() {
       this.loading = true;
-      this.loading = true;
-      this.schema = null;
-      this.tables = null;
+      this.error = null;
+      this.warning = "submitting changes";
+      this.success = null;
+      //copy so in case of error user can continue to edit
+      let schema = deepClone(this.schema);
+      let tables = schema.tables ? schema.tables : [];
+
+      //transform subclasses back into their original tables.
+      //create a map of tables
+      let tableMap = {};
+      tables.forEach((table) => {
+        tableMap[table.name] = table;
+        if (table.subclasses) {
+          table.subclasses.forEach((subclass) => {
+            tableMap[subclass.name] = subclass;
+          });
+          delete table.subclasses;
+        }
+      });
+      //redistribute the columns to subclasses
+      tables.forEach((table) => {
+        if (table.columns !== undefined) {
+          table.columns.forEach((column) => {
+            if (column.table !== table.oldName) {
+              if (tableMap[column.table].columns === undefined) {
+                tableMap[column.table].columns = [];
+              }
+              tableMap[column.table].columns.push(column);
+            }
+          });
+        }
+      });
+      tables.forEach((table) => {
+        table.columns = table.columns
+          ? table.columns.filter((column) => column.table === table.name)
+          : [];
+      });
+      tables = Object.values(tableMap);
+      //add ontologies
+      tables.push(...schema.ontologies);
       request(
-        'graphql',
-        '{_schema{name,tables{name,inherit,externalSchema,description,semantics,columns{name,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,description,semantics,validation,visible}}}}'
+        "graphql",
+        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message} }`,
+        {
+          tables: tables,
+        }
+      )
+        .then(() => {
+          this.warning = "submission complete, reloading schema";
+          this.loadSchema();
+          this.warning = null;
+          this.success = `Schema saved`;
+        })
+        .catch((error) => {
+          if (error.response.status === "403") {
+            this.error = "Forbidden. Do you need to login?";
+            this.showLogin = true;
+          } else {
+            this.error = error.response.errors[0].message;
+          }
+          this.warning = null;
+          this.loading = false;
+        });
+      this.loading = false;
+    },
+    loadSchema() {
+      this.error = null;
+      this.loading = true;
+      request(
+        "graphql",
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
       )
         .then((data) => {
-          this.schema = data._schema.name;
-          this.tables = data._schema.tables;
+          this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
+          this.schema = this.convertToSubclassTables(this.rawSchema);
+          this.schemaNames = data._session.schemas;
+          this.loading = false;
+          this.key = Date.now();
+          this.dirty = false;
+          this.isManager = data._session.roles?.includes("Manager");
         })
-        .catch((graphqlError) => {
-          this.graphqlError = graphqlError.response.errors[0].message;
-          if (
-            this.graphqlError.includes(
-              "Field '_schema' in type 'Query' is undefined"
-            )
-          ) {
-            this.graphqlError =
-              'Schema is unknown or permission denied (might you need to login with authorized user?)';
+        .catch((error) => {
+          if (error.response?.errors[0]?.message) {
+            this.error = error.response.errors[0].message;
+          } else {
+            this.error = error;
           }
-        })
-        .finally((this.loading = false));
-    }
-  },
-  computed: {
-    canEdit() {
-      return (
-        this.session != null &&
-        (this.session.email == 'admin' ||
-          (this.session.roles &&
-            (this.session.roles.includes('Editor') ||
-              this.session.roles.includes('Manager'))))
+          this.loading = false;
+        });
+    },
+    addOldNamesAndRemoveMeta(rawSchema) {
+      //deep copy to not change the input
+      const schema = deepClone(rawSchema);
+      if (schema) {
+        //normal tables
+        let tables = !schema.tables
+          ? []
+          : schema.tables.filter(
+              (table) =>
+                table.tableType !== "ONTOLOGIES" &&
+                table.externalSchema === undefined
+            );
+        tables.forEach((t) => {
+          t.oldName = t.name;
+          if (t.columns) {
+            t.columns = t.columns
+              .filter((c) => !c.name.startsWith("mg_"))
+              .map((c) => {
+                c.oldName = c.name;
+                return c;
+              })
+              .filter((c) => !c.inherited);
+          } else {
+            t.columns = [];
+          }
+        });
+        schema.ontologies = !schema.tables
+          ? []
+          : schema.tables.filter(
+              (table) =>
+                table.tableType === "ONTOLOGIES" &&
+                table.externalSchema === undefined
+            );
+        //set old name so we can delete them properly
+        schema.ontologies.forEach((o) => {
+          o.oldName = o.name;
+        });
+        schema.tables = tables;
+      }
+
+      return schema;
+    },
+    convertToSubclassTables(rawSchema) {
+      //deep copy to not change the input
+      const schema = deepClone(rawSchema);
+      //columns of subclasses should be put in root tables, sorted by position
+      // this because position can only edited in context of root table
+      schema.tables.forEach((table) => {
+        if (table.inherit === undefined) {
+          this.getSubclassTables(schema, table.name).forEach((subclass) => {
+            //get columns from subclass tables
+            table.columns.push(...subclass.columns);
+            //remove the columns from subclass table
+            subclass.columns = [];
+            subclass.oldName = subclass.name;
+            //add subclass to root table
+            if (!table.subclasses) {
+              table.subclasses = [subclass];
+            } else {
+              table.subclasses.push(subclass);
+            }
+          });
+        }
+        //sort
+        table.columns.sort((a, b) => a.position - b.position);
+      });
+      //remove the subclass tables
+      schema.tables = schema.tables.filter(
+        (table) => table.inherit === undefined
+      );
+      return schema;
+    },
+    getSubclassTables(schema, tableName) {
+      let subclasses = schema.tables.filter(
+        (table) => table.inherit === tableName
+      );
+      return subclasses.concat(
+        subclasses
+          .map((table) => {
+            return this.getSubclassTables(schema, table.name);
+          })
+          .flat(1)
       );
     },
-    count() {
-      if (this.tables)
-        return this.tables.filter((t) => t.externalSchema == undefined).length;
-      return 0;
-    }
   },
   created() {
     this.loadSchema();
   },
-  watch: {
-    tableAdd() {},
-    tableAlter() {},
-    session: {
-      deep: true,
-      handler() {
-        this.loadSchema();
-      }
-    }
-  }
 };
 </script>
-
-<docs>
-Example
-```
-<Schema schema="pet store"/>
-```
-</docs>

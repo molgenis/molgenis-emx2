@@ -40,39 +40,23 @@
 </template>
 <script>
 import { request } from "graphql-request";
-import {
-  MessageError,
-  TableExplorer,
-  IconAction,
-} from "@mswertz/emx2-styleguide";
-import VariablesList from "../components/VariablesList";
-import Property from "../components/Property";
-import InstitutionList from "../components/InstitutionList";
-import DatabankList from "../components/DatabankList";
-import DatasourceList from "../components/DatasourceList";
-import PartnersList from "../components/PartnersList";
-import ResourceHeader from "../components/ResourceHeader";
-import ContributorList from "../components/ContributorList";
-import ResourceContext from "../components/ResourceContext";
-import NetworkList from "../components/NetworkList";
-import OntologyTerms from "../components/OntologyTerms";
+import { MessageError } from "molgenis-components";
+import DatabankList from "../components/DatabankList.vue";
+import DatasourceList from "../components/DatasourceList.vue";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import ResourceContext from "../components/ResourceContext.vue";
+import NetworkList from "../components/NetworkList.vue";
+import OntologyTerms from "../components/OntologyTerms.vue";
 
 export default {
   components: {
     OntologyTerms,
     ResourceContext,
-    ContributorList,
     DatasourceList,
-    InstitutionList,
     DatabankList,
-    VariablesList,
-    PartnersList,
-    Property,
     MessageError,
-    TableExplorer,
     ResourceHeader,
     NetworkList,
-    IconAction,
   },
   props: {
     pid: String,

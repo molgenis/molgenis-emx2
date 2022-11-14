@@ -1,11 +1,15 @@
 <template>
-  <component :is="inplace ? 'InlineInput' : 'span'" :value="value">
+  <component
+    :is="inplace ? 'InlineInput' : 'span'"
+    :value="modelValue"
+    :id="id"
+  >
     <component
       v-if="typeToInput"
       :is="typeToInput"
       :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
       v-bind="$props"
-      v-on="$listeners"
+      @update:modelValue="$emit('update:modelValue', $event)"
     />
     <div v-else>UNSUPPORTED TYPE '{{ columnType }}'</div>
   </component>
@@ -27,8 +31,8 @@ import InputText from "../forms/InputText.vue";
 import InputHeading from "../forms/InputHeading.vue";
 import InputOntology from "../forms/InputOntology.vue";
 import InputRef from "../forms/InputRef.vue";
-import InputRefBack from '../forms/InputRefBack.vue';
-import InputRefSelect from "../forms/InputRefSelect.vue"
+import InputRefBack from "../forms/InputRefBack.vue";
+import InputRefSelect from "../forms/InputRefSelect.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
@@ -140,7 +144,7 @@ export default {
     InputOntology,
     InputRef,
     InputRefBack,
-    InputRefSelect
+    InputRefSelect,
   },
   computed: {
     typeToInput() {
@@ -450,7 +454,7 @@ export default {
       textValue: "example text",
       textValueArray: ["text", "more text"],
       longValue: "1337",
-      longValueArray: ["0", "1.1"],
+      longValueArray: ["0", "101"],
       decimalValue: 3.7,
       decimalValueArray: [4.2, 13.37],
       booleanValue: true,

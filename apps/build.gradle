@@ -2,13 +2,13 @@
 
 plugins {
     id "base"
-    id "com.github.node-gradle.node" version "3.4.0"
+    id "com.github.node-gradle.node" version "3.5.0"
 }
 
 def nodeSpec = {
-    version = '16.13.0'
-    yarnVersion = '1.22.15'
-    npmVersion = "8.1.0"
+    version = '16.16.0'
+    yarnVersion = '1.22.19'
+    npmVersion = "8.17.0"
     download = true
 }
 
@@ -19,27 +19,25 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
+    //subprojects will reuse the yarn installed in parent task
+    node {
+        with nodeSpec
+    }
+
+    //disable yarn_install, only parent should run install in yarn workspaces
+    yarn_install.enabled = false;
+    yarnSetup.dependsOn parent.yarnSetup
+    npmSetup.dependsOn parent.npmSetup
+    nodeSetup.dependsOn parent.nodeSetup
+
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
-        node { with nodeSpec }
-        // force build order: molgenis-components > styleguide > ...apps
-        if (project.name != 'styleguide' && project.name != 'molgenis-components') {
-            dependsOn ":apps:styleguide:build"
-        }
+        // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
         }
 
         // set input out out put for each app type
-        if (project.name == 'styleguide') {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('tests'))
-            inputs.files(fileTree('public'))
-            inputs.file('styleguide.config.js')
-            inputs.file('vue.config.js')
-            outputs.dir('build')
-            outputs.dir('dist')
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -49,50 +47,41 @@ subprojects {
             outputs.dir('dist')
             outputs.dir('gen-docs')
             outputs.dir('showCase')
-        } else if (project.name == 'nuxt-ssr') {
+        } else if (project.name == 'nuxt3-ssr') {
             inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('layouts'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
             inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.js')
+            inputs.file('nuxt.config.ts')
+            inputs.file('app.vue')
+            inputs.file('router.options.ts')
+            inputs.file('tailwind.config.ts')
             outputs.dir('.nuxt')
+            outputs.dir('.output')
         } else {
             inputs.file('package.json')
-            inputs.file('vue.config.js')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
-            inputs.files(fileTree('tests'))
+            inputs.files(fileTree('assets'))
+            inputs.file('vite.config.js')
+            inputs.file('index.html')
             outputs.dir('dist')
         }
 
-        outputs.cacheIf { true }
+        outputs.cacheIf { false }
 
         args = ['run', 'build']
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
 
-    if (project.name == 'styleguide') {
-        task buildStyleguidist(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.file('package.json')
-            inputs.file('styleguide.config.js')
-            inputs.file('vue.config.js')
-            outputs.dir('build')
-            outputs.cacheIf { true }
-            args = ['run', 'styleguide:build']
-        }
-    }
-
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
@@ -104,26 +93,18 @@ subprojects {
                 args = ['run', 'build-showcase']
             }
         }
-    }
-
-    task test(type: YarnTask) {
-        if (project.name == 'molgenis-components') {
+        task test(type: YarnTask, dependsOn: parent.yarn_install) {
             args = ['run', 'test-ci']
         }
     }
 
     task copyDistFiles(type: Copy) {
-        if (project.name == 'styleguide') {
-            dependsOn buildStyleguidist
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             dependsOn buildComponentsShowcase
         } else {
             dependsOn build
         }
-        if (project.name == 'styleguide') {
-            from "build"
-            inputs.dir("build")
-        } else if (project.name == 'molgenis-components') {
+        if (project.name == 'molgenis-components') {
             from "showCase"
             inputs.dir("showCase")
         } else {
@@ -141,6 +122,7 @@ subprojects {
         project.delete(files("build"))
         project.delete(files("node_modules"))
         project.delete(files(".nuxt"))
+        project.delete(files(".output"))
         project.delete(files("showCase"))
     }
 

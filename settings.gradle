@@ -3,7 +3,6 @@
  */
 rootProject.name = 'emx2'
 include(':apps')
-include(':apps:styleguide')
 include(':apps:central')
 include(':apps:catalogue')
 include(':apps:settings')
@@ -12,9 +11,8 @@ include(':apps:updownload')
 include(':apps:tables')
 include(':apps:pages')
 include(':apps:graphql-playground')
-include(':apps:nuxt-ssr')
+include(':apps:nuxt3-ssr')
 include(':apps:helloworld')
-include(':apps:gendecs')
 include(':apps:molgenis-components')
 include(':docs')
 include(':backend:molgenis-emx2')

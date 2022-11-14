@@ -6,26 +6,32 @@
     :description="description"
     :errorMessage="errorMessage || bigIntError"
   >
-    <input
-      :id="id"
-      :value="value"
-      class="form-control"
-      :class="{ 'is-invalid': errorMessage || bigIntError }"
-      :aria-describedby="id + 'Help'"
-      :placeholder="placeholder"
-      :readonly="readonly"
-      :required="required"
-      @keypress="handleKeyValidity($event)"
-      @input="inputHandler($event)"
-    />
+    <InputGroup>
+      <input
+        :id="id"
+        :value="modelValue"
+        class="form-control"
+        :class="{ 'is-invalid': errorMessage || bigIntError }"
+        :aria-describedby="id + 'Help'"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        @keypress="handleKeyValidity($event)"
+        @input="inputHandler($event)"
+      />
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
 import FormGroup from "./FormGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
+import InputGroup from "./InputGroup.vue";
 import constants from "../constants";
-import { isNumericKey } from "../utils";
+import { isNumericKey, flipSign } from "../utils";
 
 const { CODE_MINUS, MIN_LONG, MAX_LONG } = constants;
 
@@ -33,6 +39,7 @@ export default {
   extends: BaseInput,
   components: {
     FormGroup,
+    InputGroup,
   },
   props: {
     readonly: {
@@ -43,14 +50,14 @@ export default {
   },
   computed: {
     bigIntError() {
-      return getBigIntError(this.value);
+      return getBigIntError(this.modelValue);
     },
   },
   methods: {
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("input", flipSign(this.value));
+        this.$emit("update:modelValue", flipSign(event.target.value));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
@@ -59,9 +66,9 @@ export default {
     inputHandler(event) {
       const value = event.target.value;
       if (value?.length) {
-        this.$emit("input", value);
+        this.$emit("update:modelValue", value);
       } else {
-        this.$emit("input", null);
+        this.$emit("update:modelValue", null);
       }
     },
   },
@@ -82,21 +89,6 @@ function isInvalidBigInt(value) {
     value !== null &&
     (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
   );
-}
-
-function flipSign(value) {
-  switch (value) {
-    case "-":
-      return null;
-    case null:
-      return "-";
-    default:
-      if (value.charAt(0) === "-") {
-        return value.substring(1);
-      } else {
-        return "-" + value;
-      }
-  }
 }
 </script>
 
