@@ -2,7 +2,6 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-    buildDir: '../.nuxt',
     css: ["assets/css/main.css"],
     modules: ['nuxt-proxy', '@nuxt/image-edge', '@nuxtjs/tailwindcss'],
     // See options here https://github.com/chimurai/http-proxy-middleware#options
