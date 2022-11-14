@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics.fairdatapoint;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,6 +39,5 @@ public class FAIRDataPointNoCatalogsTest {
     assertFalse(result.contains("ldp:hasMemberRelation"));
     assertFalse(result.contains("ldp:membershipResource"));
     assertFalse(result.contains("ldp:contains"));
-    assertEquals(2673, result.length());
   }
 }
