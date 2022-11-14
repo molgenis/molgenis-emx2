@@ -116,6 +116,28 @@ class Client:
             log.error(response)
 
         return response
+
+    def addSetting(self, key, value):
+        """Add setting to schema"""
+
+        query = (""
+            "mutation change($settings:[MolgenisSettingsInput]) {"
+                " change(settings: $settings) {message}"
+            "}"
+        "")
+
+        variables = {'settings': {'key': key, 'value': value}}
+
+        response = self.session.post(
+            self.graphqlEndpoint,
+            json={'query': query, 'variables': variables}
+        )
+
+        if response.status_code != 200:
+            log.error(f"Error while adding setting, status code {response.status_code}")
+            log.error(response)
+
+        return response
     
     def fields(self, table): 
         """ Fetch a field list as json array of name value pairs"""

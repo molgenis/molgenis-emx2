@@ -39,8 +39,11 @@ def main():
     # updateColType = "mutation{change(columns: {table: \"Cohorts\", name: \"designDescription\", columnType: \"TEXT\"}){message}}"
     # updateDescription = "mutation change($tables: [MolgenisTableInput]){change(tables: $tables){message}}"
     # variables = {'tables': [  {'name': 'Version', 'tableType': 'DATA', 'description': '2.7'}]}
-    toggleOn = "mutation change($settings:[MolgenisSettingsInput]){ change(settings:$settings){ message }}"
-    variables = { 'settings': { 'key': 'isChangelogEnabled', 'value' : 'true' } }
+    # toggleOn = "mutation change($settings:[MolgenisSettingsInput]){ change(settings:$settings){ message }}"
+    # variables = { 'settings': { 'key': 'isChangelogEnabled', 'value' : 'true' } }
+
+    addSetting = "mutation change($settings:[MolgenisSettingsInput]){ change(settings:$settings){ message }}"
+    isChaptersEnabled = { 'settings': { 'key': 'isChaptersEnabled', 'value' : 'false' } }
 
     
     schemas = mClient.list_schemas()
@@ -55,8 +58,9 @@ def main():
       # if isStaging == True:
       log.info('version: ' + schema + ' ' + str(version) + ' ' + str(isStaging))
       # mClient.uploadCSV(None, stream.getvalue().encode('utf-8'), schema)
-      mClient.post_gql_to_db(schema, toggleOn, variables)
+      #mClient.post_gql_to_db(schema, toggleOn, variables)
       # mClient.post_gql_to_db(schema, updateDescription, variables, '/schema/graphql')
+      mClient.post_gql_to_db(schema, addSetting, isChaptersEnabled)
       log.info('run for: ' + schema)
       
 
