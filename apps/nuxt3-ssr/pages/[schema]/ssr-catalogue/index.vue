@@ -1,6 +1,29 @@
 <script setup lang="ts">
 
 const config = useRuntimeConfig()
+const catalogueQuery = `
+  {
+    Cohorts {
+      pid
+      name
+      description
+      keywords
+      type {
+        name
+      }
+      design {
+        name
+      }
+      institution {
+        name
+        acronym
+      }
+    }
+    Cohorts_agg {
+      count
+    }
+  }
+`;
 
 const { data, pending, error, refresh } = await useFetch(
     "/catalogue/catalogue/graphql",
@@ -8,33 +31,50 @@ const { data, pending, error, refresh } = await useFetch(
         baseURL: config.public.apiBase,
         method: "POST",
         body: {
-            query: '{Cohorts {name, pid}}'
+            query: catalogueQuery
         }
     }
 );
 
-async function log() {
-    const { data, pending, error, refresh } = await useFetch(
-        "/catalogue/catalogue/graphql",
-        {
-            baseURL: config.public.apiBase,
-            method: "POST",
-            body: {
-                query: '{Cohorts {name, pid}}'
-            }
-        }
-    );
-}
-
 </script>
 
 <template>
-    <div>
-        <h1 class="text-center text-5xl">
-            European Networks Health Data & Cohort Catalogue. test
-        </h1>
-        <button @click="log">Click mij</button>
-        {{ data }}
+    <LayoutsSearchPage>
+        <template #side>
+            <SearchFilter title="Filters">
+                <SearchFilterGroup title="Search in networks" />
+                <SearchFilterGroup title="Countries" />
+                <SearchFilterGroup title="Institutions" />
+            </SearchFilter>
+        </template>
+        <template #main>
+            <SearchResults>
+                <template #header>
+                    <PageHeader title="Cohorts"
+                        description="Group of individuals sharing a defining demographic characteristic."
+                        icon="image-link">
+                        <template #suffix>
+                            <SearchResultsViewTabs buttonLeftLabel="Detailed" buttonLeftName="detailed"
+                                buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
+                                buttonRightIcon="view-compact" activeName="compact" />
+                        </template>
+                    </PageHeader>
+                </template>
 
-    </div>
+                <template #search-results>
+                    <SearchResultsList>
+                        <CardList>
+                            <CardListItem v-for="cohort in data.data.Cohorts" :key="cohort.name">
+                                <CohortCard :cohort="cohort" />
+                            </CardListItem>
+                        </CardList>
+                    </SearchResultsList>
+                </template>
+
+                <template #pagination>
+                    <Pagination />
+                </template>
+            </SearchResults>
+        </template>
+    </LayoutsSearchPage>
 </template>
