@@ -11,7 +11,7 @@ defineProps({
 <template>
   <article class="p-12.5">
     <header class="flex items-center">
-      <NuxtLink :to="`/${cohort.pid}`">
+      <NuxtLink :to="`/catalogue/ssr-catalogue/${cohort.pid}`">
         <h2 class="text-heading-base font-extrabold text-blue-500 min-w-[160px] inline-block mr-4">
           {{ cohort.name }}
         </h2>
