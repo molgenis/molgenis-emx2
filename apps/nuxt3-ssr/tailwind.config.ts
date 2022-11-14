@@ -85,14 +85,13 @@ module.exports = {
             tooltip: "10.5rem",
             none: "none",
         },
-        borderRadius: {
-            "5xl": "50px",
-        },
         extend: {
             spacing: {
                 18: "4.5rem",
                 19: "4.75rem",
                 7.5: "1.875rem",
+                8.75: "2.1875rem",
+                10.5: "2.625rem",
                 12.5: "3.125rem",
                 15: "3.75rem",
                 25: "6.25rem",
@@ -104,6 +103,54 @@ module.exports = {
                     "linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%)",
                 "base-gradient": "linear-gradient(180deg, #017FFD 0%, #0163C6 133.81%)",
             },
+            backgroundColor: ({ theme }) => ({
+                "button-primary": theme("colors.yellow.500"),
+                "button-primary-hover": theme("colors.blue.200"),
+
+                "button-secondary": theme("colors.blue.800"),
+                "button-secondary-hover": theme("colors.blue.300"),
+
+                "button-tertiary": theme("colors.blue.500"),
+                "button-tertiary-hover": theme("colors.blue.300"),
+
+                "button-outline": theme("colors.white"),
+                "button-outline-hover": theme("colors.blue.50"),
+
+                "button-disabled": theme("colors.gray.100"),
+                "button-disabled-hover": theme("colors.gray.100"),
+            }),
+            textColor: ({ theme }) => ({
+                "button-primary": theme("colors.gray.900"),
+                "button-primary-hover": theme("colors.gray.900"),
+
+                "button-secondary": theme("colors.white"),
+                "button-secondary-hover": theme("colors.white"),
+
+                "button-tertiary": theme("colors.white"),
+                "button-tertiary-hover": theme("colors.white"),
+
+                "button-outline": theme("colors.blue.500"),
+                "button-outline-hover": theme("colors.blue.700"),
+
+                "button-disabled": theme("colors.gray.600"),
+                "button-disabled-hover": theme("colors.gray.600"),
+            }),
+            borderColor: ({ theme }) => ({
+                "button-primary": theme("colors.yellow.500"),
+                "button-primary-hover": theme("colors.blue.200"),
+
+                "button-secondary": theme("colors.blue.800"),
+                "button-secondary-hover": theme("colors.blue.300"),
+
+                "button-tertiary": theme("colors.blue.500"),
+                "button-tertiary-hover": theme("colors.blue.300"),
+
+                "button-outline": theme("colors.blue.500"),
+                "button-outline-hover": theme("colors.blue.700"),
+
+                "button-disabled": theme("colors.gray.100"),
+                "button-disabled-hover": theme("colors.gray.100"),
+            }),
         },
     },
     plugins: [require("@tailwindcss/typography")],

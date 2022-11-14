@@ -33,7 +33,7 @@ const { data, pending, error, refresh } = await useFetch(
             <PageHeader :title="data?.data?.Cohorts[0]?.name"
                 :description="data?.data?.Cohorts[0]?.institution?.acronym">
                 <template #prefix>
-                    <BreadCrumbs />
+                    <BreadCrumbs :crumbs="{ Home: '/catalogue/ssr-catalogue', Cohorts: '/catalogue/ssr-catalogue' } "/>
                 </template>
                 <template #title-suffix>
                     <IconButton icon="star" label="Favorite" />

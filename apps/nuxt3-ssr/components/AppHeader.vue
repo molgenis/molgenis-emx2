@@ -1,5 +1,5 @@
 <script setup>
-
+import Logo from "./Logo.vue";
 import SearchBar from "./SearchBar.vue";
 import MainNavigation from "./MainNavigation.vue";
 
@@ -19,8 +19,8 @@ const props = defineProps({
 });
 
 const BACKGROUND_MAPPING = {
-  default: "md:bg-black md:bg-opacity-10",
-  white: "md:bg-white",
+  default: "xl:bg-black xl:bg-opacity-10",
+  white: "xl:bg-white",
 };
 
 const backgroundClass = computed(() => {
@@ -31,7 +31,7 @@ const backgroundClass = computed(() => {
 <template>
   <header :class="backgroundClass" class="antialiased">
     <Container>
-      <div class="items-center justify-between hidden md:flex h-25">
+      <div class="items-center justify-between hidden xl:flex h-25">
         <Logo />
         <MainNavigation />
         <div class="w-[450px]">
@@ -42,7 +42,7 @@ const backgroundClass = computed(() => {
         <HeaderButton label="Account" icon="user" />
       </div>
 
-      <div class="pt-5 md:hidden">
+      <div class="pt-5 xl:hidden">
         <div class="relative flex items-center h-12.5 justify-between mb-4">
           <HamburgerMenu />
 

@@ -15,7 +15,7 @@ defineProps({
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      {{ description }}
+      <div v-html="description"></div>
     </div>
     <slot></slot>
   </section>

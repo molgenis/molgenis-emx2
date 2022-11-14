@@ -33,22 +33,10 @@ defineProps({
           <BaseIcon name="external-link" class="inline mr-2" />link
         </a>
       </div>
-      <a :contact="contactLink" :target="contactTarget" class="
-                transition-colors
-                rounded-5xl
-                tracking-widest
-                bg-yellow-500
-                text-gray-900
-                uppercase
-                text-heading-xl
-                font-display
-                py-2.5
-                px-7.5
-                hover:bg-blue-200
-                mr-5
-              ">
+      <button
+        class="transition-colors rounded-full tracking-widest bg-yellow-500 text-gray-900 uppercase text-heading-xl font-display py-2.5 px-7.5 hover:bg-blue-200 mr-5">
         Contact
-      </a>
+      </button>
     </div>
   </section>
 </template>

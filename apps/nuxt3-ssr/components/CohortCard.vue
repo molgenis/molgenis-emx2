@@ -1,49 +1,87 @@
 <script setup >
 import IconButton from "./IconButton.vue";
-defineProps({
+import { computed } from "vue";
+const props = defineProps({
   cohort: {
     type: Object,
     required: true,
   },
+  compact: {
+    type: Boolean,
+  },
+});
+
+const articleClasses = computed(() => {
+  return props.compact ? "p-5" : "p-12.5";
+});
+
+const subtitleClasses = computed(() => {
+  return props.compact ? "hidden md:block" : "mt-1.5 block md:inline";
+});
+
+const titleContainerClasses = computed(() => {
+  return props.compact ? "flex items-center" : "";
+});
+
+const headerClasses = computed(() => {
+  return props.compact ? "" : "items-start xl:items-center";
+});
+
+const iconStarClasses = computed(() => {
+  return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 </script>
 
 <template>
-  <article class="p-12.5">
-    <header class="flex items-center">
+  <article :class="articleClasses">
+    <header :class="headerClasses" class="flex">
       <NuxtLink :to="`/catalogue/ssr-catalogue/${cohort.pid}`">
-        <h2 class="text-heading-base font-extrabold text-blue-500 min-w-[160px] inline-block mr-4">
+        <h2 class="text-body-base font-extrabold text-blue-500 min-w-[160px] mr-4 md:inline-block block">
           {{ cohort.name }}
         </h2>
       </NuxtLink>
 
-      <span class="text-heading-base grow"> {{ cohort?.institution?.acronym }}</span>
+      <span :class="subtitleClasses" class="text-body-base"> {{ cohort?.institution?.acronym }}</span>
 
       <div class="flex">
-        <!-- <IconButton icon="star" class="text-blue-500" /> -->
-        <NuxtLink :to="`/${cohort.pid}`">
-          <IconButton icon="arrow-right" class="text-blue-500" />
+        <!-- <IconButton icon="star" :class="iconStarClasses" class="text-blue-500" /> -->
+        <NuxtLink :to="`/catalogue/ssr-catalogue/${cohort.pid}`">
+          <IconButton icon="arrow-right" class="text-blue-500 hidden xl:block" />
         </NuxtLink>
       </div>
     </header>
 
-    <p class="text-body-base my-5">
-      {{ cohort?.description }}
-    </p>
+    <div v-if="!compact">
+      <p class="text-body-base my-5">
+        {{ cohort?.description }}
+      </p>
 
-    <dl class="flex flex-col md:flex-row gap-5 md:gap-14 text-body-base">
-      <div>
-        <dt class="flex-auto block text-gray-600">Keywords</dt>
-        <dd>{{ cohort?.keywords }}</dd>
-      </div>
-      <div>
-        <dt class="flex-auto block text-gray-600">Type</dt>
-        <dd>{{ cohort?.type?.name }}</dd>
-      </div>
-      <div>
-        <dt class="flex-auto block text-gray-600">Design</dt>
-        <dd>{{ cohort?.design?.name }}</dd>
-      </div>
-    </dl>
+      <p class="text-body-base mt-5 block xl:hidden">
+        The European Human Exposome Network (EHEN) is the world’s largest
+        network of projects studying the impact of environmental exposures
+        across a lifetime - the exposome - on human health. Collectively, the
+        EHEN projects are working in 24 countries acros...
+      </p>
+
+      <a class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden" href="#">
+        Read more
+      </a>
+
+      <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
+        <div>
+          <dt class="flex-auto block text-gray-600">Keywords</dt>
+          <dd>{{ cohort?.keywords }}</dd>
+        </div>
+        <div>
+          <dt class="flex-auto block text-gray-600">Type</dt>
+          <dd>{{ cohort?.type?.name }}</dd>
+        </div>
+        <div>
+          <dt class="flex-auto block text-gray-600">Design</dt>
+          <dd>{{ cohort?.design?.name }}</dd>
+        </div>
+      </dl>
+    </div>
+
   </article>
 </template>
