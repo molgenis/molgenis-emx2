@@ -8,4 +8,5 @@ export default {
   HYPERLINK_REGEX: /^((https?):\/\/)(www.)?[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)\/?$|^$/,
   MAX_LONG: "9223372036854775807",
   MIN_LONG: "-9223372036854775807",
+  IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
 };
