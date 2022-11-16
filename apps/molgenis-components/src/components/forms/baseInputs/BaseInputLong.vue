@@ -1,16 +1,16 @@
 <template>
-    <input
-        :id="id"
-        :value="modelValue"
-        class="form-control"
-        :class="{ 'is-invalid': errorMessage || bigIntError }"
-        :aria-describedby="id + 'Help'"
-        :placeholder="placeholder"
-        :readonly="readonly"
-        :required="required"
-        @keypress="handleKeyValidity($event)"
-        @input="emitIfValid($event)"
-    />
+  <input
+    :id="id"
+    :value="modelValue"
+    class="form-control"
+    :class="{ 'is-invalid': errorMessage || bigIntError }"
+    :aria-describedby="id + 'Help'"
+    :placeholder="placeholder"
+    :readonly="readonly"
+    :required="required"
+    @keypress="handleKeyValidity($event)"
+    @input="emitIfValid($event)"
+  />
 </template>
 
 <script>
@@ -43,11 +43,11 @@ export default {
   },
   computed: {
     bigIntError() {
-      if(this.modelValue) {
+      if (this.modelValue) {
         return getBigIntError(this.modelValue);
       }
     },
   },
-  emits:["update:modelValue"]
+  emits: ["update:modelValue"],
 };
 </script>

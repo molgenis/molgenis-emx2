@@ -1,5 +1,9 @@
 <template>
-  <InputRangeLong :id="id" :modelValue="condition" @update:modelValue="onUpdateCondition">
+  <InputRangeLong
+    :id="id"
+    :modelValue="condition"
+    @update:modelValue="onUpdateCondition"
+  >
     <template v-slot:append>
       <button
         v-if="condition"
@@ -22,11 +26,11 @@
 </template>
 
 <script>
-import InputRangeLong from '../forms/InputRangeLong.vue';
+import InputRangeLong from "../forms/InputRangeLong.vue";
 
 export default {
   name: "LongFilter",
-  components: {InputRangeLong },
+  components: { InputRangeLong },
   props: {
     id: {
       type: String,

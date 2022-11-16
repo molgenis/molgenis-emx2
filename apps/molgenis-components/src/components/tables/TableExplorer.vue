@@ -29,7 +29,7 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem">
+          <form class="px-4 py-3" style="min-width: 15rem;">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -268,7 +268,6 @@
   </div>
 </template>
 
-
 <script>
 import Client from "../../client/client.js";
 import { getPrimaryKey } from "../utils";
@@ -442,6 +441,8 @@ export default {
               filter[col.id] = { equals: conditions };
             } else if (
               [
+                "LONG",
+                "LONG_ARRAY",
                 "DECIMAL",
                 "DECIMAL_ARRAY",
                 "INT",

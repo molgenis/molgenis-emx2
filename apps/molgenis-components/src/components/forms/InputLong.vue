@@ -14,7 +14,7 @@
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage || bigIntError }"
-        @update:modelValue="$emit('update:modelValue',$event)"
+        @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
         <slot name="append" />
@@ -28,7 +28,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import BaseInputLong from "./baseInputs/BaseInputLong.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import {getBigIntError} from '../utils';
+import { getBigIntError } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -39,14 +39,14 @@ export default {
   },
   computed: {
     bigIntError() {
-      return getBigIntError(this.modelValue)
-    }
-  }
+      return getBigIntError(this.modelValue);
+    },
+  },
 };
 </script>
 
 <docs>
-  <template>
+<template>
   <div>
     <demo-item>
       <div>
@@ -60,15 +60,15 @@ export default {
         Value: {{ JSON.stringify(value) }}
       </div>
     </demo-item>
-</div>
-  </template>
-  <script>
-    export default {
-      data: function () {
-        return {
-          value: "9223372036854775807"
-        };
-      }
-    };
-  </script>
+  </div>
+</template>
+<script>
+  export default {
+    data: function() {
+      return {
+        value: "9223372036854775807"
+      };
+    }
+  };
+</script>
 </docs>
