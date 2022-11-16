@@ -165,6 +165,9 @@ public class GenomicVariantsResponse {
                   + "position__start,"
                   + "position__end,"
                   + "geneId,"
+                  + "genomicHGVSId,"
+                  + "proteinHGVSIds,"
+                  + "transcriptHGVSIds,"
                   + "clinicalInterpretations{"
                   + "   category{name,codesystem,code},"
                   + "   clinicalRelevance{name,codesystem,code},"
@@ -198,6 +201,15 @@ public class GenomicVariantsResponse {
           genomicVariantsItem.setReferenceBases((String) map.get("referenceBases"));
           genomicVariantsItem.setAlternateBases((String) map.get("alternateBases"));
           genomicVariantsItem.setGeneId((String) map.get("geneId"));
+          genomicVariantsItem.setGenomicHGVSId((String) map.get("genomicHGVSId"));
+          if (map.get("proteinHGVSIds") != null) {
+            genomicVariantsItem.setProteinHGVSIds(
+                ((ArrayList<String>) map.get("proteinHGVSIds")).toArray(new String[0]));
+          }
+          if (map.get("transcriptHGVSIds") != null) {
+            genomicVariantsItem.setTranscriptHGVSIds(
+                ((ArrayList<String>) map.get("transcriptHGVSIds")).toArray(new String[0]));
+          }
           genomicVariantsItem.setPosition(
               new Position(
                   TypeUtils.toString(map.get("position__assemblyId")),
