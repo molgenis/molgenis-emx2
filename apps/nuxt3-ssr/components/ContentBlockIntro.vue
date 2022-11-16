@@ -30,14 +30,16 @@ defineProps({
       <img class="max-h-11" :src="image" />
       <div class="flex-grow align-middle">
         <a
-          href="#"
-          target="_blank"
+          :href="link"
+          :target="linkTarget"
           class="text-blue-500 underline hover:bg-blue-50"
         >
-          <BaseIcon name="external-link" class="inline mr-2" />link
+          <BaseIcon name="external-link" class="inline mr-2" />{{ link }}
         </a>
       </div>
-      <button
+      <a
+        :href="contact"
+        :target="contactTarget"
         class="
           transition-colors
           rounded-full
@@ -54,7 +56,7 @@ defineProps({
         "
       >
         Contact
-      </button>
+      </a>
     </div>
   </section>
 </template>
