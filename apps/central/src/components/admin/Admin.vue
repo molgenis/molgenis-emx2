@@ -56,7 +56,7 @@ export default {
     },
   },
   created() {
-    if (this.session.email === "anonymous") {
+    if (this.session.email !== "admin") {
       this.$router.push("/");
     }
   },
