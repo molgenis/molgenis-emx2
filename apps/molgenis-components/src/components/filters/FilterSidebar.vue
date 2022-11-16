@@ -78,71 +78,71 @@ export default {
 </template>
 <script>
   export default {
-    data: function() {
+    data: function () {
       return {
         filters: [
           {
-            name: 'orderId',
+            name: "orderId",
             pkey: true,
-            columnType: 'STRING',
+            columnType: "STRING",
             showFilter: true,
-            conditions: ['test123'],
+            conditions: ["test123"]
           },
           {
-            name: 'pets',
-            columnType: 'REF',
+            name: "pets",
+            columnType: "REF",
             showFilter: false,
             expanded: true,
             conditions: [],
-            refTable: 'Pet',
+            refTable: "Pet",
           },
           {
-            name: 'quantity',
-            columnType: 'INT',
+            name: "quantity",
+            columnType: "INT",
             showFilter: true,
-            conditions: [],
+            conditions: []
           },
           {
-            name: 'price',
-            columnType: 'DECIMAL',
+            name: "price",
+            columnType: "DECIMAL",
             showFilter: true,
-            conditions: [],
+            conditions: []
           },
           {
-            name: 'complete',
-            columnType: 'BOOL',
+            name: "complete",
+            columnType: "BOOL",
             showFilter: true,
-            conditions: [],
+            conditions: []
           },
           {
-            name: 'status',
-            columnType: 'STRING',
+            name: "status",
+            columnType: "STRING",
             showFilter: true,
-            conditions: [],
+            conditions: []
           },
           {
-            name: 'birthday',
-            columnType: 'DATE',
+            name: "birthday",
+            columnType: "DATE",
             showFilter: true,
-            conditions: [],
+            conditions: []
           },
           {
-            name: 'tags',
-            columnType: 'ONTOLOGY_ARRAY',
+            name: "tags",
+            columnType: "ONTOLOGY_ARRAY",
             showFilter: true,
             conditions: [],
-            refTable: 'Tag',
+            refTable: "Tag",
           },
         ],
       };
     },
     methods: {
       showAlert() {
-        alert('clicked');
+        alert("clicked");
       },
       onUpdate(update) {
-        this.filters = update;
-      },
+        this.filters = update
+      }
     },
   };
 </script>

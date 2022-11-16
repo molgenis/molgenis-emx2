@@ -284,63 +284,63 @@ export default {
 </template>
 
 <script>
-  import Client from '../../../src/client/client.js';
+import Client from "../../../src/client/client.js";
 
-  export default {
-    data() {
-      return {
-        selected: [],
-        columns: [
-          {id: 'col1', name: 'col1', columnType: 'STRING', key: 1},
-          {
-            id: 'ref1',
-            name: 'ref1',
-            columnType: 'REF',
-            refColumns: ['firstName', 'lastName'],
-          },
-          {
-            id: 'ref_arr1',
-            name: 'ref_arr1',
-            columnType: 'REF_ARRAY',
-            refColumns: ['firstName', 'lastName'],
-          },
-        ],
-        data: [
-          {
-            col1: 'row1',
-            ref1: {firstName: 'katrien', lastName: 'duck'},
-            ref_arr1: [
-              {firstName: 'kwik', lastName: 'duck'},
-              {
-                firstName: 'kwek',
-                lastName: 'duck',
-              },
-              {firstName: 'kwak', lastName: 'duck'},
-            ],
-          },
-          {
-            col1: 'row2',
-          },
-        ],
-        remoteSelected: [],
-        remoteColumns: [],
-        remoteTableData: null,
-      };
+export default {
+  data() {
+    return {
+      selected: [],
+      columns: [
+        { id: "col1", name: "col1", columnType: "STRING", key: 1 },
+        {
+          id: "ref1",
+          name: "ref1",
+          columnType: "REF",
+          refColumns: ["firstName", "lastName"],
+        },
+        {
+          id: "ref_arr1",
+          name: "ref_arr1",
+          columnType: "REF_ARRAY",
+          refColumns: ["firstName", "lastName"],
+        },
+      ],
+      data: [
+        {
+          col1: "row1",
+          ref1: { firstName: "katrien", lastName: "duck" },
+          ref_arr1: [
+            { firstName: "kwik", lastName: "duck" },
+            {
+              firstName: "kwek",
+              lastName: "duck",
+            },
+            { firstName: "kwak", lastName: "duck" },
+          ],
+        },
+        {
+          col1: "row2",
+        },
+      ],
+      remoteSelected: [],
+      remoteColumns: [],
+      remoteTableData: null,
+    };
+  },
+  methods: {
+    click(value) {
+      alert("click " + JSON.stringify(value));
     },
-    methods: {
-      click(value) {
-        alert('click ' + JSON.stringify(value));
-      },
-    },
-    async mounted() {
-      const client = Client.newClient('/pet store/graphql', this.$axios);
-      const remoteMetaData = await client.fetchMetaData();
-      const petColumns = remoteMetaData.tables.find(
-          (t) => t.name === 'Pet',
-      ).columns;
-      this.remoteColumns = petColumns.filter((c) => !c.name.startsWith('mg_'));
-      this.remoteTableData = (await client.fetchTableData('Pet')).Pet;
-    },
-  };
+  },
+  async mounted() {
+    const client = Client.newClient("/pet store/graphql", this.$axios);
+    const remoteMetaData = await client.fetchMetaData();
+    const petColumns = remoteMetaData.tables.find(
+      (t) => t.name === "Pet"
+    ).columns;
+    this.remoteColumns = petColumns.filter((c) => !c.name.startsWith("mg_"));
+    this.remoteTableData = (await client.fetchTableData("Pet")).Pet;
+  },
+};
 </script>
 </docs>
