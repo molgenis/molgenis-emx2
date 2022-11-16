@@ -19,7 +19,6 @@ function toPascalCase(text) {
 }
 
 const componentName = toPascalCase(props.name)
-const foo = 'Star'
 </script>
 
 <template>
