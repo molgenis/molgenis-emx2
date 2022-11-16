@@ -1,10 +1,6 @@
 <template>
   <div>
     <h1>Admin tools</h1>
-    <MolgenisSignin
-      v-if="showSigninForm && session.email === 'anonymous'"
-      @cancel="showSigninForm = false"
-    />
     <Spinner v-if="loading"></Spinner>
     <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else>
@@ -35,17 +31,12 @@
 </template>
 
 <script>
-import {
-  Spinner,
-  MessageError,
-  MolgenisSignin,
-} from "molgenis-components";
+import { Spinner, MessageError } from "molgenis-components";
 
 export default {
   components: {
     Spinner,
     MessageError,
-    MolgenisSignin,
   },
   props: {
     session: {
@@ -57,13 +48,17 @@ export default {
     return {
       loading: false,
       error: null,
-      showSigninForm: true,
     };
   },
   computed: {
     selected() {
       return this.$route.name;
     },
+  },
+  created() {
+    if (this.session.email === "anonymous") {
+      this.$router.push("/");
+    }
   },
 };
 </script>
