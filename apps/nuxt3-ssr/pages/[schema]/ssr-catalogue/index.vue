@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const route = useRoute()
 const config = useRuntimeConfig()
+const pageSize = 5
 const catalogueQuery = `
   {
-    Cohorts {
+    Cohorts(limit: ${pageSize}) {
       pid
       name
       description
@@ -62,6 +63,7 @@ const { data, pending, error, refresh } = await useFetch(
                 </template>
 
                 <template #search-results>
+        
                     <SearchResultsList>
                         <CardList>
                             <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
@@ -72,7 +74,7 @@ const { data, pending, error, refresh } = await useFetch(
                 </template>
 
                 <template #pagination>
-                    <Pagination />
+                    <Pagination :current-page="1" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)" />
                 </template>
             </SearchResults>
         </template>
