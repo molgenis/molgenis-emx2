@@ -14,7 +14,7 @@
     >
       <div
         class="border-0 text-left form-control"
-        style="height: auto"
+        style="height: auto;"
         @click="toggleFocus"
       >
         <span
@@ -28,7 +28,7 @@
         </span>
         <i
           class="p-2 fa fa-times"
-          style="vertical-align: middle"
+          style="vertical-align: middle;"
           @click.stop="clearSelection"
           v-if="showExpanded && selectionWithoutChildren.length > 0"
         />
@@ -57,13 +57,13 @@
         <span class="d-inline-block float-right">
           <i
             class="p-2 fa fa-times"
-            style="vertical-align: middle"
+            style="vertical-align: middle;"
             @click.stop="clearSelection"
             v-if="!showExpanded && selectionWithoutChildren.length > 0"
           />
           <i
             class="p-2 fa fa-caret-down"
-            style="vertical-align: middle"
+            style="vertical-align: middle;"
             v-if="!showExpanded"
           />
         </span>
@@ -85,7 +85,7 @@
         <InputOntologySubtree
           :key="key"
           v-if="rootTerms.length > 0"
-          style="max-height: 100vh"
+          style="max-height: 100vh;"
           class="pt-2 pl-0 dropdown-item"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
@@ -354,7 +354,7 @@ export default {
           let term = this.terms[v.name];
           if (term) {
             //select if doesn't have children
-            if(this.getAllChildren(term).length == 0) {
+            if (this.getAllChildren(term).length == 0) {
               term.selected = "complete";
             }
             if (this.isMultiSelect) {
@@ -434,11 +434,13 @@ export default {
       this.key++;
     },
     modelValue: {
-        deep: true,
-        handler() {
-          this.applySelection(this.modelValue);
-          this.key++;
-       }
+      deep: true,
+      handler() {
+        this.applySelection(this.modelValue);
+        //vue has problem to react on changes deep changes in selection tree
+        //therefore we use this key to force updates in this component
+        this.key++;
+      },
     },
     data() {
       if (this.data) {
