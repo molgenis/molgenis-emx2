@@ -6,6 +6,7 @@ import SearchFilterGroup from "../SearchFilterGroup.vue";
 import SearchFilter from "../SearchFilter.vue";
 import SearchResults from "../SearchResults.vue";
 import SearchResultsViewTabs from "../SearchResultsViewTabs.vue";
+import SearchResultsViewTabsMobile from "../SearchResultsViewTabsMobile.vue";
 import Pagination from "../Pagination.vue";
 import CohortCard from "../CohortCard.vue";
 import PageHeader from "../PageHeader.vue";
@@ -31,13 +32,13 @@ import CardListItem from "../CardListItem.vue";
       <template #main>
         <SearchResults>
           <template #header>
-            <PageHeader
-              title="Cohorts"
-              description="Group of individuals sharing a defining demographic characteristic."
-              icon="image-link"
-            >
+            <PageHeader title="Cohorts"
+              description="Group of individuals sharing a defining demographic characteristic." icon="image-link">
               <template #suffix>
-                <SearchResultsViewTabs />
+                <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
+                  buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
+                  buttonRightIcon="view-compact" activeName="compact" />
+                <SearchResultsViewTabsMobile class="flex xl:hidden" />
               </template>
             </PageHeader>
           </template>
@@ -45,12 +46,24 @@ import CardListItem from "../CardListItem.vue";
           <template #search-results>
             <SearchResultsList>
               <CardList>
-                <CardListItem><CohortCard /></CardListItem>
-                <CardListItem><CohortCard /></CardListItem>
-                <CardListItem><CohortCard /></CardListItem>
-                <CardListItem><CohortCard /></CardListItem>
-                <CardListItem><CohortCard /></CardListItem>
-                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
+                <CardListItem>
+                  <CohortCard />
+                </CardListItem>
               </CardList>
             </SearchResultsList>
           </template>

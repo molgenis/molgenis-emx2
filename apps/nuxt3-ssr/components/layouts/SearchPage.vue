@@ -5,14 +5,11 @@ import Container from "./../Container.vue";
 <template>
   <Container>
     <slot name="header"></slot>
-    <div class="flex gap-7.5">
-      <aside class="hidden w-95 md:block">
-        <slot name="side"></slot>
-      </aside>
-
-      <div>
-        <slot name="main"></slot>
-      </div>
+    <aside class="xl:w-95 absolute hidden xl:block">
+      <slot name="side"></slot>
+    </aside>
+    <div class="xl:ml-95 xl:pl-7.5">
+      <slot name="main"></slot>
     </div>
   </Container>
 </template>
