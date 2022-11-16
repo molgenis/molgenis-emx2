@@ -30,6 +30,7 @@ Datasources,,typeOther,,,,,,,,,,"If other, describe the type of datasource",EMA,
 DataResources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,,Resources,keywords
 Resources,,website,,,,,,,,,,Link to the website or homepage,EMA,,
 Resources,,leadOrganisation,ref,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
+Resources,,organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource,EMA,,
 Resources,,description,text,,,,,,,,,Short description,EMA,,
 Datasources,,dateEstablished,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Resources,,externalIdentifiers,refback,,,,ExternalIdentifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",,,
