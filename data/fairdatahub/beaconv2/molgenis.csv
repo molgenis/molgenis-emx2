@@ -9,6 +9,9 @@ GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/ob
 GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955
 GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958
 GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN
+GenomicVariations,,genomicHGVSId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A
+GenomicVariations,,proteinHGVSIds,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter
+GenomicVariations,,transcriptHGVSIds,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G
 GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001
 GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations
 GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001
