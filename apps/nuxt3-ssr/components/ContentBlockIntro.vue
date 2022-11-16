@@ -27,9 +27,10 @@ defineProps({
 <template>
   <section class="bg-white py-9 px-12.5 text-gray-900">
     <div class="flex gap-11 flex-wrap items-center">
-      <img class="max-h-11" :src="image" />
+      <img v-if="image" class="max-h-11" :src="image" />
       <div class="flex-grow align-middle">
         <a
+          v-if="link"
           :href="link"
           :target="linkTarget"
           class="text-blue-500 underline hover:bg-blue-50"
@@ -38,6 +39,7 @@ defineProps({
         </a>
       </div>
       <a
+        v-if="contact"
         :href="contact"
         :target="contactTarget"
         class="
