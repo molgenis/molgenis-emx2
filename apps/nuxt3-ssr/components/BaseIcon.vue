@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   name: {
     type: String,
     required: true,
@@ -9,16 +9,18 @@ defineProps({
     default: 24,
   },
 });
-const icons = {}
-icons['arrow-down'] = resolveComponent('IconsArrowDown')
-icons['arrow-left'] = resolveComponent('IconsArrowLeft')
-icons['arrow-right'] = resolveComponent('IconsArrowRight')
-icons['caret-down'] = resolveComponent('IconsCaretDown')
-icons['caret-left'] = resolveComponent('IconsCaretLeft')
-icons['caret-right'] = resolveComponent('IconsCaretRight')
-icons['star'] = resolveComponent('IconsStar')
+
+function clearAndUpper(text) {
+  return text.replace(/-/, "").toUpperCase();
+}
+
+function toPascalCase(text) {
+  return text.replace(/(^\w|-\w)/g, clearAndUpper);
+}
+
+const componentName = toPascalCase(props.name)
 </script>
 
 <template>
-  <component :is="icons[name]" :width="width"></component>
+  <component :is="componentName" :width="width"></component>
 </template>

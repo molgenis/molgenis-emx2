@@ -78,7 +78,7 @@ const iconStarClasses = computed(() => {
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.name }}</dd>
+          <dd>{{ cohort?.type?.map((t => t.name)).join(',') }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
