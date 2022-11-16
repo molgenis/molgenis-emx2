@@ -87,6 +87,7 @@ module.exports = {
         },
         extend: {
             spacing: {
+                "3px": "3px",
                 18: "4.5rem",
                 19: "4.75rem",
                 7.5: "1.875rem",
@@ -153,5 +154,5 @@ module.exports = {
             }),
         },
     },
-    plugins: [require("@tailwindcss/typography")],
+    plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms")],
 };

@@ -64,7 +64,7 @@ const { data, pending, error, refresh } = await useFetch(
                 <template #search-results>
                     <SearchResultsList>
                         <CardList>
-                            <CardListItem v-for="cohort in data.data.Cohorts" :key="cohort.name">
+                            <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
                                 <CohortCard :cohort="cohort" :schema="route.params.schema" />
                             </CardListItem>
                         </CardList>
