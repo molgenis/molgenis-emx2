@@ -19,7 +19,7 @@ defineProps({
     <slot name="search-results">search-results</slot>
   </div>
 
-  <div>
+  <div class="pb-12.5">
     <slot name="pagination">pagination</slot>
   </div>
 </template>

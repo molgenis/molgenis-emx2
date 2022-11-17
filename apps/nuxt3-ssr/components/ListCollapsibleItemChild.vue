@@ -1,7 +1,4 @@
 <script setup>
-import BaseIcon from "./BaseIcon.vue";
-import Tooltip from "./Tooltip.vue";
-
 defineProps({
   title: {
     type: String,
@@ -19,12 +16,12 @@ defineProps({
 </script>
 
 <template>
-  <li class="my-1.5">
+  <li class="my-[5px]">
     <span class="absolute ml-7">
-      <BaseIcon name="collapsible-list-item" width="20" class="text-gray-400" />
+      <BaseIcon name="collapsible-list-item" width="18" class="text-gray-400" />
     </span>
 
-    <dt class="pt-2 pl-14 flex items-start">
+    <dt class="pt-1 pl-14 flex items-start">
       <div class="flex items-center gap-1">
         <div class="inline-block">
           <a v-if="url" :href="url" class="hover:underline text-blue-500">

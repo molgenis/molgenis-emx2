@@ -20,10 +20,9 @@ defineProps({
       transition-colors
       font-display
       text-heading-2xl
-      hover:underline
     "
   >
     <BaseIcon :name="icon" />
-    <span class="hidden transform translate-y-px md:block">{{ label }}</span>
+    <span class="transform translate-y-px block">{{ label }}</span>
   </button>
 </template>

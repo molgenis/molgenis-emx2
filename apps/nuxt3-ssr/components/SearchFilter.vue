@@ -1,7 +1,4 @@
 <script setup>
-import BaseIcon from "./BaseIcon.vue";
-import Tooltip from "./Tooltip.vue";
-
 defineProps({
   title: {
     type: String,
@@ -10,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="bg-sidebar-gradient mt-7.5 rounded-t-[3px] rounded-b-[50px]">
+  <div class="bg-sidebar-gradient mt-7.5 rounded-t-3px rounded-b-50px">
     <h2 class="p-5 font-display text-white uppercase text-heading-3xl">
       {{ title }}
     </h2>
@@ -26,7 +23,12 @@ defineProps({
           More filters
         </span>
       </a>
-      <Tooltip label="Lees meer" hoverColor="white" content="tooltip" class="ml-3" />
+      <Tooltip
+        label="Lees meer"
+        hoverColor="white"
+        content="tooltip"
+        class="ml-3"
+      />
     </div>
   </div>
 </template>

@@ -1,11 +1,25 @@
 <script setup>
-import BackgroundGradient from "./BackgroundGradient.vue";
 </script>
 
 <template>
-  <div class="min-h-screen bg-base-gradient relative overflow-x-hidden">
+  <div
+    class="
+      min-h-screen
+      bg-base-gradient
+      relative
+      overflow-x-hidden
+      after:bg-black
+      after:w-full
+      after:h-[166px]
+      after:top-0
+      after:absolute
+      after:opacity-20
+      after:z-20
+      xl:after:hidden
+    "
+  >
     <BackgroundGradient class="z-10" />
-    <div class="z-20 relative">
+    <div class="z-30 relative">
       <slot name="header"></slot>
       <main>
         <slot></slot>

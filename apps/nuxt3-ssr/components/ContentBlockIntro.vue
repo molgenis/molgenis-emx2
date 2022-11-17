@@ -1,5 +1,4 @@
 <script setup>
-import BaseIcon from "./BaseIcon.vue";
 defineProps({
   image: {
     type: String,
@@ -25,18 +24,29 @@ defineProps({
 </script>
 
 <template>
-  <section class="bg-white py-9 px-12.5 text-gray-900">
-    <div class="flex gap-11 flex-wrap items-center">
+  <section
+    class="
+      bg-white
+      py-9
+      lg:px-12.5
+      px-5
+      text-gray-900
+      xl:rounded-3px
+      shadow-primary
+      xl:border-b-0
+      border-b-[1px]
+    "
+  >
+    <div class="flex gap-11 md:flex-row flex-col items-center justify-center">
       <img v-if="image" class="max-h-11" :src="image" />
-      <div class="flex-grow align-middle">
+      <div class="flex-grow align-middle hidden md:block">
         <a
           v-if="link"
           :href="link"
           :target="linkTarget"
           class="text-blue-500 underline hover:bg-blue-50"
+          ><BaseIcon name="external-link" class="inline mr-2" />{{ link }}</a
         >
-          <BaseIcon name="external-link" class="inline mr-2" />{{ link }}
-        </a>
       </div>
       <a
         v-if="contact"

@@ -1,6 +1,4 @@
 <script setup>
-import ContentBlock from "./ContentBlock.vue";
-
 defineProps({
   title: {
     type: String,

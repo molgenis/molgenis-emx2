@@ -1,6 +1,6 @@
-<script setup >
-import IconButton from "./IconButton.vue";
+<script setup>
 import { computed } from "vue";
+
 const props = defineProps({
   cohort: {
     type: Object,
@@ -8,15 +8,16 @@ const props = defineProps({
   },
   schema: {
     type: String,
-    required: true
+    required: true,
   },
   compact: {
     type: Boolean,
+    default: 0,
   },
 });
 
 const articleClasses = computed(() => {
-  return props.compact ? "p-5" : "p-12.5";
+  return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
 });
 
 const subtitleClasses = computed(() => {
@@ -39,24 +40,44 @@ const iconStarClasses = computed(() => {
 <template>
   <article :class="articleClasses">
     <header :class="headerClasses" class="flex">
-      <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`">
-        <h2 class="text-body-base font-extrabold text-blue-500 min-w-[160px] mr-4 md:inline-block block">
-          {{ cohort.name }}
+      <div :class="titleContainerClasses" class="grow">
+        <h2 class="min-w-[160px] mr-4 md:inline-block block">
+          <NuxtLink
+            :to="`/${schema}/ssr-catalogue/${cohort.pid}`"
+            class="
+              text-body-base
+              font-extrabold
+              text-blue-500
+              hover:underline hover:bg-blue-50
+            "
+          >
+            {{ cohort.name }}
+          </NuxtLink>
         </h2>
-      </NuxtLink>
 
-      <span :class="subtitleClasses" class="text-body-base"> {{ cohort?.institution?.acronym }}</span>
-
+        <span :class="subtitleClasses" class="text-body-base">
+          {{ cohort?.institution?.acronym }}
+        </span>
+      </div>
       <div class="flex">
-        <!-- <IconButton icon="star" :class="iconStarClasses" class="text-blue-500" /> -->
+        <!--
+        <IconButton
+          icon="star"
+          :class="iconStarClasses"
+          class="text-blue-500 xl:justify-end"
+        />
+        -->
         <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`">
-          <IconButton icon="arrow-right" class="text-blue-500 hidden xl:block" />
+          <IconButton
+            icon="arrow-right"
+            class="text-blue-500 hidden xl:flex xl:justify-end"
+          />
         </NuxtLink>
       </div>
     </header>
 
     <div v-if="!compact">
-      <p class="text-body-base my-5">
+      <p class="text-body-base my-5 xl:block hidden">
         {{ cohort?.description }}
       </p>
 
@@ -67,7 +88,10 @@ const iconStarClasses = computed(() => {
         EHEN projects are working in 24 countries acros...
       </p>
 
-      <a class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden" href="#">
+      <a
+        class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden"
+        href="#"
+      >
         Read more
       </a>
 
@@ -78,7 +102,7 @@ const iconStarClasses = computed(() => {
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
-          <dd>{{ cohort?.type?.map((t => t.name)).join(',') }}</dd>
+          <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
@@ -86,6 +110,5 @@ const iconStarClasses = computed(() => {
         </div>
       </dl>
     </div>
-
   </article>
 </template>

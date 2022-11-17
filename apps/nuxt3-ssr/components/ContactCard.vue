@@ -1,6 +1,4 @@
 <script setup>
-import IconButton from "./IconButton.vue";
-
 defineProps({
   title: {
     type: String,

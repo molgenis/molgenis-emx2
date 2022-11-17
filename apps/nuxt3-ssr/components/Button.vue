@@ -69,8 +69,18 @@ const iconPositionClass = computed(() => {
 </script>
 
 <template>
-  <button :class="`${colorClasses} ${sizeClasses} ${iconPositionClass}`"
-    class="flex tracking-widest uppercase font-display rounded-full border items-center">
+  <button
+    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass}`"
+    class="
+      flex
+      tracking-widest
+      uppercase
+      font-display
+      rounded-full
+      border
+      items-center
+    "
+  >
     <span v-if="icon">
       <BaseIcon :name="icon" />
     </span>

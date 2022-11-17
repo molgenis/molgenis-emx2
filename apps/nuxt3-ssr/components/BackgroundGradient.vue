@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <div class="absolute top-0 -left-1/2 md:left-1/4">
+  <div class="absolute top-0 bottom-0 -left-1/2 md:left-1/4 overflow-y-hidden">
     <svg
       class="pointer-events-none"
       xmlns="http://www.w3.org/2000/svg"
