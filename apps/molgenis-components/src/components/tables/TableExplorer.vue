@@ -662,6 +662,7 @@ function getCondition(columnType, condition) {
       case "DATE":
       case "DATETIME":
       case "INT":
+      case "LONG":
       case "DECIMAL":
         return condition.split(",").map((v) => v.split(".."));
       default:

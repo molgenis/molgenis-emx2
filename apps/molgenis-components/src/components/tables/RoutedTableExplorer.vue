@@ -184,6 +184,7 @@ export default {
             case "DATE":
             case "DATETIME":
             case "INT":
+            case "LONG":
             case "DECIMAL":
               query[column.name] = conditions
                 .map((v) => v.join(".."))
