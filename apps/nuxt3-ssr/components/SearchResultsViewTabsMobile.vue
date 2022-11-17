@@ -1,9 +1,10 @@
 <script setup>
-import Button from "./Button.vue";
 </script>
 
 <template>
-  <div class="flex justify-between">
+  <div class="flex justify-center mt-5">
+    <!--    
+      *** To enable the filter button: uncomment the button element and change the above  "justify-center" to "justify-between" ***
     <Button
       type="primary"
       size="small"
@@ -11,6 +12,7 @@ import Button from "./Button.vue";
       icon="filter"
       iconPosition="left"
     ></Button>
+    -->
 
     <Button
       type="secondary"

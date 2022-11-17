@@ -1,6 +1,4 @@
 <script setup>
-import BaseIcon from "./BaseIcon.vue";
-import Tooltip from "./Tooltip.vue";
 import { ref } from "vue";
 
 defineProps({
@@ -29,7 +27,14 @@ const toggleCollapse = () => {
     <div class="flex gap-1 items-start">
       <span
         @click="toggleCollapse()"
-        class="text-blue-500 mr-1 mt-0.5 rounded-full hover:bg-blue-50 hover:cursor-pointer"
+        class="
+          text-blue-500
+          mr-1
+          mt-0.5
+          rounded-full
+          hover:bg-blue-50 hover:cursor-pointer
+          p-0.5
+        "
         :class="{ 'rotate-180': collapsed }"
       >
         <BaseIcon name="caret-up" width="20" />

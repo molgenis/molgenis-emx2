@@ -1,6 +1,4 @@
 <script setup>
-import Tooltip from "./Tooltip.vue";
-
 const items = [
   { label: "Cohort type", content: "Population cohort, Birth cohort, Biobank" },
   { label: "CoDesign", content: "Cohort type", tooltip: "Tooltip content!" },

@@ -1,12 +1,4 @@
 <script setup>
-import ContentBlock from "./ContentBlock.vue";
-import Table from "./Table.vue";
-import TableRow from "./TableRow.vue";
-import TableHeadRow from "./TableHeadRow.vue";
-import TableHead from "./TableHead.vue";
-import TableCell from "./TableCell.vue";
-import IconButton from "./IconButton.vue";
-
 defineProps({
   title: {
     type: String,

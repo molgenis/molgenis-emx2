@@ -13,8 +13,7 @@ import PageHeader from "../PageHeader.vue";
 import SearchResultsList from "../SearchResultsList.vue";
 import CardList from "../CardList.vue";
 import CardListItem from "../CardListItem.vue";
-// import { data } from "../../stories/data/agegroups";
-
+import NavigationIconsMobile from "../NavigationIconsMobile.vue";
 const data = {
   AgeGroups: [
     {
@@ -203,12 +202,23 @@ const json = Object.values(data)[0];
       <template #main>
         <SearchResults>
           <template #header>
-            <PageHeader title="Cohorts"
-              description="Group of individuals sharing a defining demographic characteristic." icon="image-link">
+            <NavigationIconsMobile />
+            <PageHeader
+              title="Cohorts"
+              description="Group of individuals sharing a defining demographic characteristic."
+              icon="image-link"
+            >
               <template #suffix>
-                <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
-                  buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
-                  buttonRightIcon="view-compact" activeName="compact" />
+                <SearchResultsViewTabs
+                  class="hidden xl:flex"
+                  buttonLeftLabel="Detailed"
+                  buttonLeftName="detailed"
+                  buttonLeftIcon="view-normal"
+                  buttonRightLabel="Compact"
+                  buttonRightName="compact"
+                  buttonRightIcon="view-compact"
+                  activeName="detailed"
+                />
                 <SearchResultsViewTabsMobile class="flex xl:hidden" />
               </template>
             </PageHeader>
@@ -217,30 +227,19 @@ const json = Object.values(data)[0];
           <template #search-results>
             <SearchResultsList>
               <CardList>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
-                <CardListItem>
-                  <CohortCard />
-                </CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
+                <CardListItem><CohortCard /></CardListItem>
               </CardList>
             </SearchResultsList>
           </template>
 
           <template #pagination>
-            <Pagination />
+            <Pagination type="white" currentPage="45" totalPages="55" />
           </template>
         </SearchResults>
       </template>

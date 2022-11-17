@@ -1,17 +1,12 @@
 <script setup>
-import pkg from "floating-vue";
-const { Dropdown } = pkg;
-const VDropdown = Dropdown;
 import "floating-vue/dist/style.css";
-import BaseIcon from "./BaseIcon.vue";
-import Button from "./Button.vue";
 
 const onShow = () => {
   document.body.classList.add("no-scroll");
 };
 
 const onHide = () => {
-  document.body.classList.add("no-scroll");
+  document.body.classList.remove("no-scroll");
 };
 
 defineProps({
@@ -46,12 +41,18 @@ defineProps({
         ></path>
       </svg>
       <span
-        class="antialiased tracking-wider translate-y-px font-display text-heading-xl"
+        class="
+          antialiased
+          tracking-wider
+          translate-y-px
+          font-display
+          text-heading-xl
+        "
         >Menu</span
       >
     </button>
     <template #popper="{ hide }">
-      <div class="rounded-r-5xl mt-5 mr-12.5 overflow-hidden antialiased">
+      <div class="rounded-r-50px mt-5 mr-12.5 overflow-hidden antialiased">
         <div class="relative overflow-y-auto bg-white">
           <button @click="hide()" class="absolute top-7 right-8">
             <BaseIcon name="cross" />
@@ -86,8 +87,8 @@ defineProps({
           </nav>
 
           <div class="flex items-center justify-around px-6 bg-blue-500 h-19">
-            <Button label="Account" icon="user" />
-            <Button label="Favorites" icon="star" />
+            <HeaderButtonMobile label="Favorites" icon="star" />
+            <HeaderButtonMobile label="Account" icon="user" />
           </div>
         </div>
       </div>

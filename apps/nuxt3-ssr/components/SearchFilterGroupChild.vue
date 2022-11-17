@@ -1,7 +1,4 @@
 <script setup>
-import SearchFilterGroupChild from "./SearchFilterGroupChild.vue";
-import BaseIcon from "./BaseIcon.vue";
-import Tooltip from "./Tooltip.vue";
 import { ref } from "vue";
 
 defineProps({
@@ -30,7 +27,20 @@ const toggleCollapse = () => {
         v-if="child.children"
         @click="toggleCollapse()"
         :class="{ 'rotate-180': collapsed }"
-        class="-left-[11px] top-0 text-white rounded-full hover:bg-blue-800 hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+        class="
+          -left-[11px]
+          top-0
+          text-white
+          rounded-full
+          hover:bg-blue-800 hover:cursor-pointer
+          h-6
+          w-6
+          flex
+          items-center
+          justify-center
+          absolute
+          z-20
+        "
       >
         <BaseIcon name="caret-up" width="20" />
       </span>
@@ -53,14 +63,29 @@ const toggleCollapse = () => {
           type="checkbox"
           :id="child.code"
           :name="child.code"
-          class="w-5 h-5 rounded-[3px] ml-2.5 mr-2.5 mt-0.5 text-yellow-500 border-0"
+          class="
+            w-5
+            h-5
+            rounded-3px
+            ml-2.5
+            mr-2.5
+            mt-0.5
+            text-yellow-500
+            border-0
+          "
         />
       </div>
       <label :for="child.code" class="hover:cursor-pointer text-body-sm group">
         <span class="group-hover:underline">{{ child.name }}</span>
         <div class="whitespace-nowrap inline-flex items-center">
           <span
-            class="text-blue-200 inline-block mr-2 group-hover:underline decoration-blue-200"
+            class="
+              text-blue-200
+              inline-block
+              mr-2
+              group-hover:underline
+              decoration-blue-200
+            "
           >
             &nbsp;- 34
           </span>

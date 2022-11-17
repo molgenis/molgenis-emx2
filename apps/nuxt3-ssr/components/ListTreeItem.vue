@@ -16,8 +16,7 @@ defineProps({
   <li>
     {{ title }}
     {{ count }}
-    <ul>
-      <slot></slot>
-    </ul>
+    {{ tooltip }}
+    <slot></slot>
   </li>
 </template>

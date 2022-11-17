@@ -1,7 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { Tooltip } from "floating-vue";
-import BaseIcon from "./BaseIcon.vue";
 import { computed } from "vue";
 import "floating-vue/dist/style.css";
 
@@ -16,14 +15,15 @@ const props = defineProps({
   },
   hoverColor: {
     type: String,
-    default: "none",
-    enum: ["none", "white"],
+    default: "blue",
+    enum: ["none", "white", "gray"],
   },
 });
 
 const HOVER_COLOR_MAPPING = {
   none: "",
   white: "hover:text-white",
+  blue: "hover:text-blue-500",
 };
 
 const hoverColorClass = computed(() => {
@@ -34,7 +34,10 @@ const hoverColorClass = computed(() => {
 <template>
   <div class="flex items-center justify-center w-6 h-6">
     <Tooltip :showTriggers="['hover', 'touch']" :distance="12">
-      <button class="w-6 h-6 text-blue-200" :class="hoverColorClass">
+      <button
+        class="w-6 h-6 text-blue-200 cursor-default select-none"
+        :class="hoverColorClass"
+      >
         <BaseIcon name="info" />
         <span class="sr-only" v-if="label">{{ label }}</span>
       </button>

@@ -1,14 +1,4 @@
 <script setup>
-import ContentBlock from "./ContentBlock.vue";
-import Table from "./Table.vue";
-import TableRow from "./TableRow.vue";
-import TableHead from "./TableHead.vue";
-import TableHeadRow from "./TableHeadRow.vue";
-import TableCell from "./TableCell.vue";
-import BaseIcon from "./BaseIcon.vue";
-import IconButton from "./IconButton.vue";
-import Pagination from "./Pagination.vue";
-
 defineProps({
   title: {
     type: String,
@@ -21,18 +11,32 @@ defineProps({
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <div class="flex mb-5 flex-wrap">
+    <ButtonGroup class="flex mb-5 flex-wrap">
       <div class="grow">
-        <button
-          class="tracking-widest bg-blue-500 text-white uppercase text-heading-xl leading-9 font-display py-2.5 px-7.5 rounded-full hover:bg-blue-300 border mr-5">
-          All 299 variables
-        </button>
+        <Button label="All 299 variables" type="tertiary" size="medium" />
       </div>
       <div class="relative">
-        <label class="block absolute text-body-xs top-2 left-6 pointer-events-none" for="sort-by">
+        <label
+          class="block absolute text-body-xs top-2 left-6 pointer-events-none"
+          for="sort-by"
+        >
           Sort by
         </label>
-        <select name="sort-by" class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none">
+        <select
+          name="sort-by"
+          class="
+            h-14
+            border border-gray-400
+            pb-2
+            pt-6
+            pl-6
+            pr-12
+            rounded-full
+            appearance-none
+            hover:bg-gray-100 hover:cursor-pointer
+            bg-none
+          "
+        >
           <option value="name">Name</option>
           <option value="description">Description</option>
           <option value="start-end-year">Start & end year</option>
@@ -41,7 +45,7 @@ defineProps({
           <BaseIcon name="caret-down" width="20" />
         </span>
       </div>
-    </div>
+    </ButtonGroup>
     <Table>
       <template #head>
         <TableHeadRow>
@@ -69,11 +73,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at birth</TableCell>
+            Data collection at birth</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -86,11 +91,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at inclusion in LLNEXT</TableCell>
+            Data collection at inclusion in LLNEXT</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -103,11 +109,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collected from LLNEXT partners</TableCell>
+            Data collected from LLNEXT partners</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -120,11 +127,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 1 month</TableCell>
+            Data collection at infant's age of 1 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -137,11 +145,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 2 month</TableCell>
+            Data collection at infant's age of 2 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -154,11 +163,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 3 month</TableCell>
+            Data collection at infant's age of 3 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -171,11 +181,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 4 month</TableCell>
+            Data collection at infant's age of 4 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -188,11 +199,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 5 month</TableCell>
+            Data collection at infant's age of 5 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -205,11 +217,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 6 month</TableCell>
+            Data collection at infant's age of 6 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -222,11 +235,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 9 month</TableCell>
+            Data collection at infant's age of 9 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -239,11 +253,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 10 month</TableCell>
+            Data collection at infant's age of 10 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -256,11 +271,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 11 month</TableCell>
+            Data collection at infant's age of 11 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -273,11 +289,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at infant's age of 12 month</TableCell>
+            Data collection at infant's age of 12 month</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -290,11 +307,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at gestational age of 12 weeks</TableCell>
+            Data collection at gestational age of 12 weeks</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -307,11 +325,12 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at gestational age of 18 weeks</TableCell>
+            Data collection at gestational age of 18 weeks</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
         <TableRow>
           <TableCell>
@@ -324,14 +343,15 @@ defineProps({
             </dl>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            Data collection at gestational age of 28 weeks</TableCell>
+            Data collection at gestational age of 28 weeks</TableCell
+          >
           <TableCell class="hidden sm:table-cell"> 2017 - Ongoing</TableCell>
-          <TableCell class="hidden sm:table-cell">
-            <IconButton icon="arrow-right" class="text-blue-500" />
-          </TableCell>
+          <TableCell class="hidden sm:table-cell"
+            ><IconButton icon="arrow-right" class="text-blue-500"
+          /></TableCell>
         </TableRow>
       </template>
     </Table>
-    <Pagination />
+    <Pagination currentPage="45" totalPages="55" />
   </ContentBlock>
 </template>

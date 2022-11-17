@@ -1,14 +1,5 @@
 <script setup>
-import Logo from "./Logo.vue";
-import SearchBar from "./SearchBar.vue";
-import MainNavigation from "./MainNavigation.vue";
-
-import HeaderButton from "./HeaderButton.vue";
-import Container from "./Container.vue";
-
 import { computed } from "vue";
-import LogoMobile from "./LogoMobile.vue";
-import HamburgerMenu from "./HamburgerMenu.vue";
 
 const props = defineProps({
   background: {
@@ -19,7 +10,7 @@ const props = defineProps({
 });
 
 const BACKGROUND_MAPPING = {
-  default: "xl:bg-black xl:bg-opacity-10",
+  default: "xl:bg-black xl:bg-opacity-20",
   white: "xl:bg-white",
 };
 
@@ -29,7 +20,7 @@ const backgroundClass = computed(() => {
 </script>
 
 <template>
-  <header :class="backgroundClass" class="antialiased">
+  <header :class="backgroundClass" class="antialiased px-5 lg:px-0">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo />

@@ -1,8 +1,4 @@
 <script setup>
-import ContentBlock from "./ContentBlock.vue";
-import ContactCardList from "./ContactCardList.vue";
-import ContactCard from "./ContactCard.vue";
-
 defineProps({
   title: {
     type: String,
