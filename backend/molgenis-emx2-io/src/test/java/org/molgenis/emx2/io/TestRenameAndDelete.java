@@ -3,12 +3,18 @@ package org.molgenis.emx2.io;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
 import java.util.List;
+import org.eclipse.jetty.util.resource.Resource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.io.emx2.Emx2;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -24,7 +30,7 @@ public class TestRenameAndDelete {
   }
 
   @Test
-  public void testColumnRename() {
+  public void testRenameAndDrop() {
 
     // import simple model
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
@@ -79,5 +85,25 @@ public class TestRenameAndDelete {
     imt.run();
 
     assertNull(schema.getTable("otherTable"));
+  }
+
+  @Test
+  public void testRenameWhenRefs() throws IOException {
+    schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
+
+    new PetStoreLoader().load(schema, false);
+    assertNotNull(schema.getTable("Category"));
+
+    // now we gonna rename a table which has a ref from Category to Type
+    SchemaMetadata newSchema =
+        Emx2.fromRowList(
+            new TableStoreForCsvFile(
+                    Resource.newClassPathResource("testRenameWhenRefs.csv").getFile().toPath())
+                .readTable("molgenis"));
+
+    schema.migrate(newSchema);
+
+    assertNull(schema.getTable("Category"));
+    assertNotNull(schema.getTable("Type"));
   }
 }
