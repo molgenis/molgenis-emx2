@@ -17,6 +17,7 @@ const props = defineProps({
     enum: ["gray", "white"],
   },
 });
+const emit = defineEmits(["update"]);
 
 const TEXT_STYLE_MAPPING = {
   gray: "text-gray-400",
@@ -51,6 +52,7 @@ const borderClasses = computed(() => {
   >
     <a
       href="#"
+      @click="$emit('update', currentPage - 1)"
       class="
         rounded-full
         bg-button-secondary
@@ -90,6 +92,7 @@ const borderClasses = computed(() => {
     </div>
     <a
       href="#"
+      @click="$emit('update', currentPage + 1)"
       class="
         rounded-full
         bg-button-secondary
