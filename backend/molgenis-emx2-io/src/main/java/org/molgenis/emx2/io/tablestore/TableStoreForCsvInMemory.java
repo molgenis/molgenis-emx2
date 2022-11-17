@@ -1,10 +1,7 @@
 package org.molgenis.emx2.io.tablestore;
 
 import java.io.*;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.molgenis.emx2.MolgenisException;
@@ -29,10 +26,13 @@ public class TableStoreForCsvInMemory implements TableStore {
             String existing = "";
             if (store.containsKey(name)) existing = store.get(name);
             // make sure first row has all columnNames
-            Row row = rows.iterator().next();
-            for (String columnName : columnNames) {
-                if (!row.getColumnNames().contains(columnName)) {
-                    row.set(columnName, null);
+            Iterator iterator = rows.iterator();
+            if(iterator.hasNext()) {
+                Row row = rows.iterator().next();
+                for (String columnName : columnNames) {
+                    if (!row.getColumnNames().contains(columnName)) {
+                        row.set(columnName, null);
+                    }
                 }
             }
             if (rows.iterator().hasNext()) {
