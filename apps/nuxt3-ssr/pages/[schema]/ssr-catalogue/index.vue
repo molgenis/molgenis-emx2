@@ -60,6 +60,7 @@ async function handlePagination(pageNumber: number) {
     <template #main>
       <SearchResults>
         <template #header>
+          <NavigationIconsMobile />
           <PageHeader
             title="Cohorts"
             description="Group of individuals sharing a defining demographic characteristic."
@@ -67,14 +68,16 @@ async function handlePagination(pageNumber: number) {
           >
             <template #suffix>
               <SearchResultsViewTabs
+                class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
                 buttonLeftName="detailed"
                 buttonLeftIcon="view-normal"
                 buttonRightLabel="Compact"
                 buttonRightName="compact"
                 buttonRightIcon="view-compact"
-                activeName="compact"
+                activeName="detailed"
               />
+              <SearchResultsViewTabsMobile class="flex xl:hidden" />
             </template>
           </PageHeader>
         </template>
