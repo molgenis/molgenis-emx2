@@ -11,6 +11,9 @@ public class GenomicVariantsResultSetsItem {
   private String alternateBases;
   private Position position;
   private String geneId;
+  private String genomicHGVSId;
+  private String[] proteinHGVSIds;
+  private String[] transcriptHGVSIds;
   private VariantLevelData variantLevelData;
 
   public void setVariantInternalId(String variantInternalId) {
@@ -43,5 +46,29 @@ public class GenomicVariantsResultSetsItem {
 
   public void setVariantLevelData(VariantLevelData variantLevelData) {
     this.variantLevelData = variantLevelData;
+  }
+
+  public String getGenomicHGVSId() {
+    return genomicHGVSId;
+  }
+
+  public void setGenomicHGVSId(String genomicHGVSId) {
+    this.genomicHGVSId = genomicHGVSId;
+  }
+
+  public String[] getProteinHGVSIds() {
+    return proteinHGVSIds;
+  }
+
+  public void setProteinHGVSIds(String[] proteinHGVSIds) {
+    this.proteinHGVSIds = proteinHGVSIds;
+  }
+
+  public String[] getTranscriptHGVSIds() {
+    return transcriptHGVSIds;
+  }
+
+  public void setTranscriptHGVSIds(String[] transcriptHGVSIds) {
+    this.transcriptHGVSIds = transcriptHGVSIds;
   }
 }

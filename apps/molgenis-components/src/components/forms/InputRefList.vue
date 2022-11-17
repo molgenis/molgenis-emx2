@@ -173,6 +173,11 @@ export default {
       this.count = response[this.tableName + "_agg"].count;
     },
   },
+  watch: {
+    modelValue() {
+      this.selection = this.modelValue;
+    }
+  },
   async mounted() {
     this.client = Client.newClient(this.graphqlURL);
     const allMetaData = await this.client.fetchMetaData();
