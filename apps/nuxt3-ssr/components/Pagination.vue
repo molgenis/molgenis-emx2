@@ -12,11 +12,13 @@ defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(['update'])
 </script>
 
 <template>
   <nav class="py-12.5 flex items-center justify-center font-display text-heading-xl">
-    <a href="#" class="rounded-full bg-blue-800 text-white h-15 w-15 flex justify-center">
+    <a href="#" @click="$emit('update', currentPage - 1)" class="rounded-full bg-blue-800 text-white h-15 w-15 flex justify-center">
       <BaseIcon name="caret-left" width="24" />
     </a>
     <div class="px-5 text-gray-400">Page</div>
@@ -24,7 +26,7 @@ defineProps({
       {{ currentPage }}
     </div>
     <div class="px-5 text-gray-400 whitespace-nowrap">OF {{ totalPages }}</div>
-    <a href="#" class="rounded-full bg-blue-800 text-white h-15 w-15 flex justify-center">
+    <a href="#" @click="$emit('update', currentPage + 1)" class="rounded-full bg-blue-800 text-white h-15 w-15 flex justify-center">
       <BaseIcon name="caret-right" width="24" />
     </a>
   </nav>
