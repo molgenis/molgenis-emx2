@@ -1,5 +1,6 @@
 <script setup>
 import "floating-vue/dist/style.css";
+import { Dropdown as VDropdown } from "floating-vue";
 
 const onShow = () => {
   document.body.classList.add("no-scroll");

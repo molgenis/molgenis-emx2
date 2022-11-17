@@ -1,4 +1,5 @@
 <script setup>
+import { Menu as VMenu } from "floating-vue";
 import "floating-vue/dist/style.css";
 
 defineProps({
