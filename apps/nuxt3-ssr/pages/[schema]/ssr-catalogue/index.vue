@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const route = useRoute()
-const config = useRuntimeConfig()
-const pageSize = 5
-const currentPage = ref(1)
-let offset = computed(() => currentPage.value * pageSize)
+const route = useRoute();
+const config = useRuntimeConfig();
+const pageSize = 5;
+const currentPage = ref(1);
+let offset = computed(() => currentPage.value * pageSize);
 
 const query = computed(() => {
   return `
@@ -28,8 +28,8 @@ const query = computed(() => {
       count
       }
   }
-  `
-})
+  `;
+});
 
 const { data, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -38,15 +38,14 @@ const { data, pending, error, refresh } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query
-    }
+      query,
+    },
   }
 );
 
 async function handlePagination(pageNumber: number) {
-  currentPage.value = pageNumber
+  currentPage.value = pageNumber;
 }
-
 </script>
 
 <template>
@@ -61,21 +60,32 @@ async function handlePagination(pageNumber: number) {
     <template #main>
       <SearchResults>
         <template #header>
-          <PageHeader title="Cohorts" description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link">
+          <PageHeader
+            title="Cohorts"
+            description="Group of individuals sharing a defining demographic characteristic."
+            icon="image-link"
+          >
             <template #suffix>
-              <SearchResultsViewTabs buttonLeftLabel="Detailed" buttonLeftName="detailed" buttonLeftIcon="view-normal"
-                buttonRightLabel="Compact" buttonRightName="compact" buttonRightIcon="view-compact"
-                activeName="compact" />
+              <SearchResultsViewTabs
+                buttonLeftLabel="Detailed"
+                buttonLeftName="detailed"
+                buttonLeftIcon="view-normal"
+                buttonRightLabel="Compact"
+                buttonRightName="compact"
+                buttonRightIcon="view-compact"
+                activeName="compact"
+              />
             </template>
           </PageHeader>
         </template>
 
         <template #search-results>
-
           <SearchResultsList>
             <CardList>
-              <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
+              <CardListItem
+                v-for="cohort in data?.data?.Cohorts"
+                :key="cohort.name"
+              >
                 <CohortCard :cohort="cohort" :schema="route.params.schema" />
               </CardListItem>
             </CardList>
@@ -83,8 +93,11 @@ async function handlePagination(pageNumber: number) {
         </template>
 
         <template #pagination>
-          <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="handlePagination($event)" />
+          <Pagination
+            :current-page="currentPage"
+            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            @update="handlePagination($event)"
+          />
         </template>
       </SearchResults>
     </template>
