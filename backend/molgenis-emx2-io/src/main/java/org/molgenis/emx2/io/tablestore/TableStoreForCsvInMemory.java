@@ -6,71 +6,70 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 public class TableStoreForCsvInMemory implements TableStore {
-  private final Map<String, String> store;
-  private Character separator;
+    private final Map<String, String> store;
+    private Character separator;
 
-  public TableStoreForCsvInMemory() {
-    store = new LinkedHashMap<>();
-    separator = ',';
-  }
-
-  @Override
-  public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    try {
-      Writer writer = new StringWriter();
-      Writer bufferedWriter = new BufferedWriter(writer);
-      String existing = "";
-      if (store.containsKey(name)) existing = store.get(name);
-      // make sure first row has all columnNames
-      for (Row row : rows) {
-        for (String columnName : columnNames) {
-          if (!row.getColumnNames().contains(columnName)) {
-            row.set(columnName, null);
-          }
-        }
-        break;
-      }
-      if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, bufferedWriter, separator);
-      } else {
-        // only header in case no rows provided
-        writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
-      }
-      bufferedWriter.close();
-      store.put(name, existing + writer.toString());
-    } catch (IOException ioe) {
-      throw new MolgenisException("export failed", ioe);
+    public TableStoreForCsvInMemory() {
+        store = new LinkedHashMap<>();
+        separator = ',';
     }
-  }
 
-  @Override
-  public Iterable<Row> readTable(String name) {
-    if (!store.containsKey(name))
-      throw new MolgenisException(
-          "Import failed: Table not found. File with name " + name + " doesn't exist");
-    Reader reader = new BufferedReader(new StringReader(store.get(name)));
+    @Override
+    public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+        try {
+            Writer writer = new StringWriter();
+            Writer bufferedWriter = new BufferedWriter(writer);
+            String existing = "";
+            if (store.containsKey(name)) existing = store.get(name);
+            // make sure first row has all columnNames
+            Row row = rows.iterator().next();
+            for (String columnName : columnNames) {
+                if (!row.getColumnNames().contains(columnName)) {
+                    row.set(columnName, null);
+                }
+            }
+            if (rows.iterator().hasNext()) {
+                CsvTableWriter.write(rows, bufferedWriter, separator);
+            } else {
+                // only header in case no rows provided
+                writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
+            }
+            bufferedWriter.close();
+            store.put(name, existing + writer.toString());
+        } catch (IOException ioe) {
+            throw new MolgenisException("export failed", ioe);
+        }
+    }
 
-    return CsvTableReader.read(reader);
-  }
+    @Override
+    public Iterable<Row> readTable(String name) {
+        if (!store.containsKey(name))
+            throw new MolgenisException(
+                    "Import failed: Table not found. File with name " + name + " doesn't exist");
+        Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
-  @Override
-  public void processTable(String name, RowProcessor processor) {
-    processor.process(readTable(name).iterator(), this);
-  }
+        return CsvTableReader.read(reader);
+    }
 
-  @Override
-  public boolean containsTable(String name) {
-    return store.containsKey(name);
-  }
+    @Override
+    public void processTable(String name, RowProcessor processor) {
+        processor.process(readTable(name).iterator(), this);
+    }
 
-  @Override
-  public Collection<String> tableNames() {
-    return this.store.keySet();
-  }
+    @Override
+    public boolean containsTable(String name) {
+        return store.containsKey(name);
+    }
+
+    @Override
+    public Collection<String> tableNames() {
+        return this.store.keySet();
+    }
 }
