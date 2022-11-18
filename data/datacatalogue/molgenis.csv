@@ -63,8 +63,8 @@ Datasources,,populationEntryOther,text,,,,,,,,,"If other, specify the causes of 
 Datasources,,populationExit,ontology_array,,,CatalogueOntologies,PopulationExit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
 Datasources,,populationExitOther,text,,,,,,,,,"If other, specify the causes of exit from the underlying population",EMA,Databanks,populationExitOther
 Datasources,,populationDisease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",EMA,,
-Datasources,,populationCoverage,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care)",EMA,,
-Datasources,,populationNotCovered,text,,,,,,,,,"Are there any people from the geographical area that the data bank covers whose data are not collected in the data bank (e.g., people without a national insurance number, people who are registered for private care)? If yes, which subpopulation(s) are not covered by the data bank?",EMA,,
+Datasources,,populationCoverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
+Datasources,,populationNotCovered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
 Datasources,,quantantitativeInformation,refback,,,,QuantitativeInformation,,resource,,,Numerical summaries describing data bank population,EMA,,
 DataResources,,contents,heading,,,,,,,,,Data model and contents,,,
 Datasources,,areasOfInformation,ontology_array,,,CatalogueOntologies,AreasOfInformationDataSources,,,,,Areas of information that were collected,EMA,Databanks,areasOfInformation
