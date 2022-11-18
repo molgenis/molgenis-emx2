@@ -2,7 +2,7 @@
 defineProps({
   label: {
     type: String,
-    required: true,
+    required: false,
   },
   icon: {
     type: String,
@@ -24,6 +24,6 @@ defineProps({
     "
   >
     <span><BaseIcon :name="icon" /></span>
-    <span class="sr-only">{{ label }}</span>
+    <span class="sr-only" v-if="label">{{ label }}</span>
   </button>
 </template>

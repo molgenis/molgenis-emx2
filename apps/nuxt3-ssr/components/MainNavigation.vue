@@ -1,18 +1,15 @@
-<script setup>
-const props = defineProps({
-  maximumButtonShown: {
-    type: Number,
-    default: 3,
-  },
-  navigation: {
-    type: Array,
-    required: true,
-  },
-  showMoreButton: {
-    type: Boolean,
-    default: true,
-  },
+<script setup lang="ts">
+interface PropType {
+  maximumButtonShown?: number;
+  navigation: { label: string; link: string; highlight?: boolean }[];
+  showMoreButton?: boolean;
+}
+
+const props: PropType = withDefaults(defineProps<PropType>(), {
+  maximumButtonShown: 3,
+  showMoreButton: true,
 });
+
 const mainButtons = props.navigation.slice(0, props.maximumButtonShown);
 const subButtons = props.navigation.slice(props.maximumButtonShown);
 const active = "underline";
