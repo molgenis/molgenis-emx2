@@ -33,7 +33,7 @@ defineProps({
           - {{ count }}
         </span>
         <div v-if="tooltip" class="inline-block">
-          <Tooltip label="Lees meer" :content="tooltip" />
+          <CustomTooltip label="Lees meer" :content="tooltip" />
         </div>
       </div>
     </dt>

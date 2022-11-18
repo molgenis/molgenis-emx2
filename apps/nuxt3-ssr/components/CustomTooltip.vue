@@ -1,8 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
-import { Tooltip } from "floating-vue";
 import { computed } from "vue";
-import "floating-vue/dist/style.css";
 
 const props = defineProps({
   label: {
@@ -33,7 +31,7 @@ const hoverColorClass = computed(() => {
 
 <template>
   <div class="flex items-center justify-center w-6 h-6">
-    <Tooltip :showTriggers="['hover', 'touch']" :distance="12">
+    <VTooltip :showTriggers="['hover', 'touch']" :distance="12">
       <button
         class="w-6 h-6 text-blue-200 cursor-default select-none"
         :class="hoverColorClass"
@@ -45,7 +43,7 @@ const hoverColorClass = computed(() => {
       <template #popper>
         {{ content }}
       </template>
-    </Tooltip>
+    </VTooltip>
   </div>
 </template>
 

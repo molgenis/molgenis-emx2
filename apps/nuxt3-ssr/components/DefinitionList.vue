@@ -39,7 +39,7 @@ const isArray = (value) => {
         <div class="flex items-center gap-1">
           {{ item.label }}
           <div v-if="item.tooltip">
-            <Tooltip label="Lees meer" :content="item.tooltip" />
+            <CustomTooltip label="Lees meer" :content="item.tooltip" />
           </div>
         </div>
       </dt>

@@ -90,7 +90,7 @@ const toggleCollapse = () => {
             &nbsp;- 34
           </span>
           <div class="inline-block">
-            <Tooltip
+            <CustomTooltip
               v-if="child.mg_insertedOn"
               label="Lees meer"
               hoverColor="white"

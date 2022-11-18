@@ -23,7 +23,7 @@ defineProps({
           More filters
         </span>
       </a>
-      <Tooltip
+      <CustomTooltip
         label="Lees meer"
         hoverColor="white"
         content="tooltip"

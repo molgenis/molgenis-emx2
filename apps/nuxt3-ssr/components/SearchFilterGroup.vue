@@ -117,7 +117,11 @@ const toggleCollapse = () => {
               >&nbsp;- 34
             </span>
             <div class="inline-block">
-              <Tooltip label="Lees meer" hoverColor="white" content="tooltip" />
+              <CustomTooltip
+                label="Lees meer"
+                hoverColor="white"
+                content="tooltip"
+              />
             </div>
           </div>
         </label>

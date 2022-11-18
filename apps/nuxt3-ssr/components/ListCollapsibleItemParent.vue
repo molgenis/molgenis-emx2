@@ -52,7 +52,7 @@ const toggleCollapse = () => {
             >- {{ count }}</span
           >
           <div v-if="tooltip" class="inline-block ml-1">
-            <Tooltip label="Lees meer" :content="tooltip" />
+            <CustomTooltip label="Lees meer" :content="tooltip" />
           </div>
         </div>
       </div>
