@@ -22,7 +22,7 @@ defineProps({
     </div>
     <div class="flex flex-col items-center text-white">
       <span class="mb-2 mt-2.5 xl:block hidden" v-if="icon">
-        <BaseIcon :name="icon" width="55" />
+        <BaseIcon :name="icon" :width="55" />
       </span>
       <div class="relative">
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>

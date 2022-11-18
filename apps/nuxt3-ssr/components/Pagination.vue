@@ -64,7 +64,7 @@ const borderClasses = computed(() => {
         justify-center
       "
     >
-      <BaseIcon name="caret-left" width="24" />
+      <BaseIcon name="caret-left" :width="24" />
     </a>
     <div class="sm:px-5 px-4 tracking-widest" :class="textClasses">Page</div>
     <div
@@ -104,7 +104,7 @@ const borderClasses = computed(() => {
         justify-center
       "
     >
-      <BaseIcon name="caret-right" width="24" />
+      <BaseIcon name="caret-right" :width="24" />
     </a>
   </nav>
 </template>

@@ -239,7 +239,7 @@ const json = Object.values(data)[0];
           </template>
 
           <template #pagination>
-            <Pagination type="white" currentPage="45" totalPages="55" />
+            <Pagination type="white" :currentPage="45" :totalPages="55" />
           </template>
         </SearchResults>
       </template>

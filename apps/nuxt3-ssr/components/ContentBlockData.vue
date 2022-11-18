@@ -12,7 +12,7 @@ defineProps({
 <template>
   <ContentBlock :title="title" :description="description">
     <div class="grid gap-[45px] mt-7.5">
-      <List title="Data categories" columnCount="2">
+      <List title="Data categories" :columnCount="2">
         <ListItem>Biological samples</ListItem>
         <ListItem>Physiological/Biochemical measurments</ListItem>
         <ListItem>Medical records</ListItem>
@@ -20,7 +20,7 @@ defineProps({
         <ListItem>Survey data</ListItem>
         <ListItem>Imaging data</ListItem>
       </List>
-      <List title="Sample categories" columnCount="3">
+      <List title="Sample categories" :columnCount="3">
         <ListItem>Blood</ListItem>
         <ListItem>Fetal blood (Cord blood)</ListItem>
         <ListItem>Plasma</ListItem>
@@ -39,7 +39,7 @@ defineProps({
         <ListItem>Placenta - Tissue</ListItem>
         <ListItem>Other</ListItem>
       </List>
-      <List title="Areas of informations" columnCount="2">
+      <List title="Areas of informations" :columnCount="2">
         <ListItem>List item</ListItem>
         <ListItem>List item</ListItem>
         <ListItem>List item</ListItem>
@@ -75,11 +75,11 @@ defineProps({
         *
       -->
 
-      <ListCollapsible title="Areas of informations tree view" columnCount="2">
+      <ListCollapsible title="Areas of informations tree view" :columnCount="2">
         <ul class="text-body-base">
           <ListCollapsibleItemParent
             title="Administrative information"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -100,7 +100,7 @@ defineProps({
           </ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Birth, pregnancy and reproductive health history"
-            count="5"
+            :count="5"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -119,7 +119,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Cognition, personality and psychological measures measures and assessments"
-            count="4"
+            :count="4"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -138,7 +138,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Death"
-            count="3"
+            :count="3"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -157,7 +157,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Health and community care services utilization"
-            count="4"
+            :count="4"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -176,7 +176,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Laboratory measures"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -195,7 +195,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Life events, life plans, beliefs and values"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -214,7 +214,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Lifestyle and behaviours"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -235,7 +235,7 @@ defineProps({
         <ul class="text-body-base">
           <ListCollapsibleItemParent
             title="Administrative information"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -256,7 +256,7 @@ defineProps({
           </ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Birth, pregnancy and reproductive health history"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -275,7 +275,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Cognition, personality and psychological measures measures and assessments"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -294,7 +294,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Death"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -313,7 +313,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Health and community care services utilization"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -332,7 +332,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Laboratory measures"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -351,7 +351,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Life events, life plans, beliefs and values"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -370,7 +370,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Lifestyle and behaviours"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
           >
             <ListCollapsibleItemChild title="Biochemistry" />
@@ -392,12 +392,12 @@ defineProps({
 
       <ListCollapsible
         title="Areas of informations tree view links"
-        columnCount="2"
+        :columnCount="2"
       >
         <ul class="text-body-base">
           <ListCollapsibleItemParent
             title="Administrative information"
-            count="9"
+            :count="9"
             tooltip="Tooltip text"
             url="#"
           >
@@ -425,7 +425,7 @@ defineProps({
           </ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Birth, pregnancy and reproductive health history"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -450,7 +450,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Cognition, personality and psychological measures measures and assessments"
-            count="4"
+            :count="4"
             tooltip="Tooltip text"
             url="#"
           >
@@ -475,7 +475,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Death"
-            count="2"
+            :count="2"
             tooltip="Tooltip text"
             url="#"
           >
@@ -500,7 +500,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Health and community care services utilization"
-            count="7"
+            :count="7"
             tooltip="Tooltip text"
             url="#"
           >
@@ -525,7 +525,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Laboratory measures"
-            count="4"
+            :count="4"
             tooltip="Tooltip text"
             url="#"
           >
@@ -550,7 +550,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Life events, life plans, beliefs and values"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -575,7 +575,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Lifestyle and behaviours"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -602,7 +602,7 @@ defineProps({
         <ul class="text-body-base">
           <ListCollapsibleItemParent
             title="Medication and supplements"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -630,7 +630,7 @@ defineProps({
           </ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Non-pharmacological interventions"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -655,7 +655,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Perception of health, guality of life, development and functional limitations"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -680,7 +680,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Physical environment"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -705,7 +705,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Physical measures and assessment"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -730,7 +730,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Preschool, school and worklife"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -755,7 +755,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Social environment and relationships"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >
@@ -780,7 +780,7 @@ defineProps({
           /></ListCollapsibleItemParent>
           <ListCollapsibleItemParent
             title="Socio-demographic and economic characteristics"
-            count="6"
+            :count="6"
             tooltip="Tooltip text"
             url="#"
           >

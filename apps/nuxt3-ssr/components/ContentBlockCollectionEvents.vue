@@ -42,7 +42,7 @@ defineProps({
           <option value="start-end-year">Start & end year</option>
         </select>
         <span class="absolute right-5 top-5 pointer-events-none">
-          <BaseIcon name="caret-down" width="20" />
+          <BaseIcon name="caret-down" :width="20" />
         </span>
       </div>
     </ButtonGroup>
@@ -352,6 +352,6 @@ defineProps({
         </TableRow>
       </template>
     </Table>
-    <Pagination currentPage="45" totalPages="55" />
+    <Pagination :currentPage="45" :totalPages="55" />
   </ContentBlock>
 </template>

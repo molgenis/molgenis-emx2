@@ -18,7 +18,7 @@ defineProps({
 
     <div class="flex items-center p-5">
       <a href="#" class="flex items-center">
-        <BaseIcon name="plus" class="text-yellow-500" width="18" />
+        <BaseIcon name="plus" class="text-yellow-500" :width="18" />
         <span class="text-body-base text-yellow-500 ml-3 hover:underline">
           More filters
         </span>

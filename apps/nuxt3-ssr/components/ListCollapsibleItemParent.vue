@@ -37,7 +37,7 @@ const toggleCollapse = () => {
         "
         :class="{ 'rotate-180': collapsed }"
       >
-        <BaseIcon name="caret-up" width="20" />
+        <BaseIcon name="caret-up" :width="20" />
       </span>
 
       <div>

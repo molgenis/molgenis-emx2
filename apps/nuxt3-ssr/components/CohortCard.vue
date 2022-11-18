@@ -12,7 +12,7 @@ const props = defineProps({
   },
   compact: {
     type: Boolean,
-    default: 0,
+    default: false,
   },
 });
 

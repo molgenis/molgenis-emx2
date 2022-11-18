@@ -42,7 +42,7 @@ const toggleCollapse = () => {
           z-20
         "
       >
-        <BaseIcon name="caret-up" width="20" />
+        <BaseIcon name="caret-up" :width="20" />
       </span>
       <BaseIcon
         v-if="child.children"

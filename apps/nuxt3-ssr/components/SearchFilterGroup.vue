@@ -51,7 +51,7 @@ const toggleCollapse = () => {
           justify-center
         "
       >
-        <BaseIcon name="caret-up" width="26" />
+        <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
     <div class="grow text-right">
@@ -82,7 +82,7 @@ const toggleCollapse = () => {
             justify-center
           "
         >
-          <BaseIcon name="caret-up" width="20" />
+          <BaseIcon name="caret-up" :width="20" />
         </span>
         <div class="flex items-center">
           <input
