@@ -17,6 +17,17 @@ const BACKGROUND_MAPPING = {
 const backgroundClass = computed(() => {
   return BACKGROUND_MAPPING[props.background];
 });
+
+const menu = [
+  { label: "Home", link: "#" },
+  { label: "Variables", link: "#", highlight: true },
+  { label: "Cohorts", link: "#" },
+  { label: "Networks", link: "#" },
+  { label: "Statistical Methods", link: "#" },
+  { label: "Tables", link: "#" },
+  { label: "Manuals", link: "#" },
+  { label: "About", link: "#" },
+];
 </script>
 
 <template>
@@ -24,7 +35,7 @@ const backgroundClass = computed(() => {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo />
-        <MainNavigation />
+        <MainNavigation :navigation="menu" />
         <div class="w-[450px]">
           <SearchBar />
         </div>
@@ -35,7 +46,7 @@ const backgroundClass = computed(() => {
 
       <div class="pt-5 xl:hidden">
         <div class="relative flex items-center h-12.5 justify-between mb-4">
-          <HamburgerMenu />
+          <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile />
@@ -47,7 +58,7 @@ const backgroundClass = computed(() => {
           </div>
         </div>
 
-        <MainNavigation :showMoreButton="false" />
+        <MainNavigation :navigation="menu" :showMoreButton="false" />
         <div class="w-full pt-6">
           <SearchBar />
         </div>

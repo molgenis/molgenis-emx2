@@ -57,31 +57,16 @@ defineProps({
           </button>
 
           <nav class="flex flex-col gap-4 px-6 pt-19 pb-14">
-            <a href="#" class="text-blue-500 font-display text-heading-4xl"
-              >Home</a
+            <a
+              v-for="menuItem in navigation"
+              :href="menuItem.link"
+              class="font-display text-heading-4xl"
+              :class="
+                menuItem?.highlight === true ? 'text-blue-500' : 'text-blue-800'
+              "
             >
-            <a href="#" class="text-blue-500 font-display text-heading-4xl"
-              >Variables</a
-            >
-            <a href="#" class="text-blue-500 font-display text-heading-4xl"
-              >Cohorts</a
-            >
-            <a href="#" class="text-blue-500 font-display text-heading-4xl"
-              >Networks</a
-            >
-
-            <a href="#" class="text-blue-800 font-display text-heading-4xl"
-              >Statistical Methods</a
-            >
-            <a href="#" class="text-blue-800 font-display text-heading-4xl"
-              >Tables</a
-            >
-            <a href="#" class="text-blue-800 font-display text-heading-4xl"
-              >Manuals</a
-            >
-            <a href="#" class="text-blue-800 font-display text-heading-4xl"
-              >About</a
-            >
+              {{ menuItem.label }}
+            </a>
           </nav>
 
           <div class="flex items-center justify-around px-6 bg-blue-500 h-19">

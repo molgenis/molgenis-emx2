@@ -1,19 +1,28 @@
 <script setup>
-defineProps({
+const props = defineProps({
+  maximumButtonShown: {
+    type: Number,
+    default: 3,
+  },
+  navigation: {
+    type: Array,
+    required: true,
+  },
   showMoreButton: {
     type: Boolean,
     default: true,
   },
 });
-
-// Active class
+const mainButtons = props.navigation.slice(0, props.maximumButtonShown);
+const subButtons = props.navigation.slice(props.maximumButtonShown);
 const active = "underline";
 </script>
 
 <template>
   <nav class="flex items-center xl:justify-center gap-6 justify-between">
     <a
-      href="#"
+      v-for="button in mainButtons"
+      :href="button.link"
       class="
         flex
         items-center
@@ -27,45 +36,14 @@ const active = "underline";
         hover:underline
       "
     >
-      Variables
-    </a>
-    <a
-      href="#"
-      class="
-        flex
-        items-center
-        gap-1
-        tracking-widest
-        text-white
-        transition-colors
-        border border-b-0 border-transparent
-        font-display
-        text-heading-xl
-        hover:underline
-      "
-      :class="active"
-    >
-      Cohorts
-    </a>
-    <a
-      href="#"
-      class="
-        flex
-        items-center
-        gap-1
-        tracking-widest
-        text-white
-        transition-colors
-        border border-b-0 border-transparent
-        font-display
-        text-heading-xl
-        hover:underline
-      "
-    >
-      Networks
+      {{ button.label }}
     </a>
 
-    <VMenu placement="bottom-end" :distance="-1" v-if="showMoreButton">
+    <VMenu
+      placement="bottom-end"
+      :distance="-1"
+      v-if="subButtons.length > 0 && showMoreButton"
+    >
       <button
         class="
           flex
@@ -91,7 +69,6 @@ const active = "underline";
         "
       >
         More
-
         <BaseIcon name="caret-down" />
       </button>
 
@@ -107,52 +84,16 @@ const active = "underline";
             p-6
           "
         >
-          <li>
+          <li v-for="button in subButtons">
             <a
-              href="#"
+              :href="button.link"
               class="
                 font-bold
                 text-blue-500
                 transition-colors
                 hover:text-blue-700
               "
-              >Statistical methods</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="
-                font-bold
-                text-blue-500
-                transition-colors
-                hover:text-blue-700
-              "
-              >Tables</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="
-                font-bold
-                text-blue-500
-                transition-colors
-                hover:text-blue-700
-              "
-              >Manuals</a
-            >
-          </li>
-          <li>
-            <a
-              href="#"
-              class="
-                font-bold
-                text-blue-500
-                transition-colors
-                hover:text-blue-700
-              "
-              >About</a
+              >{{ button.label }}</a
             >
           </li>
         </ol>
