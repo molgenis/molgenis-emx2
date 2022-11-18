@@ -5,6 +5,8 @@ Organisations,,pid,,1,TRUE,,,,,,,Persistent identifier,,,
 Organisations,,name,,2,TRUE,,,,,,,Organisation name,,,
 Organisations,,type,ontology,,,CatalogueOntologies,OrganisationTypes,,,,,Type of organisation; in which sector is the organisation active?,,,
 Organisations,,typeOther,text,,,,,,,,,"If type is 'other', a description of type of organisation",,,
+Organisations,,website,,,,,,,,,,"If applicable, a dedicated website for the organisation can be entered.",,,
+Organisations,,description,,,,,,,,,,A short description of the organisation,,,
 Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of",,,
 Organisations,,institutionAcronym,string,,,,,,,,,Short name of the organisation,,,
 Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,,,
@@ -49,7 +51,7 @@ DataResources,,population,heading,,,,,,,,,Description of the population that can
 DataResources,,numberOfParticipants,int,,,,,,,,,Total number of individuals for which data is collected,,Resources,numberOfParticipants
 DataResources,,numberOfParticipantsWithSamples,int,,,,,,,,,Number of individuals for which samples are collected,,Resources,numberOfParticipantsWithSamples
 Datasources,,underlyingPopulation,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,,Databanks,underlyingPopulation
-DataResources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,,Resources,countries
+Resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,,,
 DataResources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
 Cohorts,,inclusionCriteria,text,,,,InclusionCriteria,,,,,Inclusion criteria applied to the participants of this resource,,,
 Cohorts,,startYear,int,,,,,,,,,Year when first data was collected,,,
@@ -139,8 +141,7 @@ Datasources,,qualityValidationMethods,text,,,,,,,,,What methods or processes are
 Datasources,,correctionMethods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,,,
 Datasources,,qualityValidationResults,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",,,
 Datasources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,,,
-Datasources,,cdms,ref_array,,,,Models,,,,,Common data models used or ETL to by this databank,EMA,,
-Datasources,,cdmsOther,text,,,,,,,,,"Common data models, if not from above",EMA,,
+Datasources,,cdms,refback,,,,Mappings,,datasource,,,Common data models used or ETL-ed to by this databank,EMA,,
 Datasources,,etlFrequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
 Datasources,,ETLstandardVocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Datasources,,ETLstandardVocabulariesOther,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
