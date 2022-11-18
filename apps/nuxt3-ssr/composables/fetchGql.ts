@@ -1,6 +1,8 @@
-export const fetchGql = async (url: string, query: string) => {
-    return await $fetch(`http://localhost:3000/${url}`, {
+// const config = useRuntimeConfig();
+export const fetchGql = (url: string, query: string) => {
+    return $fetch(`/UMCG/catalogue/graphql`, {
         method: "POST",
+        baseURL: 'http://localhost:3000/',
         body: {
             query,
         },

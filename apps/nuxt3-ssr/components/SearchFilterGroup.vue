@@ -1,13 +1,16 @@
 <script setup>
 import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
   },
   json: {
     type: Object,
   },
+  graphqlURL: {
+    type: String
+  }
 });
 
 let collapsedTitle = ref(true);
@@ -15,10 +18,93 @@ const toggleCollapseTitle = () => {
   collapsedTitle.value = !collapsedTitle.value;
 };
 
-let collapsed = ref(true);
-const toggleCollapse = () => {
-  collapsed.value = !collapsed.value;
-};
+const query = `
+query 
+AreasOfInformation( $filter:AreasOfInformationFilter, $orderby:AreasOfInformationorderby )
+ {   
+  AreasOfInformation( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
+    {          
+      order
+      name 
+      code 
+      parent{ name }
+      ontologyTermURI 
+      definition 
+      children{ name }
+     }       
+  AreasOfInformation_agg( filter:$filter ) { count }
+  }
+  `;
+
+let resp = await $fetch(`/UMCG/catalogue/graphql`, {
+  method: "POST",
+  baseURL: 'http://localhost:3000/',
+  body: {
+    query,
+  },
+});
+console.log('Search Filter data ')
+
+let data = resp?.data?.AreasOfInformation
+let count = resp?.data?.AreasOfInformation_agg?.count;
+
+console.log(count)
+
+
+// convert to tree of terms
+//list all terms, incl subtrees
+let terms = reactive({});
+data.forEach((e) => {
+  // did we see it maybe as parent before?
+  if (terms[e.name]) {
+    //then copy properties, currently only definition
+    terms[e.name].definition = e.definition;
+  } else {
+    //else simply add the record
+    terms[e.name] = {
+      name: e.name,
+      visible: true,
+      selected: false,
+      definition: e.definition,
+    };
+  }
+  if (e.parent) {
+    terms[e.name].parent = e.parent;
+    //did we see this parent before?
+    if (!terms[e.parent.name]) {
+      //otherwise add it
+      terms[e.parent.name] = {
+        name: e.parent.name,
+        visible: true,
+        selected: false,
+      };
+    }
+    // if first child then add children array
+    if (!terms[e.parent.name].children) {
+      terms[e.parent.name].children = [];
+    }
+    // add the child
+    terms[e.parent.name].children.push(terms[e.name]);
+  }
+});
+
+let rootTerms = computed(() => {
+  if (terms) {
+    const result = Object.values(terms).filter(
+      (t) => !t.parent && t.visible
+    );
+    return result;
+  } else {
+    return [];
+  }
+});
+
+let key = ref(1)
+function toggleExpand(term) {
+  terms[term.name].expanded = !terms[term.name].expanded;
+  key++;
+}
+
 </script>
 
 <template>
@@ -26,21 +112,17 @@ const toggleCollapse = () => {
 
   <div class="flex gap-1 p-5 items-center">
     <div class="inline-flex gap-1 group" @click="toggleCollapseTitle()">
-      <h3
-        class="
+      <h3 class="
           text-white
           font-sans
           text-body-base
           font-bold
           mr-[5px]
           group-hover:underline group-hover:cursor-pointer
-        "
-      >
+        ">
         {{ title }}
       </h3>
-      <span
-        :class="{ 'rotate-180': collapsedTitle }"
-        class="
+      <span :class="{ 'rotate-180': collapsedTitle }" class="
           rounded-full
           group-hover:bg-blue-800 group-hover:cursor-pointer
           w-8
@@ -55,23 +137,18 @@ const toggleCollapse = () => {
       </span>
     </div>
     <div class="grow text-right">
-      <span
-        class="
+      <span class="
           text-body-sm text-yellow-500
           hover:underline hover:cursor-pointer
-        "
-        >Remove 2 selected
+        ">Remove 2 selected
       </span>
     </div>
   </div>
 
   <ul class="ml-5 mb-5 text-white" :class="{ hidden: collapsedTitle }">
-    <li v-for="item in json" :key="item.code" class="mb-2.5">
+    <li v-for="item in rootTerms" :key="item.name" class="mb-2.5">
       <div class="flex items-start">
-        <span
-          @click="toggleCollapse()"
-          :class="{ 'rotate-180': collapsed }"
-          class="
+        <span @click="toggleExpand(item)" :class="{ 'rotate-180': !terms[item.name].expanded }" class="
             text-white
             rounded-full
             hover:bg-blue-800 hover:cursor-pointer
@@ -85,11 +162,7 @@ const toggleCollapse = () => {
           <BaseIcon name="caret-up" :width="20" />
         </span>
         <div class="flex items-center">
-          <input
-            type="checkbox"
-            :id="item.code"
-            :name="item.code"
-            class="
+          <input type="checkbox" :id="item.name" :name="item.name" class="
               w-5
               h-5
               rounded-3px
@@ -98,36 +171,28 @@ const toggleCollapse = () => {
               mt-0.5
               text-yellow-500
               border-0
-            "
-          />
+            " />
         </div>
-        <label :for="item.code" class="hover:cursor-pointer text-body-sm group">
+        <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
           <div class="whitespace-nowrap inline-flex items-center">
-            <span
-              class="
+            <span class="
                 text-blue-200
                 inline-block
                 mr-2
                 group-hover:underline
                 decoration-blue-200
                 fill-black
-              "
-              :hoverColor="white"
-              >&nbsp;- 34
+              " hoverColor="white">&nbsp;- 34
             </span>
             <div class="inline-block">
-              <CustomTooltip
-                label="Lees meer"
-                hoverColor="white"
-                content="tooltip"
-              />
+              <CustomTooltip v-if="item.description" label="Read more" hoverColor="white" :content="item.description" />
             </div>
           </div>
         </label>
       </div>
 
-      <ul class="ml-[39px]" :class="{ hidden: collapsed }" v-if="item.children">
+      <ul class="ml-[39px]" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
         <SearchFilterGroupChild :data="item.children" />
       </ul>
     </li>

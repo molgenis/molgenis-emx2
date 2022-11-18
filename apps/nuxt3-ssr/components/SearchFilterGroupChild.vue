@@ -21,7 +21,7 @@ const toggleCollapse = () => {
 </script>
 
 <template>
-  <li v-for="child in data" :key="child.code" class="mt-2.5 relative">
+  <li v-for="child in data" :key="child.name" class="mt-2.5 relative">
     <span class="flex items-center">
       <span
         v-if="child.children"
@@ -47,13 +47,13 @@ const toggleCollapse = () => {
       <BaseIcon
         v-if="child.children"
         name="collapsible-list-item-sub"
-        width="20"
+        :width="20"
         class="text-blue-200 absolute -top-[9px]"
       />
       <BaseIcon
         v-else
         name="collapsible-list-item"
-        width="20"
+        :width="20"
         class="text-blue-200 absolute -top-[9px]"
       />
     </span>
@@ -61,8 +61,8 @@ const toggleCollapse = () => {
       <div class="flex items-center">
         <input
           type="checkbox"
-          :id="child.code"
-          :name="child.code"
+          :id="child.name"
+          :name="child.name"
           class="
             w-5
             h-5
@@ -75,8 +75,8 @@ const toggleCollapse = () => {
           "
         />
       </div>
-      <label :for="child.code" class="hover:cursor-pointer text-body-sm group">
-        <span class="group-hover:underline">{{ child.name }}</span>
+      <label :for="child.name" class="hover:cursor-pointer text-body-sm group">
+        <span class="group-hover:underline">{{ child.name  }}</span>
         <div class="whitespace-nowrap inline-flex items-center">
           <span
             class="
@@ -91,10 +91,10 @@ const toggleCollapse = () => {
           </span>
           <div class="inline-block">
             <CustomTooltip
-              v-if="child.mg_insertedOn"
+              v-if="child.description"
               label="Lees meer"
               hoverColor="white"
-              :content="child.mg_insertedOn"
+              :content="child.description"
             />
           </div>
         </div>

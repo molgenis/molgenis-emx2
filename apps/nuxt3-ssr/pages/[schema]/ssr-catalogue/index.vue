@@ -31,8 +31,10 @@ const query = computed(() => {
   `;
 });
 
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  graphqlURL.value,
   {
     key: `cohorts-${offset.value}`,
     baseURL: config.public.apiBase,
@@ -53,8 +55,7 @@ async function handlePagination(pageNumber: number) {
     <template #side>
       <SearchFilter title="Filters">
         <SearchFilterGroup title="Search in networks" />
-        <SearchFilterGroup title="Countries" />
-        <SearchFilterGroup title="Institutions" />
+        <SearchFilterGroup title="Areas of information" :graphqlURL="graphqlURL"  />
       </SearchFilter>
     </template>
     <template #main>
