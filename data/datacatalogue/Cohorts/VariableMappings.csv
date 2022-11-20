@@ -1,4 +1,4 @@
-source,sourceTable,sourceVariables,target,targetTable,targetVariable,match,description,syntax
+source,sourceDataset,sourceVariables,target,targetDataset,targetVariable,match,description,syntax
 ALSPAC,followup1,smoking,EUChildNetworkCDM,core,smoking,complete,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
 BIB,baseline,smokingAtBaseline,EUChildNetworkCDM,core,smoking,partial,Participants were categorised as smoking if they reported any smoking in 1st trimester.,"smk_t1 = ifelse(b670 > 0, 1, 0)"
 ALSPAC,followup1,hasDiabetes,EUChildNetworkCDM,core,diabetes,partial,"Gestational diabetes coded as 1, preexisting diabetes, Glycosuria and no diabetes coded as 0","preg_dia = case_when(

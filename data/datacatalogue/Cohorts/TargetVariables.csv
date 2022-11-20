@@ -1,8 +1,0 @@
-target,table,name,collectionEvent,topics,label,format,unit,mandatory,description,exampleValues,notes,codes(TODO)
-EUChildNetworkCDM,core,income,,EUSILC-based household income,some label,categorical,cm,true,some description,"true,false",some other notes as demo,
-EUChildNetworkCDM,core,age,,Recruitment age,,,,,,,,
-EUChildNetworkCDM,core,smoking,,Passive smoking,,,,,,,,
-EUChildNetworkCDM,core,diabetes,,Maternal diabetes,,,,,,,,
-EUChildNetworkCDM,core,cohab_0,y0-1,Socio-demographic characteristics,Cohabitation status of the mother,,,,,,,
-EUChildNetworkCDM,core,cohab_1,y1-2,,,,,,,,,
-EUChildNetworkCDM,core,cohab_2,y2-3,,,,,,,,,

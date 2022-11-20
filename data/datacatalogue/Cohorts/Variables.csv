@@ -1,4 +1,4 @@
-source,table,name,collectionEvent,topics,label,format,unit,mandatory,description,exampleValues,notes,codes(TODO)
+source,dataset,name,collectionEvent,topics,label,format,unit,mandatory,description,exampleValues,notes,codes(TODO)
 BIB,baseline,ageAtBaseline,,Recruitment age,,,,,,,,
 BIB,baseline,smokingAtBaseline,,Passive smoking,,,,,,,,
 BIB,baseline,glucose,,Maternal diabetes,,,,,,,,
@@ -1389,3 +1389,10 @@ ALSPAC,core,YPB1080,,,A9: Had wheezing or whistling in the chest in the past 12 
 ALSPAC,core,YPB1140,,,A15: Currently taking medications for asthma,categorical,,,Maternal report of child taking asthma medication in past 12 months,,,
 ALSPAC,core,YPB1210_imputeno,,,A22a: Ever been diagnosed with asthma - Silent no's included,categorical,,,Child's report of asthma diagnosis,,,
 ALSPAC,core,YPB9992,,,DV: Respondent age at completion (months),continuous,month,,Child's age in months,,,
+EUChildNetworkCDM,core,income,,EUSILC-based household income,some label,categorical,cm,true,some description,"true,false",some other notes as demo,
+EUChildNetworkCDM,core,age,,Recruitment age,,,,,,,,
+EUChildNetworkCDM,core,smoking,,Passive smoking,,,,,,,,
+EUChildNetworkCDM,core,diabetes,,Maternal diabetes,,,,,,,,
+EUChildNetworkCDM,core,cohab_0,y0-1,Socio-demographic characteristics,Cohabitation status of the mother,,,,,,,
+EUChildNetworkCDM,core,cohab_1,y1-2,,,,,,,,,
+EUChildNetworkCDM,core,cohab_2,y2-3,,,,,,,,,
