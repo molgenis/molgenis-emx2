@@ -236,9 +236,22 @@ class SqlTableMetadataExecutor {
       DSLContext jooq, TableMetadata table, Integer index, List<Field<?>> keyFields) {
     Name uniqueName = name(table.getTableName() + "_KEY" + index);
     jooq.execute("ALTER TABLE {0} DROP CONSTRAINT IF EXISTS {1}", getJooqTable(table), uniqueName);
+    // when we upgrade to psql 15 we can enable this
+    //    if (keyFields.size() > 1) {
+    //      // in composite keys allow nulls
+    //      jooq.execute(
+    //          "ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE NULLS NOT DISTINCT  ({2})",
+    //          table.getJooqTable(),
+    //          name(uniqueName),
+    //          keyword(
+    //              keyFields.stream()
+    //                  .map(field -> name(field.getName()).toString())
+    //                  .collect(Collectors.joining(","))));
+    //    } else {
     jooq.alterTable(getJooqTable(table))
         .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
         .execute();
+    //    }
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
