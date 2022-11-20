@@ -636,7 +636,9 @@ public class Column implements Comparable<Column> {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Column column = (Column) o;
-    return table.equals(column.table) && columnName.equals(column.columnName);
+    return table.getSchemaName().equals(column.getSchemaName())
+        && table.equals(column.table)
+        && columnName.equals(column.columnName);
   }
 
   @Override
