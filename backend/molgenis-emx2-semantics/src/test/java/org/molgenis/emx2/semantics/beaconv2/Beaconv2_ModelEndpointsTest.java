@@ -927,17 +927,17 @@ public class Beaconv2_ModelEndpointsTest {
     // 'Benign'. This works via the refback field 'hasGenomicVariations'.
     assertNrOfHitsFor(
         """
-					{
-					  "query": {
-						"filters": [
-						  {
-							"type": "HP_0045088",
-							"id": "NCIT_C168802",
-							"operator": "="
-						  }
-						]
-					  }
-					}""",
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "HP_0045088",
+					"id": "NCIT_C168802",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
         1);
   }
 
