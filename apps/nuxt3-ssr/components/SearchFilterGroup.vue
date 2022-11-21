@@ -131,8 +131,7 @@ function toggleExpand(term) {
           flex
           items-center
           justify-center
-        "
-      >
+        ">
         <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
@@ -157,8 +156,7 @@ function toggleExpand(term) {
             flex
             items-center
             justify-center
-          "
-        >
+          ">
           <BaseIcon name="caret-up" :width="20" />
         </span>
         <div class="flex items-center">
@@ -176,14 +174,14 @@ function toggleExpand(term) {
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
           <div class="whitespace-nowrap inline-flex items-center">
-            <span class="
+            <span v-if="item?.children?.length" class="
                 text-blue-200
                 inline-block
                 mr-2
                 group-hover:underline
                 decoration-blue-200
                 fill-black
-              " hoverColor="white">&nbsp;- 34
+              " hoverColor="white">&nbsp;- {{ item.children.length }}
             </span>
             <div class="inline-block">
               <CustomTooltip v-if="item.description" label="Read more" hoverColor="white" :content="item.description" />

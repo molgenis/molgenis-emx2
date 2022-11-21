@@ -23,11 +23,7 @@ const toggleCollapse = () => {
 <template>
   <li v-for="child in data" :key="child.name" class="mt-2.5 relative">
     <span class="flex items-center">
-      <span
-        v-if="child.children"
-        @click="toggleCollapse()"
-        :class="{ 'rotate-180': collapsed }"
-        class="
+      <span v-if="child.children" @click="toggleCollapse()" :class="{ 'rotate-180': collapsed }" class="
           -left-[11px]
           top-0
           text-white
@@ -40,30 +36,16 @@ const toggleCollapse = () => {
           justify-center
           absolute
           z-20
-        "
-      >
+        ">
         <BaseIcon name="caret-up" :width="20" />
       </span>
-      <BaseIcon
-        v-if="child.children"
-        name="collapsible-list-item-sub"
-        :width="20"
-        class="text-blue-200 absolute -top-[9px]"
-      />
-      <BaseIcon
-        v-else
-        name="collapsible-list-item"
-        :width="20"
-        class="text-blue-200 absolute -top-[9px]"
-      />
+      <BaseIcon v-if="child.children" name="collapsible-list-item-sub" :width="20"
+        class="text-blue-200 absolute -top-[9px]" />
+      <BaseIcon v-else name="collapsible-list-item" :width="20" class="text-blue-200 absolute -top-[9px]" />
     </span>
     <div class="flex items-start ml-3">
       <div class="flex items-center">
-        <input
-          type="checkbox"
-          :id="child.name"
-          :name="child.name"
-          class="
+        <input type="checkbox" :id="child.name" :name="child.name" class="
             w-5
             h-5
             rounded-3px
@@ -72,30 +54,22 @@ const toggleCollapse = () => {
             mt-0.5
             text-yellow-500
             border-0
-          "
-        />
+          " />
       </div>
       <label :for="child.name" class="hover:cursor-pointer text-body-sm group">
-        <span class="group-hover:underline">{{ child.name  }}</span>
+        <span class="group-hover:underline">{{ child.name }}</span>
         <div class="whitespace-nowrap inline-flex items-center">
-          <span
-            class="
+          <span v-if="child?.children?.length" class="
               text-blue-200
               inline-block
               mr-2
               group-hover:underline
               decoration-blue-200
-            "
-          >
-            &nbsp;- 34
+            ">
+            &nbsp;- {{ child.children.length }}
           </span>
           <div class="inline-block">
-            <CustomTooltip
-              v-if="child.description"
-              label="Lees meer"
-              hoverColor="white"
-              :content="child.description"
-            />
+            <CustomTooltip v-if="child.description" label="Lees meer" hoverColor="white" :content="child.description" />
           </div>
         </div>
       </label>
