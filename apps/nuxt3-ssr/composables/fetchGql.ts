@@ -1,6 +1,9 @@
-export const fetchGql = async (url: string, query: string) => {
-    return await $fetch(`http://localhost:3000/${url}`, {
+export const fetchGql = (query: string) => {
+    const route = useRoute();
+    const config = useRuntimeConfig();
+    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
         method: "POST",
+        baseURL: config.public.apiBase,
         body: {
             query,
         },

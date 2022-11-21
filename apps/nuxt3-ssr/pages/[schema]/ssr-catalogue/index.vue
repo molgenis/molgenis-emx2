@@ -3,7 +3,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const pageSize = 5;
 const currentPage = ref(1);
-let offset = computed(() => currentPage.value * pageSize);
+let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const query = computed(() => {
   return `
@@ -31,8 +31,10 @@ const query = computed(() => {
   `;
 });
 
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+
 const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
+  graphqlURL.value,
   {
     key: `cohorts-${offset.value}`,
     baseURL: config.public.apiBase,
@@ -52,9 +54,11 @@ async function handlePagination(pageNumber: number) {
   <LayoutsSearchPage>
     <template #side>
       <SearchFilter title="Filters">
-        <SearchFilterGroup title="Search in networks" />
-        <SearchFilterGroup title="Countries" />
-        <SearchFilterGroup title="Institutions" />
+        <!-- <SearchFilterGroup title="Search in networks" /> -->
+        <SearchFilterGroup title="Areas of information" table-name="AreasOfInformation"  />
+        <SearchFilterGroup title="Data categories" table-name="DataCategories" />
+        <SearchFilterGroup title="Population age groups" table-name="AgeGroups" />
+        <SearchFilterGroup title="Sample categories" table-name="SampleCategories" />
       </SearchFilter>
     </template>
     <template #main>
