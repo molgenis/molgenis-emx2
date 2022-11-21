@@ -8,7 +8,7 @@ defineProps({
 
 <template>
   <div class="bg-sidebar-gradient mt-7.5 rounded-t-3px rounded-b-50px">
-    <h2 class="p-5 font-display text-white uppercase text-heading-3xl">
+    <h2 class="p-5 uppercase text-search-filter-title font-display text-heading-3xl">
       {{ title }}
     </h2>
 
@@ -17,18 +17,13 @@ defineProps({
     <hr class="mx-5 border-black opacity-10" />
 
     <div class="flex items-center p-5">
-      <a href="#" class="flex items-center">
-        <BaseIcon name="plus" class="text-yellow-500" :width="18" />
-        <span class="text-body-base text-yellow-500 ml-3 hover:underline">
+      <button class="flex items-center">
+        <BaseIcon name="plus" class="text-search-filter-expand" :width="18" />
+        <span class="ml-3 text-search-filter-expand text-body-base hover:underline">
           More filters
         </span>
-      </a>
-      <CustomTooltip
-        label="Lees meer"
-        hoverColor="white"
-        content="tooltip"
-        class="ml-3"
-      />
+      </button>
+      <CustomTooltip label="More" hoverColor="white" content="tooltip" class="ml-3" />
     </div>
   </div>
 </template>

@@ -46,6 +46,7 @@ module.exports = {
       "body-xs": ["0.75rem", "1.5"],
     },
     colors: {
+      current: "currentColor",
       black: "#333",
       white: "#fff",
       transparent: "transparent",
@@ -89,10 +90,7 @@ module.exports = {
     extend: {
       boxShadow: {
         primary: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-      },
-      borderRadius: {
-        "3px": "3px",
-        "50px": "50px",
+        "search-input": "none",
       },
       spacing: {
         "3px": "3px",
@@ -116,51 +114,82 @@ module.exports = {
       backgroundColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
         "button-primary-hover": theme("colors.blue.200"),
-
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
-
         "button-tertiary": theme("colors.blue.500"),
         "button-tertiary-hover": theme("colors.blue.300"),
-
         "button-outline": theme("colors.white"),
         "button-outline-hover": theme("colors.blue.50"),
-
         "button-disabled": theme("colors.gray.100"),
         "button-disabled-hover": theme("colors.gray.100"),
+        "search-button": theme("colors.blue.50"),
+        "search-button-hover": theme("colors.blue.700"),
+        navigation: "rgba(0, 0, 0, .2)",
+
+        "search-results-view-tabs": theme("colors.blue.800"),
+
+        "search-filter-group-toggle": theme("colors.blue.800"),
+
+        "app-wrapper": theme("colors.black"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),
         "button-primary-hover": theme("colors.gray.900"),
-
         "button-secondary": theme("colors.white"),
         "button-secondary-hover": theme("colors.white"),
-
         "button-tertiary": theme("colors.white"),
         "button-tertiary-hover": theme("colors.white"),
-
         "button-outline": theme("colors.blue.500"),
         "button-outline-hover": theme("colors.blue.700"),
-
         "button-disabled": theme("colors.gray.600"),
         "button-disabled-hover": theme("colors.gray.600"),
+
+        menu: theme("colors.white"),
+        "sub-menu": theme("colors.blue.500"),
+        "sub-menu-hover": theme("colors.blue.700"),
+        "breadcrumb-arrow": theme("colors.white"),
+        breadcrumb: theme("colors.blue.50"),
+        title: theme("colors.white"),
+        "search-button": theme("text.blue.500"),
+        "search-button-hover": theme("text.blue.800"),
+
+        "search-results-view-tabs": theme("colors.blue.500"),
+        "search-results-view-tabs-hover": theme("colors.blue.800"),
+
+        "search-filter-title": theme("colors.white"),
+        "search-filter-expand": theme("colors.yellow.500"),
+        "search-filter-group-title": theme("colors.white"),
+        "search-filter-group-checkbox": theme("colors.yellow.500"),
+        "search-filter-group-toggle": theme("colors.white"),
+
+        "tooltip-hover-dark": theme("colors.blue.500"),
+        "tooltip-hover-light": theme("colors.white"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
         "button-primary-hover": theme("colors.blue.200"),
-
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
-
         "button-tertiary": theme("colors.blue.500"),
         "button-tertiary-hover": theme("colors.blue.300"),
-
         "button-outline": theme("colors.blue.500"),
         "button-outline-hover": theme("colors.blue.700"),
-
         "button-disabled": theme("colors.gray.100"),
         "button-disabled-hover": theme("colors.gray.100"),
+
+        "menu-active": theme("colors.blue.500"),
+        "search-button": theme("colors.white"),
+        "search-input": theme("colors.white"),
       }),
+      borderRadius: {
+        "3px": "3px",
+        "50px": "50px",
+        "search-input": "9999px",
+        "search-button": "9999px",
+      },
+      opacity: {
+        "background-gradient": 100,
+      },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms")],

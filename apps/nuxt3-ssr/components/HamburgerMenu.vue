@@ -21,7 +21,7 @@ defineProps({
     @apply-show="onShow()"
     @apply-hide="onHide()"
   >
-    <button class="flex gap-1 text-white">
+    <button class="flex gap-1 text-menu">
       <svg
         class="w-6 h-6"
         x-description="Heroicon name: outline/bars-3"

@@ -29,24 +29,11 @@ function toggleExpand(term) {
 </script>
 
 <template>
-  <li v-for="child in Object.values(items).sort((a, b) => a.name.localeCompare(b.name))" :key="child.name" class="mt-2.5 relative">
+  <li v-for="child in Object.values(items).sort((a, b) => a.name.localeCompare(b.name))" :key="child.name"
+    class="mt-2.5 relative">
     <span class="flex items-center">
-      <span v-if="child.children" @click="toggleExpand(child)" 
-    
-      class="
-          -left-[11px]
-          top-0
-          text-white
-          rounded-full
-          hover:bg-blue-800 hover:cursor-pointer
-          h-6
-          w-6
-          flex
-          items-center
-          justify-center
-          absolute
-          z-20
-        ">
+      <span v-if="child.children" @click="toggleExpand(child)"
+        class="-left-[11px] top-0 text-search-filter-group-toggle rounded-full hover:bg-search-filter-group-toggle hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20">
         <BaseIcon name="caret-up" :width="20" />
       </span>
       <BaseIcon v-if="child.children" name="collapsible-list-item-sub" :width="20"
@@ -55,31 +42,19 @@ function toggleExpand(term) {
     </span>
     <div class="flex items-start ml-3">
       <div class="flex items-center">
-        <input type="checkbox" :id="child.name" :name="child.name" class="
-            w-5
-            h-5
-            rounded-3px
-            ml-2.5
-            mr-2.5
-            mt-0.5
-            text-yellow-500
-            border-0
-          " />
+        <input type="checkbox" :id="child.name" :name="child.name"
+          class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border-0" />
       </div>
       <label :for="child.name" class="hover:cursor-pointer text-body-sm group">
         <span class="group-hover:underline">{{ child.name }}</span>
-        <div class="whitespace-nowrap inline-flex items-center">
-          <span v-if="child?.children?.length" class="
-              text-blue-200
-              inline-block
-              mr-2
-              group-hover:underline
-              decoration-blue-200
-            ">
+        <div class="inline-flex items-center whitespace-nowrap">
+          <span v-if="child?.children?.length"
+            class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200">
             &nbsp;- {{ child.children.length }}
           </span>
           <div class="inline-block">
-            <CustomTooltip v-if="child.description" label="Description" hoverColor="white" :content="child.description" />
+            <CustomTooltip v-if="child.description" label="Description" hoverColor="white"
+              :content="child.description" />
           </div>
         </div>
       </label>

@@ -20,8 +20,8 @@ const props = defineProps({
 
 const HOVER_COLOR_MAPPING = {
   none: "",
-  white: "hover:text-white",
-  blue: "hover:text-blue-500",
+  white: "hover:text-tooltip-hover-light",
+  blue: "hover:text-tooltip-hover-dark",
 };
 
 const hoverColorClass = computed(() => {

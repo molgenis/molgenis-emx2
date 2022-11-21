@@ -1,23 +1,4 @@
 <script setup>
-import { computed } from "vue";
-
-const props = defineProps({
-  background: {
-    type: String,
-    default: "default",
-    enum: ["default", "white"],
-  },
-});
-
-const BACKGROUND_MAPPING = {
-  default: "xl:bg-black xl:bg-opacity-20",
-  white: "xl:bg-white",
-};
-
-const backgroundClass = computed(() => {
-  return BACKGROUND_MAPPING[props.background];
-});
-
 const menu = [
   { label: "Home", link: "#" },
   { label: "Variables", link: "#", highlight: true },
@@ -31,7 +12,7 @@ const menu = [
 </script>
 
 <template>
-  <header :class="backgroundClass" class="antialiased px-5 lg:px-0">
+  <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo />
