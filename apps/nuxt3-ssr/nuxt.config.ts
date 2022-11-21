@@ -20,6 +20,10 @@ const config = {
     public: {
       apiBase: 'http://localhost:3000/' //'https://emx2.molgeniscloud.org/'
     }
+  },
+  tailwindcss: {
+    cssPath: '~/assets/css/styles.css',
+    configPath: process.env.EMX2_THEME ? 'tailwind.config.' + process.env.EMX2_THEME : 'tailwind.config',
   }
 }
 
