@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
   },
@@ -9,21 +9,31 @@ defineProps({
     type: Boolean,
     default: true,
   },
-  data: {
-    type: Object,
+  items: {
+    type: Array,
   },
 });
 
-let collapsed = ref(true);
-const toggleCollapse = () => {
-  collapsed.value = !collapsed.value;
-};
+var itemMap = props.items.reduce(function (map, obj) {
+  map[obj.name] = obj;
+  return map;
+}, {});
+
+let terms = reactive(itemMap)
+
+let key = ref(1)
+function toggleExpand(term) {
+  terms[term.name].expanded = !terms[term.name].expanded;
+  key++;
+}
 </script>
 
 <template>
-  <li v-for="child in data" :key="child.name" class="mt-2.5 relative">
+  <li v-for="child in Object.values(items).sort((a, b) => a.name.localeCompare(b.name))" :key="child.name" class="mt-2.5 relative">
     <span class="flex items-center">
-      <span v-if="child.children" @click="toggleCollapse()" :class="{ 'rotate-180': collapsed }" class="
+      <span v-if="child.children" @click="toggleExpand(child)" 
+    
+      class="
           -left-[11px]
           top-0
           text-white
@@ -69,13 +79,13 @@ const toggleCollapse = () => {
             &nbsp;- {{ child.children.length }}
           </span>
           <div class="inline-block">
-            <CustomTooltip v-if="child.description" label="Lees meer" hoverColor="white" :content="child.description" />
+            <CustomTooltip v-if="child.description" label="Description" hoverColor="white" :content="child.description" />
           </div>
         </div>
       </label>
     </div>
-    <ul v-if="child.children" :class="{ hidden: collapsed }" class="ml-[31px]">
-      <SearchFilterGroupChild :data="child.children" />
+    <ul v-if="child.children" :class="{ hidden: !terms[child.name].expanded }" class="ml-[31px]">
+      <SearchFilterGroupChild :items="child.children" />
     </ul>
   </li>
 </template>

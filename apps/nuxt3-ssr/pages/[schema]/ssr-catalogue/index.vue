@@ -3,7 +3,7 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const pageSize = 5;
 const currentPage = ref(1);
-let offset = computed(() => currentPage.value * pageSize);
+let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 const query = computed(() => {
   return `
@@ -54,8 +54,11 @@ async function handlePagination(pageNumber: number) {
   <LayoutsSearchPage>
     <template #side>
       <SearchFilter title="Filters">
-        <SearchFilterGroup title="Search in networks" />
-        <SearchFilterGroup title="Areas of information" :graphqlURL="graphqlURL"  />
+        <!-- <SearchFilterGroup title="Search in networks" /> -->
+        <SearchFilterGroup title="Areas of information" table-name="AreasOfInformation"  />
+        <SearchFilterGroup title="Data categories" table-name="DataCategories" />
+        <SearchFilterGroup title="Population age groups" table-name="AgeGroups" />
+        <SearchFilterGroup title="Sample categories" table-name="SampleCategories" />
       </SearchFilter>
     </template>
     <template #main>

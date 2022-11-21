@@ -1,8 +1,9 @@
-// const config = useRuntimeConfig();
-export const fetchGql = (url: string, query: string) => {
-    return $fetch(`/UMCG/catalogue/graphql`, {
+export const fetchGql = (query: string) => {
+    const route = useRoute();
+    const config = useRuntimeConfig();
+    return $fetch(`/${route.params.schema}/catalogue/graphql`, {
         method: "POST",
-        baseURL: 'http://localhost:3000/',
+        baseURL: config.public.apiBase,
         body: {
             query,
         },

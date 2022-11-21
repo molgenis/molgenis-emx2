@@ -5,24 +5,16 @@ const props = defineProps({
   title: {
     type: String,
   },
-  json: {
-    type: Object,
-  },
-  graphqlURL: {
-    type: String
+  tableName: {
+    type: String,
   }
 });
 
-let collapsedTitle = ref(true);
-const toggleCollapseTitle = () => {
-  collapsedTitle.value = !collapsedTitle.value;
-};
-
 const query = `
 query 
-AreasOfInformation( $filter:AreasOfInformationFilter, $orderby:AreasOfInformationorderby )
+${props.tableName}( $filter:${props.tableName}Filter, $orderby:${props.tableName}orderby )
  {   
-  AreasOfInformation( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
+  ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
     {          
       order
       name 
@@ -32,21 +24,16 @@ AreasOfInformation( $filter:AreasOfInformationFilter, $orderby:AreasOfInformatio
       definition 
       children{ name }
      }       
-  AreasOfInformation_agg( filter:$filter ) { count }
+  ${props.tableName}_agg( filter:$filter ) { count }
   }
   `;
 
-let resp = await $fetch(`/UMCG/catalogue/graphql`, {
-  method: "POST",
-  baseURL: 'http://localhost:3000/',
-  body: {
-    query,
-  },
-});
+
+let resp = await fetchGql(query)
 console.log('Search Filter data ')
 
-let data = resp?.data?.AreasOfInformation
-let count = resp?.data?.AreasOfInformation_agg?.count;
+let data = resp?.data[props.tableName]
+let count = resp?.data[props.tableName + '_agg'].count
 
 console.log(count)
 
@@ -99,6 +86,11 @@ let rootTerms = computed(() => {
   }
 });
 
+let collapsedTitle = ref(true);
+const toggleCollapseTitle = () => {
+  collapsedTitle.value = !collapsedTitle.value;
+};
+
 let key = ref(1)
 function toggleExpand(term) {
   terms[term.name].expanded = !terms[term.name].expanded;
@@ -145,9 +137,14 @@ function toggleExpand(term) {
   </div>
 
   <ul class="ml-5 mb-5 text-white" :class="{ hidden: collapsedTitle }">
-    <li v-for="item in rootTerms" :key="item.name" class="mb-2.5">
+    <li v-for="item in Object.values(rootTerms).sort((a, b) => a.name.localeCompare(b.name))" :key="item.name"
+      class="mb-2.5">
       <div class="flex items-start">
-        <span @click="toggleExpand(item)" :class="{ 'rotate-180': !terms[item.name].expanded }" class="
+        <span 
+        v-if="item.children"
+        @click="toggleExpand(item)" 
+        :class="{ 'rotate-180': !terms[item.name].expanded }" 
+        class="
             text-white
             rounded-full
             hover:bg-blue-800 hover:cursor-pointer
@@ -158,6 +155,17 @@ function toggleExpand(term) {
             justify-center
           ">
           <BaseIcon name="caret-up" :width="20" />
+        </span>
+        <span  class="
+            text-white
+            rounded-full
+            hover:bg-blue-800 hover:cursor-pointer
+            h-6
+            w-6
+            flex
+            items-center
+            justify-center
+          " v-else>
         </span>
         <div class="flex items-center">
           <input type="checkbox" :id="item.name" :name="item.name" class="
@@ -191,7 +199,7 @@ function toggleExpand(term) {
       </div>
 
       <ul class="ml-[39px]" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
-        <SearchFilterGroupChild :data="item.children" />
+        <SearchFilterGroupChild :items="item.children" />
       </ul>
     </li>
   </ul>
