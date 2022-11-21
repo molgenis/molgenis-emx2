@@ -3,6 +3,7 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
 import org.molgenis.emx2.beaconv2.common.OntologyTerm;
+import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.CaseLevelData;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class IndividualsResultSetsItem {
@@ -16,6 +17,7 @@ public class IndividualsResultSetsItem {
   private Diseases[] diseases;
   private Measures[] measures;
   private PhenotypicFeatures[] phenotypicFeatures;
+  private CaseLevelData[] hasGenomicVariations;
 
   public void setPhenotypicFeatures(PhenotypicFeatures[] phenotypicFeatures) {
     this.phenotypicFeatures = phenotypicFeatures;
@@ -87,5 +89,13 @@ public class IndividualsResultSetsItem {
 
   public PhenotypicFeatures[] getPhenotypicFeatures() {
     return phenotypicFeatures;
+  }
+
+  public CaseLevelData[] getHasGenomicVariations() {
+    return hasGenomicVariations;
+  }
+
+  public void setHasGenomicVariations(CaseLevelData[] hasGenomicVariations) {
+    this.hasGenomicVariations = hasGenomicVariations;
   }
 }

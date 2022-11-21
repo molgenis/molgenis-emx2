@@ -120,13 +120,30 @@ public class EJP_VP_IndividualsQuery {
       }
 
       /**
-       * Diagnosis of the rare disease (SIO_001003), Phenotype (SIO_010056), and any others: create
-       * filter dynamically. Right now only columns of type Ontology are supported.
+       * Diagnosis of the rare disease (SIO_001003) NOTE: This could have been a dynamic filter, but
+       * that matches individuals via the genomic variation refback, throwing off the results
        */
+      else if (type.endsWith("SIO_001003")) {
+        String diseaseFilter =
+            "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+        filters.add(diseaseFilter);
+      }
+
+      /**
+       * Phenotype (SIO_010056) NOTE: This could have been a dynamic filter, but that matches
+       * individuals via the genomic variation refback, throwing off the results
+       */
+      else if (type.endsWith("SIO_010056")) {
+        String phenotypeFilter =
+            "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+        filters.add(phenotypeFilter);
+      }
+
+      /** Anything else: create filter dynamically. */
       else {
-        ColumnPath columnPath = findColumnPath("", type, this.tables.get(0));
+        ColumnPath columnPath = findColumnPath(new ArrayList<>(), type, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
-          String dynamicFilter = columnPath.getPath() + "ontologyTermURI: {like: \"" + id + "\"";
+          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + id + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
           return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));
