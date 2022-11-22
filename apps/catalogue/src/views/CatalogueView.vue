@@ -18,13 +18,13 @@
     <h2>Metadata on data collections</h2>
     <div class="card-columns">
       <RouterLink
-        to="Institutions"
+        to="Organisations"
         class="card card-body bg-dark text-white card-height"
       >
-        <span class="badge badge-light float-right">{{ institutions }}</span>
-        <h3>Institutions</h3>
+        <span class="badge badge-light float-right">{{ organisations }}</span>
+        <h3>Organisations</h3>
         <p class="text-left">
-          Contributors to the catalogue such as universities, companies, medical
+          Contributors to the catalogue such as departments from universities, companies, medical
           centres and research institutes
         </p>
       </RouterLink>
@@ -34,7 +34,7 @@
       >
         <span class="badge badge-light float-right">{{ networks }}</span>
         <h3>Networks</h3>
-        <p class="text-left">Collaborations of multiple institutions</p>
+        <p class="text-left">Collaborations of multiple organisations</p>
       </RouterLink>
              <RouterLink
         to="Datasources"
@@ -60,12 +60,12 @@
       </RouterLink>
       
       <RouterLink
-        to="Databanks"
+        to="Datasets"
         class="card card-body bg-info text-white card-height"
       >
-        <span class="badge badge-light float-right">{{ databanks }}</span>
-        <h3>Data banks</h3>
-        <p class="text-left">Data collections such as registries or biobanks</p>
+        <span class="badge badge-light float-right">{{ datasets }}</span>
+        <h3>Data sets</h3>
+        <p class="text-left">Data sets as collected</p>
       </RouterLink>
       <RouterLink
         to="Studies"
@@ -178,8 +178,7 @@ export default {
   data() {
     return {
       schemaName: null,
-      institutions: null,
-      databanks: null,
+      organisations: null,
       cohorts: null,
       networks: null,
       projects: null,
@@ -201,24 +200,18 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {_schema{name}, Institutions_agg{count}, Studies_agg{count}, Cohorts_agg{count},Databanks_agg{count},Datasources_agg{count},Networks_agg{count},SourceTables_agg{count},TargetTables_agg{count},Models_agg{count},Studies_agg{count} SourceDataDictionaries_agg{count},TargetDataDictionaries_agg{count}, SourceVariables_agg{count},TargetVariables_agg{count},VariableMappings_agg{count}, TableMappings_agg{count}}`
+        `query {_schema{name}, Organisations_agg{count}, Studies_agg{count}, Cohorts_agg{count},Data_sources_agg{count},Networks_agg{count},Datasets_agg{count},Models_agg{count},Studies_agg{count},Variable_mappings_agg{count}, Dataset_mappings_agg{count}}`
       )
         .then((data) => {
           this.schemaName = data._schema.name;
-          this.institutions = data.Institutions_agg.count;
-          this.databanks = data.Databanks_agg.count;
+          this.organisations = data.Organisations_agg.count;
           this.cohorts = data.Cohorts_agg.count;
           this.networks = data.Networks_agg.count;
-          this.datasources = data.Datasources_agg.count;
-          this.sourceDataDictionaries = data.SourceDataDictionaries_agg.count;
-          this.sourceTables = data.SourceTables_agg.count;
-          this.sourceVariables = data.SourceVariables_agg.count;
+          this.datasources = data.Data_sources_agg.count;
           this.models = data.Models_agg.count;
-          this.targetDataDictionaries = data.TargetDataDictionaries_agg.count;
-          this.targetTables = data.TargetTables_agg.count;
-          this.targetVariables = data.TargetVariables_agg.count;
-          this.variableMappings = data.VariableMappings_agg.count;
-          this.tableMappings = data.TableMappings_agg.count;
+          this.datasets = data.Datasets_agg.count;
+          this.variableMappings = data.Variable_mappings_agg.count;
+          this.datasetMappings = data.Dataset_mappings_agg.count;
           this.studies = data.Studies_agg.count;
         })
         .catch((error) => {

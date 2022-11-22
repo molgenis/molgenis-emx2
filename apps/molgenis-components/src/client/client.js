@@ -189,7 +189,6 @@ const fetchTableData = async (
     properties && Object.prototype.hasOwnProperty.call(properties, "offset")
       ? properties.offset
       : 0;
-
   const search =
     properties &&
     Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
@@ -213,7 +212,6 @@ const fetchTableData = async (
             count
           }
         }`;
-
   const filter =
     properties && Object.prototype.hasOwnProperty.call(properties, "filter")
       ? properties.filter
@@ -270,7 +268,7 @@ const columnNames = (tableName, metaData) => {
 };
 
 const refGraphql = (column, metaData) => {
-  let graphqlString = "";
+  let graphqlString = "";x
   const refTable = getTable(column.refTable, metaData.tables);
   refTable.columns.forEach((c) => {
     if (c.key == 1) {
@@ -288,7 +286,7 @@ const refGraphql = (column, metaData) => {
 };
 
 const getTable = (tableName, tableStore) => {
-  return tableStore.find((table) => table.name === tableName);
+  return tableStore.find((table) => table.id === tableName || table.name === tableName);
 };
 
 const isFileValue = (value) => {

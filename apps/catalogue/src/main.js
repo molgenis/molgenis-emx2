@@ -4,7 +4,7 @@ import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
 import ResourceDetailsView from "./views/ResourceDetailsView.vue";
-import TableView from "./views/TableView.vue";
+import DatasetView from "./views/DatasetView.vue";
 import ResourceListView from "./views/ResourceListView.vue";
 import VariableView from "./views/VariableView.vue";
 import VariableMappingsView from "./views/VariableMappingsView.vue";
@@ -35,13 +35,8 @@ Vue.component("EditModal", EditModal);
 const router = new VueRouter({
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
+
     { name: "Home", path: "/home", component: HomeView },
-    {
-      name: "Databanks",
-      path: "/databanks",
-      props: { tableName: "Databanks" },
-      component: ResourceListView,
-    },
     {
       name: "search",
       path: "/search",
@@ -55,11 +50,11 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "Institutions",
-      path: "/institutions",
+      name: "Organisations",
+      path: "/organisations",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Institutions",
+        tableName: "Organisations",
       }),
       component: ResourceListView,
     },
@@ -68,7 +63,7 @@ const router = new VueRouter({
       path: "/datasources",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Datasources",
+        tableName: "Data sources",
       }),
       component: ResourceListView,
     },
@@ -91,24 +86,6 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "SourceDataDictionaries",
-      path: "/source-data-dictionaries",
-      props: (route) => ({
-        searchTerm: route.query.q,
-        tableName: "SourceDataDictionaries",
-      }),
-      component: ResourceListView,
-    },
-    {
-      name: "TargetDataDictionaries",
-      path: "/target-data-dictionaries",
-      props: (route) => ({
-        searchTerm: route.query.q,
-        tableName: "TargetDataDictionaries",
-      }),
-      component: ResourceListView,
-    },
-    {
       name: "Studies",
       path: "/studies",
       props: (route) => ({
@@ -118,47 +95,29 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "SourceVariables",
-      path: "/source-variables",
+      name: "Variables",
+      path: "/variables",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "SourceVariables",
+        tableName: "Variables",
       }),
       component: ResourceListView,
     },
     {
-      name: "TargetVariables",
-      path: "/target-variables",
+      name: "Datasets",
+      path: "/datasets",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "TargetVariables",
+        tableName: "Datasets",
       }),
       component: ResourceListView,
     },
     {
-      name: "SourceTables",
-      path: "/source-tables",
+      name: "DatasetMappings",
+      path: "/dataset-mappings",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "SourceTables",
-      }),
-      component: ResourceListView,
-    },
-    {
-      name: "TargetTables",
-      path: "/target-tables",
-      props: (route) => ({
-        searchTerm: route.query.q,
-        tableName: "TargetTables",
-      }),
-      component: ResourceListView,
-    },
-    {
-      name: "TableMappings",
-      path: "/table-mappings",
-      props: (route) => ({
-        searchTerm: route.query.q,
-        tableName: "TableMappings",
+        tableName: "DatasetMappings",
       }),
       component: ResourceListView,
     },
@@ -172,200 +131,114 @@ const router = new VueRouter({
       component: ResourceListView,
     },
     {
-      name: "Institutions-details",
-      path: "/institutions/:pid",
+      name: "Organisations-details",
+      path: "/organisations/:id",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Institutions",
         color: "dark",
-        filter: { pid: { equals: route.params.pid } },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "Resources-details",
-      path: "/resources/:pid",
+      path: "/resources/:id",
       component: ResourceRedirectView,
       props: (route) => ({
         table: "Resources",
         color: "dark",
-        filter: { pid: { equals: route.params.pid } },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "Networks-details",
-      path: "/networks/:pid",
+      path: "/networks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
         color: "danger",
-        filter: { pid: { equals: route.params.pid } },
-      }),
-    },
-    {
-      name: "Databanks-details",
-      path: "/databanks/:pid",
-      component: ResourceDetailsView,
-      props: (route) => ({
-        table: "Databanks",
-        color: "info",
-        filter: { pid: { equals: route.params.pid } },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "Cohorts-details",
-      path: "/cohorts/:pid",
+      path: "/cohorts/:id",
       component: CohortView,
       props: true,
     },
     {
-      path: "/alt-cohorts/:pid",
+      path: "/alt-cohorts/:id",
       component: OldCohortView,
       props: true,
     },
     {
       name: "Datasources-details",
-      path: "/datasources/:pid",
+      path: "/datasources/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Datasources",
+        table: "Data sources",
         color: "secondary",
-        filter: { pid: { equals: route.params.pid } },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "Models-details",
-      path: "/models/:pid",
+      path: "/models/:id",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Models",
         color: "warning",
-        filter: { pid: { equals: route.params.pid } },
-      }),
-    },
-    {
-      name: "SourceDataDictionaries-details",
-      path: "/source-data-dictionaries/:resource/:version",
-      component: ResourceDetailsView,
-      props: (route) => ({
-        table: "SourceDataDictionaries",
-        color: "warning",
-        filter: {
-          resource: { pid: { equals: route.params.resource } },
-          version: { equals: route.params.version },
-        },
-      }),
-    },
-    {
-      name: "TargetDataDictionaries-details",
-      path: "/target-data-dictionaries/:resource/:version",
-      component: ResourceDetailsView,
-      props: (route) => ({
-        table: "TargetDataDictionaries",
-        color: "warning",
-        filter: {
-          resource: { pid: { equals: route.params.resource } },
-          version: { equals: route.params.version },
-        },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "network",
-      path: "/networks/:pid",
+      path: "/networks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Networks",
         color: "danger",
-        filter: { pid: { equals: route.params.pid } },
-      }),
-    },
-    {
-      name: "Contacts-details",
-      path: "/contacts/:name",
-      component: ResourceDetailsView,
-      props: (route) => ({
-        table: "Contacts",
-        color: "dark",
-        filter: { name: { equals: route.params.name } },
+        filter: { id: { equals: route.params.id } },
       }),
     },
     {
       name: "Studies-details",
-      path: "/studies/:pid",
+      path: "/studies/:id",
       component: ResourceDetailsView,
       props: (route) => ({
         table: "Studies",
         color: "success",
-        filter: { pid: { equals: route.params.pid } },
+        filter: { id: { equals: route.params.id } },
       }),
-    },
-    //make bread crumb work for variable details
-    {
-      path: "/variables/:pid",
-      redirect: "/resources/:pid",
-    },
-    {
-      path: "/variables/:pid/:version",
-      redirect: "/releases/:pid/:version",
-    },
-    {
-      path: "/variables/:pid/:version/:table",
-      redirect: "/tables/:pid/:version/:table",
     },
     //variable details
     {
-      name: "SourceVariables-details",
-      path: "/source-variables/:pid/:version/:table/:name",
+      name: "Variables-details",
+      path: "/variables/:id/:dataset/:name",
       props: (route) => ({
         ...route.params,
-        tableName: "SourceVariables",
+        tableName: "Variables",
       }),
       component: VariableView,
     },
     {
-      name: "TargetVariables-details",
-      path: "/target-variables/:pid/:version/:table/:name",
+      name: "Datasets-details",
+      path: "/datasets/:id/:name",
+      component: DatasetView,
       props: (route) => ({
         ...route.params,
-        tableName: "TargetVariables",
-      }),
-      component: VariableView,
-    },
-    //make bread crumb work for table-details
-    {
-      path: "/tables/:pid",
-      redirect: "/resources/:pid",
-    },
-    {
-      path: "/tables/:pid/:version",
-      redirect: "/releases/:pid/:version",
-    },
-    {
-      name: "SourceTables-details",
-      path: "/source-tables/:pid/:version/:name",
-      component: TableView,
-      props: (route) => ({
-        ...route.params,
-        tableName: "SourceTables",
-      }),
-    },
-    {
-      name: "TargetTables-details",
-      path: "/target-tables/:pid/:version/:name",
-      component: TableView,
-      props: (route) => ({
-        ...route.params,
-        tableName: "TargetTables",
+        tableName: "Datasets",
       }),
     },
     {
       name: "VariableMappings-details",
-      path: "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
+      path: "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
       props: true,
       component: VariableMappingsView,
     },
     {
-      name: "tablemapping",
-      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
+      name: "DatasetMappings-detail",
+      path: "/dataset-mappings/:source/:sourceDataset/:target/:targetDataset",
       props: true,
       component: TableMappingsView,
     },
@@ -392,16 +265,6 @@ const router = new VueRouter({
       path: "/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
-    },
-    {
-      // hacky redirects to solve breadcrumb issue
-      path: "/cohorts/:cohort/collection-events",
-      redirect: "/cohorts/:cohort",
-    },
-    {
-      // hacky redirects to solve breadcrumb issue
-      path: "/cohorts/:cohort/subcohorts",
-      redirect: "/cohorts/:cohort",
     },
     {
       name: "NetworkLandingPage",
@@ -434,7 +297,7 @@ const router = new VueRouter({
     },
     {
       name: "NetworkCohortDetailView",
-      path: "/networks-catalogue/:network/cohorts/:pid",
+      path: "/networks-catalogue/:network/cohorts/:id",
       props: true,
       component: CohortView,
     },
@@ -450,17 +313,7 @@ const router = new VueRouter({
       props: true,
       component: CollectionEvent,
     },
-    {
-      // hacky redirects to solve breadcrumb issue
-      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events",
-      redirect: "/networks-catalogue/:network/cohorts/:cohort",
-    },
-    {
-      // hacky redirects to solve breadcrumb issue
-      path: "/networks-catalogue/:network/cohorts/:cohort/subcohorts",
-      redirect: "/networks-catalogue/:network/cohorts/:cohort",
-    },
-  ],
+  ]
 });
 
 new Vue({

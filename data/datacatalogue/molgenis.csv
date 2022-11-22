@@ -43,7 +43,7 @@ Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the st
 Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),,,
 Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort,,,
 Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s),EMA,Resources,contributors
-Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank",,,
+Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource 	types,,,,,"Type of resource, e.g. registry, cohort, biobank",,,
 Cohorts,,type other,,,,,,,,,,"If other, describe the type of resource",,,
 Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal",,,
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort,,,

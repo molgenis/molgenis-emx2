@@ -4,30 +4,35 @@ export default gql`
     Cohorts(filter: { pid: { equals: [$pid] } }) {
       pid
       name
-      contactEmail
+      contact_email
       keywords
       acknowledgements
-      fundingStatement
-      designPaper {
+      funding_statement
+      design_paper {
         doi
         title
       }
-      designDescription
-      designSchematic {
+      design_description
+      design_schematic {
         id
         size
         extension
         url
       }
-      externalIdentifiers
+      external_identifiers{
+        external_identifier_type{
+          name
+        },
+        identifier
+      }
       description
       website
-      startYear
-      endYear
-      linkageOptions
-      numberOfParticipants
-      dataAccessConditionsDescription
-      releaseDescription
+      start_year
+      end_year
+      linkage_options
+      number_of_participants
+      data_access_conditions_description
+      release_description
       countries {
         name
         order
@@ -35,9 +40,6 @@ export default gql`
       regions {
         name
         order
-      }
-      populationAgeGroups {
-        name
       }
       logo {
         url
@@ -48,15 +50,15 @@ export default gql`
       type {
         name
         definition
-        ontologyTermURI
+        ontology_term_URI
       }
-      collectionType {
+      collection_type {
         name
       }
       contributors {
         contact {
-          firstName
-          surname
+          first_mame
+          last_name
           prefix
           initials
           department
@@ -77,11 +79,11 @@ export default gql`
           }
           expertise
         }
-        contributionType {
+        contribution_type {
           name
           order
         }
-        contributionDescription
+        contribution_description
       }
       partners {
         institution {

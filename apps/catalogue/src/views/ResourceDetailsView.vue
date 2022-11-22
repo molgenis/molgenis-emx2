@@ -14,7 +14,6 @@
       :isModalShown="isEditModalShown"
       @close="isEditModalShown = false"
     />
-
     <ButtonAlt @click="toggleNA" class="float-right text-white">
       {{ hideNA ? "Show" : "Hide" }} empty fields (N/A)
     </ButtonAlt>
@@ -129,7 +128,8 @@ export default {
       this.hideNA = !this.hideNA;
     },
   },
-  async created() {
+  async mounted() {
+    console.log("blaat");
     this.client = Client.newClient();
     this.reloadMetadata();
     this.tableMetadata = await this.client.fetchTableMetaData(this.table);
