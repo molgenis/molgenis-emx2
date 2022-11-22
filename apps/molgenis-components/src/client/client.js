@@ -28,7 +28,7 @@ export default {
           metaData = schema;
         }
         return deepClone(metaData).tables.find(
-          (table) => table.id === tableName
+          (table) => table.id === tableName || table.name === tableName
         );
       },
       fetchTableData: async (tableId, properties) => {
@@ -63,7 +63,7 @@ export default {
           metaData = schema;
         }
         const tableMetaData = metaData.tables.find(
-          (table) => table.id === tableName
+          (table) => table.id === tableName || table.name === tableName
         );
         const filter = tableMetaData.columns
           .filter((column) => column.key === 1)
@@ -181,13 +181,14 @@ const fetchMetaData = async (axios, graphqlURL, onError) => {
 };
 
 const fetchTableData = async (
-  tableId,
+  tableName,
   properties,
   metaData,
   axios,
   graphqlURL,
   onError
 ) => {
+  const tableId = getTable(tableName,metaData.tables).id;
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
     properties && Object.prototype.hasOwnProperty.call(properties, "limit")

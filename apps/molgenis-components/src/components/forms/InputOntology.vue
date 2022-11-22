@@ -571,8 +571,8 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="true"
-          tableName="Tag"
-          graphqlURL="/pet store/graphql"
+          tableName="External identifiers"
+          graphqlURL="/DataCatalogue/graphql"
       />
     </demo-item>
   </div>

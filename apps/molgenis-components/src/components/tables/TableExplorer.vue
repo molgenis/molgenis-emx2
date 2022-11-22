@@ -617,6 +617,7 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
+
       this.dataRows = dataResponse[this.tableName];
       this.count = dataResponse[this.tableName + "_agg"]["count"];
       this.loading = false;
@@ -698,8 +699,8 @@ function getCondition(columnType, condition) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Age_groups"
-        graphqlURL="/CatalogueOntologies/graphql"
+        tableName="Cohorts"
+        graphqlURL="/DataCatalogue/graphql"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -729,6 +730,9 @@ function getCondition(columnType, condition) {
   export default {
     data() {
       return {
+        showColumns: ['name'],
+        showFilters: ['name'],
+        urlConditions: {"name": "pooky,spike"},
         page: 1,
         limit: 10,
         showOrder: 'DESC',
