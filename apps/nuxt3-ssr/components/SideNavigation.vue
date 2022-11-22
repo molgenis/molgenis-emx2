@@ -1,4 +1,5 @@
 <script setup>
+const route = useRoute()
 defineProps({
   title: {
     type: String,
@@ -7,6 +8,14 @@ defineProps({
     type: String,
   },
 });
+function setSideMenuStyle(hash){
+  if(hash == route.hash){
+    return "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
+  }
+  else {
+    return "w-full block my-2 hover:font-bold hover:cursor-pointer"
+  }
+}
 </script>
 
 <template>
@@ -17,48 +26,47 @@ defineProps({
     </div>
     <ul>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#Description" :class="setSideMenuStyle('#Description')">
           Description
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#GeneralDesign" :class="setSideMenuStyle('#GeneralDesign')">
           General design
         </a>
       </li>
-      <!-- Active state, classes: border-l-4, border-menu-active, font-bold -->
       <li>
-        <a href="#" class="w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer">
+        <a href="#Contributers" :class="setSideMenuStyle('#Contributers')">
           Contact & contributors
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#Variables" :class="setSideMenuStyle('#Variables')">
           Variables & topics
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#AvailableData" :class="setSideMenuStyle('#AvailableData')">
           Available data & samples
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#Subpopulations" :class="setSideMenuStyle('#Subpopulations')">
           Subpopulations
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#CollectionEvents" :class="setSideMenuStyle('#CollectionEvents')">
           Collection events
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#Networks" :class="setSideMenuStyle('#Networks')">
           Networks
         </a>
       </li>
       <li>
-        <a href="#" class="w-full block my-2 hover:font-bold hover:cursor-pointer">
+        <a href="#Partners" :class="setSideMenuStyle('#Partners')">
           Partners
         </a>
       </li>
