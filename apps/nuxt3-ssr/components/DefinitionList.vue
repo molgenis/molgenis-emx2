@@ -1,28 +1,9 @@
 <script setup>
-const items = [
-  { label: "Cohort type", content: "Population cohort, Birth cohort, Biobank" },
-  { label: "CoDesign", content: "Cohort type", tooltip: "Tooltip content!" },
-  { label: "Key", content: "Value" },
-  { label: "Key", content: "Value" },
-  { label: "Key", content: "Value" },
-  {
-    label: "Key",
-    content:
-      "Long value - Donec id elit non mi porta gravida at eget metus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Nulla vitae elit libero, a pharetra augue.",
+defineProps({
+  items: {
+    type: Array,
   },
-  {
-    label: "Age group at inclusion",
-    content: [
-      "Newborn (0-1 months)",
-      "Newborn (0-1 months)",
-      "Newborn (0-1 months)",
-      "Newborn (0-1 months)",
-      "Newborn (0-1 months)",
-      "Newborn (0-1 months)",
-    ],
-  },
-];
-
+});
 const isArray = (value) => {
   return Array.isArray(value);
 };

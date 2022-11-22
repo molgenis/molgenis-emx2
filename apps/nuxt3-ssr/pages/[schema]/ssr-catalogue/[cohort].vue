@@ -14,10 +14,32 @@ const query = `query Cohorts ($pid: String){
         institution{
           acronym
         }
+        type{
+          name
+        }
+        collectionType{
+          name
+        }
+        populationAgeGroups{
+          name
+        }
+        startYear
+        endYear
+        countries{
+          name
+        }
+        numberOfParticipants
+        designDescription
+        design{
+          definition
+          name
+        }
     }}`;
 const variables = { pid: route.params.cohort };
 
-const { data, pending, error, refresh } = await useFetch(
+var cohort = {};
+var generalDesignDefinition = [];
+const { data: cohortData, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
     baseURL: config.public.apiBase,
@@ -25,13 +47,66 @@ const { data, pending, error, refresh } = await useFetch(
     body: { query, variables },
   }
 );
+
+watch(cohortData, setData, {
+  deep: true,
+  immediate: true,
+});
+
+function setData(data) {
+  cohort = data?.data?.Cohorts[0];
+  generalDesignDefinition = [
+    {
+      label: "Cohort type",
+      content: cohort?.type
+        ? cohort?.type.map((type) => type?.name).join(", ")
+        : "not available",
+    },
+    {
+      label: "Design",
+      content: cohort?.design ? cohort?.design.name : "not available",
+      tooltip: cohort?.design.definition
+        ? cohort?.design.definition
+        : "not available",
+    },
+    {
+      label: "Collection type",
+      content: cohort?.collectionType
+        ? cohort?.collectionType[0].name
+        : "not available",
+    },
+    {
+      label: "Start/End year",
+      content: `${cohort?.startYear} - ${cohort?.endYear}`,
+    },
+    {
+      label: "Population",
+      content: cohort?.countries
+        ? [...cohort?.countries]
+            .sort((a, b) => a.order - b.order)
+            .map((c) => c.name)
+            .join(",")
+        : "",
+    },
+    {
+      label: "Number of participants",
+      content: cohort?.numberOfParticipants,
+    },
+    {
+      label: "Age group at inclusion",
+      content: cohort?.populationAgeGroups
+        ? cohort?.populationAgeGroups.map((pag) => pag.name)
+        : [],
+    },
+  ];
+}
 </script>
 <template>
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="data?.data?.Cohorts[0]?.name"
-        :description="data?.data?.Cohorts[0]?.institution?.acronym"
+        :title="cohort?.name"
+        :description="cohort?.institution?.acronym"
       >
         <template #prefix>
           <BreadCrumbs
@@ -52,18 +127,29 @@ const { data, pending, error, refresh } = await useFetch(
     <template #main>
       <ContentBlocks>
         <ContentBlockIntro
-          :image="data?.data?.Cohorts[0]?.logo?.url"
-          :link="data?.data?.Cohorts[0]?.website"
-          :contact="`mailto:${data?.data?.Cohorts[0]?.contactEmail}`"
+          :image="cohort?.logo?.url"
+          :link="cohort?.website"
+          :contact="`mailto:${cohort?.contactEmail}`"
         />
         <ContentBlockDescription
           id="Description"
           title="Description"
-          :description="data?.data?.Cohorts[0]?.description"
+          :description="cohort?.description"
         />
-        <ContentBlockGeneralDesign id="GeneralDesign" title="General Design" description="" />
-        <ContentBlockAttachedFiles id="Files" title="Attached Files Generic Example" />
-        <ContentBlockContact id="Contributers" title="Contact and Contributers" />
+        <ContentBlockGeneralDesign
+          id="GeneralDesign"
+          title="General Design"
+          :description="cohort?.designDescription"
+          :definition="generalDesignDefinition"
+        />
+        <ContentBlockAttachedFiles
+          id="Files"
+          title="Attached Files Generic Example"
+        />
+        <ContentBlockContact
+          id="Contributers"
+          title="Contact and Contributers"
+        />
         <ContentBlockVariables
           id="Variables"
           title="Variables & Topics"

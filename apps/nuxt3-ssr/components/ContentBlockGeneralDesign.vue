@@ -6,11 +6,14 @@ defineProps({
   description: {
     type: String,
   },
+  definition: {
+    type: Array,
+  },
 });
 </script>
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <DefinitionList />
+    <DefinitionList :items="definition" />
   </ContentBlock>
 </template>
