@@ -21,7 +21,6 @@ public class TestLoaders {
 
   // umcg
   static Schema cohortStagingUMMCG;
-  static Schema sharedStagingUMCG;
 
   @BeforeClass
   public static void setup() {
@@ -35,7 +34,6 @@ public class TestLoaders {
     fairDataHubSchema = database.dropCreateSchema("FAIRDataHubTest");
 
     // umcg
-    sharedStagingUMCG = database.dropCreateSchema("SharedStagingUMCG");
     cohortStagingUMMCG = database.dropCreateSchema("UMCG");
   }
 
@@ -66,15 +64,12 @@ public class TestLoaders {
   @Test
   public void testDataCatalogueNetworkStagingLoader() {
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING.install(networkStaging, true);
-    assertEquals(12, networkStaging.getTableNames().size());
+    assertEquals(13, networkStaging.getTableNames().size());
   }
 
   @Test
   public void testStagingModels() {
     // UMCG
-    MolgenisIO.fromClasspathDirectory("datacatalogue/stagingSharedUMCG", sharedStagingUMCG, false);
-    assertEquals(4, sharedStagingUMCG.getTableNames().size());
-
     MolgenisIO.fromClasspathDirectory("datacatalogue/stagingCohorts", cohortStagingUMMCG, false);
     assertEquals(17, cohortStagingUMMCG.getTableNames().size());
   }

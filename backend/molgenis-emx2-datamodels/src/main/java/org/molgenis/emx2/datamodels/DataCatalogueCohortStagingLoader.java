@@ -1,7 +1,6 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.molgenis.emx2.datamodels.DataCatalogueLoader.*;
-import static org.molgenis.emx2.datamodels.DataCatalogueNetworkStagingLoader.SHARED_STAGING;
 
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -23,13 +22,6 @@ public class DataCatalogueCohortStagingLoader implements AvailableDataModels.Dat
     Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGUE);
     if (dataCatalogueSchema == null) {
       new DataCatalogueLoader().load(db.createSchema(DATA_CATALOGUE), false);
-    }
-
-    Schema sharedSchema = db.getSchema(SHARED_STAGING);
-    if (sharedSchema == null) {
-      sharedSchema = db.createSchema(SHARED_STAGING);
-      // create the shared schema
-      createSchema(sharedSchema, "datacatalogue/stagingShared/molgenis.csv");
     }
   }
 }
