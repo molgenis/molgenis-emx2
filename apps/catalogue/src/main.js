@@ -57,7 +57,7 @@ const router = createRouter({
       path: "/datasources",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Data sources",
+        tableName: "Data_sources",
       }),
       component: ResourceListView,
     },

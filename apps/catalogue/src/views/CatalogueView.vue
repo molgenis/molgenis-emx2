@@ -184,6 +184,7 @@ export default {
       projects: null,
       models: null,
       datasources: null,
+      datasets: null,
       sourceVariables: null,
       targetVariables: null,
       sourceTables: null,

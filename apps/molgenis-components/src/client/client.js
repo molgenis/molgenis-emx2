@@ -197,6 +197,7 @@ const fetchTableData = async (
     properties && Object.prototype.hasOwnProperty.call(properties, "offset")
       ? properties.offset
       : 0;
+
   const search =
     properties &&
     Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
@@ -220,6 +221,7 @@ const fetchTableData = async (
             count
           }
         }`;
+
   const filter =
     properties && Object.prototype.hasOwnProperty.call(properties, "filter")
       ? properties.filter
@@ -276,7 +278,7 @@ const columnNames = (tableName, metaData) => {
 };
 
 const refGraphql = (column, metaData) => {
-  let graphqlString = "";x
+  let graphqlString = "";
   const refTable = getTable(column.refTable, metaData.tables);
   refTable.columns.forEach((c) => {
     if (c.key == 1) {
