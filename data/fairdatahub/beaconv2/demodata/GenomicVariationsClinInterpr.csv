@@ -3,3 +3,4 @@ Var001_CI001,Disease causing,Unknown Significance,famchol1,"Homozygous familial 
 Var001_CI002,Modulator,Benign,surfcmtd4,"SURF1-related Charcot-Marie-Tooth disease type 4"
 Var002_CI001,,Pathogenic,,
 MinVar_CI,,,,
+Ind001_VarCaseClinInt,Protective factor,Benign,,

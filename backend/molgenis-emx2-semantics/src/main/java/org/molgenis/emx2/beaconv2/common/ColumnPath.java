@@ -1,5 +1,6 @@
 package org.molgenis.emx2.beaconv2.common;
 
+import java.util.ArrayList;
 import org.molgenis.emx2.Column;
 
 /**
@@ -7,19 +8,31 @@ import org.molgenis.emx2.Column;
  * searched in
  */
 public class ColumnPath {
-  public ColumnPath(Column column, String path) {
-    this.column = column;
-    this.path = path;
-  }
 
   private Column column;
-  private String path;
+  private ArrayList<Column> path;
+
+  public ColumnPath(Column column, ArrayList<Column> path) {
+    this.column = column;
+    this.path = path;
+    path.add(column);
+  }
 
   public Column getColumn() {
     return column;
   }
 
-  public String getPath() {
+  public ArrayList<Column> getPath() {
     return path;
+  }
+
+  @Override
+  public String toString() {
+    StringBuffer stringBuffer = new StringBuffer();
+    for (Column column : path) {
+      stringBuffer.append("{" + column.getName() + ":");
+    }
+    stringBuffer.append("{");
+    return stringBuffer.toString();
   }
 }

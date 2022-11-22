@@ -22,7 +22,6 @@ import NetworkVariables from "./network/NetworkVariables.vue";
 import NetworkCohorts from "./network/NetworkCohorts.vue";
 import NetworkDetails from "./network/NetworkDetails.vue";
 import HomeView from "./views/HomeView.vue";
-Vue.config.productionTip = false;
 
 import "molgenis-components/dist/style.css";
 

@@ -30,13 +30,16 @@ export default {
       if (event.target?.value === null) {
         this.$emit("update:modelValue", null);
       } else if (!isNaN(value)) {
-        this.$emit("update:modelValue", event.target.value );
+        this.$emit("update:modelValue", value);
       }
     },
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", flipSign(parseFloat(event.target.value)));
+        this.$emit(
+          "update:modelValue",
+          parseFloat(flipSign(parseFloat(event.target.value)))
+        );
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

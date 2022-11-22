@@ -50,14 +50,9 @@ public class OntologyTableSemantics {
      * Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697
      * (Controlled Vocabulary)
      */
-    assertTrue(
-        result.contains(
-            "emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;\n"
-                + "  rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
-    assertFalse(
-        result.contains(
-            "emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;\n"
-                + "  rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
+    assertTrue(result.contains("emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;"));
+    assertTrue(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
+    assertFalse(result.contains("rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
 
     /** Update the 'Tag' ontology table with new semantics and produce new RDF */
     SchemaMetadata metadata =
@@ -78,13 +73,8 @@ public class OntologyTableSemantics {
      * Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME
      * ontology
      */
-    assertFalse(
-        result.contains(
-            "emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;\n"
-                + "  rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
-    assertTrue(
-        result.contains(
-            "emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;\n"
-                + "  rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
+    assertTrue(result.contains("emx0:Tag a owl:Class, qb:DataSet, sio:SIO_000754;"));
+    assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
+    assertTrue(result.contains("rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>;"));
   }
 }
