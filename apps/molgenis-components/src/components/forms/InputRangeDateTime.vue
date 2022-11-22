@@ -9,17 +9,17 @@
     <div class="d-flex">
       <InputDateTime
         :id="id + '-from'"
-        :value="value[0]"
+        :modelValue="modelValue[0]"
         :readonly="readonly"
-        @input="emitValue($event, 0)"
+        @update:modelValue="emitValue($event, 0)"
         placeholder="from"
         class="m-0"
       />
       <InputDateTime
         :id="id + '-to'"
-        :value="value[1]"
+        :modelValue="modelValue[1]"
         :readonly="readonly"
-        @input="emitValue($event, 1)"
+        @update:modelValue="emitValue($event, 1)"
         placeholder="to"
         class="m-0"
       />

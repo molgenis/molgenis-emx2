@@ -2,7 +2,7 @@
   <span @focusout="onfocusout" ref="inlineInput">
     <span v-if="isEditing"><slot></slot></span>
     <span v-else @click="openAndFocusInput()" class="editable">
-      <slot name="display">{{ value }}</slot>
+      <slot name="display">{{ modelValue }}</slot>
     </span>
     <IconAction
       v-if="!isEditing"
@@ -25,7 +25,10 @@ export default {
   components: { IconAction },
   name: "InlineInput",
   props: {
-    value: { type: [String, Number, Object, Array, Boolean], default: null },
+    modelValue: {
+      type: [String, Number, Object, Array, Boolean],
+      default: null,
+    },
   },
   data() {
     return {

@@ -17,7 +17,7 @@
           />
         </div>
         <ButtonAlt
-          v-if="value && value.length"
+          v-if="modelValue && modelValue.length"
           class="pl-1"
           @click="clearValue"
         >
@@ -61,8 +61,8 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection.sync="selection"
-            @update:selection="$emit('input', $event)"
+            v-model:selection="selection"
+            @update:selection="$emit('update:modelValue', $event)"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
@@ -98,7 +98,7 @@ export default {
       client: null,
       showSelect: false,
       data: [],
-      selection: this.value,
+      selection: this.modelValue,
       count: 0,
       tableMetaData: null,
     };
@@ -151,7 +151,7 @@ export default {
       this.emitSelection();
     },
     emitSelection() {
-      this.$emit("input", this.selection);
+      this.$emit("update:modelValue", this.selection);
     },
     openSelect() {
       this.showSelect = true;
@@ -173,6 +173,11 @@ export default {
       this.count = response[this.tableName + "_agg"].count;
     },
   },
+  watch: {
+    modelValue() {
+      this.selection = this.modelValue;
+    }
+  },
   async mounted() {
     this.client = Client.newClient(this.graphqlURL);
     const allMetaData = await this.client.fetchMetaData();
@@ -182,7 +187,7 @@ export default {
 
     await this.loadOptions();
 
-    if (!this.value) {
+    if (!this.modelValue) {
       this.selection = [];
     }
   },

@@ -96,6 +96,14 @@ export default {
           variables: { settings },
         });
       },
+      fetchSettings: async () => {
+        return (
+          await request(
+            graphqlURL ? graphqlURL : "graphql",
+            "{_settings{key, value}}"
+          )
+        )._settings;
+      },
     };
   },
 };

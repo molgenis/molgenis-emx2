@@ -14,7 +14,7 @@
     >
       <div
         class="border-0 text-left form-control"
-        style="height: auto"
+        style="height: auto;"
         @click="toggleFocus"
       >
         <span
@@ -28,7 +28,7 @@
         </span>
         <i
           class="p-2 fa fa-times"
-          style="vertical-align: middle"
+          style="vertical-align: middle;"
           @click.stop="clearSelection"
           v-if="showExpanded && selectionWithoutChildren.length > 0"
         />
@@ -57,13 +57,13 @@
         <span class="d-inline-block float-right">
           <i
             class="p-2 fa fa-times"
-            style="vertical-align: middle"
+            style="vertical-align: middle;"
             @click.stop="clearSelection"
             v-if="!showExpanded && selectionWithoutChildren.length > 0"
           />
           <i
             class="p-2 fa fa-caret-down"
-            style="vertical-align: middle"
+            style="vertical-align: middle;"
             v-if="!showExpanded"
           />
         </span>
@@ -85,7 +85,7 @@
         <InputOntologySubtree
           :key="key"
           v-if="rootTerms.length > 0"
-          style="max-height: 100vh"
+          style="max-height: 100vh;"
           class="pt-2 pl-0 dropdown-item"
           :terms="rootTerms"
           :isMultiSelect="isMultiSelect"
@@ -111,7 +111,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
-import vClickOutside from "v-click-outside";
+import vClickOutside from "click-outside-vue3";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -332,14 +332,14 @@ export default {
     },
     emitValue() {
       let selectedTerms = Object.values(this.terms)
-        .filter((term) => term.selected === "complete")
+        .filter((term) => term.selected === "complete" && !term.children)
         .map((term) => {
           return { name: term.name };
         });
       if (this.isMultiSelect) {
-        this.$emit("input", selectedTerms);
+        this.$emit("update:modelValue", selectedTerms);
       } else {
-        this.$emit("input", selectedTerms[0]);
+        this.$emit("update:modelValue", selectedTerms[0]);
       }
     },
     applySelection(value) {
@@ -353,7 +353,10 @@ export default {
         value.forEach((v) => {
           let term = this.terms[v.name];
           if (term) {
-            term.selected = "complete";
+            //select if doesn't have children
+            if (this.getAllChildren(term).length == 0) {
+              term.selected = "complete";
+            }
             if (this.isMultiSelect) {
               //if list also select its children
               this.getAllChildren(term).forEach(
@@ -430,10 +433,14 @@ export default {
       }
       this.key++;
     },
-    value() {
-      if (this.terms.size > 0) {
-        this.applySelection(this.value);
-      }
+    modelValue: {
+      deep: true,
+      handler() {
+        this.applySelection(this.modelValue);
+        //vue has problem to react on changes deep changes in selection tree
+        //therefore we use this key to force updates in this component
+        this.key++;
+      },
     },
     data() {
       if (this.data) {
@@ -477,7 +484,7 @@ export default {
           this.searchResultCount++;
         });
         this.terms = terms;
-        this.applySelection(this.value);
+        this.applySelection(this.modelValue);
       }
     },
   },

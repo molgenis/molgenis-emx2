@@ -26,6 +26,7 @@
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
 import { getPrimaryKey, deepClone } from "../utils";
+import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
@@ -33,12 +34,12 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: deepClone(this.modelValue),
       errorPerColumn: {},
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -85,6 +86,7 @@ export default {
       default: () => true,
     },
   },
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -125,139 +127,41 @@ export default {
       );
     },
     visible(expression, columnId) {
-      // eslint-disable-next-line no-undef
-      if (typeof Expressions !== "undefined" && expression) {
+      if (expression) {
         try {
-          // eslint-disable-next-line no-undef
           return Expressions.evaluate(expression, this.internalValues);
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
-      } else if (expression) {
-        console.error(
-          "No 'Expressions' object found in global scope, visible expression will always be 'true'"
-        );
+      } else {
+        return true;
       }
-      return true;
     },
     validateTable() {
-      if (this.tableMetaData?.columns) {
-        this.tableMetaData.columns
-          .filter((column) => {
-            if (this.visibleColumns) {
-              return this.visibleColumns.find(
-                (visibleColumn) => column.name === visibleColumn.name
-              );
-            } else {
-              return true;
-            }
-          })
-          .forEach((column) => {
-            this.errorPerColumn[column.id] = this.getColumnError(
-              column,
-              this.internalValues
+      this.tableMetaData?.columns
+        ?.filter((column) => {
+          if (this.visibleColumns) {
+            return this.visibleColumns.find(
+              (visibleColumn) => column.name === visibleColumn.name
             );
-          });
-      }
-    },
-    getColumnError(column, values) {
-      const value = values[column.id];
-      const isInvalidNumber = typeof value === "number" && isNaN(value);
-      const missesValue = value === undefined || value === null || value === "";
-      const type = column.columnType;
-
-      if (column.required && (missesValue || isInvalidNumber)) {
-        return column.name + " is required ";
-      }
-      if (missesValue) {
-        return undefined;
-      }
-      if (type === "EMAIL" && !this.isValidEmail(value)) {
-        return "Invalid email address";
-      }
-      if (type === "EMAIL_ARRAY" && this.containsInvalidEmail(value)) {
-        return "Invalid email address";
-      }
-      if (type === "HYPERLINK" && !this.isValidHyperlink(value)) {
-        return "Invalid hyperlink";
-      }
-      if (type === "HYPERLINK_ARRAY" && this.containsInvalidHyperlink(value)) {
-        return "Invalid hyperlink";
-      }
-      if (column.validation) {
-        return this.evaluateValidationExpression(column, values);
-      }
-      if (
-        this.isRefLinkWithoutOverlap(
-          column,
-          this.tableMetaData,
-          this.internalValues
-        )
-      ) {
-        return `value should match your selection in column '${column.refLink}' `;
-      }
-
-      return undefined;
-    },
-    isValidHyperlink(value) {
-      return HYPERLINK_REGEX.test(String(value).toLowerCase());
-    },
-    containsInvalidHyperlink(hyperlinks) {
-      return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
-    },
-    isValidEmail(value) {
-      return EMAIL_REGEX.test(String(value).toLowerCase());
-    },
-    containsInvalidEmail(emails) {
-      return emails.find((email) => !this.isValidEmail(email));
-    },
-    evaluateValidationExpression(column, values) {
-      // eslint-disable-next-line no-undef
-      if (typeof Expressions !== "undefined") {
-        try {
-          // eslint-disable-next-line no-undef
-          if (!Expressions.evaluate(column.validation, values)) {
-            return `Applying validation rule returned error: ${column.validation}`;
+          } else {
+            return true;
           }
-          return undefined;
-        } catch (error) {
-          return "Invalid validation expression";
-        }
-      } else {
-        console.error(
-          "No 'Expressions' object found in global scope, evaluation is skipped"
-        );
-        return undefined;
-      }
-    },
-    isRefLinkWithoutOverlap(column, tableMetaData, values) {
-      if (!column.refLink) {
-        return false;
-      }
-      const columnRefLink = column.refLink;
-      const refLinkId = tableMetaData.columns.find(
-        (column) => column.name === columnRefLink
-      ).id;
-
-      const value = values[column.id];
-      const refValue = values[refLinkId];
-
-      if (typeof value === "string" && typeof refValue === "string") {
-        return value && refValue && value !== refValue;
-      } else {
-        return (
-          value &&
-          refValue &&
-          !JSON.stringify(value).includes(JSON.stringify(refValue))
-        );
-      }
+        })
+        .forEach((column) => {
+          this.errorPerColumn[column.id] = getColumnError(
+            column,
+            this.internalValues,
+            this.tableMetaData
+          );
+        });
     },
   },
   watch: {
     internalValues: {
       handler(newValue) {
         this.validateTable();
-        this.$emit("input", newValue);
+        this.$emit("update:modelValue", newValue);
       },
       deep: true,
     },
@@ -269,13 +173,97 @@ export default {
     },
   },
   created() {
-    //pass by value
     if (this.defaultValue) {
-      this.internalValues = JSON.parse(JSON.stringify(this.defaultValue));
+      this.internalValues = deepClone(this.defaultValue);
     }
     this.validateTable();
   },
 };
+
+function getColumnError(column, values, tableMetaData) {
+  const value = values[column.id];
+  const isInvalidNumber = typeof value === "number" && isNaN(value);
+  const missesValue = value === undefined || value === null || value === "";
+  const type = column.columnType;
+
+  if (column.required && (missesValue || isInvalidNumber)) {
+    return column.name + " is required ";
+  }
+  if (missesValue) {
+    return undefined;
+  }
+  if (type === "EMAIL" && !isValidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (column.validation) {
+    return evaluateValidationExpression(column, values);
+  }
+  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
+    return `value should match your selection in column '${column.refLink}' `;
+  }
+
+  return undefined;
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    return "Invalid validation expression, reason: " + error.ha;
+  }
+}
+
+function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+  if (!column.refLink) {
+    return false;
+  }
+  const columnRefLink = column.refLink;
+  const refLinkId = tableMetaData.columns.find(
+    (column) => column.name === columnRefLink
+  ).id;
+
+  const value = values[column.id];
+  const refValue = values[refLinkId];
+
+  if (typeof value === "string" && typeof refValue === "string") {
+    return value && refValue && value !== refValue;
+  } else {
+    return (
+      value &&
+      refValue &&
+      !JSON.stringify(value).includes(JSON.stringify(refValue))
+    );
+  }
+}
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !this.isValidEmail(email));
+}
 </script>
 
 <docs>

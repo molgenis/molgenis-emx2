@@ -1,13 +1,20 @@
 <script>
+import { h } from "vue";
+
 export default {
   props: {
     row: Object,
     template: String,
   },
-  created () {
-      this.$options.template = `<div>${this.template}</div>`
-      this.$options.props = this.$props
-  }
+  render() {
+    const render = {
+      template: `<div>${this.template}</div>`,
+      data: () => ({
+        row: this.row,
+      }),
+    };
+    return h(render);
+  },
 };
 </script>
 

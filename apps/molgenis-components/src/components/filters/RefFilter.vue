@@ -1,8 +1,8 @@
 <template>
   <InputRef
     :id="id"
-    :value="condition"
-    @input="onUpdateCondition"
+    :modelValue="condition"
+    @update:modelValue="onUpdateCondition"
     :tableName="tableName"
     :graphqlURL="graphqlURL"
   />

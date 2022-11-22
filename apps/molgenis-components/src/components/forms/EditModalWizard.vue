@@ -3,14 +3,14 @@
     <RowEdit
       v-if="columnsSplitByHeadings"
       :id="id"
-      :value="value"
+      :modelValue="modelValue"
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
       :graphqlURL="graphqlURL"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
-      @input="$emit('input', $event)"
+      @update:modelValue="$emit('update:modelValue', $event)"
     />
   </div>
 </template>
@@ -25,7 +25,7 @@ export default {
     return { columnsSplitByHeadings: null };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -65,6 +65,7 @@ export default {
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
+  emits: ["setPageCount", "update:modelValue"],
 };
 
 function splitColumnsByHeadings(columns) {

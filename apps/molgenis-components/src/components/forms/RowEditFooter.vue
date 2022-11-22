@@ -8,7 +8,7 @@
     <div>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     </div>
-    <div class="d-flex" style="gap: 0.5rem">
+    <div class="d-flex" style="gap: 0.5rem;">
       <slot></slot>
       <ButtonAlt @click="$emit('cancel')"> Close</ButtonAlt>
       <ButtonOutline @click="$emit('saveDraft')"> Save draft</ButtonOutline>
@@ -90,7 +90,7 @@ export default {
     </DemoItem>
      <DemoItem>
       <label for="sample-error-msg">With disabled tooltip</label>
-      <RowEditFooter id="sample-error-msg" isSaveDisabled="true" />
+      <RowEditFooter id="sample-error-msg" :isSaveDisabled="true" />
     </DemoItem>
   </div>
 </template>

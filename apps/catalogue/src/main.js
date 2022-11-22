@@ -1,5 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
@@ -22,17 +22,11 @@ import NetworkVariables from "./network/NetworkVariables.vue";
 import NetworkCohorts from "./network/NetworkCohorts.vue";
 import NetworkDetails from "./network/NetworkDetails.vue";
 import HomeView from "./views/HomeView.vue";
-import { EditModal } from "molgenis-components";
-Vue.config.productionTip = false;
 
 import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-// workaround for not importing recursive component
-Vue.component("EditModal", EditModal);
-
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
 
@@ -309,15 +303,15 @@ const router = new VueRouter({
     },
     {
       name: "NetworkCohortCollectionEvent",
-      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      path:
+        "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
     },
   ]
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-  store,
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.use(store);
+app.mount("#app");

@@ -69,13 +69,13 @@ export default {
     </div>
 
     <div class="mt-5">
-      <label for="my-id">required field form group</label>
-      <FormGroup id="my-id"
+      <label for="my-id2">required field form group</label>
+      <FormGroup id="my-id2"
         label="my label"
         required
         description="my description">
         <InputGroup>
-          <InputString id="my-id"></InputString>
+          <InputString id="my-id2"></InputString>
         </InputGroup>
         </FormGroup>
     </div>

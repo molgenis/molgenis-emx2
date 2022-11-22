@@ -42,10 +42,13 @@ export default {
   },
   methods: {
     async fetchData() {
-      const filter = this.filter ? JSON.parse(this.filter) : {}
-      const orderby = this.filter ? JSON.parse(this.orderby) : {}
+      const filter = this.filter ? JSON.parse(this.filter) : {};
+      const orderby = this.filter ? JSON.parse(this.orderby) : {};
       this.metaData = await this.client.fetchMetaData();
-      this.tableData = await this.client.fetchTableData("Pet", {filter, orderby});
+      this.tableData = await this.client.fetchTableData("Pet", {
+        filter,
+        orderby,
+      });
     },
   },
   async mounted() {
@@ -53,12 +56,12 @@ export default {
     this.fetchData();
   },
   watch: {
-    filter () {
+    filter() {
       this.fetchData();
     },
-    orderby () {
+    orderby() {
       this.fetchData();
-    }
-  }
+    },
+  },
 };
 </script>
