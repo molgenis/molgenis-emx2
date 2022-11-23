@@ -8,7 +8,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -48,9 +52,17 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
         // move to a temp file so we can merge result into the original file location
-        Path tempPath = Files.createTempDirectory("");
-        File tempDir = tempPath.toFile();
-        File tempFile = File.createTempFile("copy", ".xlsx", tempDir);
+        File tempFile;
+        if (SystemUtils.IS_OS_UNIX) {
+          FileAttribute<Set<PosixFilePermission>> attr =
+              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+          tempFile = Files.createTempFile("copy", ".xlsx", attr).toFile();
+        } else {
+          tempFile = Files.createTempFile("copy", ".xlsx").toFile();
+          tempFile.setReadable(true, true);
+          tempFile.setWritable(true, true);
+          tempFile.setExecutable(true, true);
+        }
         if (!tempFile.setReadable(true, true)
             || !tempFile.setWritable(true, true)
             || !tempFile.setExecutable(true, true)) {
