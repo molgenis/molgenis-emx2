@@ -147,8 +147,8 @@ Data sources,,quality validation results,,,,,,,,,,"If available, provide a link 
 Data sources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,,,
 Data sources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this databank,EMA,,
 Data sources,,etl frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
-Data sources,,E t lstandard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
-Data sources,,E t lstandard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
+Data sources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
+Data sources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,,,
 Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA,,
@@ -311,7 +311,7 @@ Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope
 Studies,,study scope other,text,,,,,,,,,If scope 'other',,,
 Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied",,,
 Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied",,,
-Datasets,,,,,,,,,,,,Definition of a table within a (common) data model,,,
+Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,,,
 Datasets,,source,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of,,TargetTables,dataDictionary
 Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model,,,
 Datasets,,label,,,,,,,,,,short human readable description,,,
