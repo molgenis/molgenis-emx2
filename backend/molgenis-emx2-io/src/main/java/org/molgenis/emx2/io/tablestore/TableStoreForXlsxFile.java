@@ -48,7 +48,9 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
         // move to a temp file so we can merge result into the original file location
-        File tempFile = Files.createTempFile("copy", ".xlsx").toFile();
+        Path tempPath = Files.createTempDirectory("");
+        File tempDir = tempPath.toFile();
+        File tempFile = File.createTempFile("copy", ".xlsx", tempDir);
         if (!tempFile.setReadable(true, true)
             || !tempFile.setWritable(true, true)
             || !tempFile.setExecutable(true, true)) {
