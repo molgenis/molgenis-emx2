@@ -1,7 +1,11 @@
 <template>
   <div>
     <h1>Admin tools</h1>
-    <Spinner v-if="loading"></Spinner>
+    <MolgenisSignin
+      v-if="showSigninForm && session.email === 'anonymous'"
+      @cancel="showSigninForm = false"
+    />
+    <Spinner v-if="loading" />
     <MessageError v-else-if="session.email !== 'admin'">
       Permission denied, please log in as an administrator to view this page.
     </MessageError>
@@ -34,12 +38,13 @@
 </template>
 
 <script>
-import { Spinner, MessageError } from "molgenis-components";
+import { Spinner, MessageError, MolgenisSignin } from "molgenis-components";
 
 export default {
   components: {
     Spinner,
     MessageError,
+    MolgenisSignin,
   },
   props: {
     session: {
@@ -51,6 +56,7 @@ export default {
     return {
       loading: false,
       error: null,
+      showSigninForm: true,
     };
   },
   computed: {
