@@ -26,7 +26,7 @@ public class PhenotypicFeatures {
       Map map = phenotypicFeaturesCast.get(i);
       PhenotypicFeatures pf = new PhenotypicFeatures();
       pf.featureType = mapToOntologyTerm((Map) map.get("featureType"));
-      pf.modifiers = mapListToOntologyTerms((List<Map>) map.get("modifiers"));
+      pf.modifiers = mapListToOntologyTerms(map.get("modifiers"));
       pf.severity = mapToOntologyTerm((Map) map.get("severity"));
       result[i] = pf;
     }
