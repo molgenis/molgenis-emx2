@@ -312,7 +312,7 @@ Studies,,study scope other,text,,,,,,,,,If scope 'other',,,
 Studies,,population of interest,ontology_array,,,CatalogueOntologies,Population of interest,,,,,"If population of interest is 'Other', please specify which other population has been studied",,,
 Studies,,population of interest other,text,,,,,,,,,"If population of interest is 'Other', please specify which other population has been studied",,,
 Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,,,
-Datasets,,source,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of,,TargetTables,dataDictionary
+Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of,,TargetTables,dataDictionary
 Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model,,,
 Datasets,,label,,,,,,,,,,short human readable description,,,
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes,,,
@@ -320,15 +320,15 @@ Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables gro
 Datasets,,description,text,,,,,,,,,description of the role/function of this table,,,
 Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table,,,
 All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead",,,
-All variables,,source,ref,1,TRUE,,Extended resources,,,,,Data source that this variable was collected in,,AllVariables,dataDictionary
-All variables,,dataset,ref,1,TRUE,,Datasets,source,,,,Dataset this variable is part of,,,
+All variables,,resource,ref,1,TRUE,,Extended resources,,,,,Data source that this variable was collected in,,AllVariables,dataDictionary
+All variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset this variable is part of,,,
 All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table",,,
 All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable",,,
 All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on,,,
 Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range",,,
 Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc",,,
 Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,,,,
-Variables,,references,ref,,,,All variables,source,,,,to define foreign key relationships between variables within or across tables,,,
+Variables,,references,ref,,,,All variables,resource,,,,to define foreign key relationships between variables within or across tables,,,
 Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection,,,
 Variables,,description,text,,,,,,,,,,,,
 Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value,,,
@@ -341,9 +341,8 @@ Variables,,notes,text,,,,,,,,,Any other information on this variable,,,
 Variables,,since version,,,,,,,,,,When this variable was introduced,,,
 Variables,,until version,,,,,,,,,,When this variable was removed if applicable,,,
 Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,,,
-Variable values,,source,ref,1,TRUE,,Extended resources,,,,,,,SourceVariableValues,dataDictionary
-Variable values,,dataset,ref,1,TRUE,,Datasets,,,,,,,SourceVariableValues,dataDictionary
-Variable values,,variable,ref,1,TRUE,,Variables,source,,,,e.g. PATO,,,
+Variable values,,resource,ref,1,TRUE,,Extended resources,,,,,,,SourceVariableValues,dataDictionary
+Variable values,,variable,ref,1,TRUE,,Variables,resource,,,,e.g. PATO,,,
 Variable values,,value,,1,TRUE,,,,,,,e.g. '1',,,
 Variable values,,label,,,TRUE,,,,,,,,,,
 Variable values,,order,int,,,,,,,,,,,,
@@ -352,7 +351,7 @@ Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defi
 Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable,,,
 Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable,,,
 Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition,,,
-Repeated variables,,is repeat of,ref,,TRUE,,Variables,source,,,,reference to the definition of the sourceVariable that is being repeated,,,
+Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,,,
 Mappings,,,,,,,,,,,,"Mapping from collected datasets to standard/harmonized datasets, optionally including ETL syntaxes",,,
 Mappings,,source,ref,1,TRUE,,Extended resources,,,,,Data source that is being mapped to a (common) data model,,,
 Mappings,,source version,string,,TRUE,,,,,,,version of the datasource that is being mapped,,,
