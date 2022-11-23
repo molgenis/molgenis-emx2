@@ -7,35 +7,52 @@ const props = defineProps({
   },
   tableName: {
     type: String,
+  },
+  isMultiSelect: {
+    type: Boolean,
+    default: true
+  },
+  modelValue: {
+    type: Array,
+    default: []
+  },
+  options: {
+    type: Array,
   }
 });
 
-const query = `
-query 
-${props.tableName}( $filter:${props.tableName}Filter, $orderby:${props.tableName}orderby )
- {   
-  ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
-    {          
-      order
-      name 
-      code 
-      parent{ name }
-      ontologyTermURI 
-      definition 
-      children{ name }
-     }       
-  ${props.tableName}_agg( filter:$filter ) { count }
-  }
+const emit = defineEmits(['update:modelValue'])
+
+let selected = toRefs(props).modelValue
+
+let data = []
+if (!props.options) {
+  const query = `
+    query 
+    ${props.tableName}( $filter:${props.tableName}Filter, $orderby:${props.tableName}orderby )
+    {   
+      ${props.tableName}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )  
+        {          
+          order
+          name 
+          code 
+          parent{ name }
+          ontologyTermURI 
+          definition 
+          children{ name }
+        }       
+      ${props.tableName}_agg( filter:$filter ) { count }
+      }
   `;
+  let resp = await fetchGql(query)
 
+  data = resp?.data[props.tableName]
+  let count = resp?.data[props.tableName + '_agg'].count
+  console.log(count)
+} else {
+  data = props.options
+}
 
-let resp = await fetchGql(query)
-console.log('Search Filter data ')
-
-let data = resp?.data[props.tableName]
-let count = resp?.data[props.tableName + '_agg'].count
-
-console.log(count)
 
 
 // convert to tree of terms
@@ -91,17 +108,128 @@ const toggleCollapseTitle = () => {
   collapsedTitle.value = !collapsedTitle.value;
 };
 
-let key = ref(1)
 function toggleExpand(term) {
   terms[term.name].expanded = !terms[term.name].expanded;
-  key++;
+}
+
+function select(item) {
+  if (!props.isMultiSelect) {
+    //deselect other items
+    Object.keys(terms).forEach(
+      (key) => (terms[key].selected = false)
+    );
+  }
+  let term = terms[item];
+  term.selected = "complete";
+  if (props.isMultiSelect) {
+    //if list also select also its children
+    getAllChildren(term).forEach(
+      (childTerm) => (childTerm.selected = "complete")
+    );
+    //select parent(s) if all siblings are selected
+    getParents(term).forEach((parent) => {
+      if (parent.children.every((childTerm) => childTerm.selected)) {
+        parent.selected = "complete";
+      } else {
+        parent.selected = "partial";
+      }
+    });
+  }
+  emitValue();
+  // $refs.search.focus();
+}
+
+function deselect(item) {
+  if (props.isMultiSelect) {
+    let term = terms[item];
+    term.selected = false;
+    //also deselect all its children
+    getAllChildren(terms[item]).forEach(
+      (childTerm) => (childTerm.selected = false)
+    );
+    //also its deselect its parents, might be partial
+    getParents(term).forEach((parent) => {
+      if (parent.children.some((child) => child.selected)) {
+        parent.selected = "partial";
+      } else {
+        parent.selected = false;
+      }
+    });
+  } else {
+    //non-list, deselect all
+    Object.keys(terms).forEach(
+      (name) => (terms[name].selected = false)
+    );
+  }
+  emitValue();
+  // $refs.search.focus();
+}
+
+function getParents(term) {
+  let result = [];
+  let parent = term.parent;
+  while (parent) {
+    result.push(terms[parent.name]);
+    if (
+      terms[parent.name].parent &&
+      //check for parent that are indirect parent of themselves
+      !result.includes(terms[parent.name].parent.name)
+    ) {
+      parent = terms[parent.name].parent;
+    } else {
+      parent = null;
+    }
+  }
+  return result;
+}
+
+function getAllChildren(term) {
+  let result = [];
+  if (term.children) {
+    result = term.children;
+    term.children.forEach(
+      (childTerm) =>
+        (result = result.concat(getAllChildren(childTerm)))
+    );
+  }
+  return result;
+}
+
+function emitValue() {
+  let selectedTerms = Object.values(terms)
+    .filter((term) => term.selected === "complete" && !term.children)
+    .map((term) => {
+      return { name: term.name };
+    });
+  if (props.isMultiSelect) {
+    emit("update:modelValue", selectedTerms);
+  } else {
+    emit("update:modelValue", selectedTerms[0]);
+  }
+}
+
+function toggleSelect(term) {
+  //if selecting then also expand
+  //if deselection we keep it open
+  if (term.selected == "complete") {
+    deselect(term.name)
+  } else {
+    select(term.name)
+  }
+}
+
+function clearSelection() {
+  if (terms) {
+    Object.values(terms).forEach((term) => (term.selected = false));
+  }
+  emitValue();
+  // $refs.search.focus();
 }
 
 </script>
 
 <template>
   <hr class="mx-5 border-black opacity-10" />
-
   <div class="flex items-center gap-1 p-5">
     <div class="inline-flex gap-1 group" @click="toggleCollapseTitle()">
       <h3
@@ -114,8 +242,9 @@ function toggleExpand(term) {
       </span>
     </div>
     <div class="text-right grow">
-      <span class="text-body-sm text-search-filter-expand hover:underline hover:cursor-pointer">
-        Remove 2 selected
+      <span v-if="selected.length" class="text-body-sm text-search-filter-expand hover:underline hover:cursor-pointer"
+        @click="clearSelection()">
+        Remove {{ selected.length }} selected
       </span>
     </div>
   </div>
@@ -133,7 +262,9 @@ function toggleExpand(term) {
         </span>
         <div class="flex items-center">
           <input type="checkbox" :id="item.name" :name="item.name"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 text-yellow-500 border-0" />
+            :checked="item.selected === 'complete' || item.selected === 'partial'" @click.stop="toggleSelect(item)"
+            :class="{ 'text-yellow-500': (item.selected === 'complete'), 'text-search-filter-group-checkbox': (item.selected !== 'complete') }"
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border-0" />
         </div>
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
@@ -150,7 +281,7 @@ function toggleExpand(term) {
       </div>
 
       <ul class="ml-[39px]" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
-        <SearchFilterGroupChild :items="item.children" />
+        <SearchFilterGroupChild :items="item.children" @select="select" @deselect="deselect" />
       </ul>
     </li>
   </ul>
