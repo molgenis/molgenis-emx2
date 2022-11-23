@@ -37,8 +37,7 @@ const query = `query Cohorts ($pid: String){
     }}`;
 const variables = { pid: route.params.cohort };
 
-var cohort = {};
-var generalDesignDefinition = [];
+let cohort: any = {};
 const { data: cohortData, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
@@ -53,52 +52,8 @@ watch(cohortData, setData, {
   immediate: true,
 });
 
-function setData(data) {
+function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
-  generalDesignDefinition = [
-    {
-      label: "Cohort type",
-      content: cohort?.type
-        ? cohort?.type.map((type) => type?.name).join(", ")
-        : "not available",
-    },
-    {
-      label: "Design",
-      content: cohort?.design ? cohort?.design.name : "not available",
-      tooltip: cohort?.design.definition
-        ? cohort?.design.definition
-        : "not available",
-    },
-    {
-      label: "Collection type",
-      content: cohort?.collectionType
-        ? cohort?.collectionType[0].name
-        : "not available",
-    },
-    {
-      label: "Start/End year",
-      content: `${cohort?.startYear} - ${cohort?.endYear}`,
-    },
-    {
-      label: "Population",
-      content: cohort?.countries
-        ? [...cohort?.countries]
-            .sort((a, b) => a.order - b.order)
-            .map((c) => c.name)
-            .join(",")
-        : "",
-    },
-    {
-      label: "Number of participants",
-      content: cohort?.numberOfParticipants,
-    },
-    {
-      label: "Age group at inclusion",
-      content: cohort?.populationAgeGroups
-        ? cohort?.populationAgeGroups.map((pag) => pag.name)
-        : [],
-    },
-  ];
 }
 </script>
 <template>
@@ -140,7 +95,7 @@ function setData(data) {
           id="GeneralDesign"
           title="General Design"
           :description="cohort?.designDescription"
-          :definition="generalDesignDefinition"
+          :cohort="cohort"
         />
         <ContentBlockAttachedFiles
           id="Files"
@@ -184,4 +139,3 @@ function setData(data) {
     </template>
   </LayoutsDetailPage>
 </template>
-
