@@ -1,1 +1,12 @@
-name,code,order,definition,comments,parent,ontologyTermURI
+order,name,code,parent,ontologyTermURI,definition
+,Drug subscription,,,,
+,person,,,,
+,abortion,,,,
+,Patient,,,,
+,sample,,,,
+,discharge record,,,,
+,medicine dispensation,,,,
+,birth,,,,
+,event,,,,
+,observation,,,,
+,prescription,,,,
