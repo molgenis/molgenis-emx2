@@ -2,6 +2,9 @@
   <div>
     <h1>Admin tools</h1>
     <Spinner v-if="loading"></Spinner>
+    <MessageError v-else-if="session.email !== 'admin'">
+      Permission denied, please log in as an administrator to view this page.
+    </MessageError>
     <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else>
       <div class="card-header">
@@ -54,11 +57,6 @@ export default {
     selected() {
       return this.$route.name;
     },
-  },
-  created() {
-    if (this.session.email !== "admin") {
-      this.$router.push("/");
-    }
   },
 };
 </script>
