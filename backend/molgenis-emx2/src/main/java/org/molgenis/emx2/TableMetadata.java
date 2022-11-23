@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -112,6 +113,10 @@ public class TableMetadata implements Comparable {
 
   public String getTableName() {
     return tableName;
+  }
+
+  public String getIdentifier() {
+    return convertToPascalCase(getTableName());
   }
 
   public SchemaMetadata getSchema() {

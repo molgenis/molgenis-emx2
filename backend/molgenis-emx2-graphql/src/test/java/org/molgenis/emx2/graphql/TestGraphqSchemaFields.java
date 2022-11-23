@@ -7,8 +7,9 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -450,11 +451,15 @@ public class TestGraphqSchemaFields {
       Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
 
       // test escaping
-      assertEquals("first_name", escape("first name"));
-      assertEquals("first_name", escape("first  name"));
-      assertEquals("first__name", escape("first_name"));
+      assertEquals("firstName", convertToCamelCase("First name"));
+      assertEquals("firstName", convertToCamelCase("First  name"));
+      assertEquals("first_name", convertToCamelCase("first_name"));
 
-      System.out.println(escape("Person details"));
+      assertEquals("FirstName", convertToPascalCase("first name"));
+      assertEquals("FirstName", convertToPascalCase("first  name"));
+      assertEquals("First_name", convertToPascalCase("first_name"));
+
+      System.out.println(convertToCamelCase("Person details"));
 
       myschema.create(
           table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
@@ -466,48 +471,48 @@ public class TestGraphqSchemaFields {
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
-          "mutation{insert(Person_details:{First_name:\"blaata\",Last__name:\"blaata2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
 
-      int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
+      int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
       // insert should increase count
       execute(
-          "mutation{insert(Person_details:{First_name:\"blaatb\",Last__name:\"blaatb2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaatb\",last_name:\"blaatb2\"}){message}}");
       TestCase.assertEquals(
           count + 1,
-          execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+          execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
       // order by should work with spaces
       TestCase.assertEquals(
           "blaata",
-          execute("{Person_details(orderby:{First_name:ASC}){First_name}}")
-              .at("/Person_details/0/First_name")
+          execute("{PersonDetails(orderby:{firstName:ASC}){firstName}}")
+              .at("/PersonDetails/0/firstName")
               .asText());
 
       TestCase.assertEquals(
           "blaatb",
-          execute("{Person_details(orderby:{First_name:DESC}){First_name}}")
-              .at("/Person_details/0/First_name")
+          execute("{PersonDetails(orderby:{firstName:DESC}){firstName}}")
+              .at("/PersonDetails/0/firstName")
               .asText());
 
       // order by should work with underscore
       TestCase.assertEquals(
           "blaata2",
-          execute("{Person_details(orderby:{Last__name:ASC}){Last__name}}")
-              .at("/Person_details/0/Last__name")
+          execute("{PersonDetails(orderby:{last_name:ASC}){last_name}}")
+              .at("/PersonDetails/0/last_name")
               .asText());
 
       TestCase.assertEquals(
           "blaatb2",
-          execute("{Person_details(orderby:{Last__name:DESC}){Last__name}}")
-              .at("/Person_details/0/Last__name")
+          execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
+              .at("/PersonDetails/0/last_name")
               .asText());
 
       // delete
       execute(
-          "mutation{delete(Person_details:{First_name:\"blaata\",Last__name:\"blaata2\"}){message}}");
+          "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
       TestCase.assertEquals(
-          count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+          count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
       // reset
     } finally {
