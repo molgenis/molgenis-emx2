@@ -117,7 +117,7 @@ public class LinkedDataService {
       // we use the query here
       String json = q.retrieveJSON();
       Map<String, List<Map<String, Object>>> jsonMap = jsonMapper.readValue(json, Map.class);
-      List<Map<String, Object>> data = jsonMap.get(table.getName());
+      List<Map<String, Object>> data = jsonMap.get(table.getIdentifier());
 
       // enhance json
       for (Map row : data) {
