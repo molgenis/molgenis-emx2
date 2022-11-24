@@ -560,8 +560,8 @@ export default {
           description="please choose your options in tree below"
           v-model="value"
           :isMultiSelect="false"
-          tableName="AreasOfInformation"
-          graphqlURL="/CatalogueOntologies/graphql"
+          tableName="Tag"
+          graphqlURL="/pet store/graphql"
       />
     </demo-item>
 
