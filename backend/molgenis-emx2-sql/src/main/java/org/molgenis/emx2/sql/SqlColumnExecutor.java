@@ -288,26 +288,33 @@ public class SqlColumnExecutor {
             column("name")
                 .setPkey()
                 .setRequired(true)
-                .setDescription("Short but user-friendly name for this term")
+                .setDescription("Unique name of the term within this table")
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
-            column("codesystem")
-                // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
-                // check
-                .setRequired(false)
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
-                .setDescription("Abbreviation of the code system/ontology this term belongs to"),
-            column("code")
-                // .setKey(2)
-                .setRequired(false)
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
-                .setDescription("Identifier used for this term within this code system/ontology"),
+            column("label")
+                // .setKey(2) when we upgrade to psql 15 so we can allow parent == null in
+                // constraint so we can ensure unique labels on each level
+                .setDescription("User-friendly label for this term. Should be unique in parent")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
             column("parent")
+                // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
+                // constraint
                 .setType(REF)
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
                 .setRefTable(name)
                 .setDescription("The parent term, in case this code exists in a hierarchy"),
+            column("codesystem")
+                // we allow that multiple terms link to same code
+                // however, in principle we might have cases where we need multiple codes or even
+                // more complex semantics?
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
+                .setDescription("Abbreviation of the code system/ontology this term belongs to"),
+            column("code")
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
+                .setDescription("Identifier used for this term within this code system/ontology"),
             column("ontologyTermURI")
-                // .setKey(3) //todo: ideally, has a unique check
+                // we allow that multiple terms link to same purl
                 .setType(HYPERLINK)
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
                 .setRequired(false)

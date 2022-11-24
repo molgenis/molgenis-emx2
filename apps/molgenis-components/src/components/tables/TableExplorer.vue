@@ -96,13 +96,10 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings
-          :tableName="tableName"
-          :cardTemplate="cardTemplate"
-          @update:cardTemplate="cardTemplate = $event"
-          :recordTemplate="recordTemplate"
-          @update:recordTemplate="recordTemplate = $event"
+        <TableSettings v-if="tableMetadata"
+          :tableMetadata="tableMetadata"
           :graphqlURL="graphqlURL"
+          @update:settings="reloadMetadata"
         />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
@@ -601,6 +598,12 @@ export default {
       });
       this.tableMetadata = newTableMetadata;
     },
+    async reloadMetadata() {
+      this.client = Client.newClient(this.graphqlURL);
+      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      this.setTableMetadata(newTableMetadata);
+      this.reload();
+    },
     async reload() {
       this.loading = true;
       this.graphqlError = null;
@@ -624,12 +627,7 @@ export default {
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.graphqlURL);
-    const newTableMetadata = await this.client
-      .fetchTableMetaData(this.tableName)
-      .catch(this.handleError);
-    this.setTableMetadata(newTableMetadata);
-    await this.reload();
+    await this.reloadMetadata();
   },
   emits: [
     "updateShowFilters",

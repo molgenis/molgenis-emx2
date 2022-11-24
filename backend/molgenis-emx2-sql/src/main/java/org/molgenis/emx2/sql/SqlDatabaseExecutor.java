@@ -8,17 +8,19 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.User;
 
 class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
     // hide
   }
 
-  static void executeCreateUser(DSLContext jooq, String user) {
+  static void executeCreateUser(SqlDatabase db, String user) {
     if (user == null || user.isEmpty()) {
       throw new MolgenisException("Can not create user with empty user name");
     }
     try {
+      DSLContext jooq = db.getJooq();
       String userName = MG_USER_PREFIX + user;
       executeCreateRole(jooq, userName);
       if (!ADMIN_USER.equals(user) && !USER.equals(user) && !ANONYMOUS.equals(user)) {
@@ -29,6 +31,8 @@ class SqlDatabaseExecutor {
       }
       // session_user has all roles, needed for 'set role'
       jooq.execute("GRANT {0} TO session_user WITH ADMIN OPTION", name(MG_USER_PREFIX + user));
+      // save metadata
+      MetadataUtils.saveUserMetadata(jooq, new User(db, user));
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Add user failed", dae);
     }

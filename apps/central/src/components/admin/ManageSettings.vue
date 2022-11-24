@@ -15,7 +15,10 @@
           <td>
             <div style="display: flex">
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
-              <IconDanger icon="trash" @click="handleRowDeleteRequest(setting)" />
+              <IconDanger
+                icon="trash"
+                @click="handleRowDeleteRequest(setting)"
+              />
             </div>
           </td>
           <td>
@@ -27,7 +30,12 @@
         </tr>
       </tbody>
     </table>
-    <LayoutModal v-if="showModal" :title="modalTitle" :show="true" @close="showModal = false">
+    <LayoutModal
+      v-if="showModal"
+      :title="modalTitle"
+      :show="true"
+      @close="showModal = false"
+    >
       <template v-slot:body>
         <div>
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
@@ -57,12 +65,31 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction } from "molgenis-components";
+import {
+  IconAction,
+  IconDanger,
+  LayoutModal,
+  LayoutForm,
+  InputString,
+  InputText,
+  ButtonAlt,
+  ButtonAction,
+} from "molgenis-components";
+
 export default {
   name: "ManageSettings",
-  components: { IconAction, IconDanger, LayoutModal, LayoutForm, InputString, InputText, ButtonAlt, ButtonAction },
+  components: {
+    IconAction,
+    IconDanger,
+    LayoutModal,
+    LayoutForm,
+    InputString,
+    InputText,
+    ButtonAlt,
+    ButtonAction,
+  },
   data() {
-    return { 
+    return {
       settings: null,
       showModal: false,
       modalTitle: "foo",
@@ -72,7 +99,7 @@ export default {
       isKeyReadOnly: true,
       isValueReadOnly: true,
       graphqlError: null,
-      actionFunction: null
+      actionFunction: null,
     };
   },
   methods: {
@@ -111,39 +138,43 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
-      const createMutation = gql`mutation createSetting($key:String, $value:String) {
-        createSetting(key:$key, value: $value){
+      const createMutation = gql`mutation change($settings:[MolgenisSettingsInput]){
+        change(settings:$settings){
           message
         }
-      }`
+       }`;
 
       const variables = {
-        key: this.settingKey,
-        value: this.settingValue
-      }
+        settings: {
+          key: this.settingKey,
+          value: this.settingValue
+        }
+      };
 
-      const resp = await request("graphql", createMutation, variables).catch((e) => {
+      await request("graphql", createMutation, variables).catch((e) => {
         console.error(e);
       });
       this.fetchSettings();
-      this.showModal = false
+      this.showModal = false;
     },
     async deleteSetting() {
-      const deleteMutation = gql`mutation deleteSetting($key:String){
-        deleteSetting(key:$key){
+      const deleteMutation = gql`mutation drop($settings:[DropSettingsInput]){
+        drop(settings:$settings){
           message
         }
-      }`
+      }`;
 
       const variables = {
-        key: this.settingKey,
-      }
+        settings: {
+          key: this.settingKey,
+        }
+      };
 
-      const resp = await request("graphql", deleteMutation, variables).catch((e) => {
+      await request("graphql", deleteMutation, variables).catch((e) => {
         console.error(e);
       });
       this.fetchSettings();
-      this.showModal = false
+      this.showModal = false;
     }
   },
   mounted() {
