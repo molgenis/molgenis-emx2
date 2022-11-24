@@ -53,7 +53,8 @@ const query = `query Cohorts ($pid: String){
     }`;
 const variables = { pid: route.params.cohort };
 
-let cohort: any = {};
+let cohort = {};
+
 const { data: cohortData, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {

@@ -48,6 +48,38 @@ const { data, pending, error, refresh } = await useFetch(
 async function handlePagination(pageNumber: number) {
   currentPage.value = pageNumber;
 }
+
+let filters = reactive([
+  {
+    title: "Areas of information",
+    refTable: "AreasOfInformation",
+    columnType: "STRING",
+    conditions: []
+  },
+  {
+    title: "Data categories",
+    refTable: "DataCategories",
+    columnType: "STRING",
+    conditions: []
+  },
+  {
+    title: "Population age groups",
+    refTable: "AgeGroups",
+    columnType: "STRING",
+    conditions: []
+  },
+  {
+    title: "Sample categories",
+    refTable: "SampleCategories",
+    columnType: "STRING",
+    conditions: []
+  },
+])
+
+watch( filters, () => {
+  console.log('conditions: ' + JSON.stringify(filters)),
+  {immediate: false, deep: true}
+})
 </script>
 
 <template>
@@ -55,32 +87,20 @@ async function handlePagination(pageNumber: number) {
     <template #side>
       <SearchFilter title="Filters">
         <!-- <SearchFilterGroup title="Search in networks" /> -->
-        <SearchFilterGroup title="Areas of information" table-name="AreasOfInformation"  />
-        <SearchFilterGroup title="Data categories" table-name="DataCategories" />
-        <SearchFilterGroup title="Population age groups" table-name="AgeGroups" />
-        <SearchFilterGroup title="Sample categories" table-name="SampleCategories" />
+        <SearchFilterGroup v-for="filter in filters" :title="filter.title" :table-name="filter.refTable"
+          v-model="filter.conditions" />
       </SearchFilter>
     </template>
     <template #main>
       <SearchResults>
         <template #header>
           <NavigationIconsMobile />
-          <PageHeader
-            title="Cohorts"
-            description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link"
-          >
+          <PageHeader title="Cohorts" description="Group of individuals sharing a defining demographic characteristic."
+            icon="image-link">
             <template #suffix>
-              <SearchResultsViewTabs
-                class="hidden xl:flex"
-                buttonLeftLabel="Detailed"
-                buttonLeftName="detailed"
-                buttonLeftIcon="view-normal"
-                buttonRightLabel="Compact"
-                buttonRightName="compact"
-                buttonRightIcon="view-compact"
-                activeName="detailed"
-              />
+              <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
+                buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
+                buttonRightIcon="view-compact" activeName="detailed" />
               <SearchResultsViewTabsMobile class="flex xl:hidden" />
             </template>
           </PageHeader>
@@ -89,10 +109,7 @@ async function handlePagination(pageNumber: number) {
         <template #search-results>
           <SearchResultsList>
             <CardList>
-              <CardListItem
-                v-for="cohort in data?.data?.Cohorts"
-                :key="cohort.name"
-              >
+              <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
                 <CohortCard :cohort="cohort" :schema="route.params.schema" />
               </CardListItem>
             </CardList>
@@ -100,11 +117,8 @@ async function handlePagination(pageNumber: number) {
         </template>
 
         <template #pagination>
-          <Pagination
-            :current-page="currentPage"
-            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="handlePagination($event)"
-          />
+          <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            @update="handlePagination($event)" />
         </template>
       </SearchResults>
     </template>

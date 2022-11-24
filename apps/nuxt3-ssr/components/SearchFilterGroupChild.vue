@@ -14,6 +14,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['select', 'deselect'])
+
 var itemMap = props.items.reduce(function (map, obj) {
   map[obj.name] = obj;
   return map;
@@ -25,6 +27,16 @@ let key = ref(1)
 function toggleExpand(term) {
   terms[term.name].expanded = !terms[term.name].expanded;
   key++;
+}
+
+function toggleSelect(term) {
+  //if selecting then also expand
+  //if deselection we keep it open
+  if (term.selected == "complete") {
+    emit("deselect", term.name);
+  } else {
+    emit("select", term.name);
+  }
 }
 </script>
 
@@ -42,7 +54,8 @@ function toggleExpand(term) {
     </span>
     <div class="flex items-start ml-3">
       <div class="flex items-center">
-        <input type="checkbox" :id="child.name" :name="child.name"
+        <input type="checkbox" :id="child.name" :name="child.name" @click.stop="toggleSelect(child)"
+          :checked="child.selected === 'complete' || child.selected === 'partial'"
           class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border-0" />
       </div>
       <label :for="child.name" class="hover:cursor-pointer text-body-sm group">
@@ -60,7 +73,8 @@ function toggleExpand(term) {
       </label>
     </div>
     <ul v-if="child.children" :class="{ hidden: !terms[child.name].expanded }" class="ml-[31px]">
-      <SearchFilterGroupChild :items="child.children" />
+      <SearchFilterGroupChild :key="key" :items="child.children" @select="$emit('select', $event)"
+        @deselect="$emit('deselect', $event)" />
     </ul>
   </li>
 </template>
