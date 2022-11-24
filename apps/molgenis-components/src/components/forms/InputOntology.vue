@@ -452,8 +452,9 @@ export default {
         this.data.forEach((e) => {
           // did we see it maybe as parent before?
           if (terms[e.name]) {
-            //then copy properties, currently only definition
+            //then copy properties, currently only definition and label
             terms[e.name].definition = e.definition;
+            terms[e.name].label = e.label;
           } else {
             //else simply add the record
             terms[e.name] = {
@@ -461,6 +462,7 @@ export default {
               visible: true,
               selected: false,
               definition: e.definition,
+              label: e.label
             };
           }
           if (e.parent) {

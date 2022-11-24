@@ -388,7 +388,7 @@ public class WebApiSmokeTests {
     String path = "/pet store/api/csv/Tag";
 
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
+    assertTrue(result.contains("green,,colors"));
 
     String update = "name,parent\r\nyellow,colors\r\n";
     given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
@@ -399,7 +399,7 @@ public class WebApiSmokeTests {
     given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
+    assertTrue(result.contains("green,,colors"));
   }
 
   @Test
