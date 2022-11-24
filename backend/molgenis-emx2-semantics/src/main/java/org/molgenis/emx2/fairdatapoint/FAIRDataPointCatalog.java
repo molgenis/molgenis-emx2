@@ -61,7 +61,7 @@ public class FAIRDataPointCatalog {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP__Catalog"
+            "{FDP_Catalog"
                 + (id != null ? "(filter:{id: {equals:\"" + id + "\"}})" : "")
                 + "{"
                 + "id,"
@@ -79,7 +79,7 @@ public class FAIRDataPointCatalog {
     Map<String, Object> result = executionResult.toSpecification();
     if (result.containsKey("data")) {
       return (List<Map<String, Object>>)
-          ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
+          ((HashMap<String, Object>) result.get("data")).get("FDP_Catalog");
     } else {
       return null;
     }
