@@ -27,7 +27,7 @@ public class GraphqlManifesFieldFactory {
             })
         .type(
             GraphQLObjectType.newObject()
-                .name("Manifest")
+                .name("MolgenisManifest")
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(IMPLEMENTATION_VERSION)

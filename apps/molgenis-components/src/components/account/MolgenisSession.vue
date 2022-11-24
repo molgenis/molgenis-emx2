@@ -3,12 +3,11 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <a
-          href="#"
-          @click.prevent="showChangePasswordForm = true"
+        <ButtonAlt
+          @click="showChangePasswordForm = true"
           class="text-light"
         >
-          Hi {{ session.email }}</a
+          Hi {{ session.email }}</ButtonAlt
         >&nbsp;
         <MolgenisAccount
           v-if="showChangePasswordForm"
@@ -46,7 +45,7 @@
 </template>
 
 <script>
-import Spinner from "./Spinner.vue";
+import Spinner from "../layout/Spinner.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 
@@ -57,7 +56,7 @@ import MolgenisAccount from "./MolgenisAccount.vue";
 import { request } from "../../client/client.js";
 
 const query = `{
-  _session { email, roles, schemas },
+  _session { email, roles, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;

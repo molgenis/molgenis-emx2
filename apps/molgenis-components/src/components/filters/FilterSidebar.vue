@@ -138,6 +138,13 @@ export default {
             conditions: [],
             refTable: "Tag",
           },
+          {
+            name: "orders",
+            columnType: "REF_ARRAY",
+            showFilter: true,
+            conditions: [],
+            refTable: "Order",
+          },
         ],
       };
     },

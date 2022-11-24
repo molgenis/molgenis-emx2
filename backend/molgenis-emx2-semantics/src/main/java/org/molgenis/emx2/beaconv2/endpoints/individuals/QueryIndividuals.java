@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.AgeAndAgeGroup;
+import org.molgenis.emx2.beaconv2.endpoints.genomicvariants.CaseLevelData;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class QueryIndividuals {
+
+  public static final String NAME_CODESYSTEM_CODE = "{name,codesystem,code},";
 
   /**
    * Construct GraphQL query on Beacon v2 individuals, with optional filters like "{sex:
@@ -53,7 +56,7 @@ public class QueryIndividuals {
                   + "id,"
                   + "sex{name,codesystem,code},"
                   + AGE_AGEGROUP
-                  + "{name,codesystem,code},"
+                  + NAME_CODESYSTEM_CODE
                   + AGE_AGE_ISO8601DURATION
                   + ","
                   + "diseaseCausalGenes{name,codesystem,code},"
@@ -65,19 +68,19 @@ public class QueryIndividuals {
                   + "   severity{name,codesystem,code}},"
                   + "diseases{"
                   + DISEASECODE
-                  + "{name,codesystem,code},"
+                  + NAME_CODESYSTEM_CODE
                   + AGEOFONSET_AGEGROUP
-                  + "{name,codesystem,code},"
+                  + NAME_CODESYSTEM_CODE
                   + AGEOFONSET_AGE_ISO8601DURATION
                   + ","
                   + AGEATDIAGNOSIS_AGEGROUP
-                  + "{name,codesystem,code},"
+                  + NAME_CODESYSTEM_CODE
                   + AGEATDIAGNOSIS_AGE_ISO8601DURATION
                   + ","
                   + FAMILYHISTORY
                   + ","
                   + SEVERITY
-                  + "{name,codesystem,code},"
+                  + NAME_CODESYSTEM_CODE
                   + STAGE
                   + "{name,codesystem,code}},"
                   + "measures{"
@@ -87,7 +90,16 @@ public class QueryIndividuals {
                   + "   measurementValue__value,"
                   + "   measurementValue__units{name,codesystem,code},"
                   + "   observationMoment__age__iso8601duration"
-                  + "}}}");
+                  + "},"
+                  + "hasGenomicVariations{"
+                  + "clinicalInterpretations{"
+                  + "   category{name,codesystem,code},"
+                  + "   clinicalRelevance{name,codesystem,code},"
+                  + "   conditionId,"
+                  + "   effect{name,codesystem,code}"
+                  + "},"
+                  + "}"
+                  + "}}");
 
       Map<String, Object> result = executionResult.toSpecification();
 
@@ -112,6 +124,10 @@ public class QueryIndividuals {
               PhenotypicFeatures.get(map.get("phenotypicFeatures")));
           individualsItem.setDiseases(Diseases.get(map.get("diseases")));
           individualsItem.setMeasures(Measures.get(map.get("measures")));
+          CaseLevelData[] hasGenomicVariations = CaseLevelData.get(map.get("hasGenomicVariations"));
+          if (hasGenomicVariations != null) {
+            individualsItem.setHasGenomicVariations(hasGenomicVariations);
+          }
           individualsItemList.add(individualsItem);
         }
       }

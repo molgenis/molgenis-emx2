@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import { createApp } from "vue/dist/vue.esm-bundler";
 import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ListTables from "./components/ListTables.vue";

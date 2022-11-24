@@ -165,12 +165,25 @@ public class GenomicVariantsResponse {
                   + "position__start,"
                   + "position__end,"
                   + "geneId,"
+                  + "genomicHGVSId,"
+                  + "proteinHGVSIds,"
+                  + "transcriptHGVSIds,"
                   + "clinicalInterpretations{"
                   + "   category{name,codesystem,code},"
                   + "   clinicalRelevance{name,codesystem,code},"
                   + "   conditionId,"
                   + "   effect{name,codesystem,code}"
-                  + "}}}");
+                  + "},"
+                  + "caseLevelData{"
+                  + "   individualId{id},"
+                  + "   clinicalInterpretations{"
+                  + "      category{name,codesystem,code},"
+                  + "      clinicalRelevance{name,codesystem,code},"
+                  + "      conditionId,"
+                  + "      effect{name,codesystem,code}"
+                  + "    }"
+                  + "  }"
+                  + "}}");
       // todo case insensitive matching needed! (e.g. C -> c/G and c -> c/G)
 
       Map<String, Object> result = executionResult.toSpecification();
@@ -188,6 +201,15 @@ public class GenomicVariantsResponse {
           genomicVariantsItem.setReferenceBases((String) map.get("referenceBases"));
           genomicVariantsItem.setAlternateBases((String) map.get("alternateBases"));
           genomicVariantsItem.setGeneId((String) map.get("geneId"));
+          genomicVariantsItem.setGenomicHGVSId((String) map.get("genomicHGVSId"));
+          if (map.get("proteinHGVSIds") != null) {
+            genomicVariantsItem.setProteinHGVSIds(
+                ((ArrayList<String>) map.get("proteinHGVSIds")).toArray(new String[0]));
+          }
+          if (map.get("transcriptHGVSIds") != null) {
+            genomicVariantsItem.setTranscriptHGVSIds(
+                ((ArrayList<String>) map.get("transcriptHGVSIds")).toArray(new String[0]));
+          }
           genomicVariantsItem.setPosition(
               new Position(
                   TypeUtils.toString(map.get("position__assemblyId")),
@@ -200,6 +222,10 @@ public class GenomicVariantsResponse {
               && variantLevelData.getClinicalInterpretations() != null
               && variantLevelData.getClinicalInterpretations().length > 0) {
             genomicVariantsItem.setVariantLevelData(variantLevelData);
+          }
+          CaseLevelData[] caseLevelData = CaseLevelData.get(map.get("caseLevelData"));
+          if (caseLevelData != null) {
+            genomicVariantsItem.setCaseLevelData(caseLevelData);
           }
           genomicVariantsItemList.add(genomicVariantsItem);
         }

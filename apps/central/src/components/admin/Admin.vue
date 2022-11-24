@@ -5,7 +5,10 @@
       v-if="showSigninForm && session.email === 'anonymous'"
       @cancel="showSigninForm = false"
     />
-    <Spinner v-if="loading"></Spinner>
+    <Spinner v-if="loading" />
+    <MessageError v-else-if="session.email !== 'admin'">
+      Permission denied, please log in as an administrator to view this page.
+    </MessageError>
     <MessageError v-else-if="error">{{ error }}</MessageError>
     <div v-else>
       <div class="card-header">
@@ -35,11 +38,7 @@
 </template>
 
 <script>
-import {
-  Spinner,
-  MessageError,
-  MolgenisSignin,
-} from "molgenis-components";
+import { Spinner, MessageError, MolgenisSignin } from "molgenis-components";
 
 export default {
   components: {
