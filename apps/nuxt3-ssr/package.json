@@ -14,7 +14,7 @@
     "@nuxt/image-edge": "^1.0.0-27719579.87dcdf2",
     "@nuxtjs/tailwindcss": "^5.3.5",
     "autoprefixer": "^10.4.12",
-    "nuxt": "3.0.0-rc.11",
+    "nuxt": "3.0.0",
     "postcss": "^8.4.17",
     "tailwindcss": "^3.1.8"
   },
