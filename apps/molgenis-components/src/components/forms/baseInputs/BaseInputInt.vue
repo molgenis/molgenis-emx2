@@ -26,10 +26,10 @@ export default {
   extends: BaseInput,
   methods: {
     emitIfValid(event) {
-      const value = event.target.value;
-      if (value === "" || value === NaN) {
+      if (event.target.value === "" || event.target.value === NaN) {
         this.$emit("update:modelValue", null);
       }
+      const value = event.target.value;
       if (!isNaN(value)) {
         this.$emit("update:modelValue", parseInt(value));
       }

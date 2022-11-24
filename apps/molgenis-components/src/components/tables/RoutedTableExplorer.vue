@@ -186,9 +186,14 @@ export default {
             case "INT":
             case "LONG":
             case "DECIMAL":
-              query[column.name] = conditions
+              const result = conditions
                 .map((v) => v.join(".."))
                 .join(",");
+              if(result !== "..") {
+                query[column.name] = result;
+              } else {
+                delete query[column.name];
+              }
               break;
             default:
               query[column.name] = conditions.join(",");

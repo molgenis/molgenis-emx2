@@ -49,7 +49,7 @@ export default {
   methods: {
     emitValue(value, index) {
       let result = [...this.modelValue];
-      result[index] = value;
+      result[index] = value === "" ? null : value;
       this.$emit("update:modelValue", result);
     },
   },
