@@ -7,6 +7,7 @@ import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
 import org.jooq.Schema;
 import org.jooq.Table;
+import org.molgenis.emx2.sql.MetadataUtils;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class AToolToCleanDatabase {
@@ -24,6 +25,7 @@ public class AToolToCleanDatabase {
     deleteAllForeignKeyConstraints();
     deleteAllSchemas();
     deleteAllRoles();
+    MetadataUtils.resetVersion();
     new SqlDatabase(true);
   }
 

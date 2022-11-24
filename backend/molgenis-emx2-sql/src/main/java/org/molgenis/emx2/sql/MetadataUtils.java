@@ -651,4 +651,8 @@ public class MetadataUtils {
     }
     return null;
   }
+
+  public static void resetVersion() {
+    version = null;
+  }
 }
