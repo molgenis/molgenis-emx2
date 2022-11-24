@@ -1,4 +1,4 @@
-source,dataset,name,collection event,topics,label,format,unit,mandatory,description,example values,notes
+resource,dataset,name,collection event,topics,label,format,unit,mandatory,description,example values,notes
 BIB,baseline,ageAtBaseline,,Recruitment age,,,,,,,,
 BIB,baseline,smokingAtBaseline,,Passive smoking,,,,,,,,
 BIB,baseline,glucose,,Maternal diabetes,,,,,,,,
