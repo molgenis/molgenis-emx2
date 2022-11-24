@@ -10,7 +10,7 @@ import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
-import java.util.List;
+import java.util.Map;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -390,7 +390,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public SqlTableMetadata setSettings(List<Setting> settings) {
+  public TableMetadata setSettings(Map<String, String> settings) {
     if (getDatabase().isAdmin()
         || ((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
       getDatabase()
@@ -412,33 +412,12 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private static SqlTableMetadata setSettingTransaction(
-      SqlDatabase db, String schemaName, String tableName, List<Setting> settings) {
+      SqlDatabase db, String schemaName, String tableName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
     SqlTableMetadata tm = schema.getTableMetadata(tableName);
-    for (Setting setting : settings) {
-      MetadataUtils.saveSetting(db.getJooq(), schema, tm, setting);
-      tm.settings.put(setting.key(), setting);
-    }
-    return tm;
-  }
-
-  @Override
-  public void removeSetting(String key) {
-    getDatabase()
-        .tx(
-            db ->
-                sync(
-                    removeSettingTransaction(
-                        (SqlDatabase) db, getSchemaName(), getTableName(), key)));
-    getDatabase().getListener().schemaChanged(getSchemaName());
-  }
-
-  private static SqlTableMetadata removeSettingTransaction(
-      SqlDatabase db, String schemaName, String tableName, String key) {
-    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    SqlTableMetadata tm = schema.getTableMetadata(tableName);
-    MetadataUtils.deleteSetting(db.getJooq(), schema, tm, new Setting(key, null));
-    tm.settings.remove(key);
+    tm.setSettingsWithoutReload(settings);
+    MetadataUtils.saveTableMetadata(db.getJooq(), tm);
+    db.getListener().schemaChanged(schemaName);
     return tm;
   }
 

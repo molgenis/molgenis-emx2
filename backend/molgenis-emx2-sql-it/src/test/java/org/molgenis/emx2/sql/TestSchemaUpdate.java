@@ -1,12 +1,10 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.SchemaInfo;
 
 public class TestSchemaUpdate {
   private static Database db;
@@ -23,8 +21,7 @@ public class TestSchemaUpdate {
     String descUpdate = "update me";
     db.updateSchema(TestSchemaUpdate.class.getName(), descUpdate);
     assertTrue(
-        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), descUpdate)));
-    assertFalse(
-        db.getSchemaInfos().contains(new SchemaInfo(TestSchemaUpdate.class.getName(), desc)));
+        db.getSchemaInfo(TestSchemaUpdate.class.getName()).description().contains(descUpdate));
+    assertFalse(db.getSchemaInfo(TestSchemaUpdate.class.getName()).description().contains(desc));
   }
 }

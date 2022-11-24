@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -46,6 +47,16 @@ public class MolgenisSessionManager {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
+      // check if we should apply a token
+      if (request.headers("x-molgenis-token") != null) {
+        String user =
+            JWTgenerator.getUserFromToken(
+                session.getDatabase(), request.headers("x-molgenis-token"));
+        if (!session.getDatabase().getActiveUser().equals(user)) {
+          session.getDatabase().setActiveUser(user);
+        }
+      }
+
       logger.info(
           "get session for user({}) and key ({})",
           session.getSessionUser(),

@@ -61,6 +61,9 @@ public class ChangeLogExecutor {
 
     // Setup trigger for each table in schema
     for (TableMetadata table : schema.getTables()) {
+      // drop previous version
+      db.getJooq()
+          .execute(ChangeLogUtils.buildAuditTriggerRemove(schema.getName(), table.getTableName()));
       // setup trigger processing function
       db.getJooq()
           .execute(

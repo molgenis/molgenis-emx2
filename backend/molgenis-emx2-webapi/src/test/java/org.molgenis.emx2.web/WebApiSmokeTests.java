@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
@@ -588,6 +589,95 @@ public class WebApiSmokeTests {
 
     schema.getMetadata().removeSetting("menu");
     db.becomeAdmin();
+  }
+
+  @Test
+  public void testTokenBasedAuth() throws JsonProcessingException {
+
+    // check if we can use temporary token
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // without token we are anonymous
+    assertTrue(
+        given()
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("anonymous"));
+
+    // with token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // can we create a long lived token
+    result =
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\",tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // get token for admin
+    result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // as admin can we create a long lived token for others
+    result =
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\" tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN, token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
   }
 
   @Test

@@ -47,13 +47,13 @@
 <script>
 import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
-import Spinner from "./Spinner.vue";
+import Spinner from "../layout/Spinner.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
 import MessageError from "../forms/MessageError.vue";
-import LayoutModal from "./LayoutModal.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import InputString from "../forms/InputString.vue";
-import LayoutForm from "./LayoutForm.vue";
+import LayoutForm from "../layout/LayoutForm.vue";
 
 import { request } from "../../client/client.js";
 

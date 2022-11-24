@@ -200,12 +200,12 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name description}}")
+      request("graphql", "{_schemas{name description}}")
         .then((data) => {
-          this.schemas = data.Schemas;
+          this.schemas = data._schemas;
           this.loading = false;
           if (this.hasManagerPermission) {
-            this.fetchChangelogStatus()
+            this.fetchChangelogStatus();
           }
         })
         .catch(
