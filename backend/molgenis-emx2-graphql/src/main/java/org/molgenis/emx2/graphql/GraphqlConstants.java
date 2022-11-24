@@ -5,7 +5,6 @@ public class GraphqlConstants {
   public static final String INPUT = "Input";
   public static final String ANONYMOUS = "anonymous";
   public static final String COLUMNS = "columns";
-  public static final String SETTINGS = "settings";
   public static final String REQUIRED = "required";
   public static final String COLUMN_POSITION = "position";
   public static final String COLUMN_TYPE = "columnType";
@@ -14,7 +13,6 @@ public class GraphqlConstants {
   public static final String FILTER_ARGUMENT = "filter";
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
-  public static final String USERNAME = "username";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String OLD_NAME = "oldName";
@@ -44,6 +42,12 @@ public class GraphqlConstants {
   public static final String TASK_STATUS = "status";
   public static final String TASK_DESCRIPTION = "description";
   public static final String TASK_SUBTASKS = "subTasks";
+  public static final String TOKEN_NAME = "tokenName";
+  public static final String USERS = "users";
+  public static final String ROLES = "roles";
+  public static final String MESSAGE = "message";
+  public static final String TOKEN = "token";
+  public static final String STATUS = "status";
 
   public static final String OPERATION = "operation";
   public static final String STAMP = "stamp";

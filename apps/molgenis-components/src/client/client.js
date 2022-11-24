@@ -91,10 +91,9 @@ export default {
         }
       },
       saveTableSettings: async (settings) => {
-        return axios.post(graphqlURL ? graphqlURL : "graphql", {
-          query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
-          variables: { settings },
-        });
+        return request(graphqlURL ? graphqlURL : "graphql",
+            `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+            {settings: settings});
       },
       fetchSettings: async () => {
         return (
@@ -241,9 +240,13 @@ const fetchTableData = async (
   return resp.data.data;
 };
 
-const request = async (url, graphql) => {
+const request = async (url, graphql, variables) => {
+ const data = { query: graphql };
+ if(variables) {
+   data.variables = variables;
+ }
   return axios
-    .post(url, { query: graphql })
+    .post(url, data)
     .then((result) => {
       return result?.data?.data;
     })

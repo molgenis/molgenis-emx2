@@ -22,11 +22,13 @@
           description="Please enter the password again"
           @enterPressed="updatePassword"
         />
+        <ButtonAction @click="updatePassword">Update password</ButtonAction>
+        <h2 class="mt-4">Manage tokens</h2>
+        <TokenManager/>
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="close">Close</ButtonAlt>
-      <ButtonAction @click="updatePassword">Update password</ButtonAction>
     </template>
   </LayoutModal>
 </template>
@@ -36,9 +38,10 @@ import ButtonAction from "../forms/ButtonAction.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
-import Spinner from "./Spinner.vue";
-import LayoutModal from "./LayoutModal.vue";
+import Spinner from "../layout/Spinner.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
+import TokenManager from './TokenManager.vue';
 
 import { request } from "../../client/client.js";
 
@@ -51,6 +54,7 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
+    TokenManager
   },
   props: {
     user: String,
