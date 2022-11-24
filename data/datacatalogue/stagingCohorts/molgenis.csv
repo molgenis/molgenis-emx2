@@ -123,7 +123,7 @@ Subcohort counts,,N total,int,,,,,,,,,
 Subcohort counts,,N female,int,,,,,,,,,
 Subcohort counts,,N male,int,,,,,,,,,
 All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
-All variables,,source,ref,1,TRUE,,Cohorts,,,,,data dictionary of the resource
+All variables,,source,ref,1,TRUE,,Resources,,,,,data dictionary of the resource
 All variables,,dataset,ref,1,TRUE,,Datasets,source,,,,table this variable is part of
 All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
 All variables,,label,,,,,,,,,,
@@ -144,7 +144,7 @@ Variables,,notes,text,,,,,,,,,Any other information on this variable
 Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition.
 Repeated variables,,is repeat of,ref,,TRUE,,Variables,source,,,,reference to the definition of the sourceVariable that is being repeated
 Datasets,,,,,,,,,,,,Definition of a table within a data dictionary
-Datasets,,source,ref,1,TRUE,,Cohorts,,,,,resource + data dictionary this table is defined for
+Datasets,,source,ref,1,TRUE,,Resources,,,,,resource + data dictionary this table is defined for
 Datasets,,name,,1,TRUE,,,,,,,unique table name in the data dictionary
 Datasets,,label,,,,,,,,,,short human readible description
 SourceTables,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes
@@ -153,15 +153,15 @@ Datasets,,description,text,,,,,,,,,description of the role/function of this tabl
 Datasets,,numberOfRows,int,,,,,,,,,count of the numbe of records in this table
 Datasets,,mappings,refback,,,,Dataset mappings,,source dataset,,,list of mappings between this table and standard/harmonized tables
 Dataset mappings,,,,,,,,,,,,"Mapping from collected tables to standard/harmonized tables, optionally including ETL syntaxes"
-Dataset mappings,,source,ref,1,TRUE,,Cohorts,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
+Dataset mappings,,source,ref,1,TRUE,,Resources,,,,,"data dictionary being mapped from, i.e. fromdata dictionary.resource + fromdata dictionary.version"
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from
-Dataset mappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+Dataset mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
 Dataset mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,name of the table being mapped to
 Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
 Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping
 Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
 Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
-Variable values,,source,ref,1,TRUE,,Cohorts,,,,,
+Variable values,,source,ref,1,TRUE,,Resources,,,,,
 Variable values,,variable,ref,1,TRUE,,Variables,source,,,,e.g. PATO
 Variable values,,value,,1,TRUE,,,,,,,e.g. '1'
 Variable values,,label,,,TRUE,,,,,,,
@@ -169,11 +169,11 @@ Variable values,,order,int,,,,,,,,,
 Variable values,,isMissing,bool,,,,,,,,,
 Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value
 Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax."
-Variable mappings,,source,ref,1,TRUE,,Cohorts,,,,,
+Variable mappings,,source,ref,1,TRUE,,Resources,,,,,
 Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,
 Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
 Variable mappings,,source variables other tables,ref_array,,,,All variables,source,,,,"optional, variable from other SourceTables. Initially one may only define mapping between releases"
-Variable mappings,,target,ref,1,TRUE,DataCatalogue,Models,,,,,
+Variable mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,
 Variable mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,
 Variable mappings,,target variable,ref,1,TRUE,DataCatalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable."
 Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'"
