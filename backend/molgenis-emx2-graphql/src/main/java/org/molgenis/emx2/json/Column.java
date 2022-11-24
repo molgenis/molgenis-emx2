@@ -1,6 +1,6 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
@@ -41,7 +41,7 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.id = escape(column.getName());
+    this.id = column.getIdentifier();
     this.name = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
@@ -53,7 +53,7 @@ public class Column {
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
-    this.refLabel = escape(column.getRefLabel());
+    this.refLabel = convertToCamelCase(column.getRefLabel());
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
     this.validation = column.getValidation();

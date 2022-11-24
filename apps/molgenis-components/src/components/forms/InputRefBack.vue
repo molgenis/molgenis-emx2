@@ -180,13 +180,13 @@ export default {
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
         );
       }
       return [];
