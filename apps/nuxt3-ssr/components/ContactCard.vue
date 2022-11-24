@@ -1,17 +1,7 @@
 <script setup>
 defineProps({
-  title: {
-    type: String,
-  },
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-  },
-  href: {
-    type: String,
+  contact: {
+    type: Object,
   },
 });
 </script>
@@ -21,21 +11,40 @@ defineProps({
     class="border lg:even:border-l-0 p-11 relative -mb-[1px]"
     data-component-name="name"
   >
+    <!--
     <IconButton
       label="label"
       icon="star"
       class="text-blue-500 absolute right-2 top-2"
     />
+  -->
     <div class="flex items-start justify-center flex-col h-full">
-      <span class="font-bold block" v-if="title">{{ title }}</span>
-      {{ name }}
+      <span class="font-bold block" v-if="contact?.title">
+        {{ contact?.title.name }}
+      </span>
+
+      <span>
+        <span v-if="contact?.initials"> {{ contact?.initials }} </span>
+        <span v-if="contact?.firstName && contact?.initials">
+          ({{ contact?.firstName }})
+        </span>
+        <span v-else-if="contact?.firstName">
+          {{ contact?.firstName }}&nbsp;</span
+        >
+        <span v-if="contact?.surname"> {{ contact?.surname }} </span>
+      </span>
+
       <a
         class="text-blue-500 block hover:underline"
-        v-if="href && email"
-        :href="href"
+        v-if="contact?.email"
+        :href="`mailto:${contact?.email}`"
       >
-        {{ email }}
+        {{ contact?.mail }}
       </a>
+
+      <div v-if="contact?.department">
+        <p>{{ contact?.department }}</p>
+      </div>
     </div>
   </li>
 </template>

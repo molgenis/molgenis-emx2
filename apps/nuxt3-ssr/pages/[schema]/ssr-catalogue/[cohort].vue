@@ -34,7 +34,23 @@ const query = `query Cohorts ($pid: String){
           definition
           name
         }
-    }}`;
+        contributors {
+          contact {
+            firstName
+            surname
+            initials
+            department
+            email
+            title {
+              name
+            }
+            institution {
+              name
+            }
+          }
+        }
+      }
+    }`;
 const variables = { pid: route.params.cohort };
 
 let cohort: any = {};
@@ -104,6 +120,7 @@ function setData(data: any) {
         <ContentBlockContact
           id="Contributers"
           title="Contact and Contributers"
+          :contributors="cohort?.contributors"
         />
         <ContentBlockVariables
           id="Variables"

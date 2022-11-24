@@ -6,6 +6,9 @@ defineProps({
   description: {
     type: String,
   },
+  contributors: {
+    type: Array,
+  },
 });
 </script>
 
@@ -13,21 +16,8 @@ defineProps({
   <ContentBlock :title="title">
     <ContactCardList>
       <ContactCard
-        title="Principal investigator"
-        name="SJ (Soesma) Jankipersadsign"
-        email="s.a.jankipersadsing@umcg.nl"
-        href="mailto:s.a.jankipersadsing@umcg.nl"
-      />
-      <ContactCard
-        name="SJ (Soesma) Jankipersadsign"
-        email="s.a.jankipersadsing@umcg.nl"
-        href="mailto:s.a.jankipersadsing@umcg.nl"
-      />
-      <ContactCard
-        title="Principal investigator"
-        name="SJ (Soesma) Jankipersadsign"
-        email="s.a.jankipersadsing@umcg.nl"
-        href="mailto:s.a.jankipersadsing@umcg.nl"
+        v-for="contact in contributors"
+        :contact="contact?.contact"
       />
     </ContactCardList>
   </ContentBlock>
