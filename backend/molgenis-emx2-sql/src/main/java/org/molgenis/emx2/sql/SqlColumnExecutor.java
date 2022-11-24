@@ -293,7 +293,7 @@ public class SqlColumnExecutor {
                 // .setKey(2) when we upgrade to psql 15 so we can allow parent == null in
                 // constraint so we can ensure unique labels on each level
                 .setDescription("User-friendly label for this term. Should be unique in parent")
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
