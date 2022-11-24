@@ -921,6 +921,26 @@ public class Beaconv2_ModelEndpointsTest {
         1);
   }
 
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnVarCaseLevelClinInt_OneHit() throws Exception {
+    // Find individuals, for which there are variants with case-level clinical relevance as
+    // 'Benign'. This works via the refback field 'hasGenomicVariations'.
+    assertNrOfHitsFor(
+        """
+			{
+			  "query": {
+				"filters": [
+				  {
+					"type": "HP_0045088",
+					"id": "NCIT_C168802",
+					"operator": "="
+				  }
+				]
+			  }
+			}""",
+        1);
+  }
+
   /**
    * Helper function to reduce code duplication
    *
@@ -934,8 +954,6 @@ public class Beaconv2_ModelEndpointsTest {
     when(request.body()).thenReturn(body);
     String jsonResponse = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
     if (hits > 0) {
-      System.out.println("HITS ::: " + hits);
-      System.out.println("JSON = " + jsonResponse);
       assertTrue(jsonResponse.contains("\"exists\" : \"true\""));
       assertTrue(jsonResponse.contains("\"numTotalResults\" : " + hits));
     } else {

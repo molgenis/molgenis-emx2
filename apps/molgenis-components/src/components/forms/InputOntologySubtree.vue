@@ -22,7 +22,7 @@
         class="flex-grow-1 pl-2"
         role="button"
       >
-        {{ term.name }}
+        {{ term.label ? term.label : term.name }}
         <small v-if="term.definition" class="text-muted">
           <i> - {{ term.definition }}</i></small
         >

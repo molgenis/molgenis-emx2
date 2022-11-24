@@ -1,21 +1,14 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.List;
+import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Setting;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 public class TestSettings {
   private static Database database;
@@ -31,18 +24,18 @@ public class TestSettings {
     database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
-          Schema s = db.dropCreateSchema("testSchemaSettings");
+          Schema schema = db.dropCreateSchema("testSchemaSettings");
 
           // set roles
           // viewer should only be able to see, not change
           // manager should be able to set values
-          s.addMember("testsettingseditor", EDITOR.toString());
-          s.addMember("testsettingsmanager", MANAGER.toString());
+          schema.addMember("testsettingseditor", EDITOR.toString());
+          schema.addMember("testsettingsmanager", MANAGER.toString());
 
           db.setActiveUser("testsettingseditor");
           try {
-            s = db.getSchema("testSchemaSettings"); // reload schema
-            s.getMetadata().setSetting("key", "value");
+            schema = db.getSchema("testSchemaSettings"); // reload schema
+            schema.getMetadata().setSetting("key", "value");
             fail("editors should not be able to change schema settings");
           } catch (Exception e) {
             // failed correctly
@@ -50,29 +43,20 @@ public class TestSettings {
 
           db.setActiveUser("testsettingsmanager");
           try {
-            s = db.getSchema("testSchemaSettings"); // reload schema
-            s.getMetadata().setSetting("key", "value");
+            schema = db.getSchema("testSchemaSettings"); // reload schema
+            schema.getMetadata().setSetting("key", "value");
           } catch (Exception e) {
             e.printStackTrace();
             fail("managers should  be able to change schema settings");
           }
 
-          assertEquals("key", s.getMetadata().getSettings().get(0).key());
-          assertEquals("value", s.getMetadata().getSettings().get(0).value());
+          assertEquals("value", schema.getMetadata().getSetting("key"));
 
-          assertEquals(
-              "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
-          assertEquals(
-              "value",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
+          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
 
           db.clearCache();
 
-          assertEquals(
-              "key", db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).key());
-          assertEquals(
-              "value",
-              db.getSchema("testSchemaSettings").getMetadata().getSettings().get(0).value());
+          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
 
           db.becomeAdmin();
         });
@@ -112,28 +96,14 @@ public class TestSettings {
           }
 
           db.clearCache();
-          List<Setting> test =
+          Map<String, String> test =
               db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
           assertEquals(1, test.size());
-          assertEquals("key", test.get(0).key());
-          assertEquals("value", test.get(0).value());
+          assertEquals("value", test.get("key"));
 
           assertEquals(
-              "key",
-              db.getSchema("testTableSettings")
-                  .getTable("test")
-                  .getMetadata()
-                  .getSettings()
-                  .get(0)
-                  .key());
-          assertEquals(
               "value",
-              db.getSchema("testTableSettings")
-                  .getTable("test")
-                  .getMetadata()
-                  .getSettings()
-                  .get(0)
-                  .value());
+              db.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
 
           db.becomeAdmin();
         });
@@ -144,10 +114,8 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting("it-db-setting-key", "it-db-setting-value");
-          var settings = db.getSettings();
-          var setting = new Setting("it-db-setting-key", "it-db-setting-value");
-          assertTrue(settings.contains(setting));
+          db.setSetting("it-db-setting-key", "it-db-setting-value");
+          assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
         });
   }
 
@@ -156,7 +124,7 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("testsettingsmanager");
-          db.createSetting("it-db-setting-key", "it-db-setting-value");
+          db.setSetting("it-db-setting-key", "it-db-setting-value");
         });
   }
 
@@ -166,18 +134,22 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.createSetting("delete-me", "life is short");
+          db.setSetting("delete-me", "life is short");
         });
+
+    // note, we refresh session on these changes so reload db
+    database = TestDatabaseFactory.getTestDatabase();
+    assertEquals(database.getSetting("delete-me"), "life is short");
+
     // execute
     database.tx(
         db -> {
           db.setActiveUser("admin");
-          db.deleteSetting("delete-me");
-          // verify
-          var settings = db.getSettings();
-          var setting = new Setting("delete-me", "life is short");
-          assertFalse(settings.contains(setting));
+          db.removeSetting("delete-me");
         });
+
+    database = TestDatabaseFactory.getTestDatabase();
+    assertNull(database.getSetting("delete-me"));
   }
 
   @Test(expected = MolgenisException.class)
@@ -185,7 +157,18 @@ public class TestSettings {
     database.tx(
         db -> {
           db.setActiveUser("testsettingsmanager");
-          db.deleteSetting("delete-me");
+          db.removeSetting("delete-me");
         });
+  }
+
+  @Test
+  public void testUserSettings() {
+    User user = database.addUser("SettingsTestUser");
+    user.setSetting("my-setting", "user setting");
+    database.saveUser(user);
+    assertEquals(database.getUser("SettingsTestUser").getSetting("my-setting"), "user setting");
+    user = database.getUser("SettingsTestUser").removeSetting("my-setting");
+    database.saveUser(user);
+    assertNull(database.getUser("SettingsTestUser").getSetting("my-setting"));
   }
 }

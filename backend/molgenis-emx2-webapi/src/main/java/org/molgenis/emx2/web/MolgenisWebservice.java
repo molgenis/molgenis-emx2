@@ -68,7 +68,7 @@ public class MolgenisWebservice {
         (request, response) -> {
           // check for setting
           String ladingPagePath =
-              sessionManager.getSession(request).getDatabase().getSettingValue(LANDING_PAGE);
+              sessionManager.getSession(request).getDatabase().getSetting(LANDING_PAGE);
           if (ladingPagePath != null) {
             response.redirect(ladingPagePath);
           } else {

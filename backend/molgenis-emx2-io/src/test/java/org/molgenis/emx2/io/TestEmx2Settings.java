@@ -2,12 +2,11 @@ package org.molgenis.emx2.io;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
@@ -37,8 +36,7 @@ public class TestEmx2Settings {
 
     // import and see if consistent
     Emx2Settings.inputSettings(store, schema);
-    List<Setting> settings = schema.getMetadata().getSettings();
-    assertEquals("foo", settings.get(0).key());
-    assertEquals("bar", settings.get(0).value());
+    Map<String, String> settings = schema.getMetadata().getSettings();
+    assertEquals("bar", settings.get("foo"));
   }
 }
