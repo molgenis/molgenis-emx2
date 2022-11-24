@@ -5,10 +5,41 @@ const pageSize = 5;
 const currentPage = ref(1);
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
+let filters = reactive([
+  {
+    title: "Areas of information",
+    refTable: "AreasOfInformation",
+    columnName: "areasOfInformation",
+    columnType: "ONTOLOGY",
+    conditions: []
+  },
+  {
+    title: "Data categories",
+    refTable: "DataCategories",
+    columnName: "dataCategories",
+    columnType: "ONTOLOGY",
+    conditions: []
+  },
+  {
+    title: "Population age groups",
+    refTable: "AgeGroups",
+    columnName: "ageGroups",
+    columnType: "ONTOLOGY",
+    conditions: []
+  },
+  {
+    title: "Sample categories",
+    refTable: "SampleCategories",
+    columnName: "sampleCategories",
+    columnType: "ONTOLOGY",
+    conditions: []
+  },
+])
+
 const query = computed(() => {
   return `
-  {
-      Cohorts(limit: ${pageSize} offset: ${offset.value}) {
+  query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
+    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       pid
       name
       description
@@ -23,16 +54,30 @@ const query = computed(() => {
           name
           acronym
       }
-      }
-      Cohorts_agg {
-      count
-      }
+    }
+    Cohorts_agg (filter:$filter){
+        count
+    }
   }
   `;
 });
 
-let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
+const orderby = { "name": "ASC" }
 
+function buildFilterVariables() {
+  return filters.reduce<Record<string, object>>((accum, filter) => {
+    if (filter.conditions.length) {
+      accum[filter.columnName] = { equals: filter.conditions }
+    }
+    return accum
+  }, {})
+}
+
+const filter = computed(() => {
+  return { collectionEvents: buildFilterVariables() }
+})
+
+let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
 const { data, pending, error, refresh } = await useFetch(
   graphqlURL.value,
   {
@@ -41,44 +86,18 @@ const { data, pending, error, refresh } = await useFetch(
     method: "POST",
     body: {
       query,
+      variables: { orderby, filter }
     },
   }
 );
 
-async function handlePagination(pageNumber: number) {
+function setCurrentPage(pageNumber: number) {
   currentPage.value = pageNumber;
 }
 
-let filters = reactive([
-  {
-    title: "Areas of information",
-    refTable: "AreasOfInformation",
-    columnType: "STRING",
-    conditions: []
-  },
-  {
-    title: "Data categories",
-    refTable: "DataCategories",
-    columnType: "STRING",
-    conditions: []
-  },
-  {
-    title: "Population age groups",
-    refTable: "AgeGroups",
-    columnType: "STRING",
-    conditions: []
-  },
-  {
-    title: "Sample categories",
-    refTable: "SampleCategories",
-    columnType: "STRING",
-    conditions: []
-  },
-])
-
-watch( filters, () => {
-  console.log('conditions: ' + JSON.stringify(filters)),
-  {immediate: false, deep: true}
+watch(filters, () => {
+  console.log('conditions: ' + JSON.stringify(filters))
+  setCurrentPage(1)
 })
 </script>
 
@@ -118,7 +137,7 @@ watch( filters, () => {
 
         <template #pagination>
           <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="handlePagination($event)" />
+            @update="setCurrentPage($event)" />
         </template>
       </SearchResults>
     </template>
