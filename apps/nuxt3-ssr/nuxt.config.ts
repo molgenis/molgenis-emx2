@@ -24,6 +24,7 @@ const config = {
   tailwindcss: {
     cssPath: '~/assets/css/styles.css',
     configPath: process.env.EMX2_THEME ? 'tailwind.config.' + process.env.EMX2_THEME : 'tailwind.config',
+    exposeConfig: true
   }
 }
 

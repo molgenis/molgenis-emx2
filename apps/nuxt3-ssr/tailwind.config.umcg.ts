@@ -1,7 +1,9 @@
 /* eslint-disable no-undef */
 /** @type {import('tailwindcss').Config} */
+import config from "./tailwind.config"
+
 module.exports = {
-  presets: [require("./tailwind.config.ts")],
+  presets: [config],
   theme: {
     extend: {
       boxShadow: {
@@ -92,5 +94,6 @@ module.exports = {
         "background-gradient": 0,
       },
     },
+    logo: 'UMCGkort.woordbeeld'
   },
 };
