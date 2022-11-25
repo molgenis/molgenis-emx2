@@ -111,9 +111,9 @@ public class GenomicVariantsResponse {
                   // todo optional parameter: filters
                   // fixme 'like' is greedy but allows case insensitivity...
                   + (genomicQueryType == SEQUENCE
-                      ? "(filter: { _and: [ { position__start: {equals:"
+                      ? "(filter: { _and: [ { position_start: {equals:"
                           + qStart[0]
-                          + "}}, {position__refseqId: {equals:\""
+                          + "}}, {position_refseqId: {equals:\""
                           + qReferenceName
                           + "\"}}, {referenceBases: {like: \""
                           + qReferenceBases
@@ -126,15 +126,15 @@ public class GenomicVariantsResponse {
                   // todo optional parameter: variantMinLength
                   // todo optional parameter: variantMaxLength
                   + (genomicQueryType == RANGE
-                      ? "(filter: { _or: [ { _and: [{ position__refseqId: { equals:\""
+                      ? "(filter: { _or: [ { _and: [{ position_refseqId: { equals:\""
                           + qReferenceName
-                          + "\"}}, { position__start: { between: ["
+                          + "\"}}, { position_start: { between: ["
                           + qStart[0]
                           + ","
                           + qEnd[0]
-                          + "]}}]}, { _and: [{ position__refseqId: { equals:\""
+                          + "]}}]}, { _and: [{ position_refseqId: { equals:\""
                           + qReferenceName
-                          + "\"}} ,{ position__end: { between: ["
+                          + "\"}} ,{ position_end: { between: ["
                           + qStart[0]
                           + ","
                           + qEnd[0]
@@ -143,13 +143,13 @@ public class GenomicVariantsResponse {
 
                   // todo optional parameter: variantType
                   + (genomicQueryType == BRACKET
-                      ? "(filter: { _and: [{position__refseqId: { equals:\""
+                      ? "(filter: { _and: [{position_refseqId: { equals:\""
                           + qReferenceName
-                          + "\"}},{position__start: { between: ["
+                          + "\"}},{position_start: { between: ["
                           + qStart[0]
                           + ","
                           + qStart[1]
-                          + "]}},{position__end: { between: ["
+                          + "]}},{position_end: { between: ["
                           + qEnd[0]
                           + ","
                           + qEnd[1]
@@ -160,10 +160,10 @@ public class GenomicVariantsResponse {
                   + "variantType,"
                   + "referenceBases,"
                   + "alternateBases,"
-                  + "position__assemblyId,"
-                  + "position__refseqId,"
-                  + "position__start,"
-                  + "position__end,"
+                  + "position_assemblyId,"
+                  + "position_refseqId,"
+                  + "position_start,"
+                  + "position_end,"
                   + "geneId,"
                   + "genomicHGVSId,"
                   + "proteinHGVSIds,"
@@ -212,10 +212,10 @@ public class GenomicVariantsResponse {
           }
           genomicVariantsItem.setPosition(
               new Position(
-                  TypeUtils.toString(map.get("position__assemblyId")),
-                  TypeUtils.toString(map.get("position__refseqId")),
-                  new Long[] {TypeUtils.toLong(map.get("position__start"))},
-                  new Long[] {TypeUtils.toLong(map.get("position__end")).longValue()}));
+                  TypeUtils.toString(map.get("position_assemblyId")),
+                  TypeUtils.toString(map.get("position_refseqId")),
+                  new Long[] {TypeUtils.toLong(map.get("position_start"))},
+                  new Long[] {TypeUtils.toLong(map.get("position_end")).longValue()}));
           VariantLevelData variantLevelData =
               new VariantLevelData(ClinicalInterpretations.get(map.get("clinicalInterpretations")));
           if (variantLevelData != null
