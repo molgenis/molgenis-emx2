@@ -11,7 +11,7 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
-public class TableMetadata implements Comparable {
+public class TableMetadata extends HasSettings<TableMetadata> implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
       ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
@@ -25,8 +25,6 @@ public class TableMetadata implements Comparable {
   protected String description = null;
   // columns of the table (required)
   protected Map<String, Column> columns = new LinkedHashMap<>();
-  // key value map for settings specific to this table (optional)
-  protected Map<String, Setting> settings = new LinkedHashMap<>();
   // link to the schema this table is part of (optional)
   private SchemaMetadata schema;
   // name unique within this schema (required)
@@ -98,9 +96,7 @@ public class TableMetadata implements Comparable {
       this.tableName = metadata.getTableName();
       this.description = metadata.getDescription();
       this.oldName = metadata.getOldName();
-      for (Setting setting : metadata.getSettings()) {
-        this.settings.put(setting.key(), setting);
-      }
+      this.setSettingsWithoutReload(metadata.getSettings());
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
       }
@@ -420,7 +416,6 @@ public class TableMetadata implements Comparable {
 
   public void clearCache() {
     columns = new LinkedHashMap<>();
-    settings = new LinkedHashMap<>();
     inherit = null;
     importSchema = null;
   }
@@ -500,33 +495,12 @@ public class TableMetadata implements Comparable {
     return getKeyFields(1);
   }
 
-  public List<Setting> getSettings() {
-    return settings.values().stream().collect(Collectors.toList());
-  }
-
-  public TableMetadata setSettings(List<Setting> settings) {
-    if (settings == null) return this;
-    for (Setting setting : settings) {
-      this.settings.put(setting.key(), setting);
-    }
-    return this;
-  }
-
-  public void removeSetting(String key) {
-    this.settings.remove(key);
-  }
-
   public String getImportSchema() {
     return importSchema;
   }
 
   public TableMetadata setImportSchema(String importSchema) {
     this.importSchema = importSchema;
-    return this;
-  }
-
-  public TableMetadata setSetting(String key, String value) {
-    this.setSettings(List.of(new Setting(key, value)));
     return this;
   }
 

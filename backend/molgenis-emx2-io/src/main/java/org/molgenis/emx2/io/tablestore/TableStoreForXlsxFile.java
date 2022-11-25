@@ -7,9 +7,16 @@ import com.monitorjbl.xlsx.StreamingReader;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.slf4j.Logger;
@@ -17,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /** Now caches all data. Might want to change to SAX parser for XLSX. */
 public class TableStoreForXlsxFile implements TableStore {
+  public static final int ROW_ACCESS_WINDOW_SIZE = 100;
   private Path excelFilePath;
   private Map<String, List<Row>> cache;
   private static Logger logger = LoggerFactory.getLogger(TableStoreForXlsxFile.class);
@@ -35,39 +43,50 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
-
+      // streaming workbook
       if (!Files.exists(excelFilePath)) {
-        try (FileOutputStream out = new FileOutputStream(excelFilePath.toFile());
-            Workbook wb = new SXSSFWorkbook(100)) {
-          if (rows.iterator().hasNext()) {
-            writeRowsToSheet(name, rows, wb);
-          } else {
-            writeHeaderOnlyToSheet(name, columnNames, wb);
-          }
-          wb.write(out);
-        }
+        wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
-        Workbook wb;
-        try (FileInputStream inputStream = new FileInputStream(excelFilePath.toFile())) {
-          wb = WorkbookFactory.create(inputStream);
-          if (rows.iterator().hasNext()) {
-            writeRowsToSheet(name, rows, wb);
-          } else {
-            writeHeaderOnlyToSheet(name, columnNames, wb);
-          }
+        // move to a temp file so we can merge result into the original file location
+        File tempFile;
+        if (SystemUtils.IS_OS_UNIX) {
+          FileAttribute<Set<PosixFilePermission>> attr =
+              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+          tempFile = Files.createTempFile("copy", ".xlsx", attr).toFile();
+        } else {
+          tempFile = Files.createTempFile("copy", ".xlsx").toFile();
+          tempFile.setReadable(true, true);
+          tempFile.setWritable(true, true);
+          tempFile.setExecutable(true, true);
         }
-        try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
-          wb.write(outputStream);
-        } finally {
-          this.cache = null;
-          wb.close();
+        if (!tempFile.setReadable(true, true)
+            || !tempFile.setWritable(true, true)
+            || !tempFile.setExecutable(true, true)) {
+          throw new MolgenisException("Internal error: create temp file failed");
         }
+        Path temp =
+            Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
-    } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe);
+      if (rows.iterator().hasNext()) {
+        writeRowsToSheet(name, rows, wb);
+      } else {
+        writeHeaderOnlyToSheet(name, columnNames, wb);
+      }
+      // write contents to a temp file and overwrite original
+      try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
+        wb.write(outputStream);
+      } finally {
+        wb.close();
+      }
+    } catch (Exception ife) {
+      throw new MolgenisException("Writing of excel failed", ife);
+    } finally {
+      this.cache = null;
     }
   }
 
@@ -79,7 +98,8 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeRowsToSheet(String name, Iterable<Row> rows, Workbook wb) {
+  private void writeRowsToSheet(String name, Iterable<Row> rows, SXSSFWorkbook wb)
+      throws IOException {
 
     // get the row columns
     Set<String> columnNames = new LinkedHashSet<>();
@@ -88,7 +108,9 @@ public class TableStoreForXlsxFile implements TableStore {
     }
 
     // create the sheet
-    Sheet sheet = wb.createSheet(name);
+    SXSSFSheet sheet = wb.createSheet(name);
+    // buffer the row so it gets flushed
+    sheet.setRandomAccessWindowSize(wb.getRandomAccessWindowSize());
     Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
     int rowNum = 0;
 
@@ -115,12 +137,17 @@ public class TableStoreForXlsxFile implements TableStore {
       }
       rowNum++;
     }
+    sheet.flushRows();
   }
 
   private void cache() {
     long start = System.currentTimeMillis();
     try (InputStream is = new FileInputStream(excelFilePath.toFile());
-        Workbook workbook = StreamingReader.builder().rowCacheSize(100).bufferSize(4096).open(is)) {
+        Workbook workbook =
+            StreamingReader.builder()
+                .rowCacheSize(ROW_ACCESS_WINDOW_SIZE)
+                .bufferSize(4096)
+                .open(is)) {
       this.cache = new LinkedHashMap<>();
       for (Sheet sheet : workbook) {
         String sheetName = sheet.getSheetName();

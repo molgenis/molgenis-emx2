@@ -133,26 +133,27 @@ public class GraphqlApiFactory {
       queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
     }
 
-    // account operations
-    GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
-    queryBuilder.field(session.userQueryField(database, null));
-    mutationBuilder.field(session.signinField(database));
-    mutationBuilder.field(session.signoutField(database));
-    mutationBuilder.field(session.signupField(database));
-    mutationBuilder.field(session.changePasswordField(database));
-
     // database operations
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.schemasQuery(database));
+    queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
 
     mutationBuilder.field(db.createMutation(database));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
-    if (database.isAdmin()) {
-      mutationBuilder.field(db.createSettingsMutation(database));
-      mutationBuilder.field(db.deleteSettingsMutation(database));
+    mutationBuilder.field(db.dropMutation(database));
+    mutationBuilder.field(db.changeMutation(database));
+
+    // account operations
+    GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
+    queryBuilder.field(session.sessionQueryField(database, null));
+    mutationBuilder.field(session.signinField(database));
+    mutationBuilder.field(session.signupField(database));
+    if (!database.isAnonymous()) {
+      mutationBuilder.field(session.signoutField(database));
+      mutationBuilder.field(session.changePasswordField(database));
+      mutationBuilder.field(session.createTokenField(database));
     }
 
     // notice we here add custom exception handler for mutations
@@ -168,35 +169,36 @@ public class GraphqlApiFactory {
 
   public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: {0}", schema.getMetadata().getName());
+    logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
 
-    // admin operations
-    if (schema.getDatabase().isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(schema.getDatabase()));
-    }
-
-    // queries
+    // _manifest query
     queryBuilder.field(new GraphqlManifesFieldFactory().queryVersionField(schema.getDatabase()));
 
-    // account operations
-    GraphqlSessionFieldFactory accountFactory = new GraphqlSessionFieldFactory();
-    queryBuilder.field(accountFactory.userQueryField(schema.getDatabase(), schema));
-    mutationBuilder.field(accountFactory.signinField(schema.getDatabase()));
-    mutationBuilder.field(accountFactory.signoutField(schema.getDatabase()));
-    mutationBuilder.field(accountFactory.signupField(schema.getDatabase()));
-    mutationBuilder.field(accountFactory.changePasswordField(schema.getDatabase()));
-
-    // database level
-    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.tasksQueryField(taskService));
-
-    // schema
+    // _schema query
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
     queryBuilder.field(schemaFields.schemaQuery(schema));
     queryBuilder.field(schemaFields.settingsQuery(schema));
+
+    // _tasks query
+    GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
+    queryBuilder.field(db.tasksQueryField(taskService));
+
+    // _session query
+    GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
+    queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
+    mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase()));
+    mutationBuilder.field(sessionFieldFactory.signupField(schema.getDatabase()));
+
+    // authenticated user operations
+    if (!schema.getDatabase().isAnonymous()) {
+      mutationBuilder.field(sessionFieldFactory.signoutField(schema.getDatabase()));
+      mutationBuilder.field(sessionFieldFactory.changePasswordField(schema.getDatabase()));
+      mutationBuilder.field(sessionFieldFactory.createTokenField(schema.getDatabase()));
+    }
+
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
     mutationBuilder.field(schemaFields.truncateMutation(schema));
@@ -234,11 +236,9 @@ public class GraphqlApiFactory {
 
     if (logger.isInfoEnabled()) {
       logger.info(
-          "creation graphql for schema: "
-              + schema.getMetadata().getName()
-              + " completed in "
-              + (System.currentTimeMillis() - start)
-              + "ms");
+          "creation graphql for schema: {} completed in {}ms",
+          schema.getMetadata().getName(),
+          (System.currentTimeMillis() - start));
     }
 
     return result;

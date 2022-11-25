@@ -125,22 +125,6 @@ public class TestGraphqSchemaFields {
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
-
-    // update via the shortcut
-    execute(
-        "mutation{change(settings:[{table:\"Pet\",key:\"test2\",value:\"testval2\"}]){message}}");
-
-    assertEquals(
-        "testval2",
-        execute("{_schema{tables{settings{key,value}}}}")
-            .at("/_schema/tables/2/settings/0/value")
-            .textValue());
-
-    assertEquals(
-        "test2",
-        execute("{_schema{tables{settings{key,value}}}}")
-            .at("/_schema/tables/2/settings/0/key")
-            .textValue());
   }
 
   @Test
