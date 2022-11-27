@@ -13,11 +13,9 @@
         class="fa fa-caret-up mr-2 hover-rotate-clockwize"
       ></i>
       <i v-else class="fa fa-caret-down mr-2"></i>
-      {{ variable.label }}
+      {{ variable.name }}
       <span class="mg-model-label">
-        {{ variable.dataDictionary.resource.pid }} ({{
-          variable.dataDictionary.version
-        }})
+        {{ variable.resource.id }}
       </span>
     </div>
     <p class="mt-3" v-if="showDetail">
@@ -31,8 +29,7 @@
             network: network,
           },
           query: {
-            model: variable.dataDictionary.resource.pid,
-            version: variable.dataDictionary.version,
+            model: variable.resource.id
           },
         }"
         >view details
@@ -46,8 +43,7 @@
             name: variable.name,
           },
           query: {
-            model: variable.dataDictionary.resource.pid,
-            version: variable.dataDictionary.version,
+            model: variable.resource.id
           },
         }"
         >view details
@@ -111,9 +107,9 @@
             <span v-if="variable.variableDetails.mappings">
               <span
                 v-for="mapping in variable.variableDetails.mappings"
-                :key="mapping.fromTable.dataDictionary.resource.pid"
+                :key="mapping.sourceDataset.resource.id"
               >
-                {{ mapping.fromTable.dataDictionary.resource.pid }}
+                {{ mapping.sourceDataset.resource.id }}
               </span>
             </span>
             <span v-else>none</span>

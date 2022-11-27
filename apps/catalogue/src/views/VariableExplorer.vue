@@ -210,7 +210,7 @@ export default {
       this.fetchVariables();
     }
     if (this.network) {
-      this.setSelectedNetworks([{ pid: this.network }]);
+      this.setSelectedNetworks([{ id: this.network }]);
     }
     this.fetchKeywords();
   },

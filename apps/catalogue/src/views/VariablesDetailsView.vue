@@ -49,7 +49,7 @@ export default {
     ...mapActions(["fetchVariableDetails", "fetchAdditionalVariables"]),
     async handleVariableDetailsRequest(variable) {
       const result = await this.fetchVariableDetails(variable);
-      this.$set(variable, "variableDetails", result);
+      variable.variableDetails = result;
     },
   },
 };

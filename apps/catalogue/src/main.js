@@ -8,10 +8,9 @@ import DatasetView from "./views/DatasetView.vue";
 import ResourceListView from "./views/ResourceListView.vue";
 import VariableView from "./views/VariableView.vue";
 import VariableMappingsView from "./views/VariableMappingsView.vue";
-import TableMappingsView from "./views/TableMappingsView.vue";
+import DatasetMappingsView from "./views/DatasetMappingsView.vue";
 import VariableExplorer from "./views/VariableExplorer.vue";
 import VariableDetailView from "./views/VariableDetailView.vue";
-import OldCohortView from "./views/cohorts/OldCohortView.vue";
 import CohortView from "./views/cohorts/CohortView.vue";
 import SearchResourceView from "./views/SearchResourceView.vue";
 import ResourceRedirectView from "./views/ResourceRedirectView.vue";
@@ -57,7 +56,7 @@ const router = createRouter({
       path: "/datasources",
       props: (route) => ({
         searchTerm: route.query.q,
-        tableName: "Data_sources",
+        tableName: "Data sources",
       }),
       component: ResourceListView,
     },
@@ -135,16 +134,6 @@ const router = createRouter({
       }),
     },
     {
-      name: "Resources-details",
-      path: "/resources/:id",
-      component: ResourceRedirectView,
-      props: (route) => ({
-        table: "Resources",
-        color: "dark",
-        filter: { id: { equals: route.params.id } },
-      }),
-    },
-    {
       name: "Networks-details",
       path: "/networks/:id",
       component: ResourceDetailsView,
@@ -161,12 +150,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/alt-cohorts/:id",
-      component: OldCohortView,
-      props: true,
-    },
-    {
-      name: "Datasources-details",
+      name: "DataSources-details",
       path: "/datasources/:id",
       component: ResourceDetailsView,
       props: (route) => ({
@@ -186,7 +170,7 @@ const router = createRouter({
       }),
     },
     {
-      name: "network",
+      name: "Networks-details",
       path: "/networks/:id",
       component: ResourceDetailsView,
       props: (route) => ({
@@ -235,7 +219,7 @@ const router = createRouter({
       name: "DatasetMappings-detail",
       path: "/dataset-mappings/:source/:sourceDataset/:target/:targetDataset",
       props: true,
-      component: TableMappingsView,
+      component: DatasetMappingsView,
     },
     {
       name: "variableExplorer",
