@@ -2,15 +2,13 @@ package org.molgenis.emx2.io.tablestore;
 
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 import static org.apache.poi.ss.usermodel.CellType.FORMULA;
+import static org.molgenis.emx2.io.FileUtils.getTempFile;
 
 import com.monitorjbl.xlsx.StreamingReader;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -52,22 +50,7 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
         // move to a temp file so we can merge result into the original file location
-        File tempFile;
-        if (SystemUtils.IS_OS_UNIX) {
-          FileAttribute<Set<PosixFilePermission>> attr =
-              PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-          tempFile = Files.createTempFile("copy", ".xlsx", attr).toFile();
-        } else {
-          tempFile = Files.createTempFile("copy", ".xlsx").toFile();
-          tempFile.setReadable(true, true);
-          tempFile.setWritable(true, true);
-          tempFile.setExecutable(true, true);
-        }
-        if (!tempFile.setReadable(true, true)
-            || !tempFile.setWritable(true, true)
-            || !tempFile.setExecutable(true, true)) {
-          throw new MolgenisException("Internal error: create temp file failed");
-        }
+        File tempFile = getTempFile("temp",".xlsx");
         Path temp =
             Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
