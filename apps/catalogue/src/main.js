@@ -129,7 +129,7 @@ const router = createRouter({
       path: "/organisations/:id",
       component: ResourceDetailsView,
       props: (route) => ({
-        table: "Institutions",
+        table: "Organisations",
         color: "dark",
         filter: { id: { equals: route.params.id } },
       }),
@@ -226,7 +226,8 @@ const router = createRouter({
     },
     {
       name: "VariableMappings-details",
-      path: "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
+      path:
+        "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
       props: true,
       component: VariableMappingsView,
     },
@@ -308,7 +309,7 @@ const router = createRouter({
       props: true,
       component: CollectionEvent,
     },
-  ]
+  ],
 });
 
 const app = createApp(App);

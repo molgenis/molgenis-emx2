@@ -1,9 +1,9 @@
 <template>
   <div class="container bg-white">
     <ResourceHeader
-      :resource="institution"
+      :resource="organisation"
       header-css="bg-dark text-white"
-      table-name="Institutions"
+      table-name="Organisations"
     />
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <hr class="border-dark" />
@@ -13,8 +13,6 @@
         <div class="m-4">
           <h6>Datasources</h6>
           <DatasourceList :datasources="datasources" color="dark" />
-          <h6>Databanks</h6>
-          <DatabankList :databanks="databanks" color="dark" />
           <h6>Networks</h6>
           <NetworkList :networks="networks" color="dark" />
         </div>
@@ -50,7 +48,7 @@ export default {
     MessageError,
   },
   props: {
-    pid: String,
+    id: String,
   },
   data() {
     return {
@@ -100,9 +98,9 @@ export default {
     reload() {
       request(
         "graphql",
-        `query Institutions($pid:String){Institutions(filter:{pid:{equals:[$pid]}}){name,pid,logo{url},country{name},description,homepage,providerOf{pid,name,mg_tableclass,keywords,type{name}},partnerIn{resource{pid,name,mg_tableclass},role{name}}}}`,
+        `query Organisations($id:String){Organisations(filter:{id:{equals:[$id]}}){name,id,pid,logo{url},country{name},description,homepage,providerOf{id,pid,name,mg_tableclass,keywords,type{name}},partnerIn{resource{id,pid,name,mg_tableclass},role{name}}}}`,
         {
-          pid: this.pid,
+          id: this.id,
         }
       )
         .then((data) => {
@@ -122,7 +120,7 @@ export default {
     this.reload();
   },
   watch: {
-    pid() {
+    id() {
       this.reload();
     },
   },
