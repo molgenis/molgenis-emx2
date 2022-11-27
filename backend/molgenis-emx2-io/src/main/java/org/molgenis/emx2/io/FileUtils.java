@@ -25,9 +25,9 @@ public class FileUtils {
         } else {
             tempFile = Files.createTempFile(prefix, suffix).toFile(); //NOSONAR
         }
-        if(!tempFile.setReadable(true, true) ||
-                !tempFile.setWritable(true, true)||
-                !tempFile.setExecutable(true, true)) {
+        if (!tempFile.setReadable(true, true)
+                || !tempFile.setWritable(true, true)
+                || !tempFile.setExecutable(true, true)) {
             throw new MolgenisException("Internal error: create temp file failed");
         }
         return tempFile;
