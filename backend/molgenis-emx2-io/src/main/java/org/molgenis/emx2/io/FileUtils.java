@@ -24,9 +24,6 @@ public class FileUtils {
             tempFile = Files.createTempFile(prefix, suffix, attr).toFile();
         } else {
             tempFile = Files.createTempFile(prefix, suffix).toFile(); //NOSONAR
-            tempFile.setReadable(true, true);
-            tempFile.setWritable(true, true);
-            tempFile.setExecutable(true, true);
         }
         if (!tempFile.setReadable(true, true)
                 || !tempFile.setWritable(true, true)
