@@ -25,7 +25,7 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
-import { getPrimaryKey, deepClone } from "../utils";
+import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -123,7 +123,7 @@ export default {
           this.visible(column.visible, column.id) &&
           column.name !== "mg_tableclass" &&
           !column.refLink) ||
-        this.internalValues[column.refLink]
+        this.internalValues[convertToCamelCase(column.refLink)]
       );
     },
     visible(expression, columnId) {
@@ -231,9 +231,7 @@ function isRefLinkWithoutOverlap(column, tableMetaData, values) {
     return false;
   }
   const columnRefLink = column.refLink;
-  const refLinkId = tableMetaData.columns.find(
-    (column) => column.name === columnRefLink
-  ).id;
+  const refLinkId = convertToCamelCase(columnRefLink);
 
   const value = values[column.id];
   const refValue = values[refLinkId];
