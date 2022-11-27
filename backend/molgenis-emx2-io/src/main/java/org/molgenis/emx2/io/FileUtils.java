@@ -23,7 +23,7 @@ public class FileUtils {
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
             tempFile = Files.createTempFile(prefix, suffix, attr).toFile();
         } else {
-            tempFile = Files.createTempFile(prefix, suffix).toFile();
+            tempFile = Files.createTempFile(prefix, suffix).toFile(); //NOSONAR
             tempFile.setReadable(true, true);
             tempFile.setWritable(true, true);
             tempFile.setExecutable(true, true);
