@@ -1,7 +1,5 @@
 package org.molgenis.emx2.graphql;
 
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
@@ -25,32 +23,29 @@ public class GraphqlApiFactory {
     for (Map<String, Object> object : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        convertObjectToColumn(object, row, column);
+        if (object.containsKey(column.getIdentifier())) {
+          if (column.isRef()) {
+            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
+          } else if (column.isReference()) {
+            // REFBACK, REF_ARRAY
+            convertRefArrayToRow(
+                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
+          } else if (column.isFile()) {
+            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
+            if (bfw == null || !bfw.isSkip()) {
+              // also necessary in case of 'null' to ensure all file metadata fields are made empty
+              // skip is used when use submitted only metadata (that they received in query)
+              row.setBinary(
+                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
+            }
+          } else {
+            row.set(column.getName(), object.get(column.getIdentifier()));
+          }
+        }
       }
       rows.add(row);
     }
     return rows;
-  }
-
-  private static void convertObjectToColumn(Map<String, Object> object, Row row, Column column) {
-    if (object.containsKey(escape(column.getName()))) {
-      if (column.isRef()) {
-        convertRefToRow((Map<String, Object>) object.get(escape(column.getName())), row, column);
-      } else if (column.isReference()) {
-        // REFBACK, REF_ARRAY
-        convertRefArrayToRow(
-            (List<Map<String, Object>>) object.get(escape(column.getName())), row, column);
-      } else if (column.isFile()) {
-        BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(escape(column.getName()));
-        if (bfw == null || !bfw.isSkip()) {
-          // also necessary in case of 'null' to ensure all file metadata fields are made empty
-          // skip is used when use submitted only metadata (that they received in query)
-          row.setBinary(column.getName(), (BinaryFileWrapper) object.get(escape(column.getName())));
-        }
-      } else {
-        row.set(column.getName(), object.get(escape(column.getName())));
-      }
-    }
   }
 
   private static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
@@ -118,39 +113,10 @@ public class GraphqlApiFactory {
     // alternatively, we should change the SQL to result escaped results but that is a nightmare to
     // build
     if (json != null) {
-      return escapeMap(new ObjectMapper().readValue(json, Map.class));
+      return new ObjectMapper().readValue(json, Map.class);
     } else {
       return null;
     }
-  }
-
-  static Map<String, Object> escapeMap(Map<String, Object> source) {
-    Map<String, Object> result = new HashMap<>();
-    source.forEach(
-        (k, v) -> {
-          if (v instanceof List) {
-            result.put(escape(k), escapeList((List) v));
-          } else if (v instanceof Map) {
-            result.put(escape(k), escapeMap((Map<String, Object>) v));
-          } else {
-            result.put(escape(k), v);
-          }
-        });
-    return result;
-  }
-
-  public static List escapeList(List source) {
-    List result = new ArrayList();
-    for (int i = 0; i < source.size(); i++) {
-      if (source.get(i) instanceof Map) {
-        result.add(escapeMap((Map<String, Object>) source.get(i)));
-      } else if (source.get(i) instanceof List) {
-        result.add(escapeList((List) source.get(i)));
-      } else {
-        result.add(source.get(i));
-      }
-    }
-    return result;
   }
 
   public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {

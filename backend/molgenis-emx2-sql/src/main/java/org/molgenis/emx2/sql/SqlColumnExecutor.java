@@ -12,6 +12,7 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstr
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -361,6 +362,25 @@ public class SqlColumnExecutor {
             String.format(
                 "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
                 c.getTableName(), c.getName(), c.getRefLink()));
+      }
+      AtomicBoolean foundOverlap = new AtomicBoolean(false);
+      refLink
+          .getReferences()
+          .forEach(
+              ref -> {
+                c.getReferences()
+                    .forEach(
+                        ref2 -> {
+                          if (ref.getTargetTable().equals(ref2.getTargetTable())) {
+                            foundOverlap.set(true);
+                          }
+                        });
+              });
+      if (!foundOverlap.get()) {
+        throw new MolgenisException(
+            String.format(
+                "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
+                c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
       }
     }
     // fix required
