@@ -34,6 +34,17 @@ const query = `query Cohorts ($pid: String){
           definition
           name
         }
+        partners{
+        
+          institution{
+            pid
+            name
+            description
+            logo{
+              url
+            }
+          }
+        }
         contributors {
           contact {
             firstName
@@ -53,7 +64,7 @@ const query = `query Cohorts ($pid: String){
     }`;
 const variables = { pid: route.params.cohort };
 
-let cohort = {};
+let cohort: any = {};
 
 const { data: cohortData, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -151,7 +162,8 @@ function setData(data: any) {
         <ContentBlockPartners
           id="Partners"
           title="Partners"
-          description="Partners Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
+          description=""
+          :partners="cohort?.partners"
         />
       </ContentBlocks>
     </template>

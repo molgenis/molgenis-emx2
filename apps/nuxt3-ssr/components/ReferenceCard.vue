@@ -32,15 +32,7 @@ defineProps({
         <header class="flex items-center h-full sm:h-min">
           <div class="grow">
             <h2
-              class="
-                min-w-[160px]
-                inline-block
-                mr-4
-                text-heading-base
-                sm:text-heading-3xl
-                font-extrabold
-                text-blue-500
-              "
+              class="min-w-[160px] inline-block mr-4 text-heading-base sm:text-heading-3xl font-extrabold text-blue-500"
             >
               <a :href="url" class="hover:underline hover:bg-blue-50">
                 {{ title }}</a
@@ -49,7 +41,7 @@ defineProps({
           </div>
           <div class="hidden sm:block">
             <div class="flex">
-              <IconButton icon="star" class="text-blue-500" />
+              <!-- <IconButton icon="star" class="text-blue-500" /> -->
               <IconButton icon="arrow-right" class="text-blue-500" />
             </div>
           </div>
@@ -63,13 +55,7 @@ defineProps({
           v-for="(link, index) in links"
           v-bind:key="index"
           :href="link.url"
-          class="
-            text-blue-500
-            hover:underline hover:bg-blue-50
-            mr-7.5
-            hidden
-            sm:inline-block
-          "
+          class="text-blue-500 hover:underline hover:bg-blue-50 mr-7.5 hidden sm:inline-block"
         >
           <BaseIcon name="caret-right" class="inline w-5 h-5 -ml-1.5" />{{
             link.title
