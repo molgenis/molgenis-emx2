@@ -1,15 +1,9 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  partners: {
-    type: Array,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  title: string;
+  description: string;
+  partners: IPartner[];
+}>();
 </script>
 
 <template>

@@ -50,7 +50,7 @@ import IconButton from "../IconButton.vue";
           />
           <ContentBlockGeneralDesign title="General Design" />
           <ContentBlockAttachedFiles title="Attached Files Generic Example" />
-          <ContentBlockContact title="Contact and Contributers" />
+          <ContentBlockContact title="Contact and Contributors" />
           <ContentBlockVariables
             title="Variables & Topics"
             description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."

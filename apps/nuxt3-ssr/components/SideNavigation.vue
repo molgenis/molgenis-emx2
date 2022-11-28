@@ -1,5 +1,5 @@
 <script setup>
-const route = useRoute()
+const route = useRoute();
 defineProps({
   title: {
     type: String,
@@ -8,18 +8,19 @@ defineProps({
     type: String,
   },
 });
-function setSideMenuStyle(hash){
-  if(hash == route.hash){
-    return "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
-  }
-  else {
-    return "w-full block my-2 hover:font-bold hover:cursor-pointer"
+function setSideMenuStyle(hash) {
+  if (hash == route.hash) {
+    return "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer";
+  } else {
+    return "w-full block my-2 hover:font-bold hover:cursor-pointer";
   }
 }
 </script>
 
 <template>
-  <nav class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary">
+  <nav
+    class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary"
+  >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
       <h2 v-if="title">{{ title }}</h2>
       <img v-if="image" :src="image" />
@@ -36,7 +37,7 @@ function setSideMenuStyle(hash){
         </a>
       </li>
       <li>
-        <a href="#Contributers" :class="setSideMenuStyle('#Contributers')">
+        <a href="#Contributors" :class="setSideMenuStyle('#Contributors')">
           Contact & contributors
         </a>
       </li>
@@ -56,7 +57,10 @@ function setSideMenuStyle(hash){
         </a>
       </li>
       <li>
-        <a href="#CollectionEvents" :class="setSideMenuStyle('#CollectionEvents')">
+        <a
+          href="#CollectionEvents"
+          :class="setSideMenuStyle('#CollectionEvents')"
+        >
           Collection events
         </a>
       </li>

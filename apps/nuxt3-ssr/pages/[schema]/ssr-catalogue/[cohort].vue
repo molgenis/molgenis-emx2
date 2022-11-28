@@ -1,70 +1,73 @@
 <script setup lang="ts">
+import { gql } from "graphql-request";
 const config = useRuntimeConfig();
 const route = useRoute();
 
-const query = `query Cohorts ($pid: String){
-    Cohorts(filter: { pid: { equals: [$pid] } }){
+const query = gql`
+  query Cohorts($pid: String) {
+    Cohorts(filter: { pid: { equals: [$pid] } }) {
+      name
+      description
+      website
+      logo {
+        url
+      }
+      contactEmail
+      institution {
+        acronym
+      }
+      type {
         name
-        description
-        website
-        logo{
-          url
-        }
-        contactEmail
-        institution{
-          acronym
-        }
-        type{
+      }
+      collectionType {
+        name
+      }
+      populationAgeGroups {
+        name
+      }
+      startYear
+      endYear
+      countries {
+        name
+      }
+      numberOfParticipants
+      designDescription
+      design {
+        definition
+        name
+      }
+      partners {
+        institution {
+          pid
           name
-        }
-        collectionType{
-          name
-        }
-        populationAgeGroups{
-          name
-        }
-        startYear
-        endYear
-        countries{
-          name
-        }
-        numberOfParticipants
-        designDescription
-        design{
-          definition
-          name
-        }
-        partners{
-          institution{
-            pid
-            name
-            description
-            logo{
-              url
-            }
-          }
-        }
-        contributors {
-          contributionDescription
-          contact {
-            firstName
-            surname
-            initials
-            department
-            email
-            title {
-              name
-            }
-            institution {
-              name
-            }
+          description
+          logo {
+            url
           }
         }
       }
-    }`;
+      contributors {
+        contributionDescription
+        contact {
+          firstName
+          surname
+          initials
+          department
+          email
+          title {
+            name
+          }
+          institution {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
 const variables = { pid: route.params.cohort };
 
-let cohort: any = {};
+let cohort: ICohort;
 
 const { data: cohortData, pending, error, refresh } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
@@ -130,8 +133,8 @@ function setData(data: any) {
           title="Attached Files Generic Example"
         />
         <ContentBlockContact
-          id="Contributers"
-          title="Contact and Contributers"
+          id="Contributors"
+          title="Contact and Contributors"
           :contributors="cohort?.contributors"
         />
         <ContentBlockVariables

@@ -1,12 +1,8 @@
-<script setup>
-defineProps({
-  contact: {
-    type: Object,
-  },
-  contributionDescription: {
-    type: String,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  contact: IContact;
+  contributionDescription?: string;
+}>();
 </script>
 
 <template>

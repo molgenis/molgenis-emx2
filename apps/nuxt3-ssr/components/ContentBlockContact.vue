@@ -1,15 +1,9 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  contributors: {
-    type: Array,
-  },
-});
+<script setup lang="ts">
+defineProps<{
+  title: string;
+  description?: string;
+  contributors: IContributor[];
+}>();
 </script>
 
 <template>
