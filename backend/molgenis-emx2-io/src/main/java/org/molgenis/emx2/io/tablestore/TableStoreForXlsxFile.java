@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -50,7 +49,7 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
       } else {
         // move to a temp file so we can merge result into the original file location
-        File tempFile = getTempFile("temp",".xlsx");
+        File tempFile = getTempFile("temp", ".xlsx");
         Path temp =
             Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);

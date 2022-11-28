@@ -8,6 +8,9 @@ public enum AvailableDataModels {
   DATA_CATALOGUE(new DataCatalogueLoader()),
   DATA_CATALOGUE_COHORT_STAGING(new DataCatalogueCohortStagingLoader()),
   DATA_CATALOGUE_NETWORK_STAGING(new DataCatalogueNetworkStagingLoader()),
+  DATA_CATALOGUE3(new DataCatalogueLoader()),
+  DATA_CATALOGUE_COHORT_STAGING3(new DataCatalogueCohortStagingLoader()),
+  DATA_CATALOGUE_NETWORK_STAGING3(new DataCatalogueNetworkStagingLoader()),
   PET_STORE(new PetStoreLoader()),
 
   FAIR_DATA_HUB(new FAIRDataHubLoader());
