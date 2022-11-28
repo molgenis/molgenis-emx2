@@ -35,7 +35,6 @@ const query = `query Cohorts ($pid: String){
           name
         }
         partners{
-        
           institution{
             pid
             name
@@ -46,6 +45,7 @@ const query = `query Cohorts ($pid: String){
           }
         }
         contributors {
+          contributionDescription
           contact {
             firstName
             surname

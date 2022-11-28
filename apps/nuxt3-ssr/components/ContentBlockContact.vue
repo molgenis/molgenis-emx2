@@ -16,8 +16,9 @@ defineProps({
   <ContentBlock :title="title">
     <ContactCardList>
       <ContactCard
-        v-for="contact in contributors"
-        :contact="contact?.contact"
+        v-for="contributor in contributors"
+        :contact="contributor?.contact"
+        :contributionDescription="contributor?.contributionDescription"
       />
     </ContactCardList>
   </ContentBlock>
