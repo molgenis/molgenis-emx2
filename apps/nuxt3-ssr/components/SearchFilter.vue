@@ -1,9 +1,16 @@
 <script setup>
-defineProps({
+const props = defineProps({
   title: {
     type: String,
   },
+  filters: {
+    type: Array
+  }
 });
+
+watch(props.filters, (filters) => {
+  console.log('filters: ' + JSON.stringify(filters.map(f => f.conditions).filter(f => f.length)))
+})
 </script>
 
 <template>
@@ -12,7 +19,16 @@ defineProps({
       {{ title }}
     </h2>
 
-    <slot></slot>
+    <template v-if="filters">
+      <FilterContainer title="Search in cohorts">
+        <FilterSearch />
+      </FilterContainer>
+      <FilterContainer v-for="filter in filters" :title="filter.title" v-model="filter.conditions">
+        <SearchFilterGroup :title="filter.title" :table-name="filter.refTable" v-model="filter.conditions" />
+      </FilterContainer>
+    </template>
+
+    <slot v-else></slot>
 
     <hr class="mx-5 border-black opacity-10" />
 

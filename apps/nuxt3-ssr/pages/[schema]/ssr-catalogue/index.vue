@@ -97,7 +97,6 @@ function setCurrentPage(pageNumber: number) {
 }
 
 watch(filters, () => {
-  console.log('conditions: ' + JSON.stringify(filters))
   setCurrentPage(1)
 })
 </script>
@@ -105,11 +104,7 @@ watch(filters, () => {
 <template>
   <LayoutsSearchPage>
     <template #side>
-      <SearchFilter title="Filters">
-        <!-- <SearchFilterGroup title="Search in networks" /> -->
-        <SearchFilterGroup v-for="filter in filters" :title="filter.title" :table-name="filter.refTable"
-          v-model="filter.conditions" />
-      </SearchFilter>
+      <SearchFilter title="Filters" :filters="filters" />
     </template>
     <template #main>
       <SearchResults>

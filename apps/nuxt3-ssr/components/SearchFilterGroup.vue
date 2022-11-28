@@ -1,6 +1,4 @@
 <script setup>
-import { ref } from "vue";
-
 const props = defineProps({
   title: {
     type: String,
@@ -22,8 +20,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue'])
-
-let selected = toRefs(props).modelValue
 
 let data = []
 if (!props.options) {
@@ -103,11 +99,6 @@ let rootTerms = computed(() => {
   }
 });
 
-let collapsedTitle = ref(true);
-const toggleCollapseTitle = () => {
-  collapsedTitle.value = !collapsedTitle.value;
-};
-
 function toggleExpand(term) {
   terms[term.name].expanded = !terms[term.name].expanded;
 }
@@ -136,7 +127,6 @@ function select(item) {
     });
   }
   emitValue();
-  // $refs.search.focus();
 }
 
 function deselect(item) {
@@ -218,38 +208,18 @@ function toggleSelect(term) {
   }
 }
 
-function clearSelection() {
-  if (terms) {
+watch(() => props.modelValue, updateSelection, { deep: true });
+
+function updateSelection(newConditions) {
+  if (!newConditions.length) {
     Object.values(terms).forEach((term) => (term.selected = false));
   }
-  emitValue();
-  // $refs.search.focus();
 }
 
 </script>
 
 <template>
-  <hr class="mx-5 border-black opacity-10" />
-  <div class="flex items-center gap-1 p-5">
-    <div class="inline-flex gap-1 group" @click="toggleCollapseTitle()">
-      <h3
-        class="text-search-filter-group-title font-sans text-body-base font-bold mr-[5px] group-hover:underline group-hover:cursor-pointer">
-        {{ title }}
-      </h3>
-      <span :class="{ 'rotate-180': collapsedTitle }"
-        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle group-hover:cursor-pointer">
-        <BaseIcon name="caret-up" :width="26" />
-      </span>
-    </div>
-    <div class="text-right grow">
-      <span v-if="selected.length" class="text-body-sm text-search-filter-expand hover:underline hover:cursor-pointer"
-        @click="clearSelection()">
-        Remove {{ selected.length }} selected
-      </span>
-    </div>
-  </div>
-
-  <ul class="mb-5 ml-5 text-search-filter-group-title" :class="{ hidden: collapsedTitle }">
+  <ul>
     <li v-for="item in Object.values(rootTerms).sort((a, b) => a.name.localeCompare(b.name))" :key="item.name"
       class="mb-2.5">
       <div class="flex items-start">
