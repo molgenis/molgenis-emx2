@@ -1,0 +1,11 @@
+name,code,order,definition,comments,parent,ontologyTermURI
+binary,,,,,,
+categorical,,,,,,
+continuous,,,,,,
+datetime,,,,,,
+integer,,,,,,
+string,,,,,,
+date,,,,,,
+decimal,,,,,,
+text,,,,,,
+int,,,,,,

@@ -7,6 +7,8 @@ import org.molgenis.emx2.Schema;
 
 public class DataCatalogueNetworkStagingLoader implements AvailableDataModels.DataModelLoader {
 
+  static final String SHARED_STAGING = "SharedStaging";
+
   @Override
   public void load(Schema schema, boolean includeDemoData) {
     // create shared schemas
