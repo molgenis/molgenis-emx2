@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader">{{ tableName }}</h1>
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
 
     <p v-if="showHeader && tableMetadata">
       {{ tableMetadata.description }}
@@ -35,18 +35,18 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableName">zip</ButtonAlt>
+                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableName">excel</ButtonAlt>
+                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableName">
+                <ButtonAlt :href="'../api/jsonld/' + tableId">
                   jsonld
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableName">ttl</ButtonAlt>
+                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
               </div>
             </div>
           </form>
@@ -268,7 +268,7 @@
 
 <script>
 import Client from "../../client/client.js";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey,convertToPascalCase } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -398,6 +398,9 @@ export default {
     },
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     View() {
       return View;
     },
@@ -486,7 +489,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -495,7 +498,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableName)
+        .deleteAllTableData(this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -621,8 +624,8 @@ export default {
         })
         .catch(this.handleError);
 
-      this.dataRows = dataResponse[this.tableName];
-      this.count = dataResponse[this.tableName + "_agg"]["count"];
+      this.dataRows = dataResponse[this.tableId];
+      this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
     },
   },
@@ -697,8 +700,8 @@ function getCondition(columnType, condition) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Cohorts"
-        graphqlURL="/DataCatalogue/graphql"
+        tableName="Pet"
+        graphqlURL="/pet store/graphql"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"

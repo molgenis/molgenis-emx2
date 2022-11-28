@@ -129,7 +129,6 @@ export default {
     },
   },
   async mounted() {
-    console.log("blaat");
     this.client = Client.newClient();
     this.reloadMetadata();
     this.tableMetadata = await this.client.fetchTableMetaData(this.table);

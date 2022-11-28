@@ -11,7 +11,7 @@
       />
     </div>
     <div class="card-body">
-      <h5 class="card-title">{{ network.pid }}</h5>
+      <h5 class="card-title">{{ network.id }}</h5>
       <p v-if="network.description && network.description.trim().length > 0">
         {{ network.description.substring(0, 500) }}
         <span v-if="network.description.length > 500">...</span>
@@ -24,19 +24,19 @@
       <div class="card-footer bg-white mt-auto">
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkDetails', params: { network: network.pid } }"
+          :to="{ name: 'NetworkDetails', params: { network: network.id } }"
         >
           description
         </RouterLink>
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkCohorts', params: { network: network.pid } }"
+          :to="{ name: 'NetworkCohorts', params: { network: network.id } }"
         >
           cohorts
         </RouterLink>
         <RouterLink
           class="btn btn-primary ml-2"
-          :to="{ name: 'NetworkVariables', params: { network: network.pid } }"
+          :to="{ name: 'NetworkVariables', params: { network: network.id } }"
         >
           variables
         </RouterLink>

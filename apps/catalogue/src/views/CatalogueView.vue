@@ -58,7 +58,7 @@
           Systematic observations of large groups of individuals over time.
         </p>
       </RouterLink>
-      
+
       <RouterLink
         to="Datasets"
         class="card card-body bg-info text-white card-height"
@@ -77,6 +77,14 @@
           Collaborations of multiple institutions, addressing research questions
           using data sources and/or data banks
         </p>
+      </RouterLink>
+      <RouterLink
+          to="Models"
+          class="card card-body bg-warning text-dark card-height"
+      >
+        <span class="badge badge-light float-right">{{ models }}</span>
+        <h3>Common data models</h3>
+        <p class="text-left">Standard/harmonized data dictionaries for integrated analysis</p>
       </RouterLink>
     </div>
 
@@ -201,18 +209,18 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {_schema{name}, Organisations_agg{count}, Studies_agg{count}, Cohorts_agg{count},Data_sources_agg{count},Networks_agg{count},Datasets_agg{count},Models_agg{count},Studies_agg{count},Variable_mappings_agg{count}, Dataset_mappings_agg{count}}`
+        `query {_schema{name}, Organisations_agg{count}, Studies_agg{count}, Cohorts_agg{count},DataSources_agg{count},Networks_agg{count},Datasets_agg{count},Models_agg{count},Studies_agg{count},VariableMappings_agg{count}, DatasetMappings_agg{count}}`
       )
         .then((data) => {
           this.schemaName = data._schema.name;
           this.organisations = data.Organisations_agg.count;
           this.cohorts = data.Cohorts_agg.count;
           this.networks = data.Networks_agg.count;
-          this.datasources = data.Data_sources_agg.count;
+          this.datasources = data.DataSources_agg.count;
           this.models = data.Models_agg.count;
           this.datasets = data.Datasets_agg.count;
-          this.variableMappings = data.Variable_mappings_agg.count;
-          this.datasetMappings = data.Dataset_mappings_agg.count;
+          this.variableMappings = data.VariableMappings_agg.count;
+          this.datasetMappings = data.DatasetMappings_agg.count;
           this.studies = data.Studies_agg.count;
         })
         .catch((error) => {

@@ -10,7 +10,7 @@
         <VariableCard
           v-for="variable in variables"
           :key="
-            variable.release.resource.pid + variable.table.name + variable.name
+            variable.resource.id + variable.dataset.name + variable.name
           "
           :variable="variable"
           :tableName="tableName"
@@ -51,7 +51,7 @@ export default {
     InputSearch,
   },
   props: {
-    resourcePid: String,
+    resourceId: String,
     tableName: String,
     topic: String,
     version: String,
@@ -70,9 +70,9 @@ export default {
     reload() {
       this.graphqlError = null;
       let filter = {};
-      if (this.resourcePid) {
+      if (this.resourceId) {
         filter.release = {
-          resource: { pid: { equals: this.resourcePid } },
+          resource: { id: { equals: this.resourceId } },
         };
       }
       if (this.tableName) {
@@ -89,7 +89,7 @@ export default {
       // }
       request(
         "graphql",
-        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{pid,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{pid},version},targetRelease{resource{pid},version}sourceTable{name,release{resource{pid},version}}}}
+        `query Variables($filter:VariablesFilter,$offset:Int,$limit:Int){Variables(offset:$offset,limit:$limit,filter:$filter){name, release{resource{id,mg_tableclass},version},table{name},label, format{name},unit{name}, description,topics{name},categories{label,value,isMissing},harmonisations{match{name},sourceRelease{resource{id},version},targetRelease{resource{id},version}sourceTable{name,release{resource{pid},version}}}}
         ,Variables_agg(filter:$filter){count}}`,
         {
           filter: filter,
@@ -111,7 +111,7 @@ export default {
     },
   },
   watch: {
-    resourcePid() {
+    resourceId() {
       this.reload();
     },
     tableName() {

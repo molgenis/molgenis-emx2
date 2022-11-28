@@ -26,14 +26,14 @@
             <div
               v-if="
                 'REF' === col.columnType ||
-                ('REFBACK' === col.columnType && !Array.isArray(row[col.name]))
+                ('REFBACK' === col.columnType && !Array.isArray(row[col.id]))
               "
             >
               <RouterLink
-                v-if="row[col.name]"
+                v-if="row[col.id]"
                 :to="{
                   name: col.refTable + '-details',
-                  params: routeParams(col, row[col.name]),
+                  params: routeParams(col, row[col.id]),
                 }"
               >
                 {{ renderValue(row, col)[0] }}
@@ -111,8 +111,7 @@ export default {
     routeParams(column, value) {
       if (column.name === "tables") {
         let result = {
-          pid: value.dataDictionary.resource.pid,
-          version: value.dataDictionary.version,
+          id: value.resource.id,
           name: value.name,
         };
         return result;
@@ -124,7 +123,7 @@ export default {
       this.$emit("click", value);
     },
     renderValue(row, col) {
-      if (row[col.name] === undefined) {
+      if (row[col.id] === undefined) {
         return [];
       }
       if (
@@ -132,7 +131,7 @@ export default {
         col.columnType == "REFBACK" ||
         col.columnType == "ONTOLOGY_ARRAY"
       ) {
-        return row[col.name].map((v) => {
+        return row[col.id].map((v) => {
           if (col.name === "tables") {
             //hack, ideally we start setting refLabel in configuration!
             return v.name;
@@ -144,14 +143,14 @@ export default {
         });
       } else if (col.columnType == "REF" || col.columnType == "ONTOLOGY") {
         if (col.refLabel) {
-          return [this.applyJsTemplate(col.refLabel, row[col.name])];
+          return [this.applyJsTemplate(col.refLabel, row[col.id])];
         } else {
-          return [this.flattenObject(row[col.name])];
+          return [this.flattenObject(row[col.id])];
         }
       } else if (col.columnType.includes("ARRAY")) {
-        return row[col.name];
+        return row[col.id];
       } else {
-        return [row[col.name]];
+        return [row[col.id]];
       }
     },
     applyJsTemplate(template, object) {
