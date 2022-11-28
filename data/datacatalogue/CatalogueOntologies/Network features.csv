@@ -38,6 +38,4 @@ other public funding (e.g.: hospital,Funding,
 non for-profit organisation (e.g.,Funding,
 pharmaceutical company and other private sector,Funding,
 no external funding,Funding,
-other,Funding,
-,,
-"The value 'Other' should be available to be selected and will not be available in the SPOR list.""",,
+other,Funding,"The value 'Other' should be available to be selected and will not be available in the SPOR list."

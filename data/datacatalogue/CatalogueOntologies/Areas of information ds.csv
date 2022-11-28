@@ -71,7 +71,7 @@ Prescriptions included: EphMRA,EphMRA,,Prescriptions included
 Prescriptions included: ALT,ALT,,Prescriptions included
 Prescriptions included: DrugBank,DrugBank,,Prescriptions included
 Prescriptions included: Not coded (Free text),Not coded (Free text),,Prescriptions included
-Other prescriptions or dispendings,,,Prescriptions included
+Prescriptions included: Other,Other,,Prescriptions included
 Dispensings included,,Is information on prescriptions or dispensings of medications included?,Clinical data
 Dispensings included: ATC,ATC,,Dispensings included
 Dispensings included: RxNorm,RxNorm,,Dispensings included
@@ -79,7 +79,7 @@ Dispensings included: EphMRA,EphMRA,,Dispensings included
 Dispensings included: ALT,ALT,,Dispensings included
 Dispensings included: DrugBank,DrugBank,,Dispensings included
 Dispensings included: Not coded (Free text),Not coded (Free text),,Dispensings included
-Other prescriptions or dispendings,,,Dispensings included
+Dispensings included: Other,Other,,Dispensings included
 Product information,,Is product information available? Select all items that apply,Clinical data
 Brand name,,,Product information
 Batch number,,,Product information
