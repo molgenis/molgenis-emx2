@@ -42,6 +42,7 @@ const query = computed(() => {
     Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       pid
       name
+      acronym
       description
       keywords
       type {

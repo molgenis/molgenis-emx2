@@ -51,12 +51,12 @@ const iconStarClasses = computed(() => {
               hover:underline hover:bg-blue-50
             "
           >
-            {{ cohort.name }}
+            {{ cohort?.acronym }}
           </NuxtLink>
         </h2>
 
         <span :class="subtitleClasses" class="text-body-base">
-          {{ cohort?.institution?.acronym }}
+          {{ cohort?.name }}
         </span>
       </div>
       <div class="flex">
