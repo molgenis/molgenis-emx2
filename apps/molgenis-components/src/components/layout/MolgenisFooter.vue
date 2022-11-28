@@ -9,7 +9,7 @@
         >LGPLv3</a
       >).
     </div>
-    <div >
+    <div>
       Please cite
       <a href="https://www.ncbi.nlm.nih.gov/pubmed/30165396">
         Van der Velde et al (2018)</a
@@ -21,7 +21,7 @@
       on use.
     </div>
     <br />
-    <slot  />
+    <slot />
   </div>
 </template>
 
@@ -33,6 +33,6 @@
 
 <script>
 export default {
-  name: "MolgenisFooter"
-}
+  name: "MolgenisFooter",
+};
 </script>

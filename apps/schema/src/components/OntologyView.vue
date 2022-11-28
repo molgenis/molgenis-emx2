@@ -26,7 +26,7 @@
         v-if="isManager"
         v-model="ontology"
         :schema="schema"
-        @input="$emit('input', ontology)"
+        @update:modelValue="$emit('update:modelValue', ontology)"
       />
       <IconDanger
         v-if="isManager"
@@ -65,7 +65,7 @@ export default {
     IconDanger,
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -104,15 +104,16 @@ export default {
       }
       if (!ontology.drop) {
         //need to do deep set otherwise vue doesn't see it
-        this.$set(ontology, "drop", true);
+        ontology.drop = true;
       } else {
-        this.$set(ontology, "drop", false);
+        ontology.drop = false;
       }
-      this.$emit("input", ontology);
+      this.$emit("update:modelValue", ontology);
     },
   },
   created() {
-    this.ontology = this.value;
+    this.ontology = this.modelValue;
   },
+  emits: ["update:modelValue", "delete"],
 };
 </script>

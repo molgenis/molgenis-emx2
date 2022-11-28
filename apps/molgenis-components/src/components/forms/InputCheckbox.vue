@@ -20,7 +20,7 @@
         :value="option"
         @change="
           $emit(
-            'input',
+            'update:modelValue',
             result.filter((value) => value !== null)
           )
         "
@@ -35,7 +35,7 @@
       class="checkbox-clear-value btn-link btn m-0 p-0"
       @click.prevent="
         result = [];
-        $emit('input', result);
+        $emit('update:modelValue', result);
       "
     >
       clear
@@ -72,7 +72,7 @@ export default {
   },
   data() {
     return {
-      result: this.value ? [...this.value] : [],
+      result: this.modelValue ? [...this.modelValue] : [],
     };
   },
 };

@@ -15,7 +15,7 @@ public class TestExcelStore {
 
   @Test
   public void testSimple() throws IOException {
-    List<Row> rows = new ArrayList<Row>();
+    List<Row> rows = new ArrayList<>();
 
     for (int i = 0; i < 10; i++) {
       Row r = new Row();
@@ -30,16 +30,14 @@ public class TestExcelStore {
     Path excelFile = tmp.resolve("test.xlsx");
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
     store.writeTable("test", List.of(), rows);
+    store.writeTable("test2", List.of(), rows);
 
     // and read
     store = new TableStoreForXlsxFile(excelFile);
-    List<Row> rows2 = store.readTable("test");
+    List<Row> rows2 = store.readTable("test2");
+    List<Row> rows3 = store.readTable("test");
 
     assertEquals(10, rows2.size());
-
-    // empty rows
-    excelFile = tmp.resolve("test.xlsx");
-    store = new TableStoreForXlsxFile(excelFile);
-    store.writeTable("test2", List.of("blaat"), new ArrayList<>());
+    assertEquals(10, rows3.size());
   }
 }

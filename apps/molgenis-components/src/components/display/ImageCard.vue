@@ -7,9 +7,9 @@
         <p v-if="description" class="card-text">{{ description }}</p>
         <p v-if="linkUrl" class="card-text">
           <small class="text-muted">
-            <router-link :to="linkUrl" class="stretched-link"
+            <a :href="linkUrl" class="stretched-link"
               >{{ linkText }}
-            </router-link>
+            </a>
           </small>
         </p>
       </slot>

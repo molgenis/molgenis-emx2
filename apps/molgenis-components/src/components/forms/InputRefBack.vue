@@ -1,5 +1,5 @@
 <template>
-  <FormGroup v-bind="$props" v-on="$listeners">
+  <FormGroup v-bind="$props">
     <Spinner v-if="isLoading" />
     <TableMolgenis
       v-else-if="refTablePrimaryKeyObject"
@@ -180,13 +180,13 @@ export default {
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -244,53 +244,51 @@ export default {
 <docs>
 
 <template>
-<div>
-<p>
-note, this input doesn't have value on its own, it just allows you to edit the refback in context.
-This also means you cannot do this unless your current record has a refTablePrimaryKeyObject to point to
-</p>
+  <div>
+    <p>
+      note, this input doesn't have value on its own, it just allows you to edit the refback in context.
+      This also means you cannot do this unless your current record has a refTablePrimaryKeyObject to point to
+    </p>
 
-  <div class="my-3">
-  <label for="refback1">When row has not been saved ( has not key) </label>
+    <div class="my-3">
+      <label for="refback1">When row has not been saved ( has not key) </label>
+      <InputRefBack
+          id="refback1"
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject=null
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
 
-  <InputRefBack
-      id="refback1"
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject=null
-      graphqlURL="/pet store/graphql"
-  />
+
+    <div class="my-3">
+      <label for="refback2">When row has a key but can not be edited </label>
+
+      <InputRefBack
+          id="refback2"
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject="{name:'spike'}"
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
+
+    <div class="my-3">
+      <label for="refback3">When row has a key and can be edited </label>
+      <InputRefBack
+          id="refback3"
+          canEdit
+          label="Orders"
+          tableName="Order"
+          refBack="pet"
+          :refTablePrimaryKeyObject="{name:'spike'}"
+          graphqlURL="/pet store/graphql"
+      />
+    </div>
   </div>
-
-
-  <div class="my-3">
-  <label for="refback2">When row has a key but can not be edited </label>
-
-  <InputRefBack
-      id="refback2"
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject="{name:'spike'}"
-      graphqlURL="/pet store/graphql"
-  />
-  </div>
-
-   <div class="my-3">
-  <label for="refback3">When row has a key and can be edited </label>
-
-  <InputRefBack
-      id="refback3"
-      canEdit
-      label="Orders"
-      tableName="Order"
-      refBack="pet"
-      :refTablePrimaryKeyObject="{name:'spike'}"
-      graphqlURL="/pet store/graphql"
-  />
-  </div>
-</div>
 
 </template>
 </docs>

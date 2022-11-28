@@ -38,8 +38,10 @@ public class Constants {
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
+  public static final String SETTINGS = "settings";
   public static final String SETTINGS_NAME = "key";
   public static final String SETTINGS_VALUE = "value";
+  public static final String SETTINGS_USER = "user";
 
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
@@ -53,9 +55,14 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+
+  public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
+
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
+  public static final String ANONYMOUS = "anonymous";
+
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
   protected static final Operator[] STRING_OPERATORS = {

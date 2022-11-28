@@ -67,7 +67,7 @@ export default {
         }
         this.timeout = setTimeout(() => {
           this.debouncedInput = val;
-          this.$emit("input", this.debouncedInput);
+          this.$emit("update:modelValue", this.debouncedInput);
         }, this.debounceTime);
       },
     },
@@ -89,7 +89,7 @@ export default {
     <label class="font-italic">Pre filled search value and clear button</label>
     <demo-item>
       <InputSearch
-          id="input-search-1"
+          id="input-search-2"
           v-model="value2"
           :isClearBtnShown="true"
       />

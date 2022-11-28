@@ -1,7 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.11.0" apply false
+    id "com.diffplug.spotless" version "6.10.0" apply false
 }
 
 repositories {
@@ -37,13 +37,13 @@ subprojects {
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
-        implementation 'org.jooq:jooq:3.17.4'
+        implementation 'org.jooq:jooq:3.17.5'
         implementation 'com.zaxxer:HikariCP:5.0.1'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.4'
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
-        implementation 'com.fasterxml.jackson.core:jackson-core:2.13.4'
-        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.4'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.0'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.14.0'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.0'
         implementation 'com.graphql-java:graphql-java:16.2'
         implementation 'com.sparkjava:spark-core:2.9.4'
         implementation 'org.pac4j:pac4j-core:5.4.5'
@@ -51,6 +51,7 @@ subprojects {
         implementation 'org.pac4j:pac4j-http:5.4.5'
         implementation 'org.pac4j:spark-pac4j:5.0.0'
         implementation 'org.javers:javers-core:6.8.0'
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.20'
 
         //also used outside test
         implementation 'junit:junit:4.13.2'

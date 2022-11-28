@@ -1,9 +1,12 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.SETTINGS;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettingsType;
 
 import graphql.Scalars;
 import graphql.schema.GraphQLArgument;
@@ -12,13 +15,9 @@ import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
 public class GraphqlSessionFieldFactory {
-
-  private static final String ROLES = "roles";
-  private static final String SCHEMAS = "schemas";
 
   public GraphqlSessionFieldFactory() {
     // no instance
@@ -55,7 +54,7 @@ public class GraphqlSessionFieldFactory {
                 return new GraphqlApiMutationResult(FAILED, "Password too short");
               }
               if (database.hasUser(userName)) {
-                return new GraphqlApiMutationResult(FAILED, "Username already exists");
+                return new GraphqlApiMutationResult(FAILED, "Email already exists");
               }
               database.tx(
                   db -> {
@@ -79,7 +78,7 @@ public class GraphqlSessionFieldFactory {
   public GraphQLFieldDefinition signinField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
+        .type(GraphqlApiMutationResultWithToken.typeForSignResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
@@ -89,8 +88,13 @@ public class GraphqlSessionFieldFactory {
 
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 database.setActiveUser(userName);
-                return new GraphqlApiMutationResult(
-                    GraphqlApiMutationResult.Status.SUCCESS, "Signed in as '%s'", userName);
+                GraphqlApiMutationResultWithToken result =
+                    new GraphqlApiMutationResultWithToken(
+                        GraphqlApiMutationResult.Status.SUCCESS,
+                        JWTgenerator.createTemporaryToken(database, userName),
+                        "Signed in as '%s'",
+                        userName);
+                return result;
               } else {
                 return new GraphqlApiMutationResult(
                     FAILED, "Sign in as '%s' failed: user or password unknown", userName);
@@ -99,7 +103,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition userQueryField(Database database, Schema schema) {
+  public GraphQLFieldDefinition sessionQueryField(Database database, Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_session")
         .type(
@@ -116,7 +120,15 @@ public class GraphqlSessionFieldFactory {
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(SCHEMAS)
-                        .type(GraphQLList.list(Scalars.GraphQLString))))
+                        .type(GraphQLList.list(Scalars.GraphQLString)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(SETTINGS)
+                        .type(GraphQLList.list(outputSettingsType)))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(TOKEN)
+                        .type(Scalars.GraphQLString)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
@@ -126,7 +138,38 @@ public class GraphqlSessionFieldFactory {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }
               result.put(SCHEMAS, database.getSchemaNames());
+              User user = database.getUser(database.getActiveUser());
+              result.put(
+                  SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
+              result.put(
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
               return result;
+            })
+        .build();
+  }
+
+  public GraphQLFieldDefinition createTokenField(Database database) {
+    GraphQLFieldDefinition.Builder builder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name("createToken")
+            .type(GraphqlApiMutationResultWithToken.typeForSignResult);
+    builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
+    return builder
+        .argument(GraphQLArgument.newArgument().name(TOKEN_NAME).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
+              String userName = dataFetchingEnvironment.getArgument(EMAIL);
+              if (!database.isAdmin() && !userName.equals(database.getActiveUser())) {
+                throw new MolgenisException(
+                    "Create token failed: Only admins can create tokens for other users");
+              }
+              return new GraphqlApiMutationResultWithToken(
+                  GraphqlApiMutationResult.Status.SUCCESS,
+                  JWTgenerator.createNamedTokenForUser(database, userName, tokenId),
+                  "Token '%s' created for user '%s'",
+                  tokenId,
+                  userName);
             })
         .build();
   }
@@ -137,14 +180,14 @@ public class GraphqlSessionFieldFactory {
             .name("changePassword")
             .type(typeForMutationResult);
     if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(USERNAME).type(Scalars.GraphQLString));
+      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
     }
     return builder
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
-              String username = dataFetchingEnvironment.getArgument(USERNAME);
+              String username = dataFetchingEnvironment.getArgument(EMAIL);
               if (username == null) {
                 username = database.getActiveUser();
               }

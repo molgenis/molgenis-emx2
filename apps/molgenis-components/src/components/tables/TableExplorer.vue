@@ -10,7 +10,7 @@
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
           :exclude="['HEADING', 'FILE']"
@@ -19,7 +19,7 @@
         />
 
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
           label="columns"
@@ -67,13 +67,13 @@
 
       <InputSearch
         class="mx-1 inline-form-group"
-        id="explorer-table-search"
-        :value="searchTerms"
-        @input="setSearchTerms($event)"
+        :id="'explorer-table-search' + Date.now()"
+        :modelValue="searchTerms"
+        @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
-        :value="page"
-        @input="setPage($event)"
+        :modelValue="page"
+        @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
@@ -82,21 +82,24 @@
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
-          :value="limit"
+          :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
-          @input="setLimit($event)"
+          @update:modelValue="setLimit($event)"
           class="mb-0"
         />
-        <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+        />
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings
-          :tableName="tableName"
-          :cardTemplate.sync="cardTemplate"
-          :recordTemplate.sync="recordTemplate"
+        <TableSettings v-if="tableMetadata"
+          :tableMetadata="tableMetadata"
           :graphqlURL="graphqlURL"
+          @update:settings="reloadMetadata"
         />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
@@ -108,7 +111,7 @@
     <div class="d-flex">
       <div v-if="countFilters" class="col-3 pl-0">
         <FilterSidebar
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           :graphqlURL="graphqlURL"
         />
@@ -118,7 +121,7 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
         />
@@ -154,8 +157,10 @@
         />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
-          :selection.sync="selectedItems"
-          :columns.sync="columns"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+          :columns="columns"
+          @update:colums="columns = $event"
           :table-metadata="tableMetadata"
           :data="dataRows"
           :showSelect="showSelect"
@@ -529,17 +534,16 @@ export default {
       });
       this.reload();
     },
-    emitColumns() {
+    emitColumns(event) {
+      this.columns = event;
       this.$emit(
         "updateShowColumns",
         getColumnNames(this.columns, "showColumn")
       );
     },
-    emitFilters() {
-      this.$emit(
-        "updateShowFilters",
-        getColumnNames(this.columns, "showFilter")
-      );
+    emitFilters(event) {
+      this.columns = event;
+      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -594,6 +598,12 @@ export default {
       });
       this.tableMetadata = newTableMetadata;
     },
+    async reloadMetadata() {
+      this.client = Client.newClient(this.graphqlURL);
+      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      this.setTableMetadata(newTableMetadata);
+      this.reload();
+    },
     async reload() {
       this.loading = true;
       this.graphqlError = null;
@@ -617,13 +627,18 @@ export default {
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.graphqlURL);
-    const newTableMetadata = await this.client
-      .fetchTableMetaData(this.tableName)
-      .catch(this.handleError);
-    this.setTableMetadata(newTableMetadata);
-    await this.reload();
+    await this.reloadMetadata();
   },
+  emits: [
+    "updateShowFilters",
+    "click",
+    "updateShowLimit",
+    "updateShowPage",
+    "updateConditions",
+    "updateShowColumns",
+    "updateShowOrder",
+    "searchTerms",
+  ],
 };
 
 function getColumnNames(columns, property) {

@@ -9,6 +9,9 @@ GenomicVariations,,position_refseqId,string,,,,,,,,http://purl.obolibrary.org/ob
 GenomicVariations,,position_start,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,E.g. 2447955
 GenomicVariations,,position_end,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000895,E.g. 2447958
 GenomicVariations,,geneId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C20826,E.g. TTN
+GenomicVariations,,genomicHGVSId,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A
+GenomicVariations,,proteinHGVSIds,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter
+GenomicVariations,,transcriptHGVSIds,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G
 GenomicVariations,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001
 GenomicVariationsClinInterpr,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C125009,Beacon v2 GenomicVariations Clinical Interpretations
 GenomicVariationsClinInterpr,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,E.g. Var001_CI001
@@ -16,6 +19,11 @@ GenomicVariationsClinInterpr,,category,ontology,,,,VariationCategory,,,,http://p
 GenomicVariationsClinInterpr,,clinicalRelevance,ontology,,,,VariationClinicalRelevance,,,,http://purl.obolibrary.org/obo/HP_0045088,E.g. Likely benign
 GenomicVariationsClinInterpr,,conditionId,String,,,,,,,,http://edamontology.org/data_3667,E.g. famchol1
 GenomicVariationsClinInterpr,,effect,ontology,,,,Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34
+GenomicVariations,,caseLevelData,ref_array,,,,GenomicVariationsCaseLevel,,,,http://purl.obolibrary.org/obo/GSSO_000660,E.g. Var001_CLD01
+GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,Beacon v2 GenomicVariations Case Level Data
+GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01
+GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001
+GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001
 Analyses,,,,,,,,,,,http://edamontology.org/operation_2945,Beacon v2 Analyses
 Analyses,,id,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001979,E.g. Analysis012345
 Analyses,,aligner,string,,,,,,,,http://edamontology.org/operation_0292,E.g. bwa-0.7.8
@@ -29,7 +37,7 @@ Analyses,,variantCaller,string,,,,,,,,http://edamontology.org/operation_3227,E.g
 Biosamples,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Beacon v2 Biosamples
 Biosamples,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,E.g. sample-example-0001
 Biosamples,,biosampleStatus,ontology,,TRUE,,PathologicalState,,,,http://purl.obolibrary.org/obo/OBI_0000747,E.g. abnormal sample
-Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,http://purl.obolibrary.org/obo/UBERON_0001062,E.g. bone marrow specimen
+Biosamples,,sampleOriginType,ontology,,TRUE,,SampleOriginType,,,,http://purl.obolibrary.org/obo/NCIT_C42703,E.g. bone marrow specimen
 Biosamples,,collectionMoment,string,,,,,,,,http://purl.obolibrary.org/obo/GSSO_011434,E.g. P32Y6M1D
 Biosamples,,collectionDate,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2020-09-11
 Biosamples,,obtentionProcedure,ontology,,TRUE,,ObtentionProcedure,,,,http://purl.obolibrary.org/obo/OBI_0000659,E.g. needle biopsy
@@ -52,6 +60,7 @@ Individuals,,age_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/ob
 Individuals,,diseaseCausalGenes,ontology_array,,,,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C16612,"Addition for EJP-RD Virtual Platform API. E.g. TTN"
 Individuals,,ethnicity,ontology,,,,Ancestry,,,,http://purl.obolibrary.org/obo/NCIT_C176763,E.g. Luxembourgish
 Individuals,,geographicOrigin,ontology,,,,Countries,,,,http://purl.obolibrary.org/obo/GENEPIO_0001094,E.g. Switzerland
+Individuals,,hasGenomicVariations,refback,,,,GenomicVariationsCaseLevel,,individualId,,http://purl.obolibrary.org/obo/GSSO_000660,NON-STANDARD FIELD. E.g. Var001_CLD01
 Individuals,,diseases,ref_array,,,,IndividualsDiseases,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Ind001_Dis001
 Individuals,,measures,ref_array,,,,IndividualsMeasures,,,,http://purl.obolibrary.org/obo/NCIT_C25209,E.g. Ind001_Meas001
 Individuals,,phenotypicFeatures,ref_array,,,,IndividualsPhenotypicFeatures,,,,http://purl.obolibrary.org/obo/NCIT_C116555,E.g. Ind001_Phen001
@@ -76,7 +85,7 @@ IndividualsMeasures,,assayCode,ontology,,TRUE,,AnalysesPerformed,,,,http://purl.
 IndividualsMeasures,,date,string,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0000689,E.g. 2017-05-03
 IndividualsMeasures,,measurementVariable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,NON-STANDARD FIELD. E.g. Blood platelet count
 IndividualsMeasures,,measurementValue_value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,E.g. 55345
-IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_P355,E.g. Per Millimeter
+IndividualsMeasures,,measurementValue_units,ontology,,,,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,E.g. Per Millimeter
 IndividualsMeasures,,observationMoment_age_iso8601duration,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82517,E.g. P55Y8M12D
 Runs,,,,,,,,,,,http://edamontology.org/topic_3168,Beacon v2 Runs
 Runs,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C171337,E.g. SRR10903401

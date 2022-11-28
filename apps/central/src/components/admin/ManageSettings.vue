@@ -4,7 +4,7 @@
 
     <table class="table table-hover table-bordered bg-white">
       <thead>
-        <th style="width: 1px">
+        <th style="width: 1px;">
           <IconAction icon="plus" @click="handleCreateRequest" />
         </th>
         <th>key</th>
@@ -13,7 +13,7 @@
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">
           <td>
-            <div style="display: flex">
+            <div style="display: flex;">
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
               <IconDanger
                 icon="trash"
@@ -30,7 +30,6 @@
         </tr>
       </tbody>
     </table>
-
     <LayoutModal
       v-if="showModal"
       :title="modalTitle"
@@ -140,16 +139,18 @@ export default {
     },
     async createSetting() {
       const createMutation = gql`
-        mutation createSetting($key: String, $value: String) {
-          createSetting(key: $key, value: $value) {
+        mutation change($settings: [MolgenisSettingsInput]) {
+          change(settings: $settings) {
             message
           }
         }
       `;
 
       const variables = {
-        key: this.settingKey,
-        value: this.settingValue,
+        settings: {
+          key: this.settingKey,
+          value: this.settingValue,
+        },
       };
 
       await request("graphql", createMutation, variables).catch((e) => {
@@ -160,15 +161,17 @@ export default {
     },
     async deleteSetting() {
       const deleteMutation = gql`
-        mutation deleteSetting($key: String) {
-          deleteSetting(key: $key) {
+        mutation drop($settings: [DropSettingsInput]) {
+          drop(settings: $settings) {
             message
           }
         }
       `;
 
       const variables = {
-        key: this.settingKey,
+        settings: {
+          key: this.settingKey,
+        },
       };
 
       await request("graphql", deleteMutation, variables).catch((e) => {

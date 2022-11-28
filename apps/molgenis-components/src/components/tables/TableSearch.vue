@@ -30,11 +30,12 @@
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
-            <RowAddButton
+            <RowButtonAdd
               v-if="canEdit"
               :id="'row-button-add-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
+              @close="loadData"
               class="d-inline p-0"
             />
           </template>
@@ -54,15 +55,16 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
-             <RowEditButton
+             <RowButtonEdit
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
               :tableName="lookupTableName"
               :graphqlURL="graphqlURL"
               :pkey="slotProps.rowkey"
               @close="loadData"
+              class="text-left"
             />
-            <RowDeleteButton
+            <RowButtonDelete
               v-if="canEdit"
               :id="'row-button-del-' + lookupTableName"
               :tableName="lookupTableName"
@@ -84,21 +86,22 @@ import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import Client from "../../client/client.js";
-import RowAddButton from "../organisms/RowAddButton.vue";
-import RowEditButton from "../organisms/RowEditButton.vue";
-import RowDeleteButton from "../organisms/RowDeleteButton.vue";
+import RowButtonAdd from "./RowButtonAdd.vue";
+import RowButtonEdit from "./RowButtonEdit.vue";
+import RowButtonDelete from "./RowButtonDelete.vue";
+
 
 export default {
-   name: "TableSearch",
+  name: "TableSearch",
   components: {
     TableMolgenis,
     MessageError,
     InputSearch,
     Pagination,
     Spinner,
-    RowAddButton,
-    RowEditButton,
-    RowDeleteButton
+    RowButtonAdd,
+    RowButtonEdit,
+    RowButtonDelete
   },
   props: {
     lookupTableName: {
@@ -204,11 +207,10 @@ export default {
 <template>
   <demo-item>
     <div class="border-bottom mb-3 p-2">
-        <h5>synced demo props: </h5>
-        <div>
-          <label for="canEdit" class="pr-1">can edit: </label>
-          <input type="checkbox" id="canEdit" v-model="canEdit">
-        </div>
+      <h5>synced demo props: </h5>
+      <div>
+        <label for="canEdit" class="pr-1">can edit: </label>
+        <input type="checkbox" id="canEdit" v-model="canEdit">
       </div>
     </div>
     <table-search
@@ -233,29 +235,29 @@ export default {
       return {
         selected: [],
         columns: [
-          {id: "col1", name: "col1", columnType: "STRING", key: 1},
+          {id: 'col1', name: 'col1', columnType: 'STRING', key: 1},
           {
-            id: "ref1",
-            name: "ref1",
-            columnType: "REF",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref1',
+            name: 'ref1',
+            columnType: 'REF',
+            refColumns: ['firstName', 'lastName'],
           },
           {
-            id: "ref_arr1",
-            name: "ref_arr1",
-            columnType: "REF_ARRAY",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref_arr1',
+            name: 'ref_arr1',
+            columnType: 'REF_ARRAY',
+            refColumns: ['firstName', 'lastName'],
           },
         ],
         remoteSelected: [],
         remoteColumns: [],
         remoteTableData: null,
-        canEdit: false
+        canEdit: false,
       };
     },
     methods: {
       click(value) {
-        alert("click " + JSON.stringify(value));
+        alert('click ' + JSON.stringify(value));
       },
     },
   };

@@ -12,14 +12,14 @@
       </template>
       <BaseInputDecimal
         :id="id + '-from'"
-        :value="value[0]"
-        @input="emitValue($event, 0)"
+        :modelValue="modelValue[0]"
+        @update:modelValue="emitValue($event, 0)"
         placeholder="from"
       />
       <BaseInputDecimal
         :id="id + '-to'"
-        :value="value[1]"
-        @input="emitValue($event, 1)"
+        :modelValue="modelValue[1]"
+        @update:modelValue="emitValue($event, 1)"
         placeholder="to"
       />
       <template v-slot:append>
@@ -39,16 +39,16 @@ export default {
   components: { FormGroup, BaseInputDecimal, InputGroup },
   extends: BaseInput,
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => [null, null],
     },
   },
   methods: {
-    emitValue(event, index) {
-      let result = [...this.value];
-      result[index] = event;
-      this.$emit("input", result);
+    emitValue(value, index) {
+      let result = [...this.modelValue];
+      result[index] = value;
+      this.$emit("update:modelValue", result);
     },
   },
 };

@@ -1,6 +1,5 @@
 <template>
   <button
-    @click="$emit('click')"
     class="btn btn-sm btn-outline-primary mr-2 mb-2"
   >
     {{ label }} &nbsp;<i class="fa fa-times"></i>
