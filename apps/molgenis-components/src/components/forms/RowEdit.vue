@@ -123,7 +123,7 @@ export default {
           this.visible(column.visible, column.id) &&
           column.name !== "mg_tableclass" &&
           !column.refLink) ||
-        this.internalValues[convertToCamelCase(column.refLink)]
+        this.internalValues[column.refLink]
       );
     },
     visible(expression, columnId) {
