@@ -388,7 +388,7 @@ class SqlColumnRefBackExecutor {
             // 6 concat of the error column values
             keyword(
                 columns.stream()
-                    .map(r -> "COALESCE(my_row." + name(r.getRefTo()).toString() + ",'NULL')")
+                    .map(r -> "COALESCE(my_row." + name(r.getName()).toString() + ",'NULL')")
                     .collect(Collectors.joining("||','||"))),
             // 7 inline refTable
             inline(column.getRefTable().getTableName()),

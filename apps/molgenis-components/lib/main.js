@@ -122,7 +122,11 @@ import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
-import { deepClone } from "../src/components/utils";
+import {
+  deepClone,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "../src/components/utils";
 
 export {
   ContactDisplay,
@@ -232,4 +236,6 @@ export {
   ObjectDisplay,
   TokenManager,
   deepClone,
+  convertToPascalCase,
+  convertToCamelCase,
 };

@@ -1,0 +1,2 @@
+resource,name,description,startYear,endYear,noParticipants,subcohorts,areasOfInformation,dataSources,sampleSources
+TestCohort,baseline,,2021,2021,1,Children,"Age/birthdate,Family and household structure","Questionnaires, Biosamples","Blood,Urine"

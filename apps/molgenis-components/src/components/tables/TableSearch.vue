@@ -8,7 +8,7 @@
       >
         <InputSearch
           id="input-search"
-          v-if="lookupTableName"
+          v-if="lookupTableIdentifier"
           v-model="searchTerms"
         />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
@@ -89,6 +89,7 @@ import Client from "../../client/client.js";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
+import {convertToPascalCase} from "../utils";
 
 
 export default {
@@ -146,6 +147,9 @@ export default {
     };
   },
   computed: {
+    lookupTableIdentifier() {
+      return convertToPascalCase(this.lookupTableName);
+    },
     showHeaderIfNeeded() {
       return this.showHeader || this.count > this.limit;
     },
@@ -178,14 +182,14 @@ export default {
         .fetchMetaData()
         .catch(() => (this.graphqlError = "Failed to load meta data"));
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableName, queryOptions)
+        .fetchTableData(this.lookupTableIdentifier, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
 
       this.tableMetadata = remoteMetaData.tables.find(
-        (table) => table.name === this.lookupTableName
+        (table) => table.id === this.lookupTableIdentifier
       );
-      this.data = gqlResponse[this.lookupTableName];
-      this.count = gqlResponse[`${this.lookupTableName}_agg`].count;
+      this.data = gqlResponse[this.lookupTableIdentifier];
+      this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
       this.loading = false;
     },
   },
