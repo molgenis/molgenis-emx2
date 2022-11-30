@@ -110,6 +110,8 @@ function setCurrentPage(pageNumber: number) {
 watch(filters, () => {
   setCurrentPage(1)
 })
+
+let activeName = ref('detailed')
 </script>
 
 <template>
@@ -126,7 +128,7 @@ watch(filters, () => {
             <template #suffix>
               <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
                 buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
-                buttonRightIcon="view-compact" activeName="detailed" />
+                buttonRightIcon="view-compact" v-model:activeName="activeName" />
               <SearchResultsViewTabsMobile class="flex xl:hidden" />
             </template>
           </PageHeader>
@@ -136,7 +138,7 @@ watch(filters, () => {
           <SearchResultsList>
             <CardList>
               <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
-                <CohortCard :cohort="cohort" :schema="route.params.schema" />
+                <CohortCard :cohort="cohort" :schema="route.params.schema" :compact="activeName !== 'detailed'" />
               </CardListItem>
             </CardList>
           </SearchResultsList>
