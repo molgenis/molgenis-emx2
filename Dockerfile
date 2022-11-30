@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:18.12.0-alpine
+FROM node:19.2.0-alpine
 
 WORKDIR /
 
