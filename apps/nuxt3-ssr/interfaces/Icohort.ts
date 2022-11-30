@@ -7,18 +7,22 @@ interface ICohort {
   institution: {
     acronym: string
   }
-  type: INameObject
-  collectionType: INameObject
+  type: INameObject[]
+  collectionType: INameObject[]
   populationAgeGroups: INameObject[]
-  startYear: string
-  endYear: string
-  countries: INameObject[]
-  numberOfParticipants: string
+  startYear: number
+  endYear: number
+  countries: {
+    name: string
+    order: number
+  }[]
+  numberOfParticipants: number
   designDescription: string
   design: {
     definition: string
     name: string
   }
+  collectionEvents: ICollectionEvent[]
   partners: IPartner[]
   contributors: IContributor[]
 }
@@ -53,4 +57,31 @@ interface INameObject {
 
 interface IUrlObject {
   url: string
+}
+
+interface ICollectionEvent {
+  name: string
+  description: string
+  startYear: INameObject
+  endYear: number
+  numberOfParticipants: number
+  ageGroups: INameObject[]
+  definition: string
+  dataCategories: {
+    name: string
+    parent: INameObject
+    definition: string
+  }
+  sampleCategories: {
+    name: string
+    parent: INameObject
+    definition: string
+  }
+  areasOfInformation: {
+    name: string
+    parent: INameObject
+    definition: string
+  }
+  subcohorts: INameObject[]
+  coreVariables: INameObject[]
 }

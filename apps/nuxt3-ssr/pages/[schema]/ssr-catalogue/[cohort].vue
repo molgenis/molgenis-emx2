@@ -29,6 +29,7 @@ const query = gql`
       endYear
       countries {
         name
+        order
       }
       numberOfParticipants
       designDescription
@@ -44,6 +45,50 @@ const query = gql`
           logo {
             url
           }
+        }
+      }
+      collectionEvents {
+        name
+        description
+        startYear {
+          name
+        }
+        endYear {
+          name
+        }
+        numberOfParticipants
+        ageGroups {
+          name
+        }
+        dataCategories {
+          name
+          definition
+          parent {
+            name
+            definition
+          }
+        }
+        sampleCategories {
+          name
+          definition
+          parent {
+            name
+            definition
+          }
+        }
+        areasOfInformation {
+          name
+          definition
+          parent {
+            name
+            definition
+          }
+        }
+        subcohorts {
+          name
+        }
+        coreVariables {
+          name
         }
       }
       contributors {
@@ -85,6 +130,8 @@ watch(cohortData, setData, {
 
 function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
+  console.log("cohort", cohort);
+  console.log("collectionEvents", cohort?.collectionEvents);
 }
 </script>
 <template>
@@ -145,7 +192,8 @@ function setData(data: any) {
         <ContentBlockData
           id="AvailableData"
           title="Available Data & Samples"
-          description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
+          description=""
+          :collectionEvents="cohort?.collectionEvents"
         />
         <ContentBlockSubpopulations
           id="Subpopulations"
@@ -157,16 +205,16 @@ function setData(data: any) {
           title="Collection Events"
           description="Explanation about collection events and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
         />
-        <ContentBlockNetwork
-          id="Networks"
-          title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-        />
         <ContentBlockPartners
           id="Partners"
           title="Partners"
           description=""
           :partners="cohort?.partners"
+        />
+        <ContentBlockNetwork
+          id="Networks"
+          title="Networks"
+          description="Networks Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
         />
       </ContentBlocks>
     </template>

@@ -1,65 +1,89 @@
-<script setup>
-defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-});
+<script setup lang="ts">
+const { collectionEvents } = defineProps<{
+  title: string;
+  description: string;
+  collectionEvents: ICollectionEvent[];
+}>();
+
+function getFlatCategoriesOf(
+  type: "dataCategories" | "sampleCategories" | "areasOfInformation"
+) {
+  const items = collectionEvents.reduce(
+    (accumulator: string[], currentValue: ICollectionEvent) => {
+      if (Array.isArray(currentValue[type])) {
+        accumulator.push(
+          ...currentValue[type].map((item: INameObject) => item.name)
+        );
+      }
+      return accumulator;
+    },
+    []
+  );
+  return [...new Set(items)];
+}
+
+function getCategoriesOf(
+  type: "dataCategories" | "sampleCategories" | "areasOfInformation"
+) {
+  return collectionEvents.reduce(
+    (
+      accumulator: {
+        name: string;
+        definition?: string;
+        children?: { name: string; definition?: string }[];
+      }[],
+      currentValue: ICollectionEvent,
+      array: any
+    ) => {
+      if (Array.isArray(currentValue[type])) {
+        currentValue[type].forEach((item: any) => {
+          if (item.parent) {
+            // Does the parent already exist?
+            const parent = array.find(
+              (parentItem: any) => parentItem.name == item.parent.name
+            );
+            accumulator.push({
+              name: parent.name,
+              definition: parent.definition,
+            });
+          } else {
+            accumulator.push({ name: item.name, definition: item.definition });
+          }
+        });
+      }
+
+      /*
+      if (Array.isArray(currentValue[type])) {
+        accumulator.push(
+          ...currentValue[type].map((item: INameObject) => item.name)
+        );
+      }
+      */
+      return accumulator;
+    },
+    []
+  );
+}
 </script>
 
 <template>
   <ContentBlock :title="title" :description="description">
     <div class="grid gap-[45px] mt-7.5">
       <List title="Data categories" :columnCount="2">
-        <ListItem>Biological samples</ListItem>
-        <ListItem>Physiological/Biochemical measurments</ListItem>
-        <ListItem>Medical records</ListItem>
-        <ListItem>Genomics</ListItem>
-        <ListItem>Survey data</ListItem>
-        <ListItem>Imaging data</ListItem>
+        <ListItem v-for="category in getFlatCategoriesOf('dataCategories')">{{
+          category
+        }}</ListItem>
       </List>
       <List title="Sample categories" :columnCount="3">
-        <ListItem>Blood</ListItem>
-        <ListItem>Fetal blood (Cord blood)</ListItem>
-        <ListItem>Plasma</ListItem>
-        <ListItem>Blood (whole)</ListItem>
-        <ListItem>Human</ListItem>
-        <ListItem>RNA</ListItem>
-        <ListItem>Blood Buffy coat</ListItem>
-        <ListItem>Milk</ListItem>
-        <ListItem>Serum</ListItem>
-        <ListItem>DNA</ListItem>
-        <ListItem>Mouth swabs</ListItem>
-        <ListItem>Urine</ListItem>
-        <ListItem>Epithelium</ListItem>
-        <ListItem>Nasal swabs</ListItem>
-        <ListItem>Feces</ListItem>
-        <ListItem>Placenta - Tissue</ListItem>
-        <ListItem>Other</ListItem>
+        <ListItem v-for="category in getFlatCategoriesOf('sampleCategories')">{{
+          category
+        }}</ListItem>
       </List>
       <List title="Areas of informations" :columnCount="2">
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
-        <ListItem>List item</ListItem>
+        <ListItem
+          v-for="category in getFlatCategoriesOf('areasOfInformation')"
+          >{{ category }}</ListItem
+        >
       </List>
 
       <!--
@@ -74,7 +98,6 @@ defineProps({
         *   <ListCollapsible />
         *
       -->
-
       <ListCollapsible title="Areas of informations tree view" :columnCount="2">
         <ul class="text-body-base">
           <ListCollapsibleItemParent
@@ -389,7 +412,7 @@ defineProps({
           /></ListCollapsibleItemParent>
         </ul>
       </ListCollapsible>
-
+      <!--
       <ListCollapsible
         title="Areas of informations tree view links"
         :columnCount="2"
@@ -805,6 +828,6 @@ defineProps({
           /></ListCollapsibleItemParent>
         </ul>
       </ListCollapsible>
-    </div>
+    --></div>
   </ContentBlock>
 </template>
