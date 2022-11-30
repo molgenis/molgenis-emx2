@@ -112,6 +112,7 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
+import {convertToPascalCase} from "../utils";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -175,6 +176,9 @@ export default {
     };
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     rootTerms() {
       if (this.terms) {
         let result = Object.values(this.terms).filter(
@@ -495,7 +499,7 @@ export default {
       const client = Client.newClient(this.graphqlURL);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
-      )[this.tableName];
+      )[this.tableId];
     }
   },
   created() {

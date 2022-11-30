@@ -86,7 +86,7 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject, getPrimaryKey } from "../utils";
+import { flattenObject, getPrimaryKey, convertToPascalCase } from "../utils";
 
 export default {
   name: "InputRef",
@@ -129,6 +129,9 @@ export default {
     };
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     title() {
       return "Select " + this.tableName;
     },
@@ -166,17 +169,17 @@ export default {
         options.filter = this.filter;
       }
       const response = await this.client.fetchTableData(
-        this.tableName,
+        this.tableId,
         options
       );
-      this.data = response[this.tableName];
-      this.count = response[this.tableName + "_agg"].count;
+      this.data = response[this.tableId];
+      this.count = response[this.tableId + "_agg"].count;
     },
   },
   async mounted() {
     this.client = Client.newClient(this.graphqlURL);
     this.tableMetaData = (await this.client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableName
+      (table) => table.id === this.tableId
     );
     this.loadOptions();
   },
