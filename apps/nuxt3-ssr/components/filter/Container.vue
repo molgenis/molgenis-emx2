@@ -4,18 +4,25 @@ const props = defineProps({
     title: {
         type: String,
     },
-    modelValue: {
+    conditions: {
         type: Array,
     },
+    search: {
+        type: String
+    },
+    initialCollapsed: {
+        type: Boolean,
+        default: true
+    }
 });
 
-let isCollapsed = ref(true);
+let isCollapsed = ref(props.initialCollapsed);
 let selected = ref([])
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:conditions', "update:search"])
 
-watch(() => props.modelValue, function () {
-    selected.value = props.modelValue
+watch(() => props.conditions, function () {
+    selected.value = props.conditions
 });
 
 function toggleCollapseTitle() {
@@ -24,10 +31,14 @@ function toggleCollapseTitle() {
 
 function clearSelection() {
     selected.value.splice(0)
-    emit("update:modelValue", selected);
+    emit("update:conditions", selected);
 }
 
-</script>
+function clearSearch() {
+    emit("update:search", "");
+}
+
+</script>   
 
 <template>
     <hr class="mx-5 border-black opacity-10" />
@@ -43,11 +54,13 @@ function clearSelection() {
             </span>
         </div>
         <div class="text-right grow">
-            <span v-if="selected?.length"
+            <span v-if="selected.length"
                 class="text-body-sm text-search-filter-expand hover:underline hover:cursor-pointer"
                 @click="clearSelection()">
                 Remove {{ selected?.length }} selected
             </span>
+            <span class="text-body-sm text-search-filter-expand hover:underline hover:cursor-pointer"
+                @click="clearSearch()" v-else-if="search">Clear</span>
         </div>
     </div>
 

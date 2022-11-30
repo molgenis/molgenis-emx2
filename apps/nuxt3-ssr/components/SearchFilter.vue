@@ -9,7 +9,10 @@ const props = defineProps({
 });
 
 watch(props.filters, (filters) => {
-  console.log('filters: ' + JSON.stringify(filters.map(f => f.conditions).filter(f => f.length)))
+  const search = filters.filter(f => f.columnType === '_SEARCH')[0].search
+  console.log('search: ' + search)
+  const conditions = JSON.stringify(filters.filter(f => f?.conditions?.length).map(f => f.conditions))
+  console.log('filter conditions: ' + conditions)
 })
 </script>
 
@@ -20,11 +23,10 @@ watch(props.filters, (filters) => {
     </h2>
 
     <template v-if="filters">
-      <FilterContainer title="Search in cohorts">
-        <FilterSearch />
-      </FilterContainer>
-      <FilterContainer v-for="filter in filters" :title="filter.title" v-model="filter.conditions">
-        <SearchFilterGroup :title="filter.title" :table-name="filter.refTable" v-model="filter.conditions" />
+      <FilterContainer v-for="filter in filters" :title="filter.title" v-model:conditions="filter.conditions"
+        v-model:search="filter.search" :initialCollapsed="filter.initialCollapsed">
+        <FilterSearch v-if="filter.columnType === '_SEARCH'" v-model="filter.search" />
+        <SearchFilterGroup v-else :title="filter.title" :table-name="filter.refTable" v-model="filter.conditions" />
       </FilterContainer>
     </template>
 
