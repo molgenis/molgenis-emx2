@@ -7,6 +7,12 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters = reactive([
   {
+    title: "Search in cohorts",
+    columnType: "_SEARCH",
+    search: "",
+    initialCollapsed: false
+  },
+  {
     title: "Areas of information",
     refTable: "AreasOfInformation",
     columnName: "areasOfInformation",
@@ -36,10 +42,15 @@ let filters = reactive([
   },
 ])
 
+let search = computed(() => {
+  // @ts-ignore
+  return filters.find((f) => f.columnType === '_SEARCH').search
+})
+
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
       pid
       name
       acronym
@@ -56,7 +67,7 @@ const query = computed(() => {
           acronym
       }
     }
-    Cohorts_agg (filter:$filter){
+    Cohorts_agg (filter:$filter, search:"${search.value}"){
         count
     }
   }
@@ -67,7 +78,7 @@ const orderby = { "name": "ASC" }
 
 function buildFilterVariables() {
   return filters.reduce<Record<string, object>>((accum, filter) => {
-    if (filter.conditions.length) {
+    if (filter?.conditions?.length) {
       accum[filter.columnName] = { equals: filter.conditions }
     }
     return accum
