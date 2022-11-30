@@ -26,7 +26,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:activeName'])
+  const emit = defineEmits(['update:activeName'])
 
 const IDLE =
   "bg-white text-search-results-view-tabs hover:text-search-results-view-tabs-hover";
