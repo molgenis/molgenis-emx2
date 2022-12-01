@@ -67,21 +67,21 @@ interface ICollectionEvent {
   numberOfParticipants: number
   ageGroups: INameObject[]
   definition: string
-  dataCategories: {
-    name: string
-    parent: INameObject
-    definition: string
-  }
-  sampleCategories: {
-    name: string
-    parent: INameObject
-    definition: string
-  }
-  areasOfInformation: {
-    name: string
-    parent: INameObject
-    definition: string
-  }
+  dataCategories: ICollectionEventCategory[]
+  sampleCategories: ICollectionEventCategory[]
+  areasOfInformation: ICollectionEventCategory[]
   subcohorts: INameObject[]
   coreVariables: INameObject[]
+}
+
+interface ICollectionEventCategory {
+  name: string
+  parent?: INameObject
+  definition?: string
+}
+
+interface ICollectionEventCategorySet {
+  name: string
+  children?: ICollectionEventCategorySet[]
+  definition?: string
 }

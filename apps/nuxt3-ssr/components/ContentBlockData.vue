@@ -1,9 +1,15 @@
 <script setup lang="ts">
-const { collectionEvents } = defineProps<{
-  title: string;
-  description: string;
-  collectionEvents: ICollectionEvent[];
-}>();
+const { collectionEvents, useFlatCategories } = withDefaults(
+  defineProps<{
+    title: string;
+    description: string;
+    collectionEvents: ICollectionEvent[];
+    useFlatCategories?: boolean;
+  }>(),
+  {
+    useFlatCategories: false,
+  }
+);
 
 function getFlatCategoriesOf(
   type: "dataCategories" | "sampleCategories" | "areasOfInformation"
@@ -22,53 +28,84 @@ function getFlatCategoriesOf(
   return [...new Set(items)];
 }
 
-function getCategoriesOf(
+function collectCategories(
   type: "dataCategories" | "sampleCategories" | "areasOfInformation"
 ) {
-  return collectionEvents.reduce(
+  const items = collectionEvents.reduce(
     (
-      accumulator: {
-        name: string;
-        definition?: string;
-        children?: { name: string; definition?: string }[];
-      }[],
-      currentValue: ICollectionEvent,
-      array: any
+      accumulator: ICollectionEventCategory[],
+      currentValue: ICollectionEvent
     ) => {
       if (Array.isArray(currentValue[type])) {
-        currentValue[type].forEach((item: any) => {
-          if (item.parent) {
-            // Does the parent already exist?
-            const parent = array.find(
-              (parentItem: any) => parentItem.name == item.parent.name
-            );
-            accumulator.push({
-              name: parent.name,
-              definition: parent.definition,
-            });
-          } else {
-            accumulator.push({ name: item.name, definition: item.definition });
-          }
-        });
+        accumulator.push(...currentValue[type]);
       }
-
-      /*
-      if (Array.isArray(currentValue[type])) {
-        accumulator.push(
-          ...currentValue[type].map((item: INameObject) => item.name)
-        );
-      }
-      */
       return accumulator;
     },
     []
+  );
+  return [...new Set(items)];
+}
+
+function findParentCategories(categories: ICollectionEventCategory[]) {
+  return categories.reduce(
+    (
+      accumulator: ICollectionEventCategory[],
+      currentValue: ICollectionEventCategory
+    ) => {
+      if (currentValue.parent) {
+        if (
+          !accumulator.find((item) => item.name == currentValue.parent?.name)
+        ) {
+          accumulator.push(currentValue.parent);
+        }
+      } else {
+        if (!accumulator.find((item) => item.name == currentValue?.name)) {
+          accumulator.push(currentValue);
+        }
+      }
+      return accumulator;
+    },
+    []
+  );
+}
+
+function combineParentChildCategories(
+  categories: ICollectionEventCategory[],
+  parents: ICollectionEventCategory[]
+): ICollectionEventCategorySet[] {
+  return parents.map((item: ICollectionEventCategory) => {
+    const children = categories.filter((child: ICollectionEventCategory) => {
+      return child?.parent?.name === item?.name;
+    });
+    const uniqueChildren = [
+      ...new Map(children.map((item) => [item.name, item])).values(),
+    ];
+    return {
+      name: item.name,
+      definition: item.definition,
+      children: uniqueChildren,
+    };
+  });
+}
+
+function getCategoriesOf(
+  type: "dataCategories" | "sampleCategories" | "areasOfInformation",
+  pageIndex: number,
+  pages: number
+): ICollectionEventCategorySet[] {
+  const categories: ICollectionEventCategory[] = collectCategories(type);
+  const parents: ICollectionEventCategory[] = findParentCategories(categories);
+  const pageSize = parents.length / pages;
+  return combineParentChildCategories(categories, parents).slice(
+    (pageIndex - 1) * pageSize,
+    pageIndex * pageSize
   );
 }
 </script>
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <div class="grid gap-[45px] mt-7.5">
+    <div v-if="useFlatCategories" class="grid gap-[45px] mt-7.5">
       <List title="Data categories" :columnCount="2">
         <ListItem v-for="category in getFlatCategoriesOf('dataCategories')">{{
           category
@@ -85,8 +122,115 @@ function getCategoriesOf(
           >{{ category }}</ListItem
         >
       </List>
+    </div>
+    <div v-else class="grid gap-[45px] mt-7.5">
+      <ListCollapsible title="Data categories" :columnCount="2">
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('dataCategories', 1, 2)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('dataCategories', 2, 2)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+      </ListCollapsible>
+      <ListCollapsible title="Sample categories" :columnCount="3">
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('sampleCategories', 1, 3)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('sampleCategories', 2, 3)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('sampleCategories', 3, 3)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+      </ListCollapsible>
+      <ListCollapsible title="Areas of informations" :columnCount="2">
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('areasOfInformation', 1, 2)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+        <ul class="text-body-base">
+          <ListCollapsibleItemParent
+            v-for="category in getCategoriesOf('areasOfInformation', 2, 2)"
+            :title="category.name"
+            :count="category.children?.length"
+            :tooltip="category.definition"
+          >
+            <ListCollapsibleItemChild
+              v-for="child in category.children"
+              :title="child.name"
+              :tooltip="child.definition"
+            />
+          </ListCollapsibleItemParent>
+        </ul>
+      </ListCollapsible>
+    </div>
 
-      <!--
+    <!--
         *
         *   Comment to clarify the list/column structure of the <ListCollapsible> component.
         *
@@ -98,6 +242,8 @@ function getCategoriesOf(
         *   <ListCollapsible />
         *
       -->
+    <!--
+    <div class="grid gap-[45px] mt-7.5">
       <ListCollapsible title="Areas of informations tree view" :columnCount="2">
         <ul class="text-body-base">
           <ListCollapsibleItemParent
@@ -412,7 +558,6 @@ function getCategoriesOf(
           /></ListCollapsibleItemParent>
         </ul>
       </ListCollapsible>
-      <!--
       <ListCollapsible
         title="Areas of informations tree view links"
         :columnCount="2"
@@ -828,6 +973,7 @@ function getCategoriesOf(
           /></ListCollapsibleItemParent>
         </ul>
       </ListCollapsible>
-    --></div>
+    </div>
+    -->
   </ContentBlock>
 </template>

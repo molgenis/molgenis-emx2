@@ -130,8 +130,6 @@ watch(cohortData, setData, {
 
 function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
-  console.log("cohort", cohort);
-  console.log("collectionEvents", cohort?.collectionEvents);
 }
 </script>
 <template>
