@@ -67,15 +67,36 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
 
     schema.create(
         table(USER)
-            .add(column("username").setPkey().setSemantics("http://www.wikidata.org/entity/Q15901043"))
+            .add(
+                column("username")
+                    .setPkey()
+                    .setSemantics("http://www.wikidata.org/entity/Q15901043"))
             .add(column("firstName").setSemantics("http://www.wikidata.org/entity/Q202444"))
             .add(column("lastName").setSemantics("http://www.wikidata.org/entity/Q101352"))
-            .add(column("picture").setType(FILE).setSemantics("http://www.wikidata.org/entity/Q478798"))
-            .add(column(EMAIL).setType(ColumnType.EMAIL).setSemantics("http://www.wikidata.org/entity/Q1273217"))
-            .add(column("password").setSemantics("http://www.wikidata.org/entity/Q161157")) // todo: password type
-            .add(column("phone").setSemantics("http://www.wikidata.org/entity/Q214995")) // todo: validation phone
-            .add(column("userStatus").setType(INT).setSemantics("http://www.wikidata.org/entity/Q813912"))
-            .add(column("pets").setType(REF_ARRAY).setRefTable(PET).setSemantics("http://www.wikidata.org/entity/Q39201")));
+            .add(
+                column("picture")
+                    .setType(FILE)
+                    .setSemantics("http://www.wikidata.org/entity/Q478798"))
+            .add(
+                column(EMAIL)
+                    .setType(ColumnType.EMAIL)
+                    .setSemantics("http://www.wikidata.org/entity/Q1273217"))
+            .add(
+                column("password")
+                    .setSemantics("http://www.wikidata.org/entity/Q161157")) // todo: password type
+            .add(
+                column("phone")
+                    .setSemantics(
+                        "http://www.wikidata.org/entity/Q214995")) // todo: validation phone
+            .add(
+                column("userStatus")
+                    .setType(INT)
+                    .setSemantics("http://www.wikidata.org/entity/Q813912"))
+            .add(
+                column("pets")
+                    .setType(REF_ARRAY)
+                    .setRefTable(PET)
+                    .setSemantics("http://www.wikidata.org/entity/Q39201")));
 
     if (includeDemoData) {
       loadExampleData(schema);
