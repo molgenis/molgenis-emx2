@@ -8,7 +8,7 @@
     "lint": "vite lint"
   },
   "dependencies": {
-    "core-js": "3.26.0",
+    "core-js": "3.26.1",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
     "vue": "3.2.41",
