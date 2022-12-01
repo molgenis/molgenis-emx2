@@ -1,15 +1,9 @@
 <script setup lang="ts">
-const { cohort } = defineProps({
-  title: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  cohort: {
-    type: Object,
-  },
-});
+const { cohort } = defineProps<{
+  title: string;
+  description: string;
+  cohort: ICohort;
+}>();
 
 let generalDesign: { label: String; content: any; tooltip?: string }[] = [];
 watch(cohort, setData, {
@@ -17,12 +11,12 @@ watch(cohort, setData, {
   immediate: true,
 });
 
-function setData(data) {
+function setData() {
   generalDesign = [
     {
       label: "Cohort type",
       content: cohort?.type
-        ? cohort?.type.map((type) => type?.name).join(", ")
+        ? cohort?.type.map((type: INameObject) => type?.name).join(", ")
         : "not available",
     },
     {
@@ -48,7 +42,7 @@ function setData(data) {
         ? [...cohort?.countries]
             .sort((a, b) => a.order - b.order)
             .map((c) => c.name)
-            .join(",")
+            .join(", ")
         : "",
     },
     {
