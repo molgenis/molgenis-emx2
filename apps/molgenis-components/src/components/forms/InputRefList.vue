@@ -89,7 +89,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import { flattenObject, getPrimaryKey } from "../utils";
+import {convertToPascalCase, flattenObject, getPrimaryKey} from "../utils";
 
 export default {
   extends: BaseInput,
@@ -132,6 +132,9 @@ export default {
     },
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     title() {
       return "Select " + this.tableName;
     },
@@ -166,11 +169,11 @@ export default {
         limit: this.maxNum,
       };
       const response = await this.client.fetchTableData(
-        this.tableName,
+        this.tableId,
         options
       );
-      this.data = response[this.tableName];
-      this.count = response[this.tableName + "_agg"].count;
+      this.data = response[this.tableId];
+      this.count = response[this.tableId + "_agg"].count;
     },
   },
   watch: {
@@ -182,7 +185,7 @@ export default {
     this.client = Client.newClient(this.graphqlURL);
     const allMetaData = await this.client.fetchMetaData();
     this.tableMetaData = allMetaData.tables.find(
-      (table) => table.id === this.tableName
+      (table) => table.id === this.tableId
     );
 
     await this.loadOptions();

@@ -7,6 +7,12 @@ let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters = reactive([
   {
+    title: "Search in cohorts",
+    columnType: "_SEARCH",
+    search: "",
+    initialCollapsed: false
+  },
+  {
     title: "Areas of information",
     refTable: "AreasOfInformation",
     columnName: "areasOfInformation",
@@ -36,10 +42,15 @@ let filters = reactive([
   },
 ])
 
+let search = computed(() => {
+  // @ts-ignore
+  return filters.find((f) => f.columnType === '_SEARCH').search
+})
+
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
+    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
       pid
       name
       acronym
@@ -56,7 +67,7 @@ const query = computed(() => {
           acronym
       }
     }
-    Cohorts_agg (filter:$filter){
+    Cohorts_agg (filter:$filter, search:"${search.value}"){
         count
     }
   }
@@ -67,7 +78,7 @@ const orderby = { "name": "ASC" }
 
 function buildFilterVariables() {
   return filters.reduce<Record<string, object>>((accum, filter) => {
-    if (filter.conditions.length) {
+    if (filter?.conditions?.length) {
       accum[filter.columnName] = { equals: filter.conditions }
     }
     return accum
@@ -99,6 +110,8 @@ function setCurrentPage(pageNumber: number) {
 watch(filters, () => {
   setCurrentPage(1)
 })
+
+let activeName = ref('detailed')
 </script>
 
 <template>
@@ -115,7 +128,7 @@ watch(filters, () => {
             <template #suffix>
               <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
                 buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
-                buttonRightIcon="view-compact" activeName="detailed" />
+                buttonRightIcon="view-compact" v-model:activeName="activeName" />
               <SearchResultsViewTabsMobile class="flex xl:hidden" />
             </template>
           </PageHeader>
@@ -125,7 +138,7 @@ watch(filters, () => {
           <SearchResultsList>
             <CardList>
               <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
-                <CohortCard :cohort="cohort" :schema="route.params.schema" />
+                <CohortCard :cohort="cohort" :schema="route.params.schema" :compact="activeName !== 'detailed'" />
               </CardListItem>
             </CardList>
           </SearchResultsList>
