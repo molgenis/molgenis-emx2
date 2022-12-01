@@ -106,5 +106,5 @@ jobs:
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
       # push ssr-catalogue to repo
-      #- run: |
-      #    ./gradlew dockerPush
+      - run: |
+          ./gradlew dockerPush
