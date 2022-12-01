@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
+import subcohortsQuery from "~~/gql/subcohorts";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -86,6 +87,15 @@ watch(cohortData, setData, {
 function setData(data: any) {
   cohort = data?.data?.Cohorts[0];
 }
+
+fetchGql(subcohortsQuery, { pid: route.params.cohort })
+  .then(resp => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
+  .catch(e => console.log(e))
+  
+function onSubcohortsLoaded(subcohorts: any) {
+  console.log(subcohorts)
+}
+
 </script>
 <template>
   <LayoutsDetailPage>
@@ -147,6 +157,9 @@ function setData(data: any) {
           title="Available Data & Samples"
           description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
         />
+        <TableContent title="Subpopulations" description="its all about subpopulations">
+
+        </TableContent>
         <ContentBlockSubpopulations
           id="Subpopulations"
           title="Subpopulations"
