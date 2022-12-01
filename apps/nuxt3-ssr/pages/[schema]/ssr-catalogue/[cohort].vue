@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
+import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -136,9 +137,37 @@ function setData(data: any) {
 fetchGql(subcohortsQuery, { pid: route.params.cohort })
   .then(resp => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
   .catch(e => console.log(e))
+
+let subcohorts: Ref = ref([])
+function onSubcohortsLoaded(rows: any) {
+
+  const topLevelAgeGroup = (ageGroup: { parent: any; }):any => {
+    if (!ageGroup.parent) {
+      return ageGroup;
+    }
+    return topLevelAgeGroup(ageGroup.parent);
+  };
+
+  const mapped = rows.map((subcohort: any) => {
+    return {
+      name: subcohort.name,
+      description: subcohort.description,
+      numberOfParticipants: subcohort.numberOfParticipants,
+      ageGroups: subcohort?.ageGroups
+        .map(topLevelAgeGroup)
+        .reduce((ageGroups: any[], ageGroup: { name: string; }) => {
+          if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
+            ageGroups.push(ageGroup);
+          }
+          return ageGroups;
+        }, [])
+        .map((ag: { name: string; }) => ag.name)
+        .join(","),
+      _path: `${route.params.schema}/${route.params.cohort}/subcohort-${subcohort.name}`
+    }
+  })
   
-function onSubcohortsLoaded(subcohorts: any) {
-  console.log(subcohorts)
+  subcohorts.value = mapped
 }
 
 </script>
@@ -203,14 +232,14 @@ function onSubcohortsLoaded(subcohorts: any) {
           description=""
           :collectionEvents="cohort?.collectionEvents"
         />
-        <TableContent title="Subpopulations" description="its all about subpopulations">
-
-        </TableContent>
-        <ContentBlockSubpopulations
-          id="Subpopulations"
-          title="Subpopulations"
-          description="Explanation about subpopulations and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-        />
+        <TableContent title="Subpopulations" description="List of subcohorts or subpopulations for this resource" :headers="
+                  [
+                    { id: 'name', label: 'Name' },
+                    { id: 'description', label: 'Description' },
+                    { id: 'numberOfParticipants', label: 'Number of participants' },
+                    { id: 'ageGroups', label: 'Age categories' }
+          ]
+        " :rows="subcohorts" />
         <ContentBlockCollectionEvents
           id="CollectionEvents"
           title="Collection Events"
