@@ -106,9 +106,10 @@ import FormGroup from "./FormGroup.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageWarning from "./MessageWarning.vue";
+import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey,convertToCamelCase } from "../utils";
 
 export default {
   name: "InputRefBack",
@@ -120,6 +121,7 @@ export default {
     Spinner,
     MessageWarning,
     ConfirmModal,
+    MessageError
   },
   props: {
     /** name of the table from which is referred back to this field */
@@ -174,19 +176,19 @@ export default {
     },
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[convertToCamelCase(this.refBack)] = {
         equals: this.refTablePrimaryKeyObject,
       };
       return result;
     },
     visibleColumnNames() {
-      return this.visibleColumns.map((c) => c.name);
+      return this.visibleColumns.map((c) => c.id);
     },
     visibleColumns() {
       //columns, excludes refback and mg_
       if (this.tableMetadata && this.tableMetadata.columns) {
         return this.tableMetadata.columns.filter(
-          (c) => c.name != this.refBack && !c.name.startsWith("mg_")
+          (c) => c.id != this.refBack && !c.id.startsWith("mg_")
         );
       }
       return [];
@@ -198,7 +200,7 @@ export default {
       this.isLoading = true;
       this.data = await this.client.fetchTableDataValues(this.tableName, {
         filter: this.graphqlFilter,
-      });
+      })
       this.isLoading = false;
     },
     handleRowAction(type, key) {
@@ -235,7 +237,7 @@ export default {
   mounted: async function () {
     this.client = Client.newClient(this.graphqlURL);
     this.isLoading = true;
-    this.tableMetadata = await this.client.fetchTableMetaData(this.tableName);
+    this.tableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(error => this.errorMessage = error.message);
     await this.reload();
   },
 };

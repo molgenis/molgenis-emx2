@@ -251,11 +251,13 @@ public class SqlQuery extends QueryBean {
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(
-              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+              .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
           jsonGroupBySelect(
-              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+              .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
@@ -267,7 +269,7 @@ public class SqlQuery extends QueryBean {
       }
       fields.add(
           jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
-              .as(name(select.getColumn())));
+              .as(name(convertToPascalCase(select.getColumn()))));
     }
 
     // asemble final query
@@ -519,22 +521,24 @@ public class SqlQuery extends QueryBean {
         // aggregation subselect
         fields.add(
             jsonAggregateSelect(
-                (SqlTableMetadata) column.getRefTable(),
-                column,
-                tableAlias,
-                select,
-                null,
-                new String[0]));
+                    (SqlTableMetadata) column.getRefTable(),
+                    column,
+                    tableAlias,
+                    select,
+                    null,
+                    new String[0])
+                .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
         // aggregation subselect
         fields.add(
             jsonGroupBySelect(
-                (SqlTableMetadata) column.getRefTable(),
-                column,
-                tableAlias,
-                select,
-                null,
-                new String[0]));
+                    (SqlTableMetadata) column.getRefTable(),
+                    column,
+                    tableAlias,
+                    select,
+                    null,
+                    new String[0])
+                .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {
         // normal subselect
         fields.add(
@@ -545,7 +549,7 @@ public class SqlQuery extends QueryBean {
                     select,
                     null,
                     new String[0])
-                .as(name(select.getColumn())));
+                .as(name(convertToCamelCase(select.getColumn()))));
       } else if (column.isHeading()) {
         /**
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
@@ -553,7 +557,8 @@ public class SqlQuery extends QueryBean {
          */
       } else {
         // primitive fields
-        fields.add(field(name(alias(tableAlias), column.getName())));
+        fields.add(
+            field(name(alias(tableAlias), column.getName())).as(name(column.getIdentifier())));
       }
     }
     return fields;
@@ -622,8 +627,7 @@ public class SqlQuery extends QueryBean {
         fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
       }
     }
-    return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields)
-        .as(select.getColumn());
+    return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);
   }
 
   private Field<Object> jsonGroupBySelect(
@@ -734,7 +738,7 @@ public class SqlQuery extends QueryBean {
     return field(
             jooq.select(field(JSON_AGG_SQL))
                 .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
-        .as(groupBy.getColumn());
+        .as(convertToCamelCase(groupBy.getColumn()));
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {

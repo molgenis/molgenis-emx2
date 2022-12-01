@@ -92,4 +92,31 @@ export function isInvalidBigInt(value) {
       value !== null &&
       (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
   );
+
+export function convertToCamelCase(string) {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word, index) => {
+    if (index === 0) {
+      result += word.charAt(0).toLowerCase();
+    } else {
+      result += word.charAt(0).toUpperCase();
+    }
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function convertToPascalCase(string) {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word, index) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
 }

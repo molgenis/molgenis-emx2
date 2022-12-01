@@ -8,7 +8,7 @@
     </thead>
     <tr v-for="table in tables" :key="table.name">
       <td>
-        <router-link :to="table.name"> {{ table.name }}</router-link>
+        <router-link :to="table.id"> {{ table.name }}</router-link>
       </td>
       <td>{{ table.description }}</td>
     </tr>

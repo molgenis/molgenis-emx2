@@ -661,6 +661,11 @@ class SqlTable implements Table {
     return getMetadata().getTableName();
   }
 
+  @Override
+  public String getIdentifier() {
+    return getMetadata().getIdentifier();
+  }
+
   protected org.jooq.Table<org.jooq.Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }

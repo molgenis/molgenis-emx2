@@ -302,8 +302,8 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z]\w+$/)) {
-        return "Name should start with letter, followed by letter, number or underscore ([a-zA-Z][a-zA-Z0-9_]*)";
+      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
+        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
       }
       if (
         (this.modelValue === undefined ||
