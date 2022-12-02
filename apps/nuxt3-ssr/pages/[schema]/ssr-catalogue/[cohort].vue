@@ -2,6 +2,7 @@
 import { gql } from "graphql-request";
 import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
+import collectionEventsQuery from "~~/gql/collectionEvents";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -138,6 +139,30 @@ fetchGql(subcohortsQuery, { pid: route.params.cohort })
   .then(resp => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
   .catch(e => console.log(e))
 
+fetchGql(collectionEventsQuery, { pid: route.params.cohort })
+  .then(resp => onCollectionEventsLoaded(resp.data.Cohorts[0].collectionEvents))
+  .catch(e => console.log(e))
+
+let collectionEvents: Ref = ref([])
+function onCollectionEventsLoaded(rows: any) {
+  collectionEvents.value = rows.map((item: any) => {
+    return {
+      name: item.name,
+      description: item.description,
+      startAndEndYear: (() => {
+        const startYear =
+          item.startYear && item.startYear.name
+            ? item.startYear.name
+            : null;
+        const endYear =
+          item.endYear && item.endYear.name ? item.endYear.name : null;
+        return filters.startEndYear(startYear, endYear);
+      })(),
+      _path: `${route.params.schema} /${route.params.cohort}/collection-event-${item.name}`,
+    };
+  });
+}
+
 let subcohorts: Ref = ref([])
 function onSubcohortsLoaded(rows: any) {
 
@@ -232,19 +257,33 @@ function onSubcohortsLoaded(rows: any) {
           description=""
           :collectionEvents="cohort?.collectionEvents"
         />
-        <TableContent title="Subpopulations" description="List of subcohorts or subpopulations for this resource" :headers="
-                  [
+        <TableContent 
+          title="Subpopulations" 
+          description="List of subcohorts or subpopulations for this resource" 
+          :headers="[
                     { id: 'name', label: 'Name' },
                     { id: 'description', label: 'Description' },
                     { id: 'numberOfParticipants', label: 'Number of participants' },
                     { id: 'ageGroups', label: 'Age categories' }
-          ]
-        " :rows="subcohorts" />
-        <ContentBlockCollectionEvents
+                    ]"
+          :rows="subcohorts" />
+
+        <TableContent 
+          title="Collection events" 
+          description="List of collection events defined for this resource" 
+          :headers="
+                  [
+                    { id: 'name', label: 'Name' },
+                    { id: 'description', label: 'Description' },
+                    { id: 'startAndEndYear', label: 'Start end year' },
+                  ]"
+          :rows="collectionEvents" />
+
+        <!-- <ContentBlockCollectionEvents
           id="CollectionEvents"
           title="Collection Events"
           description="Explanation about collection events and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-        />
+        /> -->
         <ContentBlockPartners
           id="Partners"
           title="Partners"
