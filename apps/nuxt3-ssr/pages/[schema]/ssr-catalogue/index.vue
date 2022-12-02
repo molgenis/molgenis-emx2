@@ -10,6 +10,7 @@ let filters = reactive([
     title: "Search in cohorts",
     columnType: "_SEARCH",
     search: "",
+    searchTables: ["collectionEvents", "subcohorts"],
     initialCollapsed: false
   },
   {
@@ -17,6 +18,7 @@ let filters = reactive([
     refTable: "AreasOfInformation",
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
+    filterTable: "collectionEvents",
     conditions: []
   },
   {
@@ -24,6 +26,7 @@ let filters = reactive([
     refTable: "DataCategories",
     columnName: "dataCategories",
     columnType: "ONTOLOGY",
+    filterTable: "collectionEvents",
     conditions: []
   },
   {
@@ -31,6 +34,7 @@ let filters = reactive([
     refTable: "AgeGroups",
     columnName: "ageGroups",
     columnType: "ONTOLOGY",
+    filterTable: "collectionEvents",
     conditions: []
   },
   {
@@ -38,6 +42,7 @@ let filters = reactive([
     refTable: "SampleCategories",
     columnName: "sampleCategories",
     columnType: "ONTOLOGY",
+    filterTable: "collectionEvents",
     conditions: []
   },
 ])
@@ -77,16 +82,41 @@ const query = computed(() => {
 const orderby = { "name": "ASC" }
 
 function buildFilterVariables() {
-  return filters.reduce<Record<string, object>>((accum, filter) => {
-    if (filter?.conditions?.length) {
-      accum[filter.columnName] = { equals: filter.conditions }
+  const filtersVariables = filters.reduce<Record<string, Record<string, object | string>>>((accum, filter) => {
+    if (filter.filterTable && filter?.conditions?.length) {
+      if (!accum[filter.filterTable]) {
+        accum[filter.filterTable] = {}
+      }
+      accum[filter.filterTable][filter.columnName] = { equals: filter.conditions }
     }
+
     return accum
   }, {})
+
+  return filtersVariables
 }
 
 const filter = computed(() => {
-  return { collectionEvents: buildFilterVariables() }
+  // build the active filters 
+  const filterVariables = buildFilterVariables()
+
+  // append search to the sub tables if set 
+  const searchTables = filters.find(f => f.columnType === '_SEARCH')?.searchTables
+
+  if (searchTables) {
+    searchTables.forEach(searchTable => {
+      if (search.value) {
+        if (Object.keys(filterVariables).includes(searchTable)) {
+          filterVariables[searchTable]['_search'] = search.value
+        } else {
+          filterVariables[searchTable] = { '_search': search.value }
+        }
+      }
+
+    })
+  }
+
+  return filterVariables
 })
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
