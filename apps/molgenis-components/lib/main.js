@@ -123,7 +123,11 @@ import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
-import { deepClone } from "../src/components/utils";
+import {
+  deepClone,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "../src/components/utils";
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -238,4 +242,6 @@ export {
   privacyConstants,
   request,
   requestWithBody,
+  convertToPascalCase,
+  convertToCamelCase,
 };
