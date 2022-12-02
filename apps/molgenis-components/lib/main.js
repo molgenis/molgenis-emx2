@@ -1,5 +1,5 @@
 import Client from "../src/client/client.js";
-import { request, requestWithBody } from "../src/client/client.js";
+import { request } from "../src/client/client.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -241,7 +241,6 @@ export {
   constants,
   privacyConstants,
   request,
-  requestWithBody,
   convertToPascalCase,
   convertToCamelCase,
 };
