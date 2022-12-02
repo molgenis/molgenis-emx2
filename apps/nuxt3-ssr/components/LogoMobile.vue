@@ -1,6 +1,4 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup></script>
-
 <template>
   <a href="#" class="block">
     <span class="sr-only">Go to home</span>

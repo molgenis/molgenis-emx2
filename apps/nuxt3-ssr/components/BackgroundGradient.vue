@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div class="absolute top-0 bottom-0 overflow-y-hidden pointer-events-none -left-1/2 md:left-1/4">
     <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="1920" height="1200" fill="none">

@@ -1,6 +1,4 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup></script>
-
 <template>
   <table class="w-full table-auto">
     <thead>
