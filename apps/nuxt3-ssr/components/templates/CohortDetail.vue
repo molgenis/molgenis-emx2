@@ -52,11 +52,11 @@ import IconButton from "../IconButton.vue";
           <ContentBlockAttachedFiles title="Attached Files Generic Example" />
           <ContentBlockContact title="Contact and Contributors" />
           <ContentBlockVariables
-            title="Variables & Topics"
+            title="Variables &amp; Topics"
             description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
           />
           <ContentBlockData
-            title="Available Data & Samples"
+            title="Available Data &amp; Samples"
             description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
           />
           <ContentBlockSubpopulations

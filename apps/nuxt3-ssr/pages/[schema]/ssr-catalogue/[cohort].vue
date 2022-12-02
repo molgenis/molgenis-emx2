@@ -248,12 +248,12 @@ function onSubcohortsLoaded(rows: any) {
         />
         <!-- <ContentBlockVariables
           id="Variables"
-          title="Variables & Topics"
+          title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
         /> -->
         <ContentBlockData
           id="AvailableData"
-          title="Available Data & Samples"
+          title="Available Data &amp; Samples"
           description=""
           :collectionEvents="cohort?.collectionEvents"
         />

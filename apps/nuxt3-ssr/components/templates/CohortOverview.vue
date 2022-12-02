@@ -228,7 +228,6 @@ const json = Object.values(data)[0];
             <SearchResultsList>
               <CardList>
                 <CardListItem><CohortCard /></CardListItem>
-
                 <CardListItem><CohortCard /></CardListItem>
                 <CardListItem><CohortCard /></CardListItem>
                 <CardListItem><CohortCard /></CardListItem>

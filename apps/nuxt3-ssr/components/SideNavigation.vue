@@ -38,17 +38,17 @@ function setSideMenuStyle(hash) {
       </li>
       <li>
         <a href="#Contributors" :class="setSideMenuStyle('#Contributors')">
-          Contact & contributors
+          Contact &amp; contributors
         </a>
       </li>
       <li>
         <a href="#Variables" :class="setSideMenuStyle('#Variables')">
-          Variables & topics
+          Variables &amp; topics
         </a>
       </li>
       <li>
         <a href="#AvailableData" :class="setSideMenuStyle('#AvailableData')">
-          Available data & samples
+          Available data &amp; samples
         </a>
       </li>
       <li>

@@ -68,7 +68,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at birth</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -86,7 +86,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at inclusion in LLNEXT</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -104,7 +104,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collected from LLNEXT partners</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -122,7 +122,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 1 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -140,7 +140,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 2 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -158,7 +158,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 3 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -176,7 +176,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 4 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -194,7 +194,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 5 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -212,7 +212,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 6 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -230,7 +230,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 9 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -248,7 +248,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 10 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -266,7 +266,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 11 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -284,7 +284,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at infant's age of 12 month</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -302,7 +302,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at gestational age of 12 weeks</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -320,7 +320,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at gestational age of 18 weeks</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
@@ -338,7 +338,7 @@ defineProps({
             <dl class="font-normal sm:hidden text-gray-900">
               <dt class="font-bold mt-2.5">Description</dt>
               <dd>Data collection at gestational age of 28 weeks</dd>
-              <dt class="font-bold mt-2.5">Start & end year</dt>
+              <dt class="font-bold mt-2.5">Start &amp; end year</dt>
               <dd>2017 - Ongoing</dd>
             </dl>
           </TableCell>
