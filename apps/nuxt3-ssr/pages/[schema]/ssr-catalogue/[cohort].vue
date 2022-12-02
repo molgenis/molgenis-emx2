@@ -237,20 +237,20 @@ function onSubcohortsLoaded(rows: any) {
           :description="cohort?.designDescription"
           :cohort="cohort"
         />
-        <ContentBlockAttachedFiles
+        <!-- <ContentBlockAttachedFiles
           id="Files"
           title="Attached Files Generic Example"
-        />
+        /> -->
         <ContentBlockContact
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contributors"
         />
-        <ContentBlockVariables
+        <!-- <ContentBlockVariables
           id="Variables"
           title="Variables & Topics"
-          description="Explantation about variables and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-        />
+          description="Explantation about variables and the functionality seen here."
+        /> -->
         <ContentBlockData
           id="AvailableData"
           title="Available Data & Samples"
@@ -279,11 +279,6 @@ function onSubcohortsLoaded(rows: any) {
                   ]"
           :rows="collectionEvents" />
 
-        <!-- <ContentBlockCollectionEvents
-          id="CollectionEvents"
-          title="Collection Events"
-          description="Explanation about collection events and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
-        /> -->
         <ContentBlockPartners
           id="Partners"
           title="Partners"
@@ -293,7 +288,7 @@ function onSubcohortsLoaded(rows: any) {
         <ContentBlockNetwork
           id="Networks"
           title="Networks"
-          description="Networks Explanation about networks from this cohort and the functionality seen here. similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga."
+          description="Networks Explanation about networks from this cohort and the functionality seen here."
         />
       </ContentBlocks>
     </template>

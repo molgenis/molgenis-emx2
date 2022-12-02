@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { cohort } = defineProps<{
   title: string;
-  description: string;
+  description?: string;
   cohort: ICohort;
 }>();
 
@@ -60,7 +60,7 @@ function setData() {
 </script>
 
 <template>
-  <ContentBlock :title="title" :description="description">
+  <ContentBlock :title="title" :description?="description">
     <DefinitionList :items="generalDesign" />
   </ContentBlock>
 </template>
