@@ -6,19 +6,22 @@
       <InputRadio
         id="input-radio-2"
         label="Select policy level"
-        :value="policyLevel"
-        :options="['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Custom']"
+        :modelValue="policyLevel"
+        :options="levelOptions"
         :isClearable="false"
-        @input="updatePolicyLevel"
+        @update:modelValue="updatePolicyLevel"
       />
       <InputText
         id="privacy-policy-text"
         v-model="policyText"
         placeholder="Enter the privacy policy"
-        :readonly="policyLevel !== 'Custom'"
+        :readonly="(policyLevel !== CUSTOM)"
       />
     </div>
     <button type="button" class="btn btn-primary" @click="save">Save</button>
+    <MessageSuccess v-if="successMessage">
+      {{ successMessage }}
+    </MessageSuccess>
   </div>
 </template>
 
@@ -30,29 +33,35 @@ import {
   Spinner,
   privacyConstants,
   request,
-  requestWithBody,
+  MessageSuccess,
 } from "molgenis-components";
 
 const {
+  LEVEL_1,
+  LEVEL_2,
+  LEVEL_3,
   LEVEL_4,
   CUSTOM,
   POLICY_LEVEL_KEY,
   POLICY_TEXT_KEY,
   PREFABS,
 } = privacyConstants;
-
 export default {
   name: "ManagePrivacyPolicy",
   components: {
     InputText,
     InputRadio,
     Spinner,
+    MessageSuccess,
   },
   data() {
     return {
       policyText: null,
       policyLevel: null,
       loading: true,
+      successMessage: "",
+      levelOptions: [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, CUSTOM],
+      CUSTOM,
     };
   },
   methods: {
@@ -81,40 +90,29 @@ export default {
       this.loading = false;
     },
     async save() {
+      this.successMessage = "";
       const query = gql`
-        mutation createSetting(
-          $privacyPolicyLevel: String
-          $privacyPolicyText: String
-        ) {
-          updatePolicyLevel: createSetting(
-            key: "${POLICY_LEVEL_KEY}"
-            value: $privacyPolicyLevel
-          ) {
-            message
-          }
-          updatePolicyText: createSetting(
-            key: "${POLICY_TEXT_KEY}"
-            value: $privacyPolicyText
-          ) {
+        mutation change($settings: [MolgenisSettingsInput]) {
+          change(settings: $settings) {
             message
           }
         }
       `;
 
       const variables = {
-        privacyPolicyLevel: this.policyLevel,
-        privacyPolicyText: this.policyText,
+        settings: [
+          { key: POLICY_LEVEL_KEY, value: this.policyLevel },
+          { key: POLICY_TEXT_KEY, value: this.policyText },
+        ],
       };
 
-      const body = {
-        operationName: "createSetting",
-        query,
-        variables,
-      };
-
-      await requestWithBody("graphql", body).catch((error) => {
-        console.error(error);
-      });
+      await request("graphql", query, variables)
+        .then(() => {
+          this.successMessage = `Privacy policy successfully saved with privacy level: ${this.policyLevel}`;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
   mounted() {

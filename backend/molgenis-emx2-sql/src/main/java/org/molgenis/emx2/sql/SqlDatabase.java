@@ -158,15 +158,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
-        this.createSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
+        this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
       }
 
       if (getSetting(Constants.PRIVACY_POLICY_LEVEL) == null) {
-        this.createSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
+        this.setSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
       }
 
       if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
-        this.createSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
+        this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
       }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
