@@ -2,6 +2,13 @@
 <script setup>
 import tailwindConfig from '#tailwind-config'
 
+defineProps({
+  link: {
+    type: String,
+    required: true,
+  },
+});
+
 // extract the logo name from the theme
 const logoFileName = tailwindConfig?.theme?.logo
 
@@ -16,7 +23,7 @@ if (logoFileName) {
 </script>
 
 <template>
-  <a href="#" class="transition-transform hover:scale-105">
+  <NuxtLink :to="link" class="transition-transform hover:scale-105">
     <span class="sr-only">Go to home</span>
 
     <i v-if="svg" v-html="svg"></i>
@@ -33,5 +40,5 @@ if (logoFileName) {
           d="M199.104 278.78c-9.72 0-18.88-5.95-22.5-15.59l-46.33-123.54c-4.66-12.42 1.63-26.27 14.06-30.93 12.43-4.64 26.27 1.64 30.93 14.06l46.33 123.54c4.66 12.42-1.64 26.27-14.06 30.93a24.245 24.245 0 0 1-8.43 1.53M291.754 278.78c-9.72 0-18.88-5.95-22.5-15.59l-46.32-123.54c-4.66-12.42 1.63-26.27 14.06-30.93 12.43-4.64 26.27 1.64 30.93 14.06l46.33 123.54c4.66 12.42-1.64 26.27-14.06 30.93a24.34 24.34 0 0 1-8.44 1.53" />
       </g>
     </svg>
-  </a>
+  </NuxtLink>
 </template>

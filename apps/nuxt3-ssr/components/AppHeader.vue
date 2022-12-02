@@ -1,4 +1,8 @@
 <script setup>
+let schema 
+if (useRoute) {
+  schema = useRoute().params.schema
+}
 const menu = [
   { label: "Home", link: "#" },
   { label: "Variables", link: "#", highlight: true },
@@ -15,7 +19,7 @@ const menu = [
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
-        <Logo />
+        <Logo :link="`/${schema}/ssr-catalogue`" />
         <MainNavigation :navigation="menu" />
         <div class="w-[450px]">
           <SearchBar />
