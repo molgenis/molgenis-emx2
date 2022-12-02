@@ -92,7 +92,7 @@ export default {
     return {
       settings: null,
       showModal: false,
-      modalTitle: "foo",
+      modalTitle: "",
       settingKey: "",
       settingValue: "",
       settingActionLabel: "",

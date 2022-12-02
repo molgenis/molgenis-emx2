@@ -26,11 +26,31 @@
           description="Please enter the provided password"
           @enterPressed="signin"
         />
+        <div
+          v-if="isPrivacyPolicyEnabled"
+          class="alert"
+          :class="error === privacyError ? 'alert-danger' : 'alert-info'"
+          role="alert"
+        >
+          <b>Privacy policy</b>
+          <p>
+            {{ privacyPolicy }}
+          </p>
+          <InputCheckbox
+            class="mb-0"
+            id="privacy-agreement"
+            name="privacy-agreement"
+            :required="true"
+            :options="[privacyPolicyLabel]"
+            :hideClearButton="true"
+            v-model="userAgrees"
+          />
+        </div>
       </LayoutForm>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
-      <ButtonSubmit form="signin-form">Sign in</ButtonSubmit>
+      <ButtonSubmit form="signin-form"> Sign in </ButtonSubmit>
     </template>
   </LayoutModal>
 </template>
@@ -44,8 +64,11 @@ import MessageSuccess from "../forms/MessageSuccess.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
-
+import InputCheckbox from "../forms/InputCheckbox.vue";
 import { request } from "../../client/client.js";
+import { privacyConstants } from "../constants.js";
+
+const { POLICY_TEXT_KEY } = privacyConstants;
 
 export default {
   name: "MolgenisSignin",
@@ -58,6 +81,7 @@ export default {
     LayoutForm,
     LayoutModal,
     ButtonSubmit,
+    InputCheckbox,
   },
   data: function () {
     return {
@@ -65,12 +89,22 @@ export default {
       password: null,
       error: null,
       success: null,
+      userAgrees: [],
+      privacyPolicyLabel: "Agree with privacy policy",
+      privacyPolicy: "",
+      isPrivacyPolicyEnabled: false,
+      privacyError: "Please agree with the privacy policy",
     };
   },
   methods: {
     async signin() {
       if (!this.email || !this.password) {
         this.error = "Email and password should be filled in";
+      } else if (
+        this.isPrivacyPolicyEnabled &&
+        this.userAgrees[0] !== this.privacyPolicyLabel
+      ) {
+        this.error = this.privacyError;
       } else {
         this.error = null;
         this.loading = true;
@@ -95,11 +129,21 @@ export default {
       this.$emit("signInFailed", this.email);
     },
     onCancel() {
-      /**
-       * when cancel is pushed
-       */
       this.error = null;
       this.$emit("cancel");
+    },
+    async fetchPrivacyPolicy() {
+      const response = await request("graphql", `{_settings{key, value}}`);
+
+      const policyData = response._settings.find(
+        (item) => item.key === POLICY_TEXT_KEY
+      );
+      this.privacyPolicy = policyData?.value;
+
+      const policyEnabledSettings = response._settings.find((item) => {
+        return item.key === "isPrivacyPolicyEnabled";
+      });
+      this.isPrivacyPolicyEnabled = policyEnabledSettings?.value === "true";
     },
   },
   watch: {
@@ -110,6 +154,9 @@ export default {
     },
   },
   emits: ["cancel", "signInFailed", "siginin"],
+  mounted() {
+    this.fetchPrivacyPolicy();
+  },
 };
 </script>
 

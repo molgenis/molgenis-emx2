@@ -92,7 +92,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.connectionProvider.setActiveUser(ADMIN_USER);
         this.init();
       } finally {
-        // always sure to return to anonyous
+        // always sure to return to anonymous
         this.connectionProvider.clearActiveUser();
       }
     }
@@ -153,10 +153,21 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
 
       if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
-        // use environment property unless overriden in settings
+        // use environment property unless overridden in settings
         this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
       }
 
+      if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
+        this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
+      }
+
+      if (getSetting(Constants.PRIVACY_POLICY_LEVEL) == null) {
+        this.setSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
+      }
+
+      if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
+        this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
+      }
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()

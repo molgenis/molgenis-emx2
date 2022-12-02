@@ -18,6 +18,7 @@
             v-for="(label, key) in {
               users: 'Users',
               settings: 'Settings',
+              privacyPolicy: 'Privacy policy',
             }"
             :key="key"
           >

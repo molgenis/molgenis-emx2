@@ -7,16 +7,16 @@
     :errorMessage="errorMessage"
   >
     <InputGroup>
-        <textarea
-            ref="textarea"
-            :value="modelValue"
-            class="form-control"
-            :class="{ 'is-invalid': errorMessage }"
-            :aria-describedby="id + 'Help'"
-            :placeholder="placeholder"
-            :readonly="readonly"
-            @input="$emit('update:modelValue', $event.target.value)"
-        />
+      <textarea
+        ref="textarea"
+        :value="modelValue"
+        class="form-control"
+        :class="{ 'is-invalid': errorMessage }"
+        :aria-describedby="id + 'Help'"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        @input="$emit('update:modelValue', $event.target.value)"
+      />
       <template v-slot:append>
         <slot name="append"></slot>
       </template>

@@ -10,3 +10,28 @@ export default {
   MIN_LONG: "-9223372036854775807",
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
 };
+
+const LEVEL_1 = "Level 1";
+const LEVEL_2 = "Level 2";
+const LEVEL_3 = "Level 3";
+const LEVEL_4 = "Level 4";
+const CUSTOM = "Custom";
+const POLICY_LEVEL_KEY = "PrivacyPolicyLevel";
+const POLICY_TEXT_KEY = "PrivacyPolicyText";
+const PREFABS = {
+  [LEVEL_1]: "No privacy data",
+  [LEVEL_2]: "Pseudomized data",
+  [LEVEL_3]: "Privacy data",
+  [LEVEL_4]: "Privacy data + medical",
+  [CUSTOM]: "",
+};
+export const privacyConstants = {
+  LEVEL_1,
+  LEVEL_2,
+  LEVEL_3,
+  LEVEL_4,
+  CUSTOM,
+  POLICY_LEVEL_KEY,
+  POLICY_TEXT_KEY,
+  PREFABS,
+};

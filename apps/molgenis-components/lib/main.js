@@ -1,4 +1,5 @@
 import Client from "../src/client/client.js";
+import { request } from "../src/client/client.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -127,6 +128,7 @@ import {
   convertToCamelCase,
   convertToPascalCase,
 } from "../src/components/utils";
+import constants, { privacyConstants } from "../src/components/constants";
 
 export {
   ContactDisplay,
@@ -236,6 +238,9 @@ export {
   ObjectDisplay,
   TokenManager,
   deepClone,
+  constants,
+  privacyConstants,
+  request,
   convertToPascalCase,
   convertToCamelCase,
 };
