@@ -1,6 +1,13 @@
 import constants from "./constants";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } = constants;
+const {
+  CODE_0,
+  CODE_9,
+  CODE_BACKSPACE,
+  CODE_DELETE,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
 
 export function isNumericKey(event) {
   const keyCode = event.which ? event.which : event.keyCode;
@@ -89,9 +96,10 @@ export function getBigIntError(value) {
 
 export function isInvalidBigInt(value) {
   return (
-      value !== null &&
-      (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
+    value !== null &&
+    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
   );
+}
 
 export function convertToCamelCase(string) {
   const words = string.trim().split(/\s+/);
