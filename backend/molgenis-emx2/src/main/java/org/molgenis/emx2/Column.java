@@ -4,12 +4,12 @@ import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
-import static org.molgenis.emx2.utils.TypeUtils.getArrayType;
-import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
+import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
@@ -149,6 +149,10 @@ public class Column implements Comparable<Column> {
     return columnName;
   }
 
+  public String getIdentifier() {
+    return convertToCamelCase(getName());
+  }
+
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
@@ -168,6 +172,10 @@ public class Column implements Comparable<Column> {
 
   public String getRefTableName() {
     return this.refTable;
+  }
+
+  public String getRefTableIdentifier() {
+    return convertToPascalCase(this.getRefTableName());
   }
 
   public TableMetadata getRefTable() {
@@ -425,7 +433,7 @@ public class Column implements Comparable<Column> {
             type = getArrayType(type);
           }
           List<String> path = ref.getPath();
-          path.add(0, keyPart.getName());
+          path.add(0, keyPart.getIdentifier());
           String name = null;
           if (refLink != null) {
             for (Reference overlap : refLink.getReferences()) {
@@ -478,7 +486,7 @@ public class Column implements Comparable<Column> {
                 getRefTableName(),
                 keyPart.getName(),
                 keyPart.isRequired() || this.isRequired(),
-                new ArrayList<>(List.of(keyPart.getName()))));
+                new ArrayList<>(List.of(keyPart.getIdentifier()))));
       }
     }
 
@@ -628,5 +636,20 @@ public class Column implements Comparable<Column> {
 
   public boolean isOntology() {
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Column column = (Column) o;
+    return table.getSchemaName().equals(column.getSchemaName())
+        && table.equals(column.table)
+        && columnName.equals(column.columnName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(table, columnName);
   }
 }

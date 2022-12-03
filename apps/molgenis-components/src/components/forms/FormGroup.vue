@@ -3,15 +3,15 @@
     <label v-if="label !== null && label !== undefined" :for="id">
       <b> {{ label }}</b>
     </label>
-    <span v-if="required" class="float-right">(required)</span>
-    <slot></slot>
     <small
-      v-if="hasDescription(description)"
-      :id="id + '-help-text'"
-      class="form-text text-muted"
+        v-if="hasDescription(description)"
+        :id="id + '-help-text'"
+        class="form-text text-muted"
     >
       {{ description }}
     </small>
+    <span v-if="required" class="float-right">(required)</span>
+    <slot></slot>
     <small v-if="errorMessage" class="text-danger form-text">
       {{ errorMessage }}
     </small>

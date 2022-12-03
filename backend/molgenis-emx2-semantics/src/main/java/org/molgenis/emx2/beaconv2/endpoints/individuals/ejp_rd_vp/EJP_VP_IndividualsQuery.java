@@ -120,13 +120,30 @@ public class EJP_VP_IndividualsQuery {
       }
 
       /**
-       * Diagnosis of the rare disease (SIO_001003), Phenotype (SIO_010056), and any others: create
-       * filter dynamically. Right now only columns of type Ontology are supported.
+       * Diagnosis of the rare disease (SIO_001003) NOTE: This could have been a dynamic filter, but
+       * that matches individuals via the genomic variation refback, throwing off the results
        */
+      else if (type.endsWith("SIO_001003")) {
+        String diseaseFilter =
+            "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+        filters.add(diseaseFilter);
+      }
+
+      /**
+       * Phenotype (SIO_010056) NOTE: This could have been a dynamic filter, but that matches
+       * individuals via the genomic variation refback, throwing off the results
+       */
+      else if (type.endsWith("SIO_010056")) {
+        String phenotypeFilter =
+            "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+        filters.add(phenotypeFilter);
+      }
+
+      /** Anything else: create filter dynamically. */
       else {
-        ColumnPath columnPath = findColumnPath("", type, this.tables.get(0));
+        ColumnPath columnPath = findColumnPath(new ArrayList<>(), type, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
-          String dynamicFilter = columnPath.getPath() + "ontologyTermURI: {like: \"" + id + "\"";
+          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + id + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
           return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));
@@ -139,6 +156,40 @@ public class EJP_VP_IndividualsQuery {
         queryIndividuals(tables, filters.toArray(new String[0]));
 
     // only works because we only do AND queries, so one unmatched filter means no hit
+    List<String> removeIndividualIDs = removeIndividualIDs(ageQueries, resultSetsList);
+
+    // use list of 'removed' individuals to rebuild the result set
+    List<IndividualsResultSets> filteredResultSetsList = new ArrayList<>();
+    for (IndividualsResultSets resultSet : resultSetsList) {
+      List<IndividualsResultSetsItem> filteredIndividuals = new ArrayList<>();
+      for (IndividualsResultSetsItem individual : resultSet.getResults()) {
+        String currentId = resultSet.getId() + "@" + individual.getId();
+        if (!removeIndividualIDs.contains(currentId)) {
+          filteredIndividuals.add(individual);
+        }
+      }
+      if (filteredIndividuals.size() > 0) {
+        IndividualsResultSetsItem[] filteredIndividualsArr =
+            filteredIndividuals.toArray(new IndividualsResultSetsItem[0]);
+        IndividualsResultSets filteredResultSet =
+            new IndividualsResultSets(resultSet.getId(), filteredIndividualsArr);
+        filteredResultSetsList.add(filteredResultSet);
+      }
+    }
+
+    // each table results in one IndividualsResultSets, add up the result counts
+    int totalCount = 0;
+    for (IndividualsResultSets individualsResultSets : filteredResultSetsList) {
+      totalCount += individualsResultSets.getResultsCount();
+    }
+
+    // return the individual counts
+    return getWriter()
+        .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
+  }
+
+  private List<String> removeIndividualIDs(
+      List<AgeQuery> ageQueries, List<IndividualsResultSets> resultSetsList) {
     List<String> removeIndividualIDs = new ArrayList<>();
     for (AgeQuery ageQuery : ageQueries) {
       for (IndividualsResultSets resultSet : resultSetsList) {
@@ -177,35 +228,7 @@ public class EJP_VP_IndividualsQuery {
         }
       }
     }
-
-    // use list of 'removed' individuals to rebuild the result set
-    List<IndividualsResultSets> filteredResultSetsList = new ArrayList<>();
-    for (IndividualsResultSets resultSet : resultSetsList) {
-      List<IndividualsResultSetsItem> filteredIndividuals = new ArrayList<>();
-      for (IndividualsResultSetsItem individual : resultSet.getResults()) {
-        String currentId = resultSet.getId() + "@" + individual.getId();
-        if (!removeIndividualIDs.contains(currentId)) {
-          filteredIndividuals.add(individual);
-        }
-      }
-      if (filteredIndividuals.size() > 0) {
-        IndividualsResultSetsItem[] filteredIndividualsArr =
-            filteredIndividuals.toArray(new IndividualsResultSetsItem[0]);
-        IndividualsResultSets filteredResultSet =
-            new IndividualsResultSets(resultSet.getId(), filteredIndividualsArr);
-        filteredResultSetsList.add(filteredResultSet);
-      }
-    }
-
-    // each table results in one IndividualsResultSets, add up the result counts
-    int totalCount = 0;
-    for (IndividualsResultSets individualsResultSets : filteredResultSetsList) {
-      totalCount += individualsResultSets.getResultsCount();
-    }
-
-    // return the individual counts
-    return getWriter()
-        .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
+    return removeIndividualIDs;
   }
 
   /**

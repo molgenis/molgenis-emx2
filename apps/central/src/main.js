@@ -5,7 +5,7 @@ import Groups from "./components/Groups.vue";
 import Admin from "./components/admin/Admin.vue";
 import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
-
+import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
 import "molgenis-components/dist/style.css";
 
 const router = createRouter({
@@ -20,6 +20,11 @@ const router = createRouter({
       children: [
         { name: "users", path: "users", component: ManageUsers },
         { name: "settings", path: "settings", component: ManageSettings },
+        {
+          name: "privacyPolicy",
+          path: "privacyPolicy",
+          component: ManagePrivacyPolicy,
+        },
       ],
     },
   ],

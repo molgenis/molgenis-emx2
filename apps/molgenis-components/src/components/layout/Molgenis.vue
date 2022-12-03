@@ -44,7 +44,7 @@
 
 <script>
 import MolgenisMenu from "./MolgenisMenu.vue";
-import MolgenisSession from "./MolgenisSession.vue";
+import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 

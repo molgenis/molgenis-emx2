@@ -1,4 +1,12 @@
 import Client from "../src/client/client.js";
+import { request } from "../src/client/client.js";
+
+//account
+import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
+import MolgenisSession from "../src/components/account/MolgenisSession.vue";
+import MolgenisSignin from "../src/components/account/MolgenisSignin.vue";
+import MolgenisSignup from "../src/components/account/MolgenisSignup.vue";
+import TokenManager from "../src/components/account/TokenManager.vue";
 
 //display
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
@@ -64,7 +72,6 @@ import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
-
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
@@ -77,12 +84,8 @@ import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import Molgenis from "../src/components/layout/Molgenis.vue";
-import MolgenisAccount from "../src/components/layout/MolgenisAccount.vue";
-import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
-import MolgenisSession from "../src/components/layout/MolgenisSession.vue";
-import MolgenisSignin from "../src/components/layout/MolgenisSignin.vue";
-import MolgenisSignup from "../src/components/layout/MolgenisSignup.vue";
+import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
@@ -98,7 +101,6 @@ import RowButtonAdd from "../src/components/tables/RowButtonAdd.vue";
 import RowButtonClone from "../src/components/tables/RowButtonClone.vue";
 import RowButtonDelete from "../src/components/tables/RowButtonDelete.vue";
 import RowButtonEdit from "../src/components/tables/RowButtonEdit.vue";
-
 import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
@@ -121,7 +123,12 @@ import TaskList from "../src/components/task/TaskList.vue";
 import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
-import { deepClone } from "../src/components/utils";
+import {
+  deepClone,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "../src/components/utils";
+import constants, { privacyConstants } from "../src/components/constants";
 
 export {
   ContactDisplay,
@@ -229,5 +236,11 @@ export {
   RowButton,
   ListDisplay,
   ObjectDisplay,
+  TokenManager,
   deepClone,
+  constants,
+  privacyConstants,
+  request,
+  convertToPascalCase,
+  convertToCamelCase,
 };

@@ -26,10 +26,10 @@ export default {
   extends: BaseInput,
   methods: {
     emitIfValid(event) {
-      if (event.target.value === "" || event.target.value === NaN) {
+      const value = event.target.value;
+      if (value === "" || value === NaN) {
         this.$emit("update:modelValue", null);
       }
-      const value = event.target.value;
       if (!isNaN(value)) {
         this.$emit("update:modelValue", parseInt(value));
       }
@@ -37,7 +37,7 @@ export default {
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", flipSign(event.target.value));
+        this.$emit("update:modelValue", parseInt(flipSign(event.target.value)));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

@@ -32,12 +32,12 @@ public class Measures {
       m.measurementVariable = TypeUtils.toString(map.get("measurementVariable"));
       m.measurementValue =
           new MeasurementValue(
-              (Integer) map.get("measurementValue__value"),
-              mapToOntologyTerm((Map) map.get("measurementValue__units")));
+              (Integer) map.get("measurementValue_value"),
+              mapToOntologyTerm((Map) map.get("measurementValue_units")));
       m.observationMoment =
           new ObservationMoment(
               new ISO8601duration(
-                  TypeUtils.toString(map.get("observationMoment__age__iso8601duration"))));
+                  TypeUtils.toString(map.get("observationMoment_age_iso8601duration"))));
       result[i] = m;
     }
     return result;

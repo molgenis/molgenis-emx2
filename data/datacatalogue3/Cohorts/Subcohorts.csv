@@ -1,0 +1,2 @@
+resource,name,noParticipants,description,ageCategories,disease,geographicRegion,inclusionCriteria,supplementaryInformation
+TestCohort,Children,2,some test sub cohort,0y,None,Netherlands,None,Some suppl info

@@ -1,12 +1,9 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
@@ -35,13 +32,16 @@ public class Table {
 
   public Table(SchemaMetadata schema, TableMetadata tableMetadata, boolean minimal) {
     this.name = tableMetadata.getTableName();
-    this.id = escape(tableMetadata.getTableName());
+    this.id = tableMetadata.getIdentifier();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     this.inherit = tableMetadata.getInherit();
     this.description = tableMetadata.getDescription();
     this.semantics = tableMetadata.getSemantics();
-    this.settings = tableMetadata.getSettings();
+    this.settings =
+        tableMetadata.getSettings().entrySet().stream()
+            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+            .toList();
     if (!tableMetadata.getSchemaName().equals(schema.getName())) {
       this.externalSchema = tableMetadata.getSchemaName();
     }
