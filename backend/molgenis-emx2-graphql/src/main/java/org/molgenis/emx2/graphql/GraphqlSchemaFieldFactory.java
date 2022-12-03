@@ -712,4 +712,37 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
   }
+
+  public GraphQLFieldDefinition schemaSqlQueryField(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_query")
+        .type(
+            GraphQLObjectType.newObject()
+                .name("MolgenisSqlQuery")
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(JSON)
+                        .type(Scalars.GraphQLString)))
+        .argument(GraphQLArgument.newArgument().name(SQL).type(Scalars.GraphQLString))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              String sql = dataFetchingEnvironment.getArgument(SQL);
+              Map<String, String> result = new LinkedHashMap<>();
+              result.put(JSON, convertToJson(schema.retrieveSql(sql)));
+              return result;
+            })
+        .build();
+  }
+
+  private String convertToJson(List<Row> rows) {
+    try {
+      List<Map<String, Object>> result = new ArrayList<>();
+      for (Row row : rows) {
+        result.add(row.getValueMap());
+      }
+      return new ObjectMapper().writeValueAsString(result);
+    } catch (Exception e) {
+      throw new MolgenisException("Cannot convert sql result set to json", e);
+    }
+  }
 }

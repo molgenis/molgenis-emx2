@@ -100,12 +100,32 @@ export default {
         );
       },
       fetchSettings: async () => {
-        return (
-          await request(
-            graphqlURL ? graphqlURL : "graphql",
-            "{_settings{key, value}}"
-          )
-        )._settings;
+        return fetchSettings(graphqlURL ? graphqlURL : "graphql");
+      },
+      fetchSettingValue: async (name) => {
+        const settings = await fetchSettings();
+        const setting = settings.find((setting) => setting.key == name);
+        if (setting) {
+          return JSON.parse(setting.value);
+        }
+      },
+      async saveSetting(key, value) {
+        const createMutation = `mutation change($settings: [MolgenisSettingsInput]) {
+            change(settings: $settings) {
+              message
+            }
+          }`;
+
+        const variables = {
+          settings: {
+            key: key,
+            value: JSON.stringify(value),
+          },
+        };
+
+        await request("graphql", createMutation, variables).catch((e) => {
+          console.error(e);
+        });
       },
     };
   },
@@ -249,6 +269,15 @@ const fetchTableData = async (
       }
     });
   return resp.data.data;
+};
+
+const fetchSettings = async (graphqlURL) => {
+  return (
+    await request(
+      graphqlURL ? graphqlURL : "graphql",
+      "{_settings{key, value}}"
+    )
+  )._settings;
 };
 
 const request = async (url, graphql, variables) => {

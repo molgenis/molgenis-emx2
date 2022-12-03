@@ -596,4 +596,12 @@ public class TestGraphqSchemaFields {
     schema = database.dropCreateSchema(schemaName);
     new PetStoreLoader().load(schema, true);
   }
+
+  @Test
+  public void testSqlQuery() throws IOException {
+    String result =
+        execute("{_query(sql:\"select * from \\\"Pet\\\"\"){json}}").at("/_query/json").textValue();
+
+    assertTrue(result.contains("pooky"));
+  }
 }
