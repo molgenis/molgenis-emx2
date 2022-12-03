@@ -9,9 +9,13 @@
       <MessageError v-if="error">{{error}}</MessageError>
       <ButtonAction v-if="selection.length > 0" class="mb-2" @click="downloadSelected">Download selected</ButtonAction>
       <ButtonDanger v-if="selection.length > 0 && canEdit" class="mb-2 ml-2" @click="deleteSelected">Delete selected</ButtonDanger>
-      <TableSimple @click="open" :columns="['id','name']" :rows="reportsWithId" class="bg-white" selectColumn="id" v-model="selection">
+      <TableSimple @rowClick="open" :columns="['id','name']" :rows="reportsWithId" class="bg-white" selectColumn="id" v-model="selection">
         <template v-slot:colheader>
           <IconAction v-if="canEdit" icon="plus" @click="add"/>
+        </template>
+        <template v-slot:rowheader="slotProps" >
+          <IconAction v-if="canEdit" icon="pencil-alt" @click="open(slotProps.row)"/>
+          <IconAction v-else icon="eye" @click="open(slotProps.row)"/>
         </template>
       </TableSimple>
     </span>
@@ -62,9 +66,13 @@ export default {
   },
   methods: {
    async reload() {
-      this.reports = await this.client.fetchSettingValue("reports");
+      const result = await this.client.fetchSettingValue("reports");
+      if(result) {
+        this.reports = result;
+      }
     },
    async add() {
+     console.log('add')
      this.error = null;
      this.reports.push({name: "new report", sql: ""})
      await this.client.saveSetting("reports", this.reports).catch(error => this.error = error);

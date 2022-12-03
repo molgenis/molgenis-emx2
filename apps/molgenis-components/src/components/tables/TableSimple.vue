@@ -15,7 +15,6 @@
         <tr v-for="row in rows" :key="JSON.stringify(row)">
           <td v-if="hasColheader">
             <div style="display: flex">
-              <slot name="rowheader" :row="row" />
               <input
                 class="form-check form-check-inline mr-1"
                 v-if="selectColumn"
@@ -23,6 +22,7 @@
                 :checked="isSelected(row)"
                 @click.stop="toggleSelect(row)"
               />
+              <slot name="rowheader" :row="row" />
             </div>
           </td>
           <td
@@ -120,7 +120,7 @@ export default {
       this.$emit("update:modelValue", this.selectedItems);
     },
     onRowClick(row) {
-        this.$emit("click", row);
+        this.$emit("rowClick", row);
     },
   },
 };
