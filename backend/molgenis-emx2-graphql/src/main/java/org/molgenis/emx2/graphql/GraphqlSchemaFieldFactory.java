@@ -732,9 +732,10 @@ public class GraphqlSchemaFieldFactory {
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
         .dataFetcher(
             dataFetchingEnvironment -> {
+              Integer id = null;
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
-                Integer id = dataFetchingEnvironment.getArgument(ID);
+                id = dataFetchingEnvironment.getArgument(ID);
                 Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                 Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                 List<Map<String, String>> reportList =
@@ -748,8 +749,7 @@ public class GraphqlSchemaFieldFactory {
                 result.put(COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
                 return result;
               } catch (Exception e) {
-                e.printStackTrace();
-                throw new MolgenisException("Retrieve of report failed ", e);
+                throw new MolgenisException("Retrieve of report '" + id + "'failed ", e);
               }
             })
         .build();
