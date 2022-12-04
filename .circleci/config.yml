@@ -98,7 +98,7 @@ jobs:
       - run:
           name: build, test, release, push docker
           command: |
-            ./gradlew -i test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
+            ./gradlew test jacocoMergedReport sonarqube ci -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.password
 
           environment:
             MOLGENIS_POSTGRES_USER: molgenis
