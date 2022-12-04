@@ -2507,9 +2507,9 @@ debug@^3.1.0, debug@^3.2.7:
     ms "^2.1.1"
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha512-hjf+xovcEn31w/EUYdTXQh/8smFL/dzYjohQGEIgjyNavaJfBY2p5F527Bo1VPATxv0VYTUC2bOcXvqFwk78Og==
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 decompress-response@^6.0.0:
   version "6.0.0"
@@ -7464,10 +7464,10 @@ vue-tabler-icons@2.16.0:
   resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-2.16.0.tgz#080676c9bf61b9db5a650b2c30a5c60b2805df2b"
   integrity sha512-jLGUO+g2OvpxPiJX0z4/DJHwB77bLBR96Vt4lTtedEEXMhjYD7n5JlJ9vjXBVgW1zK518bo+yKHYa6CTRRfh2w==
 
-vue3-swatches@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/vue3-swatches/-/vue3-swatches-1.0.10.tgz#4934ec1928deff7ae23fb3a65ce4d0ecea850512"
-  integrity sha512-rbuSClhK4sOFVtgRAtFhPcrtZwDy/5IvVOLT14Jge71oe8d8OB7cUD46CDKAwquYPCUhVwRDvTLkfgwXJQnB9Q==
+vue3-swatches@1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/vue3-swatches/-/vue3-swatches-1.2.3.tgz#69c20521470e2c5f3f4de052e8776a313d2333a5"
+  integrity sha512-UC4pzu2eFXvkjsIDmprLaOKiJ/bblBlP2PIrENK0gnhH0BFsvhSVCH3AGOK8m/8ZMai4r2Vyjr/ETeEjW5p3VA==
 
 vue@3.2.41, vue@^3.2.39:
   version "3.2.41"
