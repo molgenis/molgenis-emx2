@@ -102,6 +102,12 @@ export default {
             conditions: []
           },
           {
+            name: "longQuantity",
+            columnType: "LONG",
+            showFilter: true,
+            conditions: []
+          },
+          {
             name: "price",
             columnType: "DECIMAL",
             showFilter: true,

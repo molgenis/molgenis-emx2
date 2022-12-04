@@ -36,6 +36,7 @@ import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
+import LongFilter from "./LongFilter.vue";
 import { deepClone } from "../utils.js";
 
 const filterTypeMap = {
@@ -53,8 +54,8 @@ const filterTypeMap = {
   INT_ARRAY: IntegerFilter,
   DECIMAL: DecimalFilter,
   DECIMAL_ARRAY: DecimalFilter,
-  LONG: StringFilter, //TODO: LongFilter is not implemented yet
-  LONG_ARRAY: StringFilter, //TODO: LongFilter is not implemented yet
+  LONG: LongFilter,
+  LONG_ARRAY: LongFilter,
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
   DATETIME: DateTimeFilter,
