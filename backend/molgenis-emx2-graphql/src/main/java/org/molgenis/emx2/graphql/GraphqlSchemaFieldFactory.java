@@ -715,21 +715,43 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition schemaSqlQueryField(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_query")
+        .name("_reports")
         .type(
             GraphQLObjectType.newObject()
                 .name("MolgenisSqlQuery")
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
-                        .name(JSON)
-                        .type(Scalars.GraphQLString)))
-        .argument(GraphQLArgument.newArgument().name(SQL).type(Scalars.GraphQLString))
+                        .name(DATA)
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(COUNT)
+                        .type(Scalars.GraphQLInt)))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(
+            GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).defaultValue(10))
+        .argument(
+            GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).defaultValue(0))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String sql = dataFetchingEnvironment.getArgument(SQL);
-              Map<String, String> result = new LinkedHashMap<>();
-              result.put(JSON, convertToJson(schema.retrieveSql(sql)));
-              return result;
+              try {
+                String reportsJson = schema.getMetadata().getSetting("reports");
+                Integer id = dataFetchingEnvironment.getArgument(ID);
+                Integer offset = dataFetchingEnvironment.getArgument(OFFSET);
+                Integer limit = dataFetchingEnvironment.getArgument(LIMIT);
+                List<Map<String, String>> reportList =
+                    new ObjectMapper().readValue(reportsJson, List.class);
+                Map<String, Object> result = new LinkedHashMap<>();
+                Map<String, String> report = reportList.get(id);
+                String sql = report.get("sql") + "LIMIT " + limit + " OFFSET " + offset;
+                String countSql =
+                    String.format("select count(*) from (%s) as count", report.get("sql"));
+                result.put(DATA, convertToJson(schema.retrieveSql(sql)));
+                result.put(COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
+                return result;
+              } catch (Exception e) {
+                throw new MolgenisException("Retrieve of report failed ", e);
+              }
             })
         .build();
   }

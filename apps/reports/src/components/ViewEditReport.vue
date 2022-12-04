@@ -12,9 +12,12 @@
     </div>
     <h2 v-else>Report: {{name}}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true"/></h2>
     <MessageError v-if="error">{{error}}</MessageError>
-    <div v-if="rows">
+    <div v-if="rows && rows.length > 0">
       <Pagination v-if="count" v-model="page" :limit="limit" :count="count"/><IconAction icon="download" @click="download(id)"/>
       <TableSimple :columns="columns" :rows="rows" class="bg-white" :key="JSON.stringify(this.rows)"/>
+    </div>
+    <div v-else>
+      No results found.
     </div>
   </div>
 </template>
@@ -43,7 +46,7 @@ export default {
   },
   data() {
     return {
-      rows: [{"test": "a"}],
+      rows: undefined,
       count: null,
       sql: "select * from \"Pet\"",
       name: null,
@@ -55,16 +58,17 @@ export default {
   },
   computed: {
     columns() {
-      //todo, we would like server to return types
-      const names = [];
-      this.rows.forEach(row => {
-        Object.keys(row).forEach(key => {
-          if( names.indexOf(key) === -1 ) {
-            names.push(key)
-          }
+      if(this.rows) {
+        const names = [];
+        this.rows.forEach(row => {
+          Object.keys(row).forEach(key => {
+            if( names.indexOf(key) === -1 ) {
+              names.push(key)
+            }
+          });
         });
-      });
-      return names;
+        return names;
+      }
     },
     canEdit() {
       return this.session?.roles?.includes("Manager");
@@ -75,18 +79,12 @@ export default {
       this.success = null;
       this.error = null;
       const offset = this.limit * (this.page - 1);
-      const dataSql = this.sql + " OFFSET " + offset + " LIMIT "+this.limit;
-      const data = await request("graphql", "query($sql: String){_query(sql:$sql){json}}",{sql: dataSql})
-          .catch(error =>{
-        this.error = error;
-      });
-      const countSql = `select count(*) from (${this.sql}) as count`;
-      const count = await request("graphql", "query($sql: String){_query(sql:$sql){json}}",{sql: countSql})
+      const result = await request("graphql", `{_reports(id:${this.id},limit:${this.limit},offset:${offset}){data,count}}`)
           .catch(error =>{
             this.error = error;
           });
-      this.rows = JSON.parse(data._query.json);
-      this.count = JSON.parse(count._query.json)[0].count;
+      this.rows = JSON.parse(result._reports.data);
+      this.count = result._reports.count;
     },
     async save() {
       this.succes = null;

@@ -48,8 +48,7 @@ public class GraphqlConstants {
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
   public static final String STATUS = "status";
-  public static final String SQL = "sql";
-  public static final String JSON = "json";
+  public static final String DATA = "data";
 
   public static final String OPERATION = "operation";
   public static final String STAMP = "stamp";

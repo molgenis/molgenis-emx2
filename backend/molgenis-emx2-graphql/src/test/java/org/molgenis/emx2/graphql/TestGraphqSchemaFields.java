@@ -598,10 +598,9 @@ public class TestGraphqSchemaFields {
   }
 
   @Test
-  public void testSqlQuery() throws IOException {
-    String result =
-        execute("{_query(sql:\"select * from \\\"Pet\\\"\"){json}}").at("/_query/json").textValue();
-
-    assertTrue(result.contains("pooky"));
+  public void testReport() throws IOException {
+    JsonNode result = execute("{_reports(id:0){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
+    assertEquals(8, result.at("/_reports/count").intValue());
   }
 }
