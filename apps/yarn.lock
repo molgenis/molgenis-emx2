@@ -7464,10 +7464,10 @@ vue-tabler-icons@2.16.0:
   resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-2.16.0.tgz#080676c9bf61b9db5a650b2c30a5c60b2805df2b"
   integrity sha512-jLGUO+g2OvpxPiJX0z4/DJHwB77bLBR96Vt4lTtedEEXMhjYD7n5JlJ9vjXBVgW1zK518bo+yKHYa6CTRRfh2w==
 
-vue3-swatches@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/vue3-swatches/-/vue3-swatches-1.0.10.tgz#4934ec1928deff7ae23fb3a65ce4d0ecea850512"
-  integrity sha512-rbuSClhK4sOFVtgRAtFhPcrtZwDy/5IvVOLT14Jge71oe8d8OB7cUD46CDKAwquYPCUhVwRDvTLkfgwXJQnB9Q==
+vue3-swatches@1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/vue3-swatches/-/vue3-swatches-1.2.3.tgz#69c20521470e2c5f3f4de052e8776a313d2333a5"
+  integrity sha512-UC4pzu2eFXvkjsIDmprLaOKiJ/bblBlP2PIrENK0gnhH0BFsvhSVCH3AGOK8m/8ZMai4r2Vyjr/ETeEjW5p3VA==
 
 vue@3.2.41, vue@^3.2.39:
   version "3.2.41"
