@@ -22,9 +22,13 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
+  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -736,6 +740,7 @@ public class GraphqlSchemaFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
+                logger.info("REPORT value: "+reportsJson);
                 if(reportsJson != null) {
                   id = dataFetchingEnvironment.getArgument(ID);
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
