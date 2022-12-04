@@ -713,7 +713,7 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition schemaSqlQueryField(Schema schema) {
+  public GraphQLFieldDefinition schemaReportsField(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_reports")
         .type(

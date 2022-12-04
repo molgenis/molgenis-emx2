@@ -33,7 +33,7 @@ public class TestGraphqSchemaFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static final String schemaName = "TestGraphqlSchemaFields";
+  private static final String schemaName = TestGraphqSchemaFields.class.getSimpleName();
   private static TaskService taskService;
   private static Schema schema;
 
@@ -66,7 +66,7 @@ public class TestGraphqSchemaFields {
     // add value
     execute("mutation{change(settings:{key:\"test\",value:\"testval\"}){message}}");
 
-    assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/0/value").textValue());
+    assertEquals("testval", execute("{_settings{key,value}}").at("/_settings/1/value").textValue());
 
     // remove value
     execute("mutation{drop(settings:{key:\"test\"}){message}}");
@@ -85,7 +85,7 @@ public class TestGraphqSchemaFields {
         execute("{_settings(keys: [\"setB\"]){key,value}}").at("/_settings/0/value").textValue());
 
     // return all without key
-    assertEquals(3, execute("{_settings{key,value}}").at("/_settings").size());
+    assertEquals(4, execute("{_settings{key,value}}").at("/_settings").size());
 
     // remove value
     execute("mutation{drop(settings:{key:\"setA\"}){message}}");

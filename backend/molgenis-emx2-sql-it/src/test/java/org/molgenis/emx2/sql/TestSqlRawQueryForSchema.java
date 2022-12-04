@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestSqlRawQueryForSchema {
 
@@ -20,8 +21,9 @@ public class TestSqlRawQueryForSchema {
 
   @Test
   public void testSql() {
-    Schema schema = database.getSchema("pet store");
-    List<Row> rows = schema.retrieveSql("Select * from \"Pet\",\"Order\"");
+    Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
+    new PetStoreLoader().load(schema, true);
+    List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
     assertEquals(8, rows.size());
   }
 }
