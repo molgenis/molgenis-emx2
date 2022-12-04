@@ -599,7 +599,6 @@ public class TestGraphqSchemaFields {
 
   @Test
   public void testReport() throws IOException {
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:0){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());
