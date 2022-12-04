@@ -33,6 +33,7 @@ public class TestUsersAndPermissions {
   @Test
   public void testActiveUser() {
     try {
+
       assertTrue(database.isAdmin());
 
       // add and set user
