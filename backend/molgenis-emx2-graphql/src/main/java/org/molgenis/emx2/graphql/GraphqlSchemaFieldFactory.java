@@ -728,17 +728,15 @@ public class GraphqlSchemaFieldFactory {
                         .name(COUNT)
                         .type(Scalars.GraphQLInt)))
         .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
-        .argument(
-            GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).defaultValue(10))
-        .argument(
-            GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).defaultValue(0))
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
         .dataFetcher(
             dataFetchingEnvironment -> {
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
                 Integer id = dataFetchingEnvironment.getArgument(ID);
-                Integer offset = dataFetchingEnvironment.getArgument(OFFSET);
-                Integer limit = dataFetchingEnvironment.getArgument(LIMIT);
+                Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+                Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                 List<Map<String, String>> reportList =
                     new ObjectMapper().readValue(reportsJson, List.class);
                 Map<String, Object> result = new LinkedHashMap<>();
