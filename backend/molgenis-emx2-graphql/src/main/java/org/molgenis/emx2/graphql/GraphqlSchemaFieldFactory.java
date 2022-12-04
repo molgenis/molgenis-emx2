@@ -749,7 +749,7 @@ public class GraphqlSchemaFieldFactory {
                 result.put(COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
                 return result;
               } catch (Exception e) {
-                throw new MolgenisException("Retrieve of report '" + id + "'failed ", e);
+                throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
               }
             })
         .build();
