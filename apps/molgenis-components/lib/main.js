@@ -61,10 +61,7 @@ import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
 import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
-<<<<<<< HEAD
 import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
-=======
->>>>>>> 7b0653845615b7386d0425609d3b965a98611141
 import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
@@ -75,10 +72,7 @@ import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
-<<<<<<< HEAD
 
-=======
->>>>>>> 7b0653845615b7386d0425609d3b965a98611141
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
