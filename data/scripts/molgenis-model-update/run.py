@@ -45,9 +45,9 @@ transform_data = TransformData(CATALOGUE_SCHEMA_NAME)
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
 transform_data.delete_data_model_file()
-transform_data.update_data_model_file()
 transform_data.transform_data()
 transform_data.get_spaces()
+transform_data.update_data_model_file()
 transform_data.zip_data()
 
 # # upload data from catalogue
