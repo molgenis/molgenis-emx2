@@ -94,3 +94,54 @@ class Session:
             except PermissionError:
                 sys.exit('Error deleting upload.zip')
 
+    def drop_database(self) -> None:
+        """ Delete database """
+
+        # see if schema exists before deleting it
+        query = '{_session {schemas} }'
+
+        response = self.session.post(self.graphqlEndpoint, json={'query': query} )
+        if response.status_code == 200:
+            print(f"Database schema does not exist, status code {response.status_code}")
+            query = """
+                mutation deleteSchema($name:String){
+                    deleteSchema(name:$name) {
+                        message
+                    }
+                }
+            """
+
+            variables = {'name':self.database}
+
+            response = self.session.post(
+                self.url + '/api/graphql',
+                json={'query': query, 'variables': variables}
+            )
+
+            if response.json()['data']['deleteSchema']['message']:
+                print(response.json()['data']['deleteSchema']['message'])
+
+    def create_database(self, template: str) -> None:
+        """ Create database if it doesn't exists, use template DATA_CATALOGUE3 to create catalogue AND ontologies CatalogueOntologies or leave empty"""
+        query = '{_session {schemas} }'
+
+        response = self.session.post(self.graphqlEndpoint, json={'query': query} )
+        if response.status_code != 200:
+            print(f"Database schema does not exist, status code {response.status_code}")
+
+            query = """
+                mutation createSchema($name:String, $template:String){
+                    createSchema(name:$name, template:$template){
+                        message
+                    }
+                }
+                """
+            variables = {'name':self.database,'template':template}
+
+            response = self.session.post(
+                self.url + '/apps/central/graphql',
+                json={'query': query, 'variables': variables}
+            )
+            
+            if response.json()['data']['createSchema']['message']:
+                print(response.json()['data']['createSchema']['message'])
