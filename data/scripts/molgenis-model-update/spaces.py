@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def spaces(s):
+def spaces(s, database):
     new_s = ''
     i = 0
 
@@ -13,6 +13,9 @@ def spaces(s):
             new_s = 'Data sources.csv'
         elif s in ['DAPs', 'DAPs.csv']:
             new_s = s
+        # TODO: add Areas of information for Data sources (ds)
+        elif s == 'AreasOfInformation.csv':
+            new_s = 'Areas of information cohorts.csv'
         elif 'ETL' in s:
             if s == 'ETLstandardVocabularies':
                 new_s = 'ETL standard vocabularies'
@@ -23,8 +26,10 @@ def spaces(s):
                 new_s = 'access non EU'
             elif s == 'accessNonEUConditions':
                 new_s = 'access non EU conditions'
-        elif s == 'ontologyTermURI':
+        elif s == 'ontologyTermURI' and not database == 'CatalogueOntologies':
             new_s = 'ontology term URI'
+        elif s == 'ontologyTermURI' and database == 'CatalogueOntologies':
+            new_s = s
         elif s == 'pid':
             new_s = 'id'
     # get spaces and lowercase

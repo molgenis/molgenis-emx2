@@ -22,14 +22,14 @@ def float_to_int(df):
     return df
 
 
-def get_new_column_names(df):
+def get_new_column_names(df, database):
     """Remove spaces from column names
     """
     old_names = df.columns.to_list()
     new_names = []
 
     for name in old_names:
-        new_name = spaces(name)
+        new_name = spaces(name, database)
         new_names.append(new_name)
     df.columns = new_names
 
@@ -104,11 +104,12 @@ class TransformData:
             if not file_name == '_files':
                 try:
                     df = pd.read_csv(self.path + file_name)
-                    df = get_new_column_names(df)
+                    df = get_new_column_names(df, self.database)
+                    df = float_to_int(df)  # convert float back to integer
                     df.to_csv(self.path + file_name, index=False)
                 except pd.errors.EmptyDataError:
                     pass
-                new_file_name = spaces(file_name)
+                new_file_name = spaces(file_name, self.database)
                 os.rename(os.path.join(self.path, file_name), os.path.join(self.path, new_file_name))
 
     def contacts(self):
