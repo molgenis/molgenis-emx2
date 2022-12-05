@@ -208,6 +208,21 @@ function onSubcohortsLoaded(rows: any) {
   subcohorts.value = mapped
 }
 
+let tocItems = computed(() => {
+  let items = [
+    { label: 'Description', id: 'Description' },
+    { label: 'General design', id: 'GeneralDesign' }
+  ]
+  if (cohort?.contributors) { items.push({ label: 'Contact & contributors', id: 'Contributors' }) }
+  if (cohort?.collectionEvents) { items.push({ label: 'Available data & samples', id: 'AvailableData' }) }
+  // { label: 'Variables & topics', id: 'Variables' },
+  if (subcohorts?.value?.length) { items.push({ label: 'Subpopulations', id: 'Subpopulations' }) }
+  if (collectionEvents?.value?.length) items.push({ label: 'Collection events', id: 'CollectionEvents' })
+  if (cohort?.networks) { items.push({ label: 'Networks', id: 'Networks' },) }
+  if (cohort?.partners) { items.push({ label: 'Partners', id: 'Partners' }) }
+  return items
+})
+
 </script>
 <template>
   <LayoutsDetailPage>
@@ -230,8 +245,8 @@ function onSubcohortsLoaded(rows: any) {
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="cohort.acronym" :image="cohort?.logo?.url" />
-    </template>
+      <SideNavigation :title="cohort.acronym" :image="cohort?.logo?.url" :items="tocItems" />
+      </template>
     <template #main>
       <ContentBlocks v-if="cohort">
         <ContentBlockIntro
@@ -272,6 +287,7 @@ function onSubcohortsLoaded(rows: any) {
         />
         <TableContent 
           v-if="(subcohorts && subcohorts.length)"
+          id="Subpopulations"
           title="Subpopulations" 
           description="List of subcohorts or subpopulations for this resource" 
           :headers="[
@@ -283,7 +299,8 @@ function onSubcohortsLoaded(rows: any) {
           :rows="subcohorts" />
 
         <TableContent 
-          v-if="(collectionEvents && collectionEvents.length)"
+          v-if="collectionEvents && collectionEvents.length"
+          id="CollectionEvents"
           title="Collection events" 
           description="List of collection events defined for this resource" 
           :headers="
