@@ -740,21 +740,22 @@ public class GraphqlSchemaFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               try {
                 String reportsJson = schema.getMetadata().getSetting("reports");
-                logger.info("REPORT value: "+reportsJson);
-                if(reportsJson != null) {
+                logger.info("REPORT value: " + reportsJson);
+                if (reportsJson != null) {
                   id = dataFetchingEnvironment.getArgument(ID);
                   Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
                   Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
                   List<Map<String, String>> reportList =
-                          new ObjectMapper().readValue(reportsJson, List.class);
+                      new ObjectMapper().readValue(reportsJson, List.class);
                   Map<String, String> report = reportList.get(id);
                   String sql = report.get("sql") + "LIMIT " + limit + " OFFSET " + offset;
                   String countSql =
-                          String.format("select count(*) from (%s) as count", report.get("sql"));
+                      String.format("select count(*) from (%s) as count", report.get("sql"));
                   result.put(DATA, convertToJson(schema.retrieveSql(sql)));
-                  result.put(COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
+                  result.put(
+                      COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
                 }
-                  return result;
+                return result;
               } catch (Exception e) {
                 e.printStackTrace();
                 throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);

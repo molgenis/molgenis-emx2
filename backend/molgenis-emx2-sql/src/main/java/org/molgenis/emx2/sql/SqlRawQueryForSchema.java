@@ -25,20 +25,20 @@ public class SqlRawQueryForSchema {
     List<Row> result = new ArrayList<>();
     schema.tx(
         db -> {
-          // set schema search path for this tx only
+          // set schema search path
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           jooq.execute("SET search_path TO {0}", name(schema.getName()));
           try {
             Result<Record> fetch = jooq.fetch(sql);
             for (org.jooq.Record r : fetch) {
-              //              for (Field field : r.fields()) {
-              //                System.out.println(field);
-              //              }
               result.add(new SqlRow(r));
             }
             logger.info(schema.getDatabase().getActiveUser() + " executed query " + sql);
           } catch (SQLException sqle) {
             throw new MolgenisException("query failed", sqle);
+          } finally {
+            // reset search path
+            jooq.execute("RESET search_path");
           }
         });
     return result;
