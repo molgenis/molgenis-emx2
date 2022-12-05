@@ -2,7 +2,7 @@
 *.pyc
 *_data.zip
 *_upload.zip
-.*_data
+*data
 .idea
 venv
 .env

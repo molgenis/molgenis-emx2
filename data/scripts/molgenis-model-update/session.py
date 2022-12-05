@@ -122,7 +122,8 @@ class Session:
                 print(response.json()['data']['deleteSchema']['message'])
 
     def create_database(self, template: str) -> None:
-        """ Create database if it doesn't exists, use template DATA_CATALOGUE3 to create catalogue AND ontologies CatalogueOntologies or leave empty"""
+        """ Create database if it doesn't exists, use template DATA_CATALOGUE3 to create catalogue AND \
+        ontologies CatalogueOntologies or leave empty"""
         query = '{_session {schemas} }'
 
         response = self.session.post(self.graphqlEndpoint, json={'query': query} )

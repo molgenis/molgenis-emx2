@@ -1,9 +1,6 @@
 import pandas as pd
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 18e571442d0d65167c35aeafcabc0e71d7a83fcf
 def spaces(s):
     new_s = ''
     i = 0

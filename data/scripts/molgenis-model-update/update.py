@@ -45,13 +45,6 @@ class TransformData:
         self.path = './' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
-        self.remove_unzipped_data()
-        self.unzip_data()
-        # self.update_model()
-        self.transform_data()
-        self.get_spaces()
-        self.zip_data()
-
     def remove_unzipped_data(self):
         """Remove extracted unzipped data from previous run of script
         """
@@ -110,7 +103,6 @@ class TransformData:
                 except pd.errors.EmptyDataError:
                     pass
                 new_file_name = spaces(file_name)
-                print(new_file_name)
                 os.rename(os.path.join(self.path, file_name), os.path.join(self.path, new_file_name))
 
     def contacts(self):
@@ -209,4 +201,4 @@ class TransformData:
     def zip_data(self):
         """Zip transformed data to upload.zip
         """
-        shutil.make_archive('upload', 'zip', self.path)
+        shutil.make_archive(self.database + '_upload', 'zip', self.path)

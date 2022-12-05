@@ -10,7 +10,7 @@ DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
 SERVER_URL = config('MG_SERVER_URL')
 SERVER_USERNAME = config('MG_SERVER_USERNAME')
 SERVER_PASSWORD = config('MG_SERVER_PASSWORD')
-SCHEMA_NAME = config('MG_SCHEMA_NAME')
+CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
 # COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
@@ -19,7 +19,7 @@ print('-----  Config variables loaded ----')
 print('SERVER_URL: ' + SERVER_URL)
 print('SERVER_USERNAME: ' + SERVER_USERNAME)
 print('SERVER_PASSWORD: ******')
-print('SCHEMA_NAME: ' + SCHEMA_NAME)
+print('SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
 
 print('-----   ----')
 
@@ -29,17 +29,23 @@ print('Updating catalogue data model to version' + DATA_MODEL_VERSION)
 print('Sign in to server.')
 session = Session(
     url=SERVER_URL,
-    database=SCHEMA_NAME,
+    database=CATALOGUE_SCHEMA_NAME,
     email=SERVER_USERNAME,
     password=SERVER_PASSWORD
 )
 # extract data from catalogue
-print('Extract data from ' + SCHEMA_NAME + ': ' + SCHEMA_NAME + '_data.zip')
+print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
 session.download_zip()
 
-# transform data
-print('Transform data from ' + SCHEMA_NAME)
-transform_data = TransformData(SCHEMA_NAME)
+# transform data from catalogue
+print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
+transform_data = TransformData(CATALOGUE_SCHEMA_NAME)
+transform_data.remove_unzipped_data()
+transform_data.unzip_data()
+# transform_data.update_model()
+transform_data.transform_data()
+transform_data.get_spaces()
+transform_data.zip_data()
 
 # # upload data
 # print('Load data' + SCHEMA_NAME + '(upload.zip)')
