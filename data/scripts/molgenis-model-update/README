@@ -13,7 +13,11 @@ Use virtual env to get a consistent python environment.
 
 1. Clone the github repository
 
-2. Create a virtual python environment
+    'git clone git@github.com:molgenis/molgenis-emx2'
+
+2. Create a virtual python environment at the location of the script
+
+    'cd data\scripts\molgenis-model-update'
 
     `python -m venv venv`
 
