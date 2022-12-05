@@ -25,6 +25,7 @@ interface ICohort {
   collectionEvents: ICollectionEvent[]
   partners: IPartner[]
   contributors: IContributor[]
+  networks: INetwork []
 }
 
 interface IPartner {
@@ -84,4 +85,10 @@ interface ICollectionEventCategorySet {
   name: string
   children?: ICollectionEventCategorySet[]
   definition?: string
+}
+
+interface INetwork {
+  name: string
+  description?: string
+  logo?: IUrlObject
 }

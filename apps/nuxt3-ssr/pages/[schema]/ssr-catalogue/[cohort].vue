@@ -50,6 +50,18 @@ const query = gql`
           }
         }
       }
+      networks {
+        pid
+        name
+        description
+        website
+        logo {
+          id
+          url
+          size
+          extension
+        }
+      }
       collectionEvents {
         name
         description
@@ -220,7 +232,7 @@ function onSubcohortsLoaded(rows: any) {
       <SideNavigation />
     </template>
     <template #main>
-      <ContentBlocks>
+      <ContentBlocks v-if="cohort">
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
@@ -242,6 +254,7 @@ function onSubcohortsLoaded(rows: any) {
           title="Attached Files Generic Example"
         /> -->
         <ContentBlockContact
+          v-if="cohort?.contributors"
           id="Contributors"
           title="Contact and Contributors"
           :contributors="cohort?.contributors"
@@ -254,41 +267,45 @@ function onSubcohortsLoaded(rows: any) {
         <ContentBlockData
           id="AvailableData"
           title="Available Data &amp; Samples"
-          description=""
           :collectionEvents="cohort?.collectionEvents"
         />
         <TableContent 
+          v-if="(subcohorts && subcohorts.length)"
           title="Subpopulations" 
           description="List of subcohorts or subpopulations for this resource" 
           :headers="[
-                    { id: 'name', label: 'Name' },
-                    { id: 'description', label: 'Description' },
-                    { id: 'numberOfParticipants', label: 'Number of participants' },
-                    { id: 'ageGroups', label: 'Age categories' }
-                    ]"
+          { id: 'name', label: 'Name' },
+          { id: 'description', label: 'Description' },
+          { id: 'numberOfParticipants', label: 'Number of participants' },
+          { id: 'ageGroups', label: 'Age categories' }
+          ]"
           :rows="subcohorts" />
 
         <TableContent 
+          v-if="(collectionEvents && collectionEvents.length)"
           title="Collection events" 
           description="List of collection events defined for this resource" 
           :headers="
-                  [
-                    { id: 'name', label: 'Name' },
-                    { id: 'description', label: 'Description' },
-                    { id: 'startAndEndYear', label: 'Start end year' },
-                  ]"
+          [
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description' },
+            { id: 'startAndEndYear', label: 'Start end year' },
+          ]"
           :rows="collectionEvents" />
 
         <ContentBlockPartners
+          v-if="cohort?.partners"
           id="Partners"
           title="Partners"
           description=""
           :partners="cohort?.partners"
         />
         <ContentBlockNetwork
+          v-if="cohort?.networks"
           id="Networks"
           title="Networks"
           description="Networks Explanation about networks from this cohort and the functionality seen here."
+          :networks="cohort?.networks"
         />
       </ContentBlocks>
     </template>

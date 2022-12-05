@@ -2,8 +2,8 @@
 const { collectionEvents, useFlatCategories } = withDefaults(
   defineProps<{
     title: string;
-    description: string;
-    collectionEvents: ICollectionEvent[];
+    description?: string;
+    collectionEvents?: ICollectionEvent[];
     useFlatCategories?: boolean;
   }>(),
   {
@@ -14,18 +14,22 @@ const { collectionEvents, useFlatCategories } = withDefaults(
 function getFlatCategoriesOf(
   type: "dataCategories" | "sampleCategories" | "areasOfInformation"
 ) {
-  const items = collectionEvents.reduce(
-    (accumulator: string[], currentValue: ICollectionEvent) => {
-      if (Array.isArray(currentValue[type])) {
-        accumulator.push(
-          ...currentValue[type].map((item: INameObject) => item.name)
-        );
-      }
-      return accumulator;
-    },
-    []
-  );
-  return [...new Set(items)];
+  if (collectionEvents) {
+    const items = collectionEvents.reduce(
+      (accumulator: string[], currentValue: ICollectionEvent) => {
+        if (Array.isArray(currentValue[type])) {
+          accumulator.push(
+            ...currentValue[type].map((item: INameObject) => item.name)
+          );
+        }
+        return accumulator;
+      },
+      []
+    );
+    return [...new Set(items)];
+  } else {
+    return []
+  }
 }
 
 function collectCategories(

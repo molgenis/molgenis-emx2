@@ -60,7 +60,7 @@ function setData() {
 </script>
 
 <template>
-  <ContentBlock :title="title" :description?="description">
+  <ContentBlock :title="title" :description="description">
     <DefinitionList :items="generalDesign" />
   </ContentBlock>
 </template>
