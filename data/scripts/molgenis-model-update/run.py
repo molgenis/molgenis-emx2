@@ -11,6 +11,7 @@ SERVER_URL = config('MG_SERVER_URL')
 SERVER_USERNAME = config('MG_SERVER_USERNAME')
 SERVER_PASSWORD = config('MG_SERVER_PASSWORD')
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
+ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 
 # COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
@@ -19,11 +20,12 @@ print('-----  Config variables loaded ----')
 print('SERVER_URL: ' + SERVER_URL)
 print('SERVER_USERNAME: ' + SERVER_USERNAME)
 print('SERVER_PASSWORD: ******')
-print('SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
+print('CATALOGUE_SCHEMA_NAME: ' + CATALOGUE_SCHEMA_NAME)
+print('ONTOLOGIES_SCHEMA_NAME: ' + ONTOLOGIES_SCHEMA_NAME)
 
 print('-----   ----')
 
-print('Updating catalogue data model to version' + DATA_MODEL_VERSION)
+print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
 
 # sign in to server
 print('Sign in to server.')
@@ -42,14 +44,43 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 transform_data = TransformData(CATALOGUE_SCHEMA_NAME)
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
+transform_data.delete_model()
 # transform_data.update_model()
 transform_data.transform_data()
 transform_data.get_spaces()
 transform_data.zip_data()
 
-# # upload data
-# print('Load data' + SCHEMA_NAME + '(upload.zip)')
+# # upload data from catalogue
+# print('Load data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME +  '_upload.zip')
 # session.upload_zip()
+
+print('----------------')
+
+# sign in to server
+print('Sign in to server.')
+session = Session(
+    url=SERVER_URL,
+    database=ONTOLOGIES_SCHEMA_NAME,
+    email=SERVER_USERNAME,
+    password=SERVER_PASSWORD
+)
+# extract data from CatalogueOntologies
+print('Extract data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME + '_data.zip')
+session.download_zip()
+
+# transform data from CatalogueOntologies
+print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
+transform_data = TransformData(ONTOLOGIES_SCHEMA_NAME)
+transform_data.remove_unzipped_data()
+transform_data.unzip_data()
+transform_data.delete_model()
+transform_data.get_spaces()
+transform_data.zip_data()
+
+# # upload data from CatalogueOntologies
+# print('Load data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME +  '_upload.zip')
+# session.upload_zip()
+
 
 # # Cohorts update
 # print()

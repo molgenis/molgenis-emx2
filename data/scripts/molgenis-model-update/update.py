@@ -73,6 +73,11 @@ class TransformData:
             # remove fails on windows, is not needed on Windows, pass
             self.logger.warning('Warning: Error deleting data.zip')
 
+    def delete_model(self):
+        """Delete molgenis.csv
+        """
+        os.remove(self.path + 'molgenis.csv')
+
     def update_model(self):
         """Replace data model file
         """
