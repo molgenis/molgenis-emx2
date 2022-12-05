@@ -1,23 +1,17 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
-import tailwindConfig from '#tailwind-config'
+<script setup lang="ts">
+defineProps<{
+  link: string;
+}>();
 
-defineProps({
-  link: {
-    type: String,
-    required: true,
-  },
-});
-
-// extract the logo name from the theme
-const logoFileName = tailwindConfig?.theme?.logo
+// // extract the logo name from the theme
+const logoFileName = assetLoader.loadThemeConfig()?.logo
+// const logoFileName  = 'UMCGkort.woordbeeld'
 
 // load the svg data from the assets folder
-let svg = shallowRef('');
+let svg = shallowRef();
 if (logoFileName) {
-  const logos = import.meta.glob('../assets/logos/**/*.svg', { as: 'raw' });
-  const match = logos[`../assets/logos/${logoFileName}.svg`]
-  svg.value = await match()
+  svg.value = await assetLoader.load(logoFileName)
 }
 
 </script>

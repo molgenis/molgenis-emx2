@@ -34,7 +34,7 @@ const menu = [
           <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile />
+            <LogoMobile :link="`/${schema}/ssr-catalogue`"/>
           </div>
 
           <div class="flex gap-3">
