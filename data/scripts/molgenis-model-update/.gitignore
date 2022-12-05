@@ -1,7 +1,8 @@
 *__pycache__*
 *.pyc
-data.zip
-upload.zip
+*_data.zip
+*_upload.zip
+.*_data
 .idea
 venv
 .env
