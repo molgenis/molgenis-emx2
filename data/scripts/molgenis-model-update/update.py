@@ -184,7 +184,7 @@ class TransformData:
     def variable_mappings(self):
         """Rename columns TableMappings
         """
-        df_variable_mappings = pd.read_csv(self.path + 'TableMappings.csv', keep_default_na=False)
+        df_variable_mappings = pd.read_csv(self.path + 'VariableMappings.csv', keep_default_na=False)
         df_variable_mappings.rename(columns={'fromDataDictionary.resource': 'source',
                                              'fromTable': 'sourceDataset',
                                              'fromVariable': 'sourceVariables',
