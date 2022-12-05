@@ -9,6 +9,7 @@ const route = useRoute();
 const query = gql`
   query Cohorts($pid: String) {
     Cohorts(filter: { pid: { equals: [$pid] } }) {
+      acronym
       name
       description
       website
@@ -218,18 +219,18 @@ function onSubcohortsLoaded(rows: any) {
         <template #prefix>
           <BreadCrumbs
             :crumbs="{
-              Home: `/${route.params.schema}/ssr-catalogue`,
+              // Home: `/${route.params.schema}/ssr-catalogue`,
               Cohorts: `/${route.params.schema}/ssr-catalogue`,
             }"
           />
         </template>
-        <template #title-suffix>
+        <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
-        </template>
+        </template> -->
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation />
+      <SideNavigation :title="cohort.acronym" :image="cohort?.logo?.url" />
     </template>
     <template #main>
       <ContentBlocks v-if="cohort">

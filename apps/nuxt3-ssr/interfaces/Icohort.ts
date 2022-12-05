@@ -1,10 +1,11 @@
 interface ICohort {
   name: string
-  description: string
-  website: string
-  logo: IUrlObject
-  contactEmail: string
-  institution: {
+  acronym?: string
+  description?: string
+  website?: string
+  logo?: IUrlObject
+  contactEmail?: string
+  institution?: {
     acronym: string
   }
   type: INameObject[]

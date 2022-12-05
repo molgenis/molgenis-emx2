@@ -22,8 +22,8 @@ function setSideMenuStyle(hash) {
     class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary"
   >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
-      <h2 v-if="title">{{ title }}</h2>
       <img v-if="image" :src="image" />
+      <h2 v-else if="title">{{ title }}</h2>
     </div>
     <ul>
       <li>
