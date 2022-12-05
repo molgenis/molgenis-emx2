@@ -20,12 +20,12 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 
 const TEXT_STYLE_MAPPING = {
-  gray: "text-gray-400",
-  white: "text-white",
+  gray: "text-pagination-label-gray",
+  white: "text-pagination-label-white",
 };
 
 const BORDER_STYLE_MAPPING = {
-  gray: "shadow-primary",
+  gray: "shadow-pagination-gray",
   white: "",
 };
 
@@ -39,71 +39,20 @@ const borderClasses = computed(() => {
 </script>
 
 <template>
-  <nav
-    class="
-      pt-12.5
-      flex
-      items-center
-      justify-center
-      font-display
-      text-heading-xl
-      -mx-2.5
-    "
-  >
-    <a
-      href="#"
-      @click="$emit('update', currentPage - 1)"
-      class="
-        rounded-full
-        bg-button-secondary
-        hover:bg-button-secondary-hover
-        text-white
-        h-15
-        w-15
-        flex
-        justify-center
-      "
-    >
+  <nav class="pt-12.5 flex items-center justify-center font-display text-heading-xl -mx-2.5">
+    <a href="#" @click="$emit('update', currentPage - 1)"
+      class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination hover:bg-pagination-hover text-pagination hover:text-pagination-hover h-15 w-15">
       <BaseIcon name="caret-left" :width="24" />
     </a>
-    <div class="sm:px-5 px-4 tracking-widest" :class="textClasses">Page</div>
-    <div
-      class="
-        sm:px-12
-        px-7.5
-        border
-        rounded-full
-        text-blue-800
-        h-15
-        flex
-        items-center
-        tracking-widest
-        bg-white
-      "
-      :class="borderClasses"
-    >
-      {{ currentPage }}
-    </div>
-    <div
-      class="sm:px-5 px-4 whitespace-nowrap tracking-widest"
-      :class="textClasses"
-    >
+    <div class="px-4 tracking-widest sm:px-5" :class="textClasses">Page</div>
+    <input
+      class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
+      :value="currentPage" :class="borderClasses" />
+    <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap" :class="textClasses">
       OF {{ totalPages }}
     </div>
-    <a
-      href="#"
-      @click="$emit('update', currentPage + 1)"
-      class="
-        rounded-full
-        bg-button-secondary
-        hover:bg-button-secondary-hover
-        text-white
-        h-15
-        w-15
-        flex
-        justify-center
-      "
-    >
+    <a href="#" @click="$emit('update', currentPage + 1)"
+      class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination hover:bg-pagination-hover text-pagination hover:text-pagination-hover h-15 w-15">
       <BaseIcon name="caret-right" :width="24" />
     </a>
   </nav>

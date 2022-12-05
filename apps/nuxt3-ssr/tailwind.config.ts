@@ -93,6 +93,7 @@ export default  {
       boxShadow: {
         primary: "0px 10px 20px rgba(0, 0, 0, 0.1)",
         "search-input": "none",
+        "pagination-gray": "0px 10px 20px rgba(0, 0, 0, 0.1)",
       },
       spacing: {
         "3px": "3px",
@@ -133,6 +134,9 @@ export default  {
         "search-filter-group-toggle": theme("colors.blue.800"),
 
         "app-wrapper": theme("colors.black"),
+
+        pagination: theme("colors.blue.800"),
+        "pagination-hover": theme("colors.blue.900"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),
@@ -155,6 +159,9 @@ export default  {
         "search-button": theme("text.blue.500"),
         "search-button-hover": theme("text.blue.800"),
 
+        favorite: theme("colors.white"),
+        "favorite-hover": theme("colors.white"),
+
         "search-results-view-tabs": theme("colors.blue.500"),
         "search-results-view-tabs-hover": theme("colors.blue.800"),
 
@@ -166,6 +173,12 @@ export default  {
 
         "tooltip-hover-dark": theme("colors.blue.500"),
         "tooltip-hover-light": theme("colors.white"),
+
+        pagination: theme("colors.white"),
+        "pagination-input": theme("colors.blue.800"),
+        "pagination-hover": "#fff",
+        "pagination-label-white": theme("colors.white"),
+        "pagination-label-gray": theme("colors.gray.400"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
@@ -182,12 +195,15 @@ export default  {
         "menu-active": theme("colors.blue.500"),
         "search-button": theme("colors.white"),
         "search-input": theme("colors.white"),
+
+        pagination: "transparent",
       }),
       borderRadius: {
         "3px": "3px",
         "50px": "50px",
         "search-input": "9999px",
         "search-button": "9999px",
+        pagination: "9999px",
       },
       opacity: {
         "background-gradient": 100,

@@ -250,7 +250,7 @@ function updateSelection(newConditions) {
         </label>
       </div>
 
-      <ul class="ml-[39px]" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
+      <ul class="ml-10 mr-4" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
         <SearchFilterGroupChild :items="item.children" @select="select" @deselect="deselect" />
       </ul>
     </li>
