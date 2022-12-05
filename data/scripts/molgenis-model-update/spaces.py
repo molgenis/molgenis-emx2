@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def spaces(s):
     new_s = ''
     i = 0
