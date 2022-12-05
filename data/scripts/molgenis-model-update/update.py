@@ -73,16 +73,17 @@ class TransformData:
             # remove fails on windows, is not needed on Windows, pass
             self.logger.warning('Warning: Error deleting data.zip')
 
-    def delete_model(self):
+    def delete_data_model_file(self):
         """Delete molgenis.csv
         """
         os.remove(self.path + 'molgenis.csv')
 
-    def update_model(self):
+    def update_data_model_file(self):
         """Replace data model file
         """
         # copy updated molgenis.csv to os.listdir(self.path)
-        shutil.copyfile(os.path.join('molgenis.csv'), os.path.join(self.path))
+        shutil.copy(os.path.abspath('../../datacatalogue3/molgenis.csv'),
+                    os.path.abspath(self.path))
 
     def transform_data(self):
         """Make changes per table
