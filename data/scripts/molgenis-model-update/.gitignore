@@ -1,0 +1,7 @@
+*__pycache__*
+*.pyc
+data.zip
+upload.zip
+.idea
+venv
+.env
