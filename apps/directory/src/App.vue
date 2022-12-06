@@ -5,9 +5,12 @@ import { useGraphqlStore } from './stores/graphqlStore'
 const graphqlStore = useGraphqlStore();
 
 let tableInfo = ref({})
+let tableData = ref({})
 
 onMounted(async() => {
 tableInfo.value = await graphqlStore.getColumnsForTable("Biobanks")
+
+tableData.value = await graphqlStore.queryTable("Biobanks", ["id", "name"])
 }) 
 </script>
 
@@ -22,7 +25,7 @@ tableInfo.value = await graphqlStore.getColumnsForTable("Biobanks")
     />
 
     <div class="wrapper">
-      {{ tableInfo.columns }}
+      {{ tableData }}
     </div>
   </header>
 

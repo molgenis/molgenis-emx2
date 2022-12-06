@@ -42,5 +42,19 @@ export const useGraphqlStore = defineStore('graphqlStore', () => {
     return columns
   }
 
-  return { getColumnsForTable }
+  async function queryTable (tableName, properties) {
+
+    // todo check properties, can be a string or object
+    // also need filters
+
+    const query = `{
+    ${tableName} {
+       ${properties.join()}
+      }
+    }`
+
+    return await request(graphqlUrl.value, query)
+  }
+
+  return { getColumnsForTable, queryTable }
 })
