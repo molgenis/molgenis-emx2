@@ -25,6 +25,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.io.FileUtils;
 import org.molgenis.emx2.io.ImportCsvZipTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -145,12 +146,13 @@ public class ZipApi {
 
   static String getZippedReports(Request request, Response response) throws IOException {
     String reports = request.queryParams("id");
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); //NOSONAR
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       String reportsJson = schema.getMetadata().getSetting("reports");
       List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
+      FileUtils.getTempFile("download",".zip");
       Path zipFile = tempDir.resolve("download.zip");
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
 

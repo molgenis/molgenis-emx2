@@ -603,7 +603,7 @@ public class TestGraphqSchemaFields {
     new PetStoreLoader().load(schema, true);
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:0){data,count}}");
-    assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
+    assertTrue(result.at("/_re  ports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());
   }
 }

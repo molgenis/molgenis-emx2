@@ -757,7 +757,6 @@ public class GraphqlSchemaFieldFactory {
                 }
                 return result;
               } catch (Exception e) {
-                e.printStackTrace();
                 throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
               }
             })
