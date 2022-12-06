@@ -459,6 +459,7 @@ export default {
             //then copy properties, currently only definition and label
             terms[e.name].definition = e.definition;
             terms[e.name].label = e.label;
+            terms[e.name].code = e.code;
           } else {
             //else simply add the record
             terms[e.name] = {
@@ -466,6 +467,7 @@ export default {
               visible: true,
               selected: false,
               definition: e.definition,
+              code: e.code,
               label: e.label
             };
           }
