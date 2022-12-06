@@ -1,11 +1,15 @@
 # directory
 
 This template should help get you started developing with Vue 3 in Vite.
+# Login path for access to graphql query
 
-## Recommended IDE Setup
+When you do
+```sh
+yarn dev
+```
+open http://127.0.0.1:5173/apps/central/#/ and login
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
+see vite.config.js for details about the current server
 ## Customize configuration
 
 See [Vite Configuration Reference](https://vitejs.dev/config/).

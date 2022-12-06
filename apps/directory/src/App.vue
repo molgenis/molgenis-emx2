@@ -4,11 +4,10 @@ import { useGraphqlStore } from './stores/graphqlStore'
 
 const graphqlStore = useGraphqlStore();
 
-let currentColumns = ref([])
+let tableInfo = ref({})
 
 onMounted(async() => {
-currentColumns = await graphqlStore.getColumnsForTable("Biobanks")
-console.log('@')
+tableInfo.value = await graphqlStore.getColumnsForTable("Biobanks")
 }) 
 </script>
 
@@ -23,7 +22,7 @@ console.log('@')
     />
 
     <div class="wrapper">
-      {{ currentColumns }}
+      {{ tableInfo.columns }}
     </div>
   </header>
 

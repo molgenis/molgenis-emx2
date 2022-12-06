@@ -3,18 +3,18 @@ import { defineStore } from 'pinia'
 import { request } from 'graphql-request'
 
 export const useGraphqlStore = defineStore('graphqlStore', () => {
-    let tableInformation = ref([])
-    const graphqlUrl = ref('graphql')
+  let tableInformation = ref([])
+  const graphqlUrl = ref('graphql')
 
-    /**
-     * Gets the current selected schema information
-     * and stores it in tableInformation
-     */
-    async function getTableInformation () {
+  /**
+   * Gets the current selected schema information
+   * and stores it in tableInformation
+   */
+  async function getTableInformation () {
 
-        const result = await request(graphqlUrl.value, `
+    const result = await request(graphqlUrl.value, `
         {
-            _schema {sxs
+            _schema {
               tables {
                 name,
                 columns {
@@ -25,25 +25,22 @@ export const useGraphqlStore = defineStore('graphqlStore', () => {
             }
           }
         `)
+    tableInformation.value = result._schema.tables
+  }
 
-        console.log('result', result)
-        tableInformation.value = result.tables
+  /**
+   * @param {string} tableName 
+   */
+  async function getColumnsForTable (tableName) {
+    if (tableInformation.value.length === 0) {
+      await getTableInformation();
     }
 
-    /**
-     * @param {string} tableName 
-     */
-    async function getColumnsForTable (tableName) {
-        if (tableInformation.value.length === 0) {
-            await getTableInformation();
-        }
+    const columns = tableInformation.value.find(ti => ti.name === tableName)
+    if (columns.length === 0) return []
 
-        const columns = tableInformation.value.find(ti => ti.name === tableName)
+    return columns
+  }
 
-        if (columns.length === 0) return []
-
-        return columns
-    }
-
-    return { getColumnsForTable }
+  return { getColumnsForTable }
 })
