@@ -405,7 +405,7 @@ export default {
           .map((s) => s.toLowerCase());
         //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
-          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+          if (searchTerms.every((s) => term.name.toLowerCase().includes(s) || term.label?.toLowerCase().includes(s) ||  term.definition?.toLowerCase().includes(s) ||  term.code?.toLowerCase().includes(s)  )) {
             term.visible = true;
             this.searchResultCount++;
 
