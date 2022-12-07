@@ -1,9 +1,7 @@
 import shutil
-import stat
 import os
 import pandas as pd
 import logging
-from zipfile import ZipFile
 
 
 def float_to_int(df):
@@ -25,34 +23,6 @@ class TransformDataCatalogue:
         self.database = database
         self.path = './' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
-
-    def remove_unzipped_data(self):
-        """Remove extracted unzipped data from previous run of script
-        """
-        try:
-            # remove unzipped data and avoid Windows PermissionError
-            shutil.rmtree(self.path, onerror=lambda func, path, _: (os.chmod(path, stat.S_IWRITE), func(path)))
-        except FileNotFoundError:
-            self.logger.info('No unzipped data was found')
-
-    def unzip_data(self):
-        """Extract data.zip
-        """
-        data = ZipFile(self.database + '_data.zip')
-        try:
-            data.extractall(self.path)
-        except FileNotFoundError:
-            self.logger.error('unzip failed')
-            exit()
-        except PermissionError:
-            self.logger.error('Error: unzip failed, permission denied')
-            exit()
-        try:
-            if os.path.exists(self.database + '_data.zip'):
-                os.remove(self.database + '_data.zip')
-        except PermissionError:
-            # remove fails on windows, is not needed on Windows, pass
-            self.logger.warning('Warning: Error deleting data.zip')
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
@@ -179,8 +149,3 @@ class TransformDataCatalogue:
             #databank > linkedDatasource
         #DAPs > ResourceOrganisations
             #isDataAccessProvider ontology filled from several data items in DAPs
-
-    def zip_data(self):
-        """Zip transformed data to upload.zip
-        """
-        shutil.make_archive(self.database + '_upload', 'zip', self.path)

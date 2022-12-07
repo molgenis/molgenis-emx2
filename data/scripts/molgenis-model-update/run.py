@@ -2,6 +2,7 @@ from decouple import config
 from session import Session
 from update import TransformDataCatalogue
 from spaces import Spaces
+from download_upload import DownloadUpload
 
 # Data model details
 DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
@@ -41,16 +42,19 @@ session.download_zip()
 
 # transform data from catalogue
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
+# get instances of classes
 transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME)
+download_upload = DownloadUpload(CATALOGUE_SCHEMA_NAME)
+spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 
-transform_data.remove_unzipped_data()
-transform_data.unzip_data()
+# run download, transform and upload
+download_upload.remove_unzipped_data()
+download_upload.unzip_data()
 transform_data.delete_data_model_file()
 transform_data.transform_data()
-spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 spaces.get_spaces()
 transform_data.update_data_model_file()
-transform_data.zip_data()
+download_upload.zip_data()
 
 # # upload data from catalogue
 # print('Load data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME +  '_upload.zip')
@@ -73,12 +77,14 @@ session.download_zip()
 # transform data from CatalogueOntologies
 print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
 transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME)
-transform_data.remove_unzipped_data()
-transform_data.unzip_data()
-transform_data.delete_data_model_file()
+download_upload = DownloadUpload(ONTOLOGIES_SCHEMA_NAME)
 spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
+
+download_upload.remove_unzipped_data()
+download_upload.unzip_data()
+transform_data.delete_data_model_file()
 spaces.get_spaces()
-transform_data.zip_data()
+download_upload.zip_data()
 
 # # upload data from CatalogueOntologies
 # print('Load data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME +  '_upload.zip')
