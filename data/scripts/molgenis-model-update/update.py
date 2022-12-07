@@ -36,7 +36,7 @@ def get_new_column_names(df, database):
     return df
 
 
-class TransformData:
+class TransformDataCatalogue:
     """Update data model from 2.8 to 3.0.
     """
 

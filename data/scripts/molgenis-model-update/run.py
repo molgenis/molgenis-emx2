@@ -1,7 +1,6 @@
-from posixpath import join
 from decouple import config
 from session import Session
-from update import TransformData
+from update import TransformDataCatalogue
 
 # Data model details
 DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
@@ -41,7 +40,7 @@ session.download_zip()
 
 # transform data from catalogue
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
-transform_data = TransformData(CATALOGUE_SCHEMA_NAME)
+transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME)
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
 transform_data.delete_data_model_file()
@@ -70,7 +69,7 @@ session.download_zip()
 
 # transform data from CatalogueOntologies
 print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
-transform_data = TransformData(ONTOLOGIES_SCHEMA_NAME)
+transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME)
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
 transform_data.delete_data_model_file()
