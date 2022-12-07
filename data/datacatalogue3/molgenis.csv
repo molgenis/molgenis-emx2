@@ -276,6 +276,7 @@ Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned"
 Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual",,,
 Studies,,data,heading,,,,,,,,,Data management,,,
 Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study,,,
+Studies,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,,,
 Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study,,,
 Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this study,,,
 Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,,,
