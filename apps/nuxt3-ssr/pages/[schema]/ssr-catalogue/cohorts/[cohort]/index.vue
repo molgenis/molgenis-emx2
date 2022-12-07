@@ -201,7 +201,7 @@ function onSubcohortsLoaded(rows: any) {
                 }, [])
                 .map((ag: { name: string; }) => ag.name)
                 .join(","),
-          _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${subcohort.name}`
+          _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`
         }
     })
 
