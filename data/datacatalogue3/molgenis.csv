@@ -35,6 +35,7 @@ Resources,,website,,,,,,,,,,Link to the website or homepage,EMA,,
 Extended resources,,lead organisation,ref,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource,EMA,,
 Resources,,description,text,,,,,,,,,Short description,EMA,,
+Data sources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data in the data source.,EMA,,
 Data sources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
@@ -148,7 +149,8 @@ Data sources,,quality validation methods,text,,,,,,,,,What methods or processes 
 Data sources,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,,,
 Data sources,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",,,
 Data sources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,,,
-Data sources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this databank,EMA,,
+Data sources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,EMA,,
+Data sources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA,,
 Data sources,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
 Data sources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Data sources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
