@@ -63,8 +63,6 @@ Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if 
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,
 Networks,,end year,int,,,,,,,,,Year when the network ended,,,
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
-Data sources,,first data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,Resources,startYear
-Data sources,,last data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,Resources,endYear
 Data sources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in the data source? Select all that are relevant.,EMA,Databanks,populationAgeGroups
 Data sources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA,Databanks,populationEntry
 Data sources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA,Databanks,populationEntryOther
