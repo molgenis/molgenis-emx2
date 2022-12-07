@@ -1,13 +1,8 @@
 import shutil
 import stat
-import numpy as np
 import os
 import pandas as pd
-# import pathlib
-import sys
 import logging
-from spaces import spaces
-
 from zipfile import ZipFile
 
 
@@ -22,22 +17,8 @@ def float_to_int(df):
     return df
 
 
-def get_new_column_names(df, database):
-    """Remove spaces from column names
-    """
-    old_names = df.columns.to_list()
-    new_names = []
-
-    for name in old_names:
-        new_name = spaces(name, database)
-        new_names.append(new_name)
-    df.columns = new_names
-
-    return df
-
-
 class TransformDataCatalogue:
-    """Update data model from 2.8 to 3.0.
+    """Update catalogue data model from 2.8 to 3.0.
     """
 
     def __init__(self, database):
@@ -96,21 +77,6 @@ class TransformDataCatalogue:
         self.dataset_mappings()
         self.variable_mappings()
         self.datasources()
-
-    def get_spaces(self):
-        """Get spaces and lowercase in table names and column names
-        """
-        for file_name in os.listdir(self.path):
-            if not file_name == '_files':
-                try:
-                    df = pd.read_csv(self.path + file_name, keep_default_na=False)
-                    df = get_new_column_names(df, self.database)
-                    df = float_to_int(df)  # convert float back to integer
-                    df.to_csv(self.path + file_name, index=False)
-                except pd.errors.EmptyDataError:
-                    pass
-                new_file_name = spaces(file_name, self.database)
-                os.rename(os.path.join(self.path, file_name), os.path.join(self.path, new_file_name))
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns

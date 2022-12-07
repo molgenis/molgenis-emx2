@@ -1,4 +1,6 @@
 import pandas as pd
+from update import float_to_int
+import os
 
 
 def spaces(s, database):
@@ -9,6 +11,8 @@ def spaces(s, database):
     if not pd.isna(s):
         if s == 'Datasources':
             new_s = 'Data sources'
+        elif s == 'datasources':
+            new_s = 'data sources'
         elif s == 'Datasources.csv':
             new_s = 'Data sources.csv'
         elif s in ['DAPs', 'DAPs.csv']:
@@ -32,7 +36,7 @@ def spaces(s, database):
             new_s = s
         elif s == 'pid':
             new_s = 'id'
-    # get spaces and lowercase
+        # get spaces and lowercase
         else:
             for x in s:
                 if x.isupper() and not i == 0:
@@ -42,3 +46,41 @@ def spaces(s, database):
                 i += 1
 
     return new_s
+
+
+def get_new_column_names(df, database):
+    """Remove spaces from column names
+    """
+    old_names = df.columns.to_list()
+    new_names = []
+
+    for name in old_names:
+        new_name = spaces(name, database)
+        new_names.append(new_name)
+    df.columns = new_names
+
+    return df
+
+
+class Spaces:
+    """Get spaces in column names and table names
+    """
+    def __init__(self, database):
+        self.database = database
+        self.path = './' + self.database + '_data/'
+
+    def get_spaces(self):
+        """Get spaces and lowercase in table names and column names
+        """
+        for file_name in os.listdir(self.path):
+            if not file_name == '_files':
+                try:
+                    df = pd.read_csv(self.path + file_name, keep_default_na=False)
+                    df = get_new_column_names(df, self.database)
+                    df = float_to_int(df)  # convert float back to integer
+                    df.to_csv(self.path + file_name, index=False)
+                except pd.errors.EmptyDataError:
+                    pass
+                new_file_name = spaces(file_name, self.database)
+                os.rename(os.path.join(self.path, file_name), os.path.join(self.path, new_file_name))
+

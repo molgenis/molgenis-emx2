@@ -1,6 +1,7 @@
 from decouple import config
 from session import Session
 from update import TransformDataCatalogue
+from spaces import Spaces
 
 # Data model details
 DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
@@ -41,11 +42,13 @@ session.download_zip()
 # transform data from catalogue
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME)
+
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
 transform_data.delete_data_model_file()
 transform_data.transform_data()
-transform_data.get_spaces()
+spaces = Spaces(CATALOGUE_SCHEMA_NAME)
+spaces.get_spaces()
 transform_data.update_data_model_file()
 transform_data.zip_data()
 
@@ -73,7 +76,8 @@ transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME)
 transform_data.remove_unzipped_data()
 transform_data.unzip_data()
 transform_data.delete_data_model_file()
-transform_data.get_spaces()
+spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
+spaces.get_spaces()
 transform_data.zip_data()
 
 # # upload data from CatalogueOntologies
