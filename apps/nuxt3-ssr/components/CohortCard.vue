@@ -35,7 +35,7 @@ const iconStarClasses = computed(() => {
     <header :class="headerClasses" class="flex">
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
-          <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`" class="
+          <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`" class="
               text-body-base
               font-extrabold
               text-blue-500
@@ -57,7 +57,7 @@ const iconStarClasses = computed(() => {
           class="text-blue-500 xl:justify-end"
         />
         -->
-        <NuxtLink :to="`/${schema}/ssr-catalogue/${cohort.pid}`">
+        <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`">
           <IconButton icon="arrow-right" class="text-blue-500 hidden xl:flex xl:justify-end" />
         </NuxtLink>
       </div>

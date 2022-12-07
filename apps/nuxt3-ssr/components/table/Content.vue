@@ -37,9 +37,10 @@ defineProps<{
                 </TableHeadRow>
             </template>
             <template #body>
-                <NuxtLink custom  v-for="row in rows" :to="row._path">
-                    <TableRow>
+            
+                    <TableRow v-for="row in rows">
                         <TableCell>
+                            <NuxtLink :to="row._path">
                             {{ row[headers[0].id] }}
                             <dl class="font-normal sm:hidden text-gray-900">
                                 <template v-for="header in headers.slice(1)">
@@ -47,16 +48,28 @@ defineProps<{
                                     <dd>{{ row[header.id] }}</dd>
                                 </template>         
                             </dl>
+                            </NuxtLink>
                         </TableCell>
-                        <TableCell v-for="header in headers.slice(1)" class="hidden sm:table-cell">{{ row[header.id] }}</TableCell>
+                        <TableCell v-for="header in headers.slice(1)" class="hidden sm:table-cell">
+                            <NuxtLink :to="row._path">
+                            {{ row[header.id] }}
+                            </NuxtLink>
+                        </TableCell>
                         <TableCell class="hidden sm:table-cell">
+                            <NuxtLink :to="row._path">
                             <IconButton icon="arrow-right" class="text-blue-500" />
+                            </NuxtLink>
                         </TableCell>
                     </TableRow>
-                </NuxtLink>
-
             </template>
         </Table>
         <!-- <Pagination :currentPage="45" :totalPages="55" /> -->
     </ContentBlock>
 </template>
+
+<style>
+/* workaround to be able to wrap NuxtLink around table cells to have linkable table row */
+td a {
+    display: block;
+}
+</style>
