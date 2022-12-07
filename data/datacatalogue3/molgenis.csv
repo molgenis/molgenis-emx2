@@ -82,7 +82,7 @@ Data sources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indicat
 Data sources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,
 Data sources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",EMA,Databanks,careSettingOther
 Data sources,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
-Data sources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA
+Data sources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
 Data sources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Informed consents,,,,,"If the data bank contains biospecimens, what types of specimen",,,
 Data sources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA,,
 Data sources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA,,
@@ -308,7 +308,7 @@ Studies,,results,text,,,,,,,,,A brief summary of the results of the study on stu
 Studies,,topic,ontology,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,,,
 Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details",,,
 Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,,,
-Studies,,study design classification,ontology,,,CatalogueOntologies,Study design classification,,,,,If Study type: clinical trials. Select one of the following,,,
+Studies,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,,,
 Studies,,study design classification other,text,,,,,,,,,Further details on design,,,
 Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,,,
 Studies,,study scope other,text,,,,,,,,,If scope 'other',,,
