@@ -1,0 +1,112 @@
+<script setup lang="ts">
+const preAnimation = () => {
+  if (slideInRight) {
+    document.body.classList.add("v-popper_right");
+  }
+};
+
+const onShow = () => {
+  document.body.classList.add("no-scroll");
+};
+
+const onHide = () => {
+  document.body.classList.remove("no-scroll");
+  document.body.classList.remove("v-popper_right");
+};
+
+const { slideInRight, fullScreen } = withDefaults(
+  defineProps<{
+    slideInRight: boolean;
+    fullScreen: boolean;
+  }>(),
+  {
+    slideInRight: false,
+    fullScreen: true,
+  }
+);
+
+const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
+const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
+</script>
+
+<template>
+  <VDropdown
+    :positioning-disabled="true"
+    @show="preAnimation()"
+    @apply-show="onShow()"
+    @apply-hide="onHide()"
+  >
+    <slot name="button"></slot>
+    <template #popper="{ hide }">
+      <div
+        :class="`fixed top-8 bottom-8 bg-white overflow-hidden ${roundedClass} ${fullScreenClass}`"
+      >
+        <div class="h-full overflow-auto">
+          <button @click="hide()" class="absolute top-7 right-8">
+            <BaseIcon name="cross" />
+          </button>
+
+          <slot></slot>
+        </div>
+        <div class="absolute inset-x-0 bottom-0">
+          <div class="flex items-center justify-around px-6 bg-blue-500 h-19">
+            <slot name="footer"></slot>
+          </div>
+        </div>
+      </div>
+    </template>
+  </VDropdown>
+</template>
+
+<style>
+.v-popper--theme-dropdown .v-popper__inner {
+  background: none;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.v-popper__popper--no-positioning {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  width: 100%;
+}
+
+.v-popper_fullscreen .v-popper__popper--no-positioning {
+  width: 100%;
+  max-width: none;
+}
+
+.v-popper_right .v-popper__popper--no-positioning {
+  left: auto;
+  right: 0;
+}
+
+.v-popper__popper--no-positioning .v-popper__backdrop {
+  display: block;
+  background: rgba(0 0 0 / 60%);
+}
+
+.v-popper__popper--no-positioning .v-popper__wrapper {
+  width: 100%;
+  pointer-events: auto;
+  transition: transform 0.15s ease-out;
+}
+
+.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+  transform: translateX(-100%);
+}
+.v-popper_right
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateX(100%);
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+</style>
