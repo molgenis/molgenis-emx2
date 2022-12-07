@@ -23,7 +23,7 @@ defineProps({
     <template v-for="(url, label, index) in crumbs" :key="label">
       <a :href="url" class="text-breadcrumb hover:underline">{{ label }}</a>
       <span v-if="index < Object.keys(crumbs).length - 1" class="text-breadcrumb-arrow">
-        <BaseIcon name="caret-right" width="12" />
+        <BaseIcon name="caret-right" :width="12" />
       </span>
     </template>
   </nav>

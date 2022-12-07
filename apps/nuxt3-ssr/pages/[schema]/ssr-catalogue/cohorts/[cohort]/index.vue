@@ -148,10 +148,6 @@ function setData(data: any) {
     cohort = data?.data?.Cohorts[0];
 }
 
-fetchGql(subcohortsQuery, { pid: route.params.cohort })
-    .then(resp => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
-    .catch(e => console.log(e))
-
 fetchGql(collectionEventsQuery, { pid: route.params.cohort })
     .then(resp => onCollectionEventsLoaded(resp.data.Cohorts[0].collectionEvents))
     .catch(e => console.log(e))
@@ -171,10 +167,14 @@ function onCollectionEventsLoaded(rows: any) {
                     item.endYear && item.endYear.name ? item.endYear.name : null;
                 return filters.startEndYear(startYear, endYear);
             })(),
-          _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${item.name}`,
+          _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
         };
     });
 }
+
+fetchGql(subcohortsQuery, { pid: route.params.cohort })
+  .then(resp => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
+  .catch(e => console.log(e))
 
 let subcohorts: Ref = ref([])
 function onSubcohortsLoaded(rows: any) {
