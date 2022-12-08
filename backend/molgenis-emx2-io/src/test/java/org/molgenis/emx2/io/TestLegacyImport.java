@@ -76,23 +76,23 @@ public class TestLegacyImport {
         schema
             .getTable("biobanks")
             .select(
-                s("Name"),
-                s("Contact person", s("Full name")),
-                s("Principle investigators", s("Full name")),
-                s("Organisation", s("Name")))
+                s("name"),
+                s("contact_person", s("full_name")),
+                s("principal_investigators", s("full_name")),
+                s("juristic_person", s("name")))
             .search("GrONingen")
             .retrieveRows();
     assertEquals(1, rows.size());
-    assertEquals("UMCG Research Data and Biobanking Team", rows.get(0).getString("Name"));
+    assertEquals("UMCG Research Data and Biobanking Team", rows.get(0).getString("name"));
 
     System.out.println("search groningen");
     for (Row r : schema.getTable("biobanks").search("groningen").retrieveRows()) {
-      System.out.println(r.getString("Name"));
+      System.out.println(r.getString("name"));
     }
 
     System.out.println("search rotterdam");
     for (Row r : schema.getTable("biobanks").search("rotterdam").retrieveRows()) {
-      System.out.println(r.getString("Name"));
+      System.out.println(r.getString("name"));
     }
 
     Assert.assertEquals(22, schema.getTableNames().size());

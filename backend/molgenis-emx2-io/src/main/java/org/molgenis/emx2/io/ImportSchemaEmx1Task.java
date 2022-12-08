@@ -5,8 +5,6 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.emx1.Emx1Attribute;
@@ -41,10 +39,7 @@ public class ImportSchemaEmx1Task extends Task {
     loadRefRelationships(emx1schema, entities, attributes);
 
     // load into target schema
-    schema.migrate(stripOldName(emx1schema));
-
-    // update message
-    schemaTask.complete();
+    schema.migrate(emx1schema);
 
     // revert map
     Map<String, String> tableToSheet = new LinkedHashMap<>();
@@ -52,36 +47,19 @@ public class ImportSchemaEmx1Task extends Task {
       tableToSheet.put(entry.getValue().getName(), entry.getKey());
     }
 
-    // load the tables, using the original names
+    // update message
+    schemaTask.complete();
+
+    // load the tables
     for (TableMetadata table : emx1schema.getTables()) {
-      String emx1EntityName = tableToSheet.get(table.getTableName());
-      if (store.containsTable(emx1EntityName)) {
+      if (store.containsTable(tableToSheet.get(table.getTableName()))) {
         Task tableTask = this.addSubTask("Loading " + table.getTableName()).start();
 
-        // map for mapping from 'name' to 'label'
-        Map<String, String> attributeMap =
-            table.getColumns().stream()
-                .collect(Collectors.toMap(Column::getOldName, Column::getName));
-
         // create a stream from the row iterable
-        Stream<Row> rowStream =
+        List<Row> rows =
             StreamSupport.stream(
-                store.readTable(tableToSheet.get(table.getTableName())).spliterator(), false);
-
-        // rename columns from name to label (argh!)
-        rowStream =
-            rowStream.map(
-                row -> {
-                  Row result = new Row();
-                  attributeMap
-                      .entrySet()
-                      .forEach(
-                          entry ->
-                              result.set(entry.getValue(), row.getValueMap().get(entry.getKey())));
-                  return result;
-                });
-
-        List<Row> rows = rowStream.toList();
+                    store.readTable(tableToSheet.get(table.getTableName())).spliterator(), false)
+                .toList();
 
         // memory intensive?
         schema.getTable(table.getTableName()).save(rows); // actually upsert
@@ -90,17 +68,6 @@ public class ImportSchemaEmx1Task extends Task {
       }
     }
     this.complete();
-  }
-
-  private static SchemaMetadata stripOldName(SchemaMetadata emx1schema) {
-    SchemaMetadata clone = new SchemaMetadata(emx1schema);
-    clone
-        .getTables()
-        .forEach(
-            t -> {
-              t.getColumns().forEach(c -> c.setOldName(null));
-            });
-    return clone;
   }
 
   private static void loadRefRelationships(
@@ -126,7 +93,7 @@ public class ImportSchemaEmx1Task extends Task {
 
         String refTableName = getTableName(entities, attribute.getRefEntity());
 
-        Column c = table.getColumn(getColumnName(attribute)).setRefTable(refTableName);
+        Column c = table.getColumn(attribute.getName()).setRefTable(refTableName);
 
         if (attribute.getDataType().contains(ONETOMANY)) {
           Optional<Emx1Attribute> refbackAttribute =
@@ -143,7 +110,7 @@ public class ImportSchemaEmx1Task extends Task {
                     + "."
                     + attribute.getName());
           } else {
-            c.setRefBack(getColumnName(refbackAttribute.get()));
+            c.setRefBack(attribute.getRefBack());
           }
         }
         table.alterColumn(c);
@@ -195,7 +162,7 @@ public class ImportSchemaEmx1Task extends Task {
         // create the attribute
         ColumnType type = getColumnType(attribute.getDataType());
         Column column =
-            column(getColumnName(attribute))
+            column(attribute.getName())
                 .setOldName(attribute.getName())
                 .setType(type)
                 .setRequired(!attribute.getNillable())
@@ -219,18 +186,6 @@ public class ImportSchemaEmx1Task extends Task {
           EMX_1_IMPORT_FAILED + me.getMessage() + ". See 'attributes' line " + line, me);
     }
     return attributes;
-  }
-
-  private static String getColumnName(Emx1Attribute attribute) {
-    if (attribute.getLabel() != null) {
-      // strip all illegal characters
-      String result =
-          attribute.getLabel().trim().substring(0, 1).replaceAll("[^a-zA-Z]", "")
-              + attribute.getLabel().trim().substring(1).replaceAll("[^a-zA-Z0-9_ ]", "");
-      return result.trim();
-    } else {
-      return attribute.getName();
-    }
   }
 
   private static String getTableName(Map<String, Emx1Entity> entities, String entityName) {
