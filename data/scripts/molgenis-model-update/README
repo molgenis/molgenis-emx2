@@ -29,8 +29,20 @@ Use virtual env to get a consistent python environment.
 
     `pip install -r requirements.txt`
 
-More info see:
+    More info see:
 
-mac: [https://www.youtube.com/watch?v=Kg1Yvry_Ydk](https://www.youtube.com/watch?v=Kg1Yvry_Ydk)
+    mac: [https://www.youtube.com/watch?v=Kg1Yvry_Ydk](https://www.youtube.com/watch?v=Kg1Yvry_Ydk)
 
-windows: [https://www.youtube.com/watch?v=APOPm01BVrk](https://www.youtube.com/watch?v=APOPm01BVrk)
+    windows: [https://www.youtube.com/watch?v=APOPm01BVrk](https://www.youtube.com/watch?v=APOPm01BVrk)
+
+5. Run script for update of catalogue data
+
+    'run.py'
+
+    Run script for update of staging areas data
+
+    'run_staging.py'
+
+    Run script for update of umcg server
+
+    'run_UMCG.py'
