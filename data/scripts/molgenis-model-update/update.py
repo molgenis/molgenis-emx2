@@ -52,22 +52,28 @@ class TransformDataCatalogue:
     """Functions to update catalogue data model from 2.8 to 3.0.
     """
 
-    def __init__(self, database):
+    def __init__(self, database, database_type):
         self.database = database
         self.path = './' + self.database + '_data/'
+        self.shared_staging = 'SharedStaging'
+        self.path_shared_staging = self.shared_staging + '_data/'
+        self.database_type = database_type
         self.logger = logging.getLogger(' data update and transform')
 
     def transform_data(self):
         """Make changes per table
         """
-        self.contacts()
-        self.tables()
-        self.variables()
-        self.variable_values()
-        self.repeated_variables()
-        self.dataset_mappings()
-        self.variable_mappings()
-        self.datasources()
+        if self.database_type == 'catalogue':
+            self.contacts()
+            self.tables()
+            self.variables()
+            self.variable_values()
+            self.repeated_variables()
+            self.dataset_mappings()
+            self.variable_mappings()
+            self.datasources()
+        if self.database_type == 'UMCG':
+            self.contacts()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -76,7 +82,12 @@ class TransformDataCatalogue:
         df_contributions.rename(columns={'contributionType': 'role',
                                          'contact.firstName': 'firstName',
                                          'contact.surname': 'surname'}, inplace=True)
-        df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+
+        if self.database_type == 'catalogue':
+            df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+        if self.database_type == 'UMCG':
+            df_contacts = pd.read_csv(self.path_shared_staging + 'Contacts.csv')
+
         df_contacts_merged = pd.merge(df_contributions, df_contacts, on=['firstName', 'surname'])
         df_contacts_merged.rename(columns={'surname': 'lastName'}, inplace=True)
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
@@ -154,7 +165,6 @@ class TransformDataCatalogue:
 
         df_variable_mappings.to_csv(self.path + 'VariableMappings.csv', index=False)
 
-        # #Databanks > add to Data sources
     def datasources(self):
         """Add Databanks to Datasources and change column names
         """
@@ -176,64 +186,63 @@ class TransformDataStagingCohorts:
     """Functions to update catalogue data model for cohort staging areas from 2.8 to 3.0.
     """
 
-    def __init__(self, database, shared_staging):
-        self.database = database
-        self.shared_staging = shared_staging
-        self.path = './' + self.database + '_data/'
+    def __init__(self, database, database_type):
+        self.cohort_name = database
+        self.path = './' + self.cohort_name + '_data/'
+        self.shared_staging = 'SharedStaging'
         self.path_shared_staging = self.shared_staging + '_data/'
+        self.database_type = database_type
         self.logger = logging.getLogger(' data update and transform')
 
     def transform_data(self):
         """Make changes per table
         """
-        self.contacts()
-        self.tables()
-        self.variables()
-        self.variable_values()
-        self.repeated_variables()
-        self.dataset_mappings()
-        self.variable_mappings()
+        if self.database_type == 'cohort':
+            self.contacts()
+            self.tables()
+            self.variables()
+            self.variable_values()
+            self.repeated_variables()
+            self.dataset_mappings()
+            self.variable_mappings()
+        if self.database_type == 'cohort_UMCG':
+            self.contacts()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
+        Only keep resource == cohort_name
         """
         df_contributions = pd.read_csv(self.path + 'Contributions.csv')
         df_contributions.rename(columns={'contributionType': 'role',
                                          'contact.firstName': 'firstName',
                                          'contact.surname': 'surname'}, inplace=True)
-        df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+        df_contacts = pd.read_csv(self.path_shared_staging + 'Contacts.csv')
         df_contacts_merged = pd.merge(df_contributions, df_contacts, on=['firstName', 'surname'])
         df_contacts_merged.rename(columns={'surname': 'lastName'}, inplace=True)
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
 
     def tables(self):
-        """Merge TargetTables and SourceTables and rename columns
+        """Rename SourceTables and rename columns
         """
-        df_target_tables = pd.read_csv(self.path + 'TargetTables.csv')
-        df_source_tables = pd.read_csv(self.path + 'SourceTables.csv')
-        df_datasets = pd.concat([df_source_tables, df_target_tables])
+        df_datasets = pd.read_csv(self.path + 'SourceTables.csv')
         df_datasets.rename(columns={'dataDictionary.resource': 'resource'}, inplace=True)
         df_datasets = float_to_int(df_datasets)  # convert float back to integer
         df_datasets.to_csv(self.path + 'Datasets.csv', index=False)
 
     def variables(self):
-        """Merge TargetVariables and SourceVariables and rename columns
+        """Rename SourceVariables and rename columns
         """
-        df_target_vars = pd.read_csv(self.path + 'TargetVariables.csv', keep_default_na=False)
-        df_source_vars = pd.read_csv(self.path + 'SourceVariables.csv', keep_default_na=False)
-        df_variables = pd.concat([df_source_vars, df_target_vars])
+        df_variables = pd.read_csv(self.path + 'SourceVariables.csv', keep_default_na=False)
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
                                      'table': 'dataset'}, inplace=True)
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
-        """Merge TargetVariableValues and SourceVariableValues and rename columns
+        """Rename SourceVariableValues and rename columns
         """
-        df_target_vars_values = pd.read_csv(self.path + 'TargetVariableValues.csv', keep_default_na=False)
-        df_source_vars_values = pd.read_csv(self.path + 'SourceVariableValues.csv', keep_default_na=False)
-        df_variable_values = pd.concat([df_source_vars_values, df_target_vars_values])
+        df_variable_values = pd.read_csv(self.path + 'SourceVariableValues.csv', keep_default_na=False)
         df_variable_values.rename(columns={'dataDictionary.resource': 'resource',
                                            'variable.table': 'variable.dataset',
                                            'ontologyTermIRI': 'ontologyTermURI'}, inplace=True)
@@ -241,11 +250,9 @@ class TransformDataStagingCohorts:
         df_variable_values.to_csv(self.path + 'VariableValues.csv', index=False)
 
     def repeated_variables(self):
-        """Merge RepeatedTargetVariables and RepeatedSourceVariables and rename columns
+        """Rename RepeatedSourceVariables and rename columns
         """
-        df_repeated_target_vars = pd.read_csv(self.path + 'RepeatedTargetVariables.csv', keep_default_na=False)
-        df_repeated_source_vars = pd.read_csv(self.path + 'RepeatedSourceVariables.csv', keep_default_na=False)
-        df_repeated_variables = pd.concat([df_repeated_source_vars, df_repeated_target_vars])
+        df_repeated_variables = pd.read_csv(self.path + 'RepeatedSourceVariables.csv', keep_default_na=False)
         df_repeated_variables.rename(columns={'dataDictionary.resource': 'resource',
                                               'table': 'dataset',
                                               'isRepeatOf.table': 'isRepeatOf.dataset'}, inplace=True)
@@ -278,5 +285,4 @@ class TransformDataStagingCohorts:
         df_variable_mappings = float_to_int(df_variable_mappings)  # convert float back to integer
 
         df_variable_mappings.to_csv(self.path + 'VariableMappings.csv', index=False)
-
 

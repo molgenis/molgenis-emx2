@@ -43,7 +43,7 @@ session.download_zip()
 # transform data from catalogue
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
-transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME)
+transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME, 'catalogue')
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
 spaces = Spaces(CATALOGUE_SCHEMA_NAME)
@@ -77,7 +77,7 @@ session.download_zip()
 
 # transform data from CatalogueOntologies
 print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
-transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME)
+transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 zip_handling = Zip(ONTOLOGIES_SCHEMA_NAME)
 update_general = TransformGeneral(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)

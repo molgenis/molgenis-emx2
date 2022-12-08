@@ -40,7 +40,7 @@ class Zip:
                 os.remove(self.database + '_data.zip')
         except PermissionError:
             # remove fails on windows, is not needed on Windows, pass
-            self.logger.warning('Warning: Error deleting data.zip')
+            self.logger.warning('Warning: Error deleting ' + self.database + '_data.zip')
 
     def zip_data(self):
         """Zip transformed data to upload.zip
