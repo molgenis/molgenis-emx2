@@ -9,14 +9,18 @@
     <InputGroup>
       <BaseIntInput
         :id="id"
-        :value="value"
+        :modelValue="modelValue"
         :placeholder="placeholder"
         :readonly="readonly"
         :required="required"
         :class="{ 'is-invalid': errorMessage }"
-        @input="$emit('input', $event)"
-      >
-      </BaseIntInput>
+        @update:modelValue="
+          $emit(
+            'update:modelValue',
+            $event === NaN ? null : parseInt($event)
+          )
+        "
+      />
       <template v-slot:append>
         <slot name="append" />
       </template>
@@ -41,36 +45,36 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
   <div>
     <demo-item>
       <InputInt
-        id="input-int"
-        v-model="value"
-        label="My int input label"
-        description="Some help needed?"
+          id="input-int"
+          v-model="value"
+          label="My int input label"
+          description="Some help needed?"
       />
       You typed: {{ JSON.stringify(value) }}
     </demo-item>
     <demo-item>
       <InputInt
-        id="input-int-readonly"
-        v-model="readonlyModel"
-        label="Readonly"
-        readonly
+          id="input-int-readonly"
+          v-model="readonlyModel"
+          label="Readonly"
+          readonly
       />
       Value: {{ JSON.stringify(readonlyModel) }}
     </demo-item>
-</div>
-  </template>
-  <script>
-    export default {
-      data: function () {
-        return {
-          value: null,
-          readonlyModel: 32
-        };
-      },
-    };
-  </script>
+  </div>
+</template>
+<script>
+  export default {
+    data: function() {
+      return {
+        value: 0,
+        readonlyModel: 32,
+      };
+    },
+  };
+</script>
 </docs>

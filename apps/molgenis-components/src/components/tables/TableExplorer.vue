@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader">{{ tableName }}</h1>
+    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
 
     <p v-if="showHeader && tableMetadata">
       {{ tableMetadata.description }}
@@ -10,7 +10,7 @@
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
           :exclude="['HEADING', 'FILE']"
@@ -19,7 +19,7 @@
         />
 
         <ShowHide
-          :columns.sync="columns"
+          :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
           label="columns"
@@ -29,24 +29,24 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem">
+          <form class="px-4 py-3" style="min-width: 15rem;">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableName">zip</ButtonAlt>
+                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableName">excel</ButtonAlt>
+                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableName">
+                <ButtonAlt :href="'../api/jsonld/' + tableId">
                   jsonld
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableName">ttl</ButtonAlt>
+                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
               </div>
             </div>
           </form>
@@ -67,13 +67,13 @@
 
       <InputSearch
         class="mx-1 inline-form-group"
-        id="explorer-table-search"
-        :value="searchTerms"
-        @input="setSearchTerms($event)"
+        :id="'explorer-table-search' + Date.now()"
+        :modelValue="searchTerms"
+        @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
-        :value="page"
-        @input="setPage($event)"
+        :modelValue="page"
+        @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
@@ -82,21 +82,24 @@
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
-          :value="limit"
+          :modelValue="limit"
           :options="[10, 20, 50, 100]"
           :clear="false"
-          @input="setLimit($event)"
+          @update:modelValue="setLimit($event)"
           class="mb-0"
         />
-        <SelectionBox v-if="showSelect" :selection.sync="selectedItems" />
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+        />
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings
-          :tableName="tableName"
-          :cardTemplate.sync="cardTemplate"
-          :recordTemplate.sync="recordTemplate"
+        <TableSettings v-if="tableMetadata"
+          :tableMetadata="tableMetadata"
           :graphqlURL="graphqlURL"
+          @update:settings="reloadMetadata"
         />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
@@ -108,7 +111,7 @@
     <div class="d-flex">
       <div v-if="countFilters" class="col-3 pl-0">
         <FilterSidebar
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           :graphqlURL="graphqlURL"
         />
@@ -118,7 +121,7 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
-          :filters.sync="columns"
+          :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
         />
@@ -154,8 +157,10 @@
         />
         <TableMolgenis
           v-if="!loading && view == View.TABLE"
-          :selection.sync="selectedItems"
-          :columns.sync="columns"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+          :columns="columns"
+          @update:colums="columns = $event"
           :table-metadata="tableMetadata"
           :data="dataRows"
           :showSelect="showSelect"
@@ -260,10 +265,9 @@
   </div>
 </template>
 
-
 <script>
 import Client from "../../client/client.js";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey,convertToPascalCase } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -393,6 +397,9 @@ export default {
     },
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     View() {
       return View;
     },
@@ -434,6 +441,8 @@ export default {
               filter[col.id] = { equals: conditions };
             } else if (
               [
+                "LONG",
+                "LONG_ARRAY",
                 "DECIMAL",
                 "DECIMAL_ARRAY",
                 "INT",
@@ -481,7 +490,7 @@ export default {
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableName)
+        .deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -490,7 +499,7 @@ export default {
     async handelExecuteDeleteAll() {
       this.isDeleteAllModalShown = false;
       const resp = await this.client
-        .deleteAllTableData(this.tableName)
+        .deleteAllTableData(this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
@@ -529,17 +538,16 @@ export default {
       });
       this.reload();
     },
-    emitColumns() {
+    emitColumns(event) {
+      this.columns = event;
       this.$emit(
         "updateShowColumns",
         getColumnNames(this.columns, "showColumn")
       );
     },
-    emitFilters() {
-      this.$emit(
-        "updateShowFilters",
-        getColumnNames(this.columns, "showFilter")
-      );
+    emitFilters(event) {
+      this.columns = event;
+      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
     },
     emitConditions() {
       this.page = 1;
@@ -594,6 +602,12 @@ export default {
       });
       this.tableMetadata = newTableMetadata;
     },
+    async reloadMetadata() {
+      this.client = Client.newClient(this.graphqlURL);
+      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      this.setTableMetadata(newTableMetadata);
+      this.reload();
+    },
     async reload() {
       this.loading = true;
       this.graphqlError = null;
@@ -611,19 +625,24 @@ export default {
         })
         .catch(this.handleError);
 
-      this.dataRows = dataResponse[this.tableName];
-      this.count = dataResponse[this.tableName + "_agg"]["count"];
+      this.dataRows = dataResponse[this.tableId];
+      this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.graphqlURL);
-    const newTableMetadata = await this.client
-      .fetchTableMetaData(this.tableName)
-      .catch(this.handleError);
-    this.setTableMetadata(newTableMetadata);
-    await this.reload();
+    await this.reloadMetadata();
   },
+  emits: [
+    "updateShowFilters",
+    "click",
+    "updateShowLimit",
+    "updateShowPage",
+    "updateConditions",
+    "updateShowColumns",
+    "updateShowOrder",
+    "searchTerms",
+  ],
 };
 
 function getColumnNames(columns, property) {
@@ -644,6 +663,7 @@ function getCondition(columnType, condition) {
       case "DATE":
       case "DATETIME":
       case "INT":
+      case "LONG":
       case "DECIMAL":
         return condition.split(",").map((v) => v.split(".."));
       default:
@@ -718,7 +738,7 @@ function getCondition(columnType, condition) {
         urlConditions: {"name": "pooky,spike"},
         page: 1,
         limit: 10,
-        showOrder: 'DESC', 
+        showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
         canManage: false

@@ -211,7 +211,7 @@ public class TestQueryJsonGraph {
     assertEquals(null, ((Map) result.get("Pet_groupBy").get(0).get("tags")).get("name"));
     assertEquals(1, result.get("Pet_groupBy").get(1).get("count"));
     assertEquals("blue", ((Map) result.get("Pet_groupBy").get(1).get("tags")).get("name"));
-    assertEquals(1, result.get("Pet_groupBy").get(2).get("count"));
+    assertEquals(3, result.get("Pet_groupBy").get(2).get("count"));
     assertEquals("green", ((Map) result.get("Pet_groupBy").get(2).get("tags")).get("name"));
 
     // tests below use non-reference types, do we want to enable group by on those??
@@ -294,11 +294,11 @@ public class TestQueryJsonGraph {
         mapper.readValue(
             table.groupBy().select(s("count"), s("col1", s("name"))).retrieveJSON(), Map.class);
 
-    assertEquals(2, result.get("testGroupBy_groupBy").size());
-    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col1")).get("name"));
-    assertEquals(2, result.get("testGroupBy_groupBy").get(0).get("count"));
-    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(1).get("col1")).get("name"));
-    assertEquals(3, result.get("testGroupBy_groupBy").get(1).get("count"));
+    assertEquals(2, result.get("TestGroupBy_groupBy").size());
+    assertEquals("cat", ((Map) result.get("TestGroupBy_groupBy").get(0).get("col1")).get("name"));
+    assertEquals(2, result.get("TestGroupBy_groupBy").get(0).get("count"));
+    assertEquals("dog", ((Map) result.get("TestGroupBy_groupBy").get(1).get("col1")).get("name"));
+    assertEquals(3, result.get("TestGroupBy_groupBy").get(1).get("count"));
 
     result =
         mapper.readValue(
@@ -308,22 +308,22 @@ public class TestQueryJsonGraph {
                 .retrieveJSON(),
             Map.class);
 
-    assertEquals(4, result.get("testGroupBy_groupBy").size());
+    assertEquals(4, result.get("TestGroupBy_groupBy").size());
 
-    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col1")).get("name"));
-    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(0).get("col2")).get("name"));
-    assertEquals(1, result.get("testGroupBy_groupBy").get(0).get("count"));
+    assertEquals("cat", ((Map) result.get("TestGroupBy_groupBy").get(0).get("col1")).get("name"));
+    assertEquals("cat", ((Map) result.get("TestGroupBy_groupBy").get(0).get("col2")).get("name"));
+    assertEquals(1, result.get("TestGroupBy_groupBy").get(0).get("count"));
 
-    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(1).get("col1")).get("name"));
-    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(1).get("col2")).get("name"));
-    assertEquals(1, result.get("testGroupBy_groupBy").get(1).get("count"));
+    assertEquals("cat", ((Map) result.get("TestGroupBy_groupBy").get(1).get("col1")).get("name"));
+    assertEquals("dog", ((Map) result.get("TestGroupBy_groupBy").get(1).get("col2")).get("name"));
+    assertEquals(1, result.get("TestGroupBy_groupBy").get(1).get("count"));
 
-    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(2).get("col1")).get("name"));
-    assertEquals("cat", ((Map) result.get("testGroupBy_groupBy").get(2).get("col2")).get("name"));
-    assertEquals(1, result.get("testGroupBy_groupBy").get(2).get("count"));
+    assertEquals("dog", ((Map) result.get("TestGroupBy_groupBy").get(2).get("col1")).get("name"));
+    assertEquals("cat", ((Map) result.get("TestGroupBy_groupBy").get(2).get("col2")).get("name"));
+    assertEquals(1, result.get("TestGroupBy_groupBy").get(2).get("count"));
 
-    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(3).get("col1")).get("name"));
-    assertEquals("dog", ((Map) result.get("testGroupBy_groupBy").get(3).get("col2")).get("name"));
-    assertEquals(2, result.get("testGroupBy_groupBy").get(3).get("count"));
+    assertEquals("dog", ((Map) result.get("TestGroupBy_groupBy").get(3).get("col1")).get("name"));
+    assertEquals("dog", ((Map) result.get("TestGroupBy_groupBy").get(3).get("col2")).get("name"));
+    assertEquals(2, result.get("TestGroupBy_groupBy").get(3).get("count"));
   }
 }

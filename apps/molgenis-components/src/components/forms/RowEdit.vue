@@ -25,7 +25,8 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
-import { getPrimaryKey, deepClone } from "../utils";
+import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
+import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
@@ -33,12 +34,12 @@ export default {
   name: "RowEdit",
   data: function () {
     return {
-      internalValues: deepClone(this.value),
+      internalValues: deepClone(this.modelValue),
       errorPerColumn: {},
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -85,6 +86,7 @@ export default {
       default: () => true,
     },
   },
+  emits: ["update:modelValue"],
   components: {
     FormInput,
   },
@@ -125,129 +127,41 @@ export default {
       );
     },
     visible(expression, columnId) {
-      // eslint-disable-next-line no-undef
-      if (typeof Expressions !== "undefined" && expression) {
+      if (expression) {
         try {
-          // eslint-disable-next-line no-undef
           return Expressions.evaluate(expression, this.internalValues);
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
-      } else if (expression) {
-        console.error(
-          "No 'Expressions' object found in global scope, visible expression will always be 'true'"
-        );
+      } else {
+        return true;
       }
-      return true;
     },
     validateTable() {
-      if (this.tableMetaData && this.tableMetaData.columns) {
-        this.tableMetaData.columns.forEach((column) => {
-          this.errorPerColumn[column.id] = this.getColumnError(
+      this.tableMetaData?.columns
+        ?.filter((column) => {
+          if (this.visibleColumns) {
+            return this.visibleColumns.find(
+              (visibleColumn) => column.name === visibleColumn.name
+            );
+          } else {
+            return true;
+          }
+        })
+        .forEach((column) => {
+          this.errorPerColumn[column.id] = getColumnError(
             column,
-            this.internalValues
+            this.internalValues,
+            this.tableMetaData
           );
         });
-      }
-    },
-    getColumnError(column, values) {
-      const value = values[column.id];
-      const isInvalidNumber = typeof value === "number" && isNaN(value);
-      const missesValue = value === undefined || value === null || value === "";
-      const type = column.columnType;
-
-      if (column.required && (missesValue || isInvalidNumber)) {
-        return column.name + " is required ";
-      }
-      if (missesValue) {
-        return undefined;
-      }
-      if (type === "EMAIL" && !this.isValidEmail(value)) {
-        return "Invalid email address";
-      }
-      if (type === "EMAIL_ARRAY" && this.containsInvalidEmail(value)) {
-        return "Invalid email address";
-      }
-      if (type === "HYPERLINK" && !this.isValidHyperlink(value)) {
-        return "Invalid hyperlink";
-      }
-      if (type === "HYPERLINK_ARRAY" && this.containsInvalidHyperlink(value)) {
-        return "Invalid hyperlink";
-      }
-      if (column.validation) {
-        return this.evaluateValidationExpression(column, values);
-      }
-      if (
-        this.isRefLinkWithoutOverlap(
-          column,
-          this.tableMetaData,
-          this.internalValues
-        )
-      ) {
-        return `value should match your selection in column '${column.refLink}' `;
-      }
-
-      return undefined;
-    },
-    isValidHyperlink(value) {
-      return HYPERLINK_REGEX.test(String(value).toLowerCase());
-    },
-    containsInvalidHyperlink(hyperlinks) {
-      return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
-    },
-    isValidEmail(value) {
-      return EMAIL_REGEX.test(String(value).toLowerCase());
-    },
-    containsInvalidEmail(emails) {
-      return emails.find((email) => !this.isValidEmail(email));
-    },
-    evaluateValidationExpression(column, values) {
-      // eslint-disable-next-line no-undef
-      if (typeof Expressions !== "undefined") {
-        try {
-          // eslint-disable-next-line no-undef
-          if (!Expressions.evaluate(column.validation, values)) {
-            return `Applying validation rule returned error: ${column.validation}`;
-          }
-          return undefined;
-        } catch (error) {
-          return "Invalid validation expression";
-        }
-      } else {
-        console.error(
-          "No 'Expressions' object found in global scope, evaluation is skipped"
-        );
-        return undefined;
-      }
-    },
-    isRefLinkWithoutOverlap(column, tableMetaData, values) {
-      if (!column.refLink) {
-        return false;
-      }
-      const columnRefLink = column.refLink;
-      const refLinkId = tableMetaData.columns.find(
-        (column) => column.name === columnRefLink
-      ).id;
-
-      const value = values[column.id];
-      const refValue = values[refLinkId];
-
-      if (typeof value === "string" && typeof refValue === "string") {
-        return value && refValue && value !== refValue;
-      } else {
-        return (
-          value &&
-          refValue &&
-          JSON.stringify(value) !== JSON.stringify(refValue)
-        );
-      }
     },
   },
   watch: {
     internalValues: {
       handler(newValue) {
         this.validateTable();
-        this.$emit("input", newValue);
+        this.$emit("update:modelValue", newValue);
       },
       deep: true,
     },
@@ -259,13 +173,95 @@ export default {
     },
   },
   created() {
-    //pass by value
     if (this.defaultValue) {
-      this.internalValues = JSON.parse(JSON.stringify(this.defaultValue));
+      this.internalValues = deepClone(this.defaultValue);
     }
     this.validateTable();
   },
 };
+
+function getColumnError(column, values, tableMetaData) {
+  const value = values[column.id];
+  const isInvalidNumber = typeof value === "number" && isNaN(value);
+  const missesValue = value === undefined || value === null || value === "";
+  const type = column.columnType;
+
+  if (column.required && (missesValue || isInvalidNumber)) {
+    return column.name + " is required ";
+  }
+  if (missesValue) {
+    return undefined;
+  }
+  if (type === "EMAIL" && !isValidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (column.validation) {
+    return evaluateValidationExpression(column, values);
+  }
+  if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
+    return `value should match your selection in column '${column.refLink}' `;
+  }
+
+  return undefined;
+}
+
+function evaluateValidationExpression(column, values) {
+  try {
+    if (!Expressions.evaluate(column.validation, values)) {
+      return `Applying validation rule returned error: ${column.validation}`;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    return "Invalid validation expression, reason: " + error.ha;
+  }
+}
+
+function isRefLinkWithoutOverlap(column, tableMetaData, values) {
+  if (!column.refLink) {
+    return false;
+  }
+  const columnRefLink = column.refLink;
+  const refLinkId = convertToCamelCase(columnRefLink);
+
+  const value = values[column.id];
+  const refValue = values[refLinkId];
+
+  if (typeof value === "string" && typeof refValue === "string") {
+    return value && refValue && value !== refValue;
+  } else {
+    return (
+      value &&
+      refValue &&
+      !JSON.stringify(value).includes(JSON.stringify(refValue))
+    );
+  }
+}
+
+function isValidHyperlink(value) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks) {
+  return hyperlinks.find((hyperlink) => !this.isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails) {
+  return emails.find((email) => !this.isValidEmail(email));
+}
 </script>
 
 <docs>
@@ -275,12 +271,12 @@ export default {
       <div class="col-6">
         <label class="border-bottom">In create mode</label>
         <RowEdit
-          v-if="showRowEdit"
-          id="row-edit"
-          v-model="rowData"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+            v-if="showRowEdit"
+            id="row-edit"
+            v-model="rowData"
+            :tableName="tableName"
+            :tableMetaData="tableMetaData"
+            :graphqlURL="graphqlURL"
         />
       </div>
       <div class="col-6 border-left">
@@ -307,41 +303,41 @@ export default {
   </DemoItem>
 </template>
 <script>
-export default {
-  data: function () {
-    return {
-      showRowEdit: true,
-      tableName: "Pet",
-      tableMetaData: {
-        columns: [],
-      },
-      rowData: {},
-      graphqlURL: "/pet store/graphql",
-    };
-  },
-  watch: {
-    async tableName(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.rowData = {};
-        await this.reload();
-      }
+  export default {
+    data: function() {
+      return {
+        showRowEdit: true,
+        tableName: 'Pet',
+        tableMetaData: {
+          columns: [],
+        },
+        rowData: {},
+        graphqlURL: '/pet store/graphql',
+      };
     },
-  },
-  methods: {
-    async reload () {
-      // force complete component reload to have a clean demo component and hit all lifecycle events
-      this.showRowEdit = false
-      const client = this.$Client.newClient(this.graphqlURL);
-      this.tableMetaData = (await client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableName
-      );
-      // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
-      this.showRowEdit = true
-    }
-  },
-  async mounted() {
-    this.reload()
-  },
-};
+    watch: {
+      async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+    },
+    methods: {
+      async reload() {
+        // force complete component reload to have a clean demo component and hit all lifecycle events
+        this.showRowEdit = false;
+        const client = this.$Client.newClient(this.graphqlURL);
+        this.tableMetaData = (await client.fetchMetaData()).tables.find(
+            (table) => table.id === this.tableName,
+        );
+        // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
+        this.showRowEdit = true;
+      },
+    },
+    async mounted() {
+      this.reload();
+    },
+  };
 </script>
 </docs>

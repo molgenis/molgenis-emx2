@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "catalogue",
+    "catalogue3",
     "settings",
     "central",
     "schema",
@@ -9,9 +10,9 @@
     "updownload",
     "pages",
     "graphql-playground",
-    "nuxt-ssr",
+    "nuxt3-ssr",
     "molgenis-components",
-    "helloworld",
-    "gendecs"
-  ]
+    "helloworld"
+   ]
 }
+

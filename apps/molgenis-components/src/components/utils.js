@@ -1,6 +1,13 @@
 import constants from "./constants";
 
-const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE } = constants;
+const {
+  CODE_0,
+  CODE_9,
+  CODE_BACKSPACE,
+  CODE_DELETE,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
 
 export function isNumericKey(event) {
   const keyCode = event.which ? event.which : event.keyCode;
@@ -46,9 +53,11 @@ export function getPrimaryKey(row, tableMetaData) {
 
 export function deepClone(original) {
   // node js may not have structuredClone function, then fallback to deep clone via JSON
-  return typeof structuredClone === "function"
-    ? structuredClone(original)
-    : JSON.parse(JSON.stringify(original));
+  // return typeof structuredClone === "function"
+  //   ? structuredClone(original)
+  //   :
+  //structuredClone doesn't work in vue 3
+  return JSON.parse(JSON.stringify(original));
 }
 
 export function filterObject(object, filter) {
@@ -67,10 +76,55 @@ export function flipSign(value) {
     case null:
       return "-";
     default:
-      if (value.charAt(0) === "-") {
-        return value.substring(1);
+      if (value.toString().charAt(0) === "-") {
+        return value.toString().substring(1);
       } else {
         return "-" + value;
       }
   }
+}
+
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+
+export function getBigIntError(value) {
+  if (value === "-" || isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
+  } else {
+    return undefined;
+  }
+}
+
+export function isInvalidBigInt(value) {
+  return (
+    value !== null &&
+    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
+  );
+}
+
+export function convertToCamelCase(string) {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word, index) => {
+    if (index === 0) {
+      result += word.charAt(0).toLowerCase();
+    } else {
+      result += word.charAt(0).toUpperCase();
+    }
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
+}
+
+export function convertToPascalCase(string) {
+  const words = string.trim().split(/\s+/);
+  let result = "";
+  words.forEach((word, index) => {
+    result += word.charAt(0).toUpperCase();
+    if (word.length > 1) {
+      result += word.slice(1);
+    }
+  });
+  return result;
 }

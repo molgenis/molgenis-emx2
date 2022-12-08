@@ -1,6 +1,5 @@
 package org.molgenis.emx2.semantics.fairdatapoint;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,22 +43,30 @@ public class FAIRDataPointTest {
     String result = fairDataPoint.getResult();
     assertTrue(
         result.contains(
-            """
-            <http://localhost:8080/api/fdp> a fdp-o:MetadataService, dcat:Resource, dcat:DataService,
-                fdp-o:FAIRDataPoint;
-              dcterms:title "FAIR Data Point hosted by MOLGENIS-EMX2 at http://localhost:8080/api/fdp";
-              dcterms:publisher [ a foaf:Agent;
-                  foaf:name "MOLGENIS-EMX2 FAIR Data Point API"
-                ];"""));
+            "<http://localhost:8080/api/fdp> a fdp-o:MetadataService, dcat:Resource, dcat:DataService,"));
     assertTrue(
         result.contains(
-            """
-                ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,
-                    <http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"""));
-    assertEquals(3887, result.length());
+            "dcterms:title \"FAIR Data Point hosted by MOLGENIS-EMX2 at http://localhost:8080/api/fdp\";"));
+    assertTrue(result.contains("dcterms:publisher [ a foaf:Agent;"));
+    assertTrue(result.contains("foaf:name \"MOLGENIS-EMX2 FAIR Data Point API\""));
+    assertTrue(
+        result.contains(
+            "ldp:contains <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId01>"));
+
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/catalogId02>, <http://localhost:8080/api/fdp/catalog/fairDataHub_nr1/minCatId03>,"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId01>,"));
+
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/catalogId02>,"));
+
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/fdp/catalog/fairDataHub_nr2%20with%20a%20whitespace/minCatId03>"));
   }
 
   @Test
@@ -73,15 +80,12 @@ public class FAIRDataPointTest {
     String result = fairDataPointCatalog.getResult();
     assertTrue(
         result.contains(
-            "dcat:dataset <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01>,\n"
-                + "    <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId02>;"));
+            "dcat:dataset <http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId01>"));
     assertTrue(
-        result.contains(
-            """
-            dcterms:rights [ a dcterms:RightsStatement;
-                  dcterms:description "Rights are provided on a per-dataset basis."
-                ];"""));
-    assertEquals(2147, result.length());
+        result.contains("<http://localhost:8080/api/fdp/dataset/fairDataHub_nr1/datasetId02>;"));
+    assertTrue(result.contains("dcterms:rights [ a dcterms:RightsStatement;"));
+    assertTrue(
+        result.contains("dcterms:description \"Rights are provided on a per-dataset basis.\""));
   }
 
   @Test
@@ -129,14 +133,22 @@ public class FAIRDataPointTest {
     String result = fairDataPointDistribution.getResult();
     assertTrue(
         result.contains(
-            """
-                <http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;
-                  dcterms:title "Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl";
-                  dcterms:description "MOLGENIS EMX2 data distribution at http://localhost:8080 for table Analyses in schema fairDataHub_nr1, formatted as ttl.";
-                  dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;
-                  dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;
-                  dcterms:format "ttl";"""));
-    assertEquals(960, result.length());
+            "<http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl> a dcat:Distribution;"));
+
+    assertTrue(
+        result.contains(
+            "dcterms:title \"Data distribution for http://localhost:8080/api/fdp/distribution/fairDataHub_nr1/Analyses/ttl\";"));
+
+    assertTrue(
+        result.contains(
+            "dcterms:description \"MOLGENIS EMX2 data distribution at http://localhost:8080 for table Analyses in schema fairDataHub_nr1, formatted as ttl.\";"));
+    assertTrue(
+        result.contains(
+            "dcat:downloadURL <http://localhost:8080/fairDataHub_nr1/api/ttl/Analyses>;"));
+    assertTrue(
+        result.contains(
+            "dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle>;"));
+    assertTrue(result.contains("dcterms:format \"ttl\";"));
   }
 
   @Test

@@ -84,8 +84,9 @@ export default {
     },
     toggle() {
       this.expand = !this.expand;
-    }
+    },
   },
+  emits: ["update:selection"],
 };
 </script>
 

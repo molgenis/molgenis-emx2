@@ -45,4 +45,28 @@ public class Diseases {
     }
     return result;
   }
+
+  public OntologyTerm getDiseaseCode() {
+    return diseaseCode;
+  }
+
+  public AgeAndAgeGroup getAgeOfOnset() {
+    return ageOfOnset;
+  }
+
+  public AgeAndAgeGroup getAgeAtDiagnosis() {
+    return ageAtDiagnosis;
+  }
+
+  public Boolean getFamilyHistory() {
+    return familyHistory;
+  }
+
+  public OntologyTerm getSeverity() {
+    return severity;
+  }
+
+  public OntologyTerm getStage() {
+    return stage;
+  }
 }

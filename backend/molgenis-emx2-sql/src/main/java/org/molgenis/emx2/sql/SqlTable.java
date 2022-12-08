@@ -415,7 +415,8 @@ class SqlTable implements Table {
       // remove 'readonly' from the update list, unless mg_table
       for (Column column :
           columns.stream()
-              .filter(c -> c.getName().equals(MG_TABLECLASS) || !c.isReadonly())
+              .filter(
+                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
               .toList()) {
         step2.set(
             column.getJooqField(),
@@ -454,7 +455,7 @@ class SqlTable implements Table {
     // get metadata
     Set<Column> columns =
         table.getColumnsToBeUpdated(updateColumns).stream()
-            .filter(c -> !c.isReadonly())
+            .filter(c -> !Boolean.TRUE.equals(c.isReadonly()))
             .collect(Collectors.toSet());
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
 
@@ -658,6 +659,11 @@ class SqlTable implements Table {
   @Override
   public String getName() {
     return getMetadata().getTableName();
+  }
+
+  @Override
+  public String getIdentifier() {
+    return getMetadata().getIdentifier();
   }
 
   protected org.jooq.Table<org.jooq.Record> getJooqTable() {

@@ -1,18 +1,15 @@
-import Vue from "vue";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
-import VueRouter from "vue-router";
 import Groups from "./components/Groups.vue";
 import Admin from "./components/admin/Admin.vue";
 import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
-
+import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
 import "molgenis-components/dist/style.css";
 
-Vue.config.productionTip = false;
-
-Vue.use(VueRouter);
-
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     { name: "central", path: "/", component: Groups },
     {
@@ -23,12 +20,16 @@ const router = new VueRouter({
       children: [
         { name: "users", path: "users", component: ManageUsers },
         { name: "settings", path: "settings", component: ManageSettings },
+        {
+          name: "privacyPolicy",
+          path: "privacyPolicy",
+          component: ManagePrivacyPolicy,
+        },
       ],
     },
   ],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app");

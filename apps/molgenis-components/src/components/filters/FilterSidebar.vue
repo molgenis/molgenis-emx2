@@ -102,6 +102,12 @@ export default {
             conditions: []
           },
           {
+            name: "longQuantity",
+            columnType: "LONG",
+            showFilter: true,
+            conditions: []
+          },
+          {
             name: "price",
             columnType: "DECIMAL",
             showFilter: true,
@@ -131,6 +137,13 @@ export default {
             showFilter: true,
             conditions: [],
             refTable: "Tag",
+          },
+          {
+            name: "orders",
+            columnType: "REF_ARRAY",
+            showFilter: true,
+            conditions: [],
+            refTable: "Order",
           },
         ],
       };

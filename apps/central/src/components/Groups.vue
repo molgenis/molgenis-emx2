@@ -116,6 +116,7 @@ import {
   Spinner,
   MessageWarning,
   InputSearch,
+  MessageError
 } from "molgenis-components";
 import LastUpdateField from "./LastUpdateField.vue";
 
@@ -129,6 +130,7 @@ export default {
     IconAction,
     IconDanger,
     MessageWarning,
+    MessageError,
     InputSearch,
     LastUpdateField,
   },
@@ -198,12 +200,12 @@ export default {
     },
     getSchemaList() {
       this.loading = true;
-      request("graphql", "{Schemas{name description}}")
+      request("graphql", "{_schemas{name description}}")
         .then((data) => {
-          this.schemas = data.Schemas;
+          this.schemas = data._schemas;
           this.loading = false;
           if (this.hasManagerPermission) {
-            this.fetchChangelogStatus()
+            this.fetchChangelogStatus();
           }
         })
         .catch(

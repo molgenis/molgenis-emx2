@@ -22,7 +22,7 @@
           v-model="column"
           :schema="schema"
           :schemaNames="schemaNames"
-          @input="$emit('input', column)"
+          @update:modelValue="$emit('update:modelValue', column)"
         />
         <IconDanger
           v-if="isManager"
@@ -95,7 +95,7 @@ export default {
     };
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     },
@@ -142,7 +142,8 @@ export default {
     },
   },
   created() {
-    this.column = this.value;
+    this.column = this.modelValue;
   },
+  emits: ["update:modelValue", "add", "delete"],
 };
 </script>

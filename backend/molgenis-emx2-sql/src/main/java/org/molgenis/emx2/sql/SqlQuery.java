@@ -251,11 +251,13 @@ public class SqlQuery extends QueryBean {
     if (select.getColumn().endsWith("_agg")) {
       fields.add(
           jsonAggregateSelect(
-              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+              .as(convertToPascalCase(select.getColumn())));
     } else if (select.getColumn().endsWith("_groupBy")) {
       fields.add(
           jsonGroupBySelect(
-              table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+                  table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+              .as(convertToPascalCase(select.getColumn())));
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
@@ -266,7 +268,8 @@ public class SqlQuery extends QueryBean {
         }
       }
       fields.add(
-          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms()));
+          jsonSubselect(table, null, table.getTableName(), select, getFilter(), getSearchTerms())
+              .as(name(convertToPascalCase(select.getColumn()))));
     }
 
     // asemble final query
@@ -334,7 +337,7 @@ public class SqlQuery extends QueryBean {
             ? ROW_TO_JSON_SQL
             : JSON_AGG_SQL;
 
-    return field(jooq.select(field(agg)).from(from.asTable(ITEM))).as(select.getColumn());
+    return field(jooq.select(field(agg)).from(from.asTable(ITEM)));
   }
 
   private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
@@ -518,32 +521,35 @@ public class SqlQuery extends QueryBean {
         // aggregation subselect
         fields.add(
             jsonAggregateSelect(
-                (SqlTableMetadata) column.getRefTable(),
-                column,
-                tableAlias,
-                select,
-                null,
-                new String[0]));
+                    (SqlTableMetadata) column.getRefTable(),
+                    column,
+                    tableAlias,
+                    select,
+                    null,
+                    new String[0])
+                .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
         // aggregation subselect
         fields.add(
             jsonGroupBySelect(
-                (SqlTableMetadata) column.getRefTable(),
-                column,
-                tableAlias,
-                select,
-                null,
-                new String[0]));
+                    (SqlTableMetadata) column.getRefTable(),
+                    column,
+                    tableAlias,
+                    select,
+                    null,
+                    new String[0])
+                .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {
         // normal subselect
         fields.add(
             jsonSubselect(
-                (SqlTableMetadata) column.getRefTable(),
-                column,
-                tableAlias,
-                select,
-                null,
-                new String[0]));
+                    (SqlTableMetadata) column.getRefTable(),
+                    column,
+                    tableAlias,
+                    select,
+                    null,
+                    new String[0])
+                .as(name(convertToCamelCase(select.getColumn()))));
       } else if (column.isHeading()) {
         /**
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
@@ -551,7 +557,8 @@ public class SqlQuery extends QueryBean {
          */
       } else {
         // primitive fields
-        fields.add(field(name(alias(tableAlias), column.getName())));
+        fields.add(
+            field(name(alias(tableAlias), column.getName())).as(name(column.getIdentifier())));
       }
     }
     return fields;
@@ -667,32 +674,36 @@ public class SqlQuery extends QueryBean {
             table.getPrimaryKeyFields().stream()
                 .map(f -> f.as(name("pkey_" + f.getName())))
                 .collect(Collectors.toList()));
+        selectFields.add(c.getJooqField());
         // in case of 'ref' we subselect
         if (c.isRef()) {
-          selectFields.add(field(name(c.getName())));
           subselectFields.add(
               jsonSubselect(
-                  (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0]));
+                      (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0])
+                  .as(name(field.getColumn())));
         }
         // in case of ref_array we must unnest the values
         else if (c.isRefArray()) {
-          // only divergent selectField
-          selectFields.add(
-              // coalesce to also return the nulls
-              field("jsonb_array_elements(coalesce({0},'[{}]'::jsonb))", field(name(c.getName())))
-                  .as(name(c.getName())));
           subselectFields.add(
-              jsonSubselect(
-                  (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0]));
+              // coalesce to also return the nulls
+              field(
+                      "jsonb_array_elements(coalesce(({0}),'[{}]'::jsonb))",
+                      jsonSubselect(
+                          (SqlTableMetadata) c.getRefTable(),
+                          c,
+                          tableAlias,
+                          field,
+                          null,
+                          new String[0]))
+                  .as(name(c.getName()))
+                  .as(name(field.getColumn())));
         }
         // todo decide if we want to support non-ref types for group by. E.g date (group by year of
         // date)
         // if array we unnest
         else if (c.getColumnType().isArray()) {
-          selectFields.add(c.getJooqField());
           subselectFields.add(field("unnest({0})", c.getJooqField()).as(c.getJooqField()));
         } else {
-          selectFields.add(c.getJooqField());
           subselectFields.add(c.getJooqField());
         }
         if (condition != null) {
@@ -713,7 +724,7 @@ public class SqlQuery extends QueryBean {
       throw new MolgenisException("groupBy failed: no fields to group by on selected");
     }
     SelectJoinStep<org.jooq.Record> groupByQuery =
-        table.getJooq().selectDistinct(selectFields).from(subQuery.get(0));
+        table.getJooq().select(selectFields).from(subQuery.get(0));
     for (int i = 1; i < subQuery.size(); i++) {
       // joining on primary key
       groupByQuery = groupByQuery.naturalFullOuterJoin(subQuery.get(i));
@@ -727,7 +738,7 @@ public class SqlQuery extends QueryBean {
     return field(
             jooq.select(field(JSON_AGG_SQL))
                 .from(groupByQuery.groupBy(groupByFields).orderBy(orderByFields).asTable(ITEM)))
-        .as(groupBy.getColumn());
+        .as(convertToCamelCase(groupBy.getColumn()));
   }
 
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {

@@ -267,7 +267,7 @@ public class FAIRDataPointDataset {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP__Dataset"
+            "{FDP_Dataset"
                 + "(filter:{"
                 + idField
                 + ": {equals:\""
@@ -306,11 +306,11 @@ public class FAIRDataPointDataset {
                 + "}}");
     Map<String, Object> result = executionResult.toSpecification();
     if (result.get("data") == null
-        || ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset") == null) {
+        || ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset") == null) {
       return new ArrayList<>();
     }
     return (List<Map<String, Object>>)
-        ((HashMap<String, Object>) result.get("data")).get("FDP__Dataset");
+        ((HashMap<String, Object>) result.get("data")).get("FDP_Dataset");
   }
 
   /**

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.io.FileUtils.getTempFile;
 import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
@@ -34,10 +35,6 @@ public class ExcelApi {
     get(schemaPath, ExcelApi::getExcel);
     post(schemaPath, ExcelApi::postExcel);
 
-    //    final String _metaPath = "/:schema/api/excel/_meta"; // NOSONAR
-    //    get(_metaPath, ExcelApi::getExcelMetadata);
-    //    post(_metaPath, ExcelApi::postExcelMetadata);
-
     // table level operations
     final String tablePath = ":schema/api/excel/:table"; // NOSONAR
     get(tablePath, ExcelApi::getExcelTable);
@@ -48,7 +45,7 @@ public class ExcelApi {
     Schema schema = getSchema(request);
 
     // get uploaded file
-    File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
+    File tempFile = getTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
     request.attribute(
         "org.eclipse.jetty.multipartConfig",

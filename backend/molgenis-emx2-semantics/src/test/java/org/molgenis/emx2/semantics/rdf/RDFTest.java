@@ -41,7 +41,7 @@ public class RDFTest {
   public void RDFForDatabaseAsTTL() {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/api/fdp");
+    when(request.url()).thenReturn("http://localhost:8080" + RDF_API_LOCATION);
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
         outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchemas);
@@ -73,7 +73,7 @@ public class RDFTest {
   public void RDFForOneSchemaAsTTL() {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStoreNr1/api/fdp");
+    when(request.url()).thenReturn("http://localhost:8080/petStoreNr1" + RDF_API_LOCATION);
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
         outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchemas[0]);
@@ -105,7 +105,8 @@ public class RDFTest {
   public void RDFForOneTableAsTTL() {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp/Category");
+    when(request.url())
+        .thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category");
     Table table = petStoreSchemas[0].getTable("Category");
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
@@ -138,7 +139,8 @@ public class RDFTest {
   public void RDFForOneRowAsTTL() {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
-    when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp/Category/cat");
+    when(request.url())
+        .thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
     OutputStream outputStream = new ByteArrayOutputStream();
@@ -173,7 +175,8 @@ public class RDFTest {
     Request request = mock(Request.class);
     Response response = mock(Response.class);
     when(request.url())
-        .thenReturn("http://localhost:8080/petStore/api/fdp/Category/cat?format=xml");
+        .thenReturn(
+            "http://localhost:8080/petStore" + RDF_API_LOCATION + "/Category/cat?format=xml");
     when(request.queryParams("format")).thenReturn("xml");
     Table table = petStoreSchemas[0].getTable("Category");
     String rowId = "cat";
@@ -192,5 +195,33 @@ public class RDFTest {
     assertTrue(
         result.contains(
             "<rdf:Description rdf:about=\"http://localhost:8080/petStoreNr1/api/rdf/Category/column/name\">"));
+  }
+
+  @Test
+  public void RDFUpdateOntologySemantics() {
+    Request request = mock(Request.class);
+    Response response = mock(Response.class);
+    when(request.url()).thenReturn("http://localhost:8080/petStore" + RDF_API_LOCATION + "/Tag");
+    Table table = petStoreSchemas[0].getTable("Tag");
+    OutputStream outputStream = new ByteArrayOutputStream();
+    RDFService.describeAsRDF(
+        outputStream, request, response, RDF_API_LOCATION, table, null, table.getSchema());
+    String result = outputStream.toString();
+
+    // expect the default tag ("Controlled Vocabulary") but not NCIT_C25586 ("New")
+    assertTrue(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>"));
+    assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C25586>"));
+
+    // update table semantics and re-create RDF output
+    table.getMetadata().setSemantics("http://purl.obolibrary.org/obo/NCIT_C25586");
+    System.out.println("getSem = " + table.getMetadata().getSemantics()[0]);
+    outputStream = new ByteArrayOutputStream();
+    RDFService.describeAsRDF(
+        outputStream, request, response, RDF_API_LOCATION, table, null, table.getSchema());
+    result = outputStream.toString();
+
+    // expect NCIT_C25586 ("New") and no longer the default tag ("Controlled Vocabulary")
+    assertFalse(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>"));
+    assertTrue(result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C25586>"));
   }
 }

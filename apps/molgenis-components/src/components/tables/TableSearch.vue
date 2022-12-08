@@ -8,7 +8,7 @@
       >
         <InputSearch
           id="input-search"
-          v-if="lookupTableName"
+          v-if="lookupTableIdentifier"
           v-model="searchTerms"
         />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
@@ -29,6 +29,16 @@
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
+          <template v-slot:rowcolheader>
+            <RowButtonAdd
+              v-if="canEdit"
+              :id="'row-button-add-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              @close="loadData"
+              class="d-inline p-0"
+            />
+          </template>
           <template v-slot:colheader="slotProps">
             <slot
               name="colheader"
@@ -45,6 +55,23 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
+             <RowButtonEdit
+              v-if="canEdit"
+              :id="'row-button-edit-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+              class="text-left"
+            />
+            <RowButtonDelete
+              v-if="canEdit"
+              :id="'row-button-del-' + lookupTableName"
+              :tableName="lookupTableName"
+              :graphqlURL="graphqlURL"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+            />
           </template>
         </TableMolgenis>
       </div>
@@ -59,14 +86,23 @@ import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
 import Client from "../../client/client.js";
+import RowButtonAdd from "./RowButtonAdd.vue";
+import RowButtonEdit from "./RowButtonEdit.vue";
+import RowButtonDelete from "./RowButtonDelete.vue";
+import {convertToPascalCase} from "../utils";
+
 
 export default {
+  name: "TableSearch",
   components: {
     TableMolgenis,
     MessageError,
     InputSearch,
     Pagination,
     Spinner,
+    RowButtonAdd,
+    RowButtonEdit,
+    RowButtonDelete
   },
   props: {
     lookupTableName: {
@@ -97,8 +133,8 @@ export default {
     },
     filter: {
       type: Object,
-      required: false
-    }
+      required: false,
+    },
   },
   data: function () {
     return {
@@ -111,6 +147,9 @@ export default {
     };
   },
   computed: {
+    lookupTableIdentifier() {
+      return convertToPascalCase(this.lookupTableName);
+    },
     showHeaderIfNeeded() {
       return this.showHeader || this.count > this.limit;
     },
@@ -143,14 +182,14 @@ export default {
         .fetchMetaData()
         .catch(() => (this.graphqlError = "Failed to load meta data"));
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableName, queryOptions)
+        .fetchTableData(this.lookupTableIdentifier, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
 
       this.tableMetadata = remoteMetaData.tables.find(
-        (table) => table.name === this.lookupTableName
+        (table) => table.id === this.lookupTableIdentifier
       );
-      this.data = gqlResponse[this.lookupTableName];
-      this.count = gqlResponse[`${this.lookupTableName}_agg`].count;
+      this.data = gqlResponse[this.lookupTableIdentifier];
+      this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
       this.loading = false;
     },
   },
@@ -171,6 +210,13 @@ export default {
 <docs>
 <template>
   <demo-item>
+    <div class="border-bottom mb-3 p-2">
+      <h5>synced demo props: </h5>
+      <div>
+        <label for="canEdit" class="pr-1">can edit: </label>
+        <input type="checkbox" id="canEdit" v-model="canEdit">
+      </div>
+    </div>
     <table-search
         id="my-search-table"
         :selection.sync="selected"
@@ -178,7 +224,7 @@ export default {
         :lookupTableName="'Pet'"
         :showSelect="false"
         :graphqlURL="'/pet store/graphql'"
-        :canEdit="true"
+        :canEdit="canEdit"
         @select="click"
         @deselect="click"
         @click="click"
@@ -193,28 +239,29 @@ export default {
       return {
         selected: [],
         columns: [
-          {id: "col1", name: "col1", columnType: "STRING", key: 1},
+          {id: 'col1', name: 'col1', columnType: 'STRING', key: 1},
           {
-            id: "ref1",
-            name: "ref1",
-            columnType: "REF",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref1',
+            name: 'ref1',
+            columnType: 'REF',
+            refColumns: ['firstName', 'lastName'],
           },
           {
-            id: "ref_arr1",
-            name: "ref_arr1",
-            columnType: "REF_ARRAY",
-            refColumns: ["firstName", "lastName"],
+            id: 'ref_arr1',
+            name: 'ref_arr1',
+            columnType: 'REF_ARRAY',
+            refColumns: ['firstName', 'lastName'],
           },
         ],
         remoteSelected: [],
         remoteColumns: [],
         remoteTableData: null,
+        canEdit: false,
       };
     },
     methods: {
       click(value) {
-        alert("click " + JSON.stringify(value));
+        alert('click ' + JSON.stringify(value));
       },
     },
   };

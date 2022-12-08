@@ -15,7 +15,7 @@
           v-for="option in options"
           :key="option"
           @click.prevent="select(option)"
-          :class="{ 'text-primary': value === option }"
+          :class="{ 'text-primary': modelValue === option }"
         >
           {{ option }}
         </button>
@@ -27,7 +27,7 @@
       @mouseleave="hover = false"
       class="inline-select"
     >
-      {{ value }}
+      {{ modelValue }}
       <IconAction icon="pencil-alt" class="hoverIcon" />
     </span>
   </span>
@@ -42,7 +42,7 @@
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import IconAction from "./IconAction.vue";
-import vClickOutside from "v-click-outside";
+import vClickOutside from "click-outside-vue3";
 
 export default {
   directives: {
@@ -63,7 +63,7 @@ export default {
   methods: {
     select(option) {
       this.toggleFocus();
-      this.$emit("input", option);
+      this.$emit("update:modelValue", option);
     },
     toggleFocus() {
       this.focus = !this.focus;

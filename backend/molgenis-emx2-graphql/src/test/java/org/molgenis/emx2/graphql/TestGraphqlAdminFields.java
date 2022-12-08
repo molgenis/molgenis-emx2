@@ -35,17 +35,17 @@ public class TestGraphqlAdminFields {
         tdb -> {
           tdb.becomeAdmin();
           Schema schema = tdb.dropCreateSchema(schemaName);
-          grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
 
           try {
-            JsonNode result = execute("{_admin{users{username} userCount}}");
+            JsonNode result = execute("{_admin{users{email} userCount}}");
             TestCase.assertTrue(result.at("/_admin/userCount").intValue() > 0);
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
 
           try {
             TestCase.assertEquals(null, execute("{_admin{userCount}}").textValue());

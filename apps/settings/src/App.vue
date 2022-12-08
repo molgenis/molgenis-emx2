@@ -18,13 +18,16 @@
                 menu: 'Menu',
                 pages: 'Pages',
                 changelog: 'Changelog',
-                settings: 'Advanced settings'
+                settings: 'Advanced settings',
               }"
               :key="key"
             >
               <router-link
                 class="nav-link"
-                :class="{ active: selected == label, 'text-danger': key === 'settings' }"
+                :class="{
+                  active: selected == label,
+                  'text-danger': key === 'settings',
+                }"
                 :to="key"
                 >{{ label }}
               </router-link>

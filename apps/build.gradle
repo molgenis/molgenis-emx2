@@ -2,7 +2,7 @@
 
 plugins {
     id "base"
-    id "com.github.node-gradle.node" version "3.3.0"
+    id "com.github.node-gradle.node" version "3.5.0"
 }
 
 def nodeSpec = {
@@ -19,12 +19,18 @@ node {
 subprojects {
     apply plugin: "com.github.node-gradle.node"
 
+    //subprojects will reuse the yarn installed in parent task
+    node {
+        with nodeSpec
+    }
+
+    //disable yarn_install, only parent should run install in yarn workspaces
+    yarn_install.enabled = false;
     yarnSetup.dependsOn parent.yarnSetup
     npmSetup.dependsOn parent.npmSetup
     nodeSetup.dependsOn parent.nodeSetup
 
     task build(type: YarnTask, dependsOn: parent.yarn_install) {
-        node { with nodeSpec }
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
@@ -41,17 +47,22 @@ subprojects {
             outputs.dir('dist')
             outputs.dir('gen-docs')
             outputs.dir('showCase')
-        } else if (project.name == 'nuxt-ssr') {
+        } else if (project.name == 'nuxt3-ssr') {
             inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
             inputs.files(fileTree('middleware'))
             inputs.files(fileTree('layouts'))
             inputs.files(fileTree('pages'))
             inputs.files(fileTree('static'))
             inputs.files(fileTree('store'))
-            inputs.file('nuxt.config.js')
+            inputs.file('nuxt.config.ts')
+            inputs.file('app.vue')
+            inputs.file('router.options.ts')
+            inputs.file('tailwind.config.ts')
             outputs.dir('.nuxt')
+            outputs.dir('.output')
         } else {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
@@ -62,7 +73,7 @@ subprojects {
             outputs.dir('dist')
         }
 
-        outputs.cacheIf { true }
+        outputs.cacheIf { false }
 
         args = ['run', 'build']
 
@@ -71,7 +82,6 @@ subprojects {
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
-            node { with nodeSpec }
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
@@ -83,10 +93,7 @@ subprojects {
                 args = ['run', 'build-showcase']
             }
         }
-    }
-
-    task test(type: YarnTask) {
-        if (project.name == 'molgenis-components') {
+        task test(type: YarnTask, dependsOn: parent.yarn_install) {
             args = ['run', 'test-ci']
         }
     }
@@ -115,6 +122,7 @@ subprojects {
         project.delete(files("build"))
         project.delete(files("node_modules"))
         project.delete(files(".nuxt"))
+        project.delete(files(".output"))
         project.delete(files("showCase"))
     }
 
