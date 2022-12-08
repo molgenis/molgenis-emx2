@@ -12,18 +12,23 @@ const onShow = () => {
 const onHide = () => {
   document.body.classList.remove("no-scroll");
   document.body.classList.remove("v-popper_right");
+  emit("close");
 };
 
 const { slideInRight, fullScreen } = withDefaults(
   defineProps<{
-    slideInRight: boolean;
-    fullScreen: boolean;
+    slideInRight?: boolean;
+    fullScreen?: boolean;
+    show?: boolean;
   }>(),
   {
     slideInRight: false,
     fullScreen: true,
+    show: undefined,
   }
 );
+
+const emit = defineEmits(["close"]);
 
 const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
 const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
@@ -31,6 +36,7 @@ const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
 
 <template>
   <VDropdown
+    :shown="show"
     :positioning-disabled="true"
     @show="preAnimation()"
     @apply-show="onShow()"
