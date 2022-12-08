@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { request } from 'graphql-request'
+import QueryEMX2 from './queryEMX2'
 
 export const useGraphqlStore = defineStore('graphqlStore', () => {
   let tableInformation = ref([])
@@ -46,6 +47,8 @@ export const useGraphqlStore = defineStore('graphqlStore', () => {
 
     // todo check properties, can be a string or object
     // also need filters
+    const results = new QueryEMX2('graphql', 'Biobanks').Select(['id', 'name']).Filter('Collections', 'name').Like('cardiovascular').Execute()
+    console.log(results)
 
     const query = `{
     ${tableName} {

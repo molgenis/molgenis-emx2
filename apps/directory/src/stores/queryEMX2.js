@@ -22,6 +22,7 @@ class QueryEMX2 {
 
     Select (columns) {
         this.selection = Array.isArray(columns) ? columns : [columns]
+        return this
     }
 
     /**
@@ -32,7 +33,7 @@ class QueryEMX2 {
      * @returns GraphQL query string
      */
     Execute () {
-        const tableFilters = this.filters ? `(${this.filters.join('_and')})` : ''
+        const tableFilters = this.filters ? `(${this.filters})` : ''
 
         /** Fail fast */
         if (!this.tableName) throw Error('You need to provide ', this.tableName ? 'a table name' : 'columns')
@@ -112,8 +113,8 @@ class QueryEMX2 {
     Like (value) {
         const operator = 'like'
 
-        this._createFilter(operator, value)
-        return this
+        return this._createFilter(operator, value)
+
     }
     /** Text, String, Url, Filter */
     NotLike (value) {
@@ -153,16 +154,17 @@ class QueryEMX2 {
 
     /** Private function to create the correct filter syntax. */
     _createFilter (operator, value) {
-
         let columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`
 
-        if (this.nested.length) {
-            columnFilter = `{${this.parentColumn}: ${this.columnFilter}}`
+        if (this.parentColumn.length > 0) {
+            columnFilter = `{${this.parentColumn}: ${columnFilter}}`
         }
         this.filters += this.filters.length ? `${this.type}: ${columnFilter}}` : columnFilter
         this.column = ''
         this.parentColumn = ''
         this.type = '_and'
+
+        return this
     }
 }
 
