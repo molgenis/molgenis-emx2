@@ -1,9 +1,5 @@
 import axios from "axios";
-import {
-  deepClone,
-  convertToPascalCase,
-  convertToCamelCase,
-} from "../components/utils";
+import { deepClone, convertToPascalCase } from "../components/utils";
 
 export { request };
 

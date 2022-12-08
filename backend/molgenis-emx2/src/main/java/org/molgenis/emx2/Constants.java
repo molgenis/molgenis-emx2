@@ -87,6 +87,12 @@ public class Constants {
           + "{2,6}\\b([-a-zA-Z0-9@:%"
           + "._\\+~#?!&//=(\\)]*)";
 
+  public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";
+  public static final String PRIVACY_POLICY_LEVEL_DEFAULT = "Level 4";
+  public static final String PRIVACY_POLICY_TEXT = "PrivacyPolicyText";
+  public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
+  public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
+
   private Constants() {
     // hide constructor
   }

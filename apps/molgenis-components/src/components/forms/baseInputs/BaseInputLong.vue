@@ -1,24 +1,22 @@
 <template>
   <input
     :id="id"
-    type="number"
-    step="1"
     :value="modelValue"
     class="form-control"
-    :class="{ 'is-invalid': errorMessage }"
+    :class="{ 'is-invalid': errorMessage || bigIntError }"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     :readonly="readonly"
     :required="required"
-    @keypress="handleKeyValidity"
-    @input="emitIfValid"
+    @keypress="handleKeyValidity($event)"
+    @input="emitIfValid($event)"
   />
 </template>
 
 <script>
 import BaseInput from "./BaseInput.vue";
 import constants from "../../constants";
-import { isNumericKey, flipSign } from "../../utils";
+import { isNumericKey, flipSign, getBigIntError } from "../../utils";
 
 const { CODE_MINUS } = constants;
 
@@ -26,23 +24,30 @@ export default {
   extends: BaseInput,
   methods: {
     emitIfValid(event) {
-      if (event.target.value === "" || event.target.value === NaN) {
-        this.$emit("update:modelValue", null);
-      }
       const value = event.target.value;
-      if (!isNaN(value)) {
-        this.$emit("update:modelValue", parseInt(value));
+      if (value?.length) {
+        this.$emit("update:modelValue", value);
+      } else {
+        this.$emit("update:modelValue", null);
       }
     },
     handleKeyValidity(event) {
       const keyCode = event.which ? event.which : event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", parseInt(flipSign(event.target.value)));
+        this.$emit("update:modelValue", flipSign(event.target.value));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
       }
     },
   },
+  computed: {
+    bigIntError() {
+      if (this.modelValue) {
+        return getBigIntError(this.modelValue);
+      }
+    },
+  },
+  emits: ["update:modelValue"],
 };
 </script>

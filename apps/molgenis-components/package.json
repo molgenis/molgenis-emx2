@@ -33,12 +33,13 @@
     "cross-env": "7.0.3",
     "popper.js": "1.16.1",
     "vue": "3.2.41",
-    "vue-flatpickr-component": "11.0.1"
+    "vue-flatpickr-component": "11.0.1",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "3.2.0",
-    "vite": "3.2.3",
-    "vitest": "0.24.4",
+    "vite": "3.2.5",
+    "vitest": "0.25.6",
     "vue-router": "4.1.6",
     "vue-scrollto": "2.20.0"
   }

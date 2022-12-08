@@ -1,4 +1,5 @@
 import Client from "../src/client/client.js";
+import { request } from "../src/client/client.js";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -61,6 +62,7 @@ import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
 import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
+import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
@@ -71,6 +73,7 @@ import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
+
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
@@ -127,6 +130,7 @@ import {
   convertToCamelCase,
   convertToPascalCase,
 } from "../src/components/utils";
+import constants, { privacyConstants } from "../src/components/constants";
 
 export {
   ContactDisplay,
@@ -183,6 +187,7 @@ export {
   InputRangeDate,
   InputRangeDateTime,
   InputRangeInt,
+  InputRangeLong,
   InputRef,
   InputRefBack,
   InputRefList,
@@ -236,6 +241,9 @@ export {
   ObjectDisplay,
   TokenManager,
   deepClone,
+  constants,
+  privacyConstants,
+  request,
   convertToPascalCase,
   convertToCamelCase,
 };

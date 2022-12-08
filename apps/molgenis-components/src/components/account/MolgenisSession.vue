@@ -99,11 +99,7 @@ export default {
   },
   computed: {
     isOidcEnabled() {
-      return (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["isOidcEnabled"] === "true"
-      );
+      return this.session?.settings?.isOidcEnabled === "true";
     },
   },
   methods: {
@@ -111,7 +107,7 @@ export default {
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
-            s.value.startsWith("[") || s.value.startsWith("{")
+            s.value?.startsWith("[") || s.value?.startsWith("{")
               ? this.parseJson(s.value)
               : s.value)
       );
