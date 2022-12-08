@@ -15,6 +15,7 @@ SERVER_PASSWORD = config('MG_SERVER_PASSWORD')
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 ONTOLOGIES_SCHEMA_NAME = config('MG_ONTOLOGIES_SCHEMA_NAME')
 
+COHORTS = config('MG_COHORTS', cast=lambda v: [s.strip() for s in v.split(',')])
 
 print('-----  Config variables loaded ----')
 
@@ -91,3 +92,26 @@ zip_handling.zip_data()
 # # upload data from CatalogueOntologies
 # print('Load data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME +  '_upload.zip')
 # download_upload.upload_zip()
+
+
+# Networks update
+
+
+
+
+# Cohorts update
+print('-----------------------')
+print('Cohort data update to data model ' + DATA_MODEL_VERSION)
+for item in COHORTS:
+    # sign in to staging server
+    print('Sign in to staging server for database: %s.' % item)
+    session_staging = Session(
+        url=SERVER_URL,
+        database=item,
+        email=SERVER_USERNAME,
+        password=SERVER_PASSWORD
+    )
+    # extract data
+    print('Extract data for ' + item + ': ' + item + '_data.zip')
+    session_staging.download_zip()
+    # transform data
