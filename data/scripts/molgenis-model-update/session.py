@@ -9,11 +9,14 @@ class Session:
 
     """
 
-    def __init__(self, url, database, email, password):
+    def __init__(self, url: str, database: str, email: str, password: str):
         self.url = url
         self.database = database
         self.email = email
         self.password = password
+        self.session = requests.Session()
+        self.graphqlEndpoint = self.url + '/' + self.database + '/graphql'
+        self.apiEndpoint = self.url + '/' + self.database + '/api'
 
         self.sign_in()
 
