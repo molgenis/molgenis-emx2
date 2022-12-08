@@ -2,6 +2,7 @@ import os
 from zipfile import ZipFile
 import shutil
 import logging
+import stat
 
 
 class Zip:
