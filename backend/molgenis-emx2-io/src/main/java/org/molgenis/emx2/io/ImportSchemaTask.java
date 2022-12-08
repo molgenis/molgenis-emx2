@@ -8,7 +8,6 @@ import org.molgenis.emx2.tasks.Task;
 public class ImportSchemaTask extends Task {
   private TableStore store;
   private Schema schema;
-  private Filter filter = Filter.ALL;
 
   public enum Filter {
     METADATA_ONLY,
@@ -26,12 +25,6 @@ public class ImportSchemaTask extends Task {
 
   public ImportSchemaTask(TableStore store, Schema schema, boolean strict) {
     this("Import from store", store, schema, strict);
-  }
-
-  public ImportSchemaTask setFilter(Filter filter) {
-    Objects.requireNonNull(filter, "filter cannot be null");
-    this.filter = filter;
-    return this;
   }
 
   @Override
