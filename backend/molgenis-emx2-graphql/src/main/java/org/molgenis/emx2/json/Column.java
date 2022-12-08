@@ -1,6 +1,6 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
@@ -13,6 +13,7 @@ public class Column {
   private String oldName;
   private Integer key = 0;
   private Boolean required = false;
+  private Boolean readonly = false;
   private String refSchema = null;
   private String refTable = null;
   private String refLink = null;
@@ -40,7 +41,7 @@ public class Column {
       this.table = column.getTableName();
       this.position = column.getPosition();
     }
-    this.id = escape(column.getName());
+    this.id = column.getIdentifier();
     this.name = column.getName();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
@@ -52,11 +53,12 @@ public class Column {
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
-    this.refLabel = escape(column.getRefLabel());
+    this.refLabel = convertToCamelCase(column.getRefLabel());
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
     this.validation = column.getValidation();
     this.required = column.isRequired();
+    this.readonly = column.isReadonly();
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
@@ -84,6 +86,8 @@ public class Column {
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
+    c.setReadonly(readonly);
+
     // ignore inherited
     return c;
   }
@@ -246,5 +250,13 @@ public class Column {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public Boolean getReadonly() {
+    return readonly;
+  }
+
+  public void setReadonly(Boolean readonly) {
+    this.readonly = readonly;
   }
 }

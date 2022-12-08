@@ -47,6 +47,11 @@
         </button>
       </div>
     </div>
+    <div v-if="value">
+      <a v-if="value && value.url" :href="value.url">
+        Previous value: {{ value.name }}.{{ value.extension }}
+      </a>
+    </div>
   </FormGroup>
 </template>
 
@@ -73,11 +78,11 @@ export default {
   },
   methods: {
     handleFileUpload() {
-      this.$emit("input", this.$refs.file.files[0]);
+      this.$emit("update:modelValue", this.$refs.file.files[0]);
     },
     clearInput() {
       this.$refs.file.value = "";
-      this.$emit("input", null);
+      this.$emit("update:modelValue", null);
     },
   },
 };
@@ -85,16 +90,33 @@ export default {
 
 <docs>
 <template>
-  <DemoItem>
-    <InputFile id='input-file' label="My file input" description="Example file upload" v-model="uploadedFile"/>
-    Selected: {{ uploadedFile }}
-  </DemoItem>
+  <div>
+
+    <DemoItem>
+      <label for="input-file-empty">Empty file upload</label>
+      <InputFile id='input-file-empty' label="My file input" description="Example file upload" v-model="valueEmpty"/>
+      Selected: {{ valueEmpty }}
+    </DemoItem>
+
+    <DemoItem>
+      <label for="input-file-set">File upload with value set</label>
+      <InputFile id='input-file-set' label="My file input" description="Example file upload" v-model="valueSet"/>
+      Selected: {{ valueSet }}
+    </DemoItem>
+
+  </div>
 </template>
 <script>
   export default {
     data: function () {
       return {
-        uploadedFile: null
+        valueEmpty: null,
+        valueSet: {
+          id : "3955978b18024de4bad8fcf8e2d49b59",
+          size : 107,
+          extension : "csv",
+          url : "/pet store/api/file/User/picture/3955978b18024de4bad8fcf8e2d49b59"
+        }
       };
     }
   };

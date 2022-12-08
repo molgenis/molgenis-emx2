@@ -1,12 +1,18 @@
 <template>
   <div class="container bg-white" id="_top" v-if="resourceData">
-    <RowButtonEdit
+    <RowButton
       v-if="canEdit"
+      type="edit"
       class="float-right pt-1"
-      :table="table"
-      :graphqlURL="graphqlURL"
+      @edit="isEditModalShown = true"
+    />
+    <EditModal
+      v-if="canEdit"
+      id="resource-edit-modal"
+      :tableName="table"
       :pkey="primaryTableKey"
-      @close="reload"
+      :isModalShown="isEditModalShown"
+      @close="isEditModalShown = false"
     />
 
     <ButtonAlt @click="toggleNA" class="float-right text-white">
@@ -49,33 +55,38 @@
 </style>
 
 <script>
-import { TableMixin, ButtonAlt, RowButtonEdit } from "@mswertz/emx2-styleguide";
-import ResourceHeader from "../components/ResourceHeader";
-import SectionIndex from "../components/detailView/SectionIndex";
-import SectionCard from "../components/detailView/SectionCard";
+import { ButtonAlt, RowButton, Client, EditModal } from "molgenis-components";
+import ResourceHeader from "../components/ResourceHeader.vue";
+import SectionIndex from "../components/detailView/SectionIndex.vue";
+import SectionCard from "../components/detailView/SectionCard.vue";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   name: "ResourceDetailsView",
-  extends: TableMixin,
   components: {
-    ResourceHeader,
     ButtonAlt,
-    RowButtonEdit,
+    EditModal,
+    ResourceHeader,
+    RowButton,
     SectionIndex,
     SectionCard,
   },
   props: {
     color: { type: String, default: "primary" },
+    table: { type: String, required: true }, // resource table name
+    filter: { type: Object, required: true }, // resource id filter
   },
   data() {
     return {
+      client: null,
       hideNA: true,
+      tableMetadata: null,
+      resourceData: null,
+      isEditModalShown: false,
     };
   },
   computed: {
-    resourceData() {
-      return this.data[0];
-    },
+    ...mapGetters(["canEdit"]),
     sections() {
       const comparePosition = (a, b) => a.position < b.position;
       const isHeading = (meta) => meta.columnType === "HEADING";
@@ -113,9 +124,20 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["reloadMetadata"]),
     toggleNA() {
       this.hideNA = !this.hideNA;
     },
+  },
+  async created() {
+    this.client = Client.newClient();
+    this.reloadMetadata();
+    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
+    this.resourceData = (
+      await this.client.fetchTableDataValues(this.table, {
+        filter: this.filter,
+      })
+    )[0];
   },
 };
 </script>

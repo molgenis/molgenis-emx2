@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { request } from "graphql-request";
+import { request } from "../../client/client.js";
 import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";
 
@@ -66,12 +66,32 @@ export default {
     this.startMonitorTask();
   },
 };
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 </script>
 
 <docs>
 <template>
-  <demo-item>
-    <Task taskId="6956bf6d-3f78-4798-873f-dd5382ac0e24"/>
-  </demo-item>
+  <div>
+    <demo-item>
+      <InputString id="task-id-input" v-model="taskId" />
+      <ButtonAction v-if="!showTask" v-on:click="showTask = true"
+        >Send</ButtonAction
+      >
+      <Task v-if="showTask" :taskId="taskId" />
+    </demo-item>
+  </div>
 </template>
+<script>
+export default {
+  data: function () {
+    return {
+      taskId: "not existing taskId",
+      showTask: false,
+    };
+  },
+};
+</script>
 </docs>

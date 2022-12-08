@@ -6,14 +6,24 @@
     :description="description"
     :errorMessage="errorMessage"
   >
-    <BaseInputDecimal
-      :id="id"
-      :value="value"
-      :class="{ 'is-invalid': errorMessage }"
-      :placeholder="placeholder"
-      :required="required"
-      @input="$emit('input', $event)"
-    />
+    <InputGroup>
+      <BaseInputDecimal
+        :id="id"
+        :modelValue="modelValue"
+        :class="{ 'is-invalid': errorMessage }"
+        :placeholder="placeholder"
+        :required="required"
+        @update:modelValue="
+          $emit(
+            'update:modelValue',
+            $event
+          )
+        "
+      />
+      <template v-slot:append>
+        <slot name="append" />
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
@@ -21,12 +31,14 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import BaseInputDecimal from "./baseInputs/BaseInputDecimal.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
     BaseInputDecimal,
+    InputGroup,
   },
 };
 </script>

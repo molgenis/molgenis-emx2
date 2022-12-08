@@ -6,112 +6,47 @@
     :description="description"
     :errorMessage="errorMessage || bigIntError"
   >
-    <input
-      :id="id"
-      :value="value"
-      class="form-control"
-      :class="{ 'is-invalid': errorMessage || bigIntError }"
-      :aria-describedby="id + 'Help'"
-      :placeholder="placeholder"
-      :readonly="readonly"
-      :required="required"
-      @keypress="handleKeyValidity($event)"
-      @input="inputHandler($event)"
-    />
+    <InputGroup>
+      <BaseInputLong
+        :id="id"
+        :modelValue="modelValue"
+        :placeholder="placeholder"
+        :readonly="readonly"
+        :required="required"
+        :class="{ 'is-invalid': errorMessage || bigIntError }"
+        @update:modelValue="$emit('update:modelValue', $event)"
+      />
+      <template v-slot:append>
+        <slot name="append" />
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
-import FormGroup from "./FormGroup.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
-import constants from "../constants";
-import { isNumericKey } from "../utils";
-
-const { CODE_MINUS, MIN_LONG, MAX_LONG } = constants;
+import BaseInputLong from "./baseInputs/BaseInputLong.vue";
+import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
+import { getBigIntError } from "../utils";
 
 export default {
   extends: BaseInput,
   components: {
     FormGroup,
-  },
-  props: {
-    readonly: {
-      type: Boolean,
-      required: false,
-      default: () => undefined,
-    },
+    BaseInputLong,
+    InputGroup,
   },
   computed: {
     bigIntError() {
-      return getBigIntError(this.value);
-    },
-  },
-  methods: {
-    handleKeyValidity(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
-      if (keyCode === CODE_MINUS) {
-        this.$emit("input", flipSign(this.value));
-      }
-      if (!isNumericKey(event)) {
-        event.preventDefault();
-      }
-    },
-    inputHandler(event) {
-      const value = event.target.value;
-      if (value?.length) {
-        this.$emit("input", value);
-      } else {
-        this.$emit("input", null);
-      }
+      return getBigIntError(this.modelValue);
     },
   },
 };
-
-const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
-
-function getBigIntError(value) {
-  if (value === "-" || isInvalidBigInt(value)) {
-    return BIG_INT_ERROR;
-  } else {
-    return undefined;
-  }
-}
-
-function isInvalidBigInt(value) {
-  return (
-    value !== null &&
-    (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
-  );
-}
-
-function flipSign(value) {
-  switch (value) {
-    case "-":
-      return null;
-    case null:
-      return "-";
-    default:
-      if (value.charAt(0) === "-") {
-        return value.substring(1);
-      } else {
-        return "-" + value;
-      }
-  }
-}
 </script>
 
-<style scoped>
-.is-invalid {
-  background-image: none;
-}
-
-span:hover .hoverIcon {
-  visibility: visible;
-}
-</style>
-
 <docs>
-  <template>
+<template>
   <div>
     <demo-item>
       <div>
@@ -125,15 +60,15 @@ span:hover .hoverIcon {
         Value: {{ JSON.stringify(value) }}
       </div>
     </demo-item>
-</div>
-  </template>
-  <script>
-    export default {
-      data: function () {
-        return {
-          value: "9223372036854775807"
-        };
-      }
-    };
-  </script>
+  </div>
+</template>
+<script>
+  export default {
+    data: function() {
+      return {
+        value: "9223372036854775807"
+      };
+    }
+  };
+</script>
 </docs>

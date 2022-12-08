@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div v-for="index in fieldCount" :key="index">
+    <div v-if="isMultiConditionFilter">
+      <component
+          :is="filterType"
+          :id="id"
+          :condition="conditions"
+          @updateCondition="updateCondition(index - 1, $event)"
+          :tableName="tableName"
+          :graphqlURL="graphqlURL"
+      ></component>
+   </div>
+    <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
         :id="id + index"
@@ -21,10 +31,13 @@ import StringFilter from "./StringFilter.vue";
 import IntegerFilter from "./IntegerFilter.vue";
 import DecimalFilter from "./DecimalFilter.vue";
 import DateFilter from "./DateFilter.vue";
+import DateTimeFilter from "./DateTimeFilter.vue";
 import BooleanFilter from "./BooleanFilter.vue";
 import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
+import LongFilter from "./LongFilter.vue";
+import { deepClone } from "../utils.js";
 
 const filterTypeMap = {
   STRING: StringFilter,
@@ -41,8 +54,12 @@ const filterTypeMap = {
   INT_ARRAY: IntegerFilter,
   DECIMAL: DecimalFilter,
   DECIMAL_ARRAY: DecimalFilter,
+  LONG: LongFilter,
+  LONG_ARRAY: LongFilter,
   DATE: DateFilter,
   DATE_ARRAY: DateFilter,
+  DATETIME: DateTimeFilter,
+  DATETIME_ARRAY: DateTimeFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
   REF: RefListFilter,
@@ -59,6 +76,7 @@ export default {
     IntegerFilter,
     DecimalFilter,
     DateFilter,
+    DateTimeFilter,
     BooleanFilter,
     RefFilter,
     RefListFilter,
@@ -80,13 +98,6 @@ export default {
       type: Array,
       required: true,
     },
-    name: {
-      type: String,
-      required: false,
-      default: function () {
-        return this.id;
-      },
-    },
     tableName: {
       type: String,
       required: false,
@@ -107,22 +118,26 @@ export default {
       return filterTypeMap[this.columnType];
     },
     isMultiConditionFilter() {
-      return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        this.columnType
-      );
+      return [
+        "REF",
+        "REF_ARRAY",
+        "REFBACK",
+        "ONTOLOGY",
+        "ONTOLOGY_ARRAY",
+      ].includes(this.columnType);
     },
   },
   methods: {
     updateCondition(index, value) {
-      let updatedConditions = [...this.conditions];
       if (this.isMultiConditionFilter) {
-        updatedConditions = value;
+        this.$emit("updateConditions", deepClone(value));
       } else if (!this.conditions.length) {
-        updatedConditions = [value];
+        this.$emit("updateConditions", [value]);
       } else {
+        let updatedConditions = deepClone(this.conditions);
         updatedConditions[index] = value;
+        this.$emit("updateConditions", updatedConditions);
       }
-      this.$emit("updateConditions", updatedConditions);
     },
     clearCondition(index) {
       let updatedConditions = [...this.conditions];
@@ -138,10 +153,9 @@ export default {
       this.fieldCount = this.isMultiConditionFilter ? 1 : newValue.length || 1;
     },
   },
+  emits: ["updateConditions"],
 };
 </script>
-
-<style></style>
 
 <docs>
 <template>
@@ -150,7 +164,7 @@ export default {
       <label>empty string filter</label>
       <demo-item>
         <FilterInput
-            id="filter-input-example-1"
+            id="filter-input-string1"
             columnType="STRING"
             :conditions="conditions"
             @updateConditions="conditions = $event"
@@ -158,12 +172,11 @@ export default {
         <div>conditions: {{ conditions }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled string filter</label>
       <demo-item>
         <FilterInput
-            id="filter-input-example-2"
+            id="filter-input-string2"
             columnType="STRING"
             :conditions="conditions1"
             @updateConditions="conditions1 = $event"
@@ -171,12 +184,11 @@ export default {
         <div>conditions: {{ conditions1 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>pre-filled int filter</label>
       <demo-item>
         <FilterInput
-            id="filter-input-example-3"
+            id="filter-input-int"
             columnType="INT"
             :conditions="conditions2"
             @updateConditions="conditions2 = $event"
@@ -184,7 +196,6 @@ export default {
         <div>conditions: {{ conditions2 }}</div>
       </demo-item>
     </div>
-
     <div class="mt-3">
       <label>date filter</label>
       <demo-item>
@@ -197,16 +208,87 @@ export default {
         <div>conditions: {{ conditions3 }}</div>
       </demo-item>
     </div>
+    <div class="mt-3">
+      <label>decimal filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-decimal"
+            columnType="DECIMAL"
+            :conditions="conditions4"
+            @updateConditions="conditions4 = $event"
+        />
+        <div>conditions: {{ conditions4 }}</div>
+      </demo-item>
+    </div>
+    <div class="mt-3">
+      <label>boolean filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-boolean"
+            columnType="BOOL"
+            :conditions="conditions5"
+            @updateConditions="conditions5 = $event"
+        />
+        <div>conditions: {{ conditions5 }}</div>
+      </demo-item>
+    </div>
+    <div class="mt-3">
+      <label>ontology filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-ontology"
+            columnType="ONTOLOGY"
+            tableName="Tag"
+            graphqlURL="/pet store/graphql"
+            :conditions="conditions6"
+            @updateConditions="conditions6 = $event"
+        />
+        <div>conditions: {{ conditions6 }}</div>
+      </demo-item>
+    </div>
+    <div class="mt-3">
+      <label>ref filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-ref"
+            columnType="REF"
+            tableName="Tag"
+            graphqlURL="/pet store/graphql"
+            :conditions="conditions7"
+            @updateConditions="conditions7 = $event"
+        />
+        <div>conditions: {{ conditions7 }}</div>
+      </demo-item>
+    </div>
+    <div class="mt-3">
+      <label>ref_array filter</label>
+      <demo-item>
+        <FilterInput
+            id="filter-input-reflist"
+            columnType="REF_ARRAY"
+            tableName="Tag"
+            graphqlURL="/pet store/graphql"
+            :conditions="conditions8"
+            @updateConditions="conditions8 = $event"
+        />
+        <div>conditions: {{ conditions8 }}</div>
+      </demo-item>
+    </div>
   </div>
 </template>
 <script>
   export default {
-    data: function () {
+    data () {
       return {
         conditions: [],
         conditions1: ["tst"],
         conditions2: [[1, 3]],
-        conditions3: []
+        conditions3: [],
+        conditions4: [],
+        conditions5: [],
+        conditions6: [],
+        conditions7: [],
+        conditions8: []
       };
     },
   };

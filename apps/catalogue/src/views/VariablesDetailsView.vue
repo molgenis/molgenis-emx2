@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { Spinner } from "@mswertz/emx2-styleguide";
+import { Spinner } from "molgenis-components";
 import VariableListItem from "../components/VariableListItem.vue";
 import { mapGetters, mapActions, mapState } from "vuex";
 

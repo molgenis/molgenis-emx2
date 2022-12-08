@@ -1,5 +1,5 @@
 import axios from "axios";
-import { deepClone } from "../components/utils";
+import { deepClone, convertToPascalCase } from "../components/utils";
 
 export { request };
 
@@ -11,6 +11,12 @@ export default {
     return {
       insertDataRow,
       updateDataRow,
+      deleteRow: async (rowKey, tableName) => {
+        return deleteRow(rowKey, tableName, graphqlURL);
+      },
+      deleteAllTableData: async (tableName) => {
+        return deleteAllTableData(tableName, graphqlURL);
+      },
       fetchMetaData: async () => {
         const schema = await fetchMetaData(myAxios, graphqlURL);
         metaData = schema;
@@ -22,7 +28,7 @@ export default {
           metaData = schema;
         }
         return deepClone(metaData).tables.find(
-          (table) => table.id === tableName
+          (table) => table.id === convertToPascalCase(tableName)
         );
       },
       fetchTableData: async (tableId, properties) => {
@@ -37,7 +43,8 @@ export default {
           graphqlURL
         );
       },
-      fetchTableDataValues: async (tableId, properties) => {
+      fetchTableDataValues: async (tableName, properties) => {
+        const tableId = convertToPascalCase(tableName);
         if (metaData === null) {
           const schema = await fetchMetaData(myAxios, graphqlURL);
           metaData = schema;
@@ -52,12 +59,13 @@ export default {
         return dataResp[tableId];
       },
       fetchRowData: async (tableName, rowId) => {
+        const tableId = convertToPascalCase(tableName);
         if (metaData === null) {
           const schema = await fetchMetaData(myAxios, graphqlURL);
           metaData = schema;
         }
         const tableMetaData = metaData.tables.find(
-          (table) => table.id === tableName
+          (table) => table.id === tableId
         );
         const filter = tableMetaData.columns
           .filter((column) => column.key === 1)
@@ -76,13 +84,28 @@ export default {
             myAxios,
             graphqlURL
           )
-        )[tableName];
+        )[tableId];
 
         if (!resultArray.length || resultArray.length !== 1) {
           return undefined;
         } else {
           return resultArray[0];
         }
+      },
+      saveTableSettings: async (settings) => {
+        return request(
+          graphqlURL ? graphqlURL : "graphql",
+          `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+          { settings: settings }
+        );
+      },
+      fetchSettings: async () => {
+        return (
+          await request(
+            graphqlURL ? graphqlURL : "graphql",
+            "{_settings{key, value}}"
+          )
+        )._settings;
       },
     };
   },
@@ -108,27 +131,47 @@ _schema {
       refLabel,
       refBack,
       required,
+      readonly,
       semantics,
       description,
       position,
       visible,
       validation
     }
+    settings { 
+      key,
+      value 
+    }
   }
 }}`;
 
 const insertDataRow = (rowData, tableName, graphqlURL) => {
+  const tableId = convertToPascalCase(tableName);
   const formData = toFormData(rowData);
-  const query = `mutation insert($value:[${tableName}Input]){insert(${tableName}:$value){message}}`;
+  const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL, formData);
 };
 
 const updateDataRow = (rowData, tableName, graphqlURL) => {
+  const tableId = convertToPascalCase(tableName);
   const formData = toFormData(rowData);
-  const query = `mutation update($value:[${tableName}Input]){update(${tableName}:$value){message}}`;
+  const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL, formData);
+};
+
+const deleteRow = (key, tableName, graphqlURL) => {
+  const tableId = convertToPascalCase(tableName);
+  const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+  const variables = { pkey: [key] };
+  return axios.post(graphqlURL, { query, variables });
+};
+
+const deleteAllTableData = (tableName, graphqlURL) => {
+  const tableId = convertToPascalCase(tableName);
+  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  return axios.post(graphqlURL, { query });
 };
 
 const fetchMetaData = async (axios, graphqlURL, onError) => {
@@ -145,13 +188,14 @@ const fetchMetaData = async (axios, graphqlURL, onError) => {
 };
 
 const fetchTableData = async (
-  tableId,
+  tableName,
   properties,
   metaData,
   axios,
   graphqlURL,
   onError
 ) => {
+  const tableId = convertToPascalCase(tableName);
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
     properties && Object.prototype.hasOwnProperty.call(properties, "limit")
@@ -165,6 +209,7 @@ const fetchTableData = async (
   const search =
     properties &&
     Object.prototype.hasOwnProperty.call(properties, "searchTerms") &&
+    properties.searchTerms !== null &&
     properties.searchTerms !== ""
       ? ',search:"' + properties.searchTerms.trim() + '"'
       : "";
@@ -199,16 +244,26 @@ const fetchTableData = async (
       console.log(error);
       if (typeof onError === "function") {
         onError(error);
+      } else {
+        throw error;
       }
     });
   return resp.data.data;
 };
 
-const request = async (url, graqphl) => {
-  const result = await axios.post(url, { query: graqphl }).catch((error) => {
-    return error;
-  });
-  return result.data.data;
+const request = async (url, graphql, variables) => {
+  const data = { query: graphql };
+  if (variables) {
+    data.variables = variables;
+  }
+  return axios
+    .post(url, data)
+    .then((result) => {
+      return result?.data?.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
 };
 
 /**
@@ -255,7 +310,9 @@ const refGraphql = (column, metaData) => {
 };
 
 const getTable = (tableName, tableStore) => {
-  return tableStore.find((table) => table.name === tableName);
+  return tableStore.find(
+    (table) => table.id === convertToPascalCase(tableName)
+  );
 };
 
 const isFileValue = (value) => {

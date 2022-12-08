@@ -1,4 +1,12 @@
 import Client from "../src/client/client.js";
+import { request } from "../src/client/client.js";
+
+//account
+import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
+import MolgenisSession from "../src/components/account/MolgenisSession.vue";
+import MolgenisSignin from "../src/components/account/MolgenisSignin.vue";
+import MolgenisSignup from "../src/components/account/MolgenisSignup.vue";
+import TokenManager from "../src/components/account/TokenManager.vue";
 
 //display
 import ContactDisplay from "../src/components/display/ContactDisplay.vue";
@@ -26,6 +34,7 @@ import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
+import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
 import EditModal from "../src/components/forms/EditModal.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
@@ -53,6 +62,7 @@ import InputRangeDate from "../src/components/forms/InputRangeDate.vue";
 import InputRangeDateTime from "../src/components/forms/InputRangeDateTime.vue";
 import InputRangeDecimal from "../src/components/forms/InputRangeDecimal.vue";
 import InputRangeInt from "../src/components/forms/InputRangeInt.vue";
+import InputRangeLong from "../src/components/forms/InputRangeLong.vue";
 import InputRef from "../src/components/forms/InputRef.vue";
 import InputRefBack from "../src/components/forms/InputRefBack.vue";
 import InputRefList from "../src/components/forms/InputRefList.vue";
@@ -62,11 +72,11 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
 import MessageWarning from "../src/components/forms/MessageWarning.vue";
-import ResizableTextarea from "../src/components/forms/ResizableTextarea.vue";
 import RowEdit from "../src/components/forms/RowEdit.vue";
 import RowEditFooter from "../src/components/forms/RowEditFooter.vue";
 
@@ -76,12 +86,8 @@ import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import Molgenis from "../src/components/layout/Molgenis.vue";
-import MolgenisAccount from "../src/components/layout/MolgenisAccount.vue";
-import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
-import MolgenisSession from "../src/components/layout/MolgenisSession.vue";
-import MolgenisSignin from "../src/components/layout/MolgenisSignin.vue";
-import MolgenisSignup from "../src/components/layout/MolgenisSignup.vue";
+import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
@@ -89,12 +95,19 @@ import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
-import ExplorerTable from "../src/components/tables/ExplorerTable.vue";
+import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vue";
+import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
+import RowButtonAdd from "../src/components/tables/RowButtonAdd.vue";
+import RowButtonClone from "../src/components/tables/RowButtonClone.vue";
+import RowButtonDelete from "../src/components/tables/RowButtonDelete.vue";
+import RowButtonEdit from "../src/components/tables/RowButtonEdit.vue";
 import ShowHide from "../src/components/tables/ShowHide.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
+import TableStickyHeaders from "../src/components/tables/TableStickyHeaders.vue";
+import AggregateTable from "../src/components/tables/AggregateTable.vue";
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -105,9 +118,19 @@ import ObjectDisplay from "../src/components/tables/cellTypes/ObjectDisplay.vue"
 import StringDisplay from "../src/components/tables/cellTypes/StringDisplay.vue";
 import TextDisplay from "../src/components/tables/cellTypes/TextDisplay.vue";
 
-//tasks
-import Task from "../src/components/task/Task.vue";
+//task
 import SubTask from "../src/components/task/SubTask.vue";
+import Task from "../src/components/task/Task.vue";
+import TaskList from "../src/components/task/TaskList.vue";
+import TaskManager from "../src/components/task/TaskManager.vue";
+
+//utils
+import {
+  deepClone,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "../src/components/utils";
+import constants, { privacyConstants } from "../src/components/constants";
 
 export {
   ContactDisplay,
@@ -135,7 +158,10 @@ export {
   ButtonAlt,
   ButtonDanger,
   ButtonSubmit,
+  Client,
+  ConfirmModal,
   EditModal,
+  FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
@@ -161,6 +187,7 @@ export {
   InputRangeDate,
   InputRangeDateTime,
   InputRangeInt,
+  InputRangeLong,
   InputRef,
   InputRefBack,
   InputRefList,
@@ -172,8 +199,11 @@ export {
   InputText,
   MessageError,
   MessageSuccess,
-  ResizableTextarea,
+  RowButtonAdd,
+  RowButtonClone,
+  RowButtonDelete,
   RowEdit,
+  RowButtonEdit,
   RowEditFooter,
   Breadcrumb,
   LayoutCard,
@@ -183,9 +213,18 @@ export {
   Spinner,
   VueTemplate,
   DataDisplayCell,
-  ExplorerTable,
+  AggregateTable,
+  RoutedTableExplorer,
+  TableExplorer,
   TableMolgenis,
   TableSimple,
+  TableStickyHeaders,
+  SubTask,
+  Task,
+  TaskManager,
+  TaskList,
+  TextDisplay,
+  Tooltip,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
@@ -193,16 +232,18 @@ export {
   MolgenisSignin,
   MolgenisSignup,
   ReadMore,
+  ShowHide,
   ShowMore,
+  StringDisplay,
   Pagination,
   RowButton,
-  ShowHide,
-  FileDisplay,
   ListDisplay,
   ObjectDisplay,
-  StringDisplay,
-  TextDisplay,
-  Client,
-  Task,
-  SubTask,
+  TokenManager,
+  deepClone,
+  constants,
+  privacyConstants,
+  request,
+  convertToPascalCase,
+  convertToCamelCase,
 };

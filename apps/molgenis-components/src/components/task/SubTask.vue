@@ -4,9 +4,9 @@
       <i class="fa-li fa" :class="icon"></i>
       {{ task.description }}
       <SubTask
-        :task="subtask"
-        v-for="subtask in task.subTasks"
-        :key="subtask.id"
+          v-for="subtask in task.subTasks"
+          :task="subtask"
+          :key="subtask.id"
       />
     </li>
   </ul>
@@ -52,3 +52,59 @@ export default {
   },
 };
 </script>
+
+<docs>
+<template>
+  <div>
+    <demo-item>
+      simple task
+      <SubTask :task="task" />
+    </demo-item>
+    <demo-item>
+      task with sub tasks
+      <SubTask :task="subtasks" />
+    </demo-item>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      task: {
+        description: "description",
+        status: "ERROR",
+      },
+      subtasks: {
+        description: "description",
+        status: "COMPLETED",
+        subTasks: [
+          {
+            description: "subtask 1",
+            status: "WARNING",
+          },
+          {
+            description: "subtask 2",
+            status: "SKIPPED",
+          },
+          {
+            description: "subtask 3",
+            status: "UNDEFINED",
+            subTasks: [
+              {
+                description: "sub subtask 1",
+                status: "WARNING",
+              },
+            ],
+          },
+          {
+            description: "subtask 4",
+            status: "RUNNING",
+          },
+        ],
+      },
+    };
+  },
+};
+</script>
+</docs>

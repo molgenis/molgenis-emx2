@@ -2,33 +2,14 @@
 ## Build file for server side rendered (ssr) catalogue application for use with molgenis EMX2 backend
 ###
 
-## Base image to have a node runtime ( todo replace with smaller/minimal image)
-FROM node:lts-gallium
+## Base image to have a node runtime
+FROM node:18.12.0-alpine
+
+WORKDIR /
 
 ## Copy the files need from the contaxt into to image
-COPY ./nuxt-ssr /app/nuxt-ssr
-COPY ./molgenis-components /app/molgenis-components
-COPY ssr-package.json /app
-COPY yarn.lock /app
-
-WORKDIR /app
-
-## Rename to default name ( alt name needed to avoid multiple package.json in same gradle-docker context)
-RUN mv ssr-package.json package.json
-
-## Install the dependencies in the image
-RUN yarn install
-
-## Make the components css available to the nuxt server
-COPY ./molgenis-components/dist/style.css /app/nuxt-ssr/assets/css
-
-## Copy the same lock file used in main build to ssr build context
-COPY yarn.lock /app/nuxt-ssr
-
-WORKDIR /app/nuxt-ssr
-
-## Generate both server and client in production mode
-RUN yarn build
+COPY ./nuxt3-ssr/.nuxt /.nuxt
+COPY ./nuxt3-ssr/.output /.output
 
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
@@ -47,5 +28,5 @@ ENV PROXY_API=$PROXY_API
 ENV PROXY_LOGIN=$PROXY_LOGIN
 
 ## Start the server
-CMD yarn start
+CMD node .output/server/index.mjs
 

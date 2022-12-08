@@ -1,10 +1,12 @@
 package org.molgenis.emx2.sql;
 
+import static java.lang.Boolean.TRUE;
 import static org.molgenis.emx2.Privileges.MANAGER;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
+import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChanges;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
@@ -14,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,23 +55,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 }
               });
 
-      // remove settings not available anymore
-      remove =
-          this.settings.keySet().stream()
-              .filter(t -> !from.settings.containsKey(t))
-              .collect(Collectors.toSet());
-      remove.forEach(s -> this.settings.remove(s));
-
-      from.settings.putAll(from.getSettingsAsMap());
+      // sync settings
+      this.setSettingsWithoutReload(from.getSettings());
     }
   }
 
   public SqlSchemaMetadata(Database db, String name, String description) {
     super(
         db,
-        MetadataUtils.loadSchemaMetadata(
-            ((SqlDatabase) db).getJooq(), new SchemaMetadata(name, description)));
+        MetadataUtils.loadSchemaMetadata(((SqlDatabase) db).getJooq(), new SchemaMetadata(name)));
     this.reload();
+    this.setDescription(description);
   }
 
   public SqlSchemaMetadata(Database db, String name) {
@@ -79,20 +76,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public void reload() {
-
     if (logger.isInfoEnabled()) {
       logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
     }
     long start = System.currentTimeMillis();
+    MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
-    this.settings.clear();
     this.rolesCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
-    }
-    for (Map.Entry<String, String> entry :
-        MetadataUtils.loadSettings(getDatabase().getJooq(), this).entrySet()) {
-      super.setSetting(entry.getKey(), entry.getValue());
     }
     if (logger.isInfoEnabled()) {
       logger.info(
@@ -127,7 +119,15 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               tableList.addAll(List.of(tables));
               if (tableList.size() > 1) sortTableByDependency(tableList);
               for (TableMetadata table : tableList) {
-                SqlTableMetadata result = new SqlTableMetadata(sm, table);
+                SqlTableMetadata result = null;
+                if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+                  result =
+                      new SqlTableMetadata(
+                          sm,
+                          getOntologyTableDefinition(table.getTableName(), table.getDescription()));
+                } else {
+                  result = new SqlTableMetadata(sm, table);
+                }
                 sm.tables.put(table.getTableName(), result);
                 executeCreateTable(((SqlDatabase) database).getJooq(), result);
               }
@@ -159,7 +159,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   @Override
-  public SqlSchemaMetadata setSettings(Collection<Setting> settings) {
+  public SchemaMetadata setSettings(Map<String, String> settings) {
     if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
       getDatabase()
           .tx(
@@ -178,66 +178,48 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
-  public SqlSchemaMetadata setSetting(String key, String value) {
-    this.setSettings(List.of(new Setting(key, value)));
-    return this;
-  }
-
   private static SqlSchemaMetadata setSettingsTransaction(
-      SqlDatabase db, String schemaName, Collection<Setting> settings) {
+      SqlDatabase db, String schemaName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    settings.forEach(
-        s -> {
-          MetadataUtils.saveSetting(db.getJooq(), schema, null, s);
-          schema.settings.put(s.key(), s.value());
-        });
-    return schema;
-  }
-
-  @Override
-  public List<Setting> getSettings() {
-    if (super.getSettings().size() == 0) {
-      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
-    }
-    return super.getSettings();
-  }
-
-  @Override
-  public Map<String, String> getSettingsAsMap() {
-    if (super.getSettingsAsMap().size() == 0) {
-      super.setSettings(MetadataUtils.loadSettings(getJooq(), this));
-    }
-    return super.getSettingsAsMap();
-  }
-
-  @Override
-  public SqlSchemaMetadata removeSetting(String key) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(removeSettingTransaction(key, (SqlDatabase) db, getName()));
+    settings
+        .entrySet()
+        .forEach(
+            setting -> {
+              if (Constants.IS_CHANGELOG_ENABLED.equals(setting.getKey())) {
+                toggleChangeLogIfNeeded(db, schema, setting.getValue());
+              }
             });
-    getDatabase().getListener().schemaChanged(getName());
-    return this;
+    schema.setSettingsWithoutReload(settings);
+    MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
+    return schema;
   }
 
-  private static SqlSchemaMetadata removeSettingTransaction(
-      String key, SqlDatabase db, String schemaName) {
-    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    MetadataUtils.deleteSetting(db.getJooq(), schema, null, new Setting(key, null));
-    schema.settings.remove(key);
-    return schema;
+  /**
+   * Checks if the proposed changelog setting is different from the current setting and enables or
+   * disables the changelog feature accordingly.
+   */
+  private static void toggleChangeLogIfNeeded(
+      SqlDatabase db, SqlSchemaMetadata schema, String settingsValue) {
+    boolean currentValue =
+        TRUE.equals(
+            TypeUtils.toBool(schema.getSettings().containsKey(Constants.IS_CHANGELOG_ENABLED)));
+    boolean newValue = Boolean.parseBoolean(settingsValue);
+    if (currentValue != newValue) {
+      if (newValue) {
+        ChangeLogExecutor.enableChangeLog(db, schema);
+      } else {
+        ChangeLogExecutor.disableChangeLog(db, schema);
+      }
+    }
+  }
+
+  @Override
+  public Map<String, String> getSettings() {
+    return super.getSettings();
   }
 
   protected DSLContext getJooq() {
     return getDatabase().getJooq();
-  }
-
-  private void log(long start, String message) {
-    String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
-    logger.info("{} {} {} in {}ms", user, message, getName(), (System.currentTimeMillis() - start));
   }
 
   @Override
@@ -306,8 +288,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return null;
   }
 
-  public List<Change> getChanges() {
-    return executeGetChanges(getJooq(), this);
+  public List<Change> getChanges(int limit) {
+    return executeGetChanges(getJooq(), this, limit);
   }
 
   public Integer getChangesCount() {

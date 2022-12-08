@@ -18,8 +18,10 @@ public class Constants {
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String FORM = "form";
+  public static final String READONLY = "readonly";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
+  public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
   public static final String SEMANTICS = "semantics";
@@ -36,8 +38,10 @@ public class Constants {
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
+  public static final String SETTINGS = "settings";
   public static final String SETTINGS_NAME = "key";
   public static final String SETTINGS_VALUE = "value";
+  public static final String SETTINGS_USER = "user";
 
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
@@ -51,9 +55,13 @@ public class Constants {
   public static final String MOLGENIS_OIDC_CLIENT_NAME = "MOLGENIS_OIDC_CLIENT_NAME";
   public static final String MOLGENIS_OIDC_DISCOVERY_URI = "MOLGENIS_OIDC_DISCOVERY_URI";
   public static final String MOLGENIS_OIDC_CALLBACK_URL = "MOLGENIS_OIDC_CALLBACK_URL";
+
+  public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
+
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
+  public static final String ANONYMOUS = "anonymous";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
@@ -74,10 +82,16 @@ public class Constants {
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
       "((https?)://)(www.)?"
-          + "[a-zA-Z0-9@:%._\\+~#?&//=]"
+          + "[a-zA-Z0-9@:%._\\+~#?&//=-]"
           + "{2,256}\\.[a-z]"
           + "{2,6}\\b([-a-zA-Z0-9@:%"
-          + "._\\+~#?&//=]*)";
+          + "._\\+~#?!&//=(\\)]*)";
+
+  public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";
+  public static final String PRIVACY_POLICY_LEVEL_DEFAULT = "Level 4";
+  public static final String PRIVACY_POLICY_TEXT = "PrivacyPolicyText";
+  public static final String PRIVACY_POLICY_TEXT_DEFAULT = "Privacy data + medical";
+  public static final String IS_PRIVACY_POLICY_ENABLED = "isPrivacyPolicyEnabled";
 
   private Constants() {
     // hide constructor

@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 public class Constants {
   static final String TABLE = "table";
   public static final String CONTENT_TYPE = "Content-type";
+  public static final String MOLGENIS_TOKEN[] = new String[] {"x-molgenis-token", "auth-key"};
   public static final String LANDING_PAGE = "LANDING_PAGE";
 
   private Constants() {

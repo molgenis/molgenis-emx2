@@ -6,9 +6,9 @@ import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
 
-public class SchemaMetadata {
+public class SchemaMetadata extends HasSettings<SchemaMetadata> {
+
   protected Map<String, TableMetadata> tables = new LinkedHashMap<>();
-  protected Map<String, String> settings = new LinkedHashMap<>();
   protected String name;
   // optional
   protected String description;
@@ -31,19 +31,14 @@ public class SchemaMetadata {
     this.name = schema.getName();
     this.description = schema.getDescription();
     this.database = schema.getDatabase();
-    this.setSettings(schema.getSettings());
-    for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.key(), setting.value());
-    }
+    this.setSettingsWithoutReload(schema.getSettings());
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
     this.database = db;
-    for (Setting setting : schema.getSettings()) {
-      this.setSetting(setting.key(), setting.value());
-    }
+    this.setSettingsWithoutReload(schema.getSettings());
   }
 
   private void validateSchemaName(String name) {
@@ -119,53 +114,12 @@ public class SchemaMetadata {
     return result;
   }
 
-  public List<Setting> getSettings() {
-    List<Setting> result = new ArrayList<>();
-    result.addAll(
-        this.settings.entrySet().stream()
-            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
-            .toList());
-    return result;
-  }
-
-  public SchemaMetadata setSettings(Map<String, String> settingsMap) {
-    this.settings.putAll(settingsMap);
-    return this;
-  }
-
-  public SchemaMetadata setSettings(Collection<Setting> settings) {
-    if (settings == null) return this;
-    for (Setting setting : settings) {
-      this.settings.put(setting.key(), setting.value());
-    }
-    return this;
-  }
-
-  public SchemaMetadata setSetting(String name, String value) {
-    this.settings.put(name, value);
-    return this;
-  }
-
   public Database getDatabase() {
     return database;
   }
 
   public void setDatabase(Database database) {
     this.database = database;
-  }
-
-  public SchemaMetadata removeSetting(String key) {
-    this.settings.remove(key);
-    return this;
-  }
-
-  public String getSetting(String key) {
-    for (Setting s : getSettings()) {
-      if (s.key().equals(key)) {
-        return s.value();
-      }
-    }
-    return null;
   }
 
   public List<TableMetadata> getTablesIncludingExternal() {
@@ -193,9 +147,5 @@ public class SchemaMetadata {
         addExternalTablesRecursive(tables, c.getRefTable());
       }
     }
-  }
-
-  protected Map<String, String> getSettingsAsMap() {
-    return Collections.unmodifiableMap(this.settings);
   }
 }

@@ -1,33 +1,32 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import store from "./store/store";
-import CatalogueView from "./views/CatalogueView";
-import ResourceDetailsView from "./views/ResourceDetailsView";
-import TableView from "./views/TableView";
-import NetworkView from "./views/NetworkView";
-import ResourceListView from "./views/ResourceListView";
-import VariableView from "./views/VariableView";
-import VariableMappingsView from "./views/VariableMappingsView";
-import TableMappingsView from "./views/TableMappingsView";
-import VariableExplorer from "./views/VariableExplorer";
-import VariableDetailView from "./views/VariableDetailView";
-import OldCohortView from "./views/cohorts/OldCohortView";
-import CohortView from "./views/cohorts/CohortView";
-import SearchResourceView from "./views/SearchResourceView";
-import ResourceRedirectView from "./views/ResourceRedirectView";
-import Subcohort from "./views/cohorts/Subcohort";
-import CollectionEvent from "./views/cohorts/CollectionEvent";
-import NetworksHome from "./network/NetworksHome";
-import NetworkVariables from "./network/NetworkVariables";
-import NetworkCohorts from "./network/NetworkCohorts";
-import NetworkDetails from "./network/NetworkDetails";
-import HomeView from "./views/HomeView"
-Vue.config.productionTip = false;
+import CatalogueView from "./views/CatalogueView.vue";
+import ResourceDetailsView from "./views/ResourceDetailsView.vue";
+import TableView from "./views/TableView.vue";
+import ResourceListView from "./views/ResourceListView.vue";
+import VariableView from "./views/VariableView.vue";
+import VariableMappingsView from "./views/VariableMappingsView.vue";
+import TableMappingsView from "./views/TableMappingsView.vue";
+import VariableExplorer from "./views/VariableExplorer.vue";
+import VariableDetailView from "./views/VariableDetailView.vue";
+import OldCohortView from "./views/cohorts/OldCohortView.vue";
+import CohortView from "./views/cohorts/CohortView.vue";
+import SearchResourceView from "./views/SearchResourceView.vue";
+import ResourceRedirectView from "./views/ResourceRedirectView.vue";
+import Subcohort from "./views/cohorts/Subcohort.vue";
+import CollectionEvent from "./views/cohorts/CollectionEvent.vue";
+import NetworksHome from "./network/NetworksHome.vue";
+import NetworkVariables from "./network/NetworkVariables.vue";
+import NetworkCohorts from "./network/NetworkCohorts.vue";
+import NetworkDetails from "./network/NetworkDetails.vue";
+import HomeView from "./views/HomeView.vue";
 
-Vue.use(VueRouter);
+import "molgenis-components/dist/style.css";
 
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
     { name: "Home", path: "/home", component: HomeView },
@@ -354,13 +353,15 @@ const router = new VueRouter({
     },
     {
       name: "VariableMappings-details",
-      path: "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
+      path:
+        "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
+      path:
+        "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },
@@ -441,7 +442,8 @@ const router = new VueRouter({
     },
     {
       name: "NetworkCohortCollectionEvent",
-      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      path:
+        "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
     },
@@ -458,8 +460,7 @@ const router = new VueRouter({
   ],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-  store,
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.use(store);
+app.mount("#app");

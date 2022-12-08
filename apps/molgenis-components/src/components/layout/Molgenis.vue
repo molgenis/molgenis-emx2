@@ -7,7 +7,11 @@
         :items="menu"
         :session="session"
       >
-        <MolgenisSession v-model="session" :key="timestamp" />
+        <MolgenisSession
+          v-model="session"
+          :key="timestamp"
+          @error="$emit('error', $event)"
+        />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
@@ -40,7 +44,7 @@
 
 <script>
 import MolgenisMenu from "./MolgenisMenu.vue";
-import MolgenisSession from "./MolgenisSession.vue";
+import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 
@@ -164,7 +168,7 @@ export default {
             this.logoURL = this.session.settings.logoURL;
           }
         }
-        this.$emit("input", this.session);
+        this.$emit("update:modelValue", this.session);
       },
     },
   },
@@ -173,6 +177,7 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
   },
+  emits: ["update:modelValue", "error"],
 };
 </script>
 

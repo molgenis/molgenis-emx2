@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSessionListener;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.JWTgenerator;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
@@ -46,12 +47,38 @@ public class MolgenisSessionManager {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
+      // check if we should apply a token
+      String authTokenKey = findUsedAuthTokenKey(request);
+      if (authTokenKey != null) {
+        String user =
+            JWTgenerator.getUserFromToken(session.getDatabase(), request.headers(authTokenKey));
+        if (!session.getDatabase().getActiveUser().equals(user)) {
+          session.getDatabase().setActiveUser(user);
+        }
+      }
+
       logger.info(
           "get session for user({}) and key ({})",
           session.getSessionUser(),
           request.session().id());
     }
     return session;
+  }
+
+  /**
+   * From the request, get the name of the auth token key that was used to supply the auth token in
+   * the header, or return null if none of the options are present.
+   *
+   * @param request
+   * @return
+   */
+  public String findUsedAuthTokenKey(Request request) {
+    for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
+      if (request.headers(authTokenKey) != null) {
+        return authTokenKey;
+      }
+    }
+    return null;
   }
 
   /**

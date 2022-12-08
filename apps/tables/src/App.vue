@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { Molgenis, MessageWarning } from "@mswertz/emx2-styleguide";
+import { Molgenis, MessageWarning } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {
@@ -43,7 +43,7 @@ export default {
       this.error = null;
       request(
         "graphql",
-        "{_schema{name,tables{name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
+        "{_schema{name,tables{id,name,tableType,externalSchema,description,columns{name,columnType,key,refTable,required,description}}}}"
       )
         .then((data) => {
           this.schema = data._schema;

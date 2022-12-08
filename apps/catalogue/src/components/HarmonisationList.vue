@@ -51,13 +51,12 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import { MessageError, Pagination } from "@mswertz/emx2-styleguide";
-import HarmonisationDetails from "./HarmonisationDetails";
+import { MessageError } from "molgenis-components";
+import HarmonisationDetails from "./HarmonisationDetail.vue";
 
 export default {
   components: {
     HarmonisationDetails,
-    Pagination,
     MessageError,
   },
   props: {

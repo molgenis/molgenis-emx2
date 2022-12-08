@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -120,6 +122,74 @@ public class WebApiSmokeTests {
 
     // delete the new schema
     db.dropSchema("pet store zip");
+  }
+
+  @Test
+  public void testCsvApi_csvTableMetadataUpdate() throws IOException {
+
+    // fresh schema for testing
+    db.dropCreateSchema(CSV_TEST_SCHEMA);
+
+    // full table header present in exported table metadata
+    String header =
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description\r\n";
+
+    // add new table with description and semantics as metadata
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
+        "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+
+    // update table without new description or semantics, values should be untouched
+    addUpdateTableAndCompare(
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+
+    // update only description, semantics should be untouched
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description\r\nTestMetaTable,NewTestDesc",
+        "TestMetaTable,,,,,,,,,,,,TestSem,NewTestDesc\r\n");
+
+    // make semantics empty by not supplying a value, description  should be untouched
+    addUpdateTableAndCompare(
+        header,
+        "tableName,semantics\r\nTestMetaTable,",
+        "TestMetaTable,,,,,,,,,,,,,NewTestDesc\r\n");
+
+    // make description empty while also adding a new value for semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
+        "TestMetaTable,,,,,,,,,,,,NewTestSem,\r\n");
+
+    // empty both description and semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,,",
+        "TestMetaTable,,,,,,,,,,,,,\r\n");
+
+    // add description value, and string array value for semantics
+    addUpdateTableAndCompare(
+        header,
+        "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
+        "TestMetaTable,,,,,,,,,,,,\"TestSem1,TestSem2\",TestDesc\r\n");
+  }
+
+  /**
+   * Helper function to prevent code duplication
+   *
+   * @param header
+   * @param tableMeta
+   * @param expected
+   * @throws IOException
+   */
+  private void addUpdateTableAndCompare(String header, String tableMeta, String expected)
+      throws IOException {
+    byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
+    File addUpdateTableFile = createTempFile(addUpdateTable, ".csv");
+    acceptFileUpload(addUpdateTableFile, "molgenis");
+    String actual = getContentAsString("/api/csv");
+    assertEquals(header + expected, actual);
   }
 
   @Test
@@ -318,7 +388,7 @@ public class WebApiSmokeTests {
     String path = "/pet store/api/csv/Tag";
 
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
+    assertTrue(result.contains("green,,colors"));
 
     String update = "name,parent\r\nyellow,colors\r\n";
     given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
@@ -329,7 +399,7 @@ public class WebApiSmokeTests {
     given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,,colors"));
+    assertTrue(result.contains("green,,colors"));
   }
 
   @Test
@@ -522,7 +592,172 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testTokenBasedAuth() throws JsonProcessingException {
+
+    // check if we can use temporary token
+    String result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    String token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // without token we are anonymous
+    assertTrue(
+        given()
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("anonymous"));
+
+    // with token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // can we create a long lived token
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\",tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[1], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // get token for admin
+    result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // as admin can we create a long lived token for others
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\" tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[1], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+  }
+
+  @Test
   public void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
+  }
+
+  @Test
+  public void testRdfApi() {
+    // skip 'all schemas' test because data is way to big (i.e.
+    // get("http://localhost:8080/api/rdf");)
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/Category/cat");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/pet store/api/rdf/doesnotexist");
+  }
+
+  @Test
+  public void testLinkedDataApi() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/jsonld");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/jsonld/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl/Category");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/pet store/api/ttl/doesnotexist");
+  }
+
+  @Test
+  public void testFDPDistribution() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
   }
 }

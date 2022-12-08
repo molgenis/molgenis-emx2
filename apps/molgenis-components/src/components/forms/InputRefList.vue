@@ -17,7 +17,7 @@
           />
         </div>
         <ButtonAlt
-          v-if="value && value.length"
+          v-if="modelValue && modelValue.length"
           class="pl-1"
           @click="clearValue"
         >
@@ -61,8 +61,8 @@
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
           <TableSearch
-            :selection.sync="selection"
-            @update:selection="$emit('input', $event)"
+            v-model:selection="selection"
+            @update:selection="$emit('update:modelValue', $event)"
             :lookupTableName="tableName"
             :filter="filter"
             @select="emitSelection"
@@ -70,6 +70,7 @@
             :graphqlURL="graphqlURL"
             :showSelect="true"
             :limit="10"
+            :canEdit="canEdit"
           />
         </template>
         <template v-slot:footer>
@@ -87,20 +88,23 @@ import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
-import { flattenObject, getPrimaryKey } from "../utils";
+import FilterWell from "../filters/FilterWell.vue";
+import {convertToPascalCase, flattenObject, getPrimaryKey} from "../utils";
 
 export default {
   extends: BaseInput,
   data: function () {
     return {
+      client: null,
       showSelect: false,
       data: [],
-      selection: this.value,
+      selection: this.modelValue,
       count: 0,
       tableMetaData: null,
     };
   },
   components: {
+    FilterWell,
     TableSearch,
     LayoutModal,
     FormGroup,
@@ -118,8 +122,19 @@ export default {
       type: String,
       required: true,
     },
+    /**
+     * Whether or not the buttons are show to edit the referenced table
+     *  */
+    canEdit: {
+      type: Boolean,
+      required: false,
+      default: () => false,
+    },
   },
   computed: {
+    tableId() {
+      return convertToPascalCase(this.tableName);
+    },
     title() {
       return "Select " + this.tableName;
     },
@@ -139,31 +154,43 @@ export default {
       this.emitSelection();
     },
     emitSelection() {
-      this.$emit("input", this.selection);
+      this.$emit("update:modelValue", this.selection);
     },
     openSelect() {
       this.showSelect = true;
     },
     closeSelect() {
+      this.loadOptions();
       this.showSelect = false;
     },
     flattenObject,
+    async loadOptions() {
+      const options = {
+        limit: this.maxNum,
+      };
+      const response = await this.client.fetchTableData(
+        this.tableId,
+        options
+      );
+      this.data = response[this.tableId];
+      this.count = response[this.tableId + "_agg"].count;
+    },
+  },
+  watch: {
+    modelValue() {
+      this.selection = this.modelValue;
+    }
   },
   async mounted() {
-    const client = Client.newClient(this.graphqlURL);
-    const allMetaData = await client.fetchMetaData();
+    this.client = Client.newClient(this.graphqlURL);
+    const allMetaData = await this.client.fetchMetaData();
     this.tableMetaData = allMetaData.tables.find(
-      (table) => table.id === this.tableName
+      (table) => table.id === this.tableId
     );
 
-    const options = {
-      limit: this.maxNum,
-    };
-    const response = await client.fetchTableData(this.tableName, options);
-    this.data = response[this.tableName];
-    this.count = response[this.tableName + "_agg"].count;
+    await this.loadOptions();
 
-    if (!this.value) {
+    if (!this.modelValue) {
       this.selection = [];
     }
   },
@@ -174,6 +201,14 @@ export default {
 <template>
   <div>
     You have to be have server running and be signed in for this to work
+    <div class="border-bottom mb-3 p-2">
+      <h5>synced demo props: </h5>
+        <div>
+          <label for="canEdit" class="pr-1">can edit: </label>
+          <input type="checkbox" id="canEdit" v-model="canEdit">
+        </div>
+        <p class="font-italic">view in table mode to see edit action buttons</p>
+    </div>
     <DemoItem>
       <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
       <InputRefList
@@ -183,6 +218,7 @@ export default {
         tableName="Pet"
         description="Standard input"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ value }}
     </DemoItem>
@@ -195,6 +231,7 @@ export default {
         description="This is a default value"
         :defaultValue="defaultValue"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
     </DemoItem>
@@ -207,6 +244,7 @@ export default {
         description="Filter by name"
         :filter="{ category: { name: { equals: 'pooky' } } }"
         graphqlURL="/pet store/graphql"
+        :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
     </DemoItem>
@@ -219,6 +257,7 @@ export default {
         description="This is a multi column input"
         graphqlURL="/pet store/graphql"
         multipleColumns
+        :canEdit="canEdit"
       />
       Selection: {{ multiColumnValue }}
     </DemoItem>
@@ -233,6 +272,7 @@ export default {
       defaultValue: [{ name: "pooky" }, { name: "spike" }],
       filterValue: [{ name: "spike" }],
       multiColumnValue: null,
+      canEdit: false
     };
   },
 };

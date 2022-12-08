@@ -40,7 +40,7 @@ public class JsonUtil {
   }
 
   public static String schemaToJson(SchemaMetadata schema) throws IOException {
-    return schemaToJson(schema, false);
+    return schemaToJson(schema, true);
   }
 
   public static String schemaToYaml(SchemaMetadata schema, boolean minimal) throws IOException {

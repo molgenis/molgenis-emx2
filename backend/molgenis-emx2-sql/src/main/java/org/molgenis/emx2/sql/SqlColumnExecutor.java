@@ -12,6 +12,7 @@ import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstr
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jooq.DSLContext;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -269,43 +270,65 @@ public class SqlColumnExecutor {
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
-          new TableMetadata(column.getRefTableName())
-              .setDescription(column.getDescription())
-              .setTableType(TableType.ONTOLOGIES)
-              .add(
-                  column("order").setType(INT).setDescription("Order within the code system"),
-                  column("name")
-                      .setPkey()
-                      .setRequired(true)
-                      .setDescription("User friendly name for this code"),
-                  column("codesystem")
-                      // .setKey(2) //todo: ideally, combination of code+codesystem has a unique
-                      // check
-                      .setRequired(false)
-                      .setDescription(
-                          "Abbreviation of the code system/ontology this ontology term belongs to"),
-                  column("code")
-                      // .setKey(2)
-                      .setRequired(false)
-                      .setDescription(
-                          "Identifier used for this code within this code system/ontology"),
-                  column("parent")
-                      .setType(REF)
-                      .setRefTable(column.getRefTableName())
-                      .setDescription("Parent in case this code exists in a hierarchy"),
-                  column("ontologyTermURI")
-                      // .setKey(3) //todo: ideally, has a unique check
-                      .setRequired(false)
-                      .setDescription("Reference to structured definition of this term"),
-                  column("definition").setType(TEXT).setDescription("Definition of the term"),
-                  column("children")
-                      .setType(REFBACK)
-                      .setRefTable(column.getRefTableName())
-                      .setRefBack("parent"));
-
+          getOntologyTableDefinition(column.getRefTableName(), column.getDescription());
       // create the table
       refSchema.create(tm);
     }
+  }
+
+  public static TableMetadata getOntologyTableDefinition(String name, String description) {
+    return new TableMetadata(name)
+        .setDescription(description)
+        .setTableType(TableType.ONTOLOGIES)
+        .add(
+            column("order")
+                .setType(INT)
+                .setDescription("Order of this term within the code system")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42680"),
+            column("name")
+                .setPkey()
+                .setRequired(true)
+                .setDescription("Unique name of the term within this table")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42614"),
+            column("label")
+                // .setKey(2) when we upgrade to psql 15 so we can allow parent == null in
+                // constraint so we can ensure unique labels on each level
+                .setDescription("User-friendly label for this term. Should be unique in parent")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("parent")
+                // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
+                // constraint
+                .setType(REF)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
+                .setRefTable(name)
+                .setDescription("The parent term, in case this code exists in a hierarchy"),
+            column("codesystem")
+                // we allow that multiple terms link to same code
+                // however, in principle we might have cases where we need multiple codes or even
+                // more complex semantics?
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C70895")
+                .setDescription("Abbreviation of the code system/ontology this term belongs to"),
+            column("code")
+                .setRequired(false)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C25162")
+                .setDescription("Identifier used for this term within this code system/ontology"),
+            column("ontologyTermURI")
+                // we allow that multiple terms link to same purl
+                .setType(HYPERLINK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C114456")
+                .setRequired(false)
+                .setDescription("Reference to structured definition of this term"),
+            column("definition")
+                .setType(TEXT)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C42777")
+                .setDescription("A concise explanation of the meaning of this term"),
+            column("children")
+                .setType(REFBACK)
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C90504")
+                .setRefTable(name)
+                .setDescription("Child terms, in case this term is the parent of other terms")
+                .setRefBack("parent"));
   }
 
   static void validateColumn(Column c) {
@@ -339,6 +362,25 @@ public class SqlColumnExecutor {
             String.format(
                 "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
                 c.getTableName(), c.getName(), c.getRefLink()));
+      }
+      AtomicBoolean foundOverlap = new AtomicBoolean(false);
+      refLink
+          .getReferences()
+          .forEach(
+              ref -> {
+                c.getReferences()
+                    .forEach(
+                        ref2 -> {
+                          if (ref.getTargetTable().equals(ref2.getTargetTable())) {
+                            foundOverlap.set(true);
+                          }
+                        });
+              });
+      if (!foundOverlap.get()) {
+        throw new MolgenisException(
+            String.format(
+                "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
+                c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
       }
     }
     // fix required

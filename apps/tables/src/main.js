@@ -1,29 +1,30 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import ListTables from "./components/ListTables";
-import ViewTable from "./components/ViewTable";
+import { createApp } from "vue/dist/vue.esm-bundler";
+import { createRouter, createWebHashHistory } from "vue-router";
+import App from "./App.vue";
+import ListTables from "./components/ListTables.vue";
+import ViewTable from "./components/ViewTable.vue";
+import { EditModal } from "molgenis-components";
 
-import App from "./App";
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-/** use vue router only to react to change url attributes */
-const router = new VueRouter({
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: "/",
       component: ListTables,
-      props: true
+      props: true,
     },
     {
       path: "/:table",
       component: ViewTable,
-      props: true
-    }
-  ]
+      props: true,
+    },
+  ],
 });
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+// workaround for not importing recursive component
+app.component("EditModal", EditModal);
+app.mount("#app");

@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchemaNames;
 import static spark.Spark.get;
+import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.endpoints.*;
+import org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp.EJP_VP_IndividualsQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.beaconv2.responses.BeaconFilteringTermsResponse;
 import spark.Request;
@@ -39,6 +41,8 @@ public class BeaconApi {
     get("/api/beacon/cohorts", BeaconApi::getCohorts);
     get("/api/beacon/individuals", BeaconApi::getIndividuals);
     get("/api/beacon/runs", BeaconApi::getRuns);
+
+    post("/api/beacon/individuals", BeaconApi::queryIndividuals_EJP_VP);
 
     /*
     both GET and POST are used to retrieve data, implement both?
@@ -125,6 +129,14 @@ public class BeaconApi {
     response.type(APPLICATION_JSON_MIME_TYPE);
     List<Table> tables = getTableFromAllSchemas("Individuals", request);
     return getWriter().writeValueAsString(new Individuals(request, tables));
+  }
+
+  private static String queryIndividuals_EJP_VP(Request request, Response response)
+      throws Exception {
+    response.type(APPLICATION_JSON_MIME_TYPE);
+    List<Table> tables = getTableFromAllSchemas("Individuals", request);
+    String responseBody = new EJP_VP_IndividualsQuery(request, response, tables).getPostResponse();
+    return responseBody;
   }
 
   private static String getRuns(Request request, Response response) throws Exception {

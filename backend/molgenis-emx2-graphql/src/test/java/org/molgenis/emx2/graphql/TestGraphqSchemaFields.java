@@ -7,8 +7,9 @@ import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.escape;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -124,22 +125,6 @@ public class TestGraphqSchemaFields {
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
-
-    // update via the shortcut
-    execute(
-        "mutation{change(settings:[{table:\"Pet\",key:\"test2\",value:\"testval2\"}]){message}}");
-
-    assertEquals(
-        "testval2",
-        execute("{_schema{tables{settings{key,value}}}}")
-            .at("/_schema/tables/2/settings/0/value")
-            .textValue());
-
-    assertEquals(
-        "test2",
-        execute("{_schema{tables{settings{key,value}}}}")
-            .at("/_schema/tables/2/settings/0/key")
-            .textValue());
   }
 
   @Test
@@ -243,18 +228,18 @@ public class TestGraphqSchemaFields {
 
     // offset
     TestCase.assertEquals(
-        "spike", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
+        "jerry", execute("{Pet(offset:1,orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // limit
     TestCase.assertEquals(1, execute("{Pet(limit:1){name}}").at("/Pet").size());
 
     // orderby asc
     TestCase.assertEquals(
-        "pooky", execute("{Pet(orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
+        "fire ant", execute("{Pet(orderby:{name:ASC}){name}}").at("/Pet/0/name").textValue());
 
     // order by desc
     TestCase.assertEquals(
-        "spike", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
+        "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
     // filter nested
     TestCase.assertEquals(
@@ -272,7 +257,7 @@ public class TestGraphqSchemaFields {
 
     // or nested
     TestCase.assertEquals(
-        2,
+        4,
         execute(
                 "{Pet(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){name}}")
             .at("/Pet")
@@ -280,7 +265,7 @@ public class TestGraphqSchemaFields {
 
     // or nested
     TestCase.assertEquals(
-        2,
+        4,
         execute(
                 "{Pet_agg(filter:{_or:[{name:{equals:\"pooky\"}},{tags:{_or:[{name:{equals:\"green\"}}]}}]}){count}}")
             .at("/Pet_agg/count")
@@ -300,6 +285,43 @@ public class TestGraphqSchemaFields {
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
+  }
+
+  @Test
+  public void testGroupBy() throws IOException {
+    // refs
+    JsonNode result = execute("{Pet_groupBy{count,tags{name}}}");
+    // 1 red
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    // 1 green
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tags/name").asText());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    // 1 with no tags
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
+    TestCase.assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
+
+    result = execute("{Pet_groupBy{count,category{name}}}");
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/0/category/name").textValue());
+    TestCase.assertEquals("bird", result.at("/Pet_groupBy/1/category/name").textValue());
+
+    // currently doensn't contain cat because somehow 'null' are not included
+    result = execute("{Pet_groupBy{count,tags{name},category{name}}}");
+    // 1 <untagged> cat
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("cat", result.at("/Pet_groupBy/0/category/name").textValue());
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tags/name").textValue());
+    // 1 blue mouse
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    TestCase.assertEquals("mouse", result.at("/Pet_groupBy/1/category/name").textValue());
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tags/name").textValue());
+    // 1 green ant
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/2/category/name").textValue());
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
+
+    // N.B. in case arrays are involved total might more than count!!!
   }
 
   @Test
@@ -413,14 +435,18 @@ public class TestGraphqSchemaFields {
       Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
 
       // test escaping
-      assertEquals("first_name", escape("first name"));
-      assertEquals("first_name", escape("first  name"));
-      assertEquals("first__name", escape("first_name"));
+      assertEquals("firstName", convertToCamelCase("First name"));
+      assertEquals("firstName", convertToCamelCase("First  name"));
+      assertEquals("first_name", convertToCamelCase("first_name"));
 
-      System.out.println(escape("Person details"));
+      assertEquals("FirstName", convertToPascalCase("first name"));
+      assertEquals("FirstName", convertToPascalCase("first  name"));
+      assertEquals("First_name", convertToPascalCase("first_name"));
+
+      System.out.println(convertToCamelCase("Person details"));
 
       myschema.create(
-          table("Person details", column("First name").setPkey(), column("Last name").setPkey()),
+          table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
           table(
               "Some",
               column("id").setPkey(),
@@ -428,20 +454,49 @@ public class TestGraphqSchemaFields {
               column("persons").setType(REF_ARRAY).setRefTable("Person details")));
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+      execute(
+          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
 
-      int count = execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue();
+      int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
       // insert should increase count
       execute(
-          "mutation{insert(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaatb\",last_name:\"blaatb2\"}){message}}");
       TestCase.assertEquals(
           count + 1,
-          execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+          execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
+
+      // order by should work with spaces
+      TestCase.assertEquals(
+          "blaata",
+          execute("{PersonDetails(orderby:{firstName:ASC}){firstName}}")
+              .at("/PersonDetails/0/firstName")
+              .asText());
+
+      TestCase.assertEquals(
+          "blaatb",
+          execute("{PersonDetails(orderby:{firstName:DESC}){firstName}}")
+              .at("/PersonDetails/0/firstName")
+              .asText());
+
+      // order by should work with underscore
+      TestCase.assertEquals(
+          "blaata2",
+          execute("{PersonDetails(orderby:{last_name:ASC}){last_name}}")
+              .at("/PersonDetails/0/last_name")
+              .asText());
+
+      TestCase.assertEquals(
+          "blaatb2",
+          execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
+              .at("/PersonDetails/0/last_name")
+              .asText());
+
       // delete
       execute(
-          "mutation{delete(Person_details:{First_name:\"blaat\",Last_name:\"blaat2\"}){message}}");
+          "mutation{delete(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
       TestCase.assertEquals(
-          count, execute("{Person_details_agg{count}}").at("/Person_details_agg/count").intValue());
+          count, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
       // reset
     } finally {

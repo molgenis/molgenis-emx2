@@ -25,16 +25,15 @@
       <template v-slot:body>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
         <InputText
-            v-model="newSchemaDescription"
-            label="description"
-            :defaultValue="schemaDescription"
+          id="schema-edit-description"
+          v-model="newSchemaDescription"
+          label="description"
+          :defaultValue="schemaDescription"
         />
       </template>
       <template v-slot:footer>
         <ButtonAlt @click="$emit('close')">Close</ButtonAlt>
-        <ButtonAction @click="executeDeleteSchema"
-          >Edit database
-        </ButtonAction>
+        <ButtonAction @click="executeDeleteSchema">Edit database </ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -46,8 +45,6 @@ import { request } from "graphql-request";
 import {
   ButtonAction,
   ButtonAlt,
-  IconAction,
-  LayoutForm,
   LayoutModal,
   MessageError,
   MessageSuccess,
@@ -62,14 +59,12 @@ export default {
     ButtonAction,
     ButtonAlt,
     LayoutModal,
-    LayoutForm,
     Spinner,
-    IconAction,
     InputText,
   },
   props: {
     schemaName: String,
-    schemaDescription: String
+    schemaDescription: String,
   },
   data: function () {
     return {
@@ -77,7 +72,7 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
-      newSchemaDescription: this.schemaDescription
+      newSchemaDescription: this.schemaDescription,
     };
   },
   computed: {

@@ -138,6 +138,27 @@ the example below.
 Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the referred table
 is automatically created, using refTable as the name.
 
+The ontology table minimaly needs the following content
+
+| name |
+|------|
+|term1 |
+|term2 |
+
+A more advanced example
+
+| name       | parent | label  |description |ontologyURI|
+|------------|--------|--------|------------|-----------|
+| term1      |        |        |            |           |
+| term1.a    | term1  |        |            |           |
+| term1.b    | term1  | b      |this will show 'b' instead of term1.b| 
+
+Explanation:
+* parent - will show terms in a hierarchy
+* label - Note that by default the 'label' will be same a name. However in user interface tree input it can be desirable to show another label.
+* ontologyTermURI - hyperlink to persistent identifier
+* order - use this to change the order, otherwise insertion order will be used
+
 ## Expressions
 
 You can further fine tune the behaviour of tables using molgenis expressions. For more information on the expression
@@ -200,6 +221,17 @@ Using meta data 'refSchema' you can indicate that a refTable or tableExtends sho
 binding to a particular schema greatly limits flexibility of the data structure. An additional requirement is that the
 table from the other schema should not have a name conflict with any table in the current schema. This is because in
 practice, the table from the other schema will be imported into the current schema.
+
+## Changelog
+Data changes made by a user can be tracked via a changelog. When enabled,
+all (data) changes made by a user are stored in a changelog table. 
+The changelog can only be enabled or disabled for the entire schema. 
+Admin or Manager users can view changes made by going
+to ``[server]/[schema]/settings/#/changelog`` ( Settings app -> select the 'Changelog' tab). 
+
+The changelog can be enabled after schema creation via adding a setting with key ```isChangelogEnabled```, and setting the 
+value to ```true```.
+Disabling the changelog is done the setting the value to ```false``` or removing the setting
 
 ## FAQ
 

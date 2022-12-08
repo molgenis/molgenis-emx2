@@ -2,10 +2,14 @@ package org.molgenis.emx2.fairdatapoint;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.encodedIRI;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -18,6 +22,7 @@ import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.utils.TypeUtils;
 import spark.Request;
 
 public class FAIRDataPointCatalog {
@@ -56,7 +61,7 @@ public class FAIRDataPointCatalog {
     GraphQL grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
     ExecutionResult executionResult =
         grapql.execute(
-            "{FDP__Catalog"
+            "{FDP_Catalog"
                 + (id != null ? "(filter:{id: {equals:\"" + id + "\"}})" : "")
                 + "{"
                 + "id,"
@@ -74,7 +79,7 @@ public class FAIRDataPointCatalog {
     Map<String, Object> result = executionResult.toSpecification();
     if (result.containsKey("data")) {
       return (List<Map<String, Object>>)
-          ((HashMap<String, Object>) result.get("data")).get("FDP__Catalog");
+          ((HashMap<String, Object>) result.get("data")).get("FDP_Catalog");
     } else {
       return null;
     }
@@ -115,16 +120,17 @@ public class FAIRDataPointCatalog {
       builder.setNamespace(prefix, prefixToNamespace.get(prefix));
     }
 
-    IRI reqUrl = iri(request.url());
-    // todo this can fail with repeated slashes? deal with/escape whitespaces?
-    IRI root =
-        iri(
-            reqUrl
-                .toString()
-                .replace("/catalog/" + fdpCatalogTable.getSchema().getName() + "/" + id, ""));
-    IRI profile = iri(root + "/catalog/profile");
-    IRI appUrl = iri(root.toString().replace("/api/fdp", ""));
-    IRI dataset = iri(root + "/dataset");
+    // reconstruct server:port URL to prevent problems with double encoding of schema/table names
+    URI requestURI = getURI(request.url());
+    String host = extractHost(requestURI);
+    String apiFdp = host + "/api/fdp";
+    String apiFdpDataset = apiFdp + "/dataset";
+    String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
+
+    IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
+    IRI apiFdpEnc = encodedIRI(apiFdp);
+    IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
+    IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);
 
     /*
     Required by FDP specification (https://specs.fairdatapoint.org/)
@@ -135,31 +141,40 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.PUBLISHER, publisher);
     builder.add(publisher, RDF.TYPE, FOAF.AGENT);
     builder.add(publisher, FOAF.NAME, catalogFromJSON.get("publisher"));
-    builder.add(root, DCTERMS.LICENSE, iri((String) catalogFromJSON.get("license")));
+    builder.add(
+        apiFdpEnc, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     ArrayList<IRI> datasetIRIs =
-        extractDatasetIRIs(catalogFromJSON.get("dataset"), root, schema.getName());
+        extractDatasetIRIs(catalogFromJSON.get("dataset"), apiFdp, schema.getName());
     for (IRI datasetIRI : datasetIRIs) {
       // not 'Dataset' (class) but 'dataset' (predicate)
       builder.add(reqUrl, iri("http://www.w3.org/ns/dcat#dataset"), datasetIRI);
     }
-    builder.add(root, DCTERMS.CONFORMS_TO, profile);
-    builder.add(root, DCTERMS.IS_PART_OF, root);
-    builder.add(root, DCAT.THEME_TAXONOMY, iri((String) catalogFromJSON.get("themeTaxonomy")));
-    builder.add(root, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
+    builder.add(apiFdpEnc, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
+    builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
     builder.add(
-        root,
+        apiFdpEnc,
+        DCAT.THEME_TAXONOMY,
+        iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+    builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
+
+    builder.add(
+        apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#metadataIssued"),
-        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
+            XSD.DATETIME));
     builder.add(
-        root,
+        apiFdpEnc,
         iri("https://w3id.org/fdp/fdp-o#metadataModified"),
-        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
-    builder.add(dataset, RDF.TYPE, LDP.DIRECT_CONTAINER);
-    builder.add(dataset, DCTERMS.TITLE, "Datasets");
-    builder.add(dataset, LDP.MEMBERSHIP_RESOURCE, reqUrl);
-    builder.add(dataset, LDP.HAS_MEMBER_RELATION, DCAT.DATASET);
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
+            XSD.DATETIME));
+    builder.add(apiFdpDatasetEnc, RDF.TYPE, LDP.DIRECT_CONTAINER);
+    builder.add(apiFdpDatasetEnc, DCTERMS.TITLE, "Datasets");
+    builder.add(apiFdpDatasetEnc, LDP.MEMBERSHIP_RESOURCE, reqUrl);
+    builder.add(apiFdpDatasetEnc, LDP.HAS_MEMBER_RELATION, DCAT.DATASET);
     for (IRI datasetIRI : datasetIRIs) {
-      builder.add(dataset, LDP.CONTAINS, datasetIRI);
+      builder.add(apiFdpDatasetEnc, LDP.CONTAINS, datasetIRI);
     }
 
     /*
@@ -173,31 +188,38 @@ public class FAIRDataPointCatalog {
 
     if (catalogFromJSON.get("language") != null) {
       ArrayList<IRI> languages =
-          extractItemAsIRI((List<Map>) catalogFromJSON.get("language"), "ontologyTermURI");
+          extractItemAsIRI(
+              (List<LinkedHashMap>) catalogFromJSON.get("language"), "ontologyTermURI");
       for (IRI language : languages) {
         builder.add(reqUrl, DCTERMS.LANGUAGE, language);
       }
     }
 
     builder.add(
-        root,
+        apiFdpEnc,
         DCTERMS.ISSUED,
-        literal(((String) catalogFromJSON.get("mg_insertedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_insertedOn")).substring(0, 19),
+            XSD.DATETIME));
     builder.add(
-        root,
+        apiFdpEnc,
         DCTERMS.MODIFIED,
-        literal(((String) catalogFromJSON.get("mg_updatedOn")).substring(0, 19), XSD.DATETIME));
+        literal(
+            TypeUtils.toString(catalogFromJSON.get("mg_updatedOn")).substring(0, 19),
+            XSD.DATETIME));
     BNode rights = vf.createBNode();
-    builder.add(root, DCTERMS.RIGHTS, rights);
+    builder.add(apiFdpEnc, DCTERMS.RIGHTS, rights);
     builder.add(rights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(rights, DCTERMS.DESCRIPTION, "Rights are provided on a per-dataset basis.");
     BNode accessRights = vf.createBNode();
-    builder.add(root, DCTERMS.ACCESS_RIGHTS, accessRights);
+    builder.add(apiFdpEnc, DCTERMS.ACCESS_RIGHTS, accessRights);
     builder.add(accessRights, RDF.TYPE, DCTERMS.RIGHTS_STATEMENT);
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
     builder.add(
-        root, FOAF.HOMEPAGE, iri(appUrl + "/" + schema.getName() + "/tables/#/FDP_Catalog"));
+        apiFdpEnc,
+        FOAF.HOMEPAGE,
+        encodedIRI(host + "/" + schema.getName() + "/tables/#/FDP_Catalog"));
 
     // Write model
     Model model = builder.build();
@@ -228,10 +250,10 @@ public class FAIRDataPointCatalog {
    * @param item
    * @return
    */
-  public static ArrayList<IRI> extractItemAsIRI(List<Map> object, String item) {
+  public static ArrayList<IRI> extractItemAsIRI(List<LinkedHashMap> object, String item) {
     ArrayList<IRI> values = new ArrayList<>();
-    for (Map map : object) {
-      IRI iri = iri((String) map.get(item));
+    for (LinkedHashMap map : object) {
+      IRI iri = iri(TypeUtils.toString(map.get(item)));
       values.add(iri);
     }
     return values;
@@ -241,15 +263,15 @@ public class FAIRDataPointCatalog {
    * Specific for making a list of IRIs that point to the underlying Datasets
    *
    * @param object
-   * @param root
+   * @param apiFdp
    * @param schema
    * @return
    */
-  public ArrayList<IRI> extractDatasetIRIs(Object object, IRI root, String schema) {
+  public ArrayList<IRI> extractDatasetIRIs(Object object, String apiFdp, String schema) {
     ArrayList<IRI> values = new ArrayList<>();
     for (Map map : ((List<Map>) object)) {
-      String id = (String) map.get("id");
-      IRI iri = iri(root + "/dataset/" + schema + "/" + id);
+      String id = TypeUtils.toString(map.get("id"));
+      IRI iri = encodedIRI(apiFdp + "/dataset/" + schema + "/" + id);
       values.add(iri);
     }
     return values;

@@ -32,6 +32,8 @@ public interface Table {
 
   Query agg(SelectColumn columns);
 
+  Query groupBy(SelectColumn columns);
+
   Query where(Filter... filters);
 
   Query search(String searchTerms);
@@ -40,7 +42,11 @@ public interface Table {
 
   Query agg();
 
+  Query groupBy();
+
   List<Row> retrieveRows();
 
   Table getInheritedTable();
+
+  String getIdentifier();
 }

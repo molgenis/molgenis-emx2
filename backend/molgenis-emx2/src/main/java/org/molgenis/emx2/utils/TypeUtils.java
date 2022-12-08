@@ -94,14 +94,12 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
-      return ((Long) v).longValue();
-    }
     if (v instanceof Integer) {
       return Integer.toUnsignedLong((Integer) v);
     }
+    if (v instanceof Long) return (Long) v;
     if (v instanceof Double) return Math.round((Double) v);
-    return (Long) v;
+    return Long.parseLong(v.toString());
   }
 
   public static Integer[] toIntArray(Object v) {
@@ -434,6 +432,47 @@ public class TypeUtils {
       default:
         throw new UnsupportedOperationException(
             "Unsupported columnType columnType found:" + columnType);
+    }
+  }
+
+  public static String convertToCamelCase(String value) {
+    // main purpose is to remove spaces because not allowed in identifiers
+    if (value != null) {
+      String[] words = value.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (int i = 0; i < words.length; i++) {
+        if (i == 0) {
+          // first character is lowercase, we don't touch other characters
+          result.append(words[i].substring(0, 1).toLowerCase());
+        } else {
+          // all other words have first letter character case
+          result.append(words[i].substring(0, 1).toUpperCase());
+        }
+        if (words[i].length() > 1) {
+          result.append(words[i].substring(1));
+        }
+      }
+      return result.toString().trim();
+    } else {
+      return null;
+    }
+  }
+
+  public static String convertToPascalCase(String value) {
+    // main purpose is to remove spaces because not allowed in identifiers
+    if (value != null) {
+      String[] words = value.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (int i = 0; i < words.length; i++) {
+        // all other words have first character uppercase, other characters not touched
+        result.append(words[i].substring(0, 1).toUpperCase());
+        if (words[i].length() > 1) {
+          result.append(words[i].substring(1));
+        }
+      }
+      return result.toString().trim();
+    } else {
+      return null;
     }
   }
 }

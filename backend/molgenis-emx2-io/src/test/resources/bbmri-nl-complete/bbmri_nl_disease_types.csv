@@ -1,5 +1,5 @@
 id,label,ontology,uri,description
-NAV,Not available,,,
+NAV_DISEASE_TYPE,Not available,,,
 NI,No information,,,
 urn:miriam:icd:A00,Cholera,ICD-10,http://identifiers.org/icd/A00,
 urn:miriam:icd:A00.0,"Cholera due to Vibrio cholerae 01, biovar cholerae",ICD-10,http://identifiers.org/icd/A000,

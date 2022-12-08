@@ -2,11 +2,8 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [
+  "packageRules": [ 
     {
-      "matchPackageNames": ["vue"],
-      "allowedVersions": ">=2.6"
-    },    {
       "matchPackageNames": ["vue-router"],
       "allowedVersions": ">=3.5"
     },
@@ -27,9 +24,21 @@
       ]
     },
     {
-      "groupName": "com.fasterxml.jackson.dataformat",
+      "groupName": "com.fasterxml.jackson",
       "matchPackagePrefixes": [
-        "com.fasterxml.jackson.dataformat"
+        "com.fasterxml.jackson"
+      ]
+    },
+    {
+      "groupName": "org.apache.logging.log4j",
+      "matchPackagePrefixes": [
+        "org.apache.logging.log4j"
+      ]
+    },
+    {
+      "groupName": "org.graalvm.js",
+      "matchPackagePrefixes": [
+        "org.graalvm.js"
       ]
     }
   ]

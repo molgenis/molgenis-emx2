@@ -20,7 +20,7 @@
         :value="option"
         @change="
           $emit(
-            'input',
+            'update:modelValue',
             result.filter((value) => value !== null)
           )
         "
@@ -31,10 +31,11 @@
       </label>
     </div>
     <button
+      v-if="!hideClearButton"
       class="checkbox-clear-value btn-link btn m-0 p-0"
       @click.prevent="
         result = [];
-        $emit('input', result);
+        $emit('update:modelValue', result);
       "
     >
       clear
@@ -64,10 +65,14 @@ export default {
   },
   props: {
     options: Array,
+    hideClearButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
-      result: this.value ? [...this.value] : [],
+      result: this.modelValue ? [...this.modelValue] : [],
     };
   },
 };

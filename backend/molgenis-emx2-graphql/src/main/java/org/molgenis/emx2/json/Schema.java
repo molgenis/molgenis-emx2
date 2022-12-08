@@ -3,8 +3,8 @@ package org.molgenis.emx2.json;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Setting;
 import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
@@ -20,7 +20,10 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema, boolean minimal) {
-    this.settings = List.of(schema.getSettings().toArray(new Setting[0]));
+    this.settings =
+        schema.getSettings().entrySet().stream()
+            .map(entry -> new Setting(entry.getKey(), entry.getValue()))
+            .toList();
     List<TableMetadata> list = new ArrayList<>();
     list.addAll(schema.getTablesIncludingExternal());
     // deterministic order is important for all kinds of comparisons
@@ -33,12 +36,16 @@ public class Schema {
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
-    s.setSettings(this.settings);
+    s.setSettings(this.settings.stream().collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
       tm.setInherit(t.getInherit());
-      tm.setSettings(t.getSettings());
+      tm.setSettings(
+          t.getSettings().stream().collect(Collectors.toMap(Setting::key, Setting::value)));
       tm.setOldName(t.getOldName());
+      if (t.getTableType() != null) {
+        tm.setTableType(t.getTableType());
+      }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
       tm.setDescription(t.getDescription());

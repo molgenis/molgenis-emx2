@@ -5,31 +5,49 @@
     :description="description"
     :errorMessage="errorMessage"
   >
-    <input
-      :id="id"
-      :ref="id"
-      v-model="input"
-      type="text"
-      class="form-control"
-      :aria-describedby="id"
-      placeholder="Search"
-    />
+    <InputGroup>
+      <input
+        :id="id"
+        :ref="id"
+        v-model="input"
+        type="text"
+        class="form-control"
+        :aria-describedby="id"
+        placeholder="Search"
+      />
+      <template v-slot:append>
+        <button
+          v-if="isClearBtnShown"
+          @click="input = null"
+          class="btn btn-outline-primary"
+          type="button"
+        >
+          <i class="fas fa-fw fa-times"></i>
+        </button>
+      </template>
+    </InputGroup>
   </FormGroup>
 </template>
 
 <script>
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
+import InputGroup from "./InputGroup.vue";
 
 export default {
   name: "InputSearch",
   extends: BaseInput,
-  components: { FormGroup },
+  components: { FormGroup, InputGroup },
   props: {
     debounceTime: {
       type: Number,
       required: false,
       default: () => 300,
+    },
+    isClearBtnShown: {
+      type: Boolean,
+      required: false,
+      default: () => false,
     },
   },
   data() {
@@ -44,10 +62,12 @@ export default {
         return this.debouncedInput;
       },
       set(val) {
-        if (this.timeout) clearTimeout(this.timeout);
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
         this.timeout = setTimeout(() => {
           this.debouncedInput = val;
-          this.$emit("input", this.debouncedInput);
+          this.$emit("update:modelValue", this.debouncedInput);
         }, this.debounceTime);
       },
     },
@@ -66,11 +86,12 @@ export default {
       />
       <div>You search: {{ value1 }}</div>
     </demo-item>
-    <label class="font-italic">Pre filled search value</label>
+    <label class="font-italic">Pre filled search value and clear button</label>
     <demo-item>
       <InputSearch
           id="input-search-2"
           v-model="value2"
+          :isClearBtnShown="true"
       />
       <div>You search: {{ value2 }}</div>
     </demo-item>
