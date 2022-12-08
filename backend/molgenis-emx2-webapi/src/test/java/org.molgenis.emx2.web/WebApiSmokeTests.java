@@ -120,6 +120,10 @@ public class WebApiSmokeTests {
             .asString();
     assertEquals(schemaCsv, schemaCsv2);
 
+    // check if reports work
+    zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/zip/reports?id=25");
+    assertTrue(zipContents.length > 0);
+
     // delete the new schema
     db.dropSchema("pet store zip");
   }

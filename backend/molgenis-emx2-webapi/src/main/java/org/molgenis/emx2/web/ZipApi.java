@@ -146,13 +146,14 @@ public class ZipApi {
 
   static String getZippedReports(Request request, Response response) throws IOException {
     String reports = request.queryParams("id");
-    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); //NOSONAR
+    Path tempDir =
+        Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT); // NOSONAR
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       String reportsJson = schema.getMetadata().getSetting("reports");
       List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
-      FileUtils.getTempFile("download",".zip");
+      FileUtils.getTempFile("download", ".zip");
       Path zipFile = tempDir.resolve("download.zip");
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(zipFile);
 
