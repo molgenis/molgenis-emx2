@@ -75,29 +75,42 @@ const query = gql`
         numberOfParticipants
         ageGroups {
           name
+          definition
+          code
+          parent {
+            name
+            definition
+            code
+          }
         }
         dataCategories {
           name
           definition
+          code
           parent {
             name
             definition
+            code
           }
         }
         sampleCategories {
           name
           definition
+          code
           parent {
             name
             definition
+            code
           }
         }
         areasOfInformation {
           name
           definition
+          code
           parent {
             name
             definition
+            code
           }
         }
         subcohorts {
