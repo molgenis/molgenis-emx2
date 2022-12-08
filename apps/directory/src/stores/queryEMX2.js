@@ -162,6 +162,7 @@ class QueryEMX2 {
         this.filters += this.filters.length ? `${this.type}: ${columnFilter}}` : columnFilter
         this.column = ''
         this.parentColumn = ''
+        this.type = '_and'
     }
 }
 

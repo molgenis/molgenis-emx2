@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { request } from 'graphql-request'
-import QueryEMX2 from './QueryEMX2'
 
 export const useGraphqlStore = defineStore('graphqlStore', () => {
   let tableInformation = ref([])
