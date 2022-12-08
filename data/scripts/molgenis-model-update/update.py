@@ -15,8 +15,8 @@ def float_to_int(df):
     return df
 
 
-class TransformDataCatalogue:
-    """Update catalogue data model from 2.8 to 3.0.
+class TransformGeneral:
+    """General functions to update catalogue data model.
     """
 
     def __init__(self, database):
@@ -35,6 +35,17 @@ class TransformDataCatalogue:
         # copy updated molgenis.csv to os.listdir(self.path)
         shutil.copy(os.path.abspath('../../datacatalogue3/molgenis.csv'),
                     os.path.abspath(self.path))
+
+
+class TransformDataCatalogue:
+    """Functions to update catalogue data model from 2.8 to 3.0.
+    """
+
+    def __init__(self, database):
+        self.database = database
+        self.path = './' + self.database + '_data/'
+        self.logger = logging.getLogger(' data update and transform')
+
 
     def transform_data(self):
         """Make changes per table

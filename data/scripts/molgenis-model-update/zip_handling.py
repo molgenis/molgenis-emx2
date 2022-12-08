@@ -4,7 +4,7 @@ import shutil
 import logging
 
 
-class DownloadUpload:
+class Zip:
     """Update catalogue data model from 2.8 to 3.0.
     """
 

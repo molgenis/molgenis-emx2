@@ -1,8 +1,9 @@
 from decouple import config
 from session import Session
+from update import TransformGeneral
 from update import TransformDataCatalogue
 from spaces import Spaces
-from download_upload import DownloadUpload
+from zip_handling import Zip
 
 # Data model details
 DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
@@ -44,21 +45,22 @@ session.download_zip()
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
 transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME)
-download_upload = DownloadUpload(CATALOGUE_SCHEMA_NAME)
+zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
+update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME)
 spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 
 # run download, transform and upload
-download_upload.remove_unzipped_data()
-download_upload.unzip_data()
-transform_data.delete_data_model_file()
+zip_handling.remove_unzipped_data()
+zip_handling.unzip_data()
+update_general.delete_data_model_file()
 transform_data.transform_data()
 spaces.get_spaces()
-transform_data.update_data_model_file()
-download_upload.zip_data()
+update_general.update_data_model_file()
+zip_handling.zip_data()
 
 # # upload data from catalogue
 # print('Load data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME +  '_upload.zip')
-# session.upload_zip()
+# download_upload.upload_zip()
 
 print('----------------')
 
@@ -77,18 +79,19 @@ session.download_zip()
 # transform data from CatalogueOntologies
 print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
 transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME)
-download_upload = DownloadUpload(ONTOLOGIES_SCHEMA_NAME)
+zip_handling = Zip(ONTOLOGIES_SCHEMA_NAME)
+update_general = TransformGeneral(ONTOLOGIES_SCHEMA_NAME)
 spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
 
-download_upload.remove_unzipped_data()
-download_upload.unzip_data()
-transform_data.delete_data_model_file()
+zip_handling.remove_unzipped_data()
+zip_handling.unzip_data()
+update_general.delete_data_model_file()
 spaces.get_spaces()
-download_upload.zip_data()
+zip_handling.zip_data()
 
 # # upload data from CatalogueOntologies
 # print('Load data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME +  '_upload.zip')
-# session.upload_zip()
+# download_upload.upload_zip()
 
 
 # # Cohorts update
