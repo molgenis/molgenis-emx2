@@ -35,14 +35,16 @@ Use virtual env to get a consistent python environment.
 
     windows: [https://www.youtube.com/watch?v=APOPm01BVrk](https://www.youtube.com/watch?v=APOPm01BVrk)
 
-5. Run script for update of catalogue data
+5. Define environment variables in .env, see .env_example
+
+6. Run script for update of catalogue data
 
     'run.py'
 
-    Run script for update of staging areas data
+   Run script for update of staging areas data
 
     'run_staging.py'
 
-    Run script for update of umcg server
+   Run script for update of UMCG server
 
     'run_UMCG.py'
