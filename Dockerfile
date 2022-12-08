@@ -5,6 +5,9 @@
 ## Base image to have a node runtime
 FROM node:18.12.0-alpine
 
+# Used to build theme
+# ENV EMX2_THEME=$EMX2_THEME
+
 WORKDIR /
 
 ## Copy the files need from the contaxt into to image
@@ -22,11 +25,12 @@ ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=$PORT
 
 # Set the base url
-ENV PROXY_API=$PROXY_API
-
-# Set the browser base url
-ENV PROXY_LOGIN=$PROXY_LOGIN
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 
 ## Start the server
 CMD node .output/server/index.mjs
+
+# To run on the vm, for example using the host network ( and fill in server-location, container-name and image)
+# docker run -d --network host --env NUXT_PUBLIC_API_BASE=[server-location] --name [container-name] [image]
+
 
