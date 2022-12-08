@@ -547,7 +547,7 @@ public class WebApiSmokeTests {
         .getMetadata()
         .setSetting(
             "menu",
-            "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
+            "[{\"label\":\"home\",\"href\":\"../tables\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../tables\", \"role\":\"Viewer\"}]");
 
     // sign in as shopviewer
     String shopViewerSessionId =
