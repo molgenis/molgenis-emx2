@@ -134,6 +134,6 @@ items.sort((a, b) => a.label.localeCompare(b.label));
     :description="collectionEvent?.description"
     v-if="collectionEvent"
   >
-    <DefinitionList :items="items" />
+    <DefinitionList :items="items" :small="true" />
   </ContentBlock>
 </template>

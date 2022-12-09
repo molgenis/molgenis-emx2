@@ -1,18 +1,26 @@
-<script setup>
-defineProps({
-  items: {
-    type: Array,
-  },
-});
-const isArray = (value) => {
+<script setup lang="ts">
+const { small, items } = withDefaults(
+  defineProps<{
+    items: [any];
+    small?: boolean;
+  }>(),
+  {
+    small: false,
+  }
+);
+
+const isArray = (value: []) => {
   return Array.isArray(value);
 };
+
+const useGridClasses = "grid md:grid-cols-3 md:gap-2.5";
+const smallClasses = "";
 </script>
 
 <template>
   <dl class="grid gap-2.5 text-body-base text-gray-900">
     <div
-      class="grid md:grid-cols-3 md:gap-2.5"
+      :class="small ? smallClasses : useGridClasses"
       v-for="item in items"
       :key="item.label"
     >
@@ -25,7 +33,7 @@ const isArray = (value) => {
         </div>
       </dt>
 
-      <dd class="col-span-2">
+      <dd class="col-span-2" :class="{ 'mb-2.5': small }">
         <ul
           v-if="isArray(item.content)"
           class="grid gap-1 pl-4 list-disc list-outside"

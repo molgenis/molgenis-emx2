@@ -117,6 +117,6 @@ items.sort((a, b) => a.label.localeCompare(b.label));
     :description="subcohort?.description"
     v-if="subcohort"
   >
-    <DefinitionList :items="items" />
+    <DefinitionList :items="items" :small="true" />
   </ContentBlock>
 </template>
