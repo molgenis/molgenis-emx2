@@ -24,7 +24,10 @@ import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
 import spark.Request;
 import spark.Response;
 
-/** Implements https://github.com/ejp-rd-vp/vp-api-specs */
+/**
+ * Implements https://github.com/rini21/vp-api-specs-beaconised based on
+ * https://github.com/ejp-rd-vp/vp-api-specs
+ */
 public class EJP_VP_IndividualsQuery {
 
   private Request request;
@@ -57,24 +60,28 @@ public class EJP_VP_IndividualsQuery {
     List<String> filters = new ArrayList<>();
     for (Filter filter : beaconRequestBody.getQuery().getFilters()) {
 
-      // id is the ontology tag of the column we want to query on
-      // either full or partial: "http://purl.obolibrary.org/obo/NCIT_C48697" or "NCIT_C48697"
+      // Id is the ontology tag of the column we want to query on. Can be just the term
+      // ("NCIT_C48697") or prefixed ("obo:NCIT_C48697") or full URL
+      // ("http://purl.obolibrary.org/obo/NCIT_C48697"), it does not matter. We strip off anything
+      // before the first ':' to make it work.
       String id = filter.getId();
+      id = id.indexOf(":") == -1 ? id : id.substring(id.indexOf(":") + 1);
 
       // operator (=, >, !, etc)
       String operator = filter.getOperator();
 
       // value is the specific thing to match individuals on, e.g. a particular disease, age of
-      // onset,
-      // etc. Examples: "ORPHA_79314", "LAMP2", "obo:NCIT_C16576"
+      // onset, for instance "ordo:ORPHA_79314", "LAMP2",
+      // "http://purl.obolibrary.org/obo/NCIT_C16576".
       String value = filter.getValue();
+      value = value.indexOf(":") == -1 ? value : value.substring(value.indexOf(":") + 1);
 
       /**
        * All of the 'age' related queries. NCIT_C25150 = Age this year, i.e. 'age', EFO_0004847 =
        * Age at disease manifestation, i.e. 'age of onset', NCIT_C156420 = Age at diagnosis
        */
       boolean isAgeQuery =
-          id.endsWith("NCIT_C25150") || id.equals("EFO_0004847") || id.equals("NCIT_C156420");
+          id.endsWith("NCIT_C25150") || id.endsWith("EFO_0004847") || id.endsWith("NCIT_C156420");
       if (isAgeQuery) {
         Filter ageQuery = new Filter(id, operator, value);
         ageQueries.add(ageQuery);
@@ -89,22 +96,22 @@ public class EJP_VP_IndividualsQuery {
         // NCIT "Female". A person who belongs to the sex that normally produces ova. The term is
         // used to indicate biological sex distinctions, or cultural gender role distinctions, or
         // both.
-        mapping.put("http://purl.obolibrary.org/obo/NCIT_C16576", "GSSO_000123");
+        mapping.put("//purl.obolibrary.org/obo/NCIT_C16576", "GSSO_000123");
         mapping.put("NCIT_C16576", "GSSO_000123");
 
         // NCIT "Male". A person who belongs to the sex that normally produces sperm. The term is
         // used to indicate biological sex distinctions, cultural gender role distinctions, or both.
-        mapping.put("http://purl.obolibrary.org/obo/NCIT_C20197", "GSSO_000124");
+        mapping.put("//purl.obolibrary.org/obo/NCIT_C20197", "GSSO_000124");
         mapping.put("NCIT_C20197", "GSSO_000124");
 
         // NCIT "Undetermined". A term referring to the lack of definitive criteria for
         // classification of a finding.
-        mapping.put("http://purl.obolibrary.org/obo/NCIT_C124294", "GSSO_009509");
+        mapping.put("//purl.obolibrary.org/obo/NCIT_C124294", "GSSO_009509");
         mapping.put("NCIT_C124294", "GSSO_009509");
 
         // NCIT "Unknown". Not known, observed, recorded; or reported as unknown by the data
         // contributor.
-        mapping.put("http://purl.obolibrary.org/obo/NCIT_C17998", "GSSO_009515");
+        mapping.put("//purl.obolibrary.org/obo/NCIT_C17998", "GSSO_009515");
         mapping.put("NCIT_C17998", "GSSO_009515");
 
         // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
@@ -148,9 +155,9 @@ public class EJP_VP_IndividualsQuery {
 
       /** Anything else: create filter dynamically. */
       else {
-        ColumnPath columnPath = findColumnPath(new ArrayList<>(), value, this.tables.get(0));
+        ColumnPath columnPath = findColumnPath(new ArrayList<>(), id, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
-          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + id + "\"";
+          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + value + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
           return getWriter()
