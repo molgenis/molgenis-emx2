@@ -460,6 +460,7 @@ export default {
             terms[e.name].definition = e.definition;
             terms[e.name].label = e.label;
             terms[e.name].code = e.code;
+            terms[e.name].codesystem = e.codesystem;
           } else {
             //else simply add the record
             terms[e.name] = {
@@ -468,6 +469,7 @@ export default {
               selected: false,
               definition: e.definition,
               code: e.code,
+              codesystem: e.codesystem,
               label: e.label
             };
           }
