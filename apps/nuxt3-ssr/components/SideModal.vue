@@ -11,7 +11,9 @@ const onShow = () => {
 
 const onHide = () => {
   document.body.classList.remove("no-scroll");
-  document.body.classList.remove("v-popper_right");
+  setTimeout(() => {
+    document.body.classList.remove("v-popper_right");
+  }, 150);
   emit("close");
 };
 
