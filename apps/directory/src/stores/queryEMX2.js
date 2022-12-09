@@ -120,7 +120,7 @@ class QueryEMX2 {
 
     and (column, nestedColumn) {
         this.type = '_and'
-        return this.filter(column, nestedColumn)
+        return this.where(column, nestedColumn)
     }
 
     or (column, nestedColumn) {
@@ -204,7 +204,7 @@ class QueryEMX2 {
 
         if (this.filters.length) {
             /** need to remove the last }, add an _and / _or and stitch it together */
-            this.filters = `${this.filters.substring(0, this.filters.length - 1)}, ${this.type}: ${columnFilter}}`
+            this.filters = `${this.filters.substring(0, this.filters.length - 2)}, ${this.type}: ${columnFilter}}`
         }
         else {
             this.filters = columnFilter
