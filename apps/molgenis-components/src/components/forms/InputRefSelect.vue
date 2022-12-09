@@ -60,7 +60,6 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
-import InputGroup from "./InputGroup.vue";
 import { flattenObject } from "../utils";
 
 export default {
@@ -140,43 +139,43 @@ export default {
 <docs>
 
 <template>
+<div>
   <div>
-    <div>
-      <label for="input-ref-select-1">Example </label>
-      <InputRefSelect
-          id="input-ref-select-1"
-          v-model="value1"
-          tableName="Pet"
-          graphqlURL="/pet store/graphql
+  <label for="input-ref-select-1">Example </label>
+    <InputRefSelect
+      id="input-ref-select-1"
+      v-model="value1"
+      tableName="Pet"
+      graphqlURL="/pet store/graphql
     "/>
-      Selection: {{ value1 }}
-    </div>
-
-    <label for="input-ref-select-2" class="mt-3">Example with default value</label>
-    <div>
-      <InputRefSelect
-          id="input-ref-select-2"
-          v-model="value2"
-          tableName="Pet"
-          graphqlURL="/pet store/graphql"
-      />
-      Selection: {{ value2 }}
-    </div>
-
-    <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
-    <div>
-      <InputRefSelect
-          id="input-ref-select-3"
-          v-model="value3"
-          tableName="Pet"
-          :filter="{category:{name: {equals:'dog'}}}"
-          graphqlURL="/pet store/graphql"
-      />
-      Selection: {{ value3 }}
-    </div>
-
-
+    Selection: {{ value1 }}
   </div>
+
+  <label for="input-ref-select-2" class="mt-3">Example with default value</label>
+  <div>
+    <InputRefSelect
+        id="input-ref-select-2"
+        v-model="value2"
+        tableName="Pet"
+        graphqlURL="/pet store/graphql"
+    />
+    Selection: {{ value2 }}
+  </div>
+
+  <label for="input-ref-select-3" class="mt-3">Example with filter (category.name = dog)</label>
+  <div>
+    <InputRefSelect
+        id="input-ref-select-3"
+        v-model="value3"
+        tableName="Pet"
+        :filter="{category:{name: {equals:'dog'}}}"
+        graphqlURL="/pet store/graphql"
+    />
+    Selection: {{ value3 }}
+  </div>
+
+
+</div>
 
 
 </template>

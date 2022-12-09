@@ -43,7 +43,7 @@ public class SubmissionMergeTask extends Task {
                 // edge case: what if people create and then delete a record?
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, List<Row>> deletions = new LinkedHashMap<>();
-                submissionSchema.getChanges().stream()
+                submissionSchema.getChanges(Integer.MAX_VALUE).stream()
                     .filter(change -> change.operation() == 'D')
                     .forEach(
                         change -> {

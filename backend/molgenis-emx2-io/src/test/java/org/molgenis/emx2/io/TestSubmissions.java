@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.submissions;
+package org.molgenis.emx2.io;
 
 import static graphql.Assert.assertTrue;
 import static junit.framework.TestCase.*;
@@ -89,7 +89,7 @@ public class TestSubmissions {
 
     // lets merge
     service.mergeSubmission(createTask.getSubmissionRecord().getId()).run();
-    assertEquals("puck", targetSchema.getTable("Pet").retrieveRows().get(2).getString("name"));
+    assertEquals("puck", targetSchema.getTable("Pet").retrieveRows().get(8).getString("name"));
     assertEquals(MERGED, service.getById(createTask.getSubmissionRecord().getId()).getStatus());
   }
 

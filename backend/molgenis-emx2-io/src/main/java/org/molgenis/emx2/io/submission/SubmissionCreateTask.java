@@ -46,10 +46,14 @@ public class SubmissionCreateTask extends Task {
                     targetSchema, draftSchema, targetTableNames);
 
                 // enable track changes
+                String rawSetting = db.getSetting("CHANGELOG_SCHEMAS");
+
                 List<String> changelogSetting =
-                    new ArrayList<>(List.of(db.getSettingValue("CHANGELOG_SCHEMAS").split(",")));
+                    rawSetting != null
+                        ? new ArrayList<>(List.of(rawSetting.split(",")))
+                        : new ArrayList<>();
                 changelogSetting.add(submissionRecord.getSchema());
-                db.createSetting("CHANGELOG_SCHEMAS", String.join(",", changelogSetting));
+                db.setSetting("CHANGELOG_SCHEMAS", String.join(",", changelogSetting));
 
                 // create the schema
                 Task subtask = this.addSubTask("Creating submission workspace").start();

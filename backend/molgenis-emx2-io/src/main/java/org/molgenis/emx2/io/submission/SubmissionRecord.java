@@ -7,25 +7,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.molgenis.emx2.*;
 
-@Getter
-@Setter
-@Accessors(chain = true)
 /* we use ActiveRecord pattern */
 public class SubmissionRecord {
   private static Base64.Encoder base64 = Base64.getEncoder();
-  @NonNull private String id;
-  @NonNull private String targetSchema;
-  @NonNull private List<String> targetTables = new ArrayList<>();
+  private String id;
+  private String targetSchema;
+  private List<String> targetTables = new ArrayList<>();
   private String targetIdentifiers;
-  @NonNull private SubmissionStatus status = SubmissionStatus.INITIALIZING;
-  @NonNull private LocalDateTime created = LocalDateTime.now();
-  @NonNull private LocalDateTime changed = LocalDateTime.now();
+  private SubmissionStatus status = SubmissionStatus.INITIALIZING;
+  private LocalDateTime created = LocalDateTime.now();
+  private LocalDateTime changed = LocalDateTime.now();
 
   public enum SubmissionStatus {
     INITIALIZING,
@@ -47,6 +40,69 @@ public class SubmissionRecord {
 
   public String getSchema() {
     return "Submit_" + getId();
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public SubmissionRecord setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  public String getTargetSchema() {
+    return targetSchema;
+  }
+
+  public SubmissionRecord setTargetSchema(String targetSchema) {
+    this.targetSchema = targetSchema;
+    return this;
+  }
+
+  public List<String> getTargetTables() {
+    return targetTables;
+  }
+
+  public SubmissionRecord setTargetTables(List<String> targetTables) {
+    this.targetTables = targetTables;
+    return this;
+  }
+
+  public String getTargetIdentifiers() {
+    return targetIdentifiers;
+  }
+
+  public SubmissionRecord setTargetIdentifiers(String targetIdentifiers) {
+    this.targetIdentifiers = targetIdentifiers;
+    return this;
+  }
+
+  public SubmissionStatus getStatus() {
+    return status;
+  }
+
+  public SubmissionRecord setStatus(SubmissionStatus status) {
+    this.status = status;
+    return this;
+  }
+
+  public LocalDateTime getCreated() {
+    return created;
+  }
+
+  public SubmissionRecord setCreated(LocalDateTime created) {
+    this.created = created;
+    return this;
+  }
+
+  public LocalDateTime getChanged() {
+    return changed;
+  }
+
+  public SubmissionRecord setChanged(LocalDateTime changed) {
+    this.changed = changed;
+    return this;
   }
 
   // todo, in future we can generate these code

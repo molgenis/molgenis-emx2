@@ -24,7 +24,6 @@ public class TestRowLevelSecurity {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
-  // @Ignore("because it tests unimplemented features")
   @Test
   public void testRls() {
     try {
