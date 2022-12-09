@@ -400,12 +400,12 @@ export default {
         //split and sanitize search terms
         let searchTerms = this.search
           .trim()
-          .split(" ")
+          .split(/[\s,:]+/)
           .filter((s) => s.trim().length > 0)
           .map((s) => s.toLowerCase());
         //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
-          if (searchTerms.every((s) => term.name.toLowerCase().includes(s))) {
+          if (searchTerms.every((s) => term.name.toLowerCase().includes(s) || term.label?.toLowerCase().includes(s) ||  term.definition?.toLowerCase().includes(s) ||  term.code?.toLowerCase().includes(s) ||  term.codesystem?.toLowerCase().includes(s))) {
             term.visible = true;
             this.searchResultCount++;
 
@@ -459,6 +459,8 @@ export default {
             //then copy properties, currently only definition and label
             terms[e.name].definition = e.definition;
             terms[e.name].label = e.label;
+            terms[e.name].code = e.code;
+            terms[e.name].codesystem = e.codesystem;
           } else {
             //else simply add the record
             terms[e.name] = {
@@ -466,6 +468,8 @@ export default {
               visible: true,
               selected: false,
               definition: e.definition,
+              code: e.code,
+              codesystem: e.codesystem,
               label: e.label
             };
           }
