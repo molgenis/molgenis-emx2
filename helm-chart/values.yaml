@@ -40,4 +40,7 @@ postgres:
   password: postgres
   database: postgres
 
+ssr-catalogue:
+  image:
+    repository: ssr-catalogue-snapshot
 
