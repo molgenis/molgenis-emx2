@@ -25,14 +25,14 @@ spec:
             service:
               name: ssr-catalogue
               port:
-                number: 3000
+                number: {{ $.Values.service.port }}
         - path: {{ default "/" .path }}
           pathType: Prefix
           backend:
             service:
               name: {{ $fullName }}
               port:
-                number: 8080
+                number: {{ $.Values.service.port }}
   {{- end }}
 ---
 {{- else -}}
