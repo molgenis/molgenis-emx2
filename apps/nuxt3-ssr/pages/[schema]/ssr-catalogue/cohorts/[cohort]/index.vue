@@ -3,6 +3,7 @@ import { gql } from "graphql-request";
 import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
+import ontologyFragment from "~~/gql/fragments/ontology";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -73,46 +74,10 @@ const query = gql`
           name
         }
         numberOfParticipants
-        ageGroups {
-          name
-          definition
-          code
-          parent {
-            name
-            definition
-            code
-          }
-        }
-        dataCategories {
-          name
-          definition
-          code
-          parent {
-            name
-            definition
-            code
-          }
-        }
-        sampleCategories {
-          name
-          definition
-          code
-          parent {
-            name
-            definition
-            code
-          }
-        }
-        areasOfInformation {
-          name
-          definition
-          code
-          parent {
-            name
-            definition
-            code
-          }
-        }
+        ageGroups ${loadGql(ontologyFragment)}
+        dataCategories ${loadGql(ontologyFragment)}
+        sampleCategories ${loadGql(ontologyFragment)}
+        areasOfInformation ${loadGql(ontologyFragment)}
         subcohorts {
           name
         }
