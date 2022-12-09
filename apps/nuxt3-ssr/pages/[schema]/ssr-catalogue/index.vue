@@ -11,7 +11,7 @@ let filters = reactive([
     columnType: "_SEARCH",
     search: "",
     searchTables: ["collectionEvents", "subcohorts"],
-    initialCollapsed: false
+    initialCollapsed: false,
   },
   {
     title: "Areas of information",
@@ -19,7 +19,7 @@ let filters = reactive([
     columnName: "areasOfInformation",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
-    conditions: []
+    conditions: [],
   },
   {
     title: "Data categories",
@@ -27,7 +27,7 @@ let filters = reactive([
     columnName: "dataCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
-    conditions: []
+    conditions: [],
   },
   {
     title: "Population age groups",
@@ -35,7 +35,7 @@ let filters = reactive([
     columnName: "ageGroups",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
-    conditions: []
+    conditions: [],
   },
   {
     title: "Sample categories",
@@ -43,14 +43,14 @@ let filters = reactive([
     columnName: "sampleCategories",
     columnType: "ONTOLOGY",
     filterTable: "collectionEvents",
-    conditions: []
+    conditions: [],
   },
-])
+]);
 
 let search = computed(() => {
   // @ts-ignore
-  return filters.find((f) => f.columnType === '_SEARCH').search
-})
+  return filters.find((f) => f.columnType === "_SEARCH").search;
+});
 
 const query = computed(() => {
   return `
@@ -79,69 +79,70 @@ const query = computed(() => {
   `;
 });
 
-const orderby = { "name": "ASC" }
+const orderby = { name: "ASC" };
 
 function buildFilterVariables() {
-  const filtersVariables = filters.reduce<Record<string, Record<string, object | string>>>((accum, filter) => {
+  const filtersVariables = filters.reduce<
+    Record<string, Record<string, object | string>>
+  >((accum, filter) => {
     if (filter.filterTable && filter?.conditions?.length) {
       if (!accum[filter.filterTable]) {
-        accum[filter.filterTable] = {}
+        accum[filter.filterTable] = {};
       }
-      accum[filter.filterTable][filter.columnName] = { equals: filter.conditions }
+      accum[filter.filterTable][filter.columnName] = {
+        equals: filter.conditions,
+      };
     }
 
-    return accum
-  }, {})
+    return accum;
+  }, {});
 
-  return filtersVariables
+  return filtersVariables;
 }
 
 const filter = computed(() => {
-  // build the active filters 
-  const filterVariables = buildFilterVariables()
+  // build the active filters
+  const filterVariables = buildFilterVariables();
 
-  // append search to the sub tables if set 
-  const searchTables = filters.find(f => f.columnType === '_SEARCH')?.searchTables
+  // append search to the sub tables if set
+  const searchTables = filters.find((f) => f.columnType === "_SEARCH")
+    ?.searchTables;
 
   if (searchTables) {
-    searchTables.forEach(searchTable => {
+    searchTables.forEach((searchTable) => {
       if (search.value) {
         if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]['_search'] = search.value
+          filterVariables[searchTable]["_search"] = search.value;
         } else {
-          filterVariables[searchTable] = { '_search': search.value }
+          filterVariables[searchTable] = { _search: search.value };
         }
       }
-
-    })
+    });
   }
 
-  return filterVariables
-})
+  return filterVariables;
+});
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
-const { data, pending, error, refresh } = await useFetch(
-  graphqlURL.value,
-  {
-    key: `cohorts-${offset.value}`,
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: {
-      query,
-      variables: { orderby, filter }
-    },
-  }
-);
+const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
+  key: `cohorts-${offset.value}`,
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: {
+    query,
+    variables: { orderby, filter },
+  },
+});
 
 function setCurrentPage(pageNumber: number) {
   currentPage.value = pageNumber;
 }
 
 watch(filters, () => {
-  setCurrentPage(1)
-})
+  setCurrentPage(1);
+});
 
-let activeName = ref('detailed')
+let activeName = ref("detailed");
 </script>
 
 <template>
@@ -153,13 +154,26 @@ let activeName = ref('detailed')
       <SearchResults>
         <template #header>
           <NavigationIconsMobile />
-          <PageHeader title="Cohorts" description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link">
+          <PageHeader
+            title="Cohorts"
+            description="Group of individuals sharing a defining demographic characteristic."
+            icon="image-link"
+          >
             <template #suffix>
-              <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
-                buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
-                buttonRightIcon="view-compact" v-model:activeName="activeName" />
-              <SearchResultsViewTabsMobile class="flex xl:hidden" />
+              <SearchResultsViewTabs
+                class="hidden xl:flex"
+                buttonLeftLabel="Detailed"
+                buttonLeftName="detailed"
+                buttonLeftIcon="view-normal"
+                buttonRightLabel="Compact"
+                buttonRightName="compact"
+                buttonRightIcon="view-compact"
+                v-model:activeName="activeName"
+              />
+              <SearchResultsViewTabsMobile
+                class="flex xl:hidden"
+                v-model:activeName="activeName"
+              />
             </template>
           </PageHeader>
         </template>
@@ -167,16 +181,26 @@ let activeName = ref('detailed')
         <template #search-results>
           <SearchResultsList>
             <CardList>
-              <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
-                <CohortCard :cohort="cohort" :schema="route.params.schema" :compact="activeName !== 'detailed'" />
+              <CardListItem
+                v-for="cohort in data?.data?.Cohorts"
+                :key="cohort.name"
+              >
+                <CohortCard
+                  :cohort="cohort"
+                  :schema="route.params.schema"
+                  :compact="activeName !== 'detailed'"
+                />
               </CardListItem>
             </CardList>
           </SearchResultsList>
         </template>
 
         <template #pagination>
-          <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="setCurrentPage($event)" />
+          <Pagination
+            :current-page="currentPage"
+            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            @update="setCurrentPage($event)"
+          />
         </template>
       </SearchResults>
     </template>
