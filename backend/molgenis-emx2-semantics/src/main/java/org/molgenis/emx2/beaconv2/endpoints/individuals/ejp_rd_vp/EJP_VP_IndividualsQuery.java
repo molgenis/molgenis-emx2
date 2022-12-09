@@ -2,11 +2,13 @@ package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.findColumnPath;
-import static org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsFields.*;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
+import static org.molgenis.emx2.semantics.RDFService.extractHost;
+import static org.molgenis.emx2.semantics.rdf.IRIParsingEncoding.getURI;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +44,11 @@ public class EJP_VP_IndividualsQuery {
           "No tables reachable for querying, perhaps permissions are not set correctly?");
     }
 
+    // get host name, need as beaconId in response
+    String requestURL = request.url();
+    URI requestURI = getURI(requestURL);
+    String host = extractHost(requestURI);
+
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
@@ -50,31 +57,31 @@ public class EJP_VP_IndividualsQuery {
     List<String> filters = new ArrayList<>();
     for (Filter filter : beaconRequestBody.getQuery().getFilters()) {
 
-      // type is the ontology tag of the column we want to query on
+      // id is the ontology tag of the column we want to query on
       // either full or partial: "http://purl.obolibrary.org/obo/NCIT_C48697" or "NCIT_C48697"
-      String type = filter.getType();
-
-      // id is the specific thing to match individuals on, e.g. a particular disease, age of onset,
-      // etc.
       String id = filter.getId();
 
-      // operator (=, >, !, etc) actually not used in this context
+      // operator (=, >, !, etc)
       String operator = filter.getOperator();
+
+      // value is the specific thing to match individuals on, e.g. a particular disease, age of onset,
+      // etc. Examples: "ORPHA_79314", "LAMP2", "obo:NCIT_C16576"
+      String value = filter.getValue();
 
       /**
        * All of the 'age' related queries. NCIT_C25150 = Age this year, i.e. 'age', EFO_0004847 =
        * Age at disease manifestation, i.e. 'age of onset', NCIT_C156420 = Age at diagnosis
        */
       boolean isAgeQuery =
-          type.endsWith("NCIT_C25150") || type.equals("EFO_0004847") || type.equals("NCIT_C156420");
+          value.endsWith("NCIT_C25150") || value.equals("EFO_0004847") || value.equals("NCIT_C156420");
       if (isAgeQuery) {
         int age = Integer.parseInt(id);
-        AgeQuery ageQuery = new AgeQuery(type, age, operator);
+        AgeQuery ageQuery = new AgeQuery(value, age, operator);
         ageQueries.add(ageQuery);
       }
 
       /** Sex (i.e. GenderAtBirth) but requires mapping NCIT to GSSO */
-      else if (type.endsWith("NCIT_C28421")) {
+      else if (value.endsWith("NCIT_C28421")) {
         HashMap<String, String> mapping = new HashMap<>();
         // full links? e.g. http://purl.obolibrary.org/obo/NCIT_C16576 ->
         // http://purl.obolibrary.org/obo/GSSO_000123
@@ -114,7 +121,7 @@ public class EJP_VP_IndividualsQuery {
        * Causative genes, i.e. diseaseCausalGenes. Uses HGNC gene symbol directly ('name') at the
        * moment instead of stable IRI ('ontologyTermURI').
        */
-      else if (type.endsWith("NCIT_C16612")) {
+      else if (value.endsWith("NCIT_C16612")) {
         String geneFilter = "{diseaseCausalGenes: {name: {equals: \"" + id + "\"}}}";
         filters.add(geneFilter);
       }
@@ -123,7 +130,7 @@ public class EJP_VP_IndividualsQuery {
        * Diagnosis of the rare disease (SIO_001003) NOTE: This could have been a dynamic filter, but
        * that matches individuals via the genomic variation refback, throwing off the results
        */
-      else if (type.endsWith("SIO_001003")) {
+      else if (value.endsWith("SIO_001003")) {
         String diseaseFilter =
             "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + id + "\"}}}}";
         filters.add(diseaseFilter);
@@ -133,7 +140,7 @@ public class EJP_VP_IndividualsQuery {
        * Phenotype (SIO_010056) NOTE: This could have been a dynamic filter, but that matches
        * individuals via the genomic variation refback, throwing off the results
        */
-      else if (type.endsWith("SIO_010056")) {
+      else if (value.endsWith("SIO_010056")) {
         String phenotypeFilter =
             "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + id + "\"}}}}";
         filters.add(phenotypeFilter);
@@ -141,12 +148,13 @@ public class EJP_VP_IndividualsQuery {
 
       /** Anything else: create filter dynamically. */
       else {
-        ColumnPath columnPath = findColumnPath(new ArrayList<>(), type, this.tables.get(0));
+        ColumnPath columnPath = findColumnPath(new ArrayList<>(), value, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
           String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + id + "\"";
           filters.add(finalizeFilter(dynamicFilter));
         } else {
-          return getWriter().writeValueAsString(new BeaconCountResponse(false, 0));
+          return getWriter()
+              .writeValueAsString(new BeaconCountResponse(host, beaconRequestBody, false, 0));
         }
       }
     }
@@ -185,7 +193,9 @@ public class EJP_VP_IndividualsQuery {
 
     // return the individual counts
     return getWriter()
-        .writeValueAsString(new BeaconCountResponse(totalCount > 0 ? true : false, totalCount));
+        .writeValueAsString(
+            new BeaconCountResponse(
+                host, beaconRequestBody, totalCount > 0 ? true : false, totalCount));
   }
 
   private List<String> removeIndividualIDs(
