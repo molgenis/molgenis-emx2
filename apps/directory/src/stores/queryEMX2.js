@@ -6,22 +6,33 @@ import request from "graphql-request"
 
 class QueryEMX2 {
     tableName = ''
-    filters = ''
+    filters = []
     column = ''
     parentColumn = ''
     _tableInformation = {}
     selection = []
+    graphqlUrl = ''
 
     /**
      * @param {string} graphqlUrl the endpoint to query
      */
-    constructor(graphqlUrl, tableName) {
+    constructor(graphqlUrl) {
         this.graphqlUrl = graphqlUrl
-        this.tableName = tableName
     }
 
-    Select (columns) {
-        this.selection = Array.isArray(columns) ? columns : [columns]
+    table (tableName) {
+        this.tableName = tableName[0].toUpperCase() + tableName.substring(1)
+        /** Tables always start with an uppercase */
+        return this
+    }
+
+    /**
+     * @param {string | string[]} columns 
+     */
+    select (columns) {
+        const requestedColumns = Array.isArray(columns) ? columns : [columns]
+        requestedColumns.forEach(name => name.toLowerCase())
+        this.selection = requestedColumns
         return this
     }
 
@@ -32,23 +43,27 @@ class QueryEMX2 {
      * @param {object[]} filters 
      * @returns GraphQL query string
      */
-    Execute () {
-        const tableFilters = this.filters ? `(${this.filters})` : ''
+    async execute () {
+        const tableFilters = this.filters.length ? `(filter: ${this.filters})` : ''
 
         /** Fail fast */
         if (!this.tableName) throw Error('You need to provide ', this.tableName ? 'a table name' : 'columns')
 
-        return `{
+        // if no selection is made, check get schema to add all columns
+
+        const query = `{
             ${this.tableName}${tableFilters} {
                ${this.selection.join()}
               }
             }`
+
+        return await request(this.graphqlUrl, query)
     }
 
     /**
      * Gets the table information for the current schema
      */
-    async GetSchemaTablesInformation () {
+    async getSchemaTablesInformation () {
 
         if (this._schemaTablesInformation) return this._schemaTablesInformation
 
@@ -78,31 +93,32 @@ class QueryEMX2 {
      * @param {*} nestedColumn 
      * @returns 
      */
-    Filter (column, nestedColumn) {
-        this.column = nestedColumn ? nestedColumn : column
-        this.parentColumn = nestedColumn ? column : ''
+    filter (column, nestedColumn) {
+        /** always convert to lowercase, else api will error */
+        this.column = nestedColumn ? nestedColumn.toLowerCase() : column.toLowerCase()
+        this.parentColumn = nestedColumn ? column.toLowerCase() : ''
         return this
     }
 
-    And () {
+    and () {
         this.type = '_and'
         return this
     }
 
-    Or () {
+    or () {
         this.type = '_or'
         return this
     }
 
     /** Text, String, Url, Int, Bool, Datetime Filter */
-    Equals (value) {
+    equals (value) {
         const operator = 'equals'
 
         this._createFilter(operator, value)
         return this
     }
     /** Text, String, Url, Int, Bool, Datetime Filter */
-    NotEquals (value) {
+    notEquals (value) {
         const operator = 'not_equals'
 
         this._createFilter(operator, value)
@@ -110,28 +126,28 @@ class QueryEMX2 {
     }
 
     /** Text, String, Url, Filter */
-    Like (value) {
+    like (value) {
         const operator = 'like'
 
         return this._createFilter(operator, value)
 
     }
     /** Text, String, Url, Filter */
-    NotLike (value) {
+    notLike (value) {
         const operator = 'not_like'
 
         this._createFilter(operator, value)
         return this
     }
     /** Text, String, Url, Filter */
-    TriagramSearch (value) {
+    triagramSearch (value) {
         const operator = 'triagram_search'
 
         this._createFilter(operator, value)
         return this
     }
     /** Text, String, Url, Filter */
-    TextSearch (value) {
+    textSearch (value) {
         const operator = 'text_search'
 
         this._createFilter(operator, value)
@@ -139,14 +155,14 @@ class QueryEMX2 {
     }
 
     /** Int, Datetime Filter */
-    Between (value) {
+    between (value) {
         const operator = 'between'
 
         this._createFilter(operator, value)
         return this
     }
     /** Int, Datetime Filter */
-    NotBetween (value) {
+    notBetween (value) {
         const operator = 'not_between'
         this._createFilter(operator, value)
         return this
@@ -157,9 +173,24 @@ class QueryEMX2 {
         let columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`
 
         if (this.parentColumn.length > 0) {
-            columnFilter = `{${this.parentColumn}: ${columnFilter}}`
+            columnFilter = `{ ${this.parentColumn}: ${columnFilter} }`
         }
-        this.filters += this.filters.length ? `${this.type}: ${columnFilter}}` : columnFilter
+
+
+        /**{
+            Biobanks(filter: {collections: { name: { like: "cardiovascular"}}, _and: { name: { like: "UMC"}}}) {
+               id,name
+              }
+            }
+        */
+
+        if (this.filters.length) {
+            /** need to remove the last }, add an _and / _or and stitch it together */
+            this.filters = `${this.filters.substring(0, this.filters.length - 1)}, ${this.type}: ${columnFilter}}`
+        }
+        else {
+            this.filters = columnFilter
+        }
         this.column = ''
         this.parentColumn = ''
         this.type = '_and'

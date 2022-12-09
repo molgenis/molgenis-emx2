@@ -43,20 +43,16 @@ export const useGraphqlStore = defineStore('graphqlStore', () => {
     return columns
   }
 
-  async function queryTable (tableName, properties) {
+  async function queryTable () {
 
-    // todo check properties, can be a string or object
-    // also need filters
-    const results = new QueryEMX2('graphql', 'Biobanks').Select(['id', 'name']).Filter('Collections', 'name').Like('cardiovascular').Execute()
-    console.log(results)
+    const results = await new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .filter('Collections', 'name').like('cardiovascular')
+      .filter('name').like('UMC')
+      .execute()
 
-    const query = `{
-    ${tableName} {
-       ${properties.join()}
-      }
-    }`
-
-    return await request(graphqlUrl.value, query)
+    return results;
   }
 
   return { getColumnsForTable, queryTable }
