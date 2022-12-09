@@ -73,7 +73,7 @@ zip_handling_shared_staging.unzip_data()
 update_general.delete_data_model_file()
 transform_data.transform_data()
 spaces.get_spaces()
-update_general.update_data_model_file()
+# update_general.update_data_model_file()
 zip_handling.zip_data()
 
 print('----------------')
@@ -102,17 +102,6 @@ zip_handling.unzip_data()
 update_general.delete_data_model_file()
 spaces.get_spaces()
 zip_handling.zip_data()
-
-# delete schemas UMCG and CatalogueOntologies
-# create schemas UMCG and CatalogueOntologies
-# upload molgenis.csv to UMCG schema
-# upload transformed CatalogueOntologies data to CatalogueOntologies schema
-# upload transformed data to UMCG schema
-# per cohort:
-    # delete cohort schema
-    # create cohort schema minus 'UMCG_' (cohort[5:])
-    # upload transformed cohort data
-
 
 
 # # upload data for CatalogueOntologies
@@ -147,4 +136,17 @@ for cohort in COHORTS:
     update_general.delete_data_model_file()
     transform_data.transform_data()
     spaces.get_spaces()
+    # update_general.update_data_model_file()
     zip_handling.zip_data()
+
+
+# delete schemas UMCG and CatalogueOntologies
+# create schemas UMCG and CatalogueOntologies
+# upload molgenis.csv to UMCG schema
+# upload transformed CatalogueOntologies data to CatalogueOntologies schema
+# upload transformed data to UMCG schema
+# per cohort:
+    # delete cohort schema
+    # create cohort schema minus 'UMCG_' (cohort[5:])
+    # upload transformed cohort data
+
