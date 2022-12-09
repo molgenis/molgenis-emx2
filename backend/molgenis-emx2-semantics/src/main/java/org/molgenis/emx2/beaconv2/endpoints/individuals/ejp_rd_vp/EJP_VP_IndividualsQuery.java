@@ -52,7 +52,7 @@ public class EJP_VP_IndividualsQuery {
     BeaconRequestBody beaconRequestBody =
         new ObjectMapper().readValue(request.body(), BeaconRequestBody.class);
 
-    List<AgeQuery> ageQueries = new ArrayList<>();
+    List<Filter> ageQueries = new ArrayList<>();
 
     List<String> filters = new ArrayList<>();
     for (Filter filter : beaconRequestBody.getQuery().getFilters()) {
@@ -64,7 +64,8 @@ public class EJP_VP_IndividualsQuery {
       // operator (=, >, !, etc)
       String operator = filter.getOperator();
 
-      // value is the specific thing to match individuals on, e.g. a particular disease, age of onset,
+      // value is the specific thing to match individuals on, e.g. a particular disease, age of
+      // onset,
       // etc. Examples: "ORPHA_79314", "LAMP2", "obo:NCIT_C16576"
       String value = filter.getValue();
 
@@ -73,15 +74,14 @@ public class EJP_VP_IndividualsQuery {
        * Age at disease manifestation, i.e. 'age of onset', NCIT_C156420 = Age at diagnosis
        */
       boolean isAgeQuery =
-          value.endsWith("NCIT_C25150") || value.equals("EFO_0004847") || value.equals("NCIT_C156420");
+          id.endsWith("NCIT_C25150") || id.equals("EFO_0004847") || id.equals("NCIT_C156420");
       if (isAgeQuery) {
-        int age = Integer.parseInt(id);
-        AgeQuery ageQuery = new AgeQuery(value, age, operator);
+        Filter ageQuery = new Filter(id, operator, value);
         ageQueries.add(ageQuery);
       }
 
       /** Sex (i.e. GenderAtBirth) but requires mapping NCIT to GSSO */
-      else if (value.endsWith("NCIT_C28421")) {
+      else if (id.endsWith("NCIT_C28421")) {
         HashMap<String, String> mapping = new HashMap<>();
         // full links? e.g. http://purl.obolibrary.org/obo/NCIT_C16576 ->
         // http://purl.obolibrary.org/obo/GSSO_000123
@@ -109,9 +109,9 @@ public class EJP_VP_IndividualsQuery {
 
         // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
 
-        String filterTerm = id;
-        if (mapping.containsKey(id)) {
-          filterTerm = mapping.get(id);
+        String filterTerm = value;
+        if (mapping.containsKey(value)) {
+          filterTerm = mapping.get(value);
         }
         String genderAtBirthFilter = "{sex: {ontologyTermURI: {like: \"" + filterTerm + "\"}}}";
         filters.add(genderAtBirthFilter);
@@ -121,8 +121,8 @@ public class EJP_VP_IndividualsQuery {
        * Causative genes, i.e. diseaseCausalGenes. Uses HGNC gene symbol directly ('name') at the
        * moment instead of stable IRI ('ontologyTermURI').
        */
-      else if (value.endsWith("NCIT_C16612")) {
-        String geneFilter = "{diseaseCausalGenes: {name: {equals: \"" + id + "\"}}}";
+      else if (id.endsWith("NCIT_C16612")) {
+        String geneFilter = "{diseaseCausalGenes: {name: {equals: \"" + value + "\"}}}";
         filters.add(geneFilter);
       }
 
@@ -130,9 +130,9 @@ public class EJP_VP_IndividualsQuery {
        * Diagnosis of the rare disease (SIO_001003) NOTE: This could have been a dynamic filter, but
        * that matches individuals via the genomic variation refback, throwing off the results
        */
-      else if (value.endsWith("SIO_001003")) {
+      else if (id.endsWith("SIO_001003")) {
         String diseaseFilter =
-            "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+            "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + value + "\"}}}}";
         filters.add(diseaseFilter);
       }
 
@@ -140,9 +140,9 @@ public class EJP_VP_IndividualsQuery {
        * Phenotype (SIO_010056) NOTE: This could have been a dynamic filter, but that matches
        * individuals via the genomic variation refback, throwing off the results
        */
-      else if (value.endsWith("SIO_010056")) {
+      else if (id.endsWith("SIO_010056")) {
         String phenotypeFilter =
-            "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + id + "\"}}}}";
+            "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + value + "\"}}}}";
         filters.add(phenotypeFilter);
       }
 
@@ -199,18 +199,18 @@ public class EJP_VP_IndividualsQuery {
   }
 
   private List<String> removeIndividualIDs(
-      List<AgeQuery> ageQueries, List<IndividualsResultSets> resultSetsList) {
+      List<Filter> ageQueries, List<IndividualsResultSets> resultSetsList) {
     List<String> removeIndividualIDs = new ArrayList<>();
-    for (AgeQuery ageQuery : ageQueries) {
+    for (Filter ageQuery : ageQueries) {
       for (IndividualsResultSets resultSet : resultSetsList) {
         for (IndividualsResultSetsItem individual : resultSet.getResults()) {
           List<String> ageStr = new ArrayList<>();
-          if (ageQuery.getType().endsWith("NCIT_C25150")) {
+          if (ageQuery.getId().endsWith("NCIT_C25150")) {
             // Age (Age this year)
             if (individual.getAge().getAge().getIso8601duration() != null) {
               ageStr.add(individual.getAge().getAge().getIso8601duration());
             }
-          } else if (ageQuery.getType().endsWith("EFO_0004847")) {
+          } else if (ageQuery.getId().endsWith("EFO_0004847")) {
             // Age at disease manifestation (i.e. Age of onset)
             if (individual.getDiseases() != null) {
               for (Diseases diseases : individual.getDiseases()) {
@@ -230,8 +230,8 @@ public class EJP_VP_IndividualsQuery {
             }
           }
           int[] ageYears = iso8601StringToIntYears(ageStr);
-          boolean ageQueryPositiveMatch =
-              evalAgeQuery(ageQuery.getValue(), ageYears, ageQuery.getOperator());
+          int age = Integer.parseInt(ageQuery.getValue());
+          boolean ageQueryPositiveMatch = evalAgeQuery(age, ageYears, ageQuery.getOperator());
           if (!ageQueryPositiveMatch) {
             removeIndividualIDs.add(resultSet.getId() + "@" + individual.getId());
           }
