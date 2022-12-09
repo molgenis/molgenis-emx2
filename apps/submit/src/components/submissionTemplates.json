@@ -2,13 +2,13 @@
   "Cohort": [
     "Cohorts",
     "Publications",
-    "Partners",
+    "Contacts",
     "Documentation",
-    "CollectionEvents",
+    "Collection events",
     "Subcohorts",
-    "SourceVariables",
-    "RepeatedSourceVariables",
-    "SourceVariableValues",
-    "VariableMappings"
+    "Variables",
+    "Repeated variables",
+    "Variable values",
+    "Variable mappings"
   ]
 }

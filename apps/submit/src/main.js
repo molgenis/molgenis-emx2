@@ -1,17 +1,17 @@
-import Vue from "vue";
+import { createApp } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
-import VueRouter from "vue-router";
 import SubmissionList from "./components/SubmissionList.vue";
+import VueScrollTo from "vue-scrollto";
 
-Vue.config.productionTip = false;
+import "molgenis-components/dist/style.css";
 
-Vue.use(VueRouter);
-
-const router = new VueRouter({
-  routes: [{ name: "simple", path: "/", component: SubmissionList }],
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [{ path: "/", component: SubmissionList }],
 });
 
-new Vue({
-  router,
-  render: (h) => h(App),
-}).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.directive("scroll-to", VueScrollTo);
+app.mount("#app");

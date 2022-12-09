@@ -2,25 +2,22 @@
   "name": "submit",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "serve": "vite --debug",
+    "dev": "vite",
     "build": "vite build",
     "lint": "vite lint"
   },
   "dependencies": {
-    "core-js": "3.24.1",
-    "graphql-request": "4.3.0",
-    "molgenis-components": "*",
-    "vue": "2.7.0",
-    "vue-router": "3.5.4",
     "vue-scrollto": "2.20.0",
-    "vuedraggable": "2.24.3"
+    "molgenis-components": "*",
+    "core-js": "3.26.1",
+    "graphql-request": "5.0.0",
+    "vue": "3.2.41",
+    "vue-router": "4.1.6",
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue2": "1.1.2",
-    "vite": "3.0.6"
+    "vite": "3.2.5",
+    "@vitejs/plugin-vue": "3.2.0"
   }
 }
