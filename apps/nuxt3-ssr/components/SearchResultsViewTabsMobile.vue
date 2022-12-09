@@ -20,13 +20,20 @@ function toggleMode(detailed) {
 </script>
 <template>
   <div class="flex justify-between mt-5">
-    <Button
-      type="primary"
-      size="small"
-      label="filters"
-      icon="filter"
-      iconPosition="left"
-    ></Button>
+    <SideModal :fullScreen="false">
+      <slot></slot>
+
+      <template #button>
+        <Button
+          type="primary"
+          size="small"
+          label="filters"
+          icon="filter"
+          iconPosition="left"
+        ></Button>
+      </template>
+    </SideModal>
+
     <Button
       v-if="activeName === 'detailed'"
       type="secondary"

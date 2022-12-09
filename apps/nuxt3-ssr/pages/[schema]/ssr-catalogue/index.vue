@@ -173,7 +173,9 @@ let activeName = ref("detailed");
               <SearchResultsViewTabsMobile
                 class="flex xl:hidden"
                 v-model:activeName="activeName"
-              />
+              >
+                <SearchFilter title="Filters" :filters="filters" />
+              </SearchResultsViewTabsMobile>
             </template>
           </PageHeader>
         </template>
