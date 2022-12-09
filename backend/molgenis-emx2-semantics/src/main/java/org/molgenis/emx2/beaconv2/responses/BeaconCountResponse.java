@@ -3,6 +3,7 @@ package org.molgenis.emx2.beaconv2.responses;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.Map;
 import org.molgenis.emx2.beaconv2.common.misc.Handover;
+import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconCountResponse {
@@ -13,7 +14,9 @@ public class BeaconCountResponse {
   private Map<String, Object> info;
   private Handover[] beaconHandovers;
 
-  public BeaconCountResponse(boolean exists, int numTotalResults) {
+  public BeaconCountResponse(
+      String host, BeaconRequestBody receivedRequest, boolean exists, int numTotalResults) {
+    this.meta = new BeaconResponseMeta(host, "Individuals", "count", receivedRequest);
     this.$schema = "https://json-schema.org/draft/2020-12/schema";
     this.responseSummary = new BeaconSummaryResponseSection(exists, numTotalResults);
   }
