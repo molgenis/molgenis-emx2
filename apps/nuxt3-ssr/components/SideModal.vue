@@ -15,23 +15,31 @@ const onHide = () => {
   emit("close");
 };
 
-const { slideInRight, fullScreen } = withDefaults(
+const { slideInRight, fullScreen, buttonAlignment } = withDefaults(
   defineProps<{
     slideInRight?: boolean;
     fullScreen?: boolean;
     show?: boolean;
+    buttonAlignment?: "left" | "center" | "right";
   }>(),
   {
     slideInRight: false,
     fullScreen: true,
     show: undefined,
+    buttonAlignment: "center",
   }
 );
 
 const emit = defineEmits(["close"]);
 
 const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
-const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
+const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[33vw]";
+const buttonAlignmentSet = {
+  left: "justify-left",
+  center: "justify-around",
+  right: "justify-left",
+};
+const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
 </script>
 
 <template>
@@ -55,7 +63,9 @@ const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
           <slot></slot>
         </div>
         <div class="absolute inset-x-0 bottom-0">
-          <div class="flex items-center justify-around px-6 bg-blue-500 h-19">
+          <div
+            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-blue-500 h-19`"
+          >
             <slot name="footer"></slot>
           </div>
         </div>

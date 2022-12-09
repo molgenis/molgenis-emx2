@@ -54,7 +54,7 @@ function setActiveSideModal(value: string) {
             <dl class="font-normal sm:hidden text-gray-900">
               <template v-for="header in headers.slice(1)">
                 <dt class="font-bold mt-2.5">{{ header.label }}</dt>
-                <dd>werwer{{ row[header.id] }}</dd>
+                <dd>{{ row[header.id] }}</dd>
               </template>
             </dl>
           </TableCell>
@@ -69,20 +69,21 @@ function setActiveSideModal(value: string) {
           </TableCell>
 
           <SideModal
-            :show="activeSideModal == row[headers[0].id]"
+            :show="activeSideModal === row[headers[0].id]"
             :fullScreen="false"
             :slideInRight="true"
             @close="setActiveSideModal('')"
+            buttonAlignment="right"
           >
             <CollectionEventDisplay
-              v-if="row._renderComponent == 'CollectionEventDisplay'"
+              v-if="row._renderComponent === 'CollectionEventDisplay'"
               :id="row[headers[0].id]"
             />
             <SubCohortDisplay v-else :id="row[headers[0].id]" />
 
             <template #footer>
               <NuxtLink :to="row._path">
-                <HeaderButtonMobile label="Detail page" icon="star" />
+                <Button type="secondary" size="small" label="Detail page" />
               </NuxtLink>
             </template>
           </SideModal>
