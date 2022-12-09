@@ -400,7 +400,7 @@ export default {
         //split and sanitize search terms
         let searchTerms = this.search
           .trim()
-          .split(/:| /)
+          .split(/[\s,:]+/)
           .filter((s) => s.trim().length > 0)
           .map((s) => s.toLowerCase());
         //check every term if it matches all search terms
