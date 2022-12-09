@@ -22,8 +22,12 @@
         class="flex-grow-1 pl-2"
         role="button"
       >
-        {{ term.label ? term.label : term.name }} 
-        <span v-if="term.code">({{term.code}})</span>
+        {{ term.label ? term.label : term.name }}
+        <span v-if="term.codesystem || term.code">(</span>
+        <span v-if="term.codesystem">{{term.codesystem}}</span>
+        <span v-if="term.codesystem && term.code">:</span>
+        <span v-if="term.code">{{term.code}}</span>
+        <span v-if="term.codesystem || term.code">)</span>
         <small v-if="term.definition" class="text-muted">
           <i> - {{ term.definition }}</i></small
         >
