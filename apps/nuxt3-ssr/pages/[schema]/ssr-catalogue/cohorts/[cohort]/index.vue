@@ -169,6 +169,9 @@ fetchGql(collectionEventsQuery, { pid: route.params.cohort })
 
 let collectionEvents: Ref = ref([]);
 function onCollectionEventsLoaded(rows: any) {
+  if (!rows?.length) {
+    return;
+  }
   collectionEvents.value = rows.map((item: any) => {
     return {
       name: item.name,
@@ -192,6 +195,10 @@ fetchGql(subcohortsQuery, { pid: route.params.cohort })
 
 let subcohorts: Ref = ref([]);
 function onSubcohortsLoaded(rows: any) {
+  if (!rows?.length) {
+    return;
+  }
+
   const topLevelAgeGroup = (ageGroup: { parent: any }): any => {
     if (!ageGroup.parent) {
       return ageGroup;
