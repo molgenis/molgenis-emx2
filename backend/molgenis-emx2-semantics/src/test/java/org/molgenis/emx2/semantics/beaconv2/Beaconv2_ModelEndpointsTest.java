@@ -112,9 +112,9 @@ public class Beaconv2_ModelEndpointsTest {
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447955..2447958c>g\","));
     assertTrue(json.contains("\"variantInternalId\" : \"20:2447946..2447950c>g\","));
     assertTrue(json.contains("\"id\" : \"Orphanet:391665\""));
-	  assertTrue(json.contains("clinicalRelevance"));
-	  assertTrue(json.contains("\"id\" : \"NCIT:C168799\""));
-	  assertTrue(json.contains("\"label\" : \"Pathogenic\""));
+    assertTrue(json.contains("clinicalRelevance"));
+    assertTrue(json.contains("\"id\" : \"NCIT:C168799\""));
+    assertTrue(json.contains("\"label\" : \"Pathogenic\""));
   }
 
   @Test
@@ -921,27 +921,55 @@ public class Beaconv2_ModelEndpointsTest {
       throws Exception {
     assertNrOfHitsFor(
         """
-					{
-					   "query": {
-						 "filters": [
-						   {
-							 "id": "sio:SIO_001003",
-							 "value": "ordo:Orphanet_1873",
-							 "operator": "="
-						   },
-						   {
-							 "id": "obo:NCIT_C16612",
-							 "value": "CHD7",
-							 "operator": "="
-						   },
-						   {
-							 "id": "obo:NCIT_C28421",
-							 "value": "obo:NCIT_C20197",
-							 "operator": "="
-						   }
-						 ]
-					   }
-					 }""",
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "id": "sio:SIO_001003",
+					 "value": "ordo:Orphanet_1873",
+					 "operator": "="
+				   },
+				   {
+					 "id": "obo:NCIT_C16612",
+					 "value": "CHD7",
+					 "operator": "="
+				   },
+				   {
+					 "id": "obo:NCIT_C28421",
+					 "value": "obo:NCIT_C20197",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""",
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnDiseaseAndGeneAndGenderWithURLs_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+			{
+			   "query": {
+				 "filters": [
+				   {
+					 "id": "http://semanticscience.org/resource/SIO_001003",
+					 "value": "http://www.orpha.net/ORDO/Orphanet_1873",
+					 "operator": "="
+				   },
+				   {
+					 "id": "http://purl.obolibrary.org/obo/NCIT_C16612",
+					 "value": "CHD7",
+					 "operator": "="
+				   },
+				   {
+					 "id": "http://purl.obolibrary.org/obo/NCIT_C28421",
+					 "value": "http://purl.obolibrary.org/obo/NCIT_C20197",
+					 "operator": "="
+				   }
+				 ]
+			   }
+			 }""",
         1);
   }
 
