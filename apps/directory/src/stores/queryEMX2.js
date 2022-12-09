@@ -93,21 +93,21 @@ class QueryEMX2 {
      * @param {*} nestedColumn 
      * @returns 
      */
-    filter (column, nestedColumn) {
+    where (column, nestedColumn) {
         /** always convert to lowercase, else api will error */
         this.column = nestedColumn ? nestedColumn.toLowerCase() : column.toLowerCase()
         this.parentColumn = nestedColumn ? column.toLowerCase() : ''
         return this
     }
 
-    and () {
+    and (column, nestedColumn) {
         this.type = '_and'
-        return this
+        return this.filter(column, nestedColumn)
     }
 
-    or () {
+    or (column, nestedColumn) {
         this.type = '_or'
-        return this
+        return this.where(column, nestedColumn)
     }
 
     /** Text, String, Url, Int, Bool, Datetime Filter */

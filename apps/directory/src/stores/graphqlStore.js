@@ -48,8 +48,8 @@ export const useGraphqlStore = defineStore('graphqlStore', () => {
     const results = await new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name'])
-      .filter('Collections', 'name').like('cardiovascular')
-      .filter('name').like('UMC')
+      .where('Collections', 'name').like('cardiovascular')
+      .or('name').like('UMC')
       .execute()
 
     return results;
