@@ -72,7 +72,7 @@ public class GraphqlTableFieldFactory {
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.ORDERBY)
-                .type(createTableOrderByInputObjectType(table))
+                .type(createTableOrderByInputObjectType(table.getMetadata()))
                 .build())
         .build();
   }
@@ -214,8 +214,7 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.ORDERBY)
                           .type(
                               GraphQLTypeReference.typeRef(
-                                  convertToPascalCase(col.getRefTableIdentifier())
-                                      + GraphqlConstants.ORDERBY))
+                                  col.getRefTable().getIdentifier() + GraphqlConstants.ORDERBY))
                           .build()));
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -351,11 +350,11 @@ public class GraphqlTableFieldFactory {
     return tableFilterInputTypes.get(tableName);
   }
 
-  private GraphQLInputObjectType createTableOrderByInputObjectType(Table table) {
+  private GraphQLInputObjectType createTableOrderByInputObjectType(TableMetadata table) {
     GraphQLInputObjectType.Builder orderByBuilder =
         GraphQLInputObjectType.newInputObject()
             .name(table.getIdentifier() + GraphqlConstants.ORDERBY);
-    for (Column col : table.getMetadata().getColumns()) {
+    for (Column col : table.getColumns()) {
       orderByBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(col.getIdentifier())
