@@ -23,7 +23,7 @@ const props = defineProps({
   },
   label: {
     type: String,
-    required: true,
+    default: "",
   },
   icon: {
     type: String,
@@ -50,7 +50,7 @@ const COLOR_MAPPING = {
   disabled:
     "tracking-widest uppercase font-display bg-button-disabled text-button-disabled border-button-disabled hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
   filterWell:
-    "bg-blue-50 text-blue-500 border-blue-50 hover:bg-white hover:border-white",
+    "whitespace-nowrap bg-blue-50 text-blue-500 border-blue-50 hover:bg-white hover:border-white",
 };
 
 const SIZE_MAPPING = {
