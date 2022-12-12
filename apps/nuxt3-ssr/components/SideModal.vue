@@ -35,7 +35,9 @@ const { slideInRight, fullScreen, buttonAlignment } = withDefaults(
 const emit = defineEmits(["close"]);
 
 const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
-const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[33vw]";
+const fullScreenClass = fullScreen
+  ? "w-[95vw]"
+  : "lg:w-[33vw] md:w-[50vw] w-[95vw]";
 const buttonAlignmentSet = {
   left: "justify-left",
   center: "justify-around",
