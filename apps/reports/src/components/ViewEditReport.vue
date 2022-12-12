@@ -6,7 +6,6 @@
       <InputString id="reportName" v-model="name" label="name"/>
       <InputText id="reportSql" v-model="sql" label="sql"/>
       <MessageSuccess v-if="success">{{success}}</MessageSuccess>
-        <ButtonAction @click="run">Refresh</ButtonAction>
         <ButtonAction @click="save" class="ml-2">Save</ButtonAction>
       <label><b>Result:</b></label>
     </div>
