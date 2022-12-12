@@ -486,7 +486,7 @@ public class WebApiSmokeTests {
                     .post(schemaPath)
                     .asString();
     assertTrue(result.contains("spike"));
-    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("pooky"));
     assertTrue(result.contains("green"));
     assertFalse(result.contains("red"));
 
