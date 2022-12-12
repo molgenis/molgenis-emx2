@@ -479,18 +479,6 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("spike"));
 
     result =
-            given()
-                    .sessionId(sessionId)
-                    .body("{\"query\":\"{Pet(filter:{name:{equals:\"spike\"}}){name,tags(filter:{name:{equals:\"green\"}}){name}}}\"}")
-                    .when()
-                    .post(schemaPath)
-                    .asString();
-    assertTrue(result.contains("spike"));
-    assertFalse(result.contains("pooky"));
-    assertTrue(result.contains("green"));
-    assertFalse(result.contains("red"));
-
-    result =
         given()
             .sessionId(sessionId)
             .body("{\"query\":\"mutation{signout{message}}\"}")

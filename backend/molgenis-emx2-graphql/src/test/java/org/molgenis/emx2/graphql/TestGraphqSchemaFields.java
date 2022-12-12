@@ -285,6 +285,14 @@ public class TestGraphqSchemaFields {
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
+
+    // subfilters
+    result =
+        execute(
+            "{Pet(filter:{name:{equals:\"spike\"}}){name,tags(filter:{name:{equals:\"green\"}}){name}}}");
+    assertEquals("spike", result.at("/Pet/0/name").textValue());
+    assertEquals("green", result.at("/Pet/0/tags/0/name").textValue());
+    assertEquals(1, result.at("/Pet/0/tags").size());
   }
 
   @Test
