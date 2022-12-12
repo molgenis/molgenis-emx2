@@ -46,14 +46,6 @@ export default gql`
       comorbidity {
         name
       }
-      counts {
-        ageGroup {
-          name
-        }
-        N_female
-        N_male
-        N_total
-      }
     }
   }
 `;
