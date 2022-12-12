@@ -196,6 +196,11 @@ public class GraphqlTableFieldFactory {
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef(col.getRefTableIdentifier())))
                   .argument(
                       GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputObjectType(col.getRefTable()))
+                          .build())
+                  .argument(
+                      GraphQLArgument.newArgument()
                           .name(GraphqlConstants.LIMIT)
                           .type(Scalars.GraphQLInt)
                           .build())
@@ -407,7 +412,7 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
+  private FilterBean[] convertMapToFilterArray(TableMetadata table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
@@ -434,7 +439,7 @@ public class GraphqlTableFieldFactory {
       } else {
         // find column by escaped name
         Optional<Column> optional =
-            table.getMetadata().getColumns().stream()
+            table.getColumns().stream()
                 .filter(c -> c.getIdentifier().equals(entry.getKey()))
                 .findFirst();
         if (!optional.isPresent())
@@ -442,7 +447,7 @@ public class GraphqlTableFieldFactory {
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
-                  + table.getName());
+                  + table.getTableName());
         Column c = optional.get();
         if (c.isReference()) {
           subFilters.add(
@@ -453,7 +458,8 @@ public class GraphqlTableFieldFactory {
                           .getSchema()
                           .getDatabase()
                           .getSchema(c.getRefTable().getSchemaName())
-                          .getTable(c.getRefTableName()),
+                          .getTable(c.getRefTableName())
+                          .getMetadata(),
                       (Map) entry.getValue())));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
@@ -516,6 +522,12 @@ public class GraphqlTableFieldFactory {
                     convertMapSelection(column.get().getRefTable(), s.getSelectionSet()));
             // get limit and offset for the selection
             Map<String, Object> args = s.getArguments();
+            if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
+              sc.where(
+                  convertMapToFilterArray(
+                      column.get().getRefTable(),
+                      (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
+            }
             if (args.containsKey(GraphqlConstants.LIMIT)) {
               sc.setLimit((int) args.get(GraphqlConstants.LIMIT));
             }
@@ -566,7 +578,8 @@ public class GraphqlTableFieldFactory {
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
-                table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
+                table.getMetadata(),
+                dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
       if (args.containsKey(GraphqlConstants.LIMIT)) {
         q.limit((int) args.get(GraphqlConstants.LIMIT));
