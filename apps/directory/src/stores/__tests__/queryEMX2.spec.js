@@ -89,4 +89,23 @@ Biobanks(filter: { name: { like: "UMC"}, _or: { country: { equals: "Germany"} }}
 }`
         )
     })
+
+    it('can produce a query with nested properties when adding an object to the selection array', () => {
+        const query = new QueryEMX2('graphql')
+        .table('Biobanks')
+        .select(['id', 'name', { collections: ['id', 'name']}])
+        .getQuery()
+
+        expect(query).toStrictEqual(`{
+Biobanks {
+    id,
+    name,
+    collections {
+        id,
+        name
+    }
+  }
+}`
+        )
+    })
 })

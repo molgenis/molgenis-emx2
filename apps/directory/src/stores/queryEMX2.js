@@ -29,9 +29,18 @@ class QueryEMX2 {
 
     /**
      * @param {string | string[]} columns 
+     * When you supply an object the Key is the table or REF property and the value is a string or string array
      */
     select (columns) {
-        const requestedColumns = Array.isArray(columns) ? columns : [columns]
+        let requestedColumns = []
+
+        if (!Array.isArray(columns)) {
+            requestedColumns = [columns]
+        }
+        else {
+            requestedColumns = this._createPathFromObject('', columns)
+        }
+
         /** column names are always lowercase */
         requestedColumns.forEach(name => name.toLowerCase())
         this.selection = requestedColumns
@@ -241,7 +250,7 @@ ${root}${tableFilters} {\n`;
         }
 
         /** Recursively generate the output string for the branches and their properties */
-        function generateOutput (branches, indentationLevel) {
+        function generateOutput (branches, indentationLevel, filters) {
             let indentation = '    '.repeat(indentationLevel);
 
             /** Add properties first */
@@ -252,26 +261,28 @@ ${root}${tableFilters} {\n`;
                         result += `${indentation}${propertyName},\n`;
                     }
                 }
-            }
 
-            result = `${result.substring(0, result.length - 2)}\n`;
-            result = result.substring();
+                result = `${result.substring(0, result.length - 2)}\n`;
+            }
 
             /** Add the branches and their properties */
             for (let branchName in branches) {
+                 /** continue with the query by adding a comma to the end of the property */
                 let branch = branches[branchName];
                 if (branchName !== 'properties') {
+                    result = `${result.substring(0, result.length - 1)},\n`;
+                    const brancheFilters = filters[branchName] && filters[branchName].length ? `(filter: ${filters[branchName]})` : ''
                     /** Only add branches, not properties */
-                    result += `${indentation}${branchName}${filters[branchName] || ''} {\n`;
+                    result += `${indentation}${branchName}${brancheFilters || ''} {\n`;
 
-                    generateOutput(branch, indentationLevel + 1);
+                    generateOutput(branch, indentationLevel + 1, filters);
 
                     result += indentation + '}\n';
                 }
             }
         }
 
-        generateOutput(branches, 1);
+        generateOutput(branches, 1, this.filters);
 
         result += '  }\n}';
 
@@ -298,6 +309,25 @@ ${root}${tableFilters} {\n`;
         this.type = '_and'
 
         return this
+    }
+
+    _createPathFromObject (path, properties, requestedColumns = []) {
+        for (const property of properties) {
+            if (typeof property === 'object') {
+                const refProperty = Object.keys(property)[0]
+                const nextPath = path ? `${path}.${refProperty}` : refProperty
+                this._createPathFromObject(nextPath, property[refProperty], requestedColumns)
+            }
+            else {
+                if (!path || path.length === 0) {
+                    requestedColumns.push(property)
+                }
+                else {
+                    requestedColumns.push(`${path}.${property}`)
+                }
+            }
+        }
+        return requestedColumns
     }
 }
 
