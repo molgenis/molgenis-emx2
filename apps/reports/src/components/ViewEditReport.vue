@@ -6,8 +6,8 @@
       <InputString id="reportName" v-model="name" label="name"/>
       <InputText id="reportSql" v-model="sql" label="sql"/>
       <MessageSuccess v-if="success">{{success}}</MessageSuccess>
-        <ButtonAction @click="save" class="ml-2">Save</ButtonAction>
-      <label><b>Result:</b></label>
+      <ButtonAction @click="save">Save</ButtonAction>
+      <div class="mt-2"><label><b>Result:</b></label></div>
     </div>
     <h2 v-else>Report: {{name}}<IconAction v-if="canEdit" icon="pencil-alt" @click="edit = true"/></h2>
     <MessageError v-if="error">{{error}}</MessageError>
@@ -75,7 +75,6 @@ export default {
   },
   methods: {
     async run() {
-      this.success = null;
       this.error = null;
       const offset = this.limit * (this.page - 1);
       const result = await request("graphql", `{_reports(id:${this.id},limit:${this.limit},offset:${offset}){data,count}}`)
@@ -91,9 +90,10 @@ export default {
       const reports = await this.client.fetchSettingValue("reports");
       reports[this.id].sql = this.sql;
       reports[this.id].name = this.name;
-      await this.client.saveSetting("reports",reports).catch(error => this.error = error);
-      this.success = "Saved report "+this.id;
-      this.run();
+      this.client.saveSetting("reports",reports).then(res => {
+        this.success = "Saved report "+this.id+" and refreshed query";
+        this.run();
+      }).catch(error => this.error = error);
     },
     async reload() {
       const reports = await this.client.fetchSettingValue("reports");
