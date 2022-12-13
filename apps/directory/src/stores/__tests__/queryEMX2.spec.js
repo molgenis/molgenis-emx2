@@ -5,10 +5,10 @@ describe('QueryEMX2 Interface', () => {
         const query = new QueryEMX2('graphql').table('Biobanks').select('id').getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks {
-               id
-              }
-            }`
+Biobanks {
+    id
+  }
+}`
         )
     })
 
@@ -16,11 +16,11 @@ describe('QueryEMX2 Interface', () => {
         const query = new QueryEMX2('graphql').table('Biobanks').select(['id', 'name']).getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks {
-               id,name
-              }
-            }`
-        )
+Biobanks {
+    id,
+    name
+  }
+}`)
     })
 
     it('can create a query with a filter', () => {
@@ -31,10 +31,11 @@ describe('QueryEMX2 Interface', () => {
         .getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks(filter: { name: { like: "UMC"} }) {
-               id,name
-              }
-            }`
+Biobanks(filter: { name: { like: "UMC"} }) {
+    id,
+    name
+  }
+}`
         )
     })
 
@@ -47,10 +48,11 @@ describe('QueryEMX2 Interface', () => {
         .getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
-               id,name
-              }
-            }`
+Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
+    id,
+    name
+  }
+}`
         )
     })
 
@@ -63,10 +65,11 @@ describe('QueryEMX2 Interface', () => {
         .getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
-               id,name
-              }
-            }`
+Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
+    id,
+    name
+  }
+}`
         )
     })
 
@@ -79,10 +82,11 @@ describe('QueryEMX2 Interface', () => {
         .getQuery()
 
         expect(query).toStrictEqual(`{
-            Biobanks(filter: { name: { like: "UMC"}, _or: { country: { equals: "Germany"} }}) {
-               id,name
-              }
-            }`
+Biobanks(filter: { name: { like: "UMC"}, _or: { country: { equals: "Germany"} }}) {
+    id,
+    name
+  }
+}`
         )
     })
 })

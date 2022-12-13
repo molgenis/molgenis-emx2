@@ -60,13 +60,7 @@ class QueryEMX2 {
     }
 
     getQuery () {
-        const tableFilters = this.filters.length ? `(filter: ${this.filters})` : ''
-
-        return `{
-            ${this.tableName}${tableFilters} {
-               ${this.selection.join()}
-              }
-            }`
+        return this._createQuery(this.tableName, this.selection)
     }
 
     /**
@@ -206,10 +200,15 @@ class QueryEMX2 {
         return value[0].toLowerCase() + value.substring(1)
     }
 
-    _createQuery (root, properties, filters) {
+    _createQuery (root, properties) {
+        // loop and create filters per branch
+        const tableFilters = this.filters.root?.length ? `(filter: ${this.filters.root})` : ''
+
+
         let result = '';
 
-        result += `${root}${filters.root} {\n`;
+        result += `{
+${root}${tableFilters} {\n`;
 
         /** Create a nested object to represent the branches and their properties */
         let branches = {};
@@ -243,7 +242,7 @@ class QueryEMX2 {
 
         /** Recursively generate the output string for the branches and their properties */
         function generateOutput (branches, indentationLevel) {
-            let indentation = '   '.repeat(indentationLevel);
+            let indentation = '    '.repeat(indentationLevel);
 
             /** Add properties first */
             if (branches.properties) {
@@ -274,7 +273,7 @@ class QueryEMX2 {
 
         generateOutput(branches, 1);
 
-        result += '}';
+        result += '  }\n}';
 
         return result;
     }
