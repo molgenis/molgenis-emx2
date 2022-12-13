@@ -106,6 +106,14 @@
               label="isReadonly"
             />
           </div>
+          <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+            <InputText
+                id="column_computed"
+                v-model="column.computed"
+                label="computed"
+                description="Use javascript expression to set a computed value. E.g. 'age + 1' where 'age' is a column."
+            />
+          </div>
         </div>
         <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">

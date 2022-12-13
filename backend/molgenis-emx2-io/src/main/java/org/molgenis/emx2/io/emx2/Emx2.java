@@ -23,6 +23,8 @@ public class Emx2 {
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
+  private static final String VISIBLE = "visible";
+  private static final String COMPUTED = "computed";
   private static final String SEMANTICS = "semantics";
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
@@ -85,6 +87,8 @@ public class Emx2 {
           if (r.notNull(REQUIRED)) column.setRequired(r.getBoolean(REQUIRED));
           if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
           if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
+          if (r.notNull(VISIBLE)) column.setVisible(r.getString(VISIBLE));
+          if (r.notNull(COMPUTED)) column.setComputed(r.getString(COMPUTED));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
@@ -124,6 +128,8 @@ public class Emx2 {
             REF_LINK,
             REF_BACK,
             VALIDATION,
+            VISIBLE,
+            COMPUTED,
             SEMANTICS,
             DESCRIPTION),
         toRowList(schema));
@@ -161,6 +167,8 @@ public class Emx2 {
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
+      row.setString(VISIBLE, null);
+      row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
       result.add(row);
@@ -183,6 +191,8 @@ public class Emx2 {
         if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
         if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
         if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
+        if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
         result.add(row);
       }

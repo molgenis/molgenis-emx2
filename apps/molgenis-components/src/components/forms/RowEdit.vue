@@ -118,11 +118,12 @@ export default {
         ? this.visibleColumns.map((column) => column.name).includes(column.name)
         : true;
 
+      console.log(column.name + " "+column.computed)
       return (
         (isColumnVisible &&
           this.visible(column.visible, column.id) &&
           column.name !== "mg_tableclass" &&
-          !column.refLink) ||
+          !column.refLink && !column.computed) ||
         this.internalValues[column.refLink]
       );
     },

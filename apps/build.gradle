@@ -53,10 +53,11 @@ subprojects {
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
             inputs.files(fileTree('middleware'))
+            inputs.files(fileTree('gql'))
+            inputs.files(fileTree('interfaces'))
             inputs.files(fileTree('layouts'))
             inputs.files(fileTree('pages'))
-            inputs.files(fileTree('static'))
-            inputs.files(fileTree('store'))
+            inputs.files(fileTree('plugins'))
             inputs.file('nuxt.config.ts')
             inputs.file('app.vue')
             inputs.file('router.options.ts')
@@ -72,8 +73,6 @@ subprojects {
             inputs.file('index.html')
             outputs.dir('dist')
         }
-
-        outputs.cacheIf { false }
 
         args = ['run', 'build']
 

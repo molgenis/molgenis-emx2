@@ -24,6 +24,7 @@ public class Column {
   // private Boolean cascadeDelete = false;
   private String validation = null;
   private String visible = null;
+  private String computed = null;
   private String description = null;
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
@@ -62,6 +63,7 @@ public class Column {
     this.description = column.getDescription();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
+    this.computed = column.getComputed();
 
     // calculated field
     if (table.getInherit() != null)
@@ -86,6 +88,7 @@ public class Column {
     c.setDescription(description);
     c.setSemantics(semantics);
     c.setVisible(visible);
+    c.setComputed(computed);
     c.setReadonly(readonly);
 
     // ignore inherited
@@ -258,5 +261,13 @@ public class Column {
 
   public void setReadonly(Boolean readonly) {
     this.readonly = readonly;
+  }
+
+  public void setComputed(String computed) {
+    this.computed = computed;
+  }
+
+  public String getComputed() {
+    return computed;
   }
 }

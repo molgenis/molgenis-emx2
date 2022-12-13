@@ -135,6 +135,7 @@ _schema {
       semantics,
       description,
       position,
+      computed,
       visible,
       validation
     }
