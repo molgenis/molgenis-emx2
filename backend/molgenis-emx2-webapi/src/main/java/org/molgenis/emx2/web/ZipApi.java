@@ -44,11 +44,11 @@ public class ZipApi {
     post(schemaPath, ZipApi::postZip);
 
     // table level operations
-    final String tablePath = "/:schema/api/zip/tables/:table"; // NOSONAR
+    final String tablePath = "/:schema/api/zip/:table"; // NOSONAR
     get(tablePath, ZipApi::getZipTable);
 
     // query operator
-    final String reportPath = "/:schema/api/zip/reports"; // NOSONAR
+    final String reportPath = "/:schema/api/reports/zip"; // NOSONAR
     get(reportPath, ZipApi::getZippedReports);
   }
 

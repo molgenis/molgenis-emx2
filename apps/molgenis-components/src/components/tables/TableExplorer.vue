@@ -35,7 +35,7 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/tables/' + tableId">zip</ButtonAlt>
+                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
               </div>
               <div>
                 <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>

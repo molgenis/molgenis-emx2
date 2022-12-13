@@ -88,7 +88,7 @@ export default {
       this.$router.push({name:"edit", params:{id: row.id}});
     },
     downloadSelected() {
-      window.open("../api/zip/reports?id="+this.selection.join(","), '_blank');
+      window.open("../api/reports/zip?id="+this.selection.join(","), '_blank');
     }
   },
   async mounted() {

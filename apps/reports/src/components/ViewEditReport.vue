@@ -106,7 +106,7 @@ export default {
       this.run();
     },
     download(id) {
-      window.open("../api/zip/reports?id="+id, '_blank');
+      window.open("../api/reports/zip?id="+id, '_blank');
     }
   },
   watch: {
