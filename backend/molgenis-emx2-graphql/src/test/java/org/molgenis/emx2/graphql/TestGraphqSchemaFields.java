@@ -285,6 +285,22 @@ public class TestGraphqSchemaFields {
             .at("/User/0/pets_agg/max/weight")
             .doubleValue(),
         0.0f);
+
+    // subfilters
+    result =
+        execute(
+            "{Pet(filter:{name:{equals:\"spike\"}}){name,tags(filter:{name:{equals:\"green\"}}){name}}}");
+    assertEquals("spike", result.at("/Pet/0/name").textValue());
+    assertEquals("green", result.at("/Pet/0/tags/0/name").textValue());
+    assertEquals(1, result.at("/Pet/0/tags").size());
+
+    // nested orderby should give reasonable error
+    try {
+      execute("{Pet(filter:{name:{equals:\"spike\"}}){name,tags(orderby:{blaat:ASC}){name}}}");
+      fail("should fail");
+    } catch(MolgenisException e) {
+      assertTrue(e.getMessage().contains("Validation error of type WrongType: argument 'orderby'"));
+    }
   }
 
   @Test
