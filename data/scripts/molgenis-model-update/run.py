@@ -1,5 +1,5 @@
 from decouple import config
-from session import Session
+from client import Session
 from update import TransformGeneral
 from update import TransformDataCatalogue
 from spaces import Spaces

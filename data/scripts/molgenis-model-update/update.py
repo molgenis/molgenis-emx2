@@ -30,23 +30,20 @@ class TransformGeneral:
         """
         os.remove(self.path + 'molgenis.csv')
 
-    def update_data_model_file(self):
-        """Replace data model file
+    def data_model_file(self):
+        """Get path to data model file
         """
         # copy updated molgenis.csv to os.listdir(self.path)
         if self.database_type == 'catalogue':
-            shutil.copy(os.path.abspath('../../datacatalogue3/molgenis.csv'),
-                        os.path.abspath(self.path))
+            template = os.path.abspath('../../datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
-            shutil.copy(os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv'),
-                        os.path.abspath(self.path))
+            template = os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
-            shutil.copy(os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv'),
-                        os.path.abspath(self.path))
-        elif self.database_type == 'cohortUMCG':
-            shutil.copy(os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv'),
-                        os.path.abspath(self.path))
+            template = os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv')
+        elif self.database_type == 'cohort_UMCG':
+            template = os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
 
+        return template
 
 class TransformDataCatalogue:
     """Functions to update catalogue data model from 2.8 to 3.0.
