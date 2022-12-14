@@ -2,7 +2,7 @@
 
 const { node, collapseAll } = withDefaults(defineProps<{
   node: IOntologyNode;
-  collapseAll: boolean
+  collapseAll?: boolean
 }>(), {
   collapseAll: true
 })

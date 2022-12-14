@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { small, items } = withDefaults(
   defineProps<{
-    items: [any];
+    items: any[];
     small?: boolean;
   }>(),
   {
@@ -19,11 +19,7 @@ const smallClasses = "";
 
 <template>
   <dl class="grid gap-2.5 text-body-base text-gray-900">
-    <div
-      :class="small ? smallClasses : useGridClasses"
-      v-for="item in items"
-      :key="item.label"
-    >
+    <div :class="small ? smallClasses : useGridClasses" v-for="item in items" :key="item.label">
       <dt class="flex items-start font-bold text-body-base">
         <div class="flex items-center gap-1">
           {{ item.label }}
@@ -34,10 +30,8 @@ const smallClasses = "";
       </dt>
 
       <dd class="col-span-2" :class="{ 'mb-2.5': small }">
-        <ul
-          v-if="isArray(item.content)"
-          class="grid gap-1 pl-4 list-disc list-outside"
-        >
+        <ContentOntology v-if="item?.type === 'ONTOLOGY'" :tree="item.content" :collapse-all="false"></ContentOntology>
+        <ul v-else-if="isArray(item.content)" class="grid gap-1 pl-4 list-disc list-outside">
           <li v-for="row in item.content" :key="row">
             {{ row }}
           </li>

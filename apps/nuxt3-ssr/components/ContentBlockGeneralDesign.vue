@@ -5,7 +5,7 @@ const { cohort } = defineProps<{
   cohort: ICohort;
 }>();
 
-let generalDesign: { label: String; content: any; tooltip?: string }[] = [];
+let generalDesign: { label: String; content: any; tooltip?: string, type?: "ONTOLOGY" }[] = [];
 watch(cohort, setData, {
   deep: true,
   immediate: true,
@@ -22,9 +22,18 @@ function setData() {
     {
       label: "Design",
       content: cohort?.design ? cohort?.design.name : "not available",
-      tooltip: cohort?.design?.definition
-        ? cohort?.design?.definition
-        : "not available",
+    },
+    {
+      label: "Design definition",
+      content: cohort?.design?.definition
+    },
+    {
+      label: "Design description",
+      content: cohort?.designDescription
+    },
+    {
+      label: "Regions",
+      content: cohort?.regions?.map(r => r.name).join(", ")
     },
     {
       label: "Collection type",
@@ -34,15 +43,15 @@ function setData() {
     },
     {
       label: "Start/End year",
-      content: `${cohort?.startYear} - ${cohort?.endYear}`,
+      content: filters.startEndYear(cohort?.startYear, cohort?.endYear),
     },
     {
       label: "Population",
       content: cohort?.countries
         ? [...cohort?.countries]
-            .sort((a, b) => a.order - b.order)
-            .map((c) => c.name)
-            .join(", ")
+          .sort((a, b) => a.order - b.order)
+          .map((c) => c.name)
+          .join(", ")
         : "",
     },
     {
@@ -50,10 +59,23 @@ function setData() {
       content: cohort?.numberOfParticipants,
     },
     {
+      label: "Number of participants with samples",
+      content: cohort?.numberOfParticipantsWithSamples,
+    },
+    {
       label: "Age group at inclusion",
-      content: cohort?.populationAgeGroups
-        ? cohort?.populationAgeGroups.map((pag) => pag.name)
-        : [],
+      content: buildOntologyTree(cohort?.populationAgeGroups),
+      type: "ONTOLOGY"
+    },
+    {
+      label: "Inclusion criteria",
+      content: cohort?.inclusionCriteria
+    },
+    {
+      label: "Marker paper",
+      content: cohort?.designPaper?.map(dp => {
+        return dp.title + (dp.doi ? ` (doi: ${dp.doi})` : '')
+      })
     },
   ];
 }
@@ -61,6 +83,6 @@ function setData() {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <DefinitionList :items="generalDesign" />
+    <DefinitionList :items="generalDesign.filter(item => item.content !== undefined)" />
   </ContentBlock>
 </template>

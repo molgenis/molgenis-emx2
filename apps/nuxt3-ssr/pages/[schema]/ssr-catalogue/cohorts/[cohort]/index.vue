@@ -27,21 +27,29 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups {
-        name
-      }
+      populationAgeGroups ${loadGql(ontologyFragment)}
       startYear
       endYear
       countries {
         name
         order
       }
+      regions {
+        name
+        order
+      }
       numberOfParticipants
+      numberOfParticipantsWithSamples
       designDescription
       design {
         definition
         name
       }
+      designPaper {
+        title
+        doi
+      }
+      inclusionCriteria
       partners {
         institution {
           pid
@@ -148,6 +156,7 @@ function onCollectionEventsLoaded(rows: any) {
           item.endYear && item.endYear.name ? item.endYear.name : null;
         return filters.startEndYear(startYear, endYear);
       })(),
+      numberOfParticipants: item.numberOfParticipants,
       _renderComponent: "CollectionEventDisplay",
       _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/collection-events/${item.name}`,
     };
@@ -223,17 +232,12 @@ let tocItems = computed(() => {
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader
-        :title="cohort?.acronym || cohort?.name"
-        :description="cohort?.acronym ? cohort?.name : ''"
-      >
+      <PageHeader :title="cohort?.acronym || cohort?.name" :description="cohort?.acronym ? cohort?.name : ''">
         <template #prefix>
-          <BreadCrumbs
-            :crumbs="{
-              // Home: `/${route.params.schema}/ssr-catalogue`,
-              Cohorts: `/${route.params.schema}/ssr-catalogue`,
-            }"
-          />
+          <BreadCrumbs :crumbs="{
+            // Home: `/${route.params.schema}/ssr-catalogue`,
+            Cohorts: `/${route.params.schema}/ssr-catalogue`,
+          }" />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -241,91 +245,49 @@ let tocItems = computed(() => {
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation
-        :title="cohort.acronym"
-        :image="cohort?.logo?.url"
-        :items="tocItems"
-      />
+      <SideNavigation :title="cohort.acronym" :image="cohort?.logo?.url" :items="tocItems" />
     </template>
     <template #main>
       <ContentBlocks v-if="cohort">
-        <ContentBlockIntro
-          :image="cohort?.logo?.url"
-          :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`"
-        />
-        <ContentBlockDescription
-          id="Description"
-          title="Description"
-          :description="cohort?.description"
-        />
-        <ContentBlockGeneralDesign
-          id="GeneralDesign"
-          title="General Design"
-          :description="cohort?.designDescription"
-          :cohort="cohort"
-        />
+        <ContentBlockIntro :image="cohort?.logo?.url" :link="cohort?.website"
+          :contact="`mailto:${cohort?.contactEmail}`" />
+        <ContentBlockDescription id="Description" title="Description" :description="cohort?.description" />
+        <ContentBlockGeneralDesign id="GeneralDesign" title="General Design" :description="cohort?.designDescription"
+          :cohort="cohort" />
         <!-- <ContentBlockAttachedFiles
           id="Files"
           title="Attached Files Generic Example"
         /> -->
-        <ContentBlockContact
-          v-if="cohort?.contributors"
-          id="Contributors"
-          title="Contact and Contributors"
-          :contributors="cohort?.contributors"
-        />
+        <ContentBlockContact v-if="cohort?.contributors" id="Contributors" title="Contact and Contributors"
+          :contributors="cohort?.contributors" />
         <!-- <ContentBlockVariables
           id="Variables"
           title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
         /> -->
-        <ContentBlockData
-          id="AvailableData"
-          title="Available Data &amp; Samples"
-          :collectionEvents="cohort?.collectionEvents"
-        />
-        <TableContent
-          v-if="(subcohorts && subcohorts.length)"
-          id="Subpopulations"
-          title="Subpopulations"
-          description="List of subcohorts or subpopulations for this resource"
-          :headers="[
+        <ContentBlockData id="AvailableData" title="Available Data &amp; Samples"
+          :collectionEvents="cohort?.collectionEvents" />
+        <TableContent v-if="(subcohorts && subcohorts.length)" id="Subpopulations" title="Subpopulations"
+          description="List of subcohorts or subpopulations for this resource" :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description' },
             { id: 'numberOfParticipants', label: 'Number of participants' },
             { id: 'ageGroups', label: 'Age categories' },
-          ]"
-          :rows="subcohorts"
-        />
+          ]" :rows="subcohorts" />
 
-        <TableContent
-          v-if="collectionEvents && collectionEvents.length"
-          id="CollectionEvents"
-          title="Collection events"
-          description="List of collection events defined for this resource"
-          :headers="[
+        <TableContent v-if="collectionEvents && collectionEvents.length" id="CollectionEvents" title="Collection events"
+          description="List of collection events defined for this resource" :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description' },
+            { id: 'numberOfParticipants', label: 'Participants' },
             { id: 'startAndEndYear', label: 'Start end year' },
-          ]"
-          :rows="collectionEvents"
-        />
+          ]" :rows="collectionEvents" />
 
-        <ContentBlockPartners
-          v-if="cohort?.partners"
-          id="Partners"
-          title="Partners"
-          description=""
-          :partners="cohort?.partners"
-        />
-        <ContentBlockNetwork
-          v-if="cohort?.networks"
-          id="Networks"
-          title="Networks"
+        <ContentBlockPartners v-if="cohort?.partners" id="Partners" title="Partners" description=""
+          :partners="cohort?.partners" />
+        <ContentBlockNetwork v-if="cohort?.networks" id="Networks" title="Networks"
           description="Networks Explanation about networks from this cohort and the functionality seen here."
-          :networks="cohort?.networks"
-        />
+          :networks="cohort?.networks" />
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>

@@ -12,6 +12,20 @@ export default gql`
         endYear {
           name
         }
+        standardizedTools {
+          name
+          code
+          order
+          definition
+          ontologyTermURI
+          parent {
+            name
+          }
+          children {
+            name
+          }
+        }
+        numberOfParticipants
       }
     }
   }
