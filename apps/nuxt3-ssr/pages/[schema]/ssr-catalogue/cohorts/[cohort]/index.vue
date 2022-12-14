@@ -224,8 +224,8 @@ let tocItems = computed(() => {
   <LayoutsDetailPage>
     <template #header>
       <PageHeader
-        :title="cohort?.name"
-        :description="cohort?.institution?.acronym"
+        :title="cohort?.acronym || cohort?.name"
+        :description="cohort?.acronym ? cohort?.name : ''"
       >
         <template #prefix>
           <BreadCrumbs
