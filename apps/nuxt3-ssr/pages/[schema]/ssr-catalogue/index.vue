@@ -181,6 +181,7 @@ let activeName = ref("detailed");
         </template>
 
         <template #search-results>
+          <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList>
               <CardListItem
