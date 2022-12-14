@@ -302,7 +302,7 @@ class SqlTable implements Table {
 
     log(
         db.getActiveUser(),
-        table.getJooqTable().getName(),
+        table.getJooqTable().getSchema().getName() + "." + table.getJooqTable().getName(),
         start,
         count,
         transactionType.name().toLowerCase() + "d (incl subclass if applicable)");

@@ -93,7 +93,7 @@ public class TaskApi {
     throw new MolgenisException("Schema doesn't exist or permission denied");
   }
 
-  public static String submit(Task task) {
+  public static Task submit(Task task) {
     return taskService.submit(task);
   }
 }

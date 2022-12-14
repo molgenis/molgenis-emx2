@@ -84,7 +84,8 @@ public class ZipApi {
 
       if (fileName.endsWith(".zip")) {
         if (request.queryParams("async") != null) {
-          String id = TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false));
+          String id =
+              TaskApi.submit(new ImportCsvZipTask(tempFile.toPath(), schema, false)).getId();
           return new TaskReference(id, schema).toString();
         } else {
           MolgenisIO.fromZipFile(tempFile.toPath(), schema, false);

@@ -494,6 +494,24 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public void txAsAdmin(Transaction transaction) {
+    String currentUser = getActiveUser();
+    becomeAdmin();
+    try {
+      tx(
+          db -> {
+            transaction.run(db);
+          });
+    } catch (DataAccessException e) {
+      throw new SqlMolgenisException("Transaction failed", e);
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Transaction failed", e);
+    } finally {
+      setActiveUser(currentUser);
+    }
+  }
+
+  @Override
   public void tx(Transaction transaction) {
     if (inTx) {
       // we do not nest transactions

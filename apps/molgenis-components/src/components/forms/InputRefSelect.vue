@@ -142,10 +142,10 @@ export default {
 <div>
   <div>
   <label for="input-ref-select-1">Example </label>
-    <InputRefSelect 
-      id="input-ref-select-1" 
-      v-model="value1" 
-      tableName="Pet" 
+    <InputRefSelect
+      id="input-ref-select-1"
+      v-model="value1"
+      tableName="Pet"
       graphqlURL="/pet store/graphql
     "/>
     Selection: {{ value1 }}
@@ -173,11 +173,11 @@ export default {
     />
     Selection: {{ value3 }}
   </div>
-  
+
 
 </div>
 
-  
+
 </template>
 
 <script>

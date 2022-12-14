@@ -10,7 +10,7 @@ public class TestTask {
     TaskService taskService = new TaskServiceInMemory();
 
     Task task = new DummyTask();
-    String id = taskService.submit(task);
+    String id = taskService.submit(task).getId();
     System.out.println("Starting ...");
 
     // purge doesn't change

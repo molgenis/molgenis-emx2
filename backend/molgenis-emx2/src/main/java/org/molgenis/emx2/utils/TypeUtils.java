@@ -94,6 +94,9 @@ public class TypeUtils {
         return null;
       }
     }
+    if (v instanceof Integer) {
+      return Integer.toUnsignedLong((Integer) v);
+    }
     if (v instanceof Long) return (Long) v;
     if (v instanceof Double) return Math.round((Double) v);
     return Long.parseLong(v.toString());

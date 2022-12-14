@@ -27,42 +27,39 @@ export default {
     return {
       task: null,
       loading: true,
-      error: false,
+      error: null,
+      success: null,
     };
   },
   methods: {
-    async startMonitorTask() {
-      while (
+    startMonitorTask() {
+      if (
         (!this.error && !this.task) ||
-        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
+        !["COMPLETED", "ERROR"].includes(this.task.status)
       ) {
-        const query = `{
-          _tasks(id:"${this.taskId}")
-          {
-            id, description, status, subTasks
-            {
-              id, description, status, subTasks
-              {
-                id, description, status, subTasks
-                {
-                  id, description, status
-                }
-              }
-            }
-          }
-        }`;
-        request("graphql", query)
-          .then((data) => {
-            this.task = data._tasks[0];
-            this.$emit("taskUpdated", this.task);
-          })
-          .catch((error) => {
-            console.log(JSON.stringify(error));
-            this.error = true;
-          });
-        await sleep(500);
+        setTimeout(this.monitorTask, 500);
+      } else {
+        console.log("timed out");
       }
-      this.loading = false;
+    },
+    monitorTask() {
+      request(
+        "graphql",
+        `{_tasks(id:"${this.taskId}"){id,description,status,subTasks{id,description,status,subTasks{id,description,status,subTasks{id,description,status}}}}}`
+      )
+        .then((data) => {
+          this.task = data._tasks[0];
+          this.loading = false;
+        })
+        .catch((error) => {
+          console.log(JSON.stringify(error));
+          if (Array.isArray(error.response.errors)) {
+            this.error = error.response.errors[0].message;
+          } else {
+            this.error = error;
+          }
+        });
+      this.startMonitorTask();
     },
   },
   created() {

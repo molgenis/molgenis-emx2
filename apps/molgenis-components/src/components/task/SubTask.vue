@@ -4,9 +4,9 @@
       <i class="fa-li fa" :class="icon"></i>
       {{ task.description }}
       <SubTask
-        v-for="(subtask, key) in task.subTasks"
-        :task="subtask"
-        :key="key"
+          v-for="subtask in task.subTasks"
+          :task="subtask"
+          :key="subtask.id"
       />
     </li>
   </ul>

@@ -7,7 +7,6 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
@@ -25,7 +24,6 @@ public class TestRowLevelSecurity {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
-  @Ignore("because it tests unimplemented features")
   @Test
   public void testRls() {
     try {
