@@ -36,6 +36,11 @@ watch(
   }
 );
 
+let tocItems = reactive([
+  { label: "Details", id: "details" },
+]);
+
+
 const pageCrumbs: any = {
   Cohorts: `/${route.params.schema}/ssr-catalogue`,
 };
@@ -52,27 +57,32 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
-let ageGroupsTree = [];
+
 if (collectionEvent?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
     content: collectionEvent?.numberOfParticipants,
   });
 }
+
 if (collectionEvent?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
     content: renderList(collectionEvent?.subcohorts, toName),
   });
 }
+
 if (collectionEvent?.numberOfParticipants?.length) {
   items.push({
     label: "Number of participants",
     value: renderList(collectionEvent?.numberOfParticipants, toName),
   });
 }
+
+let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
   ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
+  tocItems.push({ label: "Age categories", id: "age_categories" })
 }
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
@@ -89,18 +99,16 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
+let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
-  items.push({
-    label: "Data Categories",
-    content: renderList(collectionEvent?.dataCategories, toName),
-  });
+  dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories)
+  tocItems.push({ label: "Data categories", id: "data_catagories" })
 }
 
+let areasOfInformationTree = [];
 if (collectionEvent?.areasOfInformation?.length) {
-  items.push({
-    label: "Areas of information",
-    content: renderList(collectionEvent?.areasOfInformation, toName),
-  });
+  areasOfInformationTree = buildOntologyTree(collectionEvent.areasOfInformation)
+  tocItems.push({ label: "Areas of information", id: "areas_of_information" })
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -124,22 +132,28 @@ items.sort((a, b) => a.label.localeCompare(b.label));
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader
-        :title="collectionEvent?.name"
-        :description="collectionEvent?.description"
-      >
+      <PageHeader :title="collectionEvent?.name" :description="collectionEvent?.description">
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
       </PageHeader>
     </template>
+    <template #side>
+      <SideNavigation :title="collectionEvent?.name" :items="tocItems" />
+    </template>
     <template #main>
       <ContentBlocks v-if="collectionEvent">
-        <ContentBlock title="Details">
-          <DefinitionList :items="items" />
+        <ContentBlock id="details" title="Details">
+          <DefinitionList :items="items" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock title="Age categories">
-          <ContentOntology :tree="ageGroupsTree" />
+        <ContentBlock id="age_categories" title="Age categories">
+          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+        </ContentBlock>
+        <ContentBlock id="data_catagories" title="Data catagories">
+          <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
+        </ContentBlock>
+        <ContentBlock id="areas_of_information" title="Areas of information">
+          <ContentOntology :tree="areasOfInformationTree" :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>
     </template>

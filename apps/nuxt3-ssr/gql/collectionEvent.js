@@ -40,9 +40,29 @@ export default gql`
       }
       dataCategories {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       sampleCategories {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       areasOfInformation {
         name

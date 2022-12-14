@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const { tree } = defineProps<{
+const { tree } = withDefaults(defineProps<{
   tree: IOntologyNode[];
-}>()
+  collapseAll: boolean
+}>(), {
+  collapseAll: true
+})
 </script>
 
 <template>
-  <ul class="text-body-base" >
-    <ContentTreeNode v-for="node in tree" :node="node"/>
+  <ul class="text-body-base">
+    <ContentTreeNode v-for="node in tree" :node="node" :collapse-all="collapseAll" />
   </ul>
 </template>

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 
-const { node } = defineProps<{
+const { node, collapseAll } = withDefaults(defineProps<{
   node: IOntologyNode;
-}>()
+  collapseAll: boolean
+}>(), {
+  collapseAll: true
+})
 
-let collapsed = ref(true);
+let collapsed = ref(collapseAll);
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };
@@ -31,8 +34,8 @@ const toggleCollapse = () => {
         </span>
         <div class="whitespace-nowrap inline-flex items-center">
           <span v-if="node.children?.length" class="text-gray-400 inline-block ml-1">- {{ node.children.length }}</span>
-          <div v-if="node.description" class="inline-block ml-1">
-            <CustomTooltip label="Read more" :content="node.description" />
+          <div v-if="node.definition" class="inline-block ml-1">
+            <CustomTooltip label="Read more" :content="node.definition" />
           </div>
         </div>
       </div>
