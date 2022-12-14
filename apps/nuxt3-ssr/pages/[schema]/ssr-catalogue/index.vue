@@ -183,7 +183,7 @@ let activeName = ref("detailed");
         <template #search-results>
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
-            <CardList>
+            <CardList v-if="data?.data?.Cohorts?.length > 0">
               <CardListItem
                 v-for="cohort in data?.data?.Cohorts"
                 :key="cohort.name"
@@ -195,6 +195,11 @@ let activeName = ref("detailed");
                 />
               </CardListItem>
             </CardList>
+            <div v-else class="flex justify-center pt-3">
+              <span class="py-15 text-blue-500">
+                No Cohorts found with current filters
+              </span>
+            </div>
           </SearchResultsList>
         </template>
 
