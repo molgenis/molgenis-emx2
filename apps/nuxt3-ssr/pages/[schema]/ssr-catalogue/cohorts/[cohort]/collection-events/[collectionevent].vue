@@ -52,6 +52,7 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
+let ageGroupsTree = [];
 if (collectionEvent?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
@@ -70,11 +71,8 @@ if (collectionEvent?.numberOfParticipants?.length) {
     value: renderList(collectionEvent?.numberOfParticipants, toName),
   });
 }
-if (collectionEvent?.ageGroups?.lenght) {
-  items.push({
-    label: "Age categories",
-    content: renderList(collectionEvent?.ageGroups, toName),
-  });
+if (collectionEvent?.ageGroups?.length) {
+  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
 }
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
@@ -120,6 +118,7 @@ if (collectionEvent?.coreVariables?.length) {
 }
 
 items.sort((a, b) => a.label.localeCompare(b.label));
+
 </script>
 
 <template>
@@ -138,6 +137,9 @@ items.sort((a, b) => a.label.localeCompare(b.label));
       <ContentBlocks v-if="collectionEvent">
         <ContentBlock title="Details">
           <DefinitionList :items="items" />
+        </ContentBlock>
+        <ContentBlock title="Age categories">
+          <ContentOntology :tree="ageGroupsTree" />
         </ContentBlock>
       </ContentBlocks>
     </template>

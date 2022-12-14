@@ -93,3 +93,15 @@ interface INetwork {
   description?: string
   logo?: IUrlObject
 }
+
+interface ITreeNode {
+  name: string
+  children?: ITreeNode[]
+  parent?: string
+}
+
+interface IOntologyNode extends ITreeNode {
+  code? : string
+  definition?: string
+  ontologyTermURI?: string
+}

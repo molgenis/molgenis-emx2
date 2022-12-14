@@ -76,7 +76,7 @@ if (collectionEvent?.numberOfParticipants?.length) {
     value: renderList(collectionEvent?.numberOfParticipants, toName),
   });
 }
-if (collectionEvent?.ageGroups?.lenght) {
+if (collectionEvent?.ageGroups?.length) {
   items.push({
     label: "Age categories",
     content: renderList(collectionEvent?.ageGroups, toName),
