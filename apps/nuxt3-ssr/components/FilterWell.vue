@@ -48,7 +48,7 @@ function isAFilterSet(filters) {
     v-if="isAFilterSet(filters)"
     class="bg-search-results-view-tabs text-white flex items-center rounded-t-3px"
   >
-    <div class="p-3 whitespace-nowrap justify-self-start self-start">
+    <div class="p-4 whitespace-nowrap justify-self-start self-start">
       Active filters
     </div>
     <div class="flex flex-wrap gap-3 content-around p-3">
@@ -72,9 +72,9 @@ function isAFilterSet(filters) {
           size="tiny"
           type="filterWell"
         >
-          {{ `${filter?.title}`
-          }}<small class="text-white bg-blue-500 rounded-full p-1 ml-2">
-            {{ filter?.conditions.length }}
+          {{ filter?.title }}
+          <small class="text-gray-600">
+            {{ `- ${filter?.conditions.length}` }}
           </small>
         </Button>
       </template>
