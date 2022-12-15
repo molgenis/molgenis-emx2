@@ -114,11 +114,10 @@ class QueryEMX2 {
      * @param {string} nestedColumn 
      * @returns 
      */
-    where (column, nestedColumn) {
+    where (column) {
         this.branch = 'root'
         /** always convert to lowercase, else api will error */
-        this.column = nestedColumn ? this._toCamelCase(nestedColumn) : this._toCamelCase(column)
-        this.parentColumn = nestedColumn ? this._toCamelCase(column) : ''
+        this.column = this._toCamelCase(column)
         return this
     }
 
@@ -129,8 +128,10 @@ class QueryEMX2 {
      * @returns 
      */
     filter (column, nestedColumn) {
-        this.branch = column
-        return this.where(column, nestedColumn)
+        this.branch = this._toCamelCase(column)
+        this.column = this._toCamelCase(nestedColumn)
+
+        return this
     }
 
     and (column, nestedColumn) {
@@ -227,7 +228,7 @@ ${root}${tableFilters} {\n`;
 
             /** Create nested objects for each part of the property path */
             for (let i = 0; i < parts.length - 1; i++) {
-                let part = parts[i].trim();
+                let part = this._toCamelCase(parts[i].trim());
                 if (!currentBranch[part]) {
                     currentBranch[part] = {};
                 }
@@ -235,7 +236,7 @@ ${root}${tableFilters} {\n`;
             }
 
             /** Add the property to the innermost branch */
-            let propertyName = parts[parts.length - 1].trim();
+            let propertyName = this._toCamelCase(parts[parts.length - 1].trim());
             if (propertyName.indexOf('.') >= 0) {
                 /** If the property name has a period, it is a branch */
                 currentBranch[propertyName] = {};
@@ -291,11 +292,11 @@ ${root}${tableFilters} {\n`;
 
     /** Private function to create the correct filter syntax. */
     _createFilter (operator, value) {
-        let columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`
+        const columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`
 
-        if (this.parentColumn.length > 0) {
-            columnFilter = `{ ${this.parentColumn}: ${columnFilter} }`
-        }
+        // if (this.parentColumn.length > 0) {
+        //     columnFilter = `{ ${this.parentColumn}: ${columnFilter} }`
+        // }
 
         if (this.filters[this.branch]) {
             /** need to remove the last }, add an _and / _or and stitch it together */
@@ -305,7 +306,7 @@ ${root}${tableFilters} {\n`;
             this.filters[this.branch] = columnFilter
         }
         this.column = ''
-        this.parentColumn = ''
+        // this.parentColumn = ''
         this.type = '_and'
 
         return this
