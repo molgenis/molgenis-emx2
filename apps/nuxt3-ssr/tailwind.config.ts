@@ -2,7 +2,7 @@
 /** @type {import('tailwindcss').Config} */
 import typography from "@tailwindcss/typography"
 import forms from "@tailwindcss/forms"
-export default  {
+export default {
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -108,6 +108,9 @@ export default  {
         25: "6.25rem",
         95: "23.75rem",
         82.5: "20.625rem",
+      },
+      minWidth: {
+        95: "23.75rem",
       },
       backgroundImage: {
         "sidebar-gradient":
