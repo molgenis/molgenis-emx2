@@ -205,7 +205,7 @@ export default {
         }
         this.$emit("update:selection", update);
       } else {
-        this.$emit("click", key);
+        this.$emit("rowClick", key);
       }
     },
   },

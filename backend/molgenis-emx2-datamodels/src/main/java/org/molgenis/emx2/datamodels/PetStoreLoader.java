@@ -201,5 +201,9 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
                 .set("pets", "spike,pooky,the very hungry caterpillar,fire ant"));
 
     schema.addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
+
+    schema
+        .getMetadata()
+        .setSetting("reports", "[{\"id\":0, \"sql\":\"select * from \\\"Pet\\\"\"}]");
   }
 }
