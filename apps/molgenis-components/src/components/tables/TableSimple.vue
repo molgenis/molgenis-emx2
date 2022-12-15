@@ -63,10 +63,12 @@ export default {
     };
   },
   created() {
-    if (this.defaultValue instanceof Array) {
+    if (Array.isArray(this.defaultValue)) {
       this.selectedItems = this.defaultValue;
     } else if(this.defaultValue !== null) {
       this.selectedItems.push(this.defaultValue);
+    } else {
+      this.selectedItems = [];
     }
   },
   computed: {
