@@ -144,7 +144,7 @@ public class ValueToRDF {
       } else if (DECIMAL.equals(XSDType)) {
         return literal(fixDouble(o));
       } else if (STRING.equals(XSDType)) {
-        return literal(TypeUtils.toString(o));
+        return o == null ? null : literal(TypeUtils.toString(o));
       } else if (ANYURI.equals(XSDType)) {
         return encodedIRI(TypeUtils.toString(o));
       } else if (INT.equals(XSDType)) {
