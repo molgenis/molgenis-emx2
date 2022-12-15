@@ -183,7 +183,7 @@ let activeName = ref("detailed");
           </SearchResultsList>
         </template>
 
-        <template #pagination>
+        <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
           <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
             @update="setCurrentPage($event)" />
         </template>

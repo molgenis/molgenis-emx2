@@ -20,6 +20,6 @@ defineProps({
   </div>
 
   <div class="pb-12.5">
-    <slot name="pagination">pagination</slot>
+    <slot name="pagination"></slot>
   </div>
 </template>
