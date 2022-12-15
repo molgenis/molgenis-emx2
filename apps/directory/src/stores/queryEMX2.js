@@ -1,5 +1,5 @@
 /**
- * Created by Jelmer Veen 2020
+ * Created by Jelmer Veen 2022
  */
 
 import request from "graphql-request"
