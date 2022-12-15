@@ -8,9 +8,8 @@ class QueryEMX2 {
     tableName = ''
     filters = {}
     column = ''
-    parentColumn = ''
     _schemaTablesInformation = {}
-    selection = []
+    selection = ['id', 'name']
     graphqlUrl = ''
     branch = 'root'
 
@@ -97,6 +96,7 @@ class QueryEMX2 {
         return this._schemaTablesInformation
     }
 
+    /** returns the columns with adjusted names so it can directly be used to query. */
     async getColumnsForTable (tableName) {
 
         await this.getSchemaTablesInformation()
@@ -294,10 +294,6 @@ ${root}${tableFilters} {\n`;
     _createFilter (operator, value) {
         const columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`
 
-        // if (this.parentColumn.length > 0) {
-        //     columnFilter = `{ ${this.parentColumn}: ${columnFilter} }`
-        // }
-
         if (this.filters[this.branch]) {
             /** need to remove the last }, add an _and / _or and stitch it together */
             this.filters[this.branch] = `${this.filters[this.branch].substring(0, this.filters[this.branch].length - 2)}, ${this.type}: ${columnFilter}}`
@@ -306,7 +302,6 @@ ${root}${tableFilters} {\n`;
             this.filters[this.branch] = columnFilter
         }
         this.column = ''
-        // this.parentColumn = ''
         this.type = '_and'
 
         return this

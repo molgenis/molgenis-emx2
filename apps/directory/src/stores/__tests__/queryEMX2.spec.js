@@ -12,6 +12,18 @@ Biobanks {
     )
   })
 
+  it('can query a table to retrieve id and name by default', () => {
+    const query = new QueryEMX2('graphql').table('Biobanks').getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks {
+    id,
+    name
+  }
+}`
+    )
+  })
+
   it('can create a query when selecting multiple columns on the biobanks table', () => {
     const query = new QueryEMX2('graphql').table('Biobanks').select(['id', 'name']).getQuery()
 
