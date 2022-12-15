@@ -1,17 +1,36 @@
 <script setup lang="ts">
 const route = useRoute();
-defineProps<{
+const props = defineProps<{
   title?: string;
   image?: string;
   items: { label: string, id: string }[]
-
 }>();
+
+let currentSection = ref()
+
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.intersectionRatio > 0) {
+        console.log(entry.target.parentElement?.id)
+        console.log(entry.intersectionRatio)
+        currentSection.value = entry.target.parentElement?.id
+      }
+    })
+  }, { rootMargin: '0px 0px -90% 0px'})
+  document.querySelectorAll('section h2').forEach((section) => {
+    observer.observe(section)
+  })
+})
+
 function setSideMenuStyle(hash: string) {
-  return hash == route.hash ?
-    "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
-    :
+  if ('#' + currentSection === hash || hash == route.hash) {
+    return "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
+  } else {
     "w-full block my-2 hover:font-bold hover:cursor-pointer"
+  }
 }
+
 </script>
 
 <template>
