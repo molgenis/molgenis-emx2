@@ -135,6 +135,9 @@ public class ValueToRDF {
 
     } else {
 
+      if (o == null) {
+        return null;
+      }
       if (BOOLEAN.equals(XSDType)) {
         return literal((boolean) o);
       } else if (DATE.equals(XSDType)) {
@@ -144,7 +147,7 @@ public class ValueToRDF {
       } else if (DECIMAL.equals(XSDType)) {
         return literal(fixDouble(o));
       } else if (STRING.equals(XSDType)) {
-        return o == null ? null : literal(TypeUtils.toString(o));
+        return literal(TypeUtils.toString(o));
       } else if (ANYURI.equals(XSDType)) {
         return encodedIRI(TypeUtils.toString(o));
       } else if (INT.equals(XSDType)) {
