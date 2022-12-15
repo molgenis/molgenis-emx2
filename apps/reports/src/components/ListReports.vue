@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <Spinner v-if="!session"/>
+  <MessageWarning
+      v-else-if="
+            !session ||
+            !session.roles ||
+            !['Viewer'].some((r) =>
+              session.roles.includes(r)
+            )
+          "
+  >
+    You don't have permission to view reports. Might you need to login?
+  </MessageWarning>
+  <div v-else>
     <h2>Reports</h2>
     <p>Listing of reports</p>
     <MessageWarning v-if="session && !canView">
@@ -23,7 +35,7 @@
 </template>
 
 <script>
-import {Client, MessageError, IconAction,IconDanger,TableSimple,ButtonAction,ButtonDanger,MessageWarning} from "molgenis-components";
+import {Client, MessageError, IconAction,IconDanger,TableSimple,ButtonAction,ButtonDanger,MessageWarning, Spinner} from "molgenis-components";
 
 export default {
   components: {
@@ -33,7 +45,8 @@ export default {
     TableSimple,
     ButtonAction,
     ButtonDanger,
-    MessageWarning
+    MessageWarning,
+    Spinner
   },
   props: {
     session: Object,
@@ -72,7 +85,6 @@ export default {
       }
     },
    async add() {
-     console.log('add')
      this.error = null;
      this.reports.push({name: "new report", sql: ""})
      await this.client.saveSetting("reports", this.reports).catch(error => this.error = error);
@@ -88,10 +100,10 @@ export default {
       this.$router.push({name:"edit", params:{id: row.id}});
     },
     downloadSelected() {
-      window.open("../api/reports/zip?id="+this.selection.join(","), '_blank');
+      window.open(`../api/reports/zip?id=${this.selection.join(",")}`, '_blank');
     }
   },
-  async mounted() {
+  mounted() {
     this.client = Client.newClient();
     this.reload();
   }

@@ -65,7 +65,7 @@ export default {
   created() {
     if (this.defaultValue instanceof Array) {
       this.selectedItems = this.defaultValue;
-    } else if(this.defaultValue != null) {
+    } else if(this.defaultValue !== null) {
       this.selectedItems.push(this.defaultValue);
     }
   },
@@ -84,7 +84,7 @@ export default {
   methods: {
     flattenObject(object) {
       let result = "";
-      if (object && typeof object === "object") {
+      if (object && object.length > 0 && typeof object === "object") {
         Object.keys(object).forEach((key) => {
           if (object[key] === null) {
             //nothing
@@ -101,7 +101,7 @@ export default {
     },
     isSelected(row) {
       return (
-        this.selectedItems != null &&
+        this.selectedItems !== null &&
         this.selectedItems.includes(row[this.selectColumn])
       );
     },

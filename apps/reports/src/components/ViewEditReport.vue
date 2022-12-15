@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <Spinner v-if="!session"/>
+  <MessageWarning
+      v-else-if="
+            !session ||
+            !session.roles ||
+            !['Viewer'].some((r) =>
+              session.roles.includes(r)
+            )
+          "
+  >
+    You d on't have permission to view reports. Might you need to login?
+  </MessageWarning>
+  <div v-else>
     <router-link  to="/">&lt; back to report list</router-link>
     <div v-if="edit">
       <h2>Edit report: {{id}}<IconAction icon="eye" @click="edit = false"/></h2>
@@ -22,7 +34,7 @@
 </template>
 
 <script>
-import { Client,TableSimple,ButtonAction,InputText,InputString,MessageError,MessageSuccess,Pagination,IconAction } from "molgenis-components";
+import { Client,TableSimple,ButtonAction,InputText,InputString,MessageError,MessageSuccess,Pagination,IconAction, Spinner } from "molgenis-components";
 import { request } from "graphql-request";
 
 
@@ -36,7 +48,8 @@ export default {
     MessageSuccess,
     InputString,
     Pagination,
-    IconAction
+    IconAction,
+    Spinner
   },
   props: {
     session: Object,
@@ -114,7 +127,7 @@ export default {
       this.run();
     }
   },
-  async mounted() {
+  mounted() {
     this.client = Client.newClient();
     this.reload();
   }
