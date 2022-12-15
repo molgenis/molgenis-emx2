@@ -9,7 +9,7 @@
             )
           "
   >
-    You d on't have permission to view reports. Might you need to login?
+    Schema doesn't exist or you don't have permission to view. Might you need to login?
   </MessageWarning>
   <div v-else>
     <router-link  to="/">&lt; back to report list</router-link>
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { Client,TableSimple,ButtonAction,InputText,InputString,MessageError,MessageSuccess,Pagination,IconAction, Spinner } from "molgenis-components";
+import { Client,TableSimple,ButtonAction,InputText,InputString,MessageError,MessageSuccess,Pagination,IconAction, Spinner,MessageWarning } from "molgenis-components";
 import { request } from "graphql-request";
 
 
@@ -49,7 +49,8 @@ export default {
     InputString,
     Pagination,
     IconAction,
-    Spinner
+    Spinner,
+    MessageWarning
   },
   props: {
     session: Object,

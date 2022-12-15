@@ -7,8 +7,8 @@ Database settings currently supported:
 * LANDING_PAGE - to change landing page from default /apps/central to something else
 
 Schema settings currently supported:
-* menu - will be set by the menus app
-* pages - will be set by the pages app
+* menu - will be set by the 'settings' app on database and schema level
+* pages - will be set by the pages app, access via settings app
 * reports - will be set by the reports app
 
 ## User management

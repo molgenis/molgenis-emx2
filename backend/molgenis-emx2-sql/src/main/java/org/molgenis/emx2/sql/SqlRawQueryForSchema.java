@@ -22,6 +22,9 @@ public class SqlRawQueryForSchema {
   }
 
   public List<Row> executeSql(String sql) {
+    if (sql == null || sql.trim().equals("")) {
+      return List.of();
+    }
     List<Row> result = new ArrayList<>();
     schema.tx(
         db -> {
@@ -36,9 +39,6 @@ public class SqlRawQueryForSchema {
             logger.info(schema.getDatabase().getActiveUser() + " executed query " + sql);
           } catch (SQLException sqle) {
             throw new MolgenisException("query failed", sqle);
-          } finally {
-            // reset search path
-            jooq.execute("RESET search_path");
           }
         });
     return result;

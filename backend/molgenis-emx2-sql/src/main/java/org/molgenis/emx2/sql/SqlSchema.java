@@ -139,7 +139,11 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql) {
-    return new SqlRawQueryForSchema(this).executeSql(sql);
+    if (getRoles().contains("Viewer")) {
+      return new SqlRawQueryForSchema(this).executeSql(sql);
+    } else {
+      throw new MolgenisException("No view permissions on this schema");
+    }
   }
 
   @Override

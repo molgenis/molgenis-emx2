@@ -9,7 +9,7 @@
             )
           "
   >
-    You don't have permission to view reports. Might you need to login?
+    Schema doesn't exist or you don't have permission to view. Might you need to login?
   </MessageWarning>
   <div v-else>
     <h2>Reports</h2>
