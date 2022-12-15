@@ -181,6 +181,7 @@ public class GraphqlApiFactory {
     GraphqlSchemaFieldFactory schemaFields = new GraphqlSchemaFieldFactory();
     queryBuilder.field(schemaFields.schemaQuery(schema));
     queryBuilder.field(schemaFields.settingsQuery(schema));
+    queryBuilder.field(schemaFields.schemaReportsField(schema));
 
     // _tasks query
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();

@@ -547,7 +547,7 @@ public class SqlQuery extends QueryBean {
                     column,
                     tableAlias,
                     select,
-                    null,
+                    select.getFilter(),
                     new String[0])
                 .as(name(convertToCamelCase(select.getColumn()))));
       } else if (column.isHeading()) {
@@ -679,7 +679,12 @@ public class SqlQuery extends QueryBean {
         if (c.isRef()) {
           subselectFields.add(
               jsonSubselect(
-                      (SqlTableMetadata) c.getRefTable(), c, tableAlias, field, null, new String[0])
+                      (SqlTableMetadata) c.getRefTable(),
+                      c,
+                      tableAlias,
+                      field,
+                      field.getFilter(),
+                      new String[0])
                   .as(name(field.getColumn())));
         }
         // in case of ref_array we must unnest the values
@@ -693,7 +698,7 @@ public class SqlQuery extends QueryBean {
                           c,
                           tableAlias,
                           field,
-                          null,
+                          field.getFilter(),
                           new String[0]))
                   .as(name(c.getName()))
                   .as(name(field.getColumn())));

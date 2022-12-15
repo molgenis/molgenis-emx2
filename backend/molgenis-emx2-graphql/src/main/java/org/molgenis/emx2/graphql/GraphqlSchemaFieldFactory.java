@@ -22,9 +22,13 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
+  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
@@ -719,5 +723,63 @@ public class GraphqlSchemaFieldFactory {
                 .name(GraphqlConstants.TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .build();
+  }
+
+  public GraphQLFieldDefinition schemaReportsField(Schema schema) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_reports")
+        .type(
+            GraphQLObjectType.newObject()
+                .name("MolgenisSqlQuery")
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(DATA)
+                        .type(Scalars.GraphQLString))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name(COUNT)
+                        .type(Scalars.GraphQLInt)))
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
+        .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
+        .dataFetcher(
+            dataFetchingEnvironment -> {
+              Integer id = null;
+              Map<String, Object> result = new LinkedHashMap<>();
+              try {
+                String reportsJson = schema.getMetadata().getSetting("reports");
+                logger.info("REPORT value: " + reportsJson);
+                if (reportsJson != null) {
+                  id = dataFetchingEnvironment.getArgument(ID);
+                  Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+                  Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+                  List<Map<String, String>> reportList =
+                      new ObjectMapper().readValue(reportsJson, List.class);
+                  Map<String, String> report = reportList.get(id);
+                  String sql = report.get("sql") + "LIMIT " + limit + " OFFSET " + offset;
+                  String countSql =
+                      String.format("select count(*) from (%s) as count", report.get("sql"));
+                  result.put(DATA, convertToJson(schema.retrieveSql(sql)));
+                  result.put(
+                      COUNT, schema.retrieveSql(countSql).get(0).get("count", Integer.class));
+                }
+                return result;
+              } catch (Exception e) {
+                throw new MolgenisException("Retrieve of report '" + id + "' failed ", e);
+              }
+            })
+        .build();
+  }
+
+  private String convertToJson(List<Row> rows) {
+    try {
+      List<Map<String, Object>> result = new ArrayList<>();
+      for (Row row : rows) {
+        result.add(row.getValueMap());
+      }
+      return new ObjectMapper().writeValueAsString(result);
+    } catch (Exception e) {
+      throw new MolgenisException("Cannot convert sql result set to json", e);
+    }
   }
 }
