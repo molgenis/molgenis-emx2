@@ -25,6 +25,8 @@ public interface Schema {
 
   Query query(String tableName);
 
+  List<Row> retrieveSql(String sql);
+
   Query agg(String tableName);
 
   Query groupBy(String tableName);

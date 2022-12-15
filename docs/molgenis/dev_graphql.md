@@ -448,6 +448,77 @@ Get all the pets that have the letter k and are sold
 }
 ```
 
+You can also filter the subsets in your result.
+Given the pet Spike in the petstore, he has two tags:
+
+```
+{
+  Pet(filter: {name: {equals: "spike"}}) {
+    name,
+    tags {
+      name
+    }
+  }
+}
+```
+
+Results in:
+
+```
+{
+  "data": {
+    "Pet": [
+      {
+        "name": "spike",
+        "tags": [
+          {
+            "name": "red"
+          },
+          {
+            "name": "green"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+If you only want to have the green tag in your result, you can also apply a filter on tags. 
+
+example:
+
+```
+{
+  Pet(filter: {name: {equals: "spike"}}) {
+    name,
+    tags(filter: {name: {equals: "green"}}) {
+      name
+    }
+  }
+}
+```
+
+Will return:
+
+```
+{
+  "data": {
+    "Pet": [
+      {
+        "name": "spike",
+        "tags": [
+          {
+            "name": "green"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+
 # Developing 'apps'
 
 When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
