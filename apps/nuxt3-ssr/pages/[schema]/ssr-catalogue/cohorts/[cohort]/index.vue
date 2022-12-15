@@ -136,7 +136,7 @@ function setData(data: any) {
 
 fetchGql(collectionEventsQuery, { pid: route.params.cohort })
   .then((resp) =>
-    onCollectionEventsLoaded(resp.data.Cohorts[0].collectionEvents)
+    onCollectionEventsLoaded(resp.data.CollectionEvents)
   )
   .catch((e) => console.log(e));
 
@@ -164,7 +164,7 @@ function onCollectionEventsLoaded(rows: any) {
 }
 
 fetchGql(subcohortsQuery, { pid: route.params.cohort })
-  .then((resp) => onSubcohortsLoaded(resp.data.Cohorts[0].subcohorts))
+  .then((resp) => onSubcohortsLoaded(resp.data.Subcohorts))
   .catch((e) => console.log(e));
 
 let subcohorts: Ref = ref([]);
@@ -267,7 +267,8 @@ let tocItems = computed(() => {
         /> -->
         <ContentBlockData id="AvailableData" title="Available Data &amp; Samples"
           :collectionEvents="cohort?.collectionEvents" />
-        <TableContent v-if="(subcohorts && subcohorts.length)" id="Subpopulations" title="Subpopulations"
+
+        <TableContent v-if="subcohorts?.length" id="Subpopulations" title="Subpopulations"
           description="List of subcohorts or subpopulations for this resource" :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description' },
@@ -275,7 +276,7 @@ let tocItems = computed(() => {
             { id: 'ageGroups', label: 'Age categories' },
           ]" :rows="subcohorts" />
 
-        <TableContent v-if="collectionEvents && collectionEvents.length" id="CollectionEvents" title="Collection events"
+        <TableContent v-if="collectionEvents?.length" id="CollectionEvents" title="Collection events"
           description="List of collection events defined for this resource" :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description' },
