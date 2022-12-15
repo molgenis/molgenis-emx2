@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { computed } from "vue";
+import ContentBlockSubpopulations from "./ContentBlockSubpopulations.vue";
 
 const props = defineProps({
   currentPage: {
@@ -48,6 +49,16 @@ function onNextClick() {
     emit('update', props.currentPage + 1)
   }
 }
+
+function changeCurrentPage(event) {
+  const newPage = parseInt(event.target.value);
+  const clampedPage = Math.min(Math.max(newPage, 1), props.totalPages);
+  if (isNaN(clampedPage)) {
+    emit('update', 1);
+  } else {
+    emit('update', clampedPage);
+  }
+}
 </script>
 
 <template>
@@ -60,7 +71,7 @@ function onNextClick() {
     <div class="px-4 tracking-widest sm:px-5" :class="textClasses">Page</div>
     <input
       class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
-      :value="currentPage" :class="borderClasses" />
+      :value="currentPage" @change="changeCurrentPage" :class="borderClasses" />
     <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap" :class="textClasses">
       OF {{ totalPages }}
     </div>
