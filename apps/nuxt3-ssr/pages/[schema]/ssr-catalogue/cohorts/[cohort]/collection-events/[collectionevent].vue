@@ -57,7 +57,6 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
-
 if (collectionEvent?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
@@ -143,16 +142,16 @@ items.sort((a, b) => a.label.localeCompare(b.label));
     </template>
     <template #main>
       <ContentBlocks v-if="collectionEvent">
-        <ContentBlock id="details" title="Details">
+        <ContentBlock v-if="collectionEvent" id="details" title="Details">
           <DefinitionList :items="items" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock id="age_categories" title="Age categories">
+        <ContentBlock v-if="collectionEvent.ageGroups" id="age_categories" title="Age categories">
           <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock id="data_catagories" title="Data catagories">
+        <ContentBlock v-if="collectionEvent.dataCategories" id="data_catagories" title="Data catagories">
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock id="areas_of_information" title="Areas of information">
+        <ContentBlock v-if="collectionEvent.areasOfInformation" id="areas_of_information" title="Areas of information">
           <ContentOntology :tree="areasOfInformationTree" :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>
