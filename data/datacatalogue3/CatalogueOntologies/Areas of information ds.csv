@@ -1,4 +1,4 @@
-name,label,description,parent
+name,label,definition,parent
 Geographic regions,,Are data on geographic region available?,
 Family linkage,,Is any linkage available in the data bank between any of the following persons?,
 Family linkage routinely,,Is familial linkage created routinely?,
