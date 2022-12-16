@@ -1,5 +1,5 @@
 import axios from "axios";
-import { deepClone } from "../components/utils";
+import { deepClone, convertToPascalCase } from "../components/utils";
 
 export { request };
 
@@ -59,12 +59,13 @@ export default {
         return dataResp[tableId];
       },
       fetchRowData: async (tableName, rowId) => {
+        const tableId = convertToPascalCase(tableName);
         if (metaData === null) {
           const schema = await fetchMetaData(myAxios, graphqlURL);
           metaData = schema;
         }
         const tableMetaData = metaData.tables.find(
-          (table) => table.id === tableName || table.name === tableName
+          (table) => table.id === tableId
         );
         const filter = tableMetaData.columns
           .filter((column) => column.key === 1)
@@ -83,7 +84,7 @@ export default {
             myAxios,
             graphqlURL
           )
-        )[tableName];
+        )[tableId];
 
         if (!resultArray.length || resultArray.length !== 1) {
           return undefined;
@@ -92,17 +93,39 @@ export default {
         }
       },
       saveTableSettings: async (settings) => {
-        return request(graphqlURL ? graphqlURL : "graphql",
-            `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
-            {settings: settings});
+        return request(
+          graphqlURL ? graphqlURL : "graphql",
+          `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
+          { settings: settings }
+        );
       },
       fetchSettings: async () => {
-        return (
-          await request(
-            graphqlURL ? graphqlURL : "graphql",
-            "{_settings{key, value}}"
-          )
-        )._settings;
+        return fetchSettings(graphqlURL ? graphqlURL : "graphql");
+      },
+      fetchSettingValue: async (name) => {
+        const settings = await fetchSettings();
+        const setting = settings.find((setting) => setting.key == name);
+        if (setting) {
+          return JSON.parse(setting.value);
+        }
+      },
+      async saveSetting(key, value) {
+        const createMutation = `mutation change($settings: [MolgenisSettingsInput]) {
+            change(settings: $settings) {
+              message
+            }
+          }`;
+
+        const variables = {
+          settings: {
+            key: key,
+            value: JSON.stringify(value),
+          },
+        };
+
+        await request("graphql", createMutation, variables).catch((e) => {
+          console.error(e);
+        });
       },
     };
   },
@@ -192,7 +215,7 @@ const fetchTableData = async (
   graphqlURL,
   onError
 ) => {
-  const tableId = getTable(tableName, metaData.tables).id;
+  const tableId = convertToPascalCase(tableName);
   const url = graphqlURL ? graphqlURL : "graphql";
   const limit =
     properties && Object.prototype.hasOwnProperty.call(properties, "limit")
@@ -241,16 +264,27 @@ const fetchTableData = async (
       console.log(error);
       if (typeof onError === "function") {
         onError(error);
+      } else {
+        throw error;
       }
     });
   return resp.data.data;
 };
 
+const fetchSettings = async (graphqlURL) => {
+  return (
+    await request(
+      graphqlURL ? graphqlURL : "graphql",
+      "{_settings{key, value}}"
+    )
+  )._settings;
+};
+
 const request = async (url, graphql, variables) => {
- const data = { query: graphql };
- if(variables) {
-   data.variables = variables;
- }
+  const data = { query: graphql };
+  if (variables) {
+    data.variables = variables;
+  }
   return axios
     .post(url, data)
     .then((result) => {
@@ -283,34 +317,6 @@ const columnNames = (tableName, metaData) => {
     }
   });
 
-  return result;
-};
-
-const convertToCamelCase = (string) => {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word, index) => {
-    if (index === 0) {
-      word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
-};
-
-const convertToPascalCase = (string) => {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word, index) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
   return result;
 };
 

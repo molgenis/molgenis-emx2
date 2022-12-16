@@ -120,6 +120,10 @@ public class WebApiSmokeTests {
             .asString();
     assertEquals(schemaCsv, schemaCsv2);
 
+    // check if reports work
+    zipContents = getContentAsByteArray(ACCEPT_ZIP, "/pet store/api/reports/zip?id=0");
+    assertTrue(zipContents.length > 0);
+
     // delete the new schema
     db.dropSchema("pet store zip");
   }
@@ -617,7 +621,7 @@ public class WebApiSmokeTests {
     // with token we are shopmanager
     assertTrue(
         given()
-            .header(MOLGENIS_TOKEN, token)
+            .header(MOLGENIS_TOKEN[0], token)
             .body("{\"query\":\"{_session{email}}\"}")
             .post("/api/graphql")
             .getBody()
@@ -627,7 +631,7 @@ public class WebApiSmokeTests {
     // can we create a long lived token
     result =
         given()
-            .header(MOLGENIS_TOKEN, token)
+            .header(MOLGENIS_TOKEN[0], token)
             .body(
                 "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\",tokenName:\\\"mytoken\\\"){message,token}}\"}")
             .when()
@@ -637,9 +641,10 @@ public class WebApiSmokeTests {
     token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
 
     // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
     assertTrue(
         given()
-            .header(MOLGENIS_TOKEN, token)
+            .header(MOLGENIS_TOKEN[1], token)
             .body("{\"query\":\"{_session{email}}\"}")
             .post("/api/graphql")
             .getBody()
@@ -660,7 +665,7 @@ public class WebApiSmokeTests {
     // as admin can we create a long lived token for others
     result =
         given()
-            .header(MOLGENIS_TOKEN, token)
+            .header(MOLGENIS_TOKEN[0], token)
             .body(
                 "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\" tokenName:\\\"mytoken\\\"){message,token}}\"}")
             .when()
@@ -670,9 +675,10 @@ public class WebApiSmokeTests {
     token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
 
     // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
     assertTrue(
         given()
-            .header(MOLGENIS_TOKEN, token)
+            .header(MOLGENIS_TOKEN[1], token)
             .body("{\"query\":\"{_session{email}}\"}")
             .post("/api/graphql")
             .getBody()

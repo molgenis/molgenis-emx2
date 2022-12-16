@@ -4,7 +4,7 @@
 
     <table class="table table-hover table-bordered bg-white">
       <thead>
-        <th style="width: 1px">
+        <th style="width: 1px;">
           <IconAction icon="plus" @click="handleCreateRequest" />
         </th>
         <th>key</th>
@@ -13,7 +13,7 @@
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">
           <td>
-            <div style="display: flex">
+            <div style="display: flex;">
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
               <IconDanger
                 icon="trash"
@@ -92,7 +92,7 @@ export default {
     return {
       settings: null,
       showModal: false,
-      modalTitle: "foo",
+      modalTitle: "",
       settingKey: "",
       settingValue: "",
       settingActionLabel: "",
@@ -118,7 +118,7 @@ export default {
       this.showModal = true;
     },
     handleRowDeleteRequest(setting) {
-      this.modalTitle = `Delete ${setting.key} setting`
+      this.modalTitle = `Delete ${setting.key} setting`;
       this.settingActionLabel = "Delete Setting";
       this.settingKey = setting.key;
       this.settingValue = setting.value;
@@ -138,17 +138,19 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
-      const createMutation = gql`mutation change($settings:[MolgenisSettingsInput]){
-        change(settings:$settings){
-          message
+      const createMutation = gql`
+        mutation change($settings: [MolgenisSettingsInput]) {
+          change(settings: $settings) {
+            message
+          }
         }
-       }`;
+      `;
 
       const variables = {
         settings: {
           key: this.settingKey,
-          value: this.settingValue
-        }
+          value: this.settingValue,
+        },
       };
 
       await request("graphql", createMutation, variables).catch((e) => {
@@ -158,16 +160,18 @@ export default {
       this.showModal = false;
     },
     async deleteSetting() {
-      const deleteMutation = gql`mutation drop($settings:[DropSettingsInput]){
-        drop(settings:$settings){
-          message
+      const deleteMutation = gql`
+        mutation drop($settings: [DropSettingsInput]) {
+          drop(settings: $settings) {
+            message
+          }
         }
-      }`;
+      `;
 
       const variables = {
         settings: {
           key: this.settingKey,
-        }
+        },
       };
 
       await request("graphql", deleteMutation, variables).catch((e) => {
@@ -175,7 +179,7 @@ export default {
       });
       this.fetchSettings();
       this.showModal = false;
-    }
+    },
   },
   mounted() {
     this.fetchSettings();

@@ -1,5 +1,5 @@
 <template>
-  <button type="submit" class="btn btn-primary">
+  <button type="submit" class="btn btn-primary" :disabled="disabled">
     <slot />
     <i v-if="icon" :class="'fa fa-fw fa-' + icon" class="mr-2 ml-0"></i>
   </button>
@@ -11,6 +11,10 @@ export default {
   props: {
     href: String,
     icon: String,
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
 };
 </script>

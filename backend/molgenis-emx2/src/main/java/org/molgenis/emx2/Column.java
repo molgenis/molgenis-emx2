@@ -433,7 +433,7 @@ public class Column implements Comparable<Column> {
             type = getArrayType(type);
           }
           List<String> path = ref.getPath();
-          path.add(0, keyPart.getName());
+          path.add(0, keyPart.getIdentifier());
           String name = null;
           if (refLink != null) {
             for (Reference overlap : refLink.getReferences()) {
@@ -486,7 +486,7 @@ public class Column implements Comparable<Column> {
                 getRefTableName(),
                 keyPart.getName(),
                 keyPart.isRequired() || this.isRequired(),
-                new ArrayList<>(List.of(keyPart.getName()))));
+                new ArrayList<>(List.of(keyPart.getIdentifier()))));
       }
     }
 
