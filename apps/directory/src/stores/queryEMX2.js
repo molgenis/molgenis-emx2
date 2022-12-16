@@ -12,6 +12,9 @@ class QueryEMX2 {
     selection = ['id', 'name']
     graphqlUrl = ''
     branch = 'root'
+    limits = {}
+    orderings = {}
+    search = ''
 
     /**
      * @param {string} graphqlUrl the endpoint to query
@@ -134,6 +137,45 @@ class QueryEMX2 {
         return this
     }
 
+    /**
+     * @param {string} item the name of the table or the nested column
+     * @param {int} amount the amount you want to return
+     * @returns 
+     */
+    limit (item, amount) {
+        let columnOrTable = item.toLowerCase() === this.tableName.toLowerCase() ? 'root' : this._toCamelCase(item)
+        this.limits[columnOrTable] = amount
+        return this
+    }
+
+    /**
+     * @param {string} item the name of the table or the nested column
+     * @param {string} column the name of the column to apply the order to
+     * @param {string} direction "asc" or "dsc"
+     */
+    orderBy (item, column, direction) {
+        let columnOrTable = item.toLowerCase() === this.tableName.toLowerCase() ? 'root' : this._toCamelCase(item)
+        this.orderings[columnOrTable] = { column, direction }
+        return this
+    }
+    
+    /** 
+     * Additional function, which does the same as search but might be more semantic
+     * @param {any} value searches this value across all columns, can only be applied to the top level table
+     */
+    find (value) {
+        this.search = value;
+        return this
+    }
+
+    /**
+     * @param {any} value searches this value across all columns, can only be applied to the top level table
+     */
+    search (value) {
+        this.search = value;
+        return this
+    }
+
     and (column, nestedColumn) {
         this.type = '_and'
         return this.where(column, nestedColumn)
@@ -211,14 +253,12 @@ class QueryEMX2 {
     }
 
     _createQuery (root, properties) {
-        // loop and create filters per branch
-        const tableFilters = this.filters.root?.length ? `(filter: ${this.filters.root})` : ''
-
+        const rootModifier = this._generateModifiers('root')
 
         let result = '';
 
         result += `{
-${root}${tableFilters} {\n`;
+${root}${rootModifier} {\n`;
 
         /** Create a nested object to represent the branches and their properties */
         let branches = {};
@@ -268,7 +308,7 @@ ${root}${tableFilters} {\n`;
 
             /** Add the branches and their properties */
             for (let branchName in branches) {
-                 /** continue with the query by adding a comma to the end of the property */
+                /** continue with the query by adding a comma to the end of the property */
                 let branch = branches[branchName];
                 if (branchName !== 'properties') {
                     result = `${result.substring(0, result.length - 1)},\n`;
@@ -288,6 +328,21 @@ ${root}${tableFilters} {\n`;
         result += '  }\n}';
 
         return result;
+    }
+
+    /** Generate the bit inside parentheses */
+    _generateModifiers (property) {
+        const modifierParts = []
+
+        modifierParts.push(this.search.length ? `search: "${this.search}"` : '')
+        modifierParts.push(this.limits[property] ? `limit: ${this.limits[property]}` : '')
+        modifierParts.push(this.orderings[property] ? `orderby: { ${this.orderings[property].column}: ${this.orderings[property].direction.toUpperCase()} }` : '')
+        modifierParts.push(this.filters[property] ? `filter: ${this.filters[property]}` : '')
+
+        const filledModifiers = modifierParts.filter(f => f.length > 0)
+
+        return filledModifiers.length ? `(${filledModifiers.join(', ')})` : ''
+        // also want search and orderby
     }
 
     /** Private function to create the correct filter syntax. */

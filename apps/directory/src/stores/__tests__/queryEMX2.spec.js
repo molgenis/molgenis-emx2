@@ -24,6 +24,37 @@ Biobanks {
     )
   })
 
+  it('can limit the search results', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select('id')
+      .limit("biobanks", 100)
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(limit: 100) {
+    id
+  }
+}`
+    )
+  })
+
+  it('can apply search to the table', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select('id')
+      .find('something')
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(search: "something") {
+    id
+  }
+}`
+    )
+  })
+
+
   it('can create a query when selecting multiple columns on the biobanks table', () => {
     const query = new QueryEMX2('graphql').table('Biobanks').select(['id', 'name']).getQuery()
 
@@ -61,6 +92,41 @@ Biobanks(filter: { name: { like: "UMC"} }) {
 
     expect(query).toStrictEqual(`{
 Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
+    id,
+    name
+  }
+}`
+    )
+  })
+
+  it('can create a query with a where and a limit', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .where('name').like('UMC')
+      .limit("biobanks", 100)
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(limit: 100, filter: { name: { like: "UMC"} }) {
+    id,
+    name
+  }
+}`
+    )
+  })
+
+  it('can create a query with a where, a limit and orderby', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .where('name').like('UMC')
+      .limit("biobanks", 100)
+      .orderBy("biobanks", "name", "asc")
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC"} }) {
     id,
     name
   }
