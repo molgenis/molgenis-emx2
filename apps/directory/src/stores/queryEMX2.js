@@ -312,9 +312,9 @@ ${root}${rootModifier} {\n`;
                 let branch = branches[branchName];
                 if (branchName !== 'properties') {
                     result = `${result.substring(0, result.length - 1)},\n`;
-                    const brancheFilters = filters[branchName] && filters[branchName].length ? `(filter: ${filters[branchName]})` : ''
+                    const brancheModifiers = this._generateModifiers(branchName)
                     /** Only add branches, not properties */
-                    result += `${indentation}${branchName}${brancheFilters || ''} {\n`;
+                    result += `${indentation}${branchName}${brancheModifiers || ''} {\n`;
 
                     generateOutput(branch, indentationLevel + 1, filters);
 
@@ -334,7 +334,7 @@ ${root}${rootModifier} {\n`;
     _generateModifiers (property) {
         const modifierParts = []
 
-        modifierParts.push(this.search.length ? `search: "${this.search}"` : '')
+        modifierParts.push(this.search.length && property === 'root' ? `search: "${this.search}"` : '')
         modifierParts.push(this.limits[property] ? `limit: ${this.limits[property]}` : '')
         modifierParts.push(this.orderings[property] ? `orderby: { ${this.orderings[property].column}: ${this.orderings[property].direction.toUpperCase()} }` : '')
         modifierParts.push(this.filters[property] ? `filter: ${this.filters[property]}` : '')
