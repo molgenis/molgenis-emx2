@@ -1,4 +1,7 @@
 dependencies {
     implementation project(':backend:molgenis-emx2-graphql')
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-sql')
+    implementation project(':backend:molgenis-emx2-datamodels')
     implementation 'org.quartz-scheduler:quartz:2.3.2'
 }

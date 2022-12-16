@@ -1,7 +1,8 @@
 package org.molgenis.emx2.catalogue;
 
-import java.net.http.HttpResponse;
-import java.util.Date;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -13,9 +14,13 @@ public class RefreshJob implements Job {
 
   @Override
   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-    logger.info("Hello World! - " + new Date());
+    logger.info("Do count request");
 
-    HttpResponse response = new CountRequest().send();
-    logger.info("response - " + response.body());
+    try {
+      JsonNode jsonNode = new CountRequest().send();
+      logger.info("response - " + jsonNode.toString());
+    } catch (URISyntaxException | IOException | InterruptedException e) {
+      logger.error("error on count CountRequest");
+    }
   }
 }
