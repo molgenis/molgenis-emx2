@@ -209,6 +209,7 @@ Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'ot
 Linked data sources,,,,,,,,,,,,Links between datasource and databank,,,
 Linked data sources,,main datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,datasource
 Linked data sources,,linked datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,databank
+Linked data sources,,other linked data source,text,,,,,,,,,"If other linked data source, enter the name of the data source",,,
 Linked data sources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are either currently available between data sources in the data source (when pre-linked = yes) or linkages that are possible when using the data source,,,
 Linked data sources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,,DatasourceDatabanks,linkageStrategy
 Linked data sources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",,DatasourceDatabanks,linkageVariable
