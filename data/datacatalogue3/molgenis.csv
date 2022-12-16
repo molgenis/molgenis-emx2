@@ -81,6 +81,7 @@ Data sources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genet
 Data sources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",EMA,Databanks,careSettingOther
 Data sources,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
 Data sources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
+Data sources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,,,
 Data sources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Informed consents,,,,,"If the data bank contains biospecimens, what types of specimen",,,
 Data sources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA,,
 Data sources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA,,
