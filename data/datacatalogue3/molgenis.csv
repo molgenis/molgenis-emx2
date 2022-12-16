@@ -71,7 +71,6 @@ Data sources,,population exit other,text,,,,,,,,,"If other, specify the causes o
 Data sources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",EMA,,
 Data sources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
 Data sources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
-Data sources,,population size,int,,,,,,,,,Total number of unique individuals with records captured in the data source (most recent count).,EMA,,
 Data sources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
 Data sources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,EMA,Databanks,areasOfInformation
