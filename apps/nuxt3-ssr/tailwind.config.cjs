@@ -180,6 +180,8 @@ module.exports = {
         "pagination-hover": "#fff",
         "pagination-label-white": theme("colors.white"),
         "pagination-label-gray": theme("colors.gray.400"),
+
+        "footer-link": theme("colors.blue.50"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
