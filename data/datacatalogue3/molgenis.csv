@@ -57,13 +57,13 @@ Data resources,,number of participants with samples,int,,,,,,,,,Number of indivi
 Data sources,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,,Databanks,underlyingPopulation
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,,,
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
+Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,EMA,Databanks,populationAgeGroups
 Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected,,,
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,,,
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,
 Networks,,end year,int,,,,,,,,,Year when the network ended,,,
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
-Data sources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in the data source? Select all that are relevant.,EMA,Databanks,populationAgeGroups
 Data sources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA,Databanks,populationEntry
 Data sources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA,Databanks,populationEntryOther
 Data sources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
