@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Dashboard {
   private static final Logger logger = LoggerFactory.getLogger(Dashboard.class);
-  private static final String DASHBOARD_SCHEMA = "_catalogue_dashboard";
+  static final String DASHBOARD_SCHEMA = "_catalogue_dashboard";
 
   public Dashboard() {
 
