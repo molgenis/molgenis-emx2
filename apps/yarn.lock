@@ -5475,10 +5475,10 @@ node-releases@^2.0.6:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
   integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
 
-nomnoml@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/nomnoml/-/nomnoml-1.5.2.tgz#efcc4d4e122df25ed7a45eb7e1c2aa9570289141"
-  integrity sha512-e2V59Bosh2a9TcC6mwg65om0xi1OkpwphN55HiFeoAFo1YjI1IsC9MLvhNWJYQdbvc4xULus46SUOYLDebcyFw==
+nomnoml@1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/nomnoml/-/nomnoml-1.5.3.tgz#7410a205fdb154bcff6b63eb31674fc9c3c7038e"
+  integrity sha512-2LBKi3ygeYAC9l/wowgtBRxvQGuTryIczULVk2rFbWGUvs5aX68/sH+WgL95CschnSnxucTIv9L+3xScS71obQ==
   dependencies:
     graphre "^0.1.3"
 
