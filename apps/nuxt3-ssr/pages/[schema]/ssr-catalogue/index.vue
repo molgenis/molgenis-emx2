@@ -153,7 +153,7 @@ let activeName = ref("detailed");
     <template #main>
       <SearchResults>
         <template #header>
-          <NavigationIconsMobile />
+          <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader title="Cohorts" description="Group of individuals sharing a defining demographic characteristic."
             icon="image-link">
             <template #suffix>
