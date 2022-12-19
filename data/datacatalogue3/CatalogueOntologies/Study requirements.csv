@@ -1,4 +1,4 @@
-name,label,description,parent
+name,label,definition,parent
 Required by regulator,,Was the study requested by a regulatory body?,
 Yes,,,Required by regulator
 No,,,Required by regulator
