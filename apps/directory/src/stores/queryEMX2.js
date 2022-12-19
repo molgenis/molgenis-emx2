@@ -15,6 +15,7 @@ class QueryEMX2 {
     limits = {}
     orderings = {}
     search = ''
+    page = {}
 
     /**
      * @param {string} graphqlUrl the endpoint to query
@@ -150,6 +151,17 @@ class QueryEMX2 {
 
     /**
      * @param {string} item the name of the table or the nested column
+     * @param {int} amount the page you want to have starting at 0
+     * @returns 
+     */
+    offset (item, amount) {
+        let columnOrTable = item.toLowerCase() === this.tableName.toLowerCase() ? 'root' : this._toCamelCase(item)
+        this.page[columnOrTable] = amount
+        return this
+    }
+
+    /**
+     * @param {string} item the name of the table or the nested column
      * @param {string} column the name of the column to apply the order to
      * @param {string} direction "asc" or "dsc"
      */
@@ -158,7 +170,7 @@ class QueryEMX2 {
         this.orderings[columnOrTable] = { column, direction }
         return this
     }
-    
+
     /** 
      * Additional function, which does the same as search but might be more semantic
      * @param {any} value searches this value across all columns, can only be applied to the top level table
@@ -336,6 +348,7 @@ ${root}${rootModifier} {\n`;
 
         modifierParts.push(this.search.length && property === 'root' ? `search: "${this.search}"` : '')
         modifierParts.push(this.limits[property] ? `limit: ${this.limits[property]}` : '')
+        modifierParts.push(this.page[property] ? `offset: ${this.page[property]}` : '')
         modifierParts.push(this.orderings[property] ? `orderby: { ${this.orderings[property].column}: ${this.orderings[property].direction.toUpperCase()} }` : '')
         modifierParts.push(this.filters[property] ? `filter: ${this.filters[property]}` : '')
 
