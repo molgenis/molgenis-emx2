@@ -16,6 +16,7 @@ class QueryEMX2 {
     orderings = {}
     search = ''
     page = {}
+    aggregate = false
 
     /**
      * @param {string} graphqlUrl the endpoint to query
@@ -68,11 +69,23 @@ class QueryEMX2 {
             this.selection = columns
         }
 
-        return await request(this.graphqlUrl, this.getQuery())
+        return await request(this.graphqlUrl, this.aggregate ? this.getAggregateQuery() : this.getQuery())
+    }
+    /** Executes the query as aggregate */
+    aggregate () {
+        this.aggregate = true
+        return this
     }
 
     getQuery () {
         return this._createQuery(this.tableName, this.selection)
+    }
+
+    getAggregateQuery () {
+        /** create a hard copy */
+        const aggSelection = Object.assign([], this.selection)
+        aggSelection.push('count')
+        return this._createQuery(`${this.tableName}_agg`, aggSelection)
     }
 
     /**
@@ -302,40 +315,7 @@ ${root}${rootModifier} {\n`;
             }
         }
 
-        /** Recursively generate the output string for the branches and their properties */
-        function generateOutput (branches, indentationLevel, filters) {
-            let indentation = '    '.repeat(indentationLevel);
-
-            /** Add properties first */
-            if (branches.properties) {
-                let properties = branches.properties;
-                for (let propertyName in properties) {
-                    if (properties[propertyName] === true) {
-                        result += `${indentation}${propertyName},\n`;
-                    }
-                }
-
-                result = `${result.substring(0, result.length - 2)}\n`;
-            }
-
-            /** Add the branches and their properties */
-            for (let branchName in branches) {
-                /** continue with the query by adding a comma to the end of the property */
-                let branch = branches[branchName];
-                if (branchName !== 'properties') {
-                    result = `${result.substring(0, result.length - 1)},\n`;
-                    const brancheModifiers = this._generateModifiers(branchName)
-                    /** Only add branches, not properties */
-                    result += `${indentation}${branchName}${brancheModifiers || ''} {\n`;
-
-                    generateOutput(branch, indentationLevel + 1, filters);
-
-                    result += indentation + '}\n';
-                }
-            }
-        }
-
-        generateOutput(branches, 1, this.filters);
+        result = this._generateOutput(branches, 1, this.filters, result);
 
         result += '  }\n}';
 
@@ -373,6 +353,41 @@ ${root}${rootModifier} {\n`;
         this.type = '_and'
 
         return this
+    }
+
+    /** Recursively generate the output string for the branches and their properties */
+    _generateOutput (branches, indentationLevel, filters, result) {
+        let indentation = '    '.repeat(indentationLevel);
+
+        /** Add properties first */
+        if (branches.properties) {
+            let properties = branches.properties;
+            for (let propertyName in properties) {
+                if (properties[propertyName] === true) {
+                    result += `${indentation}${propertyName},\n`;
+                }
+            }
+
+            result = `${result.substring(0, result.length - 2)}\n`;
+        }
+
+        /** Add the branches and their properties */
+        for (let branchName in branches) {
+            /** continue with the query by adding a comma to the end of the property */
+            let branch = branches[branchName];
+            if (branchName !== 'properties') {
+                result = `${result.substring(0, result.length - 1)},\n`;
+                const brancheModifiers = this._generateModifiers(branchName)
+                /** Only add branches, not properties */
+                result += `${indentation}${branchName}${brancheModifiers || ''} {\n`;
+
+                result = this._generateOutput(branch, indentationLevel + 1, filters, result);
+
+                result += indentation + '}\n';
+            }
+        }
+
+        return result
     }
 
     _createPathFromObject (path, properties, requestedColumns = []) {
