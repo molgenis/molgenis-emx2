@@ -6,6 +6,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.*;
 import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
+import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 
 public class SqlSchema implements Schema {
@@ -134,6 +135,15 @@ public class SqlSchema implements Schema {
   @Override
   public Query query(String tableName) {
     return getTable(tableName).query();
+  }
+
+  @Override
+  public List<Row> retrieveSql(String sql) {
+    if (getRoles().contains("Viewer")) {
+      return new SqlRawQueryForSchema(this).executeSql(sql);
+    } else {
+      throw new MolgenisException("No view permissions on this schema");
+    }
   }
 
   @Override
@@ -365,6 +375,9 @@ public class SqlSchema implements Schema {
         targetSchema.getTable(mergeTable.getOldName()).getMetadata().drop();
       }
     }
+
+    // finally update settings
+    targetSchema.getMetadata().setSettings(mergeSchema.getSettings());
   }
 
   public String getName() {
@@ -379,5 +392,9 @@ public class SqlSchema implements Schema {
   @Override
   public Integer getChangesCount() {
     return metadata.getChangesCount();
+  }
+
+  public DSLContext getJooq() {
+    return ((SqlDatabase) getDatabase()).getJooq();
   }
 }

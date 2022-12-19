@@ -66,12 +66,17 @@ export default {
         {
           label: "Schema",
           href: "schema",
-          role: "Manager",
+          role: "Viewer",
         },
         {
           label: "Up/Download",
           href: "updownload",
-          role: "Editor",
+          role: "Viewer",
+        },
+        {
+          label: "Reports",
+          href: "reports",
+          role: "Viewer",
         },
         {
           label: "Graphql",
