@@ -45,6 +45,7 @@ class TransformGeneral:
 
         return template
 
+
 class TransformDataCatalogue:
     """Functions to update catalogue data model from 2.8 to 3.0.
     """
@@ -62,6 +63,7 @@ class TransformDataCatalogue:
         """
         if self.database_type == 'catalogue':
             self.contacts()
+            self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -89,6 +91,13 @@ class TransformDataCatalogue:
         df_contacts_merged.rename(columns={'surname': 'lastName'}, inplace=True)
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
+
+    def identifiers(self):
+        """Move external identifiers to separate table
+        """
+        # get numbers from entry
+        # move to External identifiers.identifier
+        # External identifiers.resource = cohort[5:]
 
     def tables(self):
         """Merge TargetTables and SourceTables and rename columns
