@@ -4,7 +4,10 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-import './assets/main.css'
+/** When in devmode use this stylesheet */
+if (import.meta.env.DEV) {
+    import('./dev-assets/mg-bbmri-eric-4.css')
+}
 
 const app = createApp(App)
 
