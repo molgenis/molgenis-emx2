@@ -7,6 +7,7 @@ A partial view, can be compared to an *organism* in atomic components.
 - Must be able to drop-in anywhere, add the component and your set.
 - It does not take any parameters, v-models or anything like this.
 - It does not emit anything.
+- It needs to use two or more components.
 
 **Naming convention:**
 

@@ -6,9 +6,9 @@ module.exports = {
     'eslint:recommended'
   ],
   rules: {
-    "no-undefined": false
+    "no-undefined": 0
   },
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+}
 }

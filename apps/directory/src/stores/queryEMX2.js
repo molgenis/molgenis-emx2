@@ -14,9 +14,9 @@ class QueryEMX2 {
     branch = 'root'
     limits = {}
     orderings = {}
-    search = ''
+    findInAllColumns = ''
     page = {}
-    aggregate = false
+    aggregateQuery = false
 
     /**
      * @param {string} graphqlUrl the endpoint to query
@@ -69,11 +69,11 @@ class QueryEMX2 {
             this.selection = columns
         }
 
-        return await request(this.graphqlUrl, this.aggregate ? this.getAggregateQuery() : this.getQuery())
+        return await request(this.graphqlUrl, this.aggregateQuery ? this.getAggregateQuery() : this.getQuery())
     }
     /** Executes the query as aggregate */
     aggregate () {
-        this.aggregate = true
+        this.aggregateQuery = true
         return this
     }
 
@@ -189,7 +189,7 @@ class QueryEMX2 {
      * @param {any} value searches this value across all columns, can only be applied to the top level table
      */
     find (value) {
-        this.search = value;
+        this.findInAllColumns = value;
         return this
     }
 
@@ -197,7 +197,7 @@ class QueryEMX2 {
      * @param {any} value searches this value across all columns, can only be applied to the top level table
      */
     search (value) {
-        this.search = value;
+        this.findInAllColumns = value;
         return this
     }
 
@@ -326,7 +326,7 @@ ${root}${rootModifier} {\n`;
     _generateModifiers (property) {
         const modifierParts = []
 
-        modifierParts.push(this.search.length && property === 'root' ? `search: "${this.search}"` : '')
+        modifierParts.push(this.findInAllColumns.length && property === 'root' ? `search: "${this.findInAllColumns}"` : '')
         modifierParts.push(this.limits[property] ? `limit: ${this.limits[property]}` : '')
         modifierParts.push(this.page[property] ? `offset: ${this.page[property]}` : '')
         modifierParts.push(this.orderings[property] ? `orderby: { ${this.orderings[property].column}: ${this.orderings[property].direction.toUpperCase()} }` : '')

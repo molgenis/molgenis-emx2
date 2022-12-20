@@ -15,4 +15,5 @@ const initialCollectionColumns = [
   { label: 'Diagnosis:', column: 'diagnosis_available', type: 'mref', rsql: 'diagnosis_available(label,uri,code)' },
   { label: 'Data use conditions:', column: 'data_use', type: 'mref', rsql: 'data_use(label,uri)' }]
 
-module.exports = initialCollectionColumns
+
+export default initialCollectionColumns
