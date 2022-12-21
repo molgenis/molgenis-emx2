@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -106,7 +107,7 @@ public class ValueToRDF {
   public static Value applyFormatting(Object o, Column column, String schemaContext)
       throws Exception {
     ColumnType columnType = column.getColumnType();
-    IRI XSDType = columnTypeToXSD(columnType);
+    CoreDatatype.XSD XSDType = columnTypeToXSD(columnType);
 
     if (columnType.equals(ColumnType.REF)
         || columnType.equals(ColumnType.REF_ARRAY)
@@ -138,24 +139,25 @@ public class ValueToRDF {
       if (o == null) {
         return null;
       }
-      if (BOOLEAN.equals(XSDType)) {
-        return literal((boolean) o);
-      } else if (DATE.equals(XSDType)) {
-        return literal(TypeUtils.toString(o), XSDType);
-      } else if (DATETIME.equals(XSDType)) {
-        return literal(TypeUtils.toString(o).substring(0, 19), XSDType);
-      } else if (DECIMAL.equals(XSDType)) {
-        return literal(fixDouble(o));
-      } else if (STRING.equals(XSDType)) {
-        return literal(TypeUtils.toString(o));
-      } else if (ANYURI.equals(XSDType)) {
-        return encodedIRI(TypeUtils.toString(o));
-      } else if (INT.equals(XSDType)) {
-        return literal((int) o);
-      } else if (LONG.equals(XSDType)) {
-        return literal(fixLong(o));
-      } else {
-        throw new Exception("XSD type formatting not specified: " + XSDType);
+      switch (XSDType) {
+        case BOOLEAN:
+          return literal((boolean) o);
+        case DATE:
+          return literal(TypeUtils.toString(o), XSDType);
+        case DATETIME:
+          return literal(TypeUtils.toString(o).substring(0, 19), XSDType);
+        case DECIMAL:
+          return literal(fixDouble(o));
+        case STRING:
+          return literal(TypeUtils.toString(o));
+        case ANYURI:
+          return encodedIRI(TypeUtils.toString(o));
+        case INT:
+          return literal((int) o);
+        case LONG:
+          return literal(fixLong(o));
+        default:
+          throw new Exception("XSD type formatting not supported for: " + XSDType);
       }
     }
   }
