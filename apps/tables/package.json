@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "core-js": "3.26.1",
-    "graphql-request": "5.0.0",
+    "graphql-request": "5.1.0",
     "molgenis-components": "*",
-    "vue": "3.2.41",
+    "vue": "3.2.45",
     "vue-router": "4.1.6"
   },
   "devDependencies": {
