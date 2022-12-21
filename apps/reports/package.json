@@ -1,14 +1,13 @@
 {
-  "name": "pages",
+  "name": "reports",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "vite lint"
+    "serve": "vite preview"
   },
   "dependencies": {
-    "@vueup/vue-quill": "^1.0.0",
     "core-js": "3.26.1",
     "graphql-request": "5.1.0",
     "molgenis-components": "*",
@@ -16,12 +15,11 @@
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "3.2.0",
-    "vite": "3.2.5"
+    "vite": "3.2.5",
+    "@vitejs/plugin-vue": "3.2.0"
   },
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ],
-  "license": "LGPL-3.0"
+  ]
 }
