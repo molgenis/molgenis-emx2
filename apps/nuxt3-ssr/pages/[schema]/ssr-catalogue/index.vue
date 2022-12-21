@@ -1,8 +1,14 @@
 <script setup lang="ts">
 const route = useRoute();
+const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
+
 const currentPage = ref(1);
+if (route.query?.page) {
+  const queryPageNumber = Number(route.query?.page)
+  currentPage.value = typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1
+}
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
 let filters = reactive([
@@ -135,6 +141,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 });
 
 function setCurrentPage(pageNumber: number) {
+  router.push({ path: route.path, query: { page: pageNumber } })
   currentPage.value = pageNumber;
 }
 
