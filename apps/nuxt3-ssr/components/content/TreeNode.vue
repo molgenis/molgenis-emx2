@@ -34,7 +34,8 @@ const toggleCollapse = () => {
           {{ node.name }}
         </span>
         <div class="whitespace-nowrap inline-flex items-center">
-          <span v-if="node.children?.length" class="text-gray-400 inline-block ml-1">- {{ node.children.length }}</span>
+          <!-- not feeling cute, might put back later -->
+          <!-- <span v-if="node.children?.length" class="text-gray-400 inline-block ml-1">- {{ node.children.length }}</span> -->
           <div v-if="node.definition" class="inline-block ml-1">
             <CustomTooltip label="Read more" :content="node.definition" />
           </div>
