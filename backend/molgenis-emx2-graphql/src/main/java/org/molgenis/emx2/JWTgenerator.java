@@ -21,12 +21,15 @@ public class JWTgenerator {
   private static MACSigner signer;
   private static JWSVerifier verifier;
 
-  private static void init() {
+  private static void init(Database db) {
     try {
       sharedSecret = null;
       String key =
           (String)
               EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      if (key == null) {
+        key = db.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      }
       if (key != null) {
         // try to parse from environment variable
         sharedSecret = key.getBytes();
@@ -82,7 +85,7 @@ public class JWTgenerator {
     }
     try {
       if (signer == null) {
-        init();
+        init(db);
       }
       // Prepare JWT with claims set
       JWTClaimsSet claimsSet =
@@ -111,7 +114,7 @@ public class JWTgenerator {
     // On the consumer side, parse the JWS and verify its HMAC
     try {
       if (signer == null) {
-        init();
+        init(database);
       }
       SignedJWT signedJWT = SignedJWT.parse(token);
       Date experationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
