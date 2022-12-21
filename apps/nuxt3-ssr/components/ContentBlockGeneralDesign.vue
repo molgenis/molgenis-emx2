@@ -32,10 +32,6 @@ function setData() {
       content: cohort?.designDescription
     },
     {
-      label: "Regions",
-      content: cohort?.regions?.map(r => r.name).join(", ")
-    },
-    {
       label: "Collection type",
       content: cohort?.collectionType
         ? cohort?.collectionType[0].name
@@ -53,6 +49,10 @@ function setData() {
           .map((c) => c.name)
           .join(", ")
         : undefined,
+    },
+    {
+      label: "Regions",
+      content: cohort?.regions?.map(r => r.name).join(", ")
     },
     {
       label: "Number of participants",
