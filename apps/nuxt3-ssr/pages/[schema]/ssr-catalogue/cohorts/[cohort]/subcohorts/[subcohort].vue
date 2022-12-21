@@ -82,6 +82,7 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
     ),
   });
 }
+
 if (subcohort?.countries) {
   items.push({
     label: "Population",
@@ -95,14 +96,6 @@ if (subcohort?.inclusionCriteria) {
     content: subcohort.inclusionCriteria,
   });
 }
-if (subcohort?.comorbidity) {
-  items.push({
-    label: "Comorbidity",
-    content: renderList(subcohort.comorbidity, toName),
-  });
-}
-
-items.sort((a, b) => a.label.localeCompare(b.label));
 
 let ageGroupsTree = [];
 if (subcohort?.ageGroups?.length) {

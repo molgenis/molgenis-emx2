@@ -65,12 +65,7 @@ if (subcohort?.numberOfParticipants) {
     content: subcohort.numberOfParticipants,
   });
 }
-if (subcohort?.ageGroups?.length) {
-  items.push({
-    label: "Age categories",
-    content: renderList(subcohort.ageGroups, toName),
-  });
-}
+
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
     label: "Start/end year: ",
@@ -80,16 +75,32 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
     ),
   });
 }
-if (subcohort?.countries) {
+
+if (subcohort?.ageGroups?.length) {
   items.push({
-    label: "Population",
-    content: renderList(subcohort.countries, toName),
+    label: "Age categories",
+    content: renderList(subcohort.ageGroups, toName),
   });
 }
+
 if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
     content: renderList(subcohort.mainMedicalCondition, toName, toCommaList),
+  });
+}
+
+if (subcohort?.comorbidity) {
+  items.push({
+    label: "Comorbidity",
+    content: renderList(subcohort.comorbidity, toName),
+  });
+}
+
+if (subcohort?.countries) {
+  items.push({
+    label: "Population",
+    content: renderList(subcohort.countries, toName),
   });
 }
 
@@ -99,14 +110,6 @@ if (subcohort?.inclusionCriteria) {
     content: subcohort.inclusionCriteria,
   });
 }
-if (subcohort?.comorbidity) {
-  items.push({
-    label: "Comorbidity",
-    content: renderList(subcohort.comorbidity, toName),
-  });
-}
-
-items.sort((a, b) => a.label.localeCompare(b.label));
 
 // todo add count table ( empty in current test set)
 </script>

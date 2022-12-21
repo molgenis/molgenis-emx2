@@ -57,31 +57,11 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
-if (collectionEvent?.numberOfParticipants) {
-  items.push({
-    label: "Number of participants",
-    content: collectionEvent?.numberOfParticipants,
-  });
-}
-
 if (collectionEvent?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
     content: renderList(collectionEvent?.subcohorts, toName),
   });
-}
-
-if (collectionEvent?.numberOfParticipants?.length) {
-  items.push({
-    label: "Number of participants",
-    value: renderList(collectionEvent?.numberOfParticipants, toName),
-  });
-}
-
-let ageGroupsTree = [];
-if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
-  tocItems.push({ label: "Age categories", id: "age_categories" })
 }
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
@@ -98,16 +78,23 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
+let ageGroupsTree = [];
+if (collectionEvent?.ageGroups?.length) {
+  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
+  tocItems.push({ label: "Age categories", id: "age_categories" })
+}
+
+if (collectionEvent?.numberOfParticipants) {
+  items.push({
+    label: "Number of participants",
+    content: collectionEvent?.numberOfParticipants,
+  });
+}
+
 let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories)
   tocItems.push({ label: "Data categories", id: "data_catagories" })
-}
-
-let areasOfInformationTree = [];
-if (collectionEvent?.areasOfInformation?.length) {
-  areasOfInformationTree = buildOntologyTree(collectionEvent.areasOfInformation)
-  tocItems.push({ label: "Areas of information", id: "areas_of_information" })
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -117,14 +104,18 @@ if (collectionEvent?.sampleCategories?.length) {
   });
 }
 
+let areasOfInformationTree = [];
+if (collectionEvent?.areasOfInformation?.length) {
+  areasOfInformationTree = buildOntologyTree(collectionEvent.areasOfInformation)
+  tocItems.push({ label: "Areas of information", id: "areas_of_information" })
+}
+
 if (collectionEvent?.coreVariables?.length) {
   items.push({
     label: "Core variables",
     content: renderList(collectionEvent?.coreVariables, toName),
   });
 }
-
-items.sort((a, b) => a.label.localeCompare(b.label));
 
 </script>
 

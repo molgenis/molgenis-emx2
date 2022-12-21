@@ -58,28 +58,18 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
-if (collectionEvent?.numberOfParticipants) {
-  items.push({
-    label: "Number of participants",
-    content: collectionEvent?.numberOfParticipants,
-  });
-}
+
 if (collectionEvent?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
     content: renderList(collectionEvent?.subcohorts, toName),
   });
 }
-if (collectionEvent?.numberOfParticipants?.length) {
+
+if (collectionEvent?.numberOfParticipants) {
   items.push({
     label: "Number of participants",
-    value: renderList(collectionEvent?.numberOfParticipants, toName),
-  });
-}
-if (collectionEvent?.ageGroups?.length) {
-  items.push({
-    label: "Age categories",
-    content: renderList(collectionEvent?.ageGroups, toName),
+    content: collectionEvent?.numberOfParticipants,
   });
 }
 
@@ -97,10 +87,10 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-if (collectionEvent?.dataCategories?.length) {
+if (collectionEvent?.ageGroups?.length) {
   items.push({
-    label: "Data Categories",
-    content: renderList(collectionEvent?.dataCategories, toName),
+    label: "Age categories",
+    content: renderList(collectionEvent?.ageGroups, toName),
   });
 }
 
@@ -108,6 +98,13 @@ if (collectionEvent?.areasOfInformation?.length) {
   items.push({
     label: "Areas of information",
     content: renderList(collectionEvent?.areasOfInformation, toName),
+  });
+}
+
+if (collectionEvent?.dataCategories?.length) {
+  items.push({
+    label: "Data Categories",
+    content: renderList(collectionEvent?.dataCategories, toName),
   });
 }
 
@@ -125,7 +122,6 @@ if (collectionEvent?.coreVariables?.length) {
   });
 }
 
-items.sort((a, b) => a.label.localeCompare(b.label));
 </script>
 
 <template>
