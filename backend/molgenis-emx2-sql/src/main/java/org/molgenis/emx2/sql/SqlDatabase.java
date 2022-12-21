@@ -15,6 +15,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,6 +169,18 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
         this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
       }
+
+      String key =
+          (String)
+              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      if (key == null) {
+        key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      }
+      // validate the key, or generate a good one
+      if (key == null || key.getBytes().length <= 32) {
+        key = new RandomString(32).nextString();
+      }
+      this.setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, key);
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
@@ -322,9 +335,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public Database changeSettings(Map<String, String> settings) {
+  public Database setSettings(Map<String, String> settings) {
     if (isAdmin()) {
-      super.changeSettings(settings);
+      super.setSettings(settings);
       MetadataUtils.saveDatabaseSettings(jooq, getSettings());
       // force all sessions to reload
       this.listener.afterCommit();
@@ -332,36 +345,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
     return this;
-  }
-
-  @Override
-  public Database setSetting(String key, String value) {
-    if (isAdmin()) {
-      super.setSetting(key, value);
-      // save the new setting
-      MetadataUtils.saveDatabaseSettings(jooq, getSettings());
-      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
-      // force all sessions to reload
-      this.listener.afterCommit();
-      return this;
-    } else {
-      throw new MolgenisException("Insufficient rights to create database level setting");
-    }
-  }
-
-  @Override
-  public Database removeSetting(String key) {
-    if (isAdmin()) {
-      if (this.getSettings().containsKey(key)) {
-        super.removeSetting(key);
-        MetadataUtils.saveDatabaseSettings(getJooq(), super.getSettings());
-        // force all sessions to reload
-        this.listener.afterCommit();
-      }
-      return this;
-    } else {
-      throw new MolgenisException("Insufficient rights to delete database level setting");
-    }
   }
 
   @Override
