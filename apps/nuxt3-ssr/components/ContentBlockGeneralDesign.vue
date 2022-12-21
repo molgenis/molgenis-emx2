@@ -17,11 +17,11 @@ function setData() {
       label: "Cohort type",
       content: cohort?.type
         ? cohort?.type.map((type: INameObject) => type?.name).join(", ")
-        : "not available",
+        : undefined,
     },
     {
       label: "Design",
-      content: cohort?.design ? cohort?.design.name : "not available",
+      content: cohort?.design ? cohort?.design.name : undefined,
     },
     {
       label: "Design definition",
@@ -39,7 +39,7 @@ function setData() {
       label: "Collection type",
       content: cohort?.collectionType
         ? cohort?.collectionType[0].name
-        : "not available",
+        : undefined,
     },
     {
       label: "Start/End year",
@@ -52,7 +52,7 @@ function setData() {
           .sort((a, b) => a.order - b.order)
           .map((c) => c.name)
           .join(", ")
-        : "",
+        : undefined,
     },
     {
       label: "Number of participants",
