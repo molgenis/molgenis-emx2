@@ -1,7 +1,13 @@
 <script setup lang="ts">
+interface DefinitionListItem {
+  label: string,
+  tooltip?: string,
+  type?: string,
+  content: any
+}
 const { small, items } = withDefaults(
   defineProps<{
-    items: any[];
+    items: DefinitionListItem[];
     small?: boolean;
   }>(),
   {
@@ -15,16 +21,27 @@ const isArray = (value: []) => {
 
 const useGridClasses = "grid md:grid-cols-3 md:gap-2.5";
 const smallClasses = "";
+
+function emptyContent(item: DefinitionListItem) {
+  if (item.content === undefined || item.content === "") {
+    return false
+  } else if (Array.isArray(item.content) && item.content.length === 0) {
+    return false
+  }
+
+  return true
+
+}
 </script>
 
 <template>
   <dl class="grid gap-2.5 text-body-base text-gray-900">
-    <div :class="small ? smallClasses : useGridClasses" v-for="item in items" :key="item.label">
+    <div :class="small ? smallClasses : useGridClasses" v-for="item in items.filter(emptyContent)" :key="item.label">
       <dt class="flex items-start font-bold text-body-base">
         <div class="flex items-center gap-1">
           {{ item.label }}
           <div v-if="item.tooltip">
-            <CustomTooltip label="Lees meer" :content="item.tooltip" />
+            <CustomTooltip label="Read more" :content="item.tooltip" />
           </div>
         </div>
       </dt>

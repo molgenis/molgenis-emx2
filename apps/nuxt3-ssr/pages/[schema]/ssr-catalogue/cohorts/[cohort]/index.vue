@@ -109,6 +109,28 @@ const query = gql`
           }
         }
       }
+      dataAccessConditions {
+        name
+        ontologyTermURI
+        code
+        definition
+      }
+      dataAccessConditionsDescription
+      dataUseConditions {
+        name
+        ontologyTermURI
+        code
+        definition
+      }
+      dataAccessFee
+      releaseDescription
+      documentation {
+        name
+        file {
+          url
+        }
+        url
+      }
     }
   }
 `;
@@ -226,6 +248,11 @@ let tocItems = computed(() => {
   if (cohort?.partners) {
     items.push({ label: "Partners", id: "Partners" });
   }
+
+  if (cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription) {
+    items.push({ label: "Access Conditions", id: "access-conditions" });
+  }
+
   return items;
 });
 </script>
@@ -249,22 +276,27 @@ let tocItems = computed(() => {
     </template>
     <template #main>
       <ContentBlocks v-if="cohort">
+
         <ContentBlockIntro :image="cohort?.logo?.url" :link="cohort?.website"
           :contact="`mailto:${cohort?.contactEmail}`" />
         <ContentBlockDescription id="Description" title="Description" :description="cohort?.description" />
+
         <ContentBlockGeneralDesign id="GeneralDesign" title="General Design" :description="cohort?.designDescription"
           :cohort="cohort" />
         <!-- <ContentBlockAttachedFiles
           id="Files"
           title="Attached Files Generic Example"
         /> -->
+
         <ContentBlockContact v-if="cohort?.contributors" id="Contributors" title="Contact and Contributors"
           :contributors="cohort?.contributors" />
+
         <!-- <ContentBlockVariables
           id="Variables"
           title="Variables &amp; Topics"
           description="Explantation about variables and the functionality seen here."
         /> -->
+
         <ContentBlockData id="AvailableData" title="Available Data &amp; Samples"
           :collectionEvents="cohort?.collectionEvents" />
 
@@ -286,10 +318,24 @@ let tocItems = computed(() => {
 
         <ContentBlockPartners v-if="cohort?.partners" id="Partners" title="Partners" description=""
           :partners="cohort?.partners" />
+
         <ContentBlockNetwork v-if="cohort?.networks" id="Networks" title="Networks"
           description="Networks Explanation about networks from this cohort and the functionality seen here."
           :networks="cohort?.networks" />
+
+        <ContentBlock id="access-conditions" title="Access conditions"
+          :description="cohort?.dataAccessConditionsDescription"
+          v-if="cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription">
+          <DefinitionList :items="[{
+            label: 'Conditions',
+            content: cohort?.dataAccessConditions.map((c) => c.name)
+          }, {
+            label: 'Release',
+            content: cohort?.releaseDescription
+          }]" />
+        </ContentBlock>
+
       </ContentBlocks>
-    </template>
+    </template>f
   </LayoutsDetailPage>
 </template>

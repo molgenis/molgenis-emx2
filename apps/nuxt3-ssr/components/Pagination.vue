@@ -1,7 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup>
 import { computed } from "vue";
-import ContentBlockSubpopulations from "./ContentBlockSubpopulations.vue";
 
 const props = defineProps({
   currentPage: {
