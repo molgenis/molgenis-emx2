@@ -1,4 +1,7 @@
-export const buildOntologyTree = (data: any) => {
+export const buildOntologyTree = (data: { name: string, parent?: {name: string} }[]) => {
+    if (!data || !data.length) {
+        return []
+    }
     const nodes = new Map();
 
     function flattenTree(item: { name: string, parent?: { name: string }, code?: string, order?: number, definition?: string, ontologyTermURI?: string }) {
@@ -40,7 +43,7 @@ export const buildOntologyTree = (data: any) => {
     }
 
     // flatten raw response to list of nodes
-    data.forEach((element: { name: string, children: [] }) => {
+    data.forEach((element: { name: string, parent?: {name: string} }) => {
         flattenTree(element);
     });
 

@@ -11,8 +11,9 @@ const areasOfInformation = collectionEvents?.flatMap(c => c.areasOfInformation).
 </script>
 
 <template>
-  <ContentBlock :title="title" :description="description">
-    <div v-if="collectionEvents" class="grid gap-[45px] mt-7.5">
+  <ContentBlock :title="title" :description="description"
+    v-if="collectionEvents && (dataCategories?.length || sampleCategories?.length || areasOfInformation?.length)">
+    <div class="grid gap-[45px] mt-7.5">
       <ListCollapsible v-if="dataCategories?.length" title="Data categories" :collapse-all="false">
         <ContentOntology :tree="buildOntologyTree(dataCategories)"></ContentOntology>
       </ListCollapsible>
