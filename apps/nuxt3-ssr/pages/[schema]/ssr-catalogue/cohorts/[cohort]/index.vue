@@ -185,7 +185,7 @@ function onSubcohortsLoaded(rows: any) {
       name: subcohort.name,
       description: subcohort.description,
       numberOfParticipants: subcohort.numberOfParticipants,
-      ageGroups: subcohort?.ageGroups
+      ageGroups: !subcohort.ageGroups ? undefined : subcohort?.ageGroups
         .map(topLevelAgeGroup)
         .reduce((ageGroups: any[], ageGroup: { name: string }) => {
           if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
