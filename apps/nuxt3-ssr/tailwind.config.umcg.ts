@@ -82,6 +82,8 @@ module.exports = {
         "pagination-hover": "#fff",
         "pagination-label-white": "#003183",
         "pagination-label-gray": "#003183",
+
+        "footer-link": "#476CA8",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "#FF7D00",

@@ -17,12 +17,22 @@ interface ICohort {
     name: string
     order: number
   }[]
+  regions: {
+    name: string
+    order: number
+  }[]
   numberOfParticipants: number
+  numberOfParticipantsWithSamples?: number
   designDescription: string
   design: {
     definition: string
     name: string
   }
+  designPaper?: {
+    title: string
+    doi: string
+  }[]
+  inclusionCriteria?: string
   collectionEvents: ICollectionEvent[]
   partners: IPartner[]
   contributors: IContributor[]
@@ -92,4 +102,16 @@ interface INetwork {
   name: string
   description?: string
   logo?: IUrlObject
+}
+
+interface ITreeNode {
+  name: string
+  children?: ITreeNode[]
+  parent?: string
+}
+
+interface IOntologyNode extends ITreeNode {
+  code? : string
+  definition?: string
+  ontologyTermURI?: string
 }
