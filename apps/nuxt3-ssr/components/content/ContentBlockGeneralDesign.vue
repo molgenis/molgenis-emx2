@@ -21,11 +21,9 @@ function setData() {
     },
     {
       label: "Design",
-      content: cohort?.design ? cohort?.design.name : undefined,
-    },
-    {
-      label: "Design definition",
-      content: cohort?.design?.definition
+      content: cohort?.design?.definition && cohort?.design?.name ? {
+        value: cohort?.design?.name, tooltip: cohort?.design?.definition
+      } : cohort?.design?.name
     },
     {
       label: "Design description",
@@ -83,6 +81,6 @@ function setData() {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <DefinitionList :items="generalDesign.filter(item => item.content !== undefined)"/>
+    <DefinitionList :items="generalDesign.filter(item => item.content !== undefined)" />
   </ContentBlock>
 </template>

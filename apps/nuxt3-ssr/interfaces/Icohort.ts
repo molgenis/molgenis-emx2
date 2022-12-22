@@ -36,7 +36,10 @@ interface ICohort {
   collectionEvents: ICollectionEvent[]
   partners: IPartner[]
   contributors: IContributor[]
-  networks: INetwork []
+  networks: INetwork[]
+  releaseDescription?: string
+  dataAccessConditionsDescription?: string
+  dataAccessConditions?: {name: string}[]
 }
 
 interface IPartner {

@@ -255,6 +255,24 @@ let tocItems = computed(() => {
 
   return items;
 });
+
+let accessConditionsItems = computed(() => {
+  let items = [];
+  if (cohort?.dataAccessConditions?.length) {
+    items.push({
+      label: 'Conditions',
+      content: cohort.dataAccessConditions.map((c) => c.name)
+    })
+  }
+  if (cohort?.releaseDescription) {
+    items.push({
+      label: 'Release',
+      content: cohort.releaseDescription
+    })
+  }
+
+  return items;
+})
 </script>
 <template>
   <LayoutsDetailPage>
@@ -326,13 +344,7 @@ let tocItems = computed(() => {
         <ContentBlock id="access-conditions" title="Access conditions"
           :description="cohort?.dataAccessConditionsDescription"
           v-if="cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription">
-          <DefinitionList :items="[{
-            label: 'Conditions',
-            content: cohort?.dataAccessConditions.map((c) => c.name)
-          }, {
-            label: 'Release',
-            content: cohort?.releaseDescription
-          }]" />
+          <DefinitionList :items="accessConditionsItems" />
         </ContentBlock>
 
       </ContentBlocks>
