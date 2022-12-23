@@ -234,7 +234,7 @@ function updateSelection(newConditions) {
           <input type="checkbox" :id="item.name" :name="item.name"
             :checked="item.selected === 'complete' || item.selected === 'partial'" @click.stop="toggleSelect(item)"
             :class="{ 'text-yellow-500': (item.selected === 'complete'), 'text-search-filter-group-checkbox': (item.selected !== 'complete') }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border-0" />
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border border-checkbox" />
         </div>
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>

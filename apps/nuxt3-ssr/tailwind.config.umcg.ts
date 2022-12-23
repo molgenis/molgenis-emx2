@@ -71,7 +71,7 @@ module.exports = {
         "search-filter-title": "#003183",
         "search-filter-expand": "#0075FF",
         "search-filter-group-title": "#003183",
-        "search-filter-group-checkbox": "#fff",
+        "search-filter-group-checkbox": "#ccc",
         "search-filter-group-toggle": "#003183",
 
         "tooltip-hover-dark": "#003183",
@@ -102,6 +102,8 @@ module.exports = {
         "search-input": "#CCCCCC",
 
         pagination: "#003183",
+        
+        checkbox: "#ccc",
       }),
       borderRadius: {
         "search-input": "3px",
