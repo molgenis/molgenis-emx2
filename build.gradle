@@ -14,6 +14,7 @@ plugins {
     id 'org.unbroken-dome.helm-publish' version '1.7.0'
     id 'org.unbroken-dome.helm-commands' version '1.7.0'
     id 'com.palantir.docker' version '0.34.0'
+    // id 'com.bmuschko.docker-remote-api' version '9.1.0'
 }
 
 
@@ -114,6 +115,15 @@ docker {
     dockerfile file('Dockerfile')
     files 'apps'
 }
+
+// Import task types
+//import com.bmuschko.gradle.docker.tasks.image.*
+//
+//task buildMyAppImage(type: DockerBuildImage) {
+//    inputDir = file('./apps/nuxt3-ssr')
+//    images.add('molgenis/ssr-catalogue-snapshot:latest')
+//
+//}
 
 def nexusUser = System.getenv('NEXUS_USER') ? System.getenv('NEXUS_USER') : null
 def nexusPassword = System.getenv('NEXUS_PWD') ? System.getenv('NEXUS_PWD') : null

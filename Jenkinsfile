@@ -32,6 +32,7 @@ pipeline {
                 container("java") {
                     sh 'apt update'
                     sh 'apt -y install docker.io'
+                    sh 'apt -y install docker-ce docker-ce-cli containerd.io'
                     sh "git config --global --add safe.directory '*'"
                     sh 'git fetch --depth 100000'
                     sh "git config user.email \"molgenis@gmail.com\""
