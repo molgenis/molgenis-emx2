@@ -9,7 +9,11 @@
       <tbody>
         <tr v-for="task in tasks" :key="task.id">
           <td>
-            <button @click.prevent.stop="$emit('select', task.id)" type="button" class="btn btn-link">
+            <button
+              @click.prevent.stop="$emit('select', task.id)"
+              type="button"
+              class="btn btn-link"
+            >
               {{ task.description }}
             </button>
           </td>
@@ -21,10 +25,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import ITask from './ITask'
+import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import MessageError from "../forms/MessageError.vue";
+import ITask from "./ITask";
 
 export default defineComponent({
   name: "TaskList",

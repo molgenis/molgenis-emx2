@@ -55,22 +55,25 @@
   </LayoutModal>
 </template>
 
-<script>
-import ButtonAlt from "../forms/ButtonAlt.vue";
-import InputString from "../forms/InputString.vue";
-import InputPassword from "../forms/InputPassword.vue";
-import MessageError from "../forms/MessageError.vue";
-import MessageSuccess from "../forms/MessageSuccess.vue";
-import LayoutForm from "../forms/FormMolgenis.vue";
-import LayoutModal from "../layout/LayoutModal.vue";
-import ButtonSubmit from "../forms/ButtonSubmit.vue";
-import InputCheckbox from "../forms/InputCheckbox.vue";
+<script lang="ts">
+import { error } from "console";
+import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { privacyConstants } from "../constants.js";
+import ButtonAlt from "../forms/ButtonAlt.vue";
+import ButtonSubmit from "../forms/ButtonSubmit.vue";
+import LayoutForm from "../forms/FormMolgenis.vue";
+import InputCheckbox from "../forms/InputCheckbox.vue";
+import InputPassword from "../forms/InputPassword.vue";
+import InputString from "../forms/InputString.vue";
+import MessageError from "../forms/MessageError.vue";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import { IResponse, ISetting } from "./Interfaces";
 
 const { POLICY_TEXT_KEY } = privacyConstants;
 
-export default {
+export default defineComponent({
   name: "MolgenisSignin",
   components: {
     ButtonAlt,
@@ -85,13 +88,14 @@ export default {
   },
   data: function () {
     return {
-      email: null,
-      password: null,
-      error: null,
-      success: null,
+      email: null as string | null,
+      password: null as string | null,
+      error: null as string | null,
+      success: null as string | null,
+      loading: false,
       userAgrees: [],
       privacyPolicyLabel: "Agree with privacy policy",
-      privacyPolicy: "",
+      privacyPolicy: "" as string | undefined,
       isPrivacyPolicyEnabled: false,
       privacyError: "Please agree with the privacy policy",
     };
@@ -112,19 +116,26 @@ export default {
           "/api/graphql",
           `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
-          .then((data) => {
-            if (data.signin.status === "SUCCESS") {
-              this.success = "Signed in with " + this.email;
-              this.$emit("signin", this.email);
-            } else this.error = data.signin.message;
-          })
+          .then(
+            (data: {
+              signin: {
+                status: string;
+                message: string;
+              };
+            }) => {
+              if (data.signin.status === "SUCCESS") {
+                this.success = "Signed in with " + this.email;
+                this.$emit("signin", this.email);
+              } else this.error = data.signin.message;
+            }
+          )
           .catch(
             (error) => (this.error = "internal server graphqlError" + error)
           );
         this.loading = false;
       }
     },
-    onSignInFailed(msg) {
+    onSignInFailed(msg: string) {
       this.error = msg;
       this.$emit("signInFailed", this.email);
     },
@@ -133,16 +144,21 @@ export default {
       this.$emit("cancel");
     },
     async fetchPrivacyPolicy() {
-      const response = await request("graphql", `{_settings{key, value}}`);
+      const response: IResponse = await request(
+        "graphql",
+        `{_settings{key, value}}`
+      );
 
       const policyData = response._settings.find(
-        (item) => item.key === POLICY_TEXT_KEY
+        (item: ISetting) => item.key === POLICY_TEXT_KEY
       );
       this.privacyPolicy = policyData?.value;
 
-      const policyEnabledSettings = response._settings.find((item) => {
-        return item.key === "isPrivacyPolicyEnabled";
-      });
+      const policyEnabledSettings = response._settings.find(
+        (item: ISetting) => {
+          return item.key === "isPrivacyPolicyEnabled";
+        }
+      );
       this.isPrivacyPolicyEnabled = policyEnabledSettings?.value === "true";
     },
   },
@@ -150,14 +166,14 @@ export default {
     async show(newValue) {
       if (newValue === true) await this.$nextTick();
       // set focus on email input to enable submit action
-      this.$refs.email.$el.children[1].focus();
+      (this.$refs as any).email.$el.children[1].focus();
     },
   },
-  emits: ["cancel", "signInFailed", "siginin"],
+  emits: ["cancel", "signInFailed", "signin"],
   mounted() {
     this.fetchPrivacyPolicy();
   },
-};
+});
 </script>
 
 <docs>
