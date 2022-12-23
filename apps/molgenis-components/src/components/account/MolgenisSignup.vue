@@ -12,12 +12,29 @@
     <template v-slot:body>
       <LayoutForm>
         <MessageError v-if="error">{{ error }}</MessageError>
-        <InputString id="signup-email" v-model="email" label="Email address" placeholder="Enter valid email address"
-          description="Please enter your email address" />
-        <InputPassword id="signup-password" v-model="password" label="Password" placeholder="Enter password"
-          description="Please enter the password" @enterPressed="signup" />
-        <InputPassword id="signup-password-repeat" v-model="passwordRepeat" label="Password Repeat"
-          placeholder="Enter password" description="Please enter the password again" @enterPressed="signup" />
+        <InputString
+          id="signup-email"
+          v-model="email"
+          label="Email address"
+          placeholder="Enter valid email address"
+          description="Please enter your email address"
+        />
+        <InputPassword
+          id="signup-password"
+          v-model="password"
+          label="Password"
+          placeholder="Enter password"
+          description="Please enter the password"
+          @enterPressed="signup"
+        />
+        <InputPassword
+          id="signup-password-repeat"
+          v-model="passwordRepeat"
+          label="Password Repeat"
+          placeholder="Enter password"
+          description="Please enter the password again"
+          @enterPressed="signup"
+        />
       </LayoutForm>
     </template>
     <template v-slot:footer>
@@ -40,7 +57,6 @@ import Spinner from "../layout/Spinner.vue";
 
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
-import { AxiosError } from "axios";
 
 export default defineComponent({
   components: {

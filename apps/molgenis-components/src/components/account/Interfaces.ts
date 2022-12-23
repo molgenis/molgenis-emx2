@@ -2,7 +2,7 @@ export interface ISession {
   email?: string;
   roles?: string[];
   schemas?: any;
-  settings?: Record<string, string>;
+  settings?: ISetting[] | Record<string, string>;
   manifest?: IManifest;
   token?: string;
 }

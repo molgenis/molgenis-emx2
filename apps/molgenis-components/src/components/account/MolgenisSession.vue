@@ -4,18 +4,38 @@
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
         <ButtonAlt @click="showChangePasswordForm = true" class="text-light">
-          Hi {{ session.email }}</ButtonAlt>&nbsp;
-        <MolgenisAccount v-if="showChangePasswordForm" :error="error" @cancel="showChangePasswordForm = false" />
+          Hi {{ session.email }}</ButtonAlt
+        >&nbsp;
+        <MolgenisAccount
+          v-if="showChangePasswordForm"
+          :error="error"
+          @cancel="showChangePasswordForm = false"
+        />
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
-          Sign in</ButtonOutline>
+          Sign in</ButtonOutline
+        >
         <ButtonOutline v-else @click="showSigninForm = true" :light="true">
-          Sign in</ButtonOutline>
-        <MolgenisSignin v-if="showSigninForm" @signin="changed" @cancel="closeSigninForm" />
-        <ButtonAlt v-show="!isOidcEnabled" @click="showSignupForm = true" :light="true">Sign up</ButtonAlt>
-        <SignupForm v-if="showSignupForm" :error="error" @close="closeSignupForm" />
+          Sign in</ButtonOutline
+        >
+        <MolgenisSignin
+          v-if="showSigninForm"
+          @signin="changed"
+          @cancel="closeSigninForm"
+        />
+        <ButtonAlt
+          v-show="!isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
+          >Sign up</ButtonAlt
+        >
+        <SignupForm
+          v-if="showSignupForm"
+          :error="error"
+          @close="closeSignupForm"
+        />
       </span>
     </div>
   </div>
@@ -30,7 +50,7 @@ import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import { error } from "console";
 import { defineComponent } from "vue";
-import { request } from "../../client/client";
+import { request } from "../../client/client.js";
 import { IReason, IResponse, ISession, ISetting } from "./Interfaces";
 
 const query = `{
@@ -116,7 +136,6 @@ export default defineComponent({
         this.session = {};
       }
       //convert settings to object
-      this.session.settings = {};
       if (dbSettings && dbSettings._settings) {
         this.loadSettings(dbSettings);
         this.session.manifest = dbSettings._manifest;
