@@ -4,6 +4,7 @@
   "compilerOptions": {
     "strict": true,
     "isolatedModules": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": ["vite/client"]
   }
 }
