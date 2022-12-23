@@ -4,32 +4,17 @@
       <a class="navbar-brand" href="#">Aggregate</a>
       <ul class="navbar-nav mr-auto">
         <li>
-          <InputSelect
-            class="m-0 mr-2"
-            id="column-select"
-            :valueModel="selectedColumnHeader"
-            :options="columnHeaderProperties"
-            @update:modelValue="fetchData"
-          />
+          <InputSelect class="m-0 mr-2" id="column-select" :valueModel="selectedColumnHeader"
+            :options="columnHeaderProperties" @update:modelValue="fetchData" />
         </li>
         <li>
-          <InputSelect
-            class="m-0"
-            id="row-select"
-            v-model="selectedRowHeader"
-            :options="rowHeaderProperties"
-            @update:modelValue="fetchData"
-          />
+          <InputSelect class="m-0" id="row-select" v-model="selectedRowHeader" :options="rowHeaderProperties"
+            @update:modelValue="fetchData" />
         </li>
       </ul>
     </nav>
     <Spinner v-if="loading" class="m-3" />
-    <TableStickyHeaders
-      v-else
-      :columns="columns"
-      :rows="rows"
-      :data="aggregateData"
-    >
+    <TableStickyHeaders v-else :columns="columns" :rows="rows" :data="aggregateData">
       <template #column="columnProps">
         {{ columnProps.value }}
       </template>
@@ -45,11 +30,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { request } from "../../client/client.js";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import IAggregateData from "./IAggregateData";
 
-export default {
+export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders },
   props: {
@@ -102,9 +89,9 @@ export default {
       selectedColumnHeader: this.selectedColumnHeaderProperty,
       selectedRowHeader: this.selectedRowHeaderProperty,
       loading: true,
-      rows: [],
-      columns: [],
-      aggregateData: {},
+      rows: [] as string[],
+      columns: [] as string[],
+      aggregateData: {} as IAggregateData,
     };
   },
   computed: {
@@ -126,9 +113,9 @@ export default {
     },
   },
   methods: {
-    addItem(item) {
-      const column = item[this.selectedColumnHeader].name || "not specified";
-      const row = item[this.selectedRowHeader].name || "not specified";
+    addItem(item: any) {
+      const column: string = item[this.selectedColumnHeader].name || "not specified";
+      const row: string = item[this.selectedRowHeader].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -156,14 +143,14 @@ export default {
         this.$emit("error", reason);
       });
 
-      responseData[this.tableName].forEach((item) => this.addItem(item));
+      responseData[this.tableName].forEach((item: any) => this.addItem(item));
       this.loading = false;
     },
   },
   created() {
     this.fetchData();
   },
-};
+});
 </script>
 
 <docs>
