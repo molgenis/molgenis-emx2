@@ -1,71 +1,31 @@
 <template>
   <FormGroup v-bind="$props">
     <Spinner v-if="isLoading" />
-    <TableMolgenis
-      v-else-if="refTablePrimaryKeyObject"
-      :data="data"
-      :columns="visibleColumns"
-      :table-metadata="tableMetadata"
-      style="overflow-x: scroll"
-    >
+    <TableMolgenis v-else-if="refTablePrimaryKeyObject" :data="data" :columns="visibleColumns"
+      :table-metadata="tableMetadata" style="overflow-x: scroll">
       <template v-slot:rowcolheader>
-        <slot
-          name="rowcolheader"
-          v-bind="$props"
-          :canEdit="canEdit"
-          :reload="reload"
-          :grapqlURL="graphqlURL"
-        />
-        <RowButton
-          v-if="canEdit"
-          type="add"
-          @add="handleRowAction('add')"
-          class="d-inline p-0"
-        />
+        <slot name="rowcolheader" v-bind="$props" :canEdit="canEdit" :reload="reload" :grapqlURL="graphqlURL" />
+        <RowButton v-if="canEdit" type="add" @add="handleRowAction('add')" class="d-inline p-0" />
       </template>
       <template v-slot:rowheader="slotProps">
-        <slot
-          name="rowheader"
-          :row="slotProps.row"
-          :metadata="tableMetadata"
-          :rowkey="slotProps.rowkey"
-        />
-        <RowButton
-          v-if="canEdit"
-          type="edit"
-          :table="tableName"
-          :graphqlURL="graphqlURL"
-          :visible-columns="visibleColumnNames"
-          :refTablePrimaryKeyObject="
+        <slot name="rowheader" :row="slotProps.row" :metadata="tableMetadata" :rowkey="slotProps.rowkey" />
+        <RowButton v-if="canEdit" type="edit" :table="tableName" :graphqlURL="graphqlURL"
+          :visible-columns="visibleColumnNames" :refTablePrimaryKeyObject="
             getPrimaryKey(slotProps.row, tableMetadata)
-          "
-          @close="reload"
-          @edit="
-            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-          "
-        />
-        <RowButton
-          v-if="canEdit"
-          type="clone"
-          :table="tableName"
-          :graphqlURL="graphqlURL"
-          :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
-          :visible-columns="visibleColumnNames"
-          :default-value="defaultValue"
-          @clone="
+          " @close="reload" @edit="
+  handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
+" />
+        <RowButton v-if="canEdit" type="clone" :table="tableName" :graphqlURL="graphqlURL"
+          :pkey="getPrimaryKey(slotProps.row, tableMetadata)" :visible-columns="visibleColumnNames"
+          :default-value="defaultValue" @clone="
             handleRowAction(
               'clone',
               getPrimaryKey(slotProps.row, tableMetadata)
             )
-          "
-        />
-        <RowButton
-          v-if="canEdit"
-          type="delete"
-          @delete="
-            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-          "
-        />
+          " />
+        <RowButton v-if="canEdit" type="delete" @delete="
+          handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
+        " />
       </template>
     </TableMolgenis>
     <MessageWarning v-else>
@@ -73,34 +33,18 @@
     </MessageWarning>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
 
-    <EditModal
-      v-if="isEditModalShown"
-      :isModalShown="true"
-      :id="tableName + '-edit-modal'"
-      :tableName="tableName"
-      :pkey="editRowPrimaryKey"
-      :visibleColumns="visibleColumns"
-      :clone="editMode === 'clone'"
-      :graphqlURL="graphqlURL"
-      :defaultValue="defaultValue"
-      @close="handleModalClose"
-    />
+    <EditModal v-if="isEditModalShown" :isModalShown="true" :id="tableName + '-edit-modal'" :tableName="tableName"
+      :pkey="editRowPrimaryKey" :visibleColumns="visibleColumns" :clone="editMode === 'clone'" :graphqlURL="graphqlURL"
+      :defaultValue="defaultValue" @close="handleModalClose" />
 
-    <ConfirmModal
-      v-if="isDeleteModalShown"
-      :title="'Delete from ' + tableName"
-      actionLabel="Delete"
-      actionType="danger"
-      :tableName="tableName"
-      :pkey="editRowPrimaryKey"
-      @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete"
-    />
+    <ConfirmModal v-if="isDeleteModalShown" :title="'Delete from ' + tableName" actionLabel="Delete" actionType="danger"
+      :tableName="tableName" :pkey="editRowPrimaryKey" @close="isDeleteModalShown = false"
+      @confirmed="handleExecuteDelete" />
   </FormGroup>
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";
@@ -109,7 +53,7 @@ import MessageWarning from "./MessageWarning.vue";
 import MessageError from "./MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import ConfirmModal from "./ConfirmModal.vue";
-import { getPrimaryKey,convertToCamelCase } from "../utils";
+import { getPrimaryKey, convertToCamelCase } from "../utils";
 
 export default {
   name: "InputRefBack",

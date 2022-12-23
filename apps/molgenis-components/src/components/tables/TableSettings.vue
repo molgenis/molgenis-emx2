@@ -13,20 +13,10 @@
           <tt>{{ row.name }}</tt>
           will get the 'name' column
         </p>
-        <InputText
-          id="table-settings-card-template"
-          name="cardTemplate"
-          label="cardTemplate"
-          :modelValue="cardTemplate"
-          @update:modelValue="emitCardTemplate"
-        />
-        <InputText
-          id="table-settings-record-template"
-          name="recordTemplate"
-          label="recordTemplate"
-          :modelValue="recordTemplate"
-          @update:modelValue="emitRecordTemplate"
-        />
+        <InputText id="table-settings-card-template" name="cardTemplate" label="cardTemplate" :modelValue="cardTemplate"
+          @update:modelValue="emitCardTemplate" />
+        <InputText id="table-settings-record-template" name="recordTemplate" label="recordTemplate"
+          :modelValue="recordTemplate" @update:modelValue="emitRecordTemplate" />
         <ButtonAlt @click="show = false">Close</ButtonAlt>
         <ButtonAction @click="saveSettings">Save settings</ButtonAction>
       </form>
@@ -35,7 +25,7 @@
 </template>
 
 <script>
-import {request} from "../../client/client.js";
+import { request } from "../../client/client.ts";
 import IconAction from "../forms/IconAction.vue";
 import InputText from "../forms/InputText.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
@@ -62,7 +52,7 @@ export default {
       type: String,
       default: "graphql",
     },
-    tableMetadata: {type: Object, required: true}
+    tableMetadata: { type: Object, required: true }
   },
   data() {
     return {
@@ -82,28 +72,28 @@ export default {
   },
   methods: {
     emitCardTemplate(value) {
-      if(!this.tableMetadata.settings) {
+      if (!this.tableMetadata.settings) {
         this.tableMetadata.settings = [];
       }
       //remove old
       this.tableMetadata.settings = this.tableMetadata.settings.filter(setting => setting.key !== "cardTemplate");
       //set new
-      this.tableMetadata.settings.push({key:"cardTemplate", value: value});
+      this.tableMetadata.settings.push({ key: "cardTemplate", value: value });
     },
     emitRecordTemplate(value) {
-      if(!this.tableMetadata.settings) {
+      if (!this.tableMetadata.settings) {
         this.tableMetadata.settings = [];
       }
       //remove old
       this.tableMetadata.settings = this.tableMetadata.settings.filter(setting => setting.key !== "recordTemplate");
       //set new
-      this.tableMetadata.settings.push({key:"recordTemplate", value: value});
+      this.tableMetadata.settings.push({ key: "recordTemplate", value: value });
     },
     async saveSettings() {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
-      const resp = await request(this.graphqlURL, `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, {tables:[this.tableMetadata]})
+      const resp = await request(this.graphqlURL, `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, { tables: [this.tableMetadata] })
         .catch((error) => {
           this.graphqlError = error.errors[0].message;
         });
@@ -113,10 +103,10 @@ export default {
     },
   },
   created() {
-    if(this.tableMetadata && !this.tableMetadata.settings) {
+    if (this.tableMetadata && !this.tableMetadata.settings) {
       this.tableMetadata.settings = []
     }
   },
-  emits:["update:settings"]
+  emits: ["update:settings"]
 };
 </script>

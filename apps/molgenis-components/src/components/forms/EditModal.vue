@@ -2,42 +2,16 @@
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
       <div class="d-flex" v-if="loaded && tableMetaData">
-        <EditModalWizard
-          v-if="useChapters"
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
-          :visibleColumns="visibleColumns"
-          :clone="clone"
-          :page="currentPage"
-          @setPageCount="pageCount = $event"
-          class="flex-grow-1"
-        />
-        <RowEdit
-          v-else
-          :id="id"
-          v-model="rowData"
-          :pkey="pkey"
-          :tableName="tableName"
-          :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
-          :visibleColumns="visibleColumns"
-          :clone="clone"
-          class="flex-grow-1"
-        />
+        <EditModalWizard v-if="useChapters" :id="id" v-model="rowData" :pkey="pkey" :tableName="tableName"
+          :tableMetaData="tableMetaData" :graphqlURL="graphqlURL" :visibleColumns="visibleColumns" :clone="clone"
+          :page="currentPage" @setPageCount="pageCount = $event" class="flex-grow-1" />
+        <RowEdit v-else :id="id" v-model="rowData" :pkey="pkey" :tableName="tableName" :tableMetaData="tableMetaData"
+          :graphqlURL="graphqlURL" :visibleColumns="visibleColumns" :clone="clone" class="flex-grow-1" />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
-            <button
-              type="button"
-              class="btn btn-link"
-              :title="heading"
-              :class="{ 'font-weight-bold': index + 1 === currentPage }"
-              @click="setCurrentPage(index + 1)"
-            >
+            <button type="button" class="btn btn-link" :title="heading"
+              :class="{ 'font-weight-bold': index + 1 === currentPage }" @click="setCurrentPage(index + 1)">
               {{ heading }}
             </button>
           </div>
@@ -45,29 +19,15 @@
       </div>
     </template>
     <template #footer>
-      <RowEditFooter
-        :id="id + '-footer'"
-        :tableName="tableName"
-        :errorMessage="errorMessage"
-        :isSaveDisabled="isSaveDisabled"
-        @cancel="handleClose"
-        @saveDraft="handleSaveDraftRequest"
-        @save="handleSaveRequest"
-      >
+      <RowEditFooter :id="id + '-footer'" :tableName="tableName" :errorMessage="errorMessage"
+        :isSaveDisabled="isSaveDisabled" @cancel="handleClose" @saveDraft="handleSaveDraftRequest"
+        @save="handleSaveRequest">
         <div class="mr-auto">
           <div v-if="pageCount > 1">
-            <ButtonAction
-              @click="setCurrentPage(currentPage - 1)"
-              :disabled="currentPage <= 1"
-              class="mr-2 pr-3"
-            >
+            <ButtonAction @click="setCurrentPage(currentPage - 1)" :disabled="currentPage <= 1" class="mr-2 pr-3">
               <i :class="'fas fa-fw fa-chevron-left'" /> Previous
             </ButtonAction>
-            <ButtonAction
-              @click="setCurrentPage(currentPage + 1)"
-              :disabled="currentPage >= pageCount"
-              class="pl-3"
-            >
+            <ButtonAction @click="setCurrentPage(currentPage + 1)" :disabled="currentPage >= pageCount" class="pl-3">
               Next <i :class="'fas fa-fw fa-chevron-right'" />
             </ButtonAction>
           </div>
@@ -78,13 +38,13 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone } from "../utils.js";
+import { filterObject, deepClone } from "../utils.ts";
 import constants from "../constants";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;

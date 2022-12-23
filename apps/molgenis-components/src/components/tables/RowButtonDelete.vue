@@ -1,23 +1,15 @@
 <template>
   <span>
     <RowButton type="delete" @delete="isModalShown = true" />
-    <ConfirmModal
-      v-if="isModalShown"
-      :title="'Delete from ' + tableName"
-      actionLabel="Delete"
-      actionType="danger"
-      :tableName="tableName"
-      :pkey="pkey"
-      @close="handleClose"
-      @confirmed="handleExecuteDelete"
-    />
+    <ConfirmModal v-if="isModalShown" :title="'Delete from ' + tableName" actionLabel="Delete" actionType="danger"
+      :tableName="tableName" :pkey="pkey" @close="handleClose" @confirmed="handleExecuteDelete" />
   </span>
 </template>
 
 <script>
 import RowButton from "./RowButton.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 
 export default {
   name: "RowButtonDelete",
@@ -62,7 +54,7 @@ export default {
         .catch((error) => {
           const errorMessage =
             error?.response?.data?.errors &&
-            Array.isArray(error?.response?.data?.errors)
+              Array.isArray(error?.response?.data?.errors)
               ? error.response.data.errors[0].message
               : "Failed to delete row data from table ";
 

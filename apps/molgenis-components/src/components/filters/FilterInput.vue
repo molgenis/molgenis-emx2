@@ -1,27 +1,14 @@
 <template>
   <div>
     <div v-if="isMultiConditionFilter">
-      <component
-          :is="filterType"
-          :id="id"
-          :condition="conditions"
-          @updateCondition="updateCondition(index - 1, $event)"
-          :tableName="tableName"
-          :graphqlURL="graphqlURL"
-      ></component>
-   </div>
+      <component :is="filterType" :id="id" :condition="conditions" @updateCondition="updateCondition(index - 1, $event)"
+        :tableName="tableName" :graphqlURL="graphqlURL"></component>
+    </div>
     <div v-else v-for="index in fieldCount" :key="index">
-      <component
-        :is="filterType"
-        :id="id + index"
-        :condition="conditions[index - 1]"
-        @updateCondition="updateCondition(index - 1, $event)"
-        @clearCondition="clearCondition(index - 1)"
-        @addCondition="fieldCount++"
-        :showAddButton="index === conditions.length"
-        :tableName="tableName"
-        :graphqlURL="graphqlURL"
-      ></component>
+      <component :is="filterType" :id="id + index" :condition="conditions[index - 1]"
+        @updateCondition="updateCondition(index - 1, $event)" @clearCondition="clearCondition(index - 1)"
+        @addCondition="fieldCount++" :showAddButton="index === conditions.length" :tableName="tableName"
+        :graphqlURL="graphqlURL"></component>
     </div>
   </div>
 </template>
@@ -37,7 +24,7 @@ import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
 import LongFilter from "./LongFilter.vue";
-import { deepClone } from "../utils.js";
+import { deepClone } from "../utils.ts";
 
 const filterTypeMap = {
   STRING: StringFilter,

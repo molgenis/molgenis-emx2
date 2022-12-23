@@ -1,75 +1,34 @@
 <template>
-  <FormGroup
-    :id="id"
-    :label="label"
-    :required="required"
-    :description="description"
-    :errorMessage="errorMessage"
-  >
+  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
     <div>
       <div>
-        <ButtonAlt
-          v-if="modelValue !== null"
-          class="pl-1"
-          icon="fa fa-clear"
-          @click="clearValue"
-        >
+        <ButtonAlt v-if="modelValue !== null" class="pl-1" icon="fa fa-clear" @click="clearValue">
           clear selection
         </ButtonAlt>
       </div>
-      <div
-        :class="
-          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-        "
-      >
-        <div
-          class="form-check custom-control custom-checkbox"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          v-for="(row, index) in data"
-          :key="index"
-        >
-          <input
-            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-            :name="id"
-            type="radio"
-            :value="getPrimaryKey(row, tableMetaData)"
-            :checked="isSelected(row)"
-            @change="
+      <div :class="
+        showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
+      ">
+        <div class="form-check custom-control custom-checkbox"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" v-for="(row, index) in data" :key="index">
+          <input :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`" :name="id" type="radio"
+            :value="getPrimaryKey(row, tableMetaData)" :checked="isSelected(row)" @change="
               $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            "
-            class="form-check-input"
-            :class="{ 'is-invalid': errorMessage }"
-          />
-          <label
-            class="form-check-label"
-            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
-          >
+            " class="form-check-input" :class="{ 'is-invalid': errorMessage }" />
+          <label class="form-check-label" :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
-        <ButtonAlt
-          class="pl-0"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
-          icon="fa fa-search"
-          @click="openSelect"
-        >
+        <ButtonAlt class="pl-0" :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" icon="fa fa-search"
+          @click="openSelect">
           {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
-          <TableSearch
-            :selection="[modelValue]"
-            :lookupTableName="tableName"
-            :filter="filter"
-            @select="select($event)"
-            @deselect="clearValue"
-            @close="loadOptions"
-            :graphqlURL="graphqlURL"
-            :showSelect="true"
-            :limit="10"
-            :canEdit="canEdit"
-          />
+          <TableSearch :selection="[modelValue]" :lookupTableName="tableName" :filter="filter" @select="select($event)"
+            @deselect="clearValue" @close="loadOptions" :graphqlURL="graphqlURL" :showSelect="true" :limit="10"
+            :canEdit="canEdit" />
         </template>
         <template v-slot:footer>
           <ButtonAlt @click="closeSelect">Close</ButtonAlt>
@@ -80,7 +39,7 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
@@ -104,7 +63,7 @@ export default {
     },
     filter: Object,
     multipleColumns: Boolean,
-    itemsPerColumn: {type: Number, default: 12},
+    itemsPerColumn: { type: Number, default: 12 },
     maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
@@ -165,7 +124,7 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      if(this.filter) {
+      if (this.filter) {
         options.filter = this.filter;
       }
       const response = await this.client.fetchTableData(

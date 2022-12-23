@@ -2,76 +2,32 @@
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div v-else style="text-align: center">
-      <form
-        v-if="showHeaderIfNeeded"
-        class="form-inline justify-content-between mb-2 bg-white"
-      >
-        <InputSearch
-          id="input-search"
-          v-if="lookupTableIdentifier"
-          v-model="searchTerms"
-        />
+      <form v-if="showHeaderIfNeeded" class="form-inline justify-content-between mb-2 bg-white">
+        <InputSearch id="input-search" v-if="lookupTableIdentifier" v-model="searchTerms" />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
       <div v-else>
-        <TableMolgenis
-          :selection="selection"
-          :tableMetadata="tableMetadata"
-          :columns="columnsVisible"
-          :data="data"
-          :showSelect="showSelect"
-          @update:selection="$emit('update:selection', $event)"
-          @select="select"
-          @deselect="deselect"
-        >
+        <TableMolgenis :selection="selection" :tableMetadata="tableMetadata" :columns="columnsVisible" :data="data"
+          :showSelect="showSelect" @update:selection="$emit('update:selection', $event)" @select="select"
+          @deselect="deselect">
           <template v-slot:header>
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
-            <RowButtonAdd
-              v-if="canEdit"
-              :id="'row-button-add-' + lookupTableName"
-              :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
-              @close="loadData"
-              class="d-inline p-0"
-            />
+            <RowButtonAdd v-if="canEdit" :id="'row-button-add-' + lookupTableName" :tableName="lookupTableName"
+              :graphqlURL="graphqlURL" @close="loadData" class="d-inline p-0" />
           </template>
           <template v-slot:colheader="slotProps">
-            <slot
-              name="colheader"
-              v-bind="$props"
-              :canEdit="canEdit"
-              :reload="loadData"
-              :grapqlURL="graphqlURL"
-            />
+            <slot name="colheader" v-bind="$props" :canEdit="canEdit" :reload="loadData" :grapqlURL="graphqlURL" />
           </template>
           <template v-slot:rowheader="slotProps">
-            <slot
-              name="rowheader"
-              :row="slotProps.row"
-              :metadata="tableMetadata"
-              :rowkey="slotProps.rowkey"
-            />
-             <RowButtonEdit
-              v-if="canEdit"
-              :id="'row-button-edit-' + lookupTableName"
-              :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
-              :pkey="slotProps.rowkey"
-              @close="loadData"
-              class="text-left"
-            />
-            <RowButtonDelete
-              v-if="canEdit"
-              :id="'row-button-del-' + lookupTableName"
-              :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
-              :pkey="slotProps.rowkey"
-              @close="loadData"
-            />
+            <slot name="rowheader" :row="slotProps.row" :metadata="tableMetadata" :rowkey="slotProps.rowkey" />
+            <RowButtonEdit v-if="canEdit" :id="'row-button-edit-' + lookupTableName" :tableName="lookupTableName"
+              :graphqlURL="graphqlURL" :pkey="slotProps.rowkey" @close="loadData" class="text-left" />
+            <RowButtonDelete v-if="canEdit" :id="'row-button-del-' + lookupTableName" :tableName="lookupTableName"
+              :graphqlURL="graphqlURL" :pkey="slotProps.rowkey" @close="loadData" />
           </template>
         </TableMolgenis>
       </div>
@@ -85,11 +41,11 @@ import MessageError from "../forms/MessageError.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
-import {convertToPascalCase} from "../utils";
+import { convertToPascalCase } from "../utils";
 
 
 export default {

@@ -5,19 +5,9 @@
     <h5>Table data for: {{ tableName }}</h5>
     <div class="form-group">
       <label for="filterInput">filter</label>
-      <input
-        v-model="filter"
-        id="filterInput"
-        class="form-control"
-        type="text"
-      />
+      <input v-model="filter" id="filterInput" class="form-control" type="text" />
       <label for="filterInput">orderby</label>
-      <input
-        v-model="orderby"
-        id="filterInput"
-        class="form-control"
-        type="text"
-      />
+      <input v-model="orderby" id="filterInput" class="form-control" type="text" />
     </div>
     <p>{{ tableData }}</p>
 
@@ -27,7 +17,7 @@
 </template>
 
 <script>
-import Client from "./client/client.js";
+import Client from "./client/client.ts";
 export default {
   name: "ClientView",
   data() {
