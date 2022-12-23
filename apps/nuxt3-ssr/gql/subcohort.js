@@ -19,21 +19,27 @@ export default gql`
         name
         code
         order
+        definition
+        ontologyTermURI
         parent {
           name
-          code
-          parent {
-            name
-            code
-          }
-          parent {
-            name
-            code
-          }
+        }
+        children {
+          name
         }
       }
       mainMedicalCondition {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       countries {
         name
@@ -45,14 +51,16 @@ export default gql`
       supplementaryInformation
       comorbidity {
         name
-      }
-      counts {
-        ageGroup {
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
           name
         }
-        N_female
-        N_male
-        N_total
+        children {
+          name
+        }
       }
     }
   }

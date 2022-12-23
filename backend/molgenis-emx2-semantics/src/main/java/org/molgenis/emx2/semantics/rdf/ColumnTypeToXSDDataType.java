@@ -1,27 +1,26 @@
 package org.molgenis.emx2.semantics.rdf;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.vocabulary.XSD;
+import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.molgenis.emx2.ColumnType;
 
 public class ColumnTypeToXSDDataType {
-  public static IRI columnTypeToXSD(ColumnType columnType) throws Exception {
+  public static CoreDatatype.XSD columnTypeToXSD(ColumnType columnType) throws Exception {
     switch (columnType) {
       case BOOL:
       case BOOL_ARRAY:
-        return XSD.BOOLEAN;
+        return CoreDatatype.XSD.BOOLEAN;
 
       case DATE:
       case DATE_ARRAY:
-        return XSD.DATE;
+        return CoreDatatype.XSD.DATE;
 
       case DATETIME:
       case DATETIME_ARRAY:
-        return XSD.DATETIME;
+        return CoreDatatype.XSD.DATETIME;
 
       case DECIMAL:
       case DECIMAL_ARRAY:
-        return XSD.DECIMAL;
+        return CoreDatatype.XSD.DECIMAL;
 
       case EMAIL:
       case EMAIL_ARRAY:
@@ -34,7 +33,7 @@ public class ColumnTypeToXSDDataType {
       case TEXT_ARRAY:
       case UUID:
       case UUID_ARRAY:
-        return XSD.STRING;
+        return CoreDatatype.XSD.STRING;
 
       case FILE:
       case HYPERLINK:
@@ -44,15 +43,15 @@ public class ColumnTypeToXSDDataType {
       case REF:
       case REF_ARRAY:
       case REFBACK:
-        return XSD.ANYURI;
+        return CoreDatatype.XSD.ANYURI;
 
       case INT:
       case INT_ARRAY:
-        return XSD.INT;
+        return CoreDatatype.XSD.INT;
 
       case LONG:
       case LONG_ARRAY:
-        return XSD.LONG;
+        return CoreDatatype.XSD.LONG;
 
       default:
         throw new Exception("ColumnType not mapped: " + columnType);
