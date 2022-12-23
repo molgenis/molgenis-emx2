@@ -3,10 +3,7 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <ButtonAlt
-          @click="showChangePasswordForm = true"
-          class="text-light"
-        >
+        <ButtonAlt @click="showChangePasswordForm = true" class="text-light">
           Hi {{ session.email }}</ButtonAlt
         >&nbsp;
         <MolgenisAccount
@@ -44,16 +41,17 @@
   </div>
 </template>
 
-<script>
-import Spinner from "../layout/Spinner.vue";
-import ButtonOutline from "../forms/ButtonOutline.vue";
+<script lang="ts">
 import ButtonAlt from "../forms/ButtonAlt.vue";
-
+import ButtonOutline from "../forms/ButtonOutline.vue";
+import Spinner from "../layout/Spinner.vue";
+import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import MolgenisAccount from "./MolgenisAccount.vue";
-
+import { error } from "console";
+import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
+import { IReason, IResponse, ISession, ISetting } from "./Interfaces";
 
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
@@ -62,7 +60,7 @@ const query = `{
 }`;
 
 /** Element that is supposed to be put in menu holding all controls for user account */
-export default {
+export default defineComponent({
   components: {
     ButtonOutline,
     MolgenisSignin,
@@ -82,10 +80,9 @@ export default {
       showSigninForm: false,
       showSignupForm: false,
       showChangePasswordForm: false,
-      error: null,
+      error: null as string | null,
       loading: false,
-      session: {},
-      version: null,
+      session: {} as ISession,
     };
   },
   watch: {
@@ -103,19 +100,24 @@ export default {
     },
   },
   methods: {
-    loadSettings(settings) {
-      settings._settings.forEach(
-        (s) =>
-          (this.session.settings[s.key] =
-            s.value?.startsWith("[") || s.value?.startsWith("{")
-              ? this.parseJson(s.value)
-              : s.value)
-      );
+    loadSettings(settings: { _settings: ISetting[] }) {
+      settings._settings.forEach((setting): void => {
+        const value: string =
+          setting.value?.startsWith("[") || setting.value?.startsWith("{")
+            ? this.parseJson(setting.value)
+            : setting.value;
+        this.session.settings = {
+          ...this.session.settings,
+          [setting.key]: value,
+        };
+      });
     },
     async reload() {
       this.loading = true;
 
-      const responses = await Promise.allSettled([
+      const responses: PromiseSettledResult<
+        IResponse
+      >[] = await Promise.allSettled([
         request("/apps/central/graphql", query),
         request(this.graphql, query),
       ]);
@@ -144,27 +146,23 @@ export default {
         this.loadSettings(schemaSettings);
         this.session.manifest = schemaSettings._manifest;
       }
-
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },
-    handleError(reason) {
+    handleError(reason: IReason) {
       this.error = "internal server error " + reason;
-      if (
-        reason?.response?.data?.errors &&
-        reason.response.data.errors[0] &&
-        reason.response.data.errors[0].message
-      ) {
+      if (reason?.response?.data?.errors[0]?.message) {
         this.$emit("error", reason.response.data.errors[0].message);
       } else {
         this.$emit("error", this.error);
       }
     },
-    parseJson(value) {
+    parseJson(value: string) {
       try {
         return JSON.parse(value);
-      } catch (e) {
-        this.error = "Parsing of settings failed: " + e + ". value: " + value;
+      } catch (error) {
+        this.error =
+          "Parsing of settings failed: " + error + ". value: " + value;
         return null;
       }
     },
@@ -185,7 +183,7 @@ export default {
       this.loading = true;
       this.showSigninForm = false;
       const data = await request("graphql", `mutation{signout{status}}`).catch(
-        (error) => (this.error = "internal server error" + error)
+        (error: string) => (this.error = "internal server error" + error)
       );
       if (data.signout.status === "SUCCESS") {
         this.session = {};
@@ -198,7 +196,7 @@ export default {
     },
   },
   emits: ["update:modelValue", "error"],
-};
+});
 </script>
 
 <docs>
