@@ -39,7 +39,9 @@ interface ICohort {
   networks: INetwork[]
   releaseDescription?: string
   dataAccessConditionsDescription?: string
-  dataAccessConditions?: {name: string}[]
+  dataAccessConditions?: { name: string }[]
+  fundingStatement?: string
+  acknowledgements?: string
 }
 
 interface IPartner {
@@ -114,7 +116,7 @@ interface ITreeNode {
 }
 
 interface IOntologyNode extends ITreeNode {
-  code? : string
+  code?: string
   definition?: string
   ontologyTermURI?: string
 }

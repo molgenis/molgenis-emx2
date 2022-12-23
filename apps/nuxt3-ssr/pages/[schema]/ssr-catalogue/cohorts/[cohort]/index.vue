@@ -131,6 +131,8 @@ const query = gql`
         }
         url
       }
+      fundingStatement
+      acknowledgements
     }
   }
 `;
@@ -253,6 +255,10 @@ let tocItems = computed(() => {
     items.push({ label: "Access Conditions", id: "access-conditions" });
   }
 
+  if (cohort?.fundingStatement || cohort?.acknowledgements) {
+    items.push({ label: "Funding & Acknowledgements", id: "funding-and-acknowledgement" });
+  }
+
   return items;
 });
 
@@ -268,6 +274,24 @@ let accessConditionsItems = computed(() => {
     items.push({
       label: 'Release',
       content: cohort.releaseDescription
+    })
+  }
+
+  return items;
+})
+
+let fundingAndAcknowledgementItems = computed(() => {
+  let items = [];
+  if (cohort?.fundingStatement) {
+    items.push({
+      label: 'Funding',
+      content: cohort.fundingStatement
+    })
+  }
+  if (cohort?.acknowledgements) {
+    items.push({
+      label: 'Acknowledgements',
+      content: cohort.acknowledgements
     })
   }
 
@@ -345,6 +369,11 @@ let accessConditionsItems = computed(() => {
           :description="cohort?.dataAccessConditionsDescription"
           v-if="cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription">
           <DefinitionList :items="accessConditionsItems" />
+        </ContentBlock>
+
+        <ContentBlock id="funding-and-acknowledgement" title="Funding &amp; Acknowledgement"
+          v-if="cohort?.fundingStatement || cohort?.acknowledgements">
+          <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
 
       </ContentBlocks>
