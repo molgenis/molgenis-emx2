@@ -20,30 +20,15 @@ watch(props.filters, (filters) => {
 
 <template>
   <div class="bg-sidebar-gradient mt-7.5 rounded-t-3px rounded-b-50px">
-    <h2
-      class="p-5 uppercase text-search-filter-title font-display text-heading-3xl"
-    >
+    <h2 class="p-5 uppercase text-search-filter-title font-display text-heading-3xl">
       {{ title }}
     </h2>
 
     <template v-if="filters">
-      <FilterContainer
-        v-for="filter in filters"
-        :title="filter.title"
-        v-model:conditions="filter.conditions"
-        v-model:search="filter.search"
-        :initialCollapsed="filter.initialCollapsed"
-      >
-        <FilterSearch
-          v-if="filter.columnType === '_SEARCH'"
-          v-model="filter.search"
-        />
-        <SearchFilterGroup
-          v-else
-          :title="filter.title"
-          :table-name="filter.refTable"
-          v-model="filter.conditions"
-        />
+      <FilterContainer v-for="filter in filters" :title="filter.title" v-model:conditions="filter.conditions"
+        v-model:search="filter.search" :initialCollapsed="filter.initialCollapsed">
+        <FilterSearch v-if="filter.columnType === '_SEARCH'" v-model="filter.search" />
+        <SearchFilterGroup v-else :title="filter.title" :table-name="filter.refTable" v-model="filter.conditions" />
       </FilterContainer>
     </template>
 
@@ -51,7 +36,7 @@ watch(props.filters, (filters) => {
 
     <hr class="mx-5 border-black opacity-10" />
 
-    <div class="flex items-center p-5">
+    <!-- <div class="flex items-center p-5">
       <button class="flex items-center">
         <BaseIcon name="plus" class="text-search-filter-expand" :width="18" />
         <span
@@ -66,6 +51,6 @@ watch(props.filters, (filters) => {
         content="tooltip"
         class="ml-3"
       />
-    </div>
+    </div> -->
   </div>
 </template>
