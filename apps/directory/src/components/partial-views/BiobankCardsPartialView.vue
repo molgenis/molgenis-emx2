@@ -1,9 +1,11 @@
 <template>
   <div class="border-bottom p-3">
-    <div v-if="!loading && foundBiobanks > 0">
+    <div v-if="biobanksStore.biobankCardsHaveResults">
       <div class="d-flex mb-4 justify-content-between">
-        <result-header v-if="!loading" class="w-25" />
-
+        <result-header class="w-25" />
+        {{ biobanksStore.biobankCardsBiobankCount }}
+        {{ biobanksStore.biobankCardsCollectionCount }}
+        {{ biobanksStore.biobankCardsSubcollectionCount }}
         <pagination class="align-self-center" />
         <!-- Alignment block -->
         <div class="w-25"></div>
@@ -22,15 +24,13 @@
       </div>
       <pagination class="mt-4" />
     </div>
-    <div v-else-if="!loading && foundBiobanks === 0" class="status-text">
+    <div v-else-if="!biobanksStore.waiting" class="status-text">
       <h4>No biobanks were found</h4>
     </div>
     <div v-else class="status-text">
       <h4>
         Loading data...
-
-        {{ settingsStore.pageSize }}
-        <i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>
+        <!-- TODO: add spinner -->
       </h4>
     </div>
   </div>
@@ -51,7 +51,7 @@ export default {
     };
   },
   async mounted() {
-    this.biobanks = await this.biobanksStore.getBiobanks();
+    this.biobanks = await this.biobanksStore.getBiobankCards();
   },
 };
 </script>

@@ -1,29 +1,56 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import QueryEMX2 from './queryEMX2'
 import { useSettingsStore } from './settingsStore'
 
 export const useBiobanksStore = defineStore('biobanksStore', () => {
     const settingsStore = useSettingsStore();
-    const biobankColumns = settingsStore.config.biobankColumns
+    const biobankCardColumns = settingsStore.config.biobankCardColumns
     const graphqlEndpoint = settingsStore.config.graphqlEndpoint
-    const graphqlColumns = biobankColumns.map(biobankColumn => biobankColumn.column)
+    const biobankCardGraphql = biobankCardColumns.map(biobankColumn => biobankColumn.column)
 
-    let biobanks = ref([])
+    let biobankCards = ref([])
+    let waitingForResponse = ref(false)
 
-    async function getBiobanks () {
-        if (biobanks.value.length > 0) return biobanks.value
-        else {
+    /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
+    async function getBiobankCards () {
+        waitingForResponse.value = true
+        if (biobankCards.value.length === 0) {
             const biobankResult = await new QueryEMX2(graphqlEndpoint)
                 .table('Biobanks')
-                .select(graphqlColumns)
+                .select(biobankCardGraphql)
                 .execute()
 
-                console.log(biobankResult)
-            biobanks.value = biobankResult.Biobanks
-            return biobanks.value
+            biobankCards.value = biobankResult.Biobanks
         }
+        waitingForResponse.value = false
+        return biobankCards.value
     }
 
-    return { getBiobanks }
+    const biobankCardsHaveResults = computed(() => {
+        return !waitingForResponse.value && biobankCards.value.length > 0
+    })
+
+    const waiting = computed(() => {
+        return waitingForResponse.value
+    })
+
+    const biobankCardsBiobankCount = computed(() => {
+        return biobankCards.value.length
+    })
+
+    const biobankCardsCollectionCount = computed(() => {
+        return biobankCards.value.filter(bc => bc.collections).flatMap(biobank => biobank.collections).length
+    })
+
+    const biobankCardsSubcollectionCount = computed(() => {
+        if (!biobankCards.value.length) return 0
+        const collections = biobankCards.value.filter(bc => bc.collections).flatMap(biobank => biobank.collections)
+        if (!collections.length) return 0
+        console.log(collections)
+        return collections.filter(c => c.subcollections).flatMap(collection => collection.subcollections).length
+    })
+
+
+    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount }
 })

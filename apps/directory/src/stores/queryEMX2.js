@@ -124,6 +124,16 @@ class QueryEMX2 {
             .map(column => this._toCamelCase(column.name.replace(/\s+/g, '')))
     }
 
+    /** returns the correct column names and their types. */
+    async getColumnsMetadataForTable (tableName) {
+
+        await this.getSchemaTablesInformation()
+
+        return this._schemaTablesInformation
+            .find(table => table.name === tableName).columns
+            .map(column => ({ name: this._toCamelCase(column.name.replace(/\s+/g, '')), columnType: column.columnType }))
+    }
+
     /**
      * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
      * then column = 'collections', nested column = 'name'
