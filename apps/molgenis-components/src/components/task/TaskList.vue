@@ -9,11 +9,7 @@
       <tbody>
         <tr v-for="task in tasks" :key="task.id">
           <td>
-            <button
-              @click.prevent.stop="$emit('select', task.id)"
-              type="button"
-              class="btn btn-link"
-            >
+            <button @click.prevent.stop="$emit('select', task.id)" type="button" class="btn btn-link">
               {{ task.description }}
             </button>
           </td>
@@ -24,11 +20,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, PropType } from 'vue'
+import ITask from './ITask'
 import { request } from "../../client/client.js";
 import MessageError from "../forms/MessageError.vue";
 
-export default {
+export default defineComponent({
   name: "TaskList",
   components: {
     MessageError,
@@ -36,14 +34,14 @@ export default {
   data() {
     return {
       loading: false,
-      tasks: [],
-      error: null,
+      tasks: [] as ITask[],
+      error: null as string | null,
     };
   },
   methods: {
     retrieveTasks() {
       this.loading = true;
-      this.graphqlError = null;
+      this.error = null;
       request("graphql", `{_tasks{id,description,status}}`)
         .then((data) => {
           this.tasks = data._tasks;
@@ -51,7 +49,7 @@ export default {
         })
         .catch((error) => {
           if (Array.isArray(error.response.errors)) {
-            this.graphqlError = error.response.errors[0].message;
+            this.error = error.response.errors[0].message;
           } else {
             this.error = error;
           }
@@ -62,7 +60,7 @@ export default {
   mounted() {
     this.retrieveTasks();
   },
-};
+});
 </script>
 
 <docs>
