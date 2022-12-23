@@ -3,6 +3,8 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "strict": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "allowJs": true,
+    "types": ["vite/client"]
   }
 }
