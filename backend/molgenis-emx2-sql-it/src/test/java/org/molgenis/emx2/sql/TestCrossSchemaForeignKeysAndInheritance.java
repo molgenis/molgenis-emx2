@@ -11,8 +11,12 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.test.CrossSchemaReferenceExample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestCrossSchemaForeignKeysAndInheritance {
+  private static Logger logger =
+      LoggerFactory.getLogger(TestCrossSchemaForeignKeysAndInheritance.class);
 
   private static final String schemaName1 =
       TestCrossSchemaForeignKeysAndInheritance.class.getSimpleName() + "1";
@@ -59,13 +63,20 @@ public class TestCrossSchemaForeignKeysAndInheritance {
   }
 
   @Test
-  public void testForeignKeyBlocksDelete() {
+  public void testForeignKeyBlocksDeleteAndDrop() {
     Table schema1pet = schema1.getTable("Pet");
     try {
       schema1pet.delete(row("name", "pooky"));
       fail("should not be able to delete ref_array cross schema");
     } catch (Exception e) {
-      // success
+      logger.debug("Errored correctly: " + e.getMessage());
+    }
+
+    try {
+      schema1pet.getMetadata().drop();
+      fail("should not be able to drop ref_array cross schema");
+    } catch (Exception e) {
+      logger.debug("Errored correctly: " + e.getMessage());
     }
 
     Table schema1parent = schema1.getTable("Parent");
@@ -73,7 +84,21 @@ public class TestCrossSchemaForeignKeysAndInheritance {
       schema1parent.delete(row("name", "parent1"));
       fail("should not be able to delete ref cross schema");
     } catch (Exception e) {
-      // success
+      logger.debug("Errored correctly: " + e.getMessage());
+    }
+
+    try {
+      schema1parent.getMetadata().drop();
+      fail("should not be able to delete ref cross schema");
+    } catch (Exception e) {
+      logger.debug("Errored correctly: " + e.getMessage());
+    }
+
+    try {
+      db.dropSchema(schema1.getName());
+      fail("should not be able to delete schema if other schemas depend on it");
+    } catch (Exception e) {
+      logger.debug("Errored correctly: " + e.getMessage());
     }
   }
 }
