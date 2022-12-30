@@ -108,6 +108,7 @@ import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
 import TableStickyHeaders from "../src/components/tables/TableStickyHeaders.vue";
 import AggregateTable from "../src/components/tables/AggregateTable.vue";
+import AutoAggregateTable from "../src/components/tables/AutoAggregateTable.vue";
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -214,6 +215,7 @@ export {
   VueTemplate,
   DataDisplayCell,
   AggregateTable,
+  AutoAggregateTable,
   RoutedTableExplorer,
   TableExplorer,
   TableMolgenis,

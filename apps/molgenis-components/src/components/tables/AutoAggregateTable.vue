@@ -26,7 +26,10 @@ export default {
       type: Number,
       default: 1,
     },
-    columns: Object
+    columns: {
+      type: Object,
+      required: true,
+    }
   },
   data: function () {
     return {
@@ -45,7 +48,6 @@ export default {
   created() {
     if (this.columns?.length > 0) {
       this.refColumns = this.refTypeColumns(this.columns)
-      console.log(this.refColumns?.length)
       if (this.refColumns?.length > 0)
         this.loading = false;
     }
@@ -61,6 +63,7 @@ export default {
         :table="tableName"
         :graphQlEndpoint="endpoint"
         :minimumValue="1"
+        :columns="columns"
     />
   </demo-item>
 </template>
@@ -71,6 +74,7 @@ export default {
       return {
         tableName: 'Pet',
         endpoint: '/pet store/graphql',
+        columns: [{name: 'category',columnType: 'REF'}, {name: 'tags',columnType: 'REF'} ]
       };
     },
   };
