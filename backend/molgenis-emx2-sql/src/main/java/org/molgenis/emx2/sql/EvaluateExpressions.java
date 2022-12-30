@@ -38,7 +38,7 @@ public class EvaluateExpressions {
       } else
       // you can have a validiation script returning true which means valid
       if (!(error instanceof Boolean)) {
-        return error.toString();
+        return "Validation failed: " + error.toString();
       }
     }
     return null;

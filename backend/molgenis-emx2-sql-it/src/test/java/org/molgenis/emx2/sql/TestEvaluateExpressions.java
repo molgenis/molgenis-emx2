@@ -23,6 +23,24 @@ public class TestEvaluateExpressions extends TestCase {
 
     String result = checkValidation("columnName2 > 1", Map.of("columnName2", 1));
     assertEquals("Validation failed: columnName2 > 1", result);
+
+    result = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "123"));
+    assertEquals("Validation failed: /^([a-z]+)$/.test(name)", result);
+
+    result = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "abc"));
+    assertNull(result);
+
+    result =
+        checkValidation(
+            "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
+            Map.of("name", "123"));
+    assertEquals("Validation failed: name should contain only lowercase letters", result);
+
+    result =
+        checkValidation(
+            "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
+            Map.of("name", "abc"));
+    assertNull(result);
   }
 
   @Test

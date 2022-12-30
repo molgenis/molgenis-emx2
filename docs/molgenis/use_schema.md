@@ -166,9 +166,7 @@ syntax you can have a look at
 the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
 Expressions refer to the id property of columns.
 
-*Note: expressions will currently only let you check basic types and string arrays.*
-
-### computedValue (NOT YET IMPLEMENTED)
+### computed
 
 Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn
 must contain valid javascript returning the value. All columns of the table are available as variable. Computed values
@@ -176,26 +174,29 @@ are read-only in the user interface.
 
 For example:
 
-| tableName | columnName | key | computedValue             |
-| --------- | ---------- | --- | ------------------------- |
+| tableName | columnName | key | computed             |
+| --------- | ---------- | --- | -------------------- |
 | parts     | id         | 1   | productNo + "\_" + partNo |
-| parts     | productNo  | 2   |                           |
-| parts     | partNo     | 2   |                           |
+| parts     | productNo  | 2   |                      |
+| parts     | partNo     | 2   |                      |
 
 ### validation expression, visible expression
 
 Validation expressions and visible expressions are used to fine tune forms. Validation expressions must be valid
-javascript. Validation expressions must return null, otherwise they will show an error message and prevent
-insert/update. Visible expressions must return true, otherwise the column stays hidden in the user interface. In the
+javascript. 
+
+Validation expressions must return either null or true. Otherwise they will show an error message and prevent
+insert/update. In case of 'false' the visible expression itself is shown. Otherwise, the return value of the expression will be shown.
+
+| validation                                                             | message                                                            |
+|------------------------------------------------------------------------|--------------------------------------------------------------------|
+| price > 1                                                              | Application of validation rule failed: price > 1                   |
+| if(price<=1)'price should be larger than 1                             | Application of validation rule failed: price should be larger than 1 |
+| /^([a-z]+)$/.test(name)                                                 | Application of validation rule failed: /^([a-z]+)$/.test(name)  |
+| if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters' | Application of validation rule failed: name should contain only lowercase letters |
+
+Visible expressions must return a value that is not false or undefined, otherwise the column stays hidden in the user interface. In the
 event that javascript throws an exception, this is shown in user interface/error message.
-
-Example:
-
-| tableName | columnName | type | key | validation        | visible                |
-| --------- | ---------- | ---- | --- | ----------------- | ---------------------- |
-| person    | id         |      | 1   |                   |                        |
-| person    | birth      | date |     | {birth} > {death} |                        |
-| death     | death      | date |     | {birth} > {death} | {birth} != {undefined} |
 
 ## Table inheritance
 
