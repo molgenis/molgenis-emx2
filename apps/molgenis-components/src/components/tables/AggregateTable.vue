@@ -4,32 +4,17 @@
       <a class="navbar-brand" href="#">Aggregate</a>
       <ul class="navbar-nav mr-auto">
         <li>
-          <InputSelect
-            class="m-0 mr-2"
-            id="column-select"
-            :valueModel="selectedColumnHeader"
-            :options="columnHeaderProperties"
-            @update:modelValue="fetchData"
-          />
+          <InputSelect class="m-0 mr-2" id="column-select" :valueModel="selectedColumnHeader"
+            :options="columnHeaderProperties" @update:modelValue="fetchData" />
         </li>
         <li>
-          <InputSelect
-            class="m-0"
-            id="row-select"
-            v-model="selectedRowHeader"
-            :options="rowHeaderProperties"
-            @update:modelValue="fetchData"
-          />
+          <InputSelect class="m-0" id="row-select" v-model="selectedRowHeader" :options="rowHeaderProperties"
+            @update:modelValue="fetchData" />
         </li>
       </ul>
     </nav>
     <Spinner v-if="loading" class="m-3" />
-    <TableStickyHeaders
-      v-else
-      :columns="columns"
-      :rows="rows"
-      :data="aggregateData"
-    >
+    <TableStickyHeaders v-else :columns="columns" :rows="rows" :data="aggregateData">
       <template #column="columnProps">
         {{ columnProps.value }}
       </template>
@@ -179,8 +164,7 @@ export default {
         :selectedRowHeaderProperty="rowName"
         :rowHeaderNameProperty="columnNameProperty"
         :minimumValue="1"
-    >
-    </AggregateTable>
+    />
   </demo-item>
 </template>
 
