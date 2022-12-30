@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
-import static org.molgenis.emx2.sql.EvaluateExpressions.checkForMissingVariablesColumns;
 import static org.molgenis.emx2.sql.EvaluateExpressions.checkValidation;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
@@ -367,9 +366,6 @@ class SqlTable implements Table {
     // get metadata
     Set<Column> columns = table.getColumnsToBeUpdated(updateColumns);
 
-    // check that columns exist for validation
-    checkForMissingVariablesColumns(columns);
-
     List<Column> allColumns = table.getMetadata().getMutationColumns();
     List<Field> insertFields =
         columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
@@ -458,9 +454,6 @@ class SqlTable implements Table {
             .filter(c -> !Boolean.TRUE.equals(c.isReadonly()))
             .collect(Collectors.toSet());
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
-
-    // check that columns exist for validation
-    checkForMissingVariablesColumns(columns);
 
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();

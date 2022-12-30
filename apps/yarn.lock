@@ -783,11 +783,6 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@molgenis/expressions@0.21.2":
-  version "0.21.2"
-  resolved "https://registry.yarnpkg.com/@molgenis/expressions/-/expressions-0.21.2.tgz#eceb57c294f49a7ac4bee7db5f1957fc83401d3c"
-  integrity sha512-iL6MgMoKp8fbYqPTz1M6EYWTM3EYusSLugsqM4ddpmVttwNVImzpFNmA70Hl+SjaKtPPmobCpHNkgr6xTEWTbQ==
-
 "@netlify/functions@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@netlify/functions/-/functions-1.3.0.tgz#4305a3fb6b49caf56cd2be88d4b8534b1d5aff4f"

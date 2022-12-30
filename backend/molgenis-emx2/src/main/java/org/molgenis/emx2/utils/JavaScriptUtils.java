@@ -38,16 +38,16 @@ public class JavaScriptUtils {
     }
   }
 
-  public static String executeJavascriptOnRow(String script, Row row) {
+  public static Object executeJavascriptOnRow(String script, Row row) {
     try {
       // ScriptEngine engine = new NashornScriptEngineFactory().getScriptEngine("--language=es6");
       Bindings bindings = engine.createBindings();
       for (Map.Entry<String, Object> col : row.getValueMap().entrySet()) {
         bindings.put(col.getKey().replace("-", "$"), col.getValue());
       }
-      return engine.eval(script, bindings).toString();
+      return engine.eval(script, bindings);
     } catch (Exception e) {
-      throw new MolgenisException("Compute value failed on script [" + script + "]", e);
+      throw new MolgenisException("script failed", e.getCause().getMessage());
     }
   }
 

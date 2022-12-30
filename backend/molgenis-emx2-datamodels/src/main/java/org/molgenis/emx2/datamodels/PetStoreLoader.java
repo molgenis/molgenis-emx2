@@ -54,8 +54,11 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(column(QUANTITY).setType(LONG).setValidation("{quantity} >= 1"))
-            .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
+            .add(
+                column(QUANTITY)
+                    .setType(LONG)
+                    .setValidation("if(quantity < 1) 'quantity should be >= 1'"))
+            .add(column(PRICE).setType(DECIMAL).setValidation("price >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 

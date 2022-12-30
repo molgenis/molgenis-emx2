@@ -26,7 +26,6 @@
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
 import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
-import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
@@ -129,7 +128,7 @@ export default {
     visible(expression, columnId) {
       if (expression) {
         try {
-          return Expressions.evaluate(expression, this.internalValues);
+          return executeExpression(expression, this.internalValues);
         } catch (error) {
           this.errorPerColumn[columnId] = `Invalid visibility expression`;
         }
@@ -205,7 +204,10 @@ function getColumnError(column, values, tableMetaData) {
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    return evaluateValidationExpression(column, values);
+    const result = evaluateValidationExpression(column, values);
+    if(result !== undefined) {
+      return result;
+    }
   }
   if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
     return `value should match your selection in column '${column.refLink}' `;
@@ -215,15 +217,27 @@ function getColumnError(column, values, tableMetaData) {
 }
 
 function evaluateValidationExpression(column, values) {
+  //true means 'valid'
+  //false means 'invalid' => show the script as message
+  //anything else also means 'invalid' => show the result as message
   try {
-    if (!Expressions.evaluate(column.validation, values)) {
+    //use the keys as variables
+    const result = executeExpression(column.validation, values);
+    if (result == false) {
       return `Applying validation rule returned error: ${column.validation}`;
-    } else {
+    } else if(result === true || result === undefined) {
       return undefined;
+    } else {
+      return `Applying validation rule returned error: ${result}`;
     }
   } catch (error) {
-    return "Invalid validation expression, reason: " + error.ha;
+    return `Invalid validation expression '${column.validation}', reason: ${error}`;
   }
+}
+
+function executeExpression(expression, values) {
+  const func = `(function(${Object.keys(values).join(',')}){return eval('${column.validation.replaceAll("'","\"")}');})`;
+  return eval(func)(...Object.values(values));
 }
 
 function isRefLinkWithoutOverlap(column, tableMetaData, values) {
