@@ -236,7 +236,7 @@ function evaluateValidationExpression(column, values) {
 }
 
 function executeExpression(expression, values) {
-  const func = `(function(${Object.keys(values).join(',')}){return eval('${column.validation.replaceAll("'","\"")}');})`;
+  const func = `(function(${Object.keys(values).join(',')}){return eval('${expression.replaceAll("'","\"")}');})`;
   return eval(func)(...Object.values(values));
 }
 

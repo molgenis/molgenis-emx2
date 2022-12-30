@@ -1,11 +1,11 @@
 package org.molgenis.emx2.sql;
 
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
+
 import java.util.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
 
 public class EvaluateExpressions {
 
@@ -24,7 +24,7 @@ public class EvaluateExpressions {
         if (errorMessage != null) {
           if (errorMessage != null)
             throw new MolgenisException(
-                    "Validation error on column '" + column.getValidation() + "'" + errorMessage + ".");
+                "Validation error on column '" + column.getValidation() + "'" + errorMessage + ".");
         }
       }
     }
@@ -38,10 +38,10 @@ public class EvaluateExpressions {
         // valid.
         return "Validation failed: " + validationScript;
       } else
-        // you can have a validiation script returning true which means valid
-        if (!Boolean.TRUE.equals(error)) {
-          return error.toString();
-        }
+      // you can have a validiation script returning true which means valid
+      if (!Boolean.TRUE.equals(error)) {
+        return error.toString();
+      }
     }
     return null;
   }
