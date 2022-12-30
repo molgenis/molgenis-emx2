@@ -21,11 +21,9 @@ public class EvaluateExpressions {
       // validation
       if (column.getValidation() != null) {
         String errorMessage = checkValidation(column.getValidation(), values);
-        if (errorMessage != null) {
-          if (errorMessage != null)
-            throw new MolgenisException(
-                "Validation error on column '" + column.getValidation() + "'" + errorMessage + ".");
-        }
+        if (errorMessage != null)
+          throw new MolgenisException(
+              "Validation error on column '" + column.getValidation() + "'" + errorMessage + ".");
       }
     }
   }
@@ -39,7 +37,7 @@ public class EvaluateExpressions {
         return "Validation failed: " + validationScript;
       } else
       // you can have a validiation script returning true which means valid
-      if (!Boolean.TRUE.equals(error)) {
+      if (!(error instanceof Boolean)) {
         return error.toString();
       }
     }
