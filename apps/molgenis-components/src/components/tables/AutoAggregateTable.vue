@@ -1,9 +1,10 @@
 <template>
   <div>
-    {{ selectedColumnHeader }}
-    {{ selectedRowHeader }}
-    <AggregateOptions :columns="columns" @setAggregateColumns="aggregateColumns = $event"
-      v-model:selectedColumnHeader="selectedColumnHeader" v-model:selectedRowHeader="selectedRowHeader" />
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Aggregate</a>
+      <AggregateOptions class="mt-3" :columns="columns" @setAggregateColumns="aggregateColumns = $event"
+        v-model:selectedColumnHeader="selectedColumnHeader" v-model:selectedRowHeader="selectedRowHeader" />
+    </nav>
 
     <AggregateTable v-if="aggregateColumns?.length > 0" :table="table" :graphQlEndpoint="graphQlEndpoint"
       :minimumValue="1" :columnHeaderProperties="aggregateColumns" :rowHeaderProperties="aggregateColumns"

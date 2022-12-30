@@ -60,6 +60,12 @@
         <SelectionBox v-if="showSelect" :selection="selectedItems" @update:selection="selectedItems = $event" />
       </div>
 
+      <div v-if="!loading && view === View.AGGREGATE">
+        <AggregateOptions :columns="columns" @setAggregateColumns="aggregateColumns = $event"
+          v-model:selectedColumnHeader="aggregateSelectedColumnHeader"
+          v-model:selectedRowHeader="aggregateSelectedRowHeader" />
+      </div>
+
       <div class="btn-group" v-if="canManage">
         <TableSettings v-if="tableMetadata" :tableMetadata="tableMetadata" :graphqlURL="graphqlURL"
           @update:settings="reloadMetadata" />
@@ -79,8 +85,11 @@
         <div v-if="loading">
           <Spinner />
         </div>
-        <AutoAggregateTable v-if="!loading && view === View.AGGREGATE" :table="tableName" :columns="columns"
-          :graphQlEndpoint="graphqlURL" />
+        <AggregateTable v-if="!loading && view === View.AGGREGATE && aggregateColumns?.length > 0" :table="tableName"
+          :graphQlEndpoint="graphqlURL" :minimumValue="1" :columnHeaderProperties="aggregateColumns"
+          :rowHeaderProperties="aggregateColumns" :selectedColumnHeaderProperty="aggregateSelectedColumnHeader"
+          columnHeaderNameProperty="name" :selectedRowHeaderProperty="aggregateSelectedRowHeader"
+          rowHeaderNameProperty="name" />
         <RecordCards v-if="!loading && view === View.CARDS" class="card-columns" id="cards" :data="dataRows"
           :columns="columns" :table-name="tableName" :canEdit="canEdit" :template="cardTemplate"
           @click="$emit('click', $event)" @reload="reload"
@@ -172,7 +181,8 @@ import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
-import AutoAggregateTable from "./AutoAggregateTable.vue";
+import AggregateTable from "./AggregateTable.vue";
+import AggregateOptions from "./AggregateOptions.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit", AGGREGATE: "aggregate" };
 
@@ -198,7 +208,8 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
-    AutoAggregateTable
+    AggregateTable,
+    AggregateOptions
   },
   data() {
     return {
@@ -223,6 +234,9 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      aggregateColumns: [],
+      aggregateSelectedColumnHeader: "",
+      aggregateSelectedRowHeader: ""
     };
   },
   props: {

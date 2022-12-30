@@ -1,21 +1,35 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Aggregate</a>
-    <ul class="navbar-nav mr-auto">
-      <li>
-        <InputSelect class="m-0 mr-2" id="column-select" :modelValue="selectedColumnHeader"
-          @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
-      </li>
-      <li>
-        <InputSelect class="m-0" id="row-select" :modelValue="selectedRowHeader"
-          @update:modelValue="$emit('update:selectedRowHeader', $event)" :options="refColumns" />
-      </li>
-    </ul>
-  </nav>
+  <div class="btn-group">
+    <span>
+      <InputSelect class="column-select" :modelValue="selectedColumnHeader"
+        @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
+    </span>
+    <span>
+      <InputSelect class="row-select" id="row-select" :modelValue="selectedRowHeader"
+        @update:modelValue="$emit('update:selectedRowHeader', $event)" :options="refColumns" />
+    </span>
+  </div>
 </template>
+
+<style>
+.column-select select {
+  border-color: var(--primary);
+  border-right: 0px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-right: 1rem;
+  color: var(--primary);
+}
+
+.row-select select {
+  border-color: var(--primary);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  color: var(--primary);
+}
+</style>
     
 <script>
-
 export default {
   name: "AggregateOptions",
   props: {
