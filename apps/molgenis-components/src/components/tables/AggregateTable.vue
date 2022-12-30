@@ -4,7 +4,7 @@
       <a class="navbar-brand" href="#">Aggregate</a>
       <ul class="navbar-nav mr-auto">
         <li>
-          <InputSelect class="m-0 mr-2" id="column-select" :valueModel="selectedColumnHeader"
+          <InputSelect class="m-0 mr-2" id="column-select" v-model="selectedColumnHeader"
             :options="columnHeaderProperties" @update:modelValue="fetchData" />
         </li>
         <li>
