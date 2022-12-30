@@ -1,18 +1,5 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Aggregate</a>
-      <ul class="navbar-nav mr-auto">
-        <li>
-          <InputSelect class="m-0 mr-2" id="column-select" v-model="selectedColumnHeader"
-            :options="columnHeaderProperties" @update:modelValue="fetchData" />
-        </li>
-        <li>
-          <InputSelect class="m-0" id="row-select" v-model="selectedRowHeader" :options="rowHeaderProperties"
-            @update:modelValue="fetchData" />
-        </li>
-      </ul>
-    </nav>
     <Spinner v-if="loading" class="m-3" />
     <TableStickyHeaders v-else :columns="columns" :rows="rows" :data="aggregateData">
       <template #column="columnProps">
@@ -45,16 +32,6 @@ export default {
     /** table to aggregate */
     table: {
       type: String,
-      required: true,
-    },
-    /** list of references(string) to a aggregate on */
-    columnHeaderProperties: {
-      type: Array,
-      required: true,
-    },
-    /** list of references(string) to a aggregate on */
-    rowHeaderProperties: {
-      type: Array,
       required: true,
     },
     /** property of the table to aggregate mref/xref */
@@ -148,6 +125,16 @@ export default {
   created() {
     this.fetchData();
   },
+  watch: {
+    selectedColumnHeaderProperty(value) {
+      this.selectedColumnHeader = value;
+      this.fetchData()
+    },
+    selectedRowHeaderProperty(value) {
+      this.selectedRowHeader = value;
+      this.fetchData();
+    }
+  }
 };
 </script>
 

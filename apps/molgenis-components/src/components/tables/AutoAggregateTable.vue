@@ -1,18 +1,24 @@
 <template>
   <div>
-    <AggregateTable v-if="!loading" :table="table" :graphQlEndpoint="graphQlEndpoint" :minimumValue="1"
-      :columnHeaderProperties="refColumns" :rowHeaderProperties="refColumns"
-      :selectedColumnHeaderProperty="refColumns[0]" columnHeaderNameProperty="name"
-      :selectedRowHeaderProperty="refColumns[1] || refColumns[0]" rowHeaderNameProperty="name" />
+    {{ selectedColumnHeader }}
+    {{ selectedRowHeader }}
+    <AggregateOptions :columns="columns" @setAggregateColumns="aggregateColumns = $event"
+      v-model:selectedColumnHeader="selectedColumnHeader" v-model:selectedRowHeader="selectedRowHeader" />
+
+    <AggregateTable v-if="aggregateColumns?.length > 0" :table="table" :graphQlEndpoint="graphQlEndpoint"
+      :minimumValue="1" :columnHeaderProperties="aggregateColumns" :rowHeaderProperties="aggregateColumns"
+      :selectedColumnHeaderProperty="selectedColumnHeader" columnHeaderNameProperty="name"
+      :selectedRowHeaderProperty="selectedRowHeader" rowHeaderNameProperty="name" />
   </div>
 </template>
   
 <script>
+import AggregateOptions from "./AggregateOptions.vue";
 import AggregateTable from "./AggregateTable.vue";
 
 export default {
   name: "AutoAggregateTable",
-  components: { AggregateTable },
+  components: { AggregateOptions, AggregateTable },
   props: {
     graphQlEndpoint: {
       type: String,
@@ -34,23 +40,10 @@ export default {
   data: function () {
     return {
       loading: true,
-      refColumns: []
+      aggregateColumns: [],
+      selectedColumnHeader: "",
+      selectedRowHeader: ""
     };
-  },
-  methods: {
-    isRefType(column) {
-      return column.columnType.startsWith("REF") || column.columnType.startsWith("ONTOLOGY")
-    },
-    refTypeColumns(columns) {
-      return columns.filter(column => this.isRefType(column)).map(column => column.name)
-    },
-  },
-  created() {
-    if (this.columns?.length > 0) {
-      this.refColumns = this.refTypeColumns(this.columns)
-      if (this.refColumns?.length > 0)
-        this.loading = false;
-    }
   },
 
 };
