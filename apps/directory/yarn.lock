@@ -3523,6 +3523,9 @@ minimatch@^5.0.1:
   dependencies:
     brace-expansion "^2.0.1"
 
+"molgenis-components@file:../molgenis-components/dist":
+  version "0.0.0"
+
 ms@2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"

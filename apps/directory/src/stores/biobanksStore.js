@@ -47,7 +47,6 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         if (!biobankCards.value.length) return 0
         const collections = biobankCards.value.filter(bc => bc.collections).flatMap(biobank => biobank.collections)
         if (!collections.length) return 0
-        console.log(collections)
         return collections.filter(c => c.subcollections).flatMap(collection => collection.subcollections).length
     })
 

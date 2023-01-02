@@ -3,10 +3,7 @@
     <div v-if="biobanksStore.biobankCardsHaveResults">
       <div class="d-flex mb-4 justify-content-between">
         <result-header class="w-25" />
-        {{ biobanksStore.biobankCardsBiobankCount }}
-        {{ biobanksStore.biobankCardsCollectionCount }}
-        {{ biobanksStore.biobankCardsSubcollectionCount }}
-        <pagination class="align-self-center" />
+        <pagination-bar class="align-self-center" />
         <!-- Alignment block -->
         <div class="w-25"></div>
       </div>
@@ -22,7 +19,7 @@
         >
         </biobank-card>
       </div>
-      <pagination class="mt-4" />
+      <pagination-bar class="mt-4" />
     </div>
     <div v-else-if="!biobanksStore.waiting" class="status-text">
       <h4>No biobanks were found</h4>
@@ -39,11 +36,18 @@
 <script>
 import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useSettingsStore } from "../../stores/settingsStore";
+import ResultHeader from "../atoms/ResultHeader.vue"
+import PaginationBar from "../atoms/PaginationBar.vue"
+
 export default {
   setup() {
     const biobanksStore = useBiobanksStore();
     const settingsStore = useSettingsStore();
     return { biobanksStore, settingsStore };
+  },
+  components: {
+    ResultHeader,
+    PaginationBar
   },
   data() {
     return {
