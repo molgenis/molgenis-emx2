@@ -7,13 +7,12 @@
         <!-- Alignment block -->
         <div class="w-25"></div>
       </div>
-
       <div
         class="d-flex justify-content-center flex-wrap biobank-cards-container"
       >
         <biobank-card
           v-for="biobank in biobanksShown"
-          :key="biobank.id || biobank"
+          :key="biobank.id"
           :biobank="biobank"
           :fullSize="biobanksShown.length === 1"
         >
@@ -36,8 +35,9 @@
 <script>
 import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import ResultHeader from "../atoms/ResultHeader.vue"
-import PaginationBar from "../atoms/PaginationBar.vue"
+import ResultHeader from "../biobankcards-components/ResultHeader.vue";
+import PaginationBar from "../biobankcards-components/PaginationBar.vue";
+import BiobankCard from "../biobankcards-components/BiobankCard.vue";
 
 export default {
   setup() {
@@ -47,12 +47,23 @@ export default {
   },
   components: {
     ResultHeader,
-    PaginationBar
+    PaginationBar,
+    BiobankCard,
   },
   data() {
     return {
       biobanks: [],
     };
+  },
+  computed: {
+    biobanksShown() {
+      if (this.biobanksStore.waiting) return [];
+      return this.biobanks.slice(
+        this.settingsStore.config.pageSize *
+          (this.settingsStore.currentPage - 1),
+        this.settingsStore.config.pageSize * this.settingsStore.currentPage
+      );
+    },
   },
   async mounted() {
     this.biobanks = await this.biobanksStore.getBiobankCards();

@@ -1,11 +1,11 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { i18n } from '../i18n/i18n'
 import { initialFilterFacets } from '../filter-config/initialFilterFacets'
 import initialCollectionColumns from '../property-config/initialCollectionColumns'
 import initialBiobankColumns from '../property-config/initialBiobankColumns'
 import initialBiobankCardColumns from '../property-config/initialBiobankCardsColumns'
-import QueryEMX2 from './queryEMX2'
+import QueryEMX2 from '../functions/queryEMX2'
 /**
  * Settings store is where all the configuration of the application is handled.
  * This means that user config from the database is merged with the defaults here.
@@ -15,6 +15,7 @@ export const useSettingsStore = defineStore('settingsStore', () => {
   const currentPage = ref(1)
 
   let config = ref({
+    language: 'en',
     graphqlEndpoint: 'graphql',
     negotiatorType: 'eric-negotiator',
     biobankColumns: initialBiobankColumns,
@@ -48,8 +49,12 @@ export const useSettingsStore = defineStore('settingsStore', () => {
     return session.value
   }
 
+   const uiText = computed(() => {
+    return config.value.i18n[config.value.language]
+  })
+
   // todo add config from database
   // todo add config management functions
 
-  return { config, currentPage, getCurrentSession, initializeConfig }
+  return { config, currentPage, getCurrentSession, initializeConfig, uiText }
 })

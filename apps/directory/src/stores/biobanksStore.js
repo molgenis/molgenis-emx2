@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue';
-import QueryEMX2 from './queryEMX2'
+import QueryEMX2 from '../functions/queryEMX2'
 import { useSettingsStore } from './settingsStore'
 
 export const useBiobanksStore = defineStore('biobanksStore', () => {
@@ -18,7 +18,7 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         if (biobankCards.value.length === 0) {
             const biobankResult = await new QueryEMX2(graphqlEndpoint)
                 .table('Biobanks')
-                .select(biobankCardGraphql)
+                .select(['id', 'name', ...biobankCardGraphql])
                 .execute()
 
             biobankCards.value = biobankResult.Biobanks
