@@ -2,6 +2,7 @@ import shutil
 import os
 import pandas as pd
 import logging
+import re
 
 
 def float_to_int(df):
@@ -13,6 +14,15 @@ def float_to_int(df):
             df.loc[:, column] = df[column].astype('Int64')
 
     return df
+
+def get_identifiers(df, column_name):
+    s = df[column_name]
+    s = re.sub("[^0-9]", "", s)
+    print(s)
+
+
+
+
 
 
 class TransformGeneral:
@@ -96,6 +106,9 @@ class TransformDataCatalogue:
         """Move external identifiers to separate table
         """
         # get numbers from entry
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+        df_identifiers = get_identifiers(df_cohorts['externalIdentifiers'])
+
         # move to External identifiers.identifier
         # External identifiers.resource = cohort[5:]
 

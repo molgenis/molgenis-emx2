@@ -66,15 +66,14 @@ update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
 spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 
 # run download and transform
-zip_handling.remove_unzipped_data()
 zip_handling.unzip_data()
-zip_handling_shared_staging.remove_unzipped_data()
 zip_handling_shared_staging.unzip_data()
 update_general.delete_data_model_file()
 transform_data.transform_data()
 spaces.get_spaces()
 # update_general.update_data_model_file()
 zip_handling.zip_data()
+zip_handling.remove_unzipped_data()
 
 print('----------------')
 
@@ -102,6 +101,7 @@ zip_handling.unzip_data()
 update_general.delete_data_model_file()
 spaces.get_spaces()
 zip_handling.zip_data()
+zip_handling.remove_unzipped_data()
 
 
 # Cohorts update
@@ -127,13 +127,12 @@ for cohort in COHORTS:
     update_general = TransformGeneral(cohort, 'cohort_UMCG')
     spaces = Spaces(cohort)
 
-    zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
     update_general.delete_data_model_file()
     transform_data.transform_data()
     spaces.get_spaces()
     zip_handling.zip_data()
-
+    zip_handling.remove_unzipped_data()
 
 # delete schemas UMCG and CatalogueOntologies
 # create schemas UMCG and CatalogueOntologies
@@ -143,6 +142,7 @@ for cohort in COHORTS:
 # per cohort:
 # Cohorts update
 print('-----------------------')
+
 print('Updating schemas for cohorts')
 for cohort in COHORTS:
     # sign in to staging server
@@ -154,11 +154,11 @@ for cohort in COHORTS:
         password=SERVER_PASSWORD
     )
     print('Delete and create cohort schema:' + cohort)
-    # session.drop_database()
-    update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
-    data_model = update_general.data_model_file()
-    print(data_model)
-    session.create_database()
-#     # create cohort schema minus 'UMCG_' (cohort[5:])
-#     # upload transformed cohort data
-
+    session.drop_database()
+#     update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
+#     data_model = update_general.data_model_file()
+#     print(data_model)
+    session.create_database(database_name=cohort[5:])
+# #     # create cohort schema minus 'UMCG_' (cohort[5:])
+# #     # upload transformed cohort data
+#
