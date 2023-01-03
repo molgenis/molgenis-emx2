@@ -18,7 +18,9 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         if (biobankCards.value.length === 0) {
             const biobankResult = await new QueryEMX2(graphqlEndpoint)
                 .table('Biobanks')
-                .select(['id', 'name', ...biobankCardGraphql])
+                .select(['id', 'name','collections.id', 'collections.name', ...biobankCardGraphql])
+                .orderBy("Biobanks", "name", "asc")
+                .limit("Biobanks", 2)
                 .execute()
 
             biobankCards.value = biobankResult.Biobanks
@@ -51,5 +53,5 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
     })
 
 
-    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount }
+    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount, biobankCards }
 })

@@ -9,37 +9,43 @@
       </span>
 
       <template v-if="attribute.linkValue">
-        <span
-          id="copy-icon"
-          @click.prevent="copyToClipboard(attribute.linkValue)"
-          v-b-tooltip.hover="'Copy to clipboard'"
-          class="fa fa-clipboard ml-1">
-        </span>
+        <Tooltip :value="'Copy to clipboard'">
+          <span
+            id="copy-icon"
+            @click.prevent="copyToClipboard(attribute.linkValue)"
+            class="fa fa-clipboard ml-1"
+          >
+          </span>
+        </Tooltip>
       </template>
     </td>
   </tr>
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { Tooltip } from "molgenis-components";
+import { mapMutations } from "vuex";
 
 export default {
+  components: {
+    Tooltip,
+  },
   props: {
     attribute: {
-      type: Object
-    }
+      type: Object,
+    },
   },
   methods: {
-    ...mapMutations(['SetNotification']),
-    displayName (item) {
-      return item.label || item.name || item.id
+    ...mapMutations(["SetNotification"]),
+    displayName(item) {
+      return item.label || item.name || item.id;
     },
-    copyToClipboard (link) {
-      navigator.clipboard.writeText(link)
-      this.SetNotification(`Copied ${link}`)
-    }
-  }
-}
+    copyToClipboard(link) {
+      navigator.clipboard.writeText(link);
+      this.SetNotification(`Copied ${link}`);
+    },
+  },
+};
 </script>
 
 <style scoped>

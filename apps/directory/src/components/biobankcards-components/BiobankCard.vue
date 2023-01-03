@@ -22,14 +22,14 @@
                 class="text-dark"
               >
                 <span
-                  class="fa fa-server mr-2 text-primary"
+                  class="fa-solid fa-server mr-2 text-primary"
                   aria-hidden="true"
                 ></span>
                 <span class="biobank-name">{{ biobank.name }}</span>
                 <sup
                   v-if="hasBiobankQuality"
                   class="
-                    fa fa-check-circle-o
+                    fa-regular fa-circle-check
                     text-success
                     certificate-icon
                     ml-1
@@ -73,14 +73,14 @@
                 class="text-dark"
               >
                 <span
-                  class="fa fa-server mr-2 text-primary"
+                  class="fa-solid fa-server mr-2 text-primary"
                   aria-hidden="true"
                 ></span>
                 <span class="biobank-name">{{ biobank.name }}</span>
                 <sup
                   v-if="hasBiobankQuality"
                   class="
-                    fa fa-check-circle-o
+                    fa-regular fa-circle-check
                     text-success
                     certificate-icon
                     ml-1
@@ -107,14 +107,14 @@
                 available
               </h5>
 
-              <collection-selector
+              <!-- <collection-selector
                 v-if="numberOfCollections > 1"
                 class="text-right mr-1 ml-auto align-self-center"
                 :collectionData="biobank.collections"
                 bookmark
                 iconOnly
                 multi
-              ></collection-selector>
+              ></collection-selector> -->
             </div>
             <div class="pl-2" v-if="!numberOfCollections">
               This biobank has no collections yet.
@@ -133,7 +133,7 @@
                   >
                     <span
                       class="
-                        fa fa-server
+                        fa-solid fa-server
                         collection-icon
                         fa-lg
                         mr-2
@@ -146,12 +146,12 @@
                     }}</span>
                   </router-link>
                   <div class="ml-auto">
-                    <collection-selector
+                    <!-- <collection-selector
                       class="ml-auto"
                       :collectionData="collectionDetail"
                       iconOnly
                       bookmark
-                    ></collection-selector>
+                    ></collection-selector> -->
                   </div>
                 </div>
 
@@ -184,7 +184,7 @@ import {
   getCollectionDetails,
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
-import CollectionSelector from "../checkout-components/CollectionSelector.vue";
+// import CollectionSelector from "../checkout-components/CollectionSelector.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
@@ -196,7 +196,7 @@ export default {
   },
   components: {
     ViewGenerator,
-    CollectionSelector,
+    // CollectionSelector,
   },
   props: {
     fullSize: {
@@ -274,8 +274,8 @@ export default {
       );
     },
     /** broken */
-    biobankInSelection () {
-      return false
+    biobankInSelection() {
+      return false;
       // if (!this.biobank.collections) return false
 
       // const biobankCollectionSelection = this.biobank.collections
@@ -284,7 +284,7 @@ export default {
       // return this.selectedCollections
       //   .map(sc => sc.value)
       //   .some(id => biobankCollectionSelection.map(pc => pc.value).includes(id))
-    }
+    },
   },
   mounted() {
     this.showCollections = this.settingsStore.config.biobankCardShowCollections;
@@ -296,7 +296,8 @@ export default {
 .collection-icon {
   position: relative;
   top: 0.25em;
-  clip-path: inset(-15% 0% 75% 0%);
+  line-height:unset;
+  clip-path: inset(0% 0% 50% 0%);
 }
 
 .certificate-icon {

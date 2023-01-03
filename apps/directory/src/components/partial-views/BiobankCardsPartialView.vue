@@ -70,3 +70,15 @@ export default {
   },
 };
 </script>
+
+<style>
+.biobank-cards-container {
+  gap: 2rem;
+}
+
+.status-text {
+  text-align: center;
+  justify-content: center;
+  padding: 1rem;
+}
+</style>

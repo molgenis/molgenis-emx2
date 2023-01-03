@@ -9,6 +9,9 @@ if (import.meta.env.DEV) {
     import('./dev-assets/mg-bbmri-eric-4.css')
 }
 
+/** Add font awesome icons */
+import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+
 const app = createApp(App)
 
 app.use(createPinia())

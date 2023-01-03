@@ -36,6 +36,36 @@ export function mapRange (min, max, unit) {
     return range
 }
 
+function getObjectForValueExtraction (object, propertyKey) {
+
+    /** this column is a nested propery */
+    if (typeof propertyKey === "object") {
+        const nextKey = Object.keys(propertyKey)[0]
+
+        return getObjectForValueExtraction(object, nextKey)
+    }
+    else if (typeof object[propertyKey] === "object") {
+
+        const keys = Object.keys(object[propertyKey])
+        let nextKey = ''
+
+        /** find the next non-digit key in the array. */
+        for (const key of keys) {
+            if (isNaN(key)) {
+                nextKey = key
+                break
+            }
+        }
+        /** found a pure array, return that */
+        if (!nextKey) return object[propertyKey]
+
+        return getObjectForValueExtraction(object[propertyKey], nextKey)
+    }
+    else {
+        return object[propertyKey]
+    }
+}
+
 /**
  *
  * @param {*} object collection / biobank
@@ -47,6 +77,7 @@ export function getViewmodel (object, columns) {
 
     for (const columnInfo of columns) {
         let attributeValue
+        let objectToExtractValueFrom = getObjectForValueExtraction(object, columnInfo.column)
 
         switch (columnInfo.type) {
             case 'range': {
@@ -55,15 +86,15 @@ export function getViewmodel (object, columns) {
                 break
             }
             case 'object': {
-                attributeValue = mapToString(object[columnInfo.column], columnInfo.property, columnInfo.prefix, columnInfo.suffix)
+                attributeValue = mapToString(objectToExtractValueFrom, columnInfo.property, columnInfo.prefix, columnInfo.suffix)
                 break
             }
             case 'custom': {
-                attributeValue = object[columnInfo.column]
+                attributeValue = objectToExtractValueFrom
                 break
             }
             case 'array': {
-                attributeValue = object[columnInfo.column]
+                attributeValue = objectToExtractValueFrom
                 break
             }
             case 'quality':
@@ -71,14 +102,14 @@ export function getViewmodel (object, columns) {
                 break
             case 'mref':
             case 'categoricalmref': {
-                attributeValue = mapObjArray(object[columnInfo.column])
+                attributeValue = mapObjArray(objectToExtractValueFrom)
                 break
             }
             default: {
                 attributeValue = mapToString(object, columnInfo.column, columnInfo.prefix, columnInfo.suffix)
             }
         }
-
+        /** component is only used as an override. undefined by default, the generator will handle this by type. */
         const attribute = { label: columnInfo.label, type: columnInfo.type, value: attributeValue, component: columnInfo.component }
 
         if (columnInfo.showCopyIcon) {
@@ -97,8 +128,8 @@ function extractCollectionTypes (collections, prevCollectionHashmap) {
     let collectionTypes = prevCollectionHashmap && Object.keys(prevCollectionHashmap).length ? prevCollectionHashmap : {}
 
     for (const collection of collections) {
-        if (collection.type) {
-            const foundTypes = collection.type.map(type => type.label)
+        if (collection.collectionType) {
+            const foundTypes = collection.collectionType.map(type => type.label)
 
             for (const type of foundTypes) {
                 // use it as a hashmap
@@ -142,7 +173,7 @@ function mapSubcollections (collections, level) {
     return subCollections
 }
 
-export function getCollectionDetails(collection) {
+export function getCollectionDetails (collection) {
     const settingsStore = useSettingsStore();
     const viewmodel = getViewmodel(collection, settingsStore.config.collectionColumns)
 
@@ -159,10 +190,10 @@ export function getCollectionDetails(collection) {
 export const getBiobankDetails = (biobank) => {
     const settingsStore = useSettingsStore();
     /* new Set makes a hashmap out of an array which makes every entry unique, then we convert it back to an array */
-    biobank.collection_types = []
+    biobank.collections.collectionType = []
 
     if (biobank.collections.length) {
-        biobank.collection_types = Object.keys(extractCollectionTypes(biobank.collections))
+        biobank.collections.collectionType = Object.keys(extractCollectionTypes(biobank.collections))
         biobank.collectionDetails = []
 
         const parentCollections = biobank.collections.filter(collection => !collection.parent_collection)
@@ -171,6 +202,7 @@ export const getBiobankDetails = (biobank) => {
             biobank.collectionDetails.push(getCollectionDetails(collection))
         }
     }
+    console.log(getViewmodel(biobank, settingsStore.config.biobankColumns))
 
     return {
         ...biobank,
