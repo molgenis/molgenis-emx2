@@ -86,7 +86,6 @@ table thead {
   background: white;
 }
 
-
 table tbody {
   position: relative;
 }
@@ -125,18 +124,6 @@ table tbody tr:first-child td,
 table tbody tr:first-child th {
   padding-top: 1.5rem;
   border-top: none;
-}
-
-table tbody td:hover::before {
-  content: "";
-  position: absolute;
-  display: inline-block;
-  background-color: var(--light);
-  left: 0;
-  right: 0;
-  top: -100vh;
-  bottom: -100vh;
-  z-index: -1;
 }
 
 table tbody th {
