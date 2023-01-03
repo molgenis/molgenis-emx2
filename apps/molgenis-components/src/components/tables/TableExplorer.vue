@@ -9,11 +9,11 @@
 
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
-        <ShowHide :columns="columns" @update:columns="emitFilters" checkAttribute="showFilter"
-          :exclude="['HEADING', 'FILE']" label="filters" icon="filter" />
+        <ShowHide v-if="view !== View.AGGREGATE" :columns="columns" @update:columns="emitFilters"
+          checkAttribute="showFilter" :exclude="['HEADING', 'FILE']" label="filters" icon="filter" />
 
-        <ShowHide :columns="columns" @update:columns="emitColumns" checkAttribute="showColumn" label="columns"
-          icon="columns" id="showColumn" :defaultValue="true" />
+        <ShowHide v-if="view !== View.AGGREGATE" :columns="columns" @update:columns="emitColumns"
+          checkAttribute="showColumn" label="columns" icon="columns" id="showColumn" :defaultValue="true" />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
           <form class="px-4 py-3" style="min-width: 15rem;">
@@ -77,11 +77,12 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0">
+      <div v-if="countFilters && view !== View.AGGREGATE" class="col-3 pl-0">
         <FilterSidebar :filters="columns" @updateFilters="emitConditions" :graphqlURL="graphqlURL" />
       </div>
       <div class="flex-grow-1 pr-0 pl-0" :class="countFilters > 0 ? 'col-9' : 'col-12'">
-        <FilterWells :filters="columns" @updateFilters="emitConditions" class="border-top pt-3 pb-3" />
+        <FilterWells v-if="view !== View.AGGREGATE" :filters="columns" @updateFilters="emitConditions"
+          class="border-top pt-3 pb-3" />
         <div v-if="loading">
           <Spinner />
         </div>
