@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.sql.EvaluateExpressions.checkValidation;
-import static org.molgenis.emx2.sql.SqlTypeUtils.getValuesAsMap;
+import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
+import static org.molgenis.emx2.sql.SqlTypeUtils.validateAndGetVisibleValuesAsMap;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
 
 import java.util.ArrayList;
@@ -21,26 +21,26 @@ public class TestEvaluateExpressions extends TestCase {
     executeJavascriptOnRow("columnName2", Row.row("columnName2", true));
     executeJavascriptOnRow("columnName2 > 1", Row.row("columnName2", 2));
 
-    String result = checkValidation("columnName2 > 1", Map.of("columnName2", 1));
-    assertEquals("Validation failed: columnName2 > 1", result);
+    String error = checkValidation("columnName2 > 1", Map.of("columnName2", 1));
+    assertEquals("columnName2 > 1", error);
 
-    result = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "123"));
-    assertEquals("Validation failed: /^([a-z]+)$/.test(name)", result);
+    error = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "123"));
+    assertEquals("/^([a-z]+)$/.test(name)", error);
 
-    result = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "abc"));
-    assertNull(result);
+    error = checkValidation("/^([a-z]+)$/.test(name)", Map.of("name", "abc"));
+    assertNull(error);
 
-    result =
+    error =
         checkValidation(
             "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
             Map.of("name", "123"));
-    assertEquals("Validation failed: name should contain only lowercase letters", result);
+    assertEquals("name should contain only lowercase letters", error);
 
-    result =
+    error =
         checkValidation(
             "if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'",
             Map.of("name", "abc"));
-    assertNull(result);
+    assertNull(error);
   }
 
   @Test
@@ -84,8 +84,8 @@ public class TestEvaluateExpressions extends TestCase {
   @Test
   public void testCalculateComputedExpression() {
     String expression = "5 + 7";
-    String outcome = checkValidation(expression, Map.of());
-    assertEquals(12, Integer.parseInt(outcome));
+    Object outcome = executeJavascriptOnRow(expression, new Row());
+    assertEquals(12, outcome);
   }
 
   @Test
@@ -105,7 +105,7 @@ public class TestEvaluateExpressions extends TestCase {
     Column column = new Column("name");
     column.setValidation(validation);
     columns.add(column);
-    getValuesAsMap(new Row(), columns);
+    validateAndGetVisibleValuesAsMap(new Row(), columns);
   }
 
   @Test
@@ -116,9 +116,13 @@ public class TestEvaluateExpressions extends TestCase {
     column.setValidation(validation);
     columns.add(column);
     try {
-      getValuesAsMap(new Row(), columns);
+      validateAndGetVisibleValuesAsMap(new Row("name", "test"), columns);
     } catch (MolgenisException exception) {
-      assertEquals("Cannot execute expression: this is very invalid", exception.getMessage());
+      assertEquals(
+          "script failed: SyntaxError: <eval>:1:5 Expected ; but found is\n"
+              + "this is very invalid\n"
+              + "     ^\n",
+          exception.getMessage());
     }
   }
 
@@ -130,9 +134,9 @@ public class TestEvaluateExpressions extends TestCase {
     column.setValidation(validation);
     columns.add(column);
     try {
-      getValuesAsMap(new Row(), columns);
+      validateAndGetVisibleValuesAsMap(new Row("name", "test"), columns);
     } catch (MolgenisException exception) {
-      assertEquals("false. Values provided: {}", exception.getMessage());
+      assertEquals("Validation error on column 'name': false.", exception.getMessage());
     }
   }
 }

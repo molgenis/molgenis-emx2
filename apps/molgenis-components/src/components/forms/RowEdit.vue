@@ -204,10 +204,7 @@ function getColumnError(column, values, tableMetaData) {
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    const result = evaluateValidationExpression(column, values);
-    if(result !== undefined) {
-      return result;
-    }
+    return evaluateValidationExpression(column, values);
   }
   if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
     return `value should match your selection in column '${column.refLink}' `;

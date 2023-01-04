@@ -29,7 +29,7 @@ public class TestValidation {
     Table users = schema.getTable("User");
     try {
       users.insert(row("username", "john", "email", "wrong"));
-      fail("email should validate");
+      fail("email should fail on validation");
     } catch (Exception e) {
       // correct
     }

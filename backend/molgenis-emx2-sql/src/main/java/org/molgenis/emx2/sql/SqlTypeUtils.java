@@ -14,38 +14,38 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Map<String, Object> getValuesAsMap(Row row, Collection<Column> columns) {
-    try {
-      Map<String, Object> values = new LinkedHashMap<>();
-      for (Column c : columns) {
+  static Map<String, Object> validateAndGetVisibleValuesAsMap(Row row, Collection<Column> columns) {
+    Map<String, Object> values = new LinkedHashMap<>();
+    for (Column c : columns) {
 
-        Object value;
-
-        // refConstraint == computed field
-        if (c.getComputed() != null) {
-          if (row.getValueMap().containsKey(c.getComputed())) {
-            value = row.getValueMap().get(c.getComputed());
-          } else {
-            value = executeJavascriptOnRow(c.getComputed(), row);
-          }
-        } else {
-          value = getTypedValue(row, c);
-        }
-
-        // get value
-        if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
-          values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
-        } else {
-          values.put(c.getName(), value);
-        }
+      // we get role from environment
+      if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
+        values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
+      } else
+      // compute field, might depend on update values therefor run always on insert/update
+      if (c.getComputed() != null) {
+        values.put(c.getName(), executeJavascriptOnRow(c.getComputed(), row));
+      } else
+      // otherwise, unless invisible
+      if (columnIsVisible(c, row)) {
+        checkValidation(c, row);
+        values.put(c.getName(), getTypedValue(c, row));
       }
-      return values;
-    } catch (MolgenisException me) {
-      throw new MolgenisException("Parsing of row failed: " + row.toString(), me);
     }
+    return values;
   }
 
-  public static Object getTypedValue(Row row, Column c) {
+  private static boolean columnIsVisible(Column column, Row row) {
+    if (column.getVisible() != null) {
+      Object visibleResult = executeJavascriptOnRow(column.getVisible(), row);
+      if (Boolean.FALSE.equals(visibleResult) || visibleResult == null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static Object getTypedValue(Column c, Row row) {
     String name = c.getName();
     return switch (c.getPrimitiveColumnType()) {
       case FILE -> row.getBinary(name);
@@ -100,5 +100,41 @@ public class SqlTypeUtils extends TypeUtils {
       default -> throw new MolgenisException(
           "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     };
+  }
+
+  public static void checkValidation(Column column, Row row) {
+    if (!row.isNull(column.getName(), column.getColumnType())) {
+      Map<String, Object> values = row.getValueMap();
+      column.getColumnType().validate(row.get(column));
+
+      // validation
+      if (column.getValidation() != null) {
+        String errorMessage = checkValidation(column.getValidation(), values);
+        if (errorMessage != null)
+          throw new MolgenisException(
+                  "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
+      }
+    }
+  }
+
+  public static String checkValidation(String validationScript, Map<String, Object> values) {
+    try {
+      Object error = executeJavascriptOnRow(validationScript, new Row(values));
+      if (error != null) {
+        if (Boolean.FALSE.equals(error)) {
+          // you can have a validation rule that simply returns true or false; false means not
+          // valid.
+          return validationScript;
+        } else
+          // you can have a validation script returning true which means valid, so false means error.
+          if (!(error instanceof Boolean)) {
+            return error.toString();
+          }
+      }
+      return null;
+    } catch (MolgenisException me) {
+      // seperate syntax errors
+      throw me;
+    }
   }
 }

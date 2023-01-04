@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
-import static org.molgenis.emx2.sql.EvaluateExpressions.checkValidation;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
@@ -87,7 +86,7 @@ class SqlTable implements Table {
                     if (!row.containsName(c.getName())) {
                       line.append(",");
                     } else {
-                      Object value = getTypedValue(row, c);
+                      Object value = getTypedValue(c, row);
                       line.append(value + ",");
                     }
                   }
@@ -388,7 +387,7 @@ class SqlTable implements Table {
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       // get values
-      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, columns);
       if (!inherit) {
         values.put(MG_INSERTEDBY, user);
         values.put(MG_INSERTEDON, now);
@@ -398,7 +397,6 @@ class SqlTable implements Table {
       // when insert, we should include all columns, not only 'updateColumns'
       if (!row.isDraft()) {
         checkRequired(row, allColumns);
-        checkValidation(values, columns);
       }
       step.values(values.values());
     }
@@ -408,7 +406,7 @@ class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      // remove 'readonly' from the update list, unless mg_table
+      // remove mg_table as part of update key
       for (Column column :
           columns.stream()
               .filter(
@@ -448,7 +446,7 @@ class SqlTable implements Table {
       inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
     }
 
-    // get metadata
+    // get columns to be updated, without readonly
     Set<Column> columns =
         table.getColumnsToBeUpdated(updateColumns).stream()
             .filter(c -> !Boolean.TRUE.equals(c.isReadonly()))
@@ -463,7 +461,7 @@ class SqlTable implements Table {
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      Map values = SqlTypeUtils.getValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, columns);
       if (!inherit) {
         values.put(MG_UPDATEDBY, user);
         values.put(MG_UPDATEDON, now);
@@ -471,7 +469,6 @@ class SqlTable implements Table {
 
       if (!row.isDraft()) {
         checkRequired(row, columns);
-        checkValidation(values, columns);
       }
 
       list.add(
