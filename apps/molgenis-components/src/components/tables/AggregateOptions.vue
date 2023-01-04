@@ -1,5 +1,5 @@
 <template>
-  <div class="btn-group">
+  <div class="btn-group aggregate-options">
     <span>
       <InputSelect id="aggregate-column-select" class="column-select" required :modelValue="selectedColumnHeader"
         @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
@@ -12,6 +12,10 @@
 </template>
 
 <style>
+.aggregate-options .float-right {
+  display: none;
+}
+
 .column-select select {
   border-color: var(--primary);
   border-right: 0px;
