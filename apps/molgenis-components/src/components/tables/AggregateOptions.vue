@@ -1,11 +1,11 @@
 <template>
   <div class="btn-group">
     <span>
-      <InputSelect class="column-select" :modelValue="selectedColumnHeader"
+      <InputSelect id="aggregate-column-select" class="column-select" :modelValue="selectedColumnHeader"
         @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
     </span>
     <span>
-      <InputSelect class="row-select" id="row-select" :modelValue="selectedRowHeader"
+      <InputSelect id="aggregate-row-select" class="row-select" :modelValue="selectedRowHeader"
         @update:modelValue="$emit('update:selectedRowHeader', $event)" :options="refColumns" />
     </span>
   </div>
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     isRefType(column) {
-      return column.columnType.startsWith("REF") || column.columnType.startsWith("ONTOLOGY")
+      return (column.columnType.startsWith("REF") && column.required) || (column.columnType.startsWith("ONTOLOGY") && column.required)
     },
     refTypeColumns(columns) {
       return columns.filter(column => this.isRefType(column)).map(column => column.name)
