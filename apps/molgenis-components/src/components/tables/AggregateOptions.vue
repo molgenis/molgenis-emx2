@@ -1,11 +1,11 @@
 <template>
   <div class="btn-group">
     <span>
-      <InputSelect id="aggregate-column-select" class="column-select" :modelValue="selectedColumnHeader"
+      <InputSelect id="aggregate-column-select" class="column-select" required :modelValue="selectedColumnHeader"
         @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
     </span>
     <span>
-      <InputSelect id="aggregate-row-select" class="row-select" :modelValue="selectedRowHeader"
+      <InputSelect id="aggregate-row-select" class="row-select" required :modelValue="selectedRowHeader"
         @update:modelValue="$emit('update:selectedRowHeader', $event)" :options="refColumns" />
     </span>
   </div>
