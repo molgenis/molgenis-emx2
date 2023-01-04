@@ -30,9 +30,11 @@
 </style>
     
 <script>
+import InputSelect from "../forms/InputSelect.vue";
 export default {
   name: "AggregateOptions",
   props: {
+    components: { InputSelect },
     columns: {
       type: Object,
       required: true,
