@@ -3,6 +3,7 @@
   "workspaces": [
     "catalogue",
     "catalogue3",
+    "directory",
     "settings",
     "central",
     "schema",

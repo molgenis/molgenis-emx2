@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,temperature-18to-35,-18°C to -35°C,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,Sample storage temperature - between -18 and -35°C - SPREC 2.0 (MIABIS-2.0-15).
+,temperature-60to-85,-60°C to -80°C,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,Sample storage temperature - between -60 and -85°C - SPREC 2.0 (MIABIS-2.0-15).
+,temperatureOther,Other,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,"Sample storage temperature - other, text speci ed (MIABIS-2.0-15)."
+,temperatureRoom,Room temperature,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,Sample storage temperature - Room temperature - SPREC 2.0 (MIABIS-2.0-15).
+,temperature2to10,2°C to 10°C,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,Sample storage temperature - between 2 and 10°C - SPREC 2.0 (MIABIS-2.0-15).
+,temperatureLN,Liquid Nitrogen,,MIABIS,,http://purl.obolibrary.org/obo/OMIABIS_0001013,"Sample storage temperature - liquid nitrogen, -150 to -196°C (MIABIS-2.0-15)."
