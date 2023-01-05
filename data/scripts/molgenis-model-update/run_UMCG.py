@@ -110,7 +110,10 @@ for cohort in COHORTS:
     update_general.update_data_model_file()
     zip_handling.zip_data()
     zip_handling.remove_unzipped_data()
-    session.drop_database(database_name=cohort)
+
+    # TODO: add schema_description
+    schema_description = session.drop_database(database_name=cohort)
+    session.create_database(database_name=cohort[5:], schema_description)
 
 # delete schemas UMCG and CatalogueOntologies
 print('------------------------')
@@ -141,11 +144,8 @@ session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE
 # Cohorts update
 print('-----------------------')
 
-print('Updating schemas for cohorts')
+print('Updating data for cohorts')
 for cohort in COHORTS:
     # sign in to server
-    print('Create new cohort schema: ' + cohort)
-    session.create_database(database_name=cohort[5:])
-
-    # upload transformed cohort data
+    print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)
