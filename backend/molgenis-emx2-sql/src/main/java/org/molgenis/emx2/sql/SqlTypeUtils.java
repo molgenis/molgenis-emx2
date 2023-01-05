@@ -112,7 +112,7 @@ public class SqlTypeUtils extends TypeUtils {
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
-                  "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
+              "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
       }
     }
   }
@@ -126,10 +126,10 @@ public class SqlTypeUtils extends TypeUtils {
           // valid.
           return validationScript;
         } else
-          // you can have a validation script returning true which means valid, so false means error.
-          if (!(error instanceof Boolean)) {
-            return error.toString();
-          }
+        // you can have a validation script returning true which means valid, so false means error.
+        if (!(error instanceof Boolean)) {
+          return error.toString();
+        }
       }
       return null;
     } catch (MolgenisException me) {

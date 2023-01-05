@@ -186,7 +186,7 @@ Validation expressions and visible expressions are used to fine tune forms. Vali
 javascript. 
 
 Validation expressions must return either null or true. Otherwise they will show an error message and prevent
-insert/update. In case of 'false' the visible expression itself is shown. Otherwise, the return value of the expression will be shown.
+insert/update. In case of 'false' the visible expression itself is shown. Otherwise, the return value of the expression will be shown. For example:
 
 | validation                                                             | message                                                            |
 |------------------------------------------------------------------------|--------------------------------------------------------------------|
@@ -196,7 +196,11 @@ insert/update. In case of 'false' the visible expression itself is shown. Otherw
 | if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters' | Application of validation rule failed: name should contain only lowercase letters |
 
 Visible expressions must return a value that is not false or undefined, otherwise the column stays hidden in the user interface. In the
-event that javascript throws an exception, this is shown in user interface/error message.
+event that javascript throws an exception, this is shown in user interface/error message. For example:
+
+| visible                            | description                                                         |
+|------------------------------------|---------------------------------------------------------------------|
+| pets?.some(p => e.name === 'pooky') | will only be shown when 'pooky' was selected in  'pets' ref_array |
 
 ## Table inheritance
 

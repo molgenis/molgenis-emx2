@@ -128,9 +128,10 @@ export default {
     visible(expression, columnId) {
       if (expression) {
         try {
-          return executeExpression(expression, this.internalValues);
+          return executeExpression(expression, this.internalValues, this.tableMetaData);
         } catch (error) {
-          this.errorPerColumn[columnId] = `Invalid visibility expression`;
+          this.errorPerColumn[columnId] = `Invalid visibility expression, reason: ${error}`;
+          return true;
         }
       } else {
         return true;
@@ -204,7 +205,7 @@ function getColumnError(column, values, tableMetaData) {
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    return evaluateValidationExpression(column, values);
+    return evaluateValidationExpression(column, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
     return `value should match your selection in column '${column.refLink}' `;
@@ -213,14 +214,14 @@ function getColumnError(column, values, tableMetaData) {
   return undefined;
 }
 
-function evaluateValidationExpression(column, values) {
+function evaluateValidationExpression(column, values, tableMetaData) {
   //true means 'valid'
   //false means 'invalid' => show the script as message
   //anything else also means 'invalid' => show the result as message
   try {
     //use the keys as variables
-    const result = executeExpression(column.validation, values);
-    if (result == false) {
+    const result = executeExpression(column.validation, values, tableMetaData);
+    if (result === false) {
       return `Applying validation rule returned error: ${column.validation}`;
     } else if(result === true || result === undefined) {
       return undefined;
@@ -232,9 +233,16 @@ function evaluateValidationExpression(column, values) {
   }
 }
 
-function executeExpression(expression, values) {
-  const func = `(function(${Object.keys(values).join(',')}){return eval('${expression.replaceAll("'","\"")}');})`;
-  return eval(func)(...Object.values(values));
+function executeExpression(expression, values, tableMetaData) {
+  //make sure all columns have keys to prevent reference errors
+  const copy = deepClone(values);
+  tableMetaData.columns.forEach(c => {
+    if(!copy.hasOwnProperty(c.id)) {
+      copy[c.id] = null;
+    }
+  })
+  const func = `(function(${Object.keys(copy).join(',')}){return eval('${expression.replaceAll("'","\"")}');})`;
+  return eval(func)(...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column, tableMetaData, values) {

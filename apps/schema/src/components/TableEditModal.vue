@@ -2,8 +2,7 @@
   <LayoutModal
     v-if="show === true"
     :title="title"
-    @close="close"
-    :isCloseButtonShown="!isDisabled"
+    :isCloseButtonShown="false"
   >
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
@@ -37,7 +36,7 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="close" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
   <IconAction
@@ -170,27 +169,25 @@ export default {
       }
       this.show = true;
     },
-    close() {
-      this.show = false;
+    apply() {
       this.$emit(this.operation, this.table);
+      this.show = false;
     },
     cancel() {
-      //set
+      this.reset();
+      this.show = false;
+    },
+    reset() {
+      //deep copy
       if (this.modelValue) {
         this.table = deepClone(this.modelValue);
       } else {
         this.table = {};
       }
-      this.show = false;
-    },
+    }
   },
   created() {
-    //deep copy
-    if (this.modelValue) {
-      this.table = deepClone(this.modelValue);
-    } else {
-      this.table = {};
-    }
+    this.reset();
   },
   emits: ["add", "update:modelValue"],
 };
