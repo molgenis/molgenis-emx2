@@ -23,6 +23,7 @@ public class TestLoaders {
     database = TestDatabaseFactory.getTestDatabase();
     // prevend previous dangling test results
     database.dropSchemaIfExists("catalogue");
+    database.dropSchemaIfExists("directory");
     database.dropSchemaIfExists("RWEcatalogue");
     database.dropSchemaIfExists("CohortStaging");
     database.dropSchemaIfExists("CohortStaging");
@@ -108,6 +109,13 @@ public class TestLoaders {
 
     // cleanup because shared schema
     database.dropSchemaIfExists("NetworkStaging3");
+  }
+
+  @Test
+  public void test9DirectoryLoader() {
+    Schema directorySchema = database.dropCreateSchema("directory");
+    AvailableDataModels.DIRECTORY.install(directorySchema, true);
+    assertEquals(27, directorySchema.getTableNames().size());
   }
 
   private static void cleanSharedSchemas() {

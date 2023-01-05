@@ -14,6 +14,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "6.2.1",
     "graphql-request": "5.0.0",
     "molgenis-components": "*",
     "pinia": "2.0.26",
@@ -21,7 +22,6 @@
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "6.2.1",
     "@babel/core": "7.20.5",
     "@babel/preset-env": "7.20.2",
     "@vitejs/plugin-vue": "3.2.0",

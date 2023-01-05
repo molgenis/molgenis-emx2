@@ -8,9 +8,14 @@ import router from "./router";
 if (import.meta.env.DEV) {
   import("./dev-assets/mg-bbmri-eric-4.css");
 }
+/** else???? emx2 does have also css but probably this one is too specific anyway? */
+{
+  import("./dev-assets/mg-bbmri-eric-4.css");
+}
 
 /** Add font awesome icons */
 import "@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/js/all.js";
 
 const app = createApp(App);
 
