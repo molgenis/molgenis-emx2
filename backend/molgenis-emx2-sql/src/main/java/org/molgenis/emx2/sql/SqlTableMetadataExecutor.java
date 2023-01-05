@@ -4,12 +4,13 @@ import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.sql.ChangeLogExecutor.disableChangeLog;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+import static org.molgenis.emx2.utils.ColumnSort.sortColumnsByDependency;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -112,12 +113,6 @@ class SqlTableMetadataExecutor {
   static void createOrReplaceKeys(DSLContext jooq, SqlTableMetadata table) {
     for (Integer key : table.getKeys().keySet()) {
       createOrReplaceKey(jooq, table, key, table.getKeyFields(key));
-    }
-  }
-
-  static void dropKeys(DSLContext jooq, TableMetadata table) {
-    for (Map.Entry<Integer, List<String>> key : table.getKeys().entrySet()) {
-      executeDropKey(jooq, table, key.getKey());
     }
   }
 
@@ -256,8 +251,8 @@ class SqlTableMetadataExecutor {
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
-      // remove keys
-      dropKeys(jooq, table);
+      // disableChangeLog
+      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 
       // drop search trigger
       jooq.execute(
@@ -276,12 +271,14 @@ class SqlTableMetadataExecutor {
               table.getSchema().getName(), table.getTableName()));
 
       // drop all triggers from all columns
-      for (Column c : table.getStoredColumns()) {
+      List<Column> columns = table.getStoredColumns();
+      sortColumnsByDependency(columns);
+      for (Column c : columns) {
         executeRemoveColumn(jooq, c);
       }
 
       // drop the table
-      jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).cascade().execute();
+      jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).execute();
       MetadataUtils.deleteTable(jooq, table);
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Drop table failed", dae);
