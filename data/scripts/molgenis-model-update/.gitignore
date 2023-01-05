@@ -6,3 +6,4 @@
 .idea
 venv
 .env
+*catalogue_data_model*

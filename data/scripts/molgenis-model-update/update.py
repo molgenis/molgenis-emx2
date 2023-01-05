@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import logging
 import re
+from zip_handling import Zip
 
 
 def float_to_int(df):
@@ -14,15 +15,6 @@ def float_to_int(df):
             df.loc[:, column] = df[column].astype('Int64')
 
     return df
-
-def get_identifiers(df, column_name):
-    s = df[column_name]
-    s = re.sub("[^0-9]", "", s)
-    print(s)
-
-
-
-
 
 
 class TransformGeneral:
@@ -40,20 +32,27 @@ class TransformGeneral:
         """
         os.remove(self.path + 'molgenis.csv')
 
-    def data_model_file(self):
+    def update_data_model_file(self):
         """Get path to data model file
         """
-        # copy updated molgenis.csv to os.listdir(self.path)
+        # get molgenis.csv location
         if self.database_type == 'catalogue':
-            template = os.path.abspath('../../datacatalogue3/molgenis.csv')
+            data_model = os.path.abspath('../../datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
-            template = os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv')
+            data_model = os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
-            template = os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv')
+            data_model = os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv')
         elif self.database_type == 'cohort_UMCG':
-            template = os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
+            data_model = os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
 
-        return template
+        # copy molgenis.csv to appropriate folder
+        if self.database_type == 'catalogue':
+            path = './' + 'catalogue_data_model'
+            os.mkdir(path)
+            shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
+            shutil.make_archive('./' + 'catalogue_data_model_upload', 'zip', path)
+        else:
+            shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 
 
 class TransformDataCatalogue:
@@ -73,7 +72,7 @@ class TransformDataCatalogue:
         """
         if self.database_type == 'catalogue':
             self.contacts()
-            self.identifiers()
+            # self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -81,8 +80,11 @@ class TransformDataCatalogue:
             self.dataset_mappings()
             self.variable_mappings()
             self.datasources()
+            self.copy_files()
         if self.database_type == 'UMCG':
             self.contacts()
+            self.copy_files()
+            # self.identifiers()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -107,10 +109,13 @@ class TransformDataCatalogue:
         """
         # get numbers from entry
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        df_identifiers = get_identifiers(df_cohorts['externalIdentifiers'])
-
-        # move to External identifiers.identifier
-        # External identifiers.resource = cohort[5:]
+        df_identifiers = df_cohorts[['pid', 'externalIdentifiers']]
+        df_identifiers = df_identifiers.rename(columns={'pid': 'resource'}, inplace=True)
+        df_identifiers.loc[:, 'identifier'] = [re.sub('[^0-9-;, ]+', '',
+                                                      str(x)) for x in df_identifiers['externalIdentifiers']]
+        df_identifiers.loc[:, 'identifier type'] = [re.sub('[^A-Za-z ]+', '',
+                                                    str(x)) for x in df_identifiers['externalIdentifiers']]
+        df_identifiers.to_csv(self.path + 'External identifiers.csv', index=False)
 
     def tables(self):
         """Merge TargetTables and SourceTables and rename columns
@@ -193,6 +198,15 @@ class TransformDataCatalogue:
         df_datasources_merged = float_to_int(df_datasources_merged)
         df_datasources_merged.to_csv(self.path + 'Datasources.csv', index=False)
 
+    def copy_files(self):
+        """Copy files from SharedStaging to catalogue
+        """
+        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files/')
+        path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
+        for file in os.listdir(path_shared_staging_files):
+            shutil.copyfile(os.path.join(path_shared_staging_files, file),
+                            os.path.join(path_catalogue_files, file))
+
         #DatasourceDatabanks > LinkedDatasources
             #rename columns:
             #datasource > mainDatasource
@@ -218,6 +232,7 @@ class TransformDataStagingCohorts:
         """
         if self.database_type == 'cohort':
             self.contacts()
+            # self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -226,6 +241,7 @@ class TransformDataStagingCohorts:
             self.variable_mappings()
         if self.database_type == 'cohort_UMCG':
             self.contacts()
+            # self.identifiers()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -240,6 +256,19 @@ class TransformDataStagingCohorts:
         df_contacts_merged.rename(columns={'surname': 'lastName'}, inplace=True)
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
+
+    def identifiers(self):
+        """Move external identifiers to separate table
+        """
+        # get numbers from entry
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+        df_identifiers = df_cohorts[['pid', 'externalIdentifiers']]
+        df_identifiers = df_identifiers.rename(columns={'pid': 'resource'}, inplace=True)
+        df_identifiers.loc[:, 'identifier'] = [re.sub('[^0-9-;, ]+', '',
+                                                      str(x)) for x in df_identifiers['externalIdentifiers']]
+        df_identifiers.loc[:, 'identifier type'] = [re.sub('[^A-Za-z ]+', '',
+                                                           str(x)) for x in df_identifiers['externalIdentifiers']]
+        df_identifiers.to_csv(self.path + 'External identifiers.csv', index=False)
 
     def tables(self):
         """Rename SourceTables and rename columns

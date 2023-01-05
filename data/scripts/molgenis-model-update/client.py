@@ -10,14 +10,11 @@ class Session:
     """
     """
 
-    def __init__(self, url, database, email, password):
+    def __init__(self, url, email, password):
         self.url = url
-        self.database = database
         self.email = email
         self.password = password
         self.session = requests.Session()
-        self.graphqlEndpoint = self.url + self.database + '/graphql'
-        self.apiEndpoint = self.url + self.database + '/api'
 
         self.signin(self.email, self.password)
 
@@ -46,31 +43,32 @@ class Session:
 
         if status == 'SUCCESS':
             self.cookies = response.cookies
-            log.debug(f"Success: Signed into {self.database} as {self.email}")
+            log.debug(f"Success: Signed into {self.url} as {self.email}")
         elif status == 'FAILED':
             log.error(message)
         else:
             log.error('Error: sign in failed, exiting.')
 
-    def download_zip(self):
+    def download_zip(self, database_name):
         """Download molgenis zip for given Database."""
         response = requests.get(
-            self.url + self.database + '/api/zip',
+            self.url + database_name + '/api/zip',
             auth=(self.email, self.password),
             allow_redirects=True,
             cookies=self.cookies
         )
 
         if response.content:
-            fh = open(self.database + '_data.zip', 'wb')
+            fh = open(database_name + '_data.zip', 'wb')
             fh.write(response.content)
             fh.close()
         else:
             print('Error: download failed, did you use the correct credentials?')
             exit(1)
 
-    def upload_zip(self):
+    def upload_zip(self, database_name, data_to_upload):
         """Upload molgenis zip to fill Database"""
+
         query = 'mutation{signin(email: "%s", password: "%s"){status,message}}' % (self.email, self.password)
         response = requests.post(
             self.url + 'apps/graphql-playground/graphql',
@@ -79,9 +77,9 @@ class Session:
 
         self.cookies = response.cookies
 
-        zip = {'file': open(self.database + '_upload.zip', 'rb')}
+        zip = {'file': open(data_to_upload + '_upload.zip', 'rb')}
         response = requests.post(
-            self.url + self.database + '/api/zip?async=true',
+            self.url + database_name + '/api/zip?async=true',
             auth=(self.email, self.password),
             allow_redirects=True,
             cookies=self.cookies,
@@ -100,19 +98,21 @@ class Session:
             print(f'Upload failed: {errors}')
         finally:
             try:
-                if os.path.exists(self.database + '_upload.zip'):
-                    os.remove(self.database + '_upload.zip')
-                    # pathlib.Path('upload.zip').unlink(missing_ok=True)
+                if database_name not in ['UMCG', 'catalogue', 'DataCatalogue']:  # otherwise data to upload >>
+                    # << deleted when schema is uploaded
+                    if os.path.exists(database_name + '_upload.zip'):
+                        os.remove(database_name + '_upload.zip')
             except PermissionError:
                 sys.exit('Error deleting upload.zip')
 
-    def drop_database(self) -> None:
+    def drop_database(self, database_name) -> None:
         """ Delete database """
+        graphqlEndpoint = self.url + database_name + '/graphql'
 
         # see if schema exists before deleting it
         query = '{_session {schemas} }'
 
-        response = self.session.post(self.graphqlEndpoint, json={'query': query} )
+        response = self.session.post(graphqlEndpoint, json={'query': query} )
 
         if response.status_code == 200:
             query = """
@@ -123,13 +123,13 @@ class Session:
             }
             """
 
-            variables = {'name':self.database}
+            variables = {'name': database_name}
 
             response = self.session.post(
                 self.url + '/api/graphql',
                 json={'query': query, 'variables': variables}
             )
-
+            print(response.json())
             if response.json()['data']['deleteSchema']['message']:
                 log.info(response.json()['data']['deleteSchema']['message'])
         else:
@@ -137,10 +137,11 @@ class Session:
 
     def create_database(self, database_name) -> None:
         """ Create TARGET database if it doesn't exists"""
-        self.database = database_name
+        graphqlEndpoint = self.url + database_name + '/graphql'
+
         query = '{_session {schemas} }'
 
-        response = self.session.post(self.graphqlEndpoint, json={'query': query})
+        response = self.session.post(graphqlEndpoint, json={'query': query})
         if response.status_code != 200:
 
             query = """
@@ -150,12 +151,13 @@ class Session:
                     }
                 }
                 """
-            variables = {'name': self.database}
+            variables = {'name': database_name}
 
             response = self.session.post(
                 self.url + '/apps/central/graphql',
                 json={'query': query, 'variables': variables}
             )
+            print(response.json())
 
             if response.json()['data']['createSchema']['message']:
                 log.info(response.json()['data']['createSchema']['message'])

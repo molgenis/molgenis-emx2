@@ -32,29 +32,20 @@ print('-----   ----')
 
 print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
 
-# sign in to server for UMCG data
-print('Sign in to server, schema: ' + CATALOGUE_SCHEMA_NAME)
+# sign in to server
+print('Sign in to server: ' + SERVER_URL)
 session = Session(
     url=SERVER_URL,
-    database=CATALOGUE_SCHEMA_NAME,
-    email=SERVER_USERNAME,
-    password=SERVER_PASSWORD
-)
-# extract data from UMCG schema
-print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
-session.download_zip()
-
-# sign in to server for SharedStaging data
-print('Sign in to server, schema: ' + SHARED_STAGING_NAME)
-session = Session(
-    url=SERVER_URL,
-    database=SHARED_STAGING_NAME,
     email=SERVER_USERNAME,
     password=SERVER_PASSWORD
 )
 # extract data from SharedStaging
 print('Extract data from ' + SHARED_STAGING_NAME + ': ' + SHARED_STAGING_NAME + '_data.zip')
-session.download_zip()
+session.download_zip(database_name=SHARED_STAGING_NAME)
+
+# extract data from UMCG schema
+print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
+session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
 
 # transform data from catalogue
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
@@ -65,37 +56,30 @@ zip_handling_shared_staging = Zip(SHARED_STAGING_NAME)
 update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
 spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 
-# run download and transform
+# run download and transform functions
 zip_handling.unzip_data()
 zip_handling_shared_staging.unzip_data()
-update_general.delete_data_model_file()
+update_general.delete_data_model_file()  # delete molgenis.csv from data folder
 transform_data.transform_data()
 spaces.get_spaces()
-# update_general.update_data_model_file()
 zip_handling.zip_data()
-zip_handling.remove_unzipped_data()
+# zip_handling.remove_unzipped_data()
 
 print('----------------')
 
-# sign in to server
-print('Sign in to server.')
-session = Session(
-    url=SERVER_URL,
-    database=ONTOLOGIES_SCHEMA_NAME,
-    email=SERVER_USERNAME,
-    password=SERVER_PASSWORD
-)
 # extract data from CatalogueOntologies
 print('Extract data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME + '_data.zip')
-session.download_zip()
+session.download_zip(database_name=ONTOLOGIES_SCHEMA_NAME)
 
 # transform data from CatalogueOntologies
 print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
+# call instances
 transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 zip_handling = Zip(ONTOLOGIES_SCHEMA_NAME)
 update_general = TransformGeneral(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
 
+# run transform functions
 zip_handling.remove_unzipped_data()
 zip_handling.unzip_data()
 update_general.delete_data_model_file()
@@ -103,22 +87,13 @@ spaces.get_spaces()
 zip_handling.zip_data()
 zip_handling.remove_unzipped_data()
 
-
 # Cohorts update
 print('-----------------------')
 print('Cohort data update to data model ' + DATA_MODEL_VERSION)
 for cohort in COHORTS:
-    # sign in to staging server
-    print('Sign in to staging server for database: %s.' % cohort)
-    session = Session(
-        url=SERVER_URL,
-        database=cohort,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
     # extract data
     print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
-    session.download_zip()
+    session.download_zip(database_name=cohort)
 
     # transform data from cohorts
     print('Transform data from ' + cohort)
@@ -127,6 +102,7 @@ for cohort in COHORTS:
     update_general = TransformGeneral(cohort, 'cohort_UMCG')
     spaces = Spaces(cohort)
 
+    zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
     update_general.delete_data_model_file()
     transform_data.transform_data()
@@ -135,30 +111,44 @@ for cohort in COHORTS:
     zip_handling.remove_unzipped_data()
 
 # delete schemas UMCG and CatalogueOntologies
-# create schemas UMCG and CatalogueOntologies
-# upload molgenis.csv to UMCG schema
-# upload transformed CatalogueOntologies data to CatalogueOntologies schema
-# upload transformed data to UMCG schema
-# per cohort:
-# Cohorts update
-print('-----------------------')
+print('------------------------')
+print('Updating catalogue and CatalogueOntologies schemas')
+# delete UMCG schema
+session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
 
-print('Updating schemas for cohorts')
-for cohort in COHORTS:
-    # sign in to staging server
-    print('Sign in to staging server for database: %s.' % cohort)
-    session = Session(
-        url=SERVER_URL,
-        database=cohort,
-        email=SERVER_USERNAME,
-        password=SERVER_PASSWORD
-    )
-    print('Delete and create cohort schema:' + cohort)
-    session.drop_database()
-#     update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
-#     data_model = update_general.data_model_file()
-#     print(data_model)
-    session.create_database(database_name=cohort[5:])
-# #     # create cohort schema minus 'UMCG_' (cohort[5:])
-# #     # upload transformed cohort data
+# delete CatalogueOntologies schema
+session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
+
+# create schemas UMCG and CatalogueOntologies
+session.create_database(database_name=CATALOGUE_SCHEMA_NAME)
+session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME)
+
+# upload molgenis.csv to UMCG schema
+update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
+data_model_file = update_general.update_data_model_file()
+session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
+
+# upload transformed CatalogueOntologies data to CatalogueOntologies schema
+session.upload_zip(database_name=ONTOLOGIES_SCHEMA_NAME, data_to_upload=ONTOLOGIES_SCHEMA_NAME)
+
+# upload transformed data to UMCG schema
+session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
+
+
+# # per cohort:
+# # Cohorts update
+# print('-----------------------')
 #
+# # print('Updating schemas for cohorts')
+# # for cohort in COHORTS:
+# #     # sign in to server
+# #     print('Delete and create cohort schema:' + cohort)
+# #     session.drop_database(database_name=cohort)
+# # #     update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
+# # #     data_model = update_general.data_model_file()
+# # #     print(data_model)
+# #     session.create_database(database_name=cohort[5:])
+# #     # upload transformed cohort data
+# #     update_general = TransformGeneral(cohort, 'cohort_UMCG')
+# #     update_general.update_data_model_file()
+# #     session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)
