@@ -189,10 +189,9 @@ export function getCollectionDetails (collection) {
 
 export const getBiobankDetails = (biobank) => {
     const settingsStore = useSettingsStore();
-    /* new Set makes a hashmap out of an array which makes every entry unique, then we convert it back to an array */
-    biobank.collections.collectionType = []
-
-    if (biobank.collections.length) {
+    
+    if (biobank.collections && biobank.collections.length) {
+        biobank.collections.collectionType = []
         biobank.collections.collectionType = Object.keys(extractCollectionTypes(biobank.collections))
         biobank.collectionDetails = []
 
@@ -202,7 +201,6 @@ export const getBiobankDetails = (biobank) => {
             biobank.collectionDetails.push(getCollectionDetails(collection))
         }
     }
-    console.log(getViewmodel(biobank, settingsStore.config.biobankColumns))
 
     return {
         ...biobank,
