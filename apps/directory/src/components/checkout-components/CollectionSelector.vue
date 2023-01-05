@@ -39,10 +39,16 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { useCheckoutStore } from "../../stores/checkoutStore";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 export default {
-  name: "CollectionSelector",
+  setup() {
+    const checkoutStore = useCheckoutStore();
+    const settingsStore = useSettingsStore();
+
+    return { checkoutStore, settingsStore };
+  },
   props: {
     collectionData: {
       type: [Object, Array],
@@ -80,8 +86,6 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["AddCollectionsToSelection"]),
-    ...mapMutations(["RemoveCollectionsFromSelection"]),
     handleCollectionStatus(event) {
       const { checked } = event.target;
 
@@ -91,24 +95,26 @@ export default {
       };
 
       if (checked) {
-        this.AddCollectionsToSelection(collectionData);
+        this.checkoutStore.addCollectionsToSelection(collectionData);
       } else {
-        this.RemoveCollectionsFromSelection(collectionData);
+        this.checkoutStore.removeCollectionsFromSelection(collectionData);
       }
     },
   },
   computed: {
-    ...mapGetters(["selectedCollections", "uiText"]),
     checkboxIdentifier() {
       return this.identifier;
     },
     isChecked() {
-      const selectedCollectionIds = this.selectedCollections.map(
+      const selectedCollectionIds = this.checkoutStore.selectedCollections.map(
         (sc) => sc.value
       );
       return this.collections
         .map((collection) => collection.value)
         .every((id) => selectedCollectionIds.includes(id));
+    },
+    uiText() {
+      return this.settingsStore.uiText;
     },
   },
   beforeMount() {

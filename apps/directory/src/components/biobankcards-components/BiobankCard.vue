@@ -107,14 +107,14 @@
                 available
               </h5>
 
-              <!-- <collection-selector
+              <collection-selector
                 v-if="numberOfCollections > 1"
                 class="text-right mr-1 ml-auto align-self-center"
                 :collectionData="biobank.collections"
                 bookmark
                 iconOnly
                 multi
-              ></collection-selector> -->
+              ></collection-selector>
             </div>
             <div class="pl-2" v-if="!numberOfCollections">
               This biobank has no collections yet.
@@ -146,12 +146,12 @@
                     }}</span>
                   </router-link>
                   <div class="ml-auto">
-                    <!-- <collection-selector
+                    <collection-selector
                       class="ml-auto"
                       :collectionData="collectionDetail"
                       iconOnly
                       bookmark
-                    ></collection-selector> -->
+                    ></collection-selector>
                   </div>
                 </div>
 
@@ -184,7 +184,7 @@ import {
   getCollectionDetails,
 } from "../../functions/viewmodelMapper";
 import ViewGenerator from "../generators/ViewGenerator.vue";
-// import CollectionSelector from "../checkout-components/CollectionSelector.vue";
+import CollectionSelector from "../checkout-components/CollectionSelector.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
@@ -196,7 +196,7 @@ export default {
   },
   components: {
     ViewGenerator,
-    // CollectionSelector,
+    CollectionSelector,
   },
   props: {
     fullSize: {
