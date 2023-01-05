@@ -1,191 +1,193 @@
 <template>
-    <LayoutModal
-        v-if="show === true"
-        title="Edit column metadata"
-        :isCloseButtonShown="false"
-    >
-      <template v-slot:body>
-        <div class="row">
-          <div class="column-scroll col">
-            <Spinner v-if="loading"/>
-            <div v-else>
-              <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
-              <MessageError v-if="error">{{ error }}</MessageError>
-              <div class="row">
-                <div class="col-4">
-                  <InputString
-                      id="column_name"
-                      v-model="column.name"
-                      label="columnName"
-                      :errorMessage="nameInvalid"
-                  />
-                </div>
-                <div :class="!previewShow || column.type === 'REFBACK' ? 'col-8' : 'col-4'">
-                  <InputText
-                      id="column_description"
-                      v-model="column.description"
-                      label="description"
-                  />
-                </div>
+  <LayoutModal
+      v-if="show === true"
+      title="Edit column metadata"
+      :isCloseButtonShown="false"
+  >
+    <template v-slot:body>
+      <div class="row">
+        <div class="column-scroll col">
+          <Spinner v-if="loading"/>
+          <div v-else>
+            <MessageWarning v-if="column.drop">Marked for deletion</MessageWarning>
+            <MessageError v-if="error">{{ error }}</MessageError>
+            <div class="row">
+              <div class="col-4">
+                <InputString
+                    id="column_name"
+                    v-model="column.name"
+                    label="columnName"
+                    :errorMessage="nameInvalid"
+                />
               </div>
-              <div class="row">
-                <div class="col-4">
-                  <InputSelect
-                      id="column_columnType"
-                      v-model="column.columnType"
-                      :options="columnTypes"
-                      label="columnType"
-                  />
-                </div>
-                <div
-                    class="col-4"
-                    v-if="
+              <div :class="!previewShow || column.type === 'REFBACK' ? 'col-8' : 'col-4'">
+                <InputText
+                    id="column_description"
+                    v-model="column.description"
+                    label="description"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <InputSelect
+                    id="column_columnType"
+                    v-model="column.columnType"
+                    :options="columnTypes"
+                    label="columnType"
+                />
+              </div>
+              <div
+                  class="col-4"
+                  v-if="
               column.columnType === 'REF' ||
               column.columnType === 'REF_ARRAY' ||
               column.columnType === 'REFBACK' ||
               column.columnType === 'ONTOLOGY' ||
               column.columnType === 'ONTOLOGY_ARRAY'
             "
-                >
-                  <InputSelect
-                      id="column_refTable"
-                      v-model="column.refTable"
-                      :errorMessage="
+              >
+                <InputSelect
+                    id="column_refTable"
+                    v-model="column.refTable"
+                    :errorMessage="
                 column.refTable === undefined || column.name === ''
                   ? 'Referenced table is required'
                   : undefined
               "
-                      :options="tableNames"
-                      label="refTable"
-                  />
-                  <InputSelect
-                      id="column_refSchema"
-                      v-model="column.refSchema"
-                      :options="schemaNames"
-                      @update:modelValue="loadRefSchema"
-                      label="refSchema"
-                      description="When you want to refer to table in another schema"
-                  />
-                </div>
-                <div class="col-4" v-if="column.columnType === 'REFBACK'">
-                  <InputSelect
-                      id="column_refBack"
-                      label="refBack"
-                      v-model="column.refBack"
-                      :options="refBackCandidates(column.refTable, table.name)"
-                  />
-                </div>
-                <div
-                    class="col-4"
-                    v-if="
+                    :options="tableNames"
+                    label="refTable"
+                />
+                <InputSelect
+                    id="column_refSchema"
+                    v-model="column.refSchema"
+                    :options="schemaNames"
+                    @update:modelValue="loadRefSchema"
+                    label="refSchema"
+                    description="When you want to refer to table in another schema"
+                />
+              </div>
+              <div class="col-4" v-if="column.columnType === 'REFBACK'">
+                <InputSelect
+                    id="column_refBack"
+                    label="refBack"
+                    v-model="column.refBack"
+                    :options="refBackCandidates(column.refTable, table.name)"
+                />
+              </div>
+              <div
+                  class="col-4"
+                  v-if="
               column.refTable &&
               (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
             "
-                >
-                  <InputSelect
-                      v-if="refLinkCandidates.length > 0"
-                      id="column_refLink"
-                      v-model="column.refLink"
-                      :options="refLinkCandidates"
-                      label="refLink"
-                      description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
-                  />
-                </div>
+              >
+                <InputSelect
+                    v-if="refLinkCandidates.length > 0"
+                    id="column_refLink"
+                    v-model="column.refLink"
+                    :options="refLinkCandidates"
+                    label="refLink"
+                    description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
+                />
               </div>
-              <div class="row">
-                <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-                  <InputBoolean
-                      id="column_required"
-                      v-model="column.required"
-                      label="required"
-                      description="Will give error unless field is filled in. Is not checked if not visible"
-                  />
-                </div>
-                <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-                  <InputBoolean
-                      id="column_readonly"
-                      v-model="column.readonly"
-                      label="isReadonly"
-                  />
-                </div>
+            </div>
+            <div class="row">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+                <InputBoolean
+                    id="column_required"
+                    v-model="column.required"
+                    label="required"
+                    description="Will give error unless field is filled in. Is not checked if not visible"
+                />
               </div>
-              <div class="row">
-                <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-                  <InputSelect
-                      id="column_key"
-                      v-model="column.key"
-                      :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-                      label="key"
-                  />
-                </div>
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+                <InputBoolean
+                    id="column_readonly"
+                    v-model="column.readonly"
+                    label="isReadonly"
+                />
               </div>
-              <div class="row">
-                <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-                  <InputText
-                      id="column_validation"
-                      v-model="column.validation"
-                      label="validation"
-                      description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
-                  />
-                </div>
-                <div class="col-4">
-                  <InputText
-                      id="column_visible"
-                      v-model="column.visible"
-                      label="visible"
-                      description="When set only show when javascript expression is !null or !false. Example: other > 5"
-                  />
-                </div>
-                <div class="col-4">
-                  <ButtonAction v-if="!previewShow" @click="previewShow = true">show form preview</ButtonAction>
-                </div>
+            </div>
+            <div class="row">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+                <InputSelect
+                    id="column_key"
+                    v-model="column.key"
+                    :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+                    label="key"
+                />
               </div>
-              <div class="row">
-                <div class="col-4">
-                  <InputString
-                      id="column_semantics"
-                      v-model="column.semantics"
-                      :list="true"
-                      label="semantics"
-                  />
-                </div>
+            </div>
+            <div class="row">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+                <InputText
+                    id="column_validation"
+                    v-model="column.validation"
+                    label="validation"
+                    description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
+                />
               </div>
+              <div class="col-4">
+                <InputText
+                    id="column_visible"
+                    v-model="column.visible"
+                    label="visible"
+                    description="When set only show when javascript expression is !null or !false. Example: other > 5"
+                />
+              </div>
+              <div class="col-4">
+                <ButtonAction v-if="!previewShow" @click="previewShow = true">show form preview</ButtonAction>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <InputString
+                    id="column_semantics"
+                    v-model="column.semantics"
+                    :list="true"
+                    label="semantics"
+                />
+              </div>
+            </div>
 
-              <div class="row" v-if="subclassNames !== undefined">
-                <div class="col">
-                  <InputSelect
-                      :readonly="column.oldName !== undefined"
-                      id="column_table"
-                      v-model="column.table"
-                      :options="subclassNames"
-                      :list="true"
-                      label="Available in subclass"
-                      description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
-                  />
-                </div>
+            <div class="row" v-if="subclassNames !== undefined">
+              <div class="col">
+                <InputSelect
+                    :readonly="column.oldName !== undefined"
+                    id="column_table"
+                    v-model="column.table"
+                    :options="subclassNames"
+                    :list="true"
+                    label="Available in subclass"
+                    description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
+                />
               </div>
             </div>
           </div>
-          <div v-if="previewShow" class="col-4 bg-white column-scroll">
-            <h4>Form preview <ButtonAlt @click="previewShow = false" class="pl-0 pr-0">hide</ButtonAlt></h4>
-            <RowEdit id="form-edit" v-model="previewData" :tableMetaData="table" :tableName="table.name"/>
-            Values:
-            {{previewData}}
-          </div>
         </div>
-      </template>
-      <template v-slot:footer>
-        <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-        <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
-      </template>
-    </LayoutModal>
-    <IconAction
-        v-else
-        class="btn-sm hoverIcon"
-        :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-        :tooltip="tooltip"
-        @click="showModal"
-    />
+        <div v-if="previewShow" class="col-4 bg-white column-scroll">
+          <h4>Form preview
+            <ButtonAlt @click="previewShow = false" class="pl-0 pr-0">hide</ButtonAlt>
+          </h4>
+          <RowEdit id="form-edit" v-model="previewData" :tableMetaData="table" :tableName="table.name"/>
+          Values:
+          {{ previewData }}
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+      <ButtonAlt @click="cancel">Cancel</ButtonAlt>
+      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
+    </template>
+  </LayoutModal>
+  <IconAction
+      v-else
+      class="btn-sm hoverIcon"
+      :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
+      :tooltip="tooltip"
+      @click="showModal"
+  />
 </template>
 
 <style>
