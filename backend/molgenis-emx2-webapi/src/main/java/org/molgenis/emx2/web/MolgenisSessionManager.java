@@ -48,10 +48,10 @@ public class MolgenisSessionManager {
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
       // check if we should apply a token
-      if (request.headers("x-molgenis-token") != null) {
+      String authTokenKey = findUsedAuthTokenKey(request);
+      if (authTokenKey != null) {
         String user =
-            JWTgenerator.getUserFromToken(
-                session.getDatabase(), request.headers("x-molgenis-token"));
+            JWTgenerator.getUserFromToken(session.getDatabase(), request.headers(authTokenKey));
         if (!session.getDatabase().getActiveUser().equals(user)) {
           session.getDatabase().setActiveUser(user);
         }
@@ -63,6 +63,22 @@ public class MolgenisSessionManager {
           request.session().id());
     }
     return session;
+  }
+
+  /**
+   * From the request, get the name of the auth token key that was used to supply the auth token in
+   * the header, or return null if none of the options are present.
+   *
+   * @param request
+   * @return
+   */
+  public String findUsedAuthTokenKey(Request request) {
+    for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
+      if (request.headers(authTokenKey) != null) {
+        return authTokenKey;
+      }
+    }
+    return null;
   }
 
   /**
