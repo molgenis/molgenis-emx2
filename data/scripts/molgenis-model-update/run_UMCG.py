@@ -135,20 +135,18 @@ session.upload_zip(database_name=ONTOLOGIES_SCHEMA_NAME, data_to_upload=ONTOLOGI
 session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
 
 
-# # per cohort:
-# # Cohorts update
-# print('-----------------------')
-#
-# # print('Updating schemas for cohorts')
-# # for cohort in COHORTS:
-# #     # sign in to server
-# #     print('Delete and create cohort schema:' + cohort)
-# #     session.drop_database(database_name=cohort)
-# # #     update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
-# # #     data_model = update_general.data_model_file()
-# # #     print(data_model)
-# #     session.create_database(database_name=cohort[5:])
-# #     # upload transformed cohort data
-# #     update_general = TransformGeneral(cohort, 'cohort_UMCG')
-# #     update_general.update_data_model_file()
-# #     session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)
+# per cohort:
+# Cohorts update
+print('-----------------------')
+
+print('Updating schemas for cohorts')
+for cohort in COHORTS:
+    # sign in to server
+    print('Delete and create cohort schema:' + cohort)
+    session.drop_database(database_name=cohort)
+    session.create_database(database_name=cohort[5:])
+
+    # upload transformed cohort data
+    update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
+    update_general.update_data_model_file()
+    session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)

@@ -4,13 +4,13 @@ Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups
 Extended resources,Resources,,,,,,,,,,,
-Subcohorts,,,,,,,,,,,,"List of subcohorts or subpopulations for this resource (fill in at least one subcohort, consider a single cohort without subcohorts as one subcohort)"
 Data resources,Extended resources,,,,,,,,,,,
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
-Contributions,,,,,,,,,,,,Persons that contributed to the creation of a resource
 Collection events,,,,,,,,,,,,List of collection events defined for this resource (fill in at least one collection event)
+Subcohorts,,,,,,,,,,,,"List of subcohorts or subpopulations for this resource (fill in at least one subcohort, consider a single cohort without subcohorts as one subcohort)"
 Subcohort counts,,,,,,,,,,,,
 Documentation,,,,,,,,,,,,Documentation attached to a resource
+External identifiers,,,,,,,,,,,,External identifiers belonging to a resource
 Resources,,overview,heading,,,,,,,,,General information about this resource
 Resources,,id,,1,TRUE,,,,,,,Internal identifier
 Resources,,name,,2,TRUE,,,,,,,Name of the resource
@@ -19,7 +19,7 @@ Resources,,pid,,,,,,,,,,Persistent identifier
 Resources,,website,,,,,,,,,,Link to the website of this resource
 Resources,,description,text,,,,,,,,,Short description of this resource
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
-Extended resources,,external identifiers,refback,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
+Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal"
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort
@@ -92,7 +92,7 @@ Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data cat
 Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection even
 Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify"
-Collection events,,core variables,ref_array,,,SharedStaging,Core variables,,,,,Enter or select 10-20 relevant variables that were collected in this collection event
+Collection events,,core variables,string_array,,,,,,,,,Enter or select 10-20 relevant variables that were collected in this collection event
 Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,,Subcohort description
@@ -111,8 +111,8 @@ Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,
 Subcohort counts,,N total,int,,,,,,,,,
 Subcohort counts,,N female,int,,,,,,,,,
 Subcohort counts,,N male,int,,,,,,,,,
-External identifiers,,resource,ref,,,,Extended resources,,,,,Resource that this external identifier belongs to
-External identifiers,,identifier,,,,,,,,,,"External identifier, e.g. UMCG research register number"
+External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to
+External identifiers,,identifier,,1,TRUE,,,,,,,"External identifier, e.g. UMCG research register number"
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type
 External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type"
 Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?

@@ -239,9 +239,11 @@ class TransformDataStagingCohorts:
             self.repeated_variables()
             self.dataset_mappings()
             self.variable_mappings()
+            self.copy_files()
         if self.database_type == 'cohort_UMCG':
             self.contacts()
             # self.identifiers()
+            self.copy_files()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -333,4 +335,13 @@ class TransformDataStagingCohorts:
         df_variable_mappings = float_to_int(df_variable_mappings)  # convert float back to integer
 
         df_variable_mappings.to_csv(self.path + 'VariableMappings.csv', index=False)
+
+    def copy_files(self):
+        """Copy files from SharedStaging to cohort staging data
+        """
+        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files/')
+        path_cohort_files = os.path.abspath(os.path.join(self.path, '_files/'))
+        for file in os.listdir(path_shared_staging_files):
+            shutil.copyfile(os.path.join(path_shared_staging_files, file),
+                            os.path.join(path_cohort_files, file))
 
