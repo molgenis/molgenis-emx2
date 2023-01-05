@@ -12,15 +12,16 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
     let biobankCards = ref([])
     let waitingForResponse = ref(false)
 
+    const baseQuery = new QueryEMX2(graphqlEndpoint)
+        .table('Biobanks')
+        .select(['id', 'name', 'collections.id', 'collections.name', 'collections.size', ...biobankCardGraphql]) // TODO: add different config for the collection side
+        .orderBy("Biobanks", "name", "asc")
+
     /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
     async function getBiobankCards () {
         waitingForResponse.value = true
         if (biobankCards.value.length === 0) {
-            const biobankResult = await new QueryEMX2(graphqlEndpoint)
-                .table('Biobanks')
-                .select(['id', 'name','collections.id', 'collections.name', 'collections.size', ...biobankCardGraphql]) // TODO: add different config for the collection side
-                .orderBy("Biobanks", "name", "asc")
-                .execute()
+            const biobankResult = await baseQuery.execute()
 
             biobankCards.value = biobankResult.Biobanks
         }
@@ -52,5 +53,5 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
     })
 
 
-    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount, biobankCards }
+    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount, biobankCards, baseQuery }
 })

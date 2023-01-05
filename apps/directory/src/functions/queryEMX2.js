@@ -160,6 +160,11 @@ class QueryEMX2 {
 
         return this
     }
+    /** Resets all filters, useful for when you want to add filters dynamically */
+    resetAllFilters () {
+        this.filters = {}
+        return this
+    }
 
     /**
      * @param {string} item the name of the table or the nested column
