@@ -107,8 +107,10 @@ for cohort in COHORTS:
     update_general.delete_data_model_file()
     transform_data.transform_data()
     spaces.get_spaces()
+    update_general.update_data_model_file()
     zip_handling.zip_data()
     zip_handling.remove_unzipped_data()
+    session.drop_database(database_name=cohort)
 
 # delete schemas UMCG and CatalogueOntologies
 print('------------------------')
@@ -142,11 +144,8 @@ print('-----------------------')
 print('Updating schemas for cohorts')
 for cohort in COHORTS:
     # sign in to server
-    print('Delete and create cohort schema:' + cohort)
-    session.drop_database(database_name=cohort)
+    print('Create new cohort schema: ' + cohort)
     session.create_database(database_name=cohort[5:])
 
     # upload transformed cohort data
-    update_general = TransformGeneral(database=cohort, database_type='cohort_UMCG')
-    update_general.update_data_model_file()
     session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)

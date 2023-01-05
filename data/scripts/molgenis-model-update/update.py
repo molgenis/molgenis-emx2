@@ -339,9 +339,12 @@ class TransformDataStagingCohorts:
     def copy_files(self):
         """Copy files from SharedStaging to cohort staging data
         """
-        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files/')
-        path_cohort_files = os.path.abspath(os.path.join(self.path, '_files/'))
-        for file in os.listdir(path_shared_staging_files):
-            shutil.copyfile(os.path.join(path_shared_staging_files, file),
-                            os.path.join(path_cohort_files, file))
+        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files')
+        path_cohort_files = os.path.abspath(os.path.join(self.path, '_files'))
+        if not os.path.exists(path_cohort_files):
+            os.mkdir(path_cohort_files)
 
+        for item in os.listdir(path_shared_staging_files):
+            if os.path.isfile(os.path.join(path_shared_staging_files, item)):
+                shutil.copyfile(os.path.join(path_shared_staging_files, item),
+                                os.path.join(path_cohort_files, item))
