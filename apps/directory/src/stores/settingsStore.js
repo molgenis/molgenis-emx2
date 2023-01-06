@@ -24,7 +24,6 @@ export const useSettingsStore = defineStore('settingsStore', () => {
     filterFacets: initialFilterFacets,
     filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
-    menuHeight: 50,
     pageSize: 12,
     i18n
   })

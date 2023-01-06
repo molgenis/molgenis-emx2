@@ -2,44 +2,24 @@
   <StringFilter
     name="Search"
     v-model="search"
-    placeholder="Search"></StringFilter>
+    placeholder="Search"
+  ></StringFilter>
 </template>
 
 <script>
-import StringFilter from '../filters/StringFilter.vue'
+import StringFilter from "../filters/StringFilter.vue";
+import { useFiltersStore } from "../../stores/filtersStore";
+import { storeToRefs } from 'pinia';
 
 export default {
-  components: {
-    StringFilter
-  },
-  data () {
-    return {
-      debounce: undefined,
-      search: ''
-    }
-  },
-  // computed: {
-  //   search: {
-  //     get () {
-  //       return this.activeFilters.search
-  //     },
-  //     set (search) {
-  //       if (this.debounce) {
-  //         clearTimeout(this.debounce)
-  //       }
+  setup() {
+    const filterStore = useFiltersStore();
 
-  //       this.debounce = setTimeout(async () => {
-  //         clearTimeout(this.debounce)
-  //         this.UpdateFilterSelection({
-  //           name: 'search',
-  //           value: search
-  //         })
-  //       }, 750)
-  //     }
-  //   }
-  // },
-  // methods: {
-  //   ...mapMutations(['UpdateFilterSelection'])
-  // }
-}
+    const { search } = storeToRefs(filterStore);
+    return { search };
+  },
+  components: {
+    StringFilter,
+  },
+};
 </script>

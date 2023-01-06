@@ -44,11 +44,7 @@ export default {
       required: false,
       default: () => "",
     },
-    /**
-     * The StringFilter model value.
-     * @model
-     */
-    value: {
+    modelValue: {
       type: String,
       default: () => "",
     },
@@ -56,10 +52,10 @@ export default {
   computed: {
     model: {
       get() {
-        return this.value || "";
+        return this.modelValue || "";
       },
       set(value) {
-        this.$emit("input", value === "" ? undefined : value);
+        this.$emit("update:modelValue", value === "" ? undefined : value);
       },
     },
   },

@@ -1,35 +1,38 @@
 <template>
   <div
     class="px-3 pt-1 header-bar card sticky-top border-0 shadow-sm"
-    :style="`top:${menuHeight}px;`">
+  >
     <div class="row my-2">
       <div class="col-8" aria-label="action-bar">
         <div class="search-container mr-2 mb-2">
           <search-filter />
         </div>
-        <b-button
+        <!-- <b-button
           v-if="numberOfActiveFilters > 0"
           class="mr-2"
           variant="outline-danger"
-          @click="ClearActiveFilters">Clear all filters</b-button>
+          @click="ClearActiveFilters">Clear all filters</b-button> -->
       </div>
-
     </div>
-    
   </div>
 </template>
 
 <script>
+import { useSettingsStore } from "../../stores/settingsStore";
 
 /** Components used for filters */
-import SearchFilter from '../filters/SearchFilter.vue'
+import SearchFilter from "../filters/SearchFilter.vue";
 /** */
 
 export default {
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   components: {
-    SearchFilter
-  }
-}
+    SearchFilter,
+  },
+};
 </script>
 
 <style>

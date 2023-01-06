@@ -8,9 +8,25 @@ export const useFiltersStore = defineStore('filtersStore', () => {
 
     const filterResult = ref({})
 
+    const search = ref('')
+
     function resetFilters () {
         this.baseQuery.resetFilters();
     }
 
-    return { baseQuery, filterResult, resetFilters }
+
+    // this.debounce = setTimeout(async () => {
+        //         clearTimeout(this.debounce)
+        //         this.UpdateFilterSelection({
+        //           name: 'search',
+        //           value: search
+        //         })
+        //       }, 750)
+
+    return { 
+        baseQuery, 
+        filterResult, 
+        resetFilters, 
+        search 
+    }
 })
