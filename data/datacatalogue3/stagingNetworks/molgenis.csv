@@ -69,9 +69,9 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document,,,
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation,,,
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation,,,
-Networks,,cohorts,ref_array,,,,Cohorts,,,,,,,,
+Networks,,cohorts,ref_array,,,DataCatalogue,Cohorts,,,,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network,,,
-Networks,,studies,refback,,,,Studies,,networks,,,,,,
+Networks,,studies,refback,,,DataCatalogue,Studies,,networks,,,,,,
 Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model,,,
 Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of,,TargetTables,dataDictionary
 Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model,,,
