@@ -1,20 +1,25 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-import App from './App.vue'
-import router from './router'
+import App from "./App.vue";
+import router from "./router";
 
 /** When in devmode use this stylesheet */
 if (import.meta.env.DEV) {
-    import('./dev-assets/mg-bbmri-eric-4.css')
+  import("./dev-assets/mg-bbmri-eric-4.css");
+}
+/** else???? emx2 does have also css but probably this one is too specific anyway? */
+{
+  import("./dev-assets/mg-bbmri-eric-4.css");
 }
 
 /** Add font awesome icons */
-import "../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+import "@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/js/all.js";
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
+app.use(createPinia());
+app.use(router);
 
-app.mount('#app')
+app.mount("#app");

@@ -2,8 +2,10 @@ package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jooq.DDLQuery;
@@ -196,11 +198,22 @@ class SqlSchemaMetadataExecutor {
 
   static void executeDropSchema(SqlDatabase db, String schemaName) {
     try {
-      // remove changelog triggers
-      ChangeLogExecutor.disableChangeLog(db, db.getSchema(schemaName).getMetadata());
-      // remove settings
-      db.getJooq().dropSchema(name(schemaName)).cascade().execute();
-      // TODO if there are custom roles
+      Schema schema = db.getSchema(schemaName);
+      // reload because we must have latest state
+      ((SqlSchemaMetadata) schema.getMetadata()).reload();
+
+      // remove changelog triggers + table
+      ChangeLogExecutor.disableChangeLog(db, schema.getMetadata());
+      ChangeLogExecutor.executeDropChangeLogTableForSchema(db, schema);
+
+      // remove tables individually to trigger foreign key error if appropriate
+      List<Table> tables = db.getSchema(schemaName).getTablesSorted();
+      Collections.reverse(tables);
+      tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
+
+      // drop schema
+      db.getJooq().dropSchema(name(schemaName)).execute();
+
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
         db.getJooq().execute("DROP ROLE {0}", name(getRolePrefix(schemaName) + role));
       }

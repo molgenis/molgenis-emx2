@@ -3,6 +3,7 @@
   "workspaces": [
     "catalogue",
     "catalogue3",
+    "directory",
     "settings",
     "central",
     "schema",
@@ -12,7 +13,8 @@
     "graphql-playground",
     "nuxt3-ssr",
     "molgenis-components",
-    "helloworld"
+    "helloworld",
+    "reports"
    ]
 }
 

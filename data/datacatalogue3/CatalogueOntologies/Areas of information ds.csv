@@ -1,4 +1,4 @@
-name,label,description,parent
+name,label,definition,parent
 Geographic regions,,Are data on geographic region available?,
 Family linkage,,Is any linkage available in the data bank between any of the following persons?,
 Family linkage routinely,,Is familial linkage created routinely?,
@@ -97,7 +97,7 @@ ATMP,,Is information on advanced therapy medicinal products included?,Clinical d
 Contraception,,Is information on contraceptives included?,
 Indication for use,,"If medicines information is captured, is the indication for use recorded? Select all items vocabularies that apply",Clinical data
 Indication for use: Not captured,Not captured,,Indication for use
-Indication for use : ICPC,ICPC,,Indication for use 
+Indication for use: ICPC,ICPC,,Indication for use 
 Indication for use: ICD9,ICD9,,Indication for use
 Indication for use: ICD10,ICD10,,Indication for use
 Indication for use: ICD1,ICD1,,Indication for use

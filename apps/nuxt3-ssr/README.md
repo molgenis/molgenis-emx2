@@ -40,3 +40,20 @@ npm run preview
 ```
 
 Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
+
+#### Running the styles
+
+The file `tailwind.config.js` contains all the Molgenis design tokens. The file `main.css` is the base stylesheet and `styles.css` is the stylesheet actually loaded. You can easily flip between one style and another during the develop process. See below for the UMCG example.
+
+
+##### theme
+
+This theme used the Molgenis theme as its source using the [Tailwind presets](https://tailwindcss.com/docs/presets) option.
+
+A non default emx2 theme is loaded by passing the  ```EMX2_THEME``` environment variable to the startup command.
+For example during development
+
+```sh
+EMX2_THEME=umcg yarn dev
+```
+

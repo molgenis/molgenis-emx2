@@ -1,11 +1,12 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from "node:url";
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { createHtmlPlugin } from 'vite-plugin-html';
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { createHtmlPlugin } from "vite-plugin-html";
 
 // eslint-disable-next-line no-undef
-const HOST = process.env.MOLGENIS_APPS_HOST || "https://bbmri-emx2-test.molgeniscloud.org";
+const HOST =
+  process.env.MOLGENIS_APPS_HOST || "https://bbmri-emx2-test.molgeniscloud.org";
 // eslint-disable-next-line no-undef
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "BBMRI-ERIC%20Directory";
 
@@ -13,17 +14,19 @@ const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
+  base: "",
+  build: { sourcemap: true },
   plugins: [
     vue(),
     createHtmlPlugin({
-      entry: 'src/main.js',
-      template: command === 'serve' ? 'dev-index.html' : 'index.html'
-    })
+      entry: "src/main.js",
+      template: command === "serve" ? "dev-index.html" : "index.html",
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
   server: {
     proxy: {
@@ -39,6 +42,6 @@ export default defineConfig(({ command }) => ({
       "/api": { target: `${HOST}`, ...opts },
       "/apps": { target: `${HOST}`, ...opts },
       "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
-    }
+    },
   },
-}))
+}));
