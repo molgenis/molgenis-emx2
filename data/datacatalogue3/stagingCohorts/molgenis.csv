@@ -64,8 +64,8 @@ Extended resources,,acknowledgements,text,,,,,,,,,Acknowledgement statement and 
 Extended resources,,documentation,refback,,,,Documentation,,resource,,,"Descriptive document(s) available for this resource, e.g. informed consent",,,
 Data resources,,supplementary information,text,,,,,,,,,Any other information that needs to be disclosed for this resource,,,
 Data resources,,collaborations,heading,,,,,,,,,List of relevant collaborations,,,
-Cohorts,,studies,refback,,,DataCatalogue,Studies,,cohorts,,,Listing of studies that used this cohort,,,
-Cohorts,,networks,refback,,,DataCatalogue,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,,,
+Cohorts,,studies,ref_array,,,UMCG,Studies,,cohorts,,,Listing of studies that used this cohort,,,
+Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in,,,
 Publications,,,,,,,,,,,,Publications following bibtex format,,,
 Publications,,doi,,1,TRUE,,,,,,,Digital object identifier,,,
 Publications,,title,,,,,,,,,,Publication title,,,
@@ -176,8 +176,8 @@ Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariab
 Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated,,,
 Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from,,TableMappings,fromDataDictionary
 Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from,,TableMappings,fromTable
-Dataset mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
-Dataset mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,name of the table being mapped to,,TableMappings,toTable
+Dataset mappings,,target,ref,1,TRUE,UMCG,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version",,TableMappings,toDataDictionary
+Dataset mappings,,target dataset,ref,1,TRUE,UMCG,Datasets,target,,,,name of the table being mapped to,,TableMappings,toTable
 Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,,,
 Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping,,,
 Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code",,,
@@ -186,9 +186,9 @@ Variable mappings,,source,ref,1,TRUE,,Extended resources,,,,,,,VariableMappings,
 Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,,,VariableMappings,fromTable
 Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)",,VariableMappings,fromVariable
 Variable mappings,,source variables other datasets,ref_array,,,,All variables,source,,,,"optional, variable from other source datasets. Initially one may only define mapping between releases",,VariableMappings,fromVariablesOtherTables
-Variable mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,,,VariableMappings,toDataDictionary
-Variable mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,,,VariableMappings,toTable
-Variable mappings,,target variable,ref,1,TRUE,DataCatalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",,VariableMappings,toVariable
+Variable mappings,,target,ref,1,TRUE,UMCG,Extended resources,,,,,,,VariableMappings,toDataDictionary
+Variable mappings,,target dataset,ref,1,TRUE,UMCG,Datasets,target,,,,,,VariableMappings,toTable
+Variable mappings,,target variable,ref,1,TRUE,UMCG,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable",,VariableMappings,toVariable
 Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'",,,
 Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final,,,
 Variable mappings,,description,text,,,,,,,,,human readible description of the mapping,,,
