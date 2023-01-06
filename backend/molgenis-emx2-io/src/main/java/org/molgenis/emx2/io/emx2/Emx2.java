@@ -138,10 +138,13 @@ public class Emx2 {
             SEMANTICS,
             DESCRIPTION);
     // add label locales that are used
-    headers.addAll(
-        schema.getLocales().stream()
-            .map(locale -> "en".equals(locale) ? COLUMN_LABEL : COLUMN_LABEL + ":" + locale)
-            .collect(Collectors.toSet()));
+    Set locales = schema.getLocales();
+    if (locales.size() > 0) {
+      headers.addAll(
+          schema.getLocales().stream()
+              .map(locale -> "en".equals(locale) ? COLUMN_LABEL : COLUMN_LABEL + ":" + locale)
+              .collect(Collectors.toSet()));
+    }
     store.writeTable("molgenis", headers, toRowList(schema));
   }
 
