@@ -38,6 +38,16 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
           .build();
+  public static final GraphQLInputObjectType inputLabelsMetadataType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisLabelsInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(LOCALE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(LABEL).type(Scalars.GraphQLString))
+          .build();
   public static final GraphQLType outputSettingsType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
@@ -45,6 +55,16 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.VALUE)
+                  .type(Scalars.GraphQLString))
+          .build();
+  public static final GraphQLType outputLabelsType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisLabelsType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LOCALE).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.LABEL)
                   .type(Scalars.GraphQLString))
           .build();
   static final GraphQLType changesMetadataType =
@@ -114,6 +134,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(LABELS)
+                  .type(GraphQLList.list(outputLabelsType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
@@ -262,6 +286,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.NAME)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(LABELS)
+                  .type(GraphQLList.list(inputLabelsMetadataType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.ID)

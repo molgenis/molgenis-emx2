@@ -5,6 +5,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -15,6 +16,8 @@ public class Emx2 {
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
+  public static final String COLUMN_LABEL =
+      "columnLabel"; // can be postfixed for other locales, e.g. columnLabel:fr
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
@@ -93,6 +96,14 @@ public class Emx2 {
                 columnPosition++); // this ensures positions accross table hiearchy matches those in
           // imported
           // file
+          // get labels
+          if (r.notNull(COLUMN_LABEL)) column.setLabel(r.getString(COLUMN_LABEL));
+          r.getColumnNames().stream()
+              .filter(name -> name.startsWith(COLUMN_LABEL + ":"))
+              .forEach(
+                  label -> {
+                    column.setLabel(r.getString(label), (label.split(":")[1]));
+                  });
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -109,8 +120,8 @@ public class Emx2 {
   }
 
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
-    store.writeTable(
-        "molgenis",
+    // headers
+    List<String> headers =
         List.of(
             TABLE_NAME,
             TABLE_EXTENDS,
@@ -125,8 +136,13 @@ public class Emx2 {
             REF_BACK,
             VALIDATION,
             SEMANTICS,
-            DESCRIPTION),
-        toRowList(schema));
+            DESCRIPTION);
+    // add label locales that are used
+    headers.addAll(
+        schema.getLocales().stream()
+            .map(locale -> "en".equals(locale) ? COLUMN_LABEL : COLUMN_LABEL + ":" + locale)
+            .collect(Collectors.toSet()));
+    store.writeTable("molgenis", headers, toRowList(schema));
   }
 
   /** Outputs tables + columns. */
@@ -163,28 +179,36 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
       if (t.getDescription() != null) row.setString(DESCRIPTION, t.getDescription());
-      result.add(row);
-    }
 
-    // output the columns
-    for (Column c : columns) {
-      if (!c.getName().startsWith("mg_")) {
-        Row row = new Row();
-        row.setString(TABLE_NAME, c.getTableName());
-        row.setString(COLUMN_NAME, c.getName());
-        if (!c.getColumnType().equals(STRING))
-          row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-        if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
-        if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-        if (!c.getRefSchema().equals(c.getSchemaName()))
-          row.setString(REF_SCHEMA, c.getRefSchema());
-        if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-        if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-        if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-        if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
-        if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
-        if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-        result.add(row);
+      result.add(row);
+
+      // output the columns
+      for (Column c : columns) {
+        if (!c.getName().startsWith("mg_")) {
+          row = new Row();
+          row.setString(TABLE_NAME, c.getTableName());
+          row.setString(COLUMN_NAME, c.getName());
+          if (!c.getColumnType().equals(STRING))
+            row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
+          if (c.isRequired()) row.setBool(REQUIRED, c.isRequired());
+          if (c.getKey() > 0) row.setInt(KEY, c.getKey());
+          if (!c.getRefSchema().equals(c.getSchemaName()))
+            row.setString(REF_SCHEMA, c.getRefSchema());
+          if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
+          if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
+          if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
+          if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
+          if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+          if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
+          for (Map.Entry<String, String> label : c.getColumnLabels().entrySet()) {
+            if (label.getKey().equals("en")) {
+              row.set(COLUMN_LABEL, label.getValue());
+            } else {
+              row.set(COLUMN_LABEL + ":" + label.getKey(), label.getValue());
+            }
+          }
+          result.add(row);
+        }
       }
     }
     return result;

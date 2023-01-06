@@ -369,15 +369,13 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
+        "mutation{change(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1, labels:{locale:\"en\", label:\"column1\"}}]}]){message}}");
 
-    JsonNode node = execute("{_schema{tables{name,columns{name,key}}}}");
-
+    JsonNode node = execute("{_schema{tables{name,columns{name,key, labels{locale,label}}}}}");
+    TestCase.assertEquals(1, node.at("/_schema/tables/0/columns/0/key").intValue());
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
     TestCase.assertEquals(
-        1,
-        execute("{_schema{tables{name,columns{name,key}}}}")
-            .at("/_schema/tables/0/columns/0/key")
-            .intValue());
+        "column1", node.at("/_schema/tables/5/columns/0/labels/0/label").asText());
     TestCase.assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop

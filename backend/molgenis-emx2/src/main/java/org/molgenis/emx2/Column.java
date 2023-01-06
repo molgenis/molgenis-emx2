@@ -6,10 +6,7 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
@@ -21,6 +18,8 @@ public class Column implements Comparable<Column> {
   // basics
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
+  private Map<String, String> columnLabels =
+      new TreeMap<>(); // long names, with locale as keyl, label as value
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -114,6 +113,7 @@ public class Column implements Comparable<Column> {
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
+    columnLabels = column.columnLabels;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -156,6 +156,31 @@ public class Column implements Comparable<Column> {
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
+  }
+
+  public Column setColumnLabels(Map<String, String> columnLabels) {
+    Objects.requireNonNull(columnLabels);
+    this.columnLabels = columnLabels;
+    return this;
+  }
+
+  public Column setLabel(String label) {
+    this.setLabel(label, "en"); // 'en' is the default
+    return this;
+  }
+
+  public Column setLabel(String label, String locale) {
+    Objects.requireNonNull(locale);
+    if (label == null) {
+      this.columnLabels.remove(locale);
+    } else {
+      this.columnLabels.put(locale, label);
+    }
+    return this;
+  }
+
+  public Map<String, String> getColumnLabels() {
+    return columnLabels;
   }
 
   public String getQualifiedName() {

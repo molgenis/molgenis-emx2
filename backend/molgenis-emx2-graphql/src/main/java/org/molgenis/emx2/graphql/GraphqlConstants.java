@@ -15,6 +15,7 @@ public class GraphqlConstants {
   public static final String PASSWORD = "password";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
+  public static final String LABELS = "labels";
   public static final String OLD_NAME = "oldName";
   public static final String DROP = "drop";
   public static final String EXTERNAL_SCHEMA = "externalSchema";
@@ -35,6 +36,7 @@ public class GraphqlConstants {
   public static final String SEARCH = "search";
   public static final String ORDERBY = "orderby";
   public static final String KEYS = "keys";
+  public static final String LOCALE = "locale";
   public static final String LABEL = "label";
   public static final String COUNT = "count";
   public static final String SCHEMAS = "schemas";

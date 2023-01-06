@@ -58,6 +58,8 @@ public class MetadataUtils {
   // column
   private static final Field<String> COLUMN_NAME =
       field(name("column_name"), VARCHAR.nullable(false));
+  private static final Field<JSON> COLUMN_LABELS =
+      field(name("column_labels"), JSON.nullable(false));
   private static final Field<Integer> COLUMN_KEY = field(name("key"), INTEGER.nullable(true));
   private static final Field<Integer> COLUMN_POSITION = field(name("position"), INTEGER);
   private static final Field<String> COLUMN_DESCRIPTION =
@@ -456,7 +458,7 @@ public class MetadataUtils {
     table.setDescription(r.get(TABLE_DESCRIPTION, String.class));
     table.setSemantics(r.get(TABLE_SEMANTICS, String[].class));
     table.setSettingsWithoutReload(
-        r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new LinkedHashMap<>());
+        r.get(SETTINGS) != null ? r.get(SETTINGS, Map.class) : new TreeMap<>());
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
@@ -477,6 +479,7 @@ public class MetadataUtils {
             TABLE_SCHEMA,
             TABLE_NAME,
             COLUMN_NAME,
+            COLUMN_LABELS,
             COLUMN_TYPE,
             COLUMN_KEY,
             COLUMN_POSITION,
@@ -498,6 +501,7 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getName(),
+            column.getColumnLabels(),
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -517,6 +521,7 @@ public class MetadataUtils {
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
+        .set(COLUMN_LABELS, column.getColumnLabels())
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
@@ -552,6 +557,8 @@ public class MetadataUtils {
 
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
+    c.setColumnLabels(
+        col.get(COLUMN_LABELS) != null ? col.get(COLUMN_LABELS, Map.class) : new TreeMap<>());
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));
     c.setKey(col.get(COLUMN_KEY, Integer.class));

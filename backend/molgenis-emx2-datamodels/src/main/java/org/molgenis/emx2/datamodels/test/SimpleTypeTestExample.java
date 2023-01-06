@@ -22,6 +22,9 @@ public class SimpleTypeTestExample {
     for (ColumnType columnType : columnTypes) {
       typeTestTable.add(
           column("Test " + columnType.toString().toLowerCase())
+              // test for labels, only used in forms user interface
+              .setLabel("Test_" + columnType.toString().toLowerCase() + "_label")
+              .setLabel("Test_" + columnType.toString().toLowerCase() + "_label2", "bla")
               .setType(columnType)
               .setRequired(true));
       typeTestTable.add(

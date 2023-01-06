@@ -2,6 +2,9 @@ package org.molgenis.emx2.json;
 
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 
@@ -9,6 +12,7 @@ public class Column {
   private String table;
   private String id;
   private String name;
+  private List<ColumnLabel> labels = new ArrayList<>();
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -43,6 +47,10 @@ public class Column {
     }
     this.id = column.getIdentifier();
     this.name = column.getName();
+    this.labels =
+        column.getColumnLabels().entrySet().stream()
+            .map(entry -> new ColumnLabel(entry.getKey(), entry.getValue()))
+            .toList();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
     this.key = column.getKey();
@@ -71,6 +79,7 @@ public class Column {
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setOldName(oldName);
+    c.setColumnLabels(labels.stream().collect(Collectors.toMap(ColumnLabel::locale, ColumnLabel::label)));
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);
@@ -258,5 +267,13 @@ public class Column {
 
   public void setReadonly(Boolean readonly) {
     this.readonly = readonly;
+  }
+
+  public List<ColumnLabel> getLabels() {
+    return labels;
+  }
+
+  public void setLabels(List<ColumnLabel> labels) {
+    this.labels = labels;
   }
 }
