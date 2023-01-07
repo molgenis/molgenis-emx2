@@ -159,7 +159,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
                   .getColumns()
                   .forEach(
                       column -> {
-                        result.addAll(column.getColumnLabels().keySet());
+                        result.addAll(column.getLabels().keySet());
                       });
             });
     return result;

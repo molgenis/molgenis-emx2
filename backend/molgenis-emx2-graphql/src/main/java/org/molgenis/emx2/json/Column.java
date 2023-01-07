@@ -48,7 +48,7 @@ public class Column {
     this.id = column.getIdentifier();
     this.name = column.getName();
     this.labels =
-        column.getColumnLabels().entrySet().stream()
+        column.getLabels().entrySet().stream()
             .map(entry -> new ColumnLabel(entry.getKey(), entry.getValue()))
             .toList();
     this.oldName = column.getOldName();
@@ -79,7 +79,7 @@ public class Column {
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setOldName(oldName);
-    c.setColumnLabels(labels.stream().collect(Collectors.toMap(ColumnLabel::locale, ColumnLabel::label)));
+    c.setLabels(labels.stream().collect(Collectors.toMap(ColumnLabel::locale, ColumnLabel::label)));
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);

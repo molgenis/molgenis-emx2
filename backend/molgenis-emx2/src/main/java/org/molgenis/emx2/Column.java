@@ -18,7 +18,7 @@ public class Column implements Comparable<Column> {
   // basics
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
-  private Map<String, String> columnLabels =
+  private Map<String, String> labels =
       new TreeMap<>(); // long names, with locale as keyl, label as value
   private ColumnType columnType = STRING; // type of the column
 
@@ -113,7 +113,7 @@ public class Column implements Comparable<Column> {
   /* copy constructor to prevent changes on in progress data */
   private void copy(Column column) {
     columnName = column.columnName;
-    columnLabels = column.columnLabels;
+    labels = column.labels;
     oldName = column.oldName;
     drop = column.drop;
     columnType = column.columnType;
@@ -158,9 +158,17 @@ public class Column implements Comparable<Column> {
     return this;
   }
 
-  public Column setColumnLabels(Map<String, String> columnLabels) {
-    Objects.requireNonNull(columnLabels);
-    this.columnLabels = columnLabels;
+  public Column setLabels(Map<String, String> newLabels) {
+    Objects.requireNonNull(newLabels);
+    this.labels = new TreeMap<>();
+    // strip empty strings
+    newLabels.entrySet().stream()
+        .forEach(
+            entry -> {
+              if (entry.getValue() != null && !"".equals(entry.getValue().trim())) {
+                this.labels.put(entry.getKey(), entry.getValue());
+              }
+            });
     return this;
   }
 
@@ -171,16 +179,16 @@ public class Column implements Comparable<Column> {
 
   public Column setLabel(String label, String locale) {
     Objects.requireNonNull(locale);
-    if (label == null) {
-      this.columnLabels.remove(locale);
+    if (label == null || label.trim().equals("")) {
+      this.labels.remove(locale);
     } else {
-      this.columnLabels.put(locale, label);
+      this.labels.put(locale, label);
     }
     return this;
   }
 
-  public Map<String, String> getColumnLabels() {
-    return columnLabels;
+  public Map<String, String> getLabels() {
+    return labels;
   }
 
   public String getQualifiedName() {

@@ -501,7 +501,7 @@ public class MetadataUtils {
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
             column.getName(),
-            column.getColumnLabels(),
+            column.getLabels(),
             Objects.toString(column.getColumnType(), null),
             column.getKey(),
             column.getPosition(),
@@ -521,7 +521,7 @@ public class MetadataUtils {
             column.getVisible())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
-        .set(COLUMN_LABELS, column.getColumnLabels())
+        .set(COLUMN_LABELS, column.getLabels())
         .set(COLUMN_TYPE, Objects.toString(column.getColumnType(), null))
         .set(COLUMN_KEY, column.getKey())
         .set(COLUMN_POSITION, column.getPosition())
@@ -557,7 +557,7 @@ public class MetadataUtils {
 
   private static Column recordToColumn(org.jooq.Record col) {
     Column c = new Column(col.get(COLUMN_NAME, String.class));
-    c.setColumnLabels(
+    c.setLabels(
         col.get(COLUMN_LABELS) != null ? col.get(COLUMN_LABELS, Map.class) : new TreeMap<>());
     c.setType(ColumnType.valueOf(col.get(COLUMN_TYPE, String.class)));
     c.setRequired(col.get(COLUMN_REQUIRED, Boolean.class));

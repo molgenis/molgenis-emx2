@@ -62,6 +62,11 @@
       </span>
       <span v-if="column.key">key={{ column.key }}</span>
     </td>
+    <td>
+      <table v-if="column.labels" class="table-borderless">
+        <tr v-for="el in column.labels.filter(el => el.label)"><td>{{el.locale}}:</td><td>{{el.label}}</td></tr>
+      </table>
+    </td>
     <td>{{ column.description }}</td>
   </tr>
 </template>

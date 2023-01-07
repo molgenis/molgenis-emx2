@@ -9,7 +9,7 @@
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
       :graphqlURL="graphqlURL"
-      :label="column.name"
+      :label="columnLabel(column)"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
@@ -85,6 +85,11 @@ export default {
       required: false,
       default: () => true,
     },
+    locale: {
+      type: String,
+      required: false,
+      default: () => 'en'
+    }
   },
   emits: ["update:modelValue"],
   components: {
@@ -113,6 +118,17 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    columnLabel(column) {
+      if(column.labels?.length > 0) {
+        //in the future we will use session to get the locale for this user, now always use 'en'
+        const label = column.labels.find(el => el.locale === this.locale);
+        if(label) {
+          return label.label
+        }
+      }
+      //default label is name
+      return column.name;
+    },
     showColumn(column) {
       const isColumnVisible = Array.isArray(this.visibleColumns)
         ? this.visibleColumns.map((column) => column.name).includes(column.name)
@@ -277,6 +293,7 @@ function containsInvalidEmail(emails) {
             :tableName="tableName"
             :tableMetaData="tableMetaData"
             :graphqlURL="graphqlURL"
+            :locale="locale"
         />
       </div>
       <div class="col-6 border-left">
@@ -291,7 +308,7 @@ function containsInvalidEmail(emails) {
               <option>User</option>
             </select>
           </dd>
-
+          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -307,6 +324,7 @@ function containsInvalidEmail(emails) {
     data: function() {
       return {
         showRowEdit: true,
+        locale: 'en',
         tableName: 'Pet',
         tableMetaData: {
           columns: [],
@@ -317,6 +335,12 @@ function containsInvalidEmail(emails) {
     },
     watch: {
       async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+      async locale(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();

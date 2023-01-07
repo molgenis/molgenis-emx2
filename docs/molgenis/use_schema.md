@@ -95,6 +95,12 @@ can be used to create a secondary key. Default value: empty
 When required=TRUE then values in this column must be filled. When required=FALSE then this column can be left empty.
 Default value: FALSE.
 
+### label,label:en,label:fr etc
+
+Using label you can change the labels in forms. Typically useful for data capture and surveys.
+Using :suffix you can give labels for multiple languages, e.g. label:fr is for the french language.
+The shorthand 'label' is synonymous to 'label:en'.
+
 ### description
 
 Text value that describes the column, or when columnName is empty, the table.

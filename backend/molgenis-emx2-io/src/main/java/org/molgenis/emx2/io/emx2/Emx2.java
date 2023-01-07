@@ -16,8 +16,7 @@ public class Emx2 {
   public static final String DESCRIPTION = "description";
   public static final String TABLE_EXTENDS = "tableExtends";
   public static final String COLUMN_TYPE = "columnType";
-  public static final String COLUMN_LABEL =
-      "columnLabel"; // can be postfixed for other locales, e.g. columnLabel:fr
+  public static final String LABEL = "label";
   public static final String KEY = "key";
   public static final String REF_SCHEMA = "refSchema";
   public static final String REF_TABLE = "refTable";
@@ -97,9 +96,9 @@ public class Emx2 {
           // imported
           // file
           // get labels
-          if (r.notNull(COLUMN_LABEL)) column.setLabel(r.getString(COLUMN_LABEL));
+          if (r.notNull(LABEL)) column.setLabel(r.getString(LABEL));
           r.getColumnNames().stream()
-              .filter(name -> name.startsWith(COLUMN_LABEL + ":"))
+              .filter(name -> name.startsWith(LABEL + ":"))
               .forEach(
                   label -> {
                     column.setLabel(r.getString(label), (label.split(":")[1]));
@@ -142,7 +141,7 @@ public class Emx2 {
     if (locales.size() > 0) {
       headers.addAll(
           schema.getLocales().stream()
-              .map(locale -> "en".equals(locale) ? COLUMN_LABEL : COLUMN_LABEL + ":" + locale)
+              .map(locale -> "en".equals(locale) ? LABEL : LABEL + ":" + locale)
               .collect(Collectors.toSet()));
     }
     store.writeTable("molgenis", headers, toRowList(schema));
@@ -203,11 +202,11 @@ public class Emx2 {
           if (c.getDescription() != null) row.set(DESCRIPTION, c.getDescription());
           if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
           if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-          for (Map.Entry<String, String> label : c.getColumnLabels().entrySet()) {
+          for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
             if (label.getKey().equals("en")) {
-              row.set(COLUMN_LABEL, label.getValue());
+              row.set(LABEL, label.getValue());
             } else {
-              row.set(COLUMN_LABEL + ":" + label.getKey(), label.getValue());
+              row.set(LABEL + ":" + label.getKey(), label.getValue());
             }
           }
           result.add(row);

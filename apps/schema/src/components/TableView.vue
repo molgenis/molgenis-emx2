@@ -142,6 +142,7 @@
                   inSubclass
                 </th>
                 <th style="width: 32ch" scope="col">definition</th>
+                <th scope="col">label</th>
                 <th scope="col">description</th>
               </tr>
             </thead>

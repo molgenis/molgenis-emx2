@@ -143,6 +143,10 @@ _schema {
     semantics,
     columns {
       name,
+      labels {
+        locale,
+        label
+      }
       id,
       columnType,
       key,

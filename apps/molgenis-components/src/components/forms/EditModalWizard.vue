@@ -10,6 +10,7 @@
       :graphqlURL="graphqlURL"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
+      :locale="locale"
       @update:modelValue="$emit('update:modelValue', $event)"
     />
   </div>
@@ -58,6 +59,10 @@ export default {
       default: "graphql",
       type: String,
     },
+    locale: {
+      type: String,
+      default: () => "en"
+    }
   },
   mounted() {
     this.columnsSplitByHeadings = splitColumnsByHeadings(
