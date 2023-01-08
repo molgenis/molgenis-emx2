@@ -27,15 +27,55 @@ export default gql`
       numberOfParticipants
       ageGroups {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       dataCategories {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       sampleCategories {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       areasOfInformation {
         name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
       }
       subcohorts {
         name

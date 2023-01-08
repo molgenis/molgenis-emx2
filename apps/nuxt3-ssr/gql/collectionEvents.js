@@ -1,18 +1,32 @@
 import gql from "graphql-tag";
 export default gql`
-  query Subcohorts($pid: String) {
-    Cohorts(filter: { pid: { equals: [$pid] } }) {
+  query CollectionEvents($pid: String) {
+    CollectionEvents(filter: { resource: { pid: { equals: [$pid] } } }) {
+      resource {
+        pid
+      }
       name
-      collectionEvents {
+      description
+      startYear {
         name
-        description
-        startYear {
+      }
+      endYear {
+        name
+      }
+      standardizedTools {
+        name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
           name
         }
-        endYear {
+        children {
           name
         }
       }
+      numberOfParticipants
     }
   }
 `;

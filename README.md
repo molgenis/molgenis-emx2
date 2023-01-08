@@ -5,6 +5,8 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/molgenis/molgenis-emx2)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 ![Twitter Follow](https://img.shields.io/twitter/follow/molgenis?style=social)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/molgenis/molgenis-emx2/badge)](https://api.securityscorecards.dev/projects/github.com/molgenis/molgenis-emx2)
+
 
 # MOLGENIS EMX2 FAIR scientific data platform
 

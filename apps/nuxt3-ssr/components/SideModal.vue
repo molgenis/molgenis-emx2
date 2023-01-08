@@ -11,26 +11,44 @@ const onShow = () => {
 
 const onHide = () => {
   document.body.classList.remove("no-scroll");
-  document.body.classList.remove("v-popper_right");
+  setTimeout(() => {
+    document.body.classList.remove("v-popper_right");
+  }, 150);
+  emit("close");
 };
 
-const { slideInRight, fullScreen } = withDefaults(
+const { slideInRight, fullScreen, buttonAlignment } = withDefaults(
   defineProps<{
-    slideInRight: boolean;
-    fullScreen: boolean;
+    slideInRight?: boolean;
+    fullScreen?: boolean;
+    show?: boolean;
+    buttonAlignment?: "left" | "center" | "right";
   }>(),
   {
     slideInRight: false,
     fullScreen: true,
+    show: undefined,
+    buttonAlignment: "center",
   }
 );
 
+const emit = defineEmits(["close"]);
+
 const roundedClass = slideInRight ? "rounded-l-50px right-0" : "rounded-r-50px";
-const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
+const fullScreenClass = fullScreen
+  ? "w-[95vw]"
+  : "lg:w-[33vw] md:w-[50vw] w-[95vw]";
+const buttonAlignmentSet = {
+  left: "justify-left",
+  center: "justify-around",
+  right: "justify-left",
+};
+const buttonAlignmentClass = buttonAlignmentSet[buttonAlignment];
 </script>
 
 <template>
   <VDropdown
+    :shown="show"
     :positioning-disabled="true"
     @show="preAnimation()"
     @apply-show="onShow()"
@@ -49,7 +67,9 @@ const fullScreenClass = fullScreen ? "w-[95vw]" : "w-[50vw]";
           <slot></slot>
         </div>
         <div class="absolute inset-x-0 bottom-0">
-          <div class="flex items-center justify-around px-6 bg-blue-500 h-19">
+          <div
+            :class="`flex items-center ${buttonAlignmentClass} px-6 bg-blue-500 h-19`"
+          >
             <slot name="footer"></slot>
           </div>
         </div>

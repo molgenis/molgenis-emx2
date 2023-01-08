@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Ref } from "vue";
 import query from "~~/gql/collectionEvent";
+
+const { id: collectionEventName } = defineProps<{
+  id: string;
+}>();
+
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -9,7 +14,8 @@ if (query.loc?.source.body === undefined) {
 }
 const queryValue = query.loc?.source.body;
 
-let collectionEvent: Ref = ref();
+let collectionEvent: Ref<ICollectionEvent | undefined> = ref();
+
 const { data: collectionEventData } = await useFetch(
   `/${route.params.schema}/catalogue/graphql`,
   {
@@ -19,7 +25,7 @@ const { data: collectionEventData } = await useFetch(
       query: queryValue,
       variables: {
         pid: route.params.cohort,
-        name: route.params.collectionevent,
+        name: collectionEventName,
       },
     },
   }
@@ -27,7 +33,7 @@ const { data: collectionEventData } = await useFetch(
 
 watch(
   collectionEventData,
-  function setData(data: any) {
+  (data) => {
     collectionEvent = data?.data?.CollectionEvents[0];
   },
   {
@@ -35,11 +41,6 @@ watch(
     immediate: true,
   }
 );
-
-let tocItems = reactive([
-  { label: "Details", id: "details" },
-]);
-
 
 const pageCrumbs: any = {
   Cohorts: `/${route.params.schema}/ssr-catalogue`,
@@ -57,10 +58,18 @@ function renderList(list: any[], itemMapper: (a: any) => string) {
 const toName = (item: any) => item.name;
 
 const items = [];
+
 if (collectionEvent?.subcohorts?.length) {
   items.push({
     label: "Subcohorts",
     content: renderList(collectionEvent?.subcohorts, toName),
+  });
+}
+
+if (collectionEvent?.numberOfParticipants) {
+  items.push({
+    label: "Number of participants",
+    content: collectionEvent?.numberOfParticipants,
   });
 }
 
@@ -78,23 +87,25 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
-  tocItems.push({ label: "Age categories", id: "age_categories" })
-}
-
-if (collectionEvent?.numberOfParticipants) {
   items.push({
-    label: "Number of participants",
-    content: collectionEvent?.numberOfParticipants,
+    label: "Age categories",
+    content: renderList(collectionEvent?.ageGroups, toName),
   });
 }
 
-let dataCategoriesTree = [];
+if (collectionEvent?.areasOfInformation?.length) {
+  items.push({
+    label: "Areas of information",
+    content: renderList(collectionEvent?.areasOfInformation, toName),
+  });
+}
+
 if (collectionEvent?.dataCategories?.length) {
-  dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories)
-  tocItems.push({ label: "Data categories", id: "data_catagories" })
+  items.push({
+    label: "Data Categories",
+    content: renderList(collectionEvent?.dataCategories, toName),
+  });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -102,12 +113,6 @@ if (collectionEvent?.sampleCategories?.length) {
     label: "Sample categories",
     content: renderList(collectionEvent?.sampleCategories, toName),
   });
-}
-
-let areasOfInformationTree = [];
-if (collectionEvent?.areasOfInformation?.length) {
-  areasOfInformationTree = buildOntologyTree(collectionEvent.areasOfInformation)
-  tocItems.push({ label: "Areas of information", id: "areas_of_information" })
 }
 
 if (collectionEvent?.coreVariables?.length) {
@@ -120,32 +125,11 @@ if (collectionEvent?.coreVariables?.length) {
 </script>
 
 <template>
-  <LayoutsDetailPage>
-    <template #header>
-      <PageHeader :title="collectionEvent?.name" :description="collectionEvent?.description">
-        <template #prefix>
-          <BreadCrumbs :crumbs="pageCrumbs" />
-        </template>
-      </PageHeader>
-    </template>
-    <template #side>
-      <SideNavigation :title="collectionEvent?.name" :items="tocItems" />
-    </template>
-    <template #main>
-      <ContentBlocks v-if="collectionEvent">
-        <ContentBlock v-if="collectionEvent" id="details" title="Details">
-          <DefinitionList :items="items" :collapse-all="false" />
-        </ContentBlock>
-        <ContentBlock v-if="collectionEvent.ageGroups" id="age_categories" title="Age categories">
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
-        </ContentBlock>
-        <ContentBlock v-if="collectionEvent.dataCategories" id="data_catagories" title="Data catagories">
-          <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
-        </ContentBlock>
-        <ContentBlock v-if="collectionEvent.areasOfInformation" id="areas_of_information" title="Areas of information">
-          <ContentOntology :tree="areasOfInformationTree" :collapse-all="false" />
-        </ContentBlock>
-      </ContentBlocks>
-    </template>
-  </LayoutsDetailPage>
+  <ContentBlock
+    :title="collectionEvent?.name"
+    :description="collectionEvent?.description"
+    v-if="collectionEvent"
+  >
+    <DefinitionList :items="items" :small="true" />
+  </ContentBlock>
 </template>
