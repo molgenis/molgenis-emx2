@@ -381,10 +381,13 @@ ${root}${rootModifier} {\n`;
 
     const filters = this.filters[property]
 
-    let filterString = filters && filters._and.length ? filters._and : ""
+    const andFilters = this._combineFiltersOnSameProperty(property, filters, "_and")
+    const orFilters = this._combineFiltersOnSameProperty(property, filters, "_or")
 
-    if (filterString.length && filters._or.length) {
-      filterString = `${filterString}, _or: { ${filters._or} ${filterString.substring(filterString.length - 1)}`
+    let filterString = andFilters.length ? andFilters.join(', ') : ""
+
+    if (filterString.length && orFilters.length) {
+      filterString = `${filterString}, _or: { ${orFilters.join(', ')} ${filterString.substring(filterString.length - 1)}`
     }
 
     if (filterString.length) {
@@ -401,33 +404,41 @@ ${root}${rootModifier} {\n`;
   _createFilter (operator, value) {
 
     const graphQLValue = Array.isArray(value) ? `["${value.join('","')}"]` : `"${value}"`
-    let columnFilter = `${this.column}: { ${operator}: ${graphQLValue}}`;
-
-    if (this.subcolumn) {
-      columnFilter = `${this.column}: { ${this.subcolumn}: { ${operator}: ${graphQLValue}} }`;
-    }
+    let columnFilter = `${this.subcolumn || this.column}: { ${operator}: ${graphQLValue}}`;
 
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
-        _and: "",
-        _or: ""
+        _and: {},
+        _or: {}
       }
     }
 
-    if (!this.type || this.type === "_and") {
-      const currentAndValue = this.filters[this.branch]["_and"]
-      this.filters[this.branch]["_and"] = currentAndValue.length ? `${currentAndValue}, ${columnFilter}` : columnFilter
+    const queryType = !this.type ? "_and" : this.type
+    const applyQueryTo = this.subcolumn ? this.column : this.branch
+
+    if (!this.filters[this.branch][queryType][applyQueryTo]) {
+      this.filters[this.branch][queryType][applyQueryTo] = []
     }
-    else {
-      const currentOrValue = this.filters[this.branch]["_or"]
-      this.filters[this.branch]["_or"] = currentOrValue.length ? `${currentOrValue}, ${columnFilter}` : columnFilter
-    }
+    this.filters[this.branch][queryType][applyQueryTo].push(columnFilter)
 
     this.subcolumn = "";
     this.column = "";
     this.type = "_and";
 
     return this;
+  }
+
+  _combineFiltersOnSameProperty (root, filters, filterType) {
+    const propertiesWithFilters = filters ? Object.keys(filters[filterType]) : []
+    const combinedFilters = []
+    if (propertiesWithFilters.length) {
+      for (const filterProperty of propertiesWithFilters) {
+        const concatenatedFilters = filters[filterType][filterProperty].join(", ");
+        const filterString = filterProperty === root ? concatenatedFilters : `${filterProperty}: { ${concatenatedFilters} }`
+        combinedFilters.push(filterString)
+      }
+    }
+    return combinedFilters
   }
 
   /** Recursively generate the output string for the branches and their properties */

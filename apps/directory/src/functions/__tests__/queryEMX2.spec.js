@@ -98,6 +98,22 @@ Biobanks(filter: { name: { like: "Dresden"}, country: { name: { equals: "DE"} } 
 }`)
   })
 
+  it('can create a filter query on a nested property, like collections', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .where('collections', 'id').like('Lifelines')
+      .where('collections', 'name').like('Lifelines')
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(filter: { collections: { id: { like: "Lifelines"}, name: { like: "Lifelines"} } }) {
+    id,
+    name
+  }
+}`)
+  })
+
   it('can create a query with a where and a limit', () => {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
