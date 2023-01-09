@@ -105,14 +105,35 @@ class Session:
             except PermissionError:
                 sys.exit('Error deleting upload.zip')
 
+    def get_database_description(self, database_name) -> str:
+        """ Get description of database
+        """
+        graphqlEndpoint_server = self.url + '/apps/central/graphql'
+
+        # get description for database
+        query = '{_schemas {name description}}'
+        variables = {'name': database_name}
+
+        response = self.session.post(graphqlEndpoint_server, json={'query': query,
+                                                                   'variables': variables})
+        json_response = response.json()
+        schema_list = json_response.get('data').get('_schemas')
+        description = [s['description'] for s in schema_list if 'description' in s and s['name'] == database_name]
+        if not description:
+            database_description = ''
+        else:
+            database_description = description[0]
+
+        return database_description
+
     def drop_database(self, database_name) -> None:
         """ Delete database """
         graphqlEndpoint = self.url + database_name + '/graphql'
 
+        # delete database
         # see if schema exists before deleting it
         query = '{_session {schemas} }'
-
-        response = self.session.post(graphqlEndpoint, json={'query': query} )
+        response = self.session.post(graphqlEndpoint, json={'query': query})
 
         if response.status_code == 200:
             query = """
@@ -135,7 +156,7 @@ class Session:
         else:
             log.warning(f"Database schema does not exist, status code {response.status_code}")
 
-    def create_database(self, database_name) -> None:
+    def create_database(self, database_name, database_description) -> None:
         """ Create TARGET database if it doesn't exists"""
         graphqlEndpoint = self.url + database_name + '/graphql'
 
@@ -145,13 +166,13 @@ class Session:
         if response.status_code != 200:
 
             query = """
-                mutation createSchema($name:String){
-                    createSchema(name:$name){
+                mutation createSchema($name:String, $description:String){
+                    createSchema(name:$name, description:$description){
                         message
                     }
                 }
                 """
-            variables = {'name': database_name}
+            variables = {'name': database_name, 'description': database_description}
 
             response = self.session.post(
                 self.url + '/apps/central/graphql',

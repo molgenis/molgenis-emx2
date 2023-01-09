@@ -110,23 +110,23 @@ for cohort in COHORTS:
     update_general.update_data_model_file()
     zip_handling.zip_data()
     zip_handling.remove_unzipped_data()
-
-    # TODO: add schema_description
-    schema_description = session.drop_database(database_name=cohort)
-    session.create_database(database_name=cohort[5:], schema_description)
+    # delete and create new cohort schema
+    schema_description = session.get_database_description(database_name=cohort)
+    session.drop_database(database_name=cohort)
+    session.create_database(database_name=cohort[5:], database_description=schema_description)
 
 # delete schemas UMCG and CatalogueOntologies
 print('------------------------')
 print('Updating catalogue and CatalogueOntologies schemas')
-# delete UMCG schema
+# delete and create new UMCG schema
+schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
 session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
+session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
 
-# delete CatalogueOntologies schema
+# delete and create new CatalogueOntologies schema
+schema_description = session.get_database_description(database_name=ONTOLOGIES_SCHEMA_NAME)
 session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
-
-# create schemas UMCG and CatalogueOntologies
-session.create_database(database_name=CATALOGUE_SCHEMA_NAME)
-session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME)
+session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME, database_description=schema_description)
 
 # upload molgenis.csv to UMCG schema
 update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
