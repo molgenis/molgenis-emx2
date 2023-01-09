@@ -86,17 +86,16 @@ Biobanks(filter: { name: { like: "UMC"} }) {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name'])
-      .where('name').like('UMC')
-      .where('country').equals('Germany')
+      .where('name').like('Dresden')
+      .where('country', 'name').equals('DE')
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
+Biobanks(filter: { name: { like: "Dresden"}, country: { name: { equals: "DE"} } }) {
     id,
     name
   }
-}`
-    )
+}`)
   })
 
   it('can create a query with a where and a limit', () => {
@@ -134,33 +133,31 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC"} }) {
     )
   })
 
-  it('can create a query with an and clause', () => {
+  it('can create and query an array as value', () => {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name'])
-      .where('name').like('UMC')
-      .and('country').equals('Germany')
+      .where('name').like(['UMC', 'Dresden'])
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "UMC"}, _and: { country: { equals: "Germany"} }}) {
+Biobanks(filter: { name: { like: ["UMC","Dresden"]} }) {
     id,
     name
   }
-}`
-    )
+}`)
   })
 
   it('can create a query with an or clause', () => {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name'])
-      .where('name').like('UMC')
-      .or('country').equals('Germany')
+      .where('name').like("Dresden")
+      .or('country', "name").like('DE')
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "UMC"}, _or: { country: { equals: "Germany"} }}) {
+Biobanks(filter: { name: { like: "Dresden"}, _or: { country: { name: { like: "DE"} } } }) {
     id,
     name
   }

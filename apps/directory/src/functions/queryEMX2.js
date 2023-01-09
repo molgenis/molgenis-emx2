@@ -8,6 +8,7 @@ class QueryEMX2 {
   tableName = "";
   filters = {};
   column = "";
+  subcolumn = "";
   _schemaTablesInformation = {};
   selection = ["id", "name"];
   graphqlUrl = "";
@@ -25,7 +26,7 @@ class QueryEMX2 {
     this.graphqlUrl = graphqlUrl;
   }
 
-  table(tableName) {
+  table (tableName) {
     /** Tables are always PascalCase */
     this.tableName = this._toPascalCase(tableName);
     return this;
@@ -35,7 +36,7 @@ class QueryEMX2 {
    * @param {string | string[]} columns
    * When you supply an object the Key is the table or REF property and the value is a string or string array
    */
-  select(columns) {
+  select (columns) {
     let requestedColumns = [];
 
     if (!Array.isArray(columns)) {
@@ -57,7 +58,7 @@ class QueryEMX2 {
    * @param {object[]} filters
    * @returns GraphQL query string
    */
-  async execute() {
+  async execute () {
     /** Fail fast */
     if (!this.tableName)
       throw Error(
@@ -77,16 +78,16 @@ class QueryEMX2 {
     );
   }
   /** Executes the query as aggregate */
-  aggregate() {
+  aggregate () {
     this.aggregateQuery = true;
     return this;
   }
 
-  getQuery() {
+  getQuery () {
     return this._createQuery(this.tableName, this.selection);
   }
 
-  getAggregateQuery() {
+  getAggregateQuery () {
     /** create a hard copy */
     const aggSelection = Object.assign([], this.selection);
     aggSelection.push("count");
@@ -96,7 +97,7 @@ class QueryEMX2 {
   /**
    * Gets the table information for the current schema
    */
-  async getSchemaTablesInformation() {
+  async getSchemaTablesInformation () {
     if (Object.keys(this._schemaTablesInformation).length)
       return this._schemaTablesInformation;
 
@@ -122,7 +123,7 @@ class QueryEMX2 {
   }
 
   /** returns the columns with adjusted names so it can directly be used to query. */
-  async getColumnsForTable(tableName) {
+  async getColumnsForTable (tableName) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
@@ -136,7 +137,7 @@ class QueryEMX2 {
   }
 
   /** returns the correct column names and their types. */
-  async getColumnsMetadataForTable(tableName) {
+  async getColumnsMetadataForTable (tableName) {
     await this.getSchemaTablesInformation();
 
     return this._schemaTablesInformation
@@ -149,15 +150,16 @@ class QueryEMX2 {
 
   /**
    * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
-   * then column = 'collections', nested column = 'name'
+   * then column = 'collections', subcolumn = 'name'
    * @param {string} column
-   * @param {string} nestedColumn
+   * @param {string} subcolumn
    * @returns
    */
-  where(column) {
+  where (column, subcolumn) {
     this.branch = "root";
     /** always convert to lowercase, else api will error */
     this.column = this._toCamelCase(column);
+    this.subcolumn = subcolumn ? this._toCamelCase(subcolumn) : "";
     return this;
   }
 
@@ -167,14 +169,14 @@ class QueryEMX2 {
    * @param {string} nestedColumn
    * @returns
    */
-  filter(column, nestedColumn) {
+  filter (column, nestedColumn) {
     this.branch = this._toCamelCase(column);
     this.column = this._toCamelCase(nestedColumn);
 
     return this;
   }
   /** Resets all filters, useful for when you want to add filters dynamically */
-  resetAllFilters() {
+  resetAllFilters () {
     this.filters = {};
     return this;
   }
@@ -184,7 +186,7 @@ class QueryEMX2 {
    * @param {int} amount the amount you want to return
    * @returns
    */
-  limit(item, amount) {
+  limit (item, amount) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -198,7 +200,7 @@ class QueryEMX2 {
    * @param {int} amount the page you want to have starting at 0
    * @returns
    */
-  offset(item, amount) {
+  offset (item, amount) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -212,7 +214,7 @@ class QueryEMX2 {
    * @param {string} column the name of the column to apply the order to
    * @param {string} direction "asc" or "dsc"
    */
-  orderBy(item, column, direction) {
+  orderBy (item, column, direction) {
     let columnOrTable =
       item.toLowerCase() === this.tableName.toLowerCase()
         ? "root"
@@ -225,7 +227,7 @@ class QueryEMX2 {
    * Additional function, which does the same as search but might be more semantic
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  find(value) {
+  find (value) {
     this.findInAllColumns = value;
     return this;
   }
@@ -233,30 +235,26 @@ class QueryEMX2 {
   /**
    * @param {any} value searches this value across all columns, can only be applied to the top level table
    */
-  search(value) {
+  search (value) {
     this.findInAllColumns = value;
     return this;
   }
 
-  and(column, nestedColumn) {
-    this.type = "_and";
-    return this.where(column, nestedColumn);
-  }
-
-  or(column, nestedColumn) {
+  /** only works for top level */
+  or (column, subcolumn) {
     this.type = "_or";
-    return this.where(column, nestedColumn);
+    return this.where(column, subcolumn);
   }
 
   /** Text, String, Url, Int, Bool, Datetime Filter */
-  equals(value) {
+  equals (value) {
     const operator = "equals";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Int, Bool, Datetime Filter */
-  notEquals(value) {
+  notEquals (value) {
     const operator = "not_equals";
 
     this._createFilter(operator, value);
@@ -264,27 +262,27 @@ class QueryEMX2 {
   }
 
   /** Text, String, Url, Filter */
-  like(value) {
+  like (value) {
     const operator = "like";
 
     return this._createFilter(operator, value);
   }
   /** Text, String, Url, Filter */
-  notLike(value) {
+  notLike (value) {
     const operator = "not_like";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  triagramSearch(value) {
+  triagramSearch (value) {
     const operator = "triagram_search";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Text, String, Url, Filter */
-  textSearch(value) {
+  textSearch (value) {
     const operator = "text_search";
 
     this._createFilter(operator, value);
@@ -292,28 +290,28 @@ class QueryEMX2 {
   }
 
   /** Int, Datetime Filter */
-  between(value) {
+  between (value) {
     const operator = "between";
 
     this._createFilter(operator, value);
     return this;
   }
   /** Int, Datetime Filter */
-  notBetween(value) {
+  notBetween (value) {
     const operator = "not_between";
     this._createFilter(operator, value);
     return this;
   }
 
-  _toPascalCase(value) {
+  _toPascalCase (value) {
     return value[0].toUpperCase() + value.substring(1);
   }
 
-  _toCamelCase(value) {
+  _toCamelCase (value) {
     return value[0].toLowerCase() + value.substring(1);
   }
 
-  _createQuery(root, properties) {
+  _createQuery (root, properties) {
     const rootModifier = this._generateModifiers("root");
 
     let result = "";
@@ -359,7 +357,7 @@ ${root}${rootModifier} {\n`;
   }
 
   /** Generate the bit inside parentheses */
-  _generateModifiers(property) {
+  _generateModifiers (property) {
     const modifierParts = [];
 
     modifierParts.push(
@@ -376,13 +374,22 @@ ${root}${rootModifier} {\n`;
     modifierParts.push(
       this.orderings[property]
         ? `orderby: { ${this.orderings[property].column}: ${this.orderings[
-            property
-          ].direction.toUpperCase()} }`
+          property
+        ].direction.toUpperCase()} }`
         : ""
     );
-    modifierParts.push(
-      this.filters[property] ? `filter: ${this.filters[property]}` : ""
-    );
+
+    const filters = this.filters[property]
+
+    let filterString = filters && filters._and.length ? filters._and : ""
+
+    if (filterString.length && filters._or.length) {
+      filterString = `${filterString}, _or: { ${filters._or} ${filterString.substring(filterString.length - 1)}`
+    }
+
+    if (filterString.length) {
+      modifierParts.push(`filter: { ${filterString} }`)
+    }
 
     const filledModifiers = modifierParts.filter((f) => f.length > 0);
 
@@ -391,18 +398,32 @@ ${root}${rootModifier} {\n`;
   }
 
   /** Private function to create the correct filter syntax. */
-  _createFilter(operator, value) {
-    const columnFilter = `{ ${this.column}: { ${operator}: "${value}"} }`;
+  _createFilter (operator, value) {
 
-    if (this.filters[this.branch]) {
-      /** need to remove the last }, add an _and / _or and stitch it together */
-      this.filters[this.branch] = `${this.filters[this.branch].substring(
-        0,
-        this.filters[this.branch].length - 2
-      )}, ${this.type}: ${columnFilter}}`;
-    } else {
-      this.filters[this.branch] = columnFilter;
+    const graphQLValue = Array.isArray(value) ? `["${value.join('","')}"]` : `"${value}"`
+    let columnFilter = `${this.column}: { ${operator}: ${graphQLValue}}`;
+
+    if (this.subcolumn) {
+      columnFilter = `${this.column}: { ${this.subcolumn}: { ${operator}: ${graphQLValue}} }`;
     }
+
+    if (!this.filters[this.branch]) {
+      this.filters[this.branch] = {
+        _and: "",
+        _or: ""
+      }
+    }
+
+    if (!this.type || this.type === "_and") {
+      const currentAndValue = this.filters[this.branch]["_and"]
+      this.filters[this.branch]["_and"] = currentAndValue.length ? `${currentAndValue}, ${columnFilter}` : columnFilter
+    }
+    else {
+      const currentOrValue = this.filters[this.branch]["_or"]
+      this.filters[this.branch]["_or"] = currentOrValue.length ? `${currentOrValue}, ${columnFilter}` : columnFilter
+    }
+
+    this.subcolumn = "";
     this.column = "";
     this.type = "_and";
 
@@ -410,7 +431,7 @@ ${root}${rootModifier} {\n`;
   }
 
   /** Recursively generate the output string for the branches and their properties */
-  _generateOutput(branches, indentationLevel, filters, result) {
+  _generateOutput (branches, indentationLevel, filters, result) {
     let indentation = "    ".repeat(indentationLevel);
 
     /** Add properties first */
@@ -449,11 +470,11 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
-  _createPathFromObject(path, properties, requestedColumns = []) {
+  _createPathFromObject (path, properties, requestedColumns = []) {
     for (const property of properties) {
       if (typeof property === "object") {
         const refProperty = Object.keys(property)[0];
-        const nextPath = path ? `${path}.${refProperty}` : refProperty;
+        const nextPath = path ? `${path}.${refProperty} ` : refProperty;
         this._createPathFromObject(
           nextPath,
           property[refProperty],
@@ -463,7 +484,7 @@ ${root}${rootModifier} {\n`;
         if (!path || path.length === 0) {
           requestedColumns.push(property);
         } else {
-          requestedColumns.push(`${path}.${property}`);
+          requestedColumns.push(`${path}.${property} `);
         }
       }
     }

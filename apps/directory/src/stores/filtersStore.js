@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue';
+import { applyFiltersToQuery } from '../functions/applyFiltersToQuery';
 import { useBiobanksStore } from './biobanksStore';
 
 export const useFiltersStore = defineStore('filtersStore', () => {
@@ -27,11 +28,13 @@ export const useFiltersStore = defineStore('filtersStore', () => {
                 clearTimeout(queryDelay);
             }
 
-            queryDelay = setTimeout(() => {
+            queryDelay = setTimeout(async () => {
                 clearTimeout(queryDelay);
-                console.log({filters, active: hasActiveFilters.value})
+
+                const queryWithFiltersApplied = applyFiltersToQuery(baseQuery, filters)
+                filterResult.value = await queryWithFiltersApplied.execute();
+
             }, 750);
-            // persist the whole state to the local storage whenever it changes
         },
         { deep: true }
     )
