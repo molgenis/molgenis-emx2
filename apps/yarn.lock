@@ -2525,10 +2525,10 @@ copy-to-clipboard@^3.0.8, copy-to-clipboard@^3.2.0, copy-to-clipboard@^3.3.1:
   dependencies:
     toggle-selection "^1.0.6"
 
-core-js@3.26.1:
-  version "3.26.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.26.1.tgz#7a9816dabd9ee846c1c0fe0e8fcad68f3709134e"
-  integrity sha512-21491RRQVzUn0GGM9Z1Jrpr6PNPxPi+Za8OM9q4tksTSnlbXXGKK1nXNg/QvwFYettXvSX6zWKCtHHfjN4puyA==
+core-js@3.27.1:
+  version "3.27.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.27.1.tgz#23cc909b315a6bb4e418bf40a52758af2103ba46"
+  integrity sha512-GutwJLBChfGCpwwhbYoqfv03LAfmiz7e7D/BNxzeMxwQf10GRSzqiOjx7AmtEk+heiD/JWmBuyBPgFtx0Sg1ww==
 
 core-js@^1.1.1:
   version "1.2.7"
@@ -4710,9 +4710,9 @@ json-stable-stringify@^1.0.1:
     jsonify "~0.0.0"
 
 json5@^2.1.2, json5@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.1.tgz#655d50ed1e6f95ad1a3caababd2b0efda10b395c"
-  integrity sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.2.tgz#64471c5bdcc564c18f7c1d4df2e2297f2457c5ab"
+  integrity sha512-46Tk9JiOL2z7ytNQWFLpj99RZkVgeHf87yGQKsIkaPz1qSH9UczKH1rO7K3wgRselo0tYMUNfecYpm/p1vC7tQ==
 
 jsonc-parser@^3.2.0:
   version "3.2.0"
@@ -7948,10 +7948,10 @@ vary@^1.1.2, vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-vite-node@0.26.2:
-  version "0.26.2"
-  resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.26.2.tgz#2624236b9d68ea62c753572ee465fe4fa0657572"
-  integrity sha512-4M/zlatItZAyvrQG+82zQBhgDjRZRhVJYFW4T9wcAKh7eMmSiPOVSeI5zsV9UzHXgCcIDKX0o0r3s4OxExTHqg==
+vite-node@0.26.3:
+  version "0.26.3"
+  resolved "https://registry.yarnpkg.com/vite-node/-/vite-node-0.26.3.tgz#164fbaf449d5bd382b44b736653ba800397b5ebd"
+  integrity sha512-Te2bq0Bfvq6XiO718I+1EinMjpNYKws6SNHKOmVbILAQimKoZKDd+IZLlkaYcBXPpK3HFe2U80k8Zw+m3w/a2w==
   dependencies:
     debug "^4.3.4"
     mlly "^1.0.0"
@@ -8041,10 +8041,10 @@ vite@~3.2.4:
   optionalDependencies:
     fsevents "~2.3.2"
 
-vitest@0.26.2:
-  version "0.26.2"
-  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.26.2.tgz#c1647e41d5619d1d059ff65d9c00672261ccac30"
-  integrity sha512-Jvqxh6SDy9SsuslkDjts0iDewDIdq4rveEt69YgDuAb1tVDGV0lDepVaeAFraoySWqneJmOt4TngFFNhlw7GfA==
+vitest@0.26.3:
+  version "0.26.3"
+  resolved "https://registry.yarnpkg.com/vitest/-/vitest-0.26.3.tgz#0e3abb7674e8af7b74519b40c04efe6e43c0b0a7"
+  integrity sha512-FmHxU9aUCxTi23keF3vxb/Qp0lYXaaJ+jRLGOUmMS3qVTOJvgGE+f1VArupA6pEhaG2Ans4X+zV9dqM5WISMbg==
   dependencies:
     "@types/chai" "^4.3.4"
     "@types/chai-subset" "^1.3.3"
@@ -8060,7 +8060,7 @@ vitest@0.26.2:
     tinypool "^0.3.0"
     tinyspy "^1.0.2"
     vite "^3.0.0 || ^4.0.0"
-    vite-node "0.26.2"
+    vite-node "0.26.3"
 
 vscode-jsonrpc@6.0.0:
   version "6.0.0"
