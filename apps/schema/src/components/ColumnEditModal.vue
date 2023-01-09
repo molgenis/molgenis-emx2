@@ -20,26 +20,20 @@
             />
           </div>
           <div class="col-4">
-            <div class="input-group">
-              <label><b>label</b></label>
-              <table class="w-100">
-                <thead><td>locale:</td><td>label:</td></thead>
-                <tr v-for="(label,idx) in column.labels">
-                  <td><label>{{label.locale}}</label></td>
-                  <td>
-                    <InputString :id="label + ':' + label.locale" v-model="column.labels[idx]['label']" class="mb-0"/>
-                  </td>
-                </tr>
-              </table>
-              <InputSelect placeholder="Add locale ..." v-model="localeSelect" :options="newLocales" @input="(e) => {if(e.target.value != undefined) column.labels.push({locale: e.target.value, label: ''})}"/>
-            </div>
+              <InputTextLocalized
+                  id="column_label"
+                  v-model="column.labels"
+                  label="label"
+                  :locales="locales" />
           </div>
           <div class="col-4">
-            <InputText
-              id="column_description"
-              v-model="column.description"
-              label="description"
-            />
+            <div class="input-group">
+              <InputTextLocalized
+                  id="column_description"
+                  v-model="column.descriptions"
+                  label="description"
+                  :locales="locales" />
+            </div>
           </div>
         </div>
         <div class="row">
@@ -194,6 +188,7 @@
 import {
   LayoutForm,
   InputText,
+  InputTextLocalized,
   InputString,
   InputBoolean,
   InputSelect,
@@ -217,6 +212,7 @@ export default {
     InputBoolean,
     InputSelect,
     IconAction,
+    InputTextLocalized,
     LayoutModal,
     ButtonAction,
     MessageWarning,
@@ -253,6 +249,9 @@ export default {
       type: String,
       required: false,
     },
+    locales: {
+      type: Array
+    }
   },
   data() {
     return {
@@ -267,7 +266,6 @@ export default {
       error: null,
       client: null,
       loading: false,
-      localeSelect: undefined //for selecting locale
     };
   },
   computed: {
@@ -335,13 +333,6 @@ export default {
     isDisabled() {
       return this.operation !== "add" && this.nameInvalid;
     },
-    newLocales() {
-      return ["de", "en", "es", "fr", "it", "nl", "pt", "xx"].filter(locale => !this.supportedLocales.includes(locale));
-    },
-    supportedLocales() {
-      //get all unique locales from all columns, make sure 'en' is in there too
-      return [...new Set(this.schema.tables.map(table => table.columns.map(column => column.labels ? column.labels.map(el => el.locale): [])).flat(2)).add('en')];
-    }
   },
   methods: {
     click() {
@@ -391,7 +382,6 @@ export default {
       this.loading = false;
     },
     reset() {
-      this.localeSelect = undefined;
       //deep copy so it doesn't update during edits
       if (this.modelValue) {
         this.column = deepClone(this.modelValue);
@@ -402,18 +392,6 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
-      //labels should be map with all locales
-      if (this.column.labels === undefined) {
-        this.column.labels = [];
-        this.supportedLocales.forEach(locale => {
-          this.column.labels.push({locale:locale, label: ''})
-        })
-      }
-      //include all currently used locales
-      if (!this.column.labels.find(el => el.locale === 'en')) {
-        this.column.labels.push({locale: 'en', label: ''});
-      }
-      console.log(this.column.labels)
     },
   },
   created() {

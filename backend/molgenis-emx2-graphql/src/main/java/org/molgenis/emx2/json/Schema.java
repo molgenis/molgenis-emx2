@@ -48,7 +48,12 @@ public class Schema {
       }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
-      tm.setDescription(t.getDescription());
+      tm.setLabels(
+          t.getLabels().stream()
+              .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
+      tm.setDescriptions(
+          t.getDescriptions().stream()
+              .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
         int i = 1;
         if (!c.isInherited()) {

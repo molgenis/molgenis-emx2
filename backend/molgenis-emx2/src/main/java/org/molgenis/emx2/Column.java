@@ -13,13 +13,11 @@ import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
 
   // basics
   private TableMetadata table; // table this column is part of
   private String columnName; // short name, first character A-Za-z followed by AZ-a-z_0-1
-  private Map<String, String> labels =
-      new TreeMap<>(); // long names, with locale as keyl, label as value
   private ColumnType columnType = STRING; // type of the column
 
   // transient for enabling migrations
@@ -32,9 +30,6 @@ public class Column implements Comparable<Column> {
   private String refLink; // to allow a reference value to depend on another reference.
   private String refLabel; // template string influencing how ref value is shown
   private String refBack; // for REFBACK, indicate the column to be used for linkback
-
-  // options
-  private String description = null; // long description of the column
 
   @DiffIgnore
   private Integer position =
@@ -130,7 +125,7 @@ public class Column implements Comparable<Column> {
     validation = column.validation;
     refLabel = column.refLabel;
     computed = column.computed;
-    description = column.description;
+    descriptions = column.descriptions;
     cascadeDelete = column.cascadeDelete;
     semantics = column.semantics;
     visible = column.visible;
@@ -156,39 +151,6 @@ public class Column implements Comparable<Column> {
   public Column setName(String columnName) {
     this.columnName = columnName;
     return this;
-  }
-
-  public Column setLabels(Map<String, String> newLabels) {
-    Objects.requireNonNull(newLabels);
-    this.labels = new TreeMap<>();
-    // strip empty strings
-    newLabels.entrySet().stream()
-        .forEach(
-            entry -> {
-              if (entry.getValue() != null && !"".equals(entry.getValue().trim())) {
-                this.labels.put(entry.getKey(), entry.getValue());
-              }
-            });
-    return this;
-  }
-
-  public Column setLabel(String label) {
-    this.setLabel(label, "en"); // 'en' is the default
-    return this;
-  }
-
-  public Column setLabel(String label, String locale) {
-    Objects.requireNonNull(locale);
-    if (label == null || label.trim().equals("")) {
-      this.labels.remove(locale);
-    } else {
-      this.labels.put(locale, label);
-    }
-    return this;
-  }
-
-  public Map<String, String> getLabels() {
-    return labels;
   }
 
   public String getQualifiedName() {
@@ -276,15 +238,6 @@ public class Column implements Comparable<Column> {
 
   public Boolean isCascadeDelete() {
     return cascadeDelete;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public Column setDescription(String description) {
-    this.description = description;
-    return this;
   }
 
   public String getDefaultValue() {
@@ -669,6 +622,14 @@ public class Column implements Comparable<Column> {
 
   public boolean isOntology() {
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
+  }
+
+  public String getRootTableName() {
+    TableMetadata table = this.getTable();
+    while (table.getInherit() != null) {
+      table = table.getInheritedTable();
+    }
+    return table.getTableName();
   }
 
   @Override

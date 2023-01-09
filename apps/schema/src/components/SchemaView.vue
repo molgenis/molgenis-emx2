@@ -11,6 +11,7 @@
             @update:modelValue="$emit('update:modelValue', schema)"
             @delete="deleteTable(index)"
             :isManager="isManager"
+            :locales="locales"
           />
         </span>
       </span>
@@ -80,6 +81,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    locales: {
+      type: Array,
+    }
   },
   data() {
     return {

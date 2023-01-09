@@ -12,7 +12,7 @@ public class Column {
   private String table;
   private String id;
   private String name;
-  private List<ColumnLabel> labels = new ArrayList<>();
+  private List<LanguageValue> labels = new ArrayList<>();
   private boolean drop = false; // needed in case of migrations
   private String oldName;
   private Integer key = 0;
@@ -28,7 +28,7 @@ public class Column {
   // private Boolean cascadeDelete = false;
   private String validation = null;
   private String visible = null;
-  private String description = null;
+  private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
 
@@ -49,7 +49,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
-            .map(entry -> new ColumnLabel(entry.getKey(), entry.getValue()))
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.oldName = column.getOldName();
     this.drop = column.isDrop();
@@ -67,7 +67,10 @@ public class Column {
     this.validation = column.getValidation();
     this.required = column.isRequired();
     this.readonly = column.isReadonly();
-    this.description = column.getDescription();
+    this.descriptions =
+        column.getDescriptions().entrySet().stream()
+            .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
+            .toList();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
 
@@ -79,7 +82,8 @@ public class Column {
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setOldName(oldName);
-    c.setLabels(labels.stream().collect(Collectors.toMap(ColumnLabel::locale, ColumnLabel::label)));
+    c.setLabels(
+        labels.stream().collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);
@@ -92,7 +96,9 @@ public class Column {
     // c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBack);
     c.setValidation(validation);
-    c.setDescription(description);
+    c.setDescriptions(
+        descriptions.stream()
+            .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
     c.setVisible(visible);
     c.setReadonly(readonly);
@@ -173,12 +179,12 @@ public class Column {
     this.refBack = refBack;
   }
 
-  public String getDescription() {
-    return description;
+  public List<LanguageValue> getDescriptions() {
+    return descriptions;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDescriptions(List<LanguageValue> descriptions) {
+    this.descriptions = descriptions;
   }
 
   public String[] getSemantics() {
@@ -269,11 +275,11 @@ public class Column {
     this.readonly = readonly;
   }
 
-  public List<ColumnLabel> getLabels() {
+  public List<LanguageValue> getLabels() {
     return labels;
   }
 
-  public void setLabels(List<ColumnLabel> labels) {
+  public void setLabels(List<LanguageValue> labels) {
     this.labels = labels;
   }
 }

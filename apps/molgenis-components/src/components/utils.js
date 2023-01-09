@@ -128,3 +128,26 @@ export function convertToPascalCase(string) {
   });
   return result;
 }
+
+export function getLocalizedLabel(tableOrColumnMetadata, locale) {
+  let label;
+  if (tableOrColumnMetadata.labels) {
+    label = tableOrColumnMetadata.labels.find((el) => el.locale === locale)
+      ?.value;
+    if (!label) {
+      label = tableOrColumnMetadata.labels.find((el) => el.locale === "en")
+        ?.value;
+    }
+  }
+  if (!label) {
+    label = tableOrColumnMetadata.name;
+  }
+  return label;
+}
+
+export function getLocalizedDescription(tableOrColumnMetadata, locale) {
+  if (tableOrColumnMetadata.descriptions) {
+    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+      ?.value;
+  }
+}

@@ -17,10 +17,10 @@
       class="form-control"
       @change="$emit('update:modelValue', $event.target.value)"
     >
-      <option v-if="!required" :selected="modelValue === undefined" > {{placeholder}} </option>
+      <option v-if="!required" :selected="modelValue === undefined || modelValue === null" > {{placeholder}} </option>
       <option
         v-for="(option, index) in options"
-        :key="index"
+        :key="index + option"
         :value="option"
         :selected="modelValue == option"
       >

@@ -20,6 +20,7 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
+      :locale="locale"
     />
   </div>
 </template>
@@ -54,6 +55,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => 'en',
+    }
   },
   methods: {
     getOrderBy() {

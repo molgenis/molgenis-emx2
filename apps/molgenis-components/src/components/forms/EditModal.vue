@@ -1,11 +1,6 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div v-if="supportedLocales.length > 1" class="mb-4 text-right">
-        change language: <select v-model="locale" @input="(e) => {locale = e.target.value}">
-          <option v-for="locale in supportedLocales">{{locale}}</option>
-        </select>
-      </div>
       <div class="d-flex" v-if="loaded && tableMetaData">
         <EditModalWizard
           v-if="useChapters"
@@ -91,8 +86,7 @@ import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import ButtonAlt from "./ButtonAlt.vue";
-import { filterObject, deepClone } from "../utils.js";
+import {filterObject, deepClone, getLocalizedLabel} from "../utils.js";
 import constants from "../constants";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
@@ -105,7 +99,6 @@ export default {
     RowEdit,
     EditModalWizard,
     ButtonAction,
-    ButtonAlt
   },
   data() {
     return {
@@ -117,7 +110,6 @@ export default {
       currentPage: 1,
       pageCount: 1,
       useChapters: true,
-      locale: "en"
     };
   },
   props: {
@@ -158,10 +150,17 @@ export default {
       required: false,
       default: () => null,
     },
+    locale: {
+      type: String,
+      default: () => 'en'
+    }
   },
   computed: {
     title() {
-      return `${this.titlePrefix} ${this.tableName}`;
+      return `${this.titlePrefix} into table: ${this.label} (${this.tableName})`;
+    },
+    label() {
+      return getLocalizedLabel(this.tableMetaData);
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns
@@ -179,13 +178,6 @@ export default {
     isSaveDisabled() {
       return this.pageCount > 1 ? this.pageCount !== this.currentPage : false;
     },
-    supportedLocales() {
-      if(this.tableMetaData?.columns) {
-        return [...new Set(this.tableMetaData.columns.map(column => column.labels ? column.labels.map(el => el.locale) : []).flat(2)).add("en")];
-      } else {
-        return [];
-      }
-    }
   },
   methods: {
     setCurrentPage(newPage) {

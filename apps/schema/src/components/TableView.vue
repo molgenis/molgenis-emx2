@@ -26,6 +26,7 @@
             v-model="table"
             :schema="schema"
             @update:modelValue="$emit('update:modelValue', table)"
+            :locales="locales"
           />
           <IconDanger
             v-if="isManager"
@@ -44,11 +45,17 @@
             scroll to top
           </a>
         </span>
-        <div v-if="table.description">
-          <label>Description: </label>
-          {{
-            table.description ? table.description : "No description available"
-          }}
+        <div v-if="table.labels">
+          <label class="mb-0">Label: </label>
+          <table class="table-borderless ml-4">
+            <tr v-for="el in table.labels.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
+          </table>
+        </div>
+        <div v-if="table.descriptions">
+          <label class="mb-0">Description: </label>
+            <table class="table-borderless ml-4">
+              <tr v-for="el in table.descriptions.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
+            </table>
         </div>
 
         <div v-if="table.tableType !== 'ONTOLOGIES'">
@@ -67,6 +74,7 @@
                 operation="add"
                 :rootTable="table"
                 @add="createSubclass"
+                :locales="locales"
               />
             </div>
             <table
@@ -124,6 +132,7 @@
               operation="add"
               :tableName="table.name"
               @add="addColumn(table.columns.length, $event)"
+              :locales="locales"
             />
           </div>
           <table
@@ -166,6 +175,7 @@
                   @add="addColumn(index, $event)"
                   @delete="deleteColumn(index)"
                   :isManager="isManager"
+                  :locales="locales"
                 />
               </template>
             </Draggable>
@@ -219,6 +229,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    locales: {
+      type: Array,
+    }
   },
   data() {
     return {

@@ -136,17 +136,24 @@ _schema {
   name,
   tables {
     name,
+    labels {
+      locale,
+      value
+    },
     tableType,
     id,
-    description,
+    descriptions {
+      locale,
+      value
+    },
     externalSchema,
     semantics,
     columns {
       name,
       labels {
         locale,
-        label
-      }
+        value
+      },
       id,
       columnType,
       key,
@@ -157,7 +164,10 @@ _schema {
       required,
       readonly,
       semantics,
-      description,
+      descriptions{
+        locale,
+        value
+      },
       position,
       visible,
       validation

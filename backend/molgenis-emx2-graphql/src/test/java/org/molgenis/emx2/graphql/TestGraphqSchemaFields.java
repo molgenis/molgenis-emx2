@@ -369,17 +369,32 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1, labels:{locale:\"en\", label:\"column1\"}}]}]){message}}");
+        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
 
-    JsonNode node = execute("{_schema{tables{name,columns{name,key, labels{locale,label}}}}}");
+    JsonNode node =
+        execute(
+            "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,labels{locale,value},descriptions{locale,value}}}}}");
     TestCase.assertEquals(1, node.at("/_schema/tables/0/columns/0/key").intValue());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
+    TestCase.assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/descriptions/0/locale").asText());
+    TestCase.assertEquals("desc1", node.at("/_schema/tables/5/descriptions/0/value").asText());
+
     TestCase.assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
     TestCase.assertEquals(
-        "column1", node.at("/_schema/tables/5/columns/0/labels/0/label").asText());
+        "column1", node.at("/_schema/tables/5/columns/0/labels/0/value").asText());
+
+    TestCase.assertEquals(
+        "en", node.at("/_schema/tables/5/columns/0/descriptions/0/locale").asText());
+    TestCase.assertEquals(
+        "desc11", node.at("/_schema/tables/5/columns/0/descriptions/0/value").asText());
+
     TestCase.assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop
-    execute("mutation{drop(tables:\"blaat\"){message}}");
+    execute("mutation{drop(tables:\"table1\"){message}}");
     TestCase.assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 

@@ -6,7 +6,7 @@
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="column.description"
+      :description="columnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
       :graphqlURL="graphqlURL"
       :label="columnLabel(column)"
@@ -25,7 +25,7 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
-import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
+import {getPrimaryKey, deepClone, convertToCamelCase, getLocalizedLabel, getLocalizedDescription} from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -87,7 +87,6 @@ export default {
     },
     locale: {
       type: String,
-      required: false,
       default: () => 'en'
     }
   },
@@ -119,15 +118,10 @@ export default {
   methods: {
     getPrimaryKey,
     columnLabel(column) {
-      if(column.labels?.length > 0) {
-        //in the future we will use session to get the locale for this user, now always use 'en'
-        const label = column.labels.find(el => el.locale === this.locale);
-        if(label) {
-          return label.label
-        }
-      }
-      //default label is name
-      return column.name;
+     return getLocalizedLabel(column);
+    },
+    columnDescription(column) {
+     return getLocalizedDescription(column);
     },
     showColumn(column) {
       const isColumnVisible = Array.isArray(this.visibleColumns)

@@ -101,6 +101,9 @@ Using label you can change the labels in forms. Typically useful for data captur
 Using :suffix you can give labels for multiple languages, e.g. label:fr is for the french language.
 The shorthand 'label' is synonymous to 'label:en'.
 
+N.B. to enable localized labels you must change database setting 'locale' to value ```["en","fr","de"]``` from default 
+```["en"]``` (use the locales you want to define in your models, we recommend to use the ISO language codes);
+
 ### description
 
 Text value that describes the column, or when columnName is empty, the table.

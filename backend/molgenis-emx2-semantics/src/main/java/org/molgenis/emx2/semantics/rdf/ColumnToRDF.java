@@ -43,8 +43,8 @@ public class ColumnToRDF {
           builder.add(columnContext, RDFS.ISDEFINEDBY, iri(columnSemantics));
         }
       }
-      if (c.getDescription() != null) {
-        builder.add(columnContext, DC.DESCRIPTION, c.getDescription());
+      if (c.getDescriptions() != null) {
+        builder.add(columnContext, DC.DESCRIPTION, c.getDescriptions());
       }
     }
   }

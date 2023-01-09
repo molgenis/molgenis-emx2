@@ -17,6 +17,18 @@
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
+        <ButtonAlt
+            v-show="!isOidcEnabled"
+            @click="showSignupForm = true"
+            :light="true"
+        >
+          Sign up
+        </ButtonAlt>
+        <SignupForm
+            v-if="showSignupForm"
+            :error="error"
+            @close="closeSignupForm"
+        />
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
           Sign in</ButtonOutline
         >
@@ -28,18 +40,8 @@
           @signin="changed"
           @cancel="closeSigninForm"
         />
-        <ButtonAlt
-          v-show="!isOidcEnabled"
-          @click="showSignupForm = true"
-          :light="true"
-          >Sign up</ButtonAlt
-        >
-        <SignupForm
-          v-if="showSignupForm"
-          :error="error"
-          @close="closeSignupForm"
-        />
       </span>
+      <LocaleSwitch v-if="locales.length > 1" class="ml-2" v-model="session.locale" :locales="locales"/>
     </div>
   </div>
 </template>
@@ -52,12 +54,13 @@ import ButtonAlt from "../forms/ButtonAlt.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
+import LocaleSwitch from "./LocaleSwitch.vue";
 
 import { request } from "../../client/client.js";
 
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
-  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
 
@@ -70,6 +73,7 @@ export default {
     MolgenisAccount,
     Spinner,
     ButtonAlt,
+    LocaleSwitch
   },
   props: {
     graphql: {
@@ -101,9 +105,17 @@ export default {
     isOidcEnabled() {
       return this.session?.settings?.isOidcEnabled === "true";
     },
+    locales() {
+      if(this.session?.settings?.locales) {
+        return this.session.settings.locales;
+      } else {
+        return ['en'];
+      }
+    }
   },
   methods: {
     loadSettings(settings) {
+      console.log(settings)
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
@@ -144,6 +156,10 @@ export default {
         this.loadSettings(schemaSettings);
         this.session.manifest = schemaSettings._manifest;
       }
+      //set default locale
+      if(this.session.locale === undefined) {
+        this.session.locale = 'en';
+      }
 
       this.loading = false;
       this.$emit("update:modelValue", this.session);
@@ -165,6 +181,7 @@ export default {
         return JSON.parse(value);
       } catch (e) {
         this.error = "Parsing of settings failed: " + e + ". value: " + value;
+        console.log(this.error);
         return null;
       }
     },

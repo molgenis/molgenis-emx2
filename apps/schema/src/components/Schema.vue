@@ -48,6 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
+          :locales="session.settings.locales"
         />
       </div>
     </div>
@@ -85,6 +86,11 @@ export default {
     SchemaToc,
     Spinner,
     NomnomDiagram,
+  },
+  props: {
+    session: {
+      type: Object
+    }
   },
   data() {
     return {
@@ -184,7 +190,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,labels{locale,label},table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,labels{locale,value},descriptions{locale,value},semantics,columns{name,labels{locale,value},table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,descriptions{locale,value},semantics,validation,visible} } } }"
       )
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
