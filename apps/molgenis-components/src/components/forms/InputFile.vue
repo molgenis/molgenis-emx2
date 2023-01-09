@@ -49,7 +49,7 @@
     </div>
     <div v-if="modelValue">
       <a v-if="modelValue && modelValue.url" :href="modelValue.url">
-        Previous modelValue: {{ modelValue.name }}.{{ modelValue.extension }}
+        Previous modelValue: {{ modelValue.id }}.{{ modelValue.extension }}
       </a>
     </div>
   </FormGroup>
@@ -64,7 +64,7 @@ export default {
   components: { FormGroup },
   data() {
     return {
-      filename: this.modelValue instanceof File ? this.modelValue?.name : this.modelValue?.url
+      filename: this.modelValue instanceof File ? this.modelValue?.name : ''
     }
   },
   props: {
