@@ -8,7 +8,7 @@
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :graphqlURL="graphqlURL"
+      :schemaName="column.refSchema ? column.refSchema : schemaName"
       :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
@@ -75,10 +75,9 @@ export default {
       type: Object,
       required: false,
     },
-    // graphqlURL: url to graphql endpoint
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false,
     },
     canEdit: {
       type: Boolean,
@@ -123,7 +122,7 @@ export default {
           this.visible(column.visible, column.id) &&
           column.name !== "mg_tableclass" &&
           !column.refLink) ||
-        this.internalValues[column.refLink]
+        this.internalValues[convertToCamelCase(column.refLink)]
       );
     },
     visible(expression, columnId) {
@@ -276,7 +275,7 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
-            :graphqlURL="graphqlURL"
+            :schemaName="schemaName"
         />
       </div>
       <div class="col-6 border-left">
@@ -312,7 +311,7 @@ function containsInvalidEmail(emails) {
           columns: [],
         },
         rowData: {},
-        graphqlURL: '/pet store/graphql',
+        schemaName: 'pet store',
       };
     },
     watch: {
@@ -327,10 +326,8 @@ function containsInvalidEmail(emails) {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
-        const client = this.$Client.newClient(this.graphqlURL);
-        this.tableMetaData = (await client.fetchMetaData()).tables.find(
-            (table) => table.id === this.tableName,
-        );
+        const client = this.$Client.newClient(this.schemaName);
+        this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;
       },

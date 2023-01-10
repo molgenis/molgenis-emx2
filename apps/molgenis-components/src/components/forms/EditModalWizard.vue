@@ -7,7 +7,7 @@
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
       @update:modelValue="$emit('update:modelValue', $event)"
@@ -54,9 +54,9 @@ export default {
       type: Array,
       required: false,
     },
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false
     },
   },
   mounted() {

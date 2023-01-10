@@ -137,14 +137,26 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   private void addExternalTablesRecursive(
       Map<String, TableMetadata> tables, TableMetadata current) {
-    if (current.getInheritedTable() != null && !tables.containsKey(current.getInherit())) {
-      tables.put(current.getInherit(), current.getInheritedTable());
-      addExternalTablesRecursive(tables, current.getInheritedTable());
+    if (current.getInheritedTable() != null) {
+      String scopeTableName = current.getInherit();
+      if (!current.getInheritedTable().getSchemaName().equals(getName())) {
+        scopeTableName = current.getInheritedTable().getSchemaName() + "_" + scopeTableName;
+      }
+      if (!tables.containsKey(scopeTableName)) {
+        tables.put(scopeTableName, current.getInheritedTable());
+        addExternalTablesRecursive(tables, current.getInheritedTable());
+      }
     }
     for (Column c : current.getColumns()) {
-      if (c.isReference() && !tables.containsKey(c.getRefTableName())) {
-        tables.put(c.getRefTableName(), c.getRefTable());
-        addExternalTablesRecursive(tables, c.getRefTable());
+      if (c.isReference()) {
+        String scopeTableName = c.getRefTableName();
+        if (!getName().equals(c.getRefSchema())) {
+          scopeTableName = c.getRefSchema() + "_" + scopeTableName;
+        }
+        if (!tables.containsKey(scopeTableName)) {
+          tables.put(scopeTableName, c.getRefTable());
+          addExternalTablesRecursive(tables, c.getRefTable());
+        }
       }
     }
   }

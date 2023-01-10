@@ -214,7 +214,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         tables.forEach((t) => {
           t.oldName = t.name;

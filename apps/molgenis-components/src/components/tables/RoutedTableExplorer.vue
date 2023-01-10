@@ -2,7 +2,7 @@
   <div>
     <TableExplorer
       :tableName="tableName"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       :canEdit="canEdit"
       :canManage="canManage"
       @updateConditions="updateConditions"
@@ -42,9 +42,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
     canEdit: {
       type: Boolean,

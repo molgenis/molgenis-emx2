@@ -9,7 +9,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :page="currentPage"
@@ -23,7 +23,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           :visibleColumns="visibleColumns"
           :clone="clone"
           class="flex-grow-1"
@@ -123,10 +123,9 @@ export default {
       type: Boolean,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
     pkey: {
       type: Object,
@@ -187,7 +186,7 @@ export default {
       const result = await this.client[action](
         formData,
         this.tableName,
-        this.graphqlURL
+        this.schemaName
       ).catch(this.handleSaveError);
       if (result) {
         this.handleClose();
@@ -218,8 +217,8 @@ export default {
   },
   async mounted() {
     this.loaded = false;
-    this.client = Client.newClient(this.graphqlURL);
-    const settings = await this.client.fetchSettings(this.graphqlURL);
+    this.client = Client.newClient(this.schemaName);
+    const settings = await this.client.fetchSettings();
 
     this.useChapters =
       settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)
@@ -311,7 +310,7 @@ export default {
       :pkey="demoKey"
       :clone="demoMode === 'clone'"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="isModalShown = false"
     />
   </DemoItem>
@@ -321,21 +320,21 @@ export default {
 export default {
   data: function () {
     return {
+      schemaName: "pet store",
       tableName: "Pet",
       demoMode: "insert", // one of [insert, update, clone]
       demoKey: null, // empty in case of insert
       isModalShown: false,
-      graphqlURL: "/pet store/graphql",
       useChapters: true
     };
   },
   methods: {
     async reload() {
-      const client = this.$Client.newClient(this.graphqlURL);
+      const client = this.$Client.newClient(this.schemaName);
       const tableMetaData = await client.fetchTableMetaData(this.tableName);
       const rowData = await client.fetchTableDataValues(this.tableName);
       this.demoKey = this.$utils.getPrimaryKey(rowData[0], tableMetaData);
-      const settings = await client.fetchSettings(this.graphqlURL);
+      const settings = await client.fetchSettings();
       this.useChapters =
         settings.find((item) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME)?.value !==
         "false";
