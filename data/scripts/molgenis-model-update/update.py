@@ -72,7 +72,7 @@ class TransformDataCatalogue:
         """
         if self.database_type == 'catalogue':
             self.contacts()
-            # self.identifiers()
+            self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -84,7 +84,7 @@ class TransformDataCatalogue:
         if self.database_type == 'UMCG':
             self.contacts()
             self.copy_files()
-            # self.identifiers()
+            self.identifiers()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -105,17 +105,12 @@ class TransformDataCatalogue:
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
 
     def identifiers(self):
-        """Move external identifiers to separate table
+        """Move external identifiers to a csv file
         """
         # get numbers from entry
-        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        df_identifiers = df_cohorts[['pid', 'externalIdentifiers']]
-        df_identifiers = df_identifiers.rename(columns={'pid': 'resource'}, inplace=True)
-        df_identifiers.loc[:, 'identifier'] = [re.sub('[^0-9-;, ]+', '',
-                                                      str(x)) for x in df_identifiers['externalIdentifiers']]
-        df_identifiers.loc[:, 'identifier type'] = [re.sub('[^A-Za-z ]+', '',
-                                                    str(x)) for x in df_identifiers['externalIdentifiers']]
-        df_identifiers.to_csv(self.path + 'External identifiers.csv', index=False)
+        df_identifiers = pd.read_csv(self.path + 'Cohorts.csv')
+        df_identifiers = df_identifiers[['pid', 'externalIdentifiers']]
+        df_identifiers.to_csv('External identifiers.csv', index=False)
 
     def tables(self):
         """Merge TargetTables and SourceTables and rename columns
@@ -232,7 +227,7 @@ class TransformDataStagingCohorts:
         """
         if self.database_type == 'cohort':
             self.contacts()
-            # self.identifiers()
+            self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -242,7 +237,7 @@ class TransformDataStagingCohorts:
             self.copy_files()
         if self.database_type == 'cohort_UMCG':
             self.contacts()
-            # self.identifiers()
+            self.identifiers()
             self.copy_files()
 
     def contacts(self):
@@ -263,14 +258,9 @@ class TransformDataStagingCohorts:
         """Move external identifiers to separate table
         """
         # get numbers from entry
-        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        df_identifiers = df_cohorts[['pid', 'externalIdentifiers']]
-        df_identifiers = df_identifiers.rename(columns={'pid': 'resource'}, inplace=True)
-        df_identifiers.loc[:, 'identifier'] = [re.sub('[^0-9-;, ]+', '',
-                                                      str(x)) for x in df_identifiers['externalIdentifiers']]
-        df_identifiers.loc[:, 'identifier type'] = [re.sub('[^A-Za-z ]+', '',
-                                                           str(x)) for x in df_identifiers['externalIdentifiers']]
-        df_identifiers.to_csv(self.path + 'External identifiers.csv', index=False)
+        df_identifiers = pd.read_csv(self.path + 'Cohorts.csv')
+        df_identifiers = df_identifiers[['pid', 'externalIdentifiers']]
+        df_identifiers.to_csv('External identifiers.csv', mode='a', index=False, header=False)
 
     def tables(self):
         """Rename SourceTables and rename columns

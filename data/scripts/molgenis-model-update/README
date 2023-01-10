@@ -37,11 +37,11 @@ Use virtual env to get a consistent python environment.
 
 5. Define environment variables in .env, see .env_example
 
-6. Run script for update of catalogue data
+6. Run script for update of data catalogue
 
     'run.py'
 
-   Run script for update of staging areas data
+   Run script for update of staging areas of datacatalogue
 
     'run_staging.py'
 
