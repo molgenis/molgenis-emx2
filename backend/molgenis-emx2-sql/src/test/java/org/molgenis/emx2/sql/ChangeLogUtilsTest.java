@@ -5,7 +5,6 @@ import static junit.framework.TestCase.assertEquals;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class ChangeLogUtilsTest {
   @Test
   public void testBuildProcessAuditFunction() {
