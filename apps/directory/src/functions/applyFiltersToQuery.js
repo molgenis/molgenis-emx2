@@ -1,4 +1,4 @@
-export function applyFiltersToQuery (baseQuery, filters) {
+export async function applyFiltersToQuery (baseQuery, filters) {
     baseQuery.resetAllFilters()
     console.log({ filters })
     const activeFilters = Object.keys(filters)
@@ -23,7 +23,10 @@ export function applyFiltersToQuery (baseQuery, filters) {
                 console.log(baseQuery.getQuery())
                 return baseQuery
             }
+
         }
+
+        return baseQuery.execute();
     }
 
 }

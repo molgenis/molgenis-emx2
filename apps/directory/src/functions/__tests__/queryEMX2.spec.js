@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import QueryEMX2 from "../queryEMX2";
 
 describe('QueryEMX2 Interface', () => {
@@ -74,7 +75,7 @@ Biobanks {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "UMC"} }) {
+Biobanks(filter: { name: { like: "UMC" } }) {
     id,
     name
   }
@@ -91,7 +92,7 @@ Biobanks(filter: { name: { like: "UMC"} }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden"}, country: { name: { equals: "DE"} } }) {
+Biobanks(filter: { name: { like: "Dresden" }, country: { name: { equals: "DE" } } }) {
     id,
     name
   }
@@ -107,7 +108,7 @@ Biobanks(filter: { name: { like: "Dresden"}, country: { name: { equals: "DE"} } 
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { collections: { id: { like: "Lifelines"}, name: { like: "Lifelines"} } }) {
+Biobanks(filter: { collections: { id: { like: "Lifelines" }, name: { like: "Lifelines" } } }) {
     id,
     name
   }
@@ -123,7 +124,7 @@ Biobanks(filter: { collections: { id: { like: "Lifelines"}, name: { like: "Lifel
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, filter: { name: { like: "UMC"} }) {
+Biobanks(limit: 100, filter: { name: { like: "UMC" } }) {
     id,
     name
   }
@@ -141,7 +142,7 @@ Biobanks(limit: 100, filter: { name: { like: "UMC"} }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC"} }) {
+Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC" } }) {
     id,
     name
   }
@@ -157,7 +158,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC"} }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: ["UMC","Dresden"]} }) {
+Biobanks(filter: { name: { like: ["UMC","Dresden"] } }) {
     id,
     name
   }
@@ -173,7 +174,25 @@ Biobanks(filter: { name: { like: ["UMC","Dresden"]} }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden"}, _or: { country: { name: { like: "DE"} } } }) {
+Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "DE" } } } }) {
+    id,
+    name
+  }
+}`
+    )
+  })
+
+  it('can create a query with multiple or clauses', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .where('name').like("Dresden")
+      .or('country', "name").like('DE')
+      .or('collections', "name").like('covid')
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "DE" } }, _or: { collections: { name: { like: "covid" } }} } }) {
     id,
     name
   }
@@ -211,7 +230,7 @@ Biobanks {
 Biobanks {
     id,
     name,
-    collections(filter: { name: { like: "cardiovascular"} }) {
+    collections(filter: { name: { like: "cardiovascular" } }) {
         id,
         name
     }
@@ -304,7 +323,7 @@ NestedExample {
         layerB {
             id,
             name,
-            layerC(filter: { name: { like: "nameOfC"} }) {
+            layerC(filter: { name: { like: "nameOfC" } }) {
                 id,
                 name
             }

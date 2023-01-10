@@ -387,7 +387,17 @@ ${root}${rootModifier} {\n`;
     let filterString = andFilters.length ? andFilters.join(', ') : ""
 
     if (filterString.length && orFilters.length) {
-      filterString = `${filterString}, _or: { ${orFilters.join(', ')} ${filterString.substring(filterString.length - 1)}`
+      let orStrings = ""
+
+      for (const orFilter of orFilters) {
+        orStrings += `, _or: { ${orFilter}`
+      }
+
+      if(orFilters.length > 1) {
+        orStrings += "}"
+      }
+
+      filterString = `${filterString}${orStrings} ${filterString.substring(filterString.length - 1)}`
     }
 
     if (filterString.length) {
@@ -404,7 +414,7 @@ ${root}${rootModifier} {\n`;
   _createFilter (operator, value) {
 
     const graphQLValue = Array.isArray(value) ? `["${value.join('","')}"]` : `"${value}"`
-    let columnFilter = `${this.subcolumn || this.column}: { ${operator}: ${graphQLValue}}`;
+    let columnFilter = `${this.subcolumn || this.column}: { ${operator}: ${graphQLValue} }`;
 
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
