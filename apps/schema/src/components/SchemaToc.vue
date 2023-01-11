@@ -80,7 +80,7 @@
 
 <style scoped>
 /*
-  Place below other stick page component ( Schema.vue)
+  Place below other sticky page component ( Schema.vue)
 */
 div.schema-toc.sticky-top {
   z-index: 998;
