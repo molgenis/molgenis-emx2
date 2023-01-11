@@ -11,7 +11,7 @@
             Reset
           </ButtonAction>
           <ButtonAction v-if="schema.tables?.length > 0" @click="toggleShowDiagram" class="ml-2">
-            {{ showDiagram ? "Hide" : "Show" }} Diagram
+            {{ showDiagram? "Hide": "Show" }} Diagram
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
             {{ error }}

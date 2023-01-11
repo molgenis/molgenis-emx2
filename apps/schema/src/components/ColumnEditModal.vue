@@ -18,17 +18,17 @@
             <InputSelect id="column_columnType" v-model="column.columnType" :options="columnTypes" label="columnType" />
           </div>
           <div class="col-4" v-if="
-  column.columnType === 'REF' ||
-  column.columnType === 'REF_ARRAY' ||
-  column.columnType === 'REFBACK' ||
-  column.columnType === 'ONTOLOGY' ||
-  column.columnType === 'ONTOLOGY_ARRAY'
-">
+            column.columnType === 'REF' ||
+            column.columnType === 'REF_ARRAY' ||
+            column.columnType === 'REFBACK' ||
+            column.columnType === 'ONTOLOGY' ||
+            column.columnType === 'ONTOLOGY_ARRAY'
+          ">
             <InputSelect id="column_refTable" v-model="column.refTable" :errorMessage="
-  column.refTable === undefined || column.name === ''
-    ? 'Referenced table is required'
-    : undefined
-" :options="tableNames" label="refTable" />
+              column.refTable === undefined || column.name === ''
+                ? 'Referenced table is required'
+                : undefined
+            " :options="tableNames" label="refTable" />
             <InputSelect id="column_refSchema" v-model="column.refSchema" :options="schemaNames"
               @update:modelValue="loadRefSchema" label="refSchema"
               description="When you want to refer to table in another schema" />
@@ -38,9 +38,9 @@
               :options="refBackCandidates(column.refTable, table.name)" />
           </div>
           <div class="col-4" v-if="
-  column.refTable &&
-  (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
-">
+            column.refTable &&
+            (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
+          ">
             <InputSelect v-if="refLinkCandidates.length > 0" id="column_refLink" v-model="column.refLink"
               :options="refLinkCandidates" label="refLink"
               description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)" />
