@@ -1,10 +1,5 @@
 <template>
-  <LayoutModal
-    v-if="show"
-    title="Edit column metadata"
-    @close="cancel"
-    :isCloseButtonShown="!isDisabled"
-  >
+  <LayoutModal v-if="show" title="Edit column metadata" @close="cancel" :isCloseButtonShown="!isDisabled">
     <template v-slot:body>
       <Spinner v-if="loading" />
       <LayoutForm v-else>
@@ -12,151 +7,79 @@
         <MessageError v-if="error">{{ error }}</MessageError>
         <div class="row">
           <div class="col-4">
-            <InputString
-              id="column_name"
-              v-model="column.name"
-              label="columnName"
-              :errorMessage="nameInvalid"
-            />
+            <InputString id="column_name" v-model="column.name" label="columnName" :errorMessage="nameInvalid" />
           </div>
           <div class="col-8">
-            <InputText
-              id="column_description"
-              v-model="column.description"
-              label="description"
-            />
+            <InputText id="column_description" v-model="column.description" label="description" />
           </div>
         </div>
         <div class="row">
           <div class="col-4">
-            <InputSelect
-              id="column_columnType"
-              v-model="column.columnType"
-              :options="columnTypes"
-              label="columnType"
-            />
+            <InputSelect id="column_columnType" v-model="column.columnType" :options="columnTypes" label="columnType" />
           </div>
-          <div
-            class="col-4"
-            v-if="
-              column.columnType === 'REF' ||
-              column.columnType === 'REF_ARRAY' ||
-              column.columnType === 'REFBACK' ||
-              column.columnType === 'ONTOLOGY' ||
-              column.columnType === 'ONTOLOGY_ARRAY'
-            "
-          >
-            <InputSelect
-              id="column_refTable"
-              v-model="column.refTable"
-              :errorMessage="
-                column.refTable === undefined || column.name === ''
-                  ? 'Referenced table is required'
-                  : undefined
-              "
-              :options="tableNames"
-              label="refTable"
-            />
-            <InputSelect
-              id="column_refSchema"
-              v-model="column.refSchema"
-              :options="schemaNames"
-              @update:modelValue="loadRefSchema"
-              label="refSchema"
-              description="When you want to refer to table in another schema"
-            />
+          <div class="col-4" v-if="
+  column.columnType === 'REF' ||
+  column.columnType === 'REF_ARRAY' ||
+  column.columnType === 'REFBACK' ||
+  column.columnType === 'ONTOLOGY' ||
+  column.columnType === 'ONTOLOGY_ARRAY'
+">
+            <InputSelect id="column_refTable" v-model="column.refTable" :errorMessage="
+  column.refTable === undefined || column.name === ''
+    ? 'Referenced table is required'
+    : undefined
+" :options="tableNames" label="refTable" />
+            <InputSelect id="column_refSchema" v-model="column.refSchema" :options="schemaNames"
+              @update:modelValue="loadRefSchema" label="refSchema"
+              description="When you want to refer to table in another schema" />
           </div>
           <div class="col-4" v-if="column.columnType === 'REFBACK'">
-            <InputSelect
-              id="column_refBack"
-              label="refBack"
-              v-model="column.refBack"
-              :options="refBackCandidates(column.refTable, table.name)"
-            />
+            <InputSelect id="column_refBack" label="refBack" v-model="column.refBack"
+              :options="refBackCandidates(column.refTable, table.name)" />
           </div>
-          <div
-            class="col-4"
-            v-if="
-              column.refTable &&
-              (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
-            "
-          >
-            <InputSelect
-              v-if="refLinkCandidates.length > 0"
-              id="column_refLink"
-              v-model="column.refLink"
-              :options="refLinkCandidates"
-              label="refLink"
-              description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)"
-            />
+          <div class="col-4" v-if="
+  column.refTable &&
+  (column.columnType === 'REF' || column.columnType === 'REF_ARRAY')
+">
+            <InputSelect v-if="refLinkCandidates.length > 0" id="column_refLink" v-model="column.refLink"
+              :options="refLinkCandidates" label="refLink"
+              description="refLink enables to define overlapping references, e.g. 'patientId', 'sampleId' (where sample also overlaps with patientId)" />
           </div>
         </div>
         <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-            <InputBoolean
-              id="column_required"
-              v-model="column.required"
-              :label="column.visibleIf ? 'required (if visible)' : 'required'"
-            />
+            <InputBoolean id="column_required" v-model="column.required"
+              :label="column.visibleIf ? 'required (if visible)' : 'required'" />
           </div>
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-            <InputBoolean
-              id="column_readonly"
-              v-model="column.readonly"
-              label="isReadonly"
-            />
+            <InputBoolean id="column_readonly" v-model="column.readonly" label="isReadonly" />
           </div>
         </div>
         <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-            <InputSelect
-              id="column_key"
-              v-model="column.key"
-              :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-              label="key"
-            />
+            <InputSelect id="column_key" v-model="column.key" :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" label="key" />
           </div>
         </div>
         <div class="row">
           <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
-            <InputText
-              id="column_validation"
-              v-model="column.validation"
-              label="validationExpression"
-              description="Example: {name} == 'John'"
-            />
+            <InputText id="column_validation" v-model="column.validation" label="validationExpression"
+              description="Example: {name} == 'John'" />
           </div>
           <div class="col-4">
-            <InputText
-              id="column_visible"
-              v-model="column.visible"
-              label="visibleIf"
-              description="{other} > 5"
-            />
+            <InputText id="column_visible" v-model="column.visible" label="visibleIf" description="{other} > 5" />
           </div>
         </div>
         <div class="row">
           <div class="col-4">
-            <InputString
-              id="column_semantics"
-              v-model="column.semantics"
-              :list="true"
-              label="semantics"
-            />
+            <InputString id="column_semantics" v-model="column.semantics" :list="true" label="semantics" />
           </div>
         </div>
 
         <div class="row" v-if="subclassNames !== undefined">
           <div class="col">
-            <InputSelect
-              :readonly="column.oldName !== undefined"
-              id="column_table"
-              v-model="column.table"
-              :options="subclassNames"
-              :list="true"
-              label="Available in subclass"
-              description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version"
-            />
+            <InputSelect :readonly="column.oldName !== undefined" id="column_table" v-model="column.table"
+              :options="subclassNames" :list="true" label="Available in subclass"
+              description="indicate this column is available in particular subclass only. Cannot be changed after creation. We hope to enable this in future version" />
           </div>
         </div>
       </LayoutForm>
@@ -166,13 +89,8 @@
       <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
     </template>
   </LayoutModal>
-  <IconAction
-    v-else
-    class="btn-sm hoverIcon"
-    :icon="operation === 'add' ? 'plus' : 'pencil-alt'"
-    @click="click"
-    :tooltip="tooltip"
-  />
+  <IconAction v-else class="btn-sm hoverIcon" :icon="operation === 'add' ? 'plus' : 'pencil-alt'" @click="click"
+    :tooltip="tooltip" />
 </template>
 
 <script>
@@ -231,7 +149,7 @@ export default {
     /** can be set to 'add' */
     operation: {
       type: String,
-      default: "update:modelValue",
+      default: "edit",
     },
     /** Optional tooltip*/
     tooltip: {
@@ -309,7 +227,7 @@ export default {
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
         this.table.columns?.filter((c) => c.name === this.column.name).length >
-          0
+        0
       ) {
         return "Name should be unique";
       } else {

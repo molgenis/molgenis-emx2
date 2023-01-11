@@ -10,11 +10,7 @@
           <ButtonAction v-if="dirty" @click="loadSchema" class="ml-2">
             Reset
           </ButtonAction>
-          <ButtonAction
-            v-if="schema.tables?.length > 0"
-            @click="toggleShowDiagram"
-            class="ml-2"
-          >
+          <ButtonAction v-if="schema.tables?.length > 0" @click="toggleShowDiagram" class="ml-2">
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
@@ -32,23 +28,14 @@
     <Spinner v-if="loading === true" />
     <div v-else class="row">
       <div class="col-2 bg-white">
-        <SchemaToc
-          :modelValue="schema"
-          v-if="schema.tables"
-          @update:modelValue="handleInput"
-          :key="key"
-          :isManager="isManager"
-        />
+        <SchemaToc :modelValue="schema" v-if="schema.tables" @update:modelValue="handleInput" :key="key"
+          :isManager="isManager" />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
         <a id="molgenis_diagram_anchor"></a>
         <NomnomDiagram :schema="schema" v-if="showDiagram" />
-        <SchemaView
-          :modelValue="schema"
-          :schemaNames="schemaNames"
-          @update:modelValue="handleInput"
-          :isManager="isManager"
-        />
+        <SchemaView :modelValue="schema" :schemaNames="schemaNames" @update:modelValue="handleInput"
+          :isManager="isManager" />
       </div>
     </div>
   </div>
@@ -61,11 +48,11 @@ table {
 
 /*
   Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
-  Use the available space between z layers to move the sticky app header below the menu dropdown
-  1000 - 1 = 999
+  Use the available space between z layers to move the sticky app header below the menu dropdown and modals
+  1000 - 2 = 998
 */
 .sticky-top {
-  z-index: 999;
+  z-index: 998;
 }
 </style>
 
@@ -221,10 +208,10 @@ export default {
         let tables = !schema.tables
           ? []
           : schema.tables.filter(
-              (table) =>
-                table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === undefined
-            );
+            (table) =>
+              table.tableType !== "ONTOLOGIES" &&
+              table.externalSchema === undefined
+          );
         tables.forEach((t) => {
           t.oldName = t.name;
           if (t.columns) {
@@ -242,10 +229,10 @@ export default {
         schema.ontologies = !schema.tables
           ? []
           : schema.tables.filter(
-              (table) =>
-                table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === undefined
-            );
+            (table) =>
+              table.tableType === "ONTOLOGIES" &&
+              table.externalSchema === undefined
+          );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {
           o.oldName = o.name;
