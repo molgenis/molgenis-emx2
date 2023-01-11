@@ -58,6 +58,15 @@
 table {
   table-layout: fixed;
 }
+
+/*
+  Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
+  Use the available space between z layers to move the sticky app header below the menu dropdown
+  1000 - 1 = 999
+*/
+.sticky-top {
+  z-index: 999;
+}
 </style>
 
 <script>
