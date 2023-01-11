@@ -13,9 +13,9 @@ Documentation,,,,,,,,,,,,Documentation attached to a resource
 External identifiers,,,,,,,,,,,,External identifiers belonging to a resource
 Resources,,overview,heading,,,,,,,,,General information about this resource
 Resources,,id,,1,TRUE,,,,,,,Internal identifier
+Resources,,pid,,,,,,,,,,Persistent identifier
 Resources,,name,,2,TRUE,,,,,,,Name of the resource
 Resources,,acronym,,,,,,,,,,Resource acronym
-Resources,,pid,,,,,,,,,,Persistent identifier
 Resources,,website,,,,,,,,,,Link to the website of this resource
 Resources,,description,text,,,,,,,,,Short description of this resource
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
