@@ -58,9 +58,9 @@ export default {
     ButtonAlt,
   },
   props: {
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: false,
     },
     tableMetadata: {type: Object, required: true}
   },
@@ -103,7 +103,7 @@ export default {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
-      const resp = await request(this.graphqlURL, `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, {tables:[this.tableMetadata]})
+      const resp = await request(this.schemaName ? "/"+this.schemaName+"/graphql":"graphql", `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message}}`, {tables:[this.tableMetadata]})
         .catch((error) => {
           this.graphqlError = error.errors[0].message;
         });

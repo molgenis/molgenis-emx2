@@ -14,7 +14,7 @@
           v-bind="$props"
           :canEdit="canEdit"
           :reload="reload"
-          :grapqlURL="graphqlURL"
+          :schemaName="schemaName"
         />
         <RowButton
           v-if="canEdit"
@@ -34,7 +34,7 @@
           v-if="canEdit"
           type="edit"
           :table="tableName"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           :visible-columns="visibleColumnNames"
           :refTablePrimaryKeyObject="
             getPrimaryKey(slotProps.row, tableMetadata)
@@ -48,7 +48,7 @@
           v-if="canEdit"
           type="clone"
           :table="tableName"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
           :visible-columns="visibleColumnNames"
           :default-value="defaultValue"
@@ -81,7 +81,7 @@
       :pkey="editRowPrimaryKey"
       :visibleColumns="visibleColumns"
       :clone="editMode === 'clone'"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       :defaultValue="defaultValue"
       @close="handleModalClose"
     />
@@ -142,9 +142,9 @@ export default {
       type: Object,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: false,
     },
     /**
      * if table (that has a column that is referred to by this table) can be edited
@@ -235,7 +235,7 @@ export default {
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.graphqlURL);
+    this.client = Client.newClient(this.schemaName);
     this.isLoading = true;
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(error => this.errorMessage = error.message);
     await this.reload();
@@ -260,7 +260,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject=null
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
 
@@ -274,7 +274,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
 
@@ -287,7 +287,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
   </div>
