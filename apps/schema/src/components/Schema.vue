@@ -61,11 +61,11 @@ table {
 
 /*
   Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
-  Use the available space between z layers to move the sticky app header below the menu dropdown
-  1000 - 1 = 999
+  Use the available space between z layers to move the sticky app header below the menu dropdown and modals
+  1000 - 2 = 998
 */
 .sticky-top {
-  z-index: 999;
+  z-index: 998;
 }
 </style>
 
