@@ -70,9 +70,14 @@ class TransformDataCatalogue:
     def transform_data(self):
         """Make changes per table
         """
+        # transformations for UMCG and data catalogue
+        self.contacts()
+        self.copy_files()
+        self.identifiers()
+        self.organisations()
+
+        # transformations for data catalogue
         if self.database_type == 'catalogue':
-            self.contacts()
-            self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
@@ -81,10 +86,6 @@ class TransformDataCatalogue:
             self.variable_mappings()
             self.datasources()
             self.copy_files()
-        if self.database_type == 'UMCG':
-            self.contacts()
-            self.copy_files()
-            self.identifiers()
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
@@ -225,19 +226,19 @@ class TransformDataStagingCohorts:
     def transform_data(self):
         """Make changes per table
         """
+        # transformations for staging UMCG and data catalogue staging
+        self.contacts()
+        self.identifiers()
+        self.copy_files()
+
+        # transformations for data catalogue staging
         if self.database_type == 'cohort':
-            self.contacts()
-            self.identifiers()
             self.tables()
             self.variables()
             self.variable_values()
             self.repeated_variables()
             self.dataset_mappings()
             self.variable_mappings()
-            self.copy_files()
-        if self.database_type == 'cohort_UMCG':
-            self.contacts()
-            self.identifiers()
             self.copy_files()
 
     def contacts(self):

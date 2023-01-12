@@ -4,9 +4,8 @@
 
 [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
 framework to describe in detail: metadata of cohorts and of data sources; definitions of the variables collected in
-cohorts and in the data banks composing the data sources (aka 'source variables'); and mappings to common data models 
-(aka 'target variables'). Its purpose is to facilitate pooled data analysis of multiple cohorts together 
-[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/), and multi-data
+cohorts and data sources; and mappings to common data models. Its purpose is to facilitate pooled data analysis of multiple cohorts
+[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data
 source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 - The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high-level
@@ -45,7 +44,7 @@ When you log in, you will be able to see at least the following databases:
   templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
   at [molgenis-support](mailto:molgenis-support@umcg.nl).
 - <b>SharedStaging</b>: A communal staging area in which e.g. Contacts and Institutions are added and edited.
-- <b>Your own database</b>: use this to upload the templates once you have filled them out.
+- <b>Your own database</b>: Use this to fill out cohort rich metadata and to upload the templates once you have filled them out.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
@@ -55,7 +54,8 @@ When you log in, you will be able to see at least the following databases:
 
 Open your staging area, navigate to 'Tables' and open the table 'Cohorts'. Your cohort pid and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your cohort rich metadata by filling out 
-the form.
+the form. 'Subcohorts' and 'Collection events' should also be filled out through this route. You can fill them out 
+in subsections inside the 'Cohorts' table.
 
 ### Define metadata of cohorts or data sources
 
@@ -66,7 +66,7 @@ this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_ch
 
 #### Define source variable metadata / source data dictionary
 
-We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx)
+We use the [*SourceDictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx)
 to define variable metadata. The [*SourceDictionary
 template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx) consists of multiple
 sheets. Each sheet corresponds to a table in the Data Catalogue (Figure 1). The columns in the sheet correspond to
@@ -76,8 +76,8 @@ upload. You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary_testCohort.xlsx) 
 as a reference for filling out the template.
 
-<sup>Note that there is no sheet for *AllSourceVariables*. This table is a generic listing of all variables entered for
-the cohort; it shows *SourceVariables* and *RepeatedSourceVariables* in one table. </sup>
+<sup>Note that there is no sheet for *AllVariables*. This table is a generic listing of all variables entered for
+the cohort; it shows *Variables* and *RepeatedVariables* in one table. </sup>
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
 upload the metadata to the Data Catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
@@ -94,7 +94,7 @@ This sheet is used to fill out versions of your codebook.
 
 | *Column name* | *Description* |
 | --- | --- |
-| resource \* | Fill out your cohort pid |
+| resource \* | Fill out your cohort id |
 | version \* | Version of the source data dictionary |
 
 <sup>Table 1. Description of the columns that can be filled out for SourceDataDictionaries. * = mandatory</sup>

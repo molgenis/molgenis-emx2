@@ -92,7 +92,7 @@ Collection events,,data categories,ontology_array,,,CatalogueOntologies,Data cat
 Collection events,,sample categories,ontology_array,,,CatalogueOntologies,Sample categories,,,,,Samples that were collected in this collection even
 Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Standardized tools,,,,,"Standardized tools, e.g. surveys, questionnaires, instruments used to collect data for this collection event"
 Collection events,,standardized tools other,,,,,,,,,,"If 'other', please specify"
-Collection events,,core variables,string_array,,,,,,,,,Enter or select 10-20 relevant variables that were collected in this collection event
+Collection events,,core variables,string_array,,,,,,,,,Enter 10-20 relevant variables that were collected in this collection event
 Subcohorts,,resource,ref,1,TRUE,,Resources,,,,,Resource this subcohort is part of
 Subcohorts,,name,,1,TRUE,,,,,,,"Subcohort name, e.g. 'mothers in first trimester','newborns'"
 Subcohorts,,description,text,,,,,,,,,Subcohort description
