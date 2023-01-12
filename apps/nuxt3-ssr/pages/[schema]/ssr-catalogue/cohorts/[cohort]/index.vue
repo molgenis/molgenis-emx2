@@ -330,8 +330,9 @@ let fundingAndAcknowledgementItems = computed(() => {
           title="Attached Files Generic Example"
         /> -->
 
-        <ContentBlockContact v-if="cohort?.contributors" id="Contributors" title="Contact and Contributors"
+        <!-- <ContentBlockContact v-if="cohort?.contributors" id="Contributors" title="Contact and Contributors"
           :contributors="cohort?.contributors" />
+           -->
 
         <!-- <ContentBlockVariables
           id="Variables"
