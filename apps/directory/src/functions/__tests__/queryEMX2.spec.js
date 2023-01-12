@@ -83,6 +83,21 @@ Biobanks(filter: { name: { like: "UMC" } }) {
     )
   })
 
+  it('can create a query with multiple or conditions', () => {
+    const query = new QueryEMX2('graphql')
+    .table("Biobanks")
+    .orWhere("country", "name").like("DE")
+    .orWhere("collections", "name").like("covid")
+    .getQuery()
+
+    expect(query).toEqual(`{
+Biobanks(filter: { _or: [ {country: { name: { like: "DE" } }}, {collections: { name: { like: "covid" } }} ] }) {
+    id,
+    name
+  }
+}`)
+  })
+
   it('can create a query with and by default when multiple filters are applied', () => {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
@@ -170,7 +185,7 @@ Biobanks(filter: { name: { like: ["UMC","Dresden"] } }) {
       .table('Biobanks')
       .select(['id', 'name'])
       .where('name').like("Dresden")
-      .or('country', "name").like('DE')
+      .orWhere('country', "name").like('DE')
       .getQuery()
 
     expect(query).toStrictEqual(`{
@@ -187,12 +202,31 @@ Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "D
       .table('Biobanks')
       .select(['id', 'name'])
       .where('name').like("Dresden")
-      .or('country', "name").like('DE')
-      .or('collections', "name").like('covid')
+      .orWhere('country.name').like('DE')
+      .orWhere('collections.name').like('covid')
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "DE" } }, _or: { collections: { name: { like: "covid" } }} } }) {
+Biobanks(filter: { name: { like: "Dresden" }, _or: [ {country: { name: { like: "DE" } }}, {collections: { name: { like: "covid" } }} ] }) {
+    id,
+    name
+  }
+}`
+    )
+  })
+
+  it('can create a query with multiple nested or clauses', () => {
+    const query = new QueryEMX2('graphql')
+      .table('Biobanks')
+      .select(['id', 'name'])
+      .where('name').like("Dresden")
+      .orWhere('country.name').like('DE')
+      .orWhere('collections.name').like('covid')
+      .orWhere('collections.materials.name').like('covid')
+      .getQuery()
+
+    expect(query).toStrictEqual(`{
+Biobanks(filter: { name: { like: "Dresden" }, _or: [ {country: { name: { like: "DE" } }}, {collections: { name: { like: "covid" }, materials: { name: { like: "covid" } } }} ] }) {
     id,
     name
   }
@@ -332,5 +366,12 @@ NestedExample {
   }
 }`
     )
+  })
+
+
+  it('can create filter components from a dotted path', () => {
+    const result = new QueryEMX2('graphql')._createFilterFromPath("collections.materials.name", "like", '"buffy coat"')
+
+    expect(result).toStrictEqual({columnForFilter: "collections", filter: `materials: { name: { like: "buffy coat" } }`})
   })
 })

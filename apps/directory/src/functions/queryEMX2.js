@@ -163,6 +163,15 @@ class QueryEMX2 {
     return this;
   }
 
+  orWhere (column, subcolumn) {
+    this.type = "_or"
+    this.branch = "root";
+    /** always convert to lowercase, else api will error */
+    this.column = this._toCamelCase(column);
+    this.subcolumn = subcolumn ? this._toCamelCase(subcolumn) : "";
+    return this;
+  }
+
   /**
    * Works as where, but then for nested properties
    * @param {string} column
@@ -238,12 +247,6 @@ class QueryEMX2 {
   search (value) {
     this.findInAllColumns = value;
     return this;
-  }
-
-  /** only works for top level */
-  or (column, subcolumn) {
-    this.type = "_or";
-    return this.where(column, subcolumn);
   }
 
   /** Text, String, Url, Int, Bool, Datetime Filter */
@@ -382,22 +385,30 @@ ${root}${rootModifier} {\n`;
     const filters = this.filters[property]
 
     const andFilters = this._combineFiltersOnSameProperty(property, filters, "_and")
+
     const orFilters = this._combineFiltersOnSameProperty(property, filters, "_or")
 
     let filterString = andFilters.length ? andFilters.join(', ') : ""
 
-    if (filterString.length && orFilters.length) {
-      let orStrings = ""
+    const anyOrs = orFilters.length || Object.keys(orFilters).length
 
-      for (const orFilter of orFilters) {
-        orStrings += `, _or: { ${orFilter}`
+    if (anyOrs) {
+      const multipleOr = anyOrs > 1 || filters._or[property] && filters._or[property].length > 1
+      let orString = filterString.length ? ", _or: " : "_or: "
+
+      if (multipleOr) {
+        orString += "[ "
+        for (const orFilter of orFilters) {
+          orString += `{${orFilter}}, `
+        }
+
+        orString = `${orString.substring(0, orString.length - 2)} ]`
+      }
+      else {
+        orString += `{ ${orFilters[0]} }`
       }
 
-      if(orFilters.length > 1) {
-        orStrings += "}"
-      }
-
-      filterString = `${filterString}${orStrings} ${filterString.substring(filterString.length - 1)}`
+      filterString += orString
     }
 
     if (filterString.length) {
@@ -407,14 +418,47 @@ ${root}${rootModifier} {\n`;
     const filledModifiers = modifierParts.filter((f) => f.length > 0);
 
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
-    // also want search and orderby
+  }
+
+  _createFilterFromPath (path, operator, value) {
+    /** get all the parts, but start from the last */
+    const pathParts = path.split('.')
+    const columnForFilter = pathParts[0]
+    pathParts.reverse()
+
+    const filter = pathParts.reduce((prev, next) => {
+      if (prev.includes(operator)) {
+        return prev
+      }
+      else {
+        if (next !== columnForFilter) {
+          return `${next}: { ${prev}: { ${operator}: ${value} } }`
+        }
+        else {
+          return `${prev}: { ${operator}: ${value} }`
+        }
+      }
+    })
+
+    return { columnForFilter, filter }
   }
 
   /** Private function to create the correct filter syntax. */
   _createFilter (operator, value) {
 
+    let columnForFilter = this.column
+    let hasSubcolumn = this.subcolumn.length > 0
+
     const graphQLValue = Array.isArray(value) ? `["${value.join('","')}"]` : `"${value}"`
+
     let columnFilter = `${this.subcolumn || this.column}: { ${operator}: ${graphQLValue} }`;
+
+    if (this.column.includes('.')) {
+      const filterComponents = this._createFilterFromPath(this.column, operator, graphQLValue)
+      columnForFilter = filterComponents.columnForFilter
+      columnFilter = filterComponents.filter
+      hasSubcolumn = true
+    }
 
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
@@ -424,7 +468,7 @@ ${root}${rootModifier} {\n`;
     }
 
     const queryType = !this.type ? "_and" : this.type
-    const applyQueryTo = this.subcolumn ? this.column : this.branch
+    const applyQueryTo = hasSubcolumn ? columnForFilter : this.branch
 
     if (!this.filters[this.branch][queryType][applyQueryTo]) {
       this.filters[this.branch][queryType][applyQueryTo] = []
