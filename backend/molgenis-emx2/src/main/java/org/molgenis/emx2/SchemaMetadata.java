@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import org.molgenis.emx2.utils.TableSort;
@@ -50,6 +51,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   public String getName() {
     return name;
+  }
+
+  public String getIdentifier() {
+    return convertToPascalCase(getName());
   }
 
   public void setName(String name) {

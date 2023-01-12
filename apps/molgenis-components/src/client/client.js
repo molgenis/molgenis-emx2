@@ -187,23 +187,26 @@ const graphqlURL = (schemaName) => {
 
 const insertDataRow = (rowData, tableName, schemaName) => {
   const tableId = convertToPascalCase(tableName);
+  const schemaId = convertToPascalCase(schemaName);
   const formData = toFormData(rowData);
-  const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
+  const query = `mutation insert($value:[${schemaId}_${tableId}Input]){insert(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL(schemaName), formData);
 };
 
 const updateDataRow = (rowData, tableName, schemaName) => {
   const tableId = convertToPascalCase(tableName);
+  const schemaId = convertToPascalCase(schemaName);
   const formData = toFormData(rowData);
-  const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
+  const query = `mutation update($value:[${schemaId}_${tableId}Input]){update(${tableId}:$value){message}}`;
   formData.append("query", query);
   return axios.post(graphqlURL(schemaName), formData);
 };
 
 const deleteRow = (key, tableName, schemaName) => {
   const tableId = convertToPascalCase(tableName);
-  const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+  const schemaId = convertToPascalCase(schemaName);
+  const query = `mutation delete($pkey:[${schemaId}_${tableId}Input]){delete(${tableId}:$pkey){message}}`;
   const variables = { pkey: [key] };
   return axios.post(graphqlURL(schemaName), { query, variables });
 };
@@ -253,7 +256,8 @@ const fetchTableData = async (
       : "";
 
   const cNames = columnNames(schemaName, tableId, metaData);
-  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const schemaId = convertToPascalCase(schemaName);
+  const tableDataQuery = `query ${tableId}( $filter:${schemaId}_${tableId}Filter, $orderby:${schemaId}_${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 

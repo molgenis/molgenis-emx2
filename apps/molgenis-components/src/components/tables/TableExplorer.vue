@@ -702,10 +702,17 @@ function getCondition(columnType, condition) {
       <label>Read only example</label>
       <table-explorer
         id="my-table-explorer"
-        tableName="Cohorts"
-        schemaName="DataCatalogue"
+        tableName="Pet"
+        graphqlURL="/pet store/graphql"
+        :showColumns="showColumns"
+        :showFilters="showFilters"
+        :urlConditions="urlConditions"
+        :showPage="page"
+        :showLimit="limit"
+        :showOrderBy="showOrderBy"
+        :showOrder="showOrder"
         :canEdit="canEdit"
-
+        :canManage="canManage"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>

@@ -168,6 +168,9 @@ export default {
       const options = {
         limit: this.maxNum,
       };
+      if(this.filter) {
+        options['filter'] = this.filter;
+      }
       const response = await this.client.fetchTableData(
         this.tableId,
         options
@@ -179,6 +182,9 @@ export default {
   watch: {
     modelValue() {
       this.selection = this.modelValue;
+    },
+    filter() {
+      this.loadOptions();
     }
   },
   async mounted() {

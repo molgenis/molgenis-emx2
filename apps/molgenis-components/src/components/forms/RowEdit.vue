@@ -8,7 +8,7 @@
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :schemaName="column.refSchema ? column.refSchema : schemaName"
+      :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
@@ -18,6 +18,7 @@
       :required="column.required"
       :tableName="column.refTable"
       :canEdit="canEdit"
+      :filter="refLinkFilter(column)"
     />
   </div>
 </template>
@@ -75,9 +76,10 @@ export default {
       type: Object,
       required: false,
     },
-    schemaName: {
-      type: String,
-      required: false,
+    // object with the whole schema, needed to create refLink filter
+    schemaMetaData: {
+      type: Object,
+      required: true,
     },
     canEdit: {
       type: Boolean,
@@ -154,6 +156,30 @@ export default {
             this.tableMetaData
           );
         });
+    },
+    //create a filter in case inputs are linked by overlapping refs
+    refLinkFilter(c) {
+      //need to figure out what refs overlap
+      if(c.refLink && this.showColumn(c) && this.internalValues[convertToCamelCase(c.refLink)]) {
+        let filter = {};
+        this.tableMetaData.columns.forEach((c2) => {
+          if (c2.name === c.refLink) {
+            this.schemaMetaData.tables.forEach((t) => {
+              //check how the reftable overlaps with columns in our column
+              if (t.name === c.refTable) {
+                t.columns.forEach((c3) => {
+                  if (c3.key === 1 && c3.refTable === c2.refTable) {
+                    filter[c3.name] = {
+                      equals: this.internalValues[convertToCamelCase(c.refLink)],
+                    };
+                  }
+                });
+              }
+            });
+          }
+        });
+          return filter;
+      }
     },
   },
   watch: {
@@ -275,7 +301,7 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
-            :schemaName="schemaName"
+            :schemaMetaData="schemaMetaData"
         />
       </div>
       <div class="col-6 border-left">
@@ -310,6 +336,7 @@ function containsInvalidEmail(emails) {
         tableMetaData: {
           columns: [],
         },
+        schemaMetaData: {},
         rowData: {},
         schemaName: 'pet store',
       };
@@ -327,6 +354,7 @@ function containsInvalidEmail(emails) {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
         const client = this.$Client.newClient(this.schemaName);
+        this.schemaMetaData = await client.fetchMetaData();
         this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;

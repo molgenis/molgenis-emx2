@@ -53,13 +53,8 @@ public class GraphqlTableFieldFactory {
 
   // helper to generate globally unique identifiers
   private String getTableTypeIdentifier(TableMetadata table) {
-    if (table.getSchemaName().equals(schema.getName())) {
-      // local types we keep as was before
-      return table.getIdentifier();
-    } else {
-      // refschema types we prefix with schema
-      return table.getSchema().getName() + "_" + table.getIdentifier();
-    }
+    // refschema types we prefix with schema so unique for whole database
+    return table.getSchema().getIdentifier() + "_" + table.getIdentifier();
   }
 
   // schema specific types
@@ -339,7 +334,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLNamedInputType getTableFilterInputType(TableMetadata table) {
-    String tableFilterInputType = table.getIdentifier() + FILTER;
+    String tableFilterInputType = getTableTypeIdentifier(table) + FILTER;
     if (!tableFilterInputTypes.containsKey(tableFilterInputType)) {
       // put reference in case of self reference\
       tableFilterInputTypes.put(
@@ -704,7 +699,9 @@ public class GraphqlTableFieldFactory {
                 .name(table.getIdentifier())
                 // reuse same input as insert
                 .type(
-                    GraphQLList.list(GraphQLTypeReference.typeRef(table.getIdentifier() + INPUT))));
+                    GraphQLList.list(
+                        GraphQLTypeReference.typeRef(
+                            getTableTypeIdentifier(table.getMetadata()) + INPUT))));
       }
     }
     return fieldBuilder.build();

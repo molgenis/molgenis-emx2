@@ -7,7 +7,7 @@
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
-      :schemaName="schemaName"
+      :schemaMetaData="schemaMetaData"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
       @update:modelValue="$emit('update:modelValue', $event)"
@@ -54,8 +54,8 @@ export default {
       type: Array,
       required: false,
     },
-    schemaName: {
-      type: String,
+    schemaMetaData: {
+      type: Object,
       required: false
     },
   },

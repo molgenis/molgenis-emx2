@@ -9,7 +9,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :schemaName="schemaName"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :page="currentPage"
@@ -23,7 +23,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :schemaName="schemaName"
+          :schemaMetadata="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           class="flex-grow-1"
@@ -102,6 +102,7 @@ export default {
     return {
       rowData: {},
       tableMetaData: null,
+      schemaMetaData: null,
       client: null,
       errorMessage: null,
       loaded: true,
@@ -218,6 +219,7 @@ export default {
   async mounted() {
     this.loaded = false;
     this.client = Client.newClient(this.schemaName);
+    this.schemaMetaData = await this.client.fetchMetaData();
     const settings = await this.client.fetchSettings();
 
     this.useChapters =

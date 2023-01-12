@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static junit.framework.TestCase.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ChangeLogUtilsTest {
