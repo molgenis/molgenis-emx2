@@ -176,6 +176,11 @@ export default {
       this.count = response[this.tableId + "_agg"].count;
     },
   },
+  watch: {
+    filter() {
+      this.loadOptions();
+    }
+  },
   async mounted() {
     this.client = Client.newClient(this.schemaName);
     this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
