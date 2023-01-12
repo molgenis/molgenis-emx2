@@ -53,8 +53,13 @@ public class GraphqlTableFieldFactory {
 
   // helper to generate globally unique identifiers
   private String getTableTypeIdentifier(TableMetadata table) {
-    // refschema types we prefix with schema so unique for whole database
-    return table.getSchema().getIdentifier() + "_" + table.getIdentifier();
+    if (table.getSchemaName().equals(schema.getName())) {
+      // local types we keep as was before
+      return table.getIdentifier();
+    } else {
+      // refschema types we prefix with schema
+      return table.getSchema().getIdentifier() + "_" + table.getIdentifier();
+    }
   }
 
   // schema specific types
