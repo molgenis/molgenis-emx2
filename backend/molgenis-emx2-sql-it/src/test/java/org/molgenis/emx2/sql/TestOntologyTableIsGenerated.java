@@ -19,13 +19,15 @@ public class TestOntologyTableIsGenerated {
 
   @Test
   public void testOntologyTableIsGenerated() {
-    Schema s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName());
+    Schema s = null;
 
-    // test error is thrown if reschema doesn't exist
+    // test error is thrown if refschema doesn't exist
     try {
       if (db.getSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2") != null) {
         db.dropSchema(TestOntologyTableIsGenerated.class.getSimpleName() + "2");
       }
+      // delete this schema after other because of dependency
+      s = db.dropCreateSchema(TestOntologyTableIsGenerated.class.getSimpleName());
       s.create(
           table(
               "test",

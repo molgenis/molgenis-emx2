@@ -1,4 +1,4 @@
-name,code,order,description,comments,parent,ontologyTermURI
+name,code,order,definition,comments,parent,ontologyTermURI
 Harmonisation protocol,HP,,,,,
 Informed consent,IC,,,,,
 Standard operating protocol,SOP,,,,,
@@ -13,3 +13,4 @@ Procedure of results generation,,,,,
 Results tables,,,"Results tables from the study uploaded to the catalogue. Upload in a standard form is envisioned, to facilitate visualisation.",,
 Study report,,,"A link to the study report, if publicly available online",,
 "Study, other information",,,"Any other file required for the study (up to 5 files up to 20MB each) and/or URLs to other relevant resources describing the study",,
+Data source ETL specifications,,,"If available, documents describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",,,

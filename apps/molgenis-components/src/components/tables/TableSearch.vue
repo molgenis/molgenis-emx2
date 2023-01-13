@@ -34,7 +34,7 @@
               v-if="canEdit"
               :id="'row-button-add-' + lookupTableName"
               :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
+              :schemaName="schemaName"
               @close="loadData"
               class="d-inline p-0"
             />
@@ -45,7 +45,7 @@
               v-bind="$props"
               :canEdit="canEdit"
               :reload="loadData"
-              :grapqlURL="graphqlURL"
+              :schemaName="schemaName"
             />
           </template>
           <template v-slot:rowheader="slotProps">
@@ -59,7 +59,7 @@
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
               :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
+              :schemaName="schemaName"
               :pkey="slotProps.rowkey"
               @close="loadData"
               class="text-left"
@@ -68,7 +68,7 @@
               v-if="canEdit"
               :id="'row-button-del-' + lookupTableName"
               :tableName="lookupTableName"
-              :graphqlURL="graphqlURL"
+              :schemaName="schemaName"
               :pkey="slotProps.rowkey"
               @close="loadData"
             />
@@ -109,7 +109,7 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: true,
     },
@@ -177,17 +177,11 @@ export default {
         filter: this.filter,
       };
 
-      const client = Client.newClient(this.graphqlURL);
-      const remoteMetaData = await client
-        .fetchMetaData()
-        .catch(() => (this.graphqlError = "Failed to load meta data"));
+      const client = Client.newClient(this.schemaName);
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableIdentifier, queryOptions)
+        .fetchTableData(this.lookupTableName, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-
-      this.tableMetadata = remoteMetaData.tables.find(
-        (table) => table.id === this.lookupTableIdentifier
-      );
+      this.tableMetadata = await client.fetchTableMetaData(this.lookupTableName);
       this.data = gqlResponse[this.lookupTableIdentifier];
       this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
       this.loading = false;
@@ -223,7 +217,7 @@ export default {
         :columns.sync="columns"
         :lookupTableName="'Pet'"
         :showSelect="false"
-        :graphqlURL="'/pet store/graphql'"
+        schemaName="pet store"
         :canEdit="canEdit"
         @select="click"
         @deselect="click"

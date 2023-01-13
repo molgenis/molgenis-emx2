@@ -6,6 +6,7 @@
     - [Databases](use_database.md)
     - [Schema](use_schema.md)
     - [Tables](use_tables.md)
+    - [Reports](use_reports.md)
     - [Forms](use_forms.md)
     - [Up/download](use_updownload.md)
     - [Permissions](use_permissions.md)

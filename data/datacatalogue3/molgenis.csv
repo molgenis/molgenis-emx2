@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3,,,
+Version,,,,,,,,,,,,3.1,,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,,,
 Extended resources,Resources,,,,,,,,,,,,,,
@@ -35,6 +35,7 @@ Resources,,website,,,,,,,,,,Link to the website or homepage,EMA,,
 Extended resources,,lead organisation,ref,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource,EMA,,
 Resources,,description,text,,,,,,,,,Short description,EMA,,
+Data sources,,data collection description,text,,,,,,,,,Describe the process of collection and recording of data in the data source.,EMA,,
 Data sources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
@@ -56,15 +57,13 @@ Data resources,,number of participants with samples,int,,,,,,,,,Number of indivi
 Data sources,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,,Databanks,underlyingPopulation
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,,,
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
+Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,EMA,Databanks,populationAgeGroups
 Cohorts,,inclusion criteria,text,,,,Inclusion criteria,,,,,Inclusion criteria applied to the participants of this resource,,,
 Cohorts,,start year,int,,,,,,,,,Year when first data was collected,,,
 Cohorts,,end year,int,,,,,,,,,Year when last data was collected. Leave empty if collection is ongoing,,,
 Networks,,start year,int,,,,,,,,,Year when the network was created,,,
 Networks,,end year,int,,,,,,,,,Year when the network ended,,,
 Cohorts,,subcohorts,refback,,,,Subcohorts,,resource,,,List of subcohorts or subpopulations for this resource,,,
-Data sources,,first data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,Resources,startYear
-Data sources,,last data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source? If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,Resources,endYear
-Data sources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in the data source? Select all that are relevant.,EMA,Databanks,populationAgeGroups
 Data sources,,population entry,ontology_array,,,CatalogueOntologies,Population entry,,,,,Select the possible causes / events that trigger the registration of a person in the data source,EMA,Databanks,populationEntry
 Data sources,,population entry other,text,,,,,,,,,"If other, specify the causes of entry to the underlying population",EMA,Databanks,populationEntryOther
 Data sources,,population exit,ontology_array,,,CatalogueOntologies,Population exit,,,,,Select the possible causes / events that trigger the de-registration of a person in the data source,EMA,Databanks,populationExit
@@ -72,7 +71,6 @@ Data sources,,population exit other,text,,,,,,,,,"If other, specify the causes o
 Data sources,,population disease,ontology_array,,,CatalogueOntologies,Diseases,,,,,"Does the data bank collect information on a specific disease subpopulation (e.g., as in a disease-specific registry)?",EMA,,
 Data sources,,population coverage,text,,,,,,,,,Estimated percentage of the population covered by the data source in the catchment area. Please describe the denominator.,EMA,,
 Data sources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g.: people who are registered only for private care) ",EMA,,
-Data sources,,population size,int,,,,,,,,,Total number of unique individuals with records captured in the data source (most recent count).,EMA,,
 Data sources,,quantantitative information,refback,,,,Quantitative information,,resource,,,Numerical summaries describing data bank population,EMA,,
 Data resources,,contents,heading,,,,,,,,,Data model and contents,,,
 Data sources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,EMA,Databanks,areasOfInformation
@@ -82,7 +80,8 @@ Data sources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indicat
 Data sources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,
 Data sources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",EMA,Databanks,careSettingOther
 Data sources,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
-Data sources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA
+Data sources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
+Data sources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,,,
 Data sources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Informed consents,,,,,"If the data bank contains biospecimens, what types of specimen",,,
 Data sources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA,,
 Data sources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA,,
@@ -148,7 +147,8 @@ Data sources,,quality validation methods,text,,,,,,,,,What methods or processes 
 Data sources,,correction methods,text,,,,,,,,,What methods or processes are applied to correct illogical values in the data bank?,,,
 Data sources,,quality validation results,,,,,,,,,,"If available, provide a link to a publication of the data quality check and validation results",,,
 Data sources,,standards,heading,,,,,,,,,Use of standard data models and ontologies,,,
-Data sources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this databank,EMA,,
+Data sources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,EMA,,
+Data sources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA,,
 Data sources,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
 Data sources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
 Data sources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
@@ -209,6 +209,7 @@ Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'ot
 Linked data sources,,,,,,,,,,,,Links between datasource and databank,,,
 Linked data sources,,main datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,datasource
 Linked data sources,,linked datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,databank
+Linked data sources,,other linked data source,text,,,,,,,,,"If other linked data source, enter the name of the data source",,,
 Linked data sources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are either currently available between data sources in the data source (when pre-linked = yes) or linkages that are possible when using the data source,,,
 Linked data sources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link data banks. One entry per data bank,,DatasourceDatabanks,linkageStrategy
 Linked data sources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",,DatasourceDatabanks,linkageVariable
@@ -262,8 +263,7 @@ Networks,,data sources,ref_array,,,,Data sources,,,,,,,,
 Networks,,cohorts,ref_array,,,,Cohorts,,,,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network,,,
 Networks,,studies,refback,,,,Studies,,networks,,,,,,
-Studies,,required by regulator,bool,,,,,,,,,Was the study requested by a regulatory body?,,,
-Studies,,required by RMP,ontology,,,CatalogueOntologies,RMP requirements,,,,,Was the study required by a Risk Management Plan (RMP)?,,,
+Studies,,study requirements,ontology_array,,,CatalogueOntologies,Study requirements,,,,,Study requirements,,,
 Studies,,regulatory procedure number,string,,,,,,,,,"Regulatory procedure number, for RMP Category 1 and 2 studies only",,,
 Studies,,date of sigining funding contract planned,date,,,,,,,,,"Date when funding contract was signed, planned",,,
 Studies,,date of sigining funding contract actual,date,,,,,,,,,"Date when funding contract was signed, actual",,,
@@ -277,6 +277,7 @@ Studies,,final report planned,date,,,,,,,,,"Date of final study report, planned"
 Studies,,final report actual,date,,,,,,,,,"Date of final study report, actual",,,
 Studies,,data,heading,,,,,,,,,Data management,,,
 Studies,,data sources,ref_array,,,,Data sources,,,,,Data sources that provided data into this study,,,
+Studies,,data sources other,text,,,,,,,,,Other not listed data sources that provided data into this study,,,
 Studies,,cohorts,ref_array,,,,Cohorts,,,,,Cohorts that provided data into this study,,,
 Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this study,,,
 Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,,,
@@ -287,7 +288,8 @@ Studies,,data source types other,text,,,,,,,,,"Sources of data, if other",,,
 Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal",,,
 Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study,,,
 Studies,,medicines studied codes,ontology_array,,,CatalogueOntologies,Medicine codes,,,,,Codes of medicines studied,,,
-Studies,,medicines studied brands,text,,,,,,,,,Brand names of medicines studied,,,
+Studies,,medicines studied brands,ontology_array,,,CatalogueOntologies,Medicine brands,,,,,Brand names of medicines studied,,,
+Studies,,medicines studied other,text,,,,,,,,,If the medicinal product information (e.g. brand name or active substance or ATC code) does not appear in the available look-ups please enter it here,,,
 Studies,,medical conditions studied,ontology_array,,,CatalogueOntologies,Medical conditions,,,,,Codes of the medical conditions studied,,,
 Studies,,medical conditions studied other,text,,,,,,,,,Codes of the medical conditions studied,,,
 Studies,,date collection end planned,date,,,,,,,,,The date of the end of the data collection for the study- planned,,,
@@ -305,10 +307,10 @@ Studies,,comparators,text,,,,,,,,,A short description of the study comparators,,
 Studies,,outcomes,text,,,,,,,,,A short description of the study outcomes,,,
 Studies,,study design,text,,,,,,,,,A brief summary of the study design,,,
 Studies,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (from abstract),,,
-Studies,,topic,ontology,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,,,
+Studies,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,,An initial classification of the study purpose,,,
 Studies,,topic other,text,,,,,,,,,"If the study is not concerning any of the proposed categories, please specify the details",,,
 Studies,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,,,
-Studies,,study design classification,ontology,,,CatalogueOntologies,Study design classification,,,,,If Study type: clinical trials. Select one of the following,,,
+Studies,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,,,
 Studies,,study design classification other,text,,,,,,,,,Further details on design,,,
 Studies,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,,,
 Studies,,study scope other,text,,,,,,,,,If scope 'other',,,

@@ -7,7 +7,7 @@
           :condition="conditions"
           @updateCondition="updateCondition(index - 1, $event)"
           :tableName="tableName"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
       ></component>
    </div>
     <div v-else v-for="index in fieldCount" :key="index">
@@ -20,7 +20,7 @@
         @addCondition="fieldCount++"
         :showAddButton="index === conditions.length"
         :tableName="tableName"
-        :graphqlURL="graphqlURL"
+        :schemaName="schemaName"
       ></component>
     </div>
   </div>
@@ -102,7 +102,7 @@ export default {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
     },
@@ -239,7 +239,7 @@ export default {
             id="filter-input-ontology"
             columnType="ONTOLOGY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -253,7 +253,7 @@ export default {
             id="filter-input-ref"
             columnType="REF"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
         />
@@ -267,7 +267,7 @@ export default {
             id="filter-input-reflist"
             columnType="REF_ARRAY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
         />

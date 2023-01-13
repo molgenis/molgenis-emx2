@@ -1,4 +1,4 @@
-name,parent,description
+name,parent,definition
 ENCePP network,,Do you want to become an ENCePP partner?
 Primary therapeutic area,,Please specify the primary therapeutic/disease area of your Network. Multiple values can be selected.
 Anaesthesia,Primary therapeutic area,

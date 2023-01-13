@@ -12,7 +12,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 
-public class EvaluateExpressionsTest extends TestCase {
+public class TestEvaluateExpressions extends TestCase {
 
   @Test
   public void testCheckValidationColumnsSuccess() {
