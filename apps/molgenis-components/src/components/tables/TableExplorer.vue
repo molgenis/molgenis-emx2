@@ -319,7 +319,7 @@ export default {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
