@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,3.1
+Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups
 Extended resources,Resources,,,,,,,,,,,
@@ -22,7 +22,7 @@ Organisations,,additional resources,refback,,,,Extended resources,,additional or
 Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,,"Type of network, e.g. h2020 project"
 Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network
 Resources,,website,,,,,,,,,,Link to the website or homepage
-Extended resources,,lead organisation,ref,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
 Resources,,description,text,,,,,,,,,Short description
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"

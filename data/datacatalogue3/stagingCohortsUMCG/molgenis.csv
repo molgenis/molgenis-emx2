@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Publications,,,,,,,,,,,,Publications following bibtex format
-Version,,,,,,,,,,,,3.1
+Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Organisations,Resources,,,,,,,,,,,Research departments and research groups
 Extended resources,Resources,,,,,,,,,,,
@@ -25,7 +25,7 @@ Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study des
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
-Extended resources,,lead organisation,ref,,,,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,Any additional organisations that contributed to this resource
 Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
