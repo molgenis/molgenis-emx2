@@ -64,7 +64,7 @@ export default {
         tableName: string,
         properties: IClientProperties
       ) => {
-        const tableId = convertToPascalCase(tableName);
+        const tableId = convertToPascalCase(tableName) || tableName;
         if (metaData === null) {
           metaData = await fetchMetaData(myAxios, schemaName);
           if (!schemaName) {
@@ -81,7 +81,7 @@ export default {
         return dataResp[tableId];
       },
       fetchRowData: async (tableName: string, rowId: IRow) => {
-        const tableId = convertToPascalCase(tableName);
+        const tableId = convertToPascalCase(tableName) || tableName;
         if (metaData === null) {
           metaData = await fetchMetaData(myAxios, schemaName);
           if (!schemaName) {
@@ -260,7 +260,7 @@ const fetchTableData = async (
   schemaName: string,
   onError?: (error: AxiosError) => void
 ) => {
-  const tableId = convertToPascalCase(tableName);
+  const tableId = convertToPascalCase(tableName) || tableName;
   const limit =
     properties && Object.prototype.hasOwnProperty.call(properties, "limit")
       ? properties.limit
