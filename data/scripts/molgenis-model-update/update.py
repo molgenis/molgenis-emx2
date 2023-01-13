@@ -2,8 +2,7 @@ import shutil
 import os
 import pandas as pd
 import logging
-import re
-from zip_handling import Zip
+import itertools
 
 
 def float_to_int(df):
@@ -71,10 +70,11 @@ class TransformDataCatalogue:
         """Make changes per table
         """
         # transformations for UMCG and data catalogue
+        self.cohorts()
         self.contacts()
+        self.organisations()
         self.copy_files()
         self.identifiers()
-        self.organisations()
 
         # transformations for data catalogue
         if self.database_type == 'catalogue':
@@ -87,13 +87,32 @@ class TransformDataCatalogue:
             self.datasources()
             self.copy_files()
 
+    def cohorts(self):
+        """Rename columns in cohorts
+        """
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+
+        # add partners to column 'additional organisations'
+        df_partners = pd.read_csv(self.path + 'Partners.csv')
+        resource = self.database
+        df_partners = df_partners[df_partners['resource'] == resource]
+        list_partners = df_partners['institution'].unique().tolist()
+        string_partners = ','.join(list_partners)
+        df_cohorts['additional organisations'] = string_partners
+
+        df_cohorts.rename(columns={'pid': 'id',
+                                   'institution': 'lead organisation'}, inplace=True)
+        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
+        df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False)
+
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
         """
         df_contributions = pd.read_csv(self.path + 'Contributions.csv')
         df_contributions.rename(columns={'contributionType': 'role',
                                          'contact.firstName': 'firstName',
-                                         'contact.surname': 'surname'}, inplace=True)
+                                         'contact.surname': 'surname',
+                                         'institution': 'organisation'}, inplace=True)
 
         if self.database_type == 'catalogue':
             df_contacts = pd.read_csv(self.path + 'Contacts.csv')
@@ -105,12 +124,21 @@ class TransformDataCatalogue:
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
 
+    def organisations(self):
+        """Move Institutions to Organisations
+        """
+        df_organisations = pd.read_csv(self.path_shared_staging + 'Institutions.csv')
+        df_organisations.rename(columns={'pid': 'id',
+                                         'roles': 'role'}, inplace=True)
+        df_organisations["name"].fillna(inplace=True, value=df_organisations["id"])  # fill na in column 'name'
+        df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
     def identifiers(self):
         """Move external identifiers to a csv file
         """
         # get numbers from entry
         df_identifiers = pd.read_csv(self.path + 'Cohorts.csv')
-        df_identifiers = df_identifiers[['pid', 'externalIdentifiers']]
+        df_identifiers = df_identifiers[['id', 'externalIdentifiers']]
         df_identifiers.to_csv('External identifiers.csv', index=False)
 
     def tables(self):
@@ -191,6 +219,7 @@ class TransformDataCatalogue:
         df_databanks = pd.read_csv(self.path + 'Databanks.csv')
         df_datasources = pd.read_csv(self.path + 'Datasources.csv')
         df_datasources_merged = pd.concat([df_databanks, df_datasources])
+        df_datasources_merged.rename(columns= {'pid': 'id'}, inplace=True)
         df_datasources_merged = float_to_int(df_datasources_merged)
         df_datasources_merged.to_csv(self.path + 'Datasources.csv', index=False)
 
@@ -227,7 +256,9 @@ class TransformDataStagingCohorts:
         """Make changes per table
         """
         # transformations for staging UMCG and data catalogue staging
+        self.cohorts()
         self.contacts()
+        self.organisations()
         self.identifiers()
         self.copy_files()
 
@@ -241,6 +272,22 @@ class TransformDataStagingCohorts:
             self.variable_mappings()
             self.copy_files()
 
+    def cohorts(self):
+        """Rename column in cohorts
+        """
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+
+        # add partners to column 'additional organisations'
+        df_partners = pd.read_csv(self.path + 'Partners.csv')
+        list_partners = df_partners['institution'].unique().tolist()
+        string_partners = ','.join(list_partners)
+        df_cohorts['additional organisations'] = string_partners
+
+        df_cohorts.rename(columns={'pid': 'id',
+                                   'institution': 'organisation'}, inplace=True)
+        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
+        df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False, mode='w+')
+
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
         Only keep resource == cohort_name
@@ -251,16 +298,38 @@ class TransformDataStagingCohorts:
                                          'contact.surname': 'surname'}, inplace=True)
         df_contacts = pd.read_csv(self.path_shared_staging + 'Contacts.csv')
         df_contacts_merged = pd.merge(df_contributions, df_contacts, on=['firstName', 'surname'])
-        df_contacts_merged.rename(columns={'surname': 'lastName'}, inplace=True)
+        df_contacts_merged.rename(columns={'surname': 'lastName',
+                                           'institution': 'organisation'}, inplace=True)
         df_contacts_merged = float_to_int(df_contacts_merged)  # convert float back to integer
         df_contacts_merged.to_csv(self.path + 'Contacts.csv', index=False)
+
+    def organisations(self):
+        """Move Institutions to Organisations
+        """
+        df_organisations = pd.read_csv(self.path_shared_staging + 'Institutions.csv')
+
+        # only keep institutions that are referred to from other tables
+        df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+        institutions_from_contacts = df_contacts['organisation'].tolist()
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+        institutions_from_cohorts = df_cohorts['organisation'].tolist()
+        df_partners = pd.read_csv(self.path + 'Partners.csv')
+        institutions_from_partners = df_partners['institution'].tolist()
+        combined_institutions = institutions_from_partners + institutions_from_contacts + institutions_from_cohorts
+        df_organisations = df_organisations.query('pid in @combined_institutions')
+
+        df_organisations.rename(columns={'pid': 'id',
+                                         'institution': 'organisation',
+                                         'roles': 'role'}, inplace=True)
+        df_organisations["name"].fillna(inplace=True, value=df_organisations["id"])  # fill na in column 'name'
+        df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def identifiers(self):
         """Move external identifiers to separate table
         """
         # get numbers from entry
         df_identifiers = pd.read_csv(self.path + 'Cohorts.csv')
-        df_identifiers = df_identifiers[['pid', 'externalIdentifiers']]
+        df_identifiers = df_identifiers[['id', 'externalIdentifiers']]
         df_identifiers.to_csv('External identifiers.csv', mode='a', index=False, header=False)
 
     def tables(self):

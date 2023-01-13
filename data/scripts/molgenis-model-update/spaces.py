@@ -74,13 +74,13 @@ class Spaces:
         """
         for file_name in os.listdir(self.path):
             if not file_name == '_files':
-                try:
+                if file_name == 'InstitutionTypes.csv':
+                    new_file_name = 'Organisation types.csv'
+                else:
                     df = pd.read_csv(self.path + file_name, keep_default_na=False)
                     df = get_new_column_names(df, self.database)
                     df = float_to_int(df)  # convert float back to integer
                     df.to_csv(self.path + file_name, index=False)
-                except pd.errors.EmptyDataError:
-                    pass
-                new_file_name = spaces(file_name, self.database)
+                    new_file_name = spaces(file_name, self.database)
                 os.rename(os.path.join(self.path, file_name), os.path.join(self.path, new_file_name))
 
