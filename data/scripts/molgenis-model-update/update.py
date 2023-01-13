@@ -46,10 +46,10 @@ class TransformGeneral:
 
         # copy molgenis.csv to appropriate folder
         if self.database_type == 'catalogue':
-            path = './' + 'catalogue_data_model'
+            path = './downloads/' + 'catalogue_data_model'
             os.mkdir(path)
             shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
-            shutil.make_archive('./' + 'catalogue_data_model_upload', 'zip', path)
+            shutil.make_archive('./downloads/' + 'catalogue_data_model_upload', 'zip', path)
         else:
             shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 
@@ -94,16 +94,13 @@ class TransformDataCatalogue:
 
         # add partners to column 'additional organisations'
         df_partners = pd.read_csv(self.path + 'Partners.csv')
-        resource = self.database
-        df_partners = df_partners[df_partners['resource'] == resource]
-        list_partners = df_partners['institution'].unique().tolist()
-        string_partners = ','.join(list_partners)
-        df_cohorts['additional organisations'] = string_partners
-
-        df_cohorts.rename(columns={'pid': 'id',
-                                   'institution': 'lead organisation'}, inplace=True)
-        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
-        df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False)
+        df_partners.rename(columns={'institution': 'additional organisations'}, inplace=True)
+        grouped_partners = df_partners.groupby('resource')['additional organisations'].agg(','.join)
+        df_cohorts['resource'] = df_cohorts['pid']
+        df_cohorts_merged = pd.merge(df_cohorts, grouped_partners, on='resource', how='outer')
+        df_cohorts_merged.rename(columns={'pid': 'id'}, inplace=True)
+        df_cohorts_merged = float_to_int(df_cohorts_merged)  # convert float back to integer
+        df_cohorts_merged.to_csv(self.path + 'Cohorts.csv', index=False)
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
