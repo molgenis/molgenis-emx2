@@ -90,6 +90,13 @@ zip_handling.remove_unzipped_data()
 # Cohorts update
 print('-----------------------')
 print('Cohort data update to data model ' + DATA_MODEL_VERSION)
+# sign in to server
+print('Sign in to server: ' + SERVER_URL)
+session = Session(
+    url=SERVER_URL,
+    email=SERVER_USERNAME,
+    password=SERVER_PASSWORD
+)
 for cohort in COHORTS:
     # extract data
     print('Extract data for ' + cohort + ': ' + cohort + '_data.zip')
@@ -145,7 +152,14 @@ session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE
 print('-----------------------')
 
 print('Updating data for cohorts')
+# sign in to server
+print('Sign in to server: ' + SERVER_URL)
+session = Session(
+    url=SERVER_URL,
+    email=SERVER_USERNAME,
+    password=SERVER_PASSWORD
+)
+
 for cohort in COHORTS:
-    # sign in to server
     print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort[5:], data_to_upload=cohort)

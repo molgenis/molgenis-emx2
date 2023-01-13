@@ -23,7 +23,7 @@ class TransformGeneral:
     def __init__(self, database, database_type):
         self.database = database
         self.database_type = database_type
-        self.path = './' + self.database + '_data/'
+        self.path = './downloads/' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
     def delete_data_model_file(self):
@@ -60,9 +60,9 @@ class TransformDataCatalogue:
 
     def __init__(self, database, database_type):
         self.database = database
-        self.path = './' + self.database + '_data/'
+        self.path = './downloads/' + self.database + '_data/'
         self.shared_staging = 'SharedStaging'
-        self.path_shared_staging = self.shared_staging + '_data/'
+        self.path_shared_staging = './downloads/' + self.shared_staging + '_data/'
         self.database_type = database_type
         self.logger = logging.getLogger(' data update and transform')
 
@@ -226,7 +226,7 @@ class TransformDataCatalogue:
     def copy_files(self):
         """Copy files from SharedStaging to catalogue
         """
-        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files/')
+        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files/')
         path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
         for file in os.listdir(path_shared_staging_files):
             shutil.copyfile(os.path.join(path_shared_staging_files, file),
@@ -246,9 +246,9 @@ class TransformDataStagingCohorts:
 
     def __init__(self, database, database_type):
         self.cohort_name = database
-        self.path = './' + self.cohort_name + '_data/'
+        self.path = './downloads/' + self.cohort_name + '_data/'
         self.shared_staging = 'SharedStaging'
-        self.path_shared_staging = self.shared_staging + '_data/'
+        self.path_shared_staging = './downloads/' + self.shared_staging + '_data/'
         self.database_type = database_type
         self.logger = logging.getLogger(' data update and transform')
 
@@ -312,7 +312,7 @@ class TransformDataStagingCohorts:
         df_contacts = pd.read_csv(self.path + 'Contacts.csv')
         institutions_from_contacts = df_contacts['organisation'].tolist()
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        institutions_from_cohorts = df_cohorts['organisation'].tolist()
+        institutions_from_cohorts = df_cohorts['lead organisation'].tolist()
         df_partners = pd.read_csv(self.path + 'Partners.csv')
         institutions_from_partners = df_partners['institution'].tolist()
         combined_institutions = institutions_from_partners + institutions_from_contacts + institutions_from_cohorts
@@ -399,7 +399,7 @@ class TransformDataStagingCohorts:
     def copy_files(self):
         """Copy files from SharedStaging to cohort staging data
         """
-        path_shared_staging_files = os.path.abspath('./SharedStaging_data/_files')
+        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files')
         path_cohort_files = os.path.abspath(os.path.join(self.path, '_files'))
         if not os.path.exists(path_cohort_files):
             os.mkdir(path_cohort_files)

@@ -67,7 +67,7 @@ class Spaces:
     """
     def __init__(self, database):
         self.database = database
-        self.path = './' + self.database + '_data/'
+        self.path = './downloads/' + self.database + '_data/'
 
     def get_spaces(self):
         """Get spaces and lowercase in table names and column names
