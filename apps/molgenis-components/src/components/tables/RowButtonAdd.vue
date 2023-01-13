@@ -6,7 +6,7 @@
       :id="id + 'add-modal'"
       :tableName="tableName"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="handleClose"
     />
   </span>
@@ -27,10 +27,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
   },
   data() {
@@ -55,7 +54,7 @@ export default {
         <RowButtonAdd 
           id="row-add-btn-sample" 
           tableName="Pet"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
         />
       </div>
     </div>

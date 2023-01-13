@@ -1,33 +1,77 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <div v-else style="text-align: center">
-      <form v-if="showHeaderIfNeeded" class="form-inline justify-content-between mb-2 bg-white">
-        <InputSearch id="input-search" v-if="lookupTableIdentifier" v-model="searchTerms" />
+    <div v-else style="text-align: center;">
+      <form
+        v-if="showHeaderIfNeeded"
+        class="form-inline justify-content-between mb-2 bg-white"
+      >
+        <InputSearch
+          id="input-search"
+          v-if="lookupTableIdentifier"
+          v-model="searchTerms"
+        />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
       <div v-else>
-        <TableMolgenis :selection="selection" :tableMetadata="tableMetadata" :columns="columnsVisible" :data="data"
-          :showSelect="showSelect" @update:selection="$emit('update:selection', $event)" @select="select"
-          @deselect="deselect">
+        <TableMolgenis
+          :selection="selection"
+          :tableMetadata="tableMetadata"
+          :columns="columnsVisible"
+          :data="data"
+          :showSelect="showSelect"
+          @update:selection="$emit('update:selection', $event)"
+          @select="select"
+          @deselect="deselect"
+        >
           <template v-slot:header>
             <slot name="colheader" v-bind="$props" />
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
-            <RowButtonAdd v-if="canEdit" :id="'row-button-add-' + lookupTableName" :tableName="lookupTableName"
-              :graphqlURL="graphqlURL" @close="loadData" class="d-inline p-0" />
+            <RowButtonAdd
+              v-if="canEdit"
+              :id="'row-button-add-' + lookupTableName"
+              :tableName="lookupTableName"
+              :schemaName="schemaName"
+              @close="loadData"
+              class="d-inline p-0"
+            />
           </template>
           <template v-slot:colheader="slotProps">
-            <slot name="colheader" v-bind="$props" :canEdit="canEdit" :reload="loadData" :grapqlURL="graphqlURL" />
+            <slot
+              name="colheader"
+              v-bind="$props"
+              :canEdit="canEdit"
+              :reload="loadData"
+              :schemaName="schemaName"
+            />
           </template>
           <template v-slot:rowheader="slotProps">
-            <slot name="rowheader" :row="slotProps.row" :metadata="tableMetadata" :rowkey="slotProps.rowkey" />
-            <RowButtonEdit v-if="canEdit" :id="'row-button-edit-' + lookupTableName" :tableName="lookupTableName"
-              :graphqlURL="graphqlURL" :pkey="slotProps.rowkey" @close="loadData" class="text-left" />
-            <RowButtonDelete v-if="canEdit" :id="'row-button-del-' + lookupTableName" :tableName="lookupTableName"
-              :graphqlURL="graphqlURL" :pkey="slotProps.rowkey" @close="loadData" />
+            <slot
+              name="rowheader"
+              :row="slotProps.row"
+              :metadata="tableMetadata"
+              :rowkey="slotProps.rowkey"
+            />
+            <RowButtonEdit
+              v-if="canEdit"
+              :id="'row-button-edit-' + lookupTableName"
+              :tableName="lookupTableName"
+              :schemaName="schemaName"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+              class="text-left"
+            />
+            <RowButtonDelete
+              v-if="canEdit"
+              :id="'row-button-del-' + lookupTableName"
+              :tableName="lookupTableName"
+              :schemaName="schemaName"
+              :pkey="slotProps.rowkey"
+              @close="loadData"
+            />
           </template>
         </TableMolgenis>
       </div>
@@ -47,7 +91,6 @@ import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
 import { convertToPascalCase } from "../utils";
 
-
 export default {
   name: "TableSearch",
   components: {
@@ -58,14 +101,14 @@ export default {
     Spinner,
     RowButtonAdd,
     RowButtonEdit,
-    RowButtonDelete
+    RowButtonDelete,
   },
   props: {
     lookupTableName: {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: true,
     },
@@ -133,16 +176,12 @@ export default {
         filter: this.filter,
       };
 
-      const client = Client.newClient(this.graphqlURL);
-      const remoteMetaData = await client
-        .fetchMetaData()
-        .catch(() => (this.graphqlError = "Failed to load meta data"));
+      const client = Client.newClient(this.schemaName);
       const gqlResponse = await client
-        .fetchTableData(this.lookupTableIdentifier, queryOptions)
+        .fetchTableData(this.lookupTableName, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-
-      this.tableMetadata = remoteMetaData.tables.find(
-        (table) => table.id === this.lookupTableIdentifier
+      this.tableMetadata = await client.fetchTableMetaData(
+        this.lookupTableName
       );
       this.data = gqlResponse[this.lookupTableIdentifier];
       this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
@@ -179,7 +218,7 @@ export default {
         :columns.sync="columns"
         :lookupTableName="'Pet'"
         :showSelect="false"
-        :graphqlURL="'/pet store/graphql'"
+        schemaName="pet store"
         :canEdit="canEdit"
         @select="click"
         @deselect="click"

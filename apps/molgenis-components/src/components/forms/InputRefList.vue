@@ -1,37 +1,77 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div>
       <div>
         <div v-if="count > maxNum">
-          <FilterWell v-for="(item, key) in selection" :key="JSON.stringify(item)" :label="flattenObject(item)"
-            @click="deselect(key)" />
+          <FilterWell
+            v-for="(item, key) in selection"
+            :key="JSON.stringify(item)"
+            :label="flattenObject(item)"
+            @click="deselect(key)"
+          />
         </div>
-        <ButtonAlt v-if="modelValue && modelValue.length" class="pl-1" @click="clearValue">
+        <ButtonAlt
+          v-if="modelValue && modelValue.length"
+          class="pl-1"
+          @click="clearValue"
+        >
           clear selection
         </ButtonAlt>
       </div>
-      <div :class="
-        showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-      ">
-        <div class="form-check custom-control custom-checkbox"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" v-for="(row, index) in data" :key="index">
-          <input :id="`${id}-${row.name}`" :name="id" type="checkbox" :value="getPrimaryKey(row, tableMetaData)"
-            v-model="selection" @change="emitSelection" class="form-check-input"
-            :class="{ 'is-invalid': errorMessage }" />
+      <div
+        :class="
+          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
+        "
+      >
+        <div
+          class="form-check custom-control custom-checkbox"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          v-for="(row, index) in data"
+          :key="index"
+        >
+          <input
+            :id="`${id}-${row.name}`"
+            :name="id"
+            type="checkbox"
+            :value="getPrimaryKey(row, tableMetaData)"
+            v-model="selection"
+            @change="emitSelection"
+            class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
+          />
           <label class="form-check-label" :for="`${id}-${row.name}`">
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
-        <ButtonAlt class="pl-0" :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" icon="fa fa-search"
-          @click="openSelect">
+        <ButtonAlt
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="openSelect"
+        >
           {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
-          <TableSearch v-model:selection="selection" @update:selection="$emit('update:modelValue', $event)"
-            :lookupTableName="tableName" :filter="filter" @select="emitSelection" @deselect="deselect"
-            :graphqlURL="graphqlURL" :showSelect="true" :limit="10" :canEdit="canEdit" />
+          <TableSearch
+            v-model:selection="selection"
+            @update:selection="$emit('update:modelValue', $event)"
+            :lookupTableName="tableName"
+            :filter="filter"
+            @select="emitSelection"
+            @deselect="deselect"
+            :schemaName="schemaName"
+            :showSelect="true"
+            :limit="10"
+            :canEdit="canEdit"
+          />
         </template>
         <template v-slot:footer>
           <ButtonAlt @click="closeSelect">Close</ButtonAlt>
@@ -71,9 +111,9 @@ export default {
     ButtonAlt,
   },
   props: {
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false,
     },
     filter: Object,
     multipleColumns: Boolean,
@@ -128,10 +168,10 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      if (this.filter) {
+        options["filter"] = this.filter;
+      }
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
@@ -139,17 +179,15 @@ export default {
   watch: {
     modelValue() {
       this.selection = this.modelValue;
-    }
+    },
+    filter() {
+      this.loadOptions();
+    },
   },
   async mounted() {
-    this.client = Client.newClient(this.graphqlURL);
-    const allMetaData = await this.client.fetchMetaData();
-    this.tableMetaData = allMetaData.tables.find(
-      (table) => table.id === this.tableId
-    );
-
+    this.client = Client.newClient(this.schemaName);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     await this.loadOptions();
-
     if (!this.modelValue) {
       this.selection = [];
     }
@@ -170,14 +208,14 @@ export default {
         <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+      <!-- normally you don't need schemaName, it will use graphql on current path-->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -190,7 +228,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -203,7 +241,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'pooky' } } }"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -215,7 +253,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         multipleColumns
         :canEdit="canEdit"
       />

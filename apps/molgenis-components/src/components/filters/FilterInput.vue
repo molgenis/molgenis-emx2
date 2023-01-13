@@ -1,14 +1,27 @@
 <template>
   <div>
     <div v-if="isMultiConditionFilter">
-      <component :is="filterType" :id="id" :condition="conditions" @updateCondition="updateCondition(index - 1, $event)"
-        :tableName="tableName" :graphqlURL="graphqlURL"></component>
+      <component
+        :is="filterType"
+        :id="id"
+        :condition="conditions"
+        @updateCondition="updateCondition(index - 1, $event)"
+        :tableName="tableName"
+        :schemaName="schemaName"
+      ></component>
     </div>
     <div v-else v-for="index in fieldCount" :key="index">
-      <component :is="filterType" :id="id + index" :condition="conditions[index - 1]"
-        @updateCondition="updateCondition(index - 1, $event)" @clearCondition="clearCondition(index - 1)"
-        @addCondition="fieldCount++" :showAddButton="index === conditions.length" :tableName="tableName"
-        :graphqlURL="graphqlURL"></component>
+      <component
+        :is="filterType"
+        :id="id + index"
+        :condition="conditions[index - 1]"
+        @updateCondition="updateCondition(index - 1, $event)"
+        @clearCondition="clearCondition(index - 1)"
+        @addCondition="fieldCount++"
+        :showAddButton="index === conditions.length"
+        :tableName="tableName"
+        :schemaName="schemaName"
+      ></component>
     </div>
   </div>
 </template>
@@ -89,7 +102,7 @@ export default {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
     },
@@ -226,7 +239,7 @@ export default {
             id="filter-input-ontology"
             columnType="ONTOLOGY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions6"
             @updateConditions="conditions6 = $event"
         />
@@ -240,7 +253,7 @@ export default {
             id="filter-input-ref"
             columnType="REF"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions7"
             @updateConditions="conditions7 = $event"
         />
@@ -254,7 +267,7 @@ export default {
             id="filter-input-reflist"
             columnType="REF_ARRAY"
             tableName="Tag"
-            graphqlURL="/pet store/graphql"
+            schemaName="pet store"
             :conditions="conditions8"
             @updateConditions="conditions8 = $event"
         />

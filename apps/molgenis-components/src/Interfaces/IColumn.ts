@@ -1,18 +1,19 @@
 export interface IColumn {
-  key: number;
+  columnType: string;
+  conditions: string[];
+  description: string;
   id: string;
-  name: string,
-  columnType: string,
-  refTable: string,
-  refLink: string,
-  refLabel: string,
-  refBack: string,
-  required: string,
-  readonly: string,
-  semantics: string,
-  description: string,
-  position: string,
-  visible: string,
-  validation: string
+  key: number;
+  name: string;
+  position: string;
+  readonly: string;
+  refBack: string;
+  refLabel: string;
+  refLink: string;
+  refSchema: string;
+  refTable: string;
+  required: string;
+  semantics: string;
+  visible: string;
+  validation: string;
 }
-

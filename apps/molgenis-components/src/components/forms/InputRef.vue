@@ -1,34 +1,75 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <div>
       <div>
-        <ButtonAlt v-if="modelValue !== null" class="pl-1" icon="fa fa-clear" @click="clearValue">
+        <ButtonAlt
+          v-if="modelValue !== null"
+          class="pl-1"
+          icon="fa fa-clear"
+          @click="clearValue"
+        >
           clear selection
         </ButtonAlt>
       </div>
-      <div :class="
-        showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
-      ">
-        <div class="form-check custom-control custom-checkbox"
-          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" v-for="(row, index) in data" :key="index">
-          <input :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`" :name="id" type="radio"
-            :value="getPrimaryKey(row, tableMetaData)" :checked="isSelected(row)" @change="
+      <div
+        :class="
+          showMultipleColumns ? 'd-flex align-content-stretch flex-wrap' : ''
+        "
+      >
+        <div
+          class="form-check custom-control custom-checkbox"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          v-for="(row, index) in data"
+          :key="index"
+        >
+          <input
+            :id="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
+            :name="id"
+            type="radio"
+            :value="getPrimaryKey(row, tableMetaData)"
+            :checked="isSelected(row)"
+            @change="
               $emit('update:modelValue', getPrimaryKey(row, tableMetaData))
-            " class="form-check-input" :class="{ 'is-invalid': errorMessage }" />
-          <label class="form-check-label" :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`">
+            "
+            class="form-check-input"
+            :class="{ 'is-invalid': errorMessage }"
+          />
+          <label
+            class="form-check-label"
+            :for="`${id}-${flattenObject(getPrimaryKey(row, tableMetaData))}`"
+          >
             {{ flattenObject(getPrimaryKey(row, tableMetaData)) }}
           </label>
         </div>
-        <ButtonAlt class="pl-0" :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''" icon="fa fa-search"
-          @click="openSelect">
+        <ButtonAlt
+          class="pl-0"
+          :class="showMultipleColumns ? 'col-12 col-md-6 col-lg-4' : ''"
+          icon="fa fa-search"
+          @click="openSelect"
+        >
           {{ count > maxNum ? `view all ${count} options.` : "view as table" }}
         </ButtonAlt>
       </div>
       <LayoutModal v-if="showSelect" :title="title" @close="closeSelect">
         <template v-slot:body>
-          <TableSearch :selection="[modelValue]" :lookupTableName="tableName" :filter="filter" @select="select($event)"
-            @deselect="clearValue" @close="loadOptions" :graphqlURL="graphqlURL" :showSelect="true" :limit="10"
-            :canEdit="canEdit" />
+          <TableSearch
+            :selection="[modelValue]"
+            :lookupTableName="tableName"
+            :filter="filter"
+            @select="select($event)"
+            @deselect="clearValue"
+            @close="loadOptions"
+            :schemaName="schemaName"
+            :showSelect="true"
+            :limit="10"
+            :canEdit="canEdit"
+          />
         </template>
         <template v-slot:footer>
           <ButtonAlt @click="closeSelect">Close</ButtonAlt>
@@ -57,8 +98,8 @@ export default {
     ButtonAlt,
   },
   props: {
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
+      required: false,
       type: String,
     },
     filter: Object,
@@ -127,19 +168,19 @@ export default {
       if (this.filter) {
         options.filter = this.filter;
       }
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
   },
+  watch: {
+    filter() {
+      this.loadOptions();
+    },
+  },
   async mounted() {
-    this.client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await this.client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableId
-    );
+    this.client = Client.newClient(this.schemaName);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     this.loadOptions();
   },
 };
@@ -165,7 +206,7 @@ export default {
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -178,7 +219,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -191,7 +232,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -203,7 +244,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"

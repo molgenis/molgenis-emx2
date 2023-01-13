@@ -22,6 +22,7 @@ import org.jooq.Record;
 import org.jooq.Record6;
 import org.jooq.Result;
 import org.molgenis.emx2.Change;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
@@ -75,19 +76,28 @@ public class ChangeLogExecutor {
     }
   }
 
-  static void disableChangeLog(SqlDatabase db, SchemaMetadata schema) {
+  static void executeDropChangeLogTableForSchema(SqlDatabase db, Schema schema) {
+    db.getJooq().dropTableIfExists(table(name(schema.getName(), MG_CHANGLOG))).execute();
+  }
 
+  static void disableChangeLog(SqlDatabase db, SchemaMetadata schema) {
     // disable trigger for each table
     for (TableMetadata table : schema.getTables()) {
       // disable the trigger
-      db.getJooq()
-          .execute(ChangeLogUtils.buildAuditTriggerRemove(schema.getName(), table.getTableName()));
-      // remove the trigger function
-      db.getJooq()
-          .execute(
-              ChangeLogUtils.buildProcessAuditFunctionRemove(
-                  schema.getName(), table.getTableName()));
+      disableChangeLog(db, table);
     }
+  }
+
+  static void disableChangeLog(SqlDatabase db, TableMetadata table) {
+    // remove trigger
+    db.getJooq()
+        .execute(
+            ChangeLogUtils.buildAuditTriggerRemove(table.getSchemaName(), table.getTableName()));
+    // remove the trigger function
+    db.getJooq()
+        .execute(
+            ChangeLogUtils.buildProcessAuditFunctionRemove(
+                table.getSchemaName(), table.getTableName()));
   }
 
   static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {

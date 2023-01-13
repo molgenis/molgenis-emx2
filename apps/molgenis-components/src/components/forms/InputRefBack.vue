@@ -1,31 +1,71 @@
 <template>
   <FormGroup v-bind="$props">
     <Spinner v-if="isLoading" />
-    <TableMolgenis v-else-if="refTablePrimaryKeyObject" :data="data" :columns="visibleColumns"
-      :table-metadata="tableMetadata" style="overflow-x: scroll">
+    <TableMolgenis
+      v-else-if="refTablePrimaryKeyObject"
+      :data="data"
+      :columns="visibleColumns"
+      :table-metadata="tableMetadata"
+      style="overflow-x: scroll;"
+    >
       <template v-slot:rowcolheader>
-        <slot name="rowcolheader" v-bind="$props" :canEdit="canEdit" :reload="reload" :grapqlURL="graphqlURL" />
-        <RowButton v-if="canEdit" type="add" @add="handleRowAction('add')" class="d-inline p-0" />
+        <slot
+          name="rowcolheader"
+          v-bind="$props"
+          :canEdit="canEdit"
+          :reload="reload"
+          :schemaName="schemaName"
+        />
+        <RowButton
+          v-if="canEdit"
+          type="add"
+          @add="handleRowAction('add')"
+          class="d-inline p-0"
+        />
       </template>
       <template v-slot:rowheader="slotProps">
-        <slot name="rowheader" :row="slotProps.row" :metadata="tableMetadata" :rowkey="slotProps.rowkey" />
-        <RowButton v-if="canEdit" type="edit" :table="tableName" :graphqlURL="graphqlURL"
-          :visible-columns="visibleColumnNames" :refTablePrimaryKeyObject="
+        <slot
+          name="rowheader"
+          :row="slotProps.row"
+          :metadata="tableMetadata"
+          :rowkey="slotProps.rowkey"
+        />
+        <RowButton
+          v-if="canEdit"
+          type="edit"
+          :table="tableName"
+          :schemaName="schemaName"
+          :visible-columns="visibleColumnNames"
+          :refTablePrimaryKeyObject="
             getPrimaryKey(slotProps.row, tableMetadata)
-          " @close="reload" @edit="
-  handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
-" />
-        <RowButton v-if="canEdit" type="clone" :table="tableName" :graphqlURL="graphqlURL"
-          :pkey="getPrimaryKey(slotProps.row, tableMetadata)" :visible-columns="visibleColumnNames"
-          :default-value="defaultValue" @clone="
+          "
+          @close="reload"
+          @edit="
+            handleRowAction('edit', getPrimaryKey(slotProps.row, tableMetadata))
+          "
+        />
+        <RowButton
+          v-if="canEdit"
+          type="clone"
+          :table="tableName"
+          :schemaName="schemaName"
+          :pkey="getPrimaryKey(slotProps.row, tableMetadata)"
+          :visible-columns="visibleColumnNames"
+          :default-value="defaultValue"
+          @clone="
             handleRowAction(
               'clone',
               getPrimaryKey(slotProps.row, tableMetadata)
             )
-          " />
-        <RowButton v-if="canEdit" type="delete" @delete="
-          handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
-        " />
+          "
+        />
+        <RowButton
+          v-if="canEdit"
+          type="delete"
+          @delete="
+            handleDeleteRowRequest(getPrimaryKey(slotProps.row, tableMetadata))
+          "
+        />
       </template>
     </TableMolgenis>
     <MessageWarning v-else>
@@ -33,13 +73,29 @@
     </MessageWarning>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
 
-    <EditModal v-if="isEditModalShown" :isModalShown="true" :id="tableName + '-edit-modal'" :tableName="tableName"
-      :pkey="editRowPrimaryKey" :visibleColumns="visibleColumns" :clone="editMode === 'clone'" :graphqlURL="graphqlURL"
-      :defaultValue="defaultValue" @close="handleModalClose" />
+    <EditModal
+      v-if="isEditModalShown"
+      :isModalShown="true"
+      :id="tableName + '-edit-modal'"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      :visibleColumns="visibleColumns"
+      :clone="editMode === 'clone'"
+      :schemaName="schemaName"
+      :defaultValue="defaultValue"
+      @close="handleModalClose"
+    />
 
-    <ConfirmModal v-if="isDeleteModalShown" :title="'Delete from ' + tableName" actionLabel="Delete" actionType="danger"
-      :tableName="tableName" :pkey="editRowPrimaryKey" @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete" />
+    <ConfirmModal
+      v-if="isDeleteModalShown"
+      :title="'Delete from ' + tableName"
+      actionLabel="Delete"
+      actionType="danger"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      @close="isDeleteModalShown = false"
+      @confirmed="handleExecuteDelete"
+    />
   </FormGroup>
 </template>
 
@@ -65,7 +121,7 @@ export default {
     Spinner,
     MessageWarning,
     ConfirmModal,
-    MessageError
+    MessageError,
   },
   props: {
     /** name of the table from which is referred back to this field */
@@ -86,9 +142,9 @@ export default {
       type: Object,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: false,
     },
     /**
      * if table (that has a column that is referred to by this table) can be edited
@@ -144,7 +200,7 @@ export default {
       this.isLoading = true;
       this.data = await this.client.fetchTableDataValues(this.tableName, {
         filter: this.graphqlFilter,
-      })
+      });
       this.isLoading = false;
     },
     handleRowAction(type, key) {
@@ -179,9 +235,11 @@ export default {
     },
   },
   mounted: async function () {
-    this.client = Client.newClient(this.graphqlURL);
+    this.client = Client.newClient(this.schemaName);
     this.isLoading = true;
-    this.tableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(error => this.errorMessage = error.message);
+    this.tableMetadata = await this.client
+      .fetchTableMetaData(this.tableName)
+      .catch((error) => (this.errorMessage = error.message));
     await this.reload();
   },
 };
@@ -204,7 +262,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject=null
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
 
@@ -218,7 +276,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
 
@@ -231,7 +289,7 @@ export default {
           tableName="Order"
           refBack="pet"
           :refTablePrimaryKeyObject="{name:'spike'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
   </div>

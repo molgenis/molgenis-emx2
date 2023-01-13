@@ -4,7 +4,7 @@
     :modelValue="condition"
     @update:modelValue="onUpdateCondition"
     :tableName="tableName"
-    :graphqlURL="graphqlURL"
+    :schemaName="schemaName"
   />
 </template>
 
@@ -23,7 +23,7 @@ export default {
       type: Object,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       required: false,
       type: String,
     },

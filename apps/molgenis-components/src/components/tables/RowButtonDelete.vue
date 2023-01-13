@@ -26,10 +26,9 @@ export default {
     pkey: {
       type: Object,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
   },
   data() {
@@ -41,9 +40,9 @@ export default {
   methods: {
     async handleExecuteDelete() {
       if (!this.client) {
-        this.client = Client.newClient(this.graphqlURL);
+        this.client = Client.newClient(this.schemaName);
       }
-      this.client
+      await this.client
         .deleteRow(this.pkey, this.tableName)
         .then(() => {
           this.$emit("success", {
@@ -79,7 +78,7 @@ export default {
           id="row-delete-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
           @error="handleError"
           @success="handleSuccess"
       />

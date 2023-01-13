@@ -113,28 +113,34 @@ export function isInvalidBigInt(value: string): boolean {
   );
 }
 
-export function convertToCamelCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  return words.reduce((accum, word, index) => {
-    if (index === 0) {
-      accum += word.charAt(0).toLowerCase();
-    } else {
-      accum += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      accum += word.slice(1);
-    }
-    return accum;
-  }, "");
+export function convertToCamelCase(string: string) {
+  if (string) {
+    const words = string.trim().split(/\s+/);
+    let result = "";
+    words.forEach((word: string, index: number) => {
+      if (index === 0) {
+        result += word.charAt(0).toLowerCase();
+      } else {
+        result += word.charAt(0).toUpperCase();
+      }
+      if (word.length > 1) {
+        result += word.slice(1);
+      }
+    });
+    return result;
+  }
 }
 
-export function convertToPascalCase(string: string): string {
-  const words = string.trim().split(/\s+/);
-  return words.reduce((accum: string, word: string): string => {
-    accum += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      accum += word.slice(1);
-    }
-    return accum;
-  }, "");
+export function convertToPascalCase(string: string) {
+  if (string) {
+    const words = string.trim().split(/\s+/);
+    let result = "";
+    words.forEach((word: string) => {
+      result += word.charAt(0).toUpperCase();
+      if (word.length > 1) {
+        result += word.slice(1);
+      }
+    });
+    return result;
+  }
 }

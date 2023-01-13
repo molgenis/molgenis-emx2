@@ -64,7 +64,7 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => !table.externalSchema)
+          .filter((table) => table.externalSchema === this.schema.name)
           .filter((table) =>
             terms.every(
               (term) =>
@@ -74,7 +74,7 @@ export default {
             )
           );
       } else {
-        return this.schema.tables.filter((table) => !table.externalSchema);
+        return this.schema.tables.filter((table) => table.externalSchema === this.schema.name);
       }
     },
     tables() {

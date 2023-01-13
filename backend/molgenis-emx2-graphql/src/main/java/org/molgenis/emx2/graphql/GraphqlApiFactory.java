@@ -211,12 +211,12 @@ public class GraphqlApiFactory {
     }
 
     // table
-    GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory();
-    for (TableMetadata table : schema.getMetadata().getTablesIncludingExternal()) {
+    GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
+    for (TableMetadata table : schema.getMetadata().getTables()) {
       if (table.getColumns().size() > 0) {
-        queryBuilder.field(tableField.tableQueryField(table.getTable()));
-        queryBuilder.field(tableField.tableAggField(table.getTable()));
-        queryBuilder.field(tableField.tableGroupByField(table.getTable()));
+        queryBuilder.field(tableField.tableQueryField(table));
+        queryBuilder.field(tableField.tableAggField(table));
+        queryBuilder.field(tableField.tableGroupByField(table));
       }
     }
     mutationBuilder.field(tableField.insertMutation(schema));

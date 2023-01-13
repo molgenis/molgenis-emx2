@@ -279,7 +279,7 @@ export default {
     },
   },
   async mounted() {
-    const client = Client.newClient("/pet store/graphql", this.$axios);
+    const client = Client.newClient("pet store", this.$axios);
     const remoteMetaData = await client.fetchMetaData();
     const petColumns = remoteMetaData.tables.find(
       (t) => t.name === "Pet"
