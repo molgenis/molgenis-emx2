@@ -1,17 +1,28 @@
 /* eslint-disable vue/no-unused-components */
 <template>
-  <div style="max-width: 100%" class="flex-grow-1">
-    <table class="table table-sm bg-white table-bordered table-hover" :class="{ 'table-hover': showSelect }">
+  <div style="max-width: 100%;" class="flex-grow-1">
+    <table
+      class="table table-sm bg-white table-bordered table-hover"
+      :class="{ 'table-hover': showSelect }"
+    >
       <thead>
-        <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
+        <th slot="header" scope="col" style="width: 1px;" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
-          <span style="text-align: left; font-weight: normal">
+          <span style="text-align: left; font-weight: normal;">
             <slot name="rowcolheader" />
           </span>
         </th>
-        <th v-for="col in columnsWithoutMeta" :key="col.name + col.showColumn" scope="col" class="column-drag-header"
-          :style="col.showColumn ? '' : 'display: none'">
-          <h6 class="mb-0 align-text-bottom text-nowrap" @click="onColumnClick(col)">
+        <th
+          v-for="col in columnsWithoutMeta"
+          :key="col.name + col.showColumn"
+          scope="col"
+          class="column-drag-header"
+          :style="col.showColumn ? '' : 'display: none'"
+        >
+          <h6
+            class="mb-0 align-text-bottom text-nowrap"
+            @click="onColumnClick(col)"
+          >
             {{ col.name }}
             <slot name="colheader" :col="col" />
           </h6>
@@ -24,25 +35,47 @@
             No results found
           </td>
         </tr>
-        <tr v-else v-for="(row, idx) in data" :key="idx + JSON.stringify(row) + isSelected(row)" :class="
-          (isSelected(row) ? 'table-primary' : 'table-hover') +
-          (row['mg_draft'] ? 'alert alert-warning' : '')
-        ">
+        <tr
+          v-else
+          v-for="(row, idx) in data"
+          :key="idx + JSON.stringify(row) + isSelected(row)"
+          :class="
+            (isSelected(row) ? 'table-primary' : 'table-hover') +
+            (row['mg_draft'] ? 'alert alert-warning' : '')
+          "
+        >
           <td v-if="hasColheader">
-            <div style="display: flex">
+            <div style="display: flex;">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
-                <input type="checkbox" class="form-check-input position-static" :checked="isSelected(row)"
-                  @click="onRowClick(row)" />
+                <input
+                  type="checkbox"
+                  class="form-check-input position-static"
+                  :checked="isSelected(row)"
+                  @click="onRowClick(row)"
+                />
               </div>
               <!--@slot Use this to add values or actions buttons to each row -->
-              <slot name="rowheader" :row="row" :metadata="tableMetadata" :rowkey="getPrimaryKey(row, tableMetadata)" />
+              <slot
+                name="rowheader"
+                :row="row"
+                :metadata="tableMetadata"
+                :rowkey="getPrimaryKey(row, tableMetadata)"
+              />
             </div>
             <i v-if="row.mg_draft" class="fas fa-user-edit">draft</i>
           </td>
 
-          <td v-for="col in columnsWithoutMeta" :key="idx + col.name + isSelected(row)" style="cursor: pointer"
-            :style="col.showColumn ? '' : 'display: none'" @click="onRowClick(row)">
-            <data-display-cell :data="row[col.id]" :metaData="col"></data-display-cell>
+          <td
+            v-for="col in columnsWithoutMeta"
+            :key="idx + col.name + isSelected(row)"
+            style="cursor: pointer;"
+            :style="col.showColumn ? '' : 'display: none'"
+            @click="onRowClick(row)"
+          >
+            <data-display-cell
+              :data="row[col.id]"
+              :metaData="col"
+            ></data-display-cell>
           </td>
         </tr>
       </tbody>

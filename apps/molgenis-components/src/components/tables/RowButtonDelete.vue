@@ -1,8 +1,16 @@
 <template>
   <span>
     <RowButton type="delete" @delete="isModalShown = true" />
-    <ConfirmModal v-if="isModalShown" :title="'Delete from ' + tableName" actionLabel="Delete" actionType="danger"
-      :tableName="tableName" :pkey="pkey" @close="handleClose" @confirmed="handleExecuteDelete" />
+    <ConfirmModal
+      v-if="isModalShown"
+      :title="'Delete from ' + tableName"
+      actionLabel="Delete"
+      actionType="danger"
+      :tableName="tableName"
+      :pkey="pkey"
+      @close="handleClose"
+      @confirmed="handleExecuteDelete"
+    />
   </span>
 </template>
 
@@ -53,7 +61,7 @@ export default {
         .catch((error) => {
           const errorMessage =
             error?.response?.data?.errors &&
-              Array.isArray(error?.response?.data?.errors)
+            Array.isArray(error?.response?.data?.errors)
               ? error.response.data.errors[0].message
               : "Failed to delete row data from table ";
 

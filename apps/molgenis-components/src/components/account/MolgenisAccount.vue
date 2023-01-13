@@ -6,10 +6,22 @@
         <h2>Change password</h2>
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
         <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-        <InputPassword id="account-password" v-model="password" label="Password" placeholder="Enter password"
-          description="Please enter the password" @enterPressed="updatePassword" />
-        <InputPassword id="account-password2" v-model="password2" label="Password Repeat" placeholder="Enter password"
-          description="Please enter the password again" @enterPressed="updatePassword" />
+        <InputPassword
+          id="account-password"
+          v-model="password"
+          label="Password"
+          placeholder="Enter password"
+          description="Please enter the password"
+          @enterPressed="updatePassword"
+        />
+        <InputPassword
+          id="account-password2"
+          v-model="password2"
+          label="Password Repeat"
+          placeholder="Enter password"
+          description="Please enter the password again"
+          @enterPressed="updatePassword"
+        />
         <ButtonAction @click="updatePassword">Update password</ButtonAction>
         <h2 class="mt-4">Manage tokens</h2>
         <TokenManager />

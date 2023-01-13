@@ -1,5 +1,10 @@
 <template>
-  <component v-if="!isEmpty" :is="cellTypeComponentName" :data="data" :metaData="metaData" />
+  <component
+    v-if="!isEmpty"
+    :is="cellTypeComponentName"
+    :data="data"
+    :metaData="metaData"
+  />
 </template>
 
 <script lang="ts">

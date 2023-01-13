@@ -7,18 +7,44 @@
     <template v-slot:body>
       <LayoutForm id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
-        <InputString id="signInFormEmail" ref="email" name="email" v-model="email" label="Username"
-          placeholder="Enter username" description="Please enter username" autofocus />
-        <InputPassword id="signInFormPassword" name="password" v-model="password" label="Password"
-          placeholder="Enter password" description="Please enter the provided password" @enterPressed="signin" />
-        <div v-if="isPrivacyPolicyEnabled" class="alert" :class="error === privacyError ? 'alert-danger' : 'alert-info'"
-          role="alert">
+        <InputString
+          id="signInFormEmail"
+          ref="email"
+          name="email"
+          v-model="email"
+          label="Username"
+          placeholder="Enter username"
+          description="Please enter username"
+          autofocus
+        />
+        <InputPassword
+          id="signInFormPassword"
+          name="password"
+          v-model="password"
+          label="Password"
+          placeholder="Enter password"
+          description="Please enter the provided password"
+          @enterPressed="signin"
+        />
+        <div
+          v-if="isPrivacyPolicyEnabled"
+          class="alert"
+          :class="error === privacyError ? 'alert-danger' : 'alert-info'"
+          role="alert"
+        >
           <b>Privacy policy</b>
           <p>
             {{ privacyPolicy }}
           </p>
-          <InputCheckbox class="mb-0" id="privacy-agreement" name="privacy-agreement" :required="true"
-            :options="[privacyPolicyLabel]" :hideClearButton="true" v-model="userAgrees" />
+          <InputCheckbox
+            class="mb-0"
+            id="privacy-agreement"
+            name="privacy-agreement"
+            :required="true"
+            :options="[privacyPolicyLabel]"
+            :hideClearButton="true"
+            v-model="userAgrees"
+          />
         </div>
       </LayoutForm>
     </template>

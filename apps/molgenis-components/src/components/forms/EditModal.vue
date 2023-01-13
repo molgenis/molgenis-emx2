@@ -31,8 +31,13 @@
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
-            <button type="button" class="btn btn-link" :title="heading"
-              :class="{ 'font-weight-bold': index + 1 === currentPage }" @click="setCurrentPage(index + 1)">
+            <button 
+              type="button"
+              class="btn btn-link"
+              :title="heading"
+              :class="{ 'font-weight-bold': index + 1 === currentPage }"
+              @click="setCurrentPage(index + 1)"
+            >
               {{ heading }}
             </button>
           </div>
@@ -40,15 +45,29 @@
       </div>
     </template>
     <template #footer>
-      <RowEditFooter :id="id + '-footer'" :tableName="tableName" :errorMessage="errorMessage"
-        :isSaveDisabled="isSaveDisabled" @cancel="handleClose" @saveDraft="handleSaveDraftRequest"
-        @save="handleSaveRequest">
+      <RowEditFooter
+        :id="id + '-footer'"
+        :tableName="tableName"
+        :errorMessage="errorMessage"
+        :isSaveDisabled="isSaveDisabled"
+        @cancel="handleClose"
+        @saveDraft="handleSaveDraftRequest"
+        @save="handleSaveRequest"
+      >
         <div class="mr-auto">
           <div v-if="pageCount > 1">
-            <ButtonAction @click="setCurrentPage(currentPage - 1)" :disabled="currentPage <= 1" class="mr-2 pr-3">
+            <ButtonAction
+              @click="setCurrentPage(currentPage - 1)"
+              :disabled="currentPage <= 1"
+              class="mr-2 pr-3"
+            >
               <i :class="'fas fa-fw fa-chevron-left'" /> Previous
             </ButtonAction>
-            <ButtonAction @click="setCurrentPage(currentPage + 1)" :disabled="currentPage >= pageCount" class="pl-3">
+            <ButtonAction
+              @click="setCurrentPage(currentPage + 1)"
+              :disabled="currentPage >= pageCount"
+              class="pl-3"
+            >
               Next <i :class="'fas fa-fw fa-chevron-right'" />
             </ButtonAction>
           </div>

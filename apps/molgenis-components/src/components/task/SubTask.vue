@@ -3,21 +3,25 @@
     <li :class="color" v-if="task">
       <i class="fa-li fa" :class="icon"></i>
       {{ task.description }}
-      <SubTask v-for="(subtask, key) in task.subTasks" :task="subtask" :key="key" />
+      <SubTask
+        v-for="(subtask, key) in task.subTasks"
+        :task="subtask"
+        :key="key"
+      />
     </li>
   </ul>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import ITask from './ITask'
+import { defineComponent, PropType } from "vue";
+import ITask from "./ITask";
 
 export default defineComponent({
   name: "SubTask",
   props: {
     task: {
       type: Object as PropType<ITask>,
-      required: true
+      required: true,
     },
   },
   computed: {

@@ -1,42 +1,98 @@
 <template>
-  <FormGroup :id="id" :label="label" :required="required" :description="description" :errorMessage="errorMessage">
+  <FormGroup
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
+  >
     <MessageError v-if="error">{{ error }}</MessageError>
-    <div class="p-0 m-0" :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }" v-else>
-      <div class="border-0 text-left form-control" style="height: auto;" @click="toggleFocus">
-        <span class="btn btn-sm btn-primary text-white mr-1" v-for="v in selectionWithoutChildren" :key="v"
-          @click.stop="deselect(v)">
+    <div
+      class="p-0 m-0"
+      :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
+      v-else
+    >
+      <div
+        class="border-0 text-left form-control"
+        style="height: auto;"
+        @click="toggleFocus"
+      >
+        <span
+          class="btn btn-sm btn-primary text-white mr-1"
+          v-for="v in selectionWithoutChildren"
+          :key="v"
+          @click.stop="deselect(v)"
+        >
           {{ v }}
           <span class="fa fa-times"></span>
         </span>
-        <i class="p-2 fa fa-times" style="vertical-align: middle;" @click.stop="clearSelection"
-          v-if="showExpanded && selectionWithoutChildren.length > 0" />
+        <i
+          class="p-2 fa fa-times"
+          style="vertical-align: middle;"
+          @click.stop="clearSelection"
+          v-if="showExpanded && selectionWithoutChildren.length > 0"
+        />
         <span :class="{ 'input-group': showExpanded }">
           <div v-if="showExpanded" class="input-group-prepend">
-            <button class="btn border-right-0 border btn-outline-primary" type="button">
+            <button
+              class="btn border-right-0 border btn-outline-primary"
+              type="button"
+            >
               <i class="fa fa-search"></i>
             </button>
           </div>
-          <input type="text" ref="search" :placeholder="focus || showExpanded ? 'Type to search' : ''" :class="{
-            'form-control': showExpanded,
-            'border-0': !showExpanded,
-          }" v-model="search" @click.stop @focus="focus = true" />
+          <input
+            type="text"
+            ref="search"
+            :placeholder="focus || showExpanded ? 'Type to search' : ''"
+            :class="{
+              'form-control': showExpanded,
+              'border-0': !showExpanded,
+            }"
+            v-model="search"
+            @click.stop
+            @focus="focus = true"
+          />
         </span>
         <span class="d-inline-block float-right">
-          <i class="p-2 fa fa-times" style="vertical-align: middle;" @click.stop="clearSelection"
-            v-if="!showExpanded && selectionWithoutChildren.length > 0" />
-          <i class="p-2 fa fa-caret-down" style="vertical-align: middle;" v-if="!showExpanded" />
+          <i
+            class="p-2 fa fa-times"
+            style="vertical-align: middle;"
+            @click.stop="clearSelection"
+            v-if="!showExpanded && selectionWithoutChildren.length > 0"
+          />
+          <i
+            class="p-2 fa fa-caret-down"
+            style="vertical-align: middle;"
+            v-if="!showExpanded"
+          />
         </span>
       </div>
-      <div class="w-100 show p-0 overflow-auto" :class="{ 'dropdown-menu': !showExpanded }" v-if="focus || showExpanded"
-        v-click-outside="loseFocusWhenClickedOutside">
-        <span class="pl-4" v-if="
-          search && Object.keys(terms).length > 50 && searchResultCount >= 0
-        ">
+      <div
+        class="w-100 show p-0 overflow-auto"
+        :class="{ 'dropdown-menu': !showExpanded }"
+        v-if="focus || showExpanded"
+        v-click-outside="loseFocusWhenClickedOutside"
+      >
+        <span
+          class="pl-4"
+          v-if="
+            search && Object.keys(terms).length > 50 && searchResultCount >= 0
+          "
+        >
           found {{ searchResultCount }} terms.
         </span>
-        <InputOntologySubtree :key="key" v-if="rootTerms.length > 0" style="max-height: 100vh;"
-          class="pt-2 pl-0 dropdown-item" :terms="rootTerms" :isMultiSelect="isMultiSelect" @select="select"
-          @deselect="deselect" @toggleExpand="toggleExpand" />
+        <InputOntologySubtree
+          :key="key"
+          v-if="rootTerms.length > 0"
+          style="max-height: 100vh;"
+          class="pt-2 pl-0 dropdown-item"
+          :terms="rootTerms"
+          :isMultiSelect="isMultiSelect"
+          @select="select"
+          @deselect="deselect"
+          @toggleExpand="toggleExpand"
+        />
         <div v-else>No results found</div>
       </div>
     </div>
@@ -56,7 +112,7 @@ import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils";
+import { convertToPascalCase } from "../utils.ts";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
@@ -100,7 +156,7 @@ export default {
     },
     schemaName: {
       type: String,
-      required: false
+      required: false,
     },
   },
   data() {
@@ -349,7 +405,16 @@ export default {
           .map((s) => s.toLowerCase());
         //check every term if it matches all search terms
         Object.values(this.terms).forEach((term) => {
-          if (searchTerms.every((s) => term.name.toLowerCase().includes(s) || term.label?.toLowerCase().includes(s) || term.definition?.toLowerCase().includes(s) || term.code?.toLowerCase().includes(s) || term.codesystem?.toLowerCase().includes(s))) {
+          if (
+            searchTerms.every(
+              (s) =>
+                term.name.toLowerCase().includes(s) ||
+                term.label?.toLowerCase().includes(s) ||
+                term.definition?.toLowerCase().includes(s) ||
+                term.code?.toLowerCase().includes(s) ||
+                term.codesystem?.toLowerCase().includes(s)
+            )
+          ) {
             term.visible = true;
             this.searchResultCount++;
 
@@ -414,7 +479,7 @@ export default {
               definition: e.definition,
               code: e.code,
               codesystem: e.codesystem,
-              label: e.label
+              label: e.label,
             };
           }
           if (e.parent) {
