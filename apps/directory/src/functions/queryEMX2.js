@@ -8,7 +8,6 @@ class QueryEMX2 {
   tableName = "";
   filters = {};
   column = "";
-  subcolumn = "";
   _schemaTablesInformation = {};
   selection = ["id", "name"];
   graphqlUrl = "";
@@ -18,6 +17,7 @@ class QueryEMX2 {
   findInAllColumns = "";
   page = {};
   aggregateQuery = false;
+  orCount = 0
 
   /**
    * @param {string} graphqlUrl the endpoint to query
@@ -155,20 +155,21 @@ class QueryEMX2 {
    * @param {string} subcolumn
    * @returns
    */
-  where (column, subcolumn) {
+  where (column) {
+    this.type = "_and"
     this.branch = "root";
     /** always convert to lowercase, else api will error */
     this.column = this._toCamelCase(column);
-    this.subcolumn = subcolumn ? this._toCamelCase(subcolumn) : "";
     return this;
   }
 
-  orWhere (column, subcolumn) {
+  orWhere (column) {
+    /** need to know if we have the array syntax or just object */
+    this.orCount = this.orCount + 1
     this.type = "_or"
     this.branch = "root";
     /** always convert to lowercase, else api will error */
     this.column = this._toCamelCase(column);
-    this.subcolumn = subcolumn ? this._toCamelCase(subcolumn) : "";
     return this;
   }
 
@@ -178,9 +179,9 @@ class QueryEMX2 {
    * @param {string} nestedColumn
    * @returns
    */
-  filter (column, nestedColumn) {
-    this.branch = this._toCamelCase(column);
-    this.column = this._toCamelCase(nestedColumn);
+  filter (propertyToFilter, column) {
+    this.branch = this._toCamelCase(propertyToFilter);
+    this.column = this._toCamelCase(column);
 
     return this;
   }
@@ -359,6 +360,130 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
+  _foldFilters (filters, nextProperty, type) {
+    let filterString = ''
+
+    const filterLayer = filters[nextProperty]
+
+    if (!filterLayer) return filterString
+
+    /** check if we have one or more branches */
+
+    const nextFilterLayerKeys = Object.keys(filterLayer).filter(key => key !== "value")
+
+    /** we have descended. so start the nesting! */
+    if (nextProperty !== "root") {
+      filterString += `${nextProperty}: { `
+    }
+
+    /** we are at the top of the tree, so we can safely add these now. */
+    if (filterLayer.value) {
+      filterString += filterLayer.value.join(", ")
+      /** remove it */
+      delete filterLayer.value
+    }
+
+    const keyCount = nextFilterLayerKeys.length
+    /** basecase */
+    if (keyCount === 0) return filterString
+
+    for (let keyIndex = 0; keyIndex < keyCount; keyIndex++) {
+      const nestedFilterString = this._foldFilters(filterLayer, nextFilterLayerKeys[keyIndex], type)
+
+      if (keyIndex > 0 && type === "_or") {
+        filterString += " } }"
+      }
+
+      if (filterString.length > 0) {
+        filterString += ", "
+
+        if (keyIndex > 0) {
+          filterString += "{ "
+        }
+      }
+
+      filterString += nestedFilterString
+    }
+
+    /** close it up */
+    if (nextProperty !== "root") {
+      filterString += " } }"
+    }
+
+    return filterString
+  }
+
+
+  _foldFilters3 (filters, nextProperty, type, filterStringArray) {
+    let processedFilters = filterStringArray ? filterStringArray : []
+
+    const filterLayer = filters[nextProperty]
+    /** so we are dealing with one or more filters. return that */
+    if (typeof filterLayer === 'string') {
+      return filterLayer
+    }
+    else if (filterLayer) {
+      /** it is an object, so get the keys */
+
+      const nextObjectKeys = Object.keys(filterLayer)
+      let currentFilterContents = ''
+      for (const nextKey of nextObjectKeys) {
+        if (nextKey === "value") {
+          currentFilterContents = filterLayer.value.join(", ")
+          continue
+        }
+
+        const filterString = this._foldFilters(filterLayer, nextKey, type, processedFilters)
+
+        if (currentFilterContents.length > 0) {
+          if (type === "_or") {
+            currentFilterContents += `, { ${nextKey}: { ${filterString} } }`
+          }
+          else {
+            currentFilterContents += `, ${nextKey}: { ${filterString} }`
+          }
+        }
+        else {
+          if (type === "_or") {
+            currentFilterContents += `{ ${nextKey}: { ${filterString} } }`
+          }
+          else {
+            currentFilterContents = `${nextKey}: { ${filterString} }`
+          }
+        }
+      }
+      /** we are at the bottom of the recursion, so don't push, it needs the key wrapper */
+      if (nextObjectKeys.length === 1 && nextObjectKeys[0] === "value") {
+        return currentFilterContents
+      }
+      else {
+        processedFilters.push(currentFilterContents)
+      }
+    }
+
+
+    return processedFilters
+  }
+
+  _createFilterString (property, filters) {
+    if (!filters) return ''
+
+    let andFilters = this._foldFilters(filters._and, property, "_and")
+    let orFilters = this._foldFilters(filters._or, property, "_or")
+
+    let filterString = Array.isArray(andFilters) ? andFilters.join(', ') : andFilters
+
+    const anyOrs = orFilters && orFilters.length > 0
+
+    if (anyOrs) {
+
+      let orString = filterString.length ? ", _or: " : "_or: "
+      filterString += this.orCount > 1 ? `${orString}[ { ${orFilters} } ]` : `{${orString}, ${orFilters}}`
+    }
+
+    return filterString
+  }
+
   /** Generate the bit inside parentheses */
   _generateModifiers (property) {
     const modifierParts = [];
@@ -382,34 +507,7 @@ ${root}${rootModifier} {\n`;
         : ""
     );
 
-    const filters = this.filters[property]
-
-    const andFilters = this._combineFiltersOnSameProperty(property, filters, "_and")
-
-    const orFilters = this._combineFiltersOnSameProperty(property, filters, "_or")
-
-    let filterString = andFilters.length ? andFilters.join(', ') : ""
-
-    const anyOrs = orFilters.length || Object.keys(orFilters).length
-
-    if (anyOrs) {
-      const multipleOr = anyOrs > 1 || filters._or[property] && filters._or[property].length > 1
-      let orString = filterString.length ? ", _or: " : "_or: "
-
-      if (multipleOr) {
-        orString += "[ "
-        for (const orFilter of orFilters) {
-          orString += `{${orFilter}}, `
-        }
-
-        orString = `${orString.substring(0, orString.length - 2)} ]`
-      }
-      else {
-        orString += `{ ${orFilters[0]} }`
-      }
-
-      filterString += orString
-    }
+    const filterString = this._createFilterString(property, this.filters[property])
 
     if (filterString.length) {
       modifierParts.push(`filter: { ${filterString} }`)
@@ -421,44 +519,53 @@ ${root}${rootModifier} {\n`;
   }
 
   _createFilterFromPath (path, operator, value) {
-    /** get all the parts, but start from the last */
-    const pathParts = path.split('.')
-    const columnForFilter = pathParts[0]
-    pathParts.reverse()
 
-    const filter = pathParts.reduce((prev, next) => {
-      if (prev.includes(operator)) {
-        return prev
-      }
-      else {
-        if (next !== columnForFilter) {
-          return `${next}: { ${prev}: { ${operator}: ${value} } }`
+    const pathParts = path.split('.')
+
+    /** the last part is the actual attribute. */
+    const attribute = pathParts.pop()
+    const filter = `${attribute}: { ${operator}: ${value} }`
+
+    const queryType = !this.type ? "_and" : this.type
+    const applyQueryTo = this.branch
+
+    const queryPathLength = pathParts.length
+
+    if (!this.filters[this.branch][queryType][applyQueryTo]) {
+      this.filters[this.branch][queryType][applyQueryTo] = {}
+    }
+
+    /** we popped it, so there is noting left and we apply it to the top one */
+    if (queryPathLength === 0) {
+      this.filters[this.branch][queryType][applyQueryTo] = { value: [filter] }
+    }
+    else {
+      let filterRef = this.filters[this.branch][queryType][applyQueryTo]
+      for (let pi = 0; pi < queryPathLength; pi++) {
+
+        /** we are at the last one */
+        if (pi === queryPathLength - 1) {
+          if (filterRef[pathParts[pi]] && filterRef[pathParts[pi]].value) {
+            filterRef[pathParts[pi]].value.push(filter)
+          }
+          else {
+            filterRef[pathParts[pi]] = { value: [filter] }
+          }
+        }
+        else if (filterRef[pathParts[pi]]) {
+          filterRef = filterRef[pathParts[pi]]
         }
         else {
-          return `${prev}: { ${operator}: ${value} }`
+          filterRef[pathParts[pi]] = {}
         }
       }
-    })
-
-    return { columnForFilter, filter }
+    }
   }
 
   /** Private function to create the correct filter syntax. */
   _createFilter (operator, value) {
 
-    let columnForFilter = this.column
-    let hasSubcolumn = this.subcolumn.length > 0
-
-    const graphQLValue = Array.isArray(value) ? `["${value.join('","')}"]` : `"${value}"`
-
-    let columnFilter = `${this.subcolumn || this.column}: { ${operator}: ${graphQLValue} }`;
-
-    if (this.column.includes('.')) {
-      const filterComponents = this._createFilterFromPath(this.column, operator, graphQLValue)
-      columnForFilter = filterComponents.columnForFilter
-      columnFilter = filterComponents.filter
-      hasSubcolumn = true
-    }
+    const graphQLValue = Array.isArray(value) ? `["${value.join('", "')}"]` : `"${value}"`
 
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
@@ -467,32 +574,10 @@ ${root}${rootModifier} {\n`;
       }
     }
 
-    const queryType = !this.type ? "_and" : this.type
-    const applyQueryTo = hasSubcolumn ? columnForFilter : this.branch
-
-    if (!this.filters[this.branch][queryType][applyQueryTo]) {
-      this.filters[this.branch][queryType][applyQueryTo] = []
-    }
-    this.filters[this.branch][queryType][applyQueryTo].push(columnFilter)
-
-    this.subcolumn = "";
+    this._createFilterFromPath(this.column, operator, graphQLValue)
     this.column = "";
-    this.type = "_and";
 
     return this;
-  }
-
-  _combineFiltersOnSameProperty (root, filters, filterType) {
-    const propertiesWithFilters = filters ? Object.keys(filters[filterType]) : []
-    const combinedFilters = []
-    if (propertiesWithFilters.length) {
-      for (const filterProperty of propertiesWithFilters) {
-        const concatenatedFilters = filters[filterType][filterProperty].join(", ");
-        const filterString = filterProperty === root ? concatenatedFilters : `${filterProperty}: { ${concatenatedFilters} }`
-        combinedFilters.push(filterString)
-      }
-    }
-    return combinedFilters
   }
 
   /** Recursively generate the output string for the branches and their properties */
