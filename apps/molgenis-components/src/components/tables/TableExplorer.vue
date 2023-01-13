@@ -98,7 +98,7 @@
       <div class="btn-group" v-if="canManage">
         <TableSettings v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           @update:settings="reloadMetadata"
         />
 
@@ -113,7 +113,7 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
         />
       </div>
       <div
@@ -175,7 +175,7 @@
               v-if="canEdit"
               type="add"
               :table="tableName"
-              :graphqlURL="graphqlURL"
+              :schemaName="schemaName"
               @add="handleRowAction('add')"
               class="d-inline p-0"
             />
@@ -229,7 +229,7 @@
       :tableName="tableName"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="handleModalClose"
     />
 
@@ -343,9 +343,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
     showSelect: {
       type: Boolean,
@@ -603,7 +603,7 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.graphqlURL);
+      this.client = Client.newClient(this.schemaName);
       const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
@@ -707,9 +707,9 @@ function getCondition(columnType, condition) {
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
-        :showPage="page" 
+        :showPage="page"
         :showLimit="limit"
-        :showOrderBy="showOrderBy" 
+        :showOrderBy="showOrderBy"
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"

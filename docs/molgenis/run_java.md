@@ -14,7 +14,7 @@ Steps:
     grant all privileges on database molgenis to molgenis;
     ```
 * Install java (we use adopt [OpenJDK 17](https://adoptium.net/))
-* Download molgenis-emx2-version-all.jar from [releases](https://github.com/mswertz/molgenis-emx2/releases).
+* Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
 * Start molgenis-emx2 using command below (will run on 8080)
     ```console
     java -jar molgenis-emx2-<version>-all.jar

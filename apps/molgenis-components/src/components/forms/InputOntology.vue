@@ -154,9 +154,9 @@ export default {
       type: String,
       required: false,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: false
     },
   },
   data() {
@@ -500,7 +500,7 @@ export default {
   },
   async mounted() {
     if (this.tableName) {
-      const client = Client.newClient(this.graphqlURL);
+      const client = Client.newClient(this.schemaName);
       this.data = (
         await client.fetchTableData(this.tableName, { limit: this.limit || 20 })
       )[this.tableId];
@@ -568,7 +568,7 @@ export default {
           description="please choose your options in tree below"
           v-model="value3"
           tableName="Tag"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
       <div>You selected: {{ value3 }}</div>
     </demo-item>
@@ -582,7 +582,7 @@ export default {
           v-model="value4"
           :isMultiSelect="true"
           tableName="Tag"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
       <div>You selected: {{ value4 }}</div>
     </demo-item>
