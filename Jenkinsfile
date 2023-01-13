@@ -30,14 +30,7 @@ pipeline {
                     }
                 }
                 container("java") {
-                    sh 'apt update'
-                    sh 'apt -y install gnupg lsb-release curl'
-                    sh 'apt update'
-                    sh 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg'
-                    sh 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null'
-                    sh 'apt update'
                     sh 'apt -y install docker.io'
-                    sh 'apt -y install docker-ce docker-ce-cli containerd.io'
                     sh "git config --global --add safe.directory '*'"
                     sh 'git fetch --depth 100000'
                     sh "git config user.email \"molgenis@gmail.com\""
@@ -66,13 +59,20 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release ci dockerPush\
+                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
                         env.TAG_NAME = props.tagName
                         sh "./gradlew --no-daemon helmLintMainChart --info"
                     }
+                }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    def props = readProperties file: 'build/ci.properties'
+                    env.TAG_NAME = props.tagName
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE} --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
