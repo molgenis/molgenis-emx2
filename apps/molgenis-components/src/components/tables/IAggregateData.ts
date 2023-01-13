@@ -1,3 +1,3 @@
 export default interface IAggregateData {
-    [row: string]: { [column: string]: number }
+  [row: string]: { [column: string]: number };
 }
