@@ -284,7 +284,7 @@ class TransformDataStagingCohorts:
         df_cohorts['additional organisations'] = string_partners
 
         df_cohorts.rename(columns={'pid': 'id',
-                                   'institution': 'organisation'}, inplace=True)
+                                   'institution': 'lead organisation'}, inplace=True)
         df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
         df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False, mode='w+')
 
