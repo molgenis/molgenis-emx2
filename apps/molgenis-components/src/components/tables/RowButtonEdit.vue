@@ -10,7 +10,7 @@
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";

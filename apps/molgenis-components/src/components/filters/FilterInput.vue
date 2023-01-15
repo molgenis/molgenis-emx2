@@ -2,14 +2,14 @@
   <div>
     <div v-if="isMultiConditionFilter">
       <component
-          :is="filterType"
-          :id="id"
-          :condition="conditions"
-          @updateCondition="updateCondition(index - 1, $event)"
-          :tableName="tableName"
-          :schemaName="schemaName"
+        :is="filterType"
+        :id="id"
+        :condition="conditions"
+        @updateCondition="updateCondition(index - 1, $event)"
+        :tableName="tableName"
+        :schemaName="schemaName"
       ></component>
-   </div>
+    </div>
     <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"

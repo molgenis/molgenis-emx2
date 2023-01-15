@@ -2,8 +2,7 @@
   <div class="mt-0">
     <a v-if="showCardHeader" href="#_top" class="float-right text-white">
       back to top
-    </a
-    >
+    </a>
     <h3
       v-if="showCardHeader"
       :class="'pl-2 pr-2 pb-2 mb-0 text-white bg-' + color"

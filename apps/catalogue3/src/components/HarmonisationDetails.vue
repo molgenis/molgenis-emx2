@@ -97,9 +97,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="h in harmonisation.targetVariable.dataset.mappings"
-                >
+                <tr v-for="h in harmonisation.targetVariable.dataset.mappings">
                   <td>{{ h.sourceTable.name }}</td>
                   <td>{{ h.description }}</td>
                 </tr>
@@ -130,11 +128,7 @@ dd {
 </style>
 
 <script>
-import {
-  ButtonAction,
-  LayoutModal,
-  MessageError,
-} from "molgenis-components";
+import { ButtonAction, LayoutModal, MessageError } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {

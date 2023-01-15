@@ -52,8 +52,8 @@ export default {
     },
   },
   mounted: function () {
-    this.setScrollStyle(this.$route.path === "/")
-  }
+    this.setScrollStyle(this.$route.path === "/");
+  },
 };
 </script>
 

@@ -353,15 +353,13 @@ const router = createRouter({
     },
     {
       name: "VariableMappings-details",
-      path:
-        "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
+      path: "/variable-mappings/:toResource/:toVersion/:toTable/:toVariable/:fromResource/:fromVersion/:fromTable",
       props: true,
       component: VariableMappingsView,
     },
     {
       name: "tablemapping",
-      path:
-        "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
+      path: "/tablemappings/:fromPid/:fromVersion/:fromTable/:toPid/:toVersion/:toTable",
       props: true,
       component: TableMappingsView,
     },
@@ -442,8 +440,7 @@ const router = createRouter({
     },
     {
       name: "NetworkCohortCollectionEvent",
-      path:
-        "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
     },
