@@ -256,7 +256,7 @@ export default {
     /** can be set to 'add' */
     operation: {
       type: String,
-      default: "update:modelValue",
+      default: "edit",
     },
     /** Optional tooltip*/
     tooltip: {

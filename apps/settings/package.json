@@ -9,11 +9,11 @@
   },
   "dependencies": {
     "molgenis-components": "*",
-    "core-js": "3.27.0",
+    "core-js": "3.27.1",
     "graphql-request": "5.1.0",
     "vue": "3.2.45",
     "vue-router": "4.1.6",
-    "vue3-swatches": "1.2.3",
+    "vue3-colorpicker": "2.1.2",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
