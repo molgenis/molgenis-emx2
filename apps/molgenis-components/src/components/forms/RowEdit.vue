@@ -11,7 +11,7 @@
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
-      :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
+      :readonly="column.readonly || (pkey && column.key == 1 && !clone) || (column.computed != undefined && column.computed.trim() != '')"
       :refBack="column.refBack"
       :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
       :refLabel="column.refLabel"
@@ -186,6 +186,12 @@ export default {
     internalValues: {
       handler(newValue) {
         this.validateTable();
+        //apply computed
+        this.tableMetaData.columns.forEach(c => {
+          if(c.computed) {
+           newValue[c.id] = executeExpression(c.computed, newValue, this.tableMetaData);
+          }
+        });
         this.$emit("update:modelValue", newValue);
       },
       deep: true,
@@ -266,8 +272,9 @@ function executeExpression(expression, values, tableMetaData) {
       copy[c.id] = null;
     }
   })
-  const func = `(function(${Object.keys(copy).join(',')}){return eval('${expression.replaceAll("'","\"")}');})`;
-  return eval(func)(...Object.values(copy));
+
+  const func = new Function(Object.keys(copy), `return eval('${expression.replaceAll("'","\"")}');`);
+  return func(...Object.values(copy));
 }
 
 function isRefLinkWithoutOverlap(column, tableMetaData, values) {

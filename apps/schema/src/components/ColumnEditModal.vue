@@ -93,7 +93,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT'  && !column.computed">
                 <InputBoolean
                     id="column_required"
                     v-model="column.required"
@@ -101,7 +101,7 @@
                     description="Will give error unless field is filled in. Is not checked if not visible"
                 />
               </div>
-              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+              <div class="col-4" v-if="column.columnType !== 'CONSTANT' && !column.computed">
                 <InputBoolean
                     id="column_readonly"
                     v-model="column.readonly"
@@ -117,6 +117,11 @@
                     :options="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
                     label="key"
                 />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <ButtonAction class="float-right" v-if="!previewShow" @click="previewShow = true">show form preview</ButtonAction>
               </div>
             </div>
             <div class="row">
@@ -137,7 +142,12 @@
                 />
               </div>
               <div class="col-4">
-                <ButtonAction v-if="!previewShow" @click="previewShow = true">show form preview</ButtonAction>
+                <InputText
+                    id="column_computed"
+                    v-model="column.computed"
+                    label="computed"
+                    description="When set only the input will be readonly and value computed using this formula"
+                />
               </div>
             </div>
             <div class="row">
@@ -170,7 +180,7 @@
           <h4>Form preview
             <ButtonAlt @click="previewShow = false" class="pl-0 pr-0">hide</ButtonAlt>
           </h4>
-          <RowEdit id="form-edit" v-model="previewData" :tableMetaData="table" :tableName="table.name"/>
+          <RowEdit id="form-edit" v-model="previewData" :schemaMetaData="schema" :tableMetaData="table" :tableName="table.name"/>
           Values:
           {{ previewData }}
         </div>
