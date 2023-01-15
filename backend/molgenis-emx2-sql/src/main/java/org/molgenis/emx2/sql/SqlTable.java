@@ -387,7 +387,7 @@ class SqlTable implements Table {
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       // get values
-      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_INSERTEDBY, user);
         values.put(MG_INSERTEDON, now);
@@ -461,7 +461,7 @@ class SqlTable implements Table {
     }
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
-      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, columns);
+      Map values = SqlTypeUtils.validateAndGetVisibleValuesAsMap(row, table.getMetadata(), columns);
       if (!inherit) {
         values.put(MG_UPDATEDBY, user);
         values.put(MG_UPDATEDON, now);
