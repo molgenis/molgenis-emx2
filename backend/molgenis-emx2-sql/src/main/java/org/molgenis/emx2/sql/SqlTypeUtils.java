@@ -1,10 +1,9 @@
 package org.molgenis.emx2.sql;
 
-import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnRow;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -14,31 +13,63 @@ public class SqlTypeUtils extends TypeUtils {
     // to hide the public constructor
   }
 
-  static Map<String, Object> validateAndGetVisibleValuesAsMap(Row row, Collection<Column> columns) {
-    Map<String, Object> values = new LinkedHashMap<>();
-    for (Column c : columns) {
+  static Map<String, Object> validateAndGetVisibleValuesAsMap(
+      Row row, TableMetadata tableMetadata, Collection<Column> updateColumns) {
 
+    // we create a graph representation of the row, using identifiers
+    Map<String, Object> graph = convertRowToMap(tableMetadata, row);
+    Set<String> colNames =
+        updateColumns.stream()
+            .map(
+                c ->
+                    // oldName is also used for references so we can know the underlying column name
+                    c.getOldName() != null ? c.getOldName() : c.getName())
+            .collect(Collectors.toSet());
+    // only validate columns for which we have data
+    Set<Column> validationColumns =
+        tableMetadata.getColumns().stream()
+            .filter(c2 -> colNames.contains(c2.getName()))
+            .collect(Collectors.toSet());
+
+    // we null all invisible columns
+    for (Column c : validationColumns) {
+      if (!columnIsVisible(c, graph)) {
+        graph.put(c.getName(), null);
+      }
+    }
+
+    // then we validate
+    for (Column c : validationColumns) {
+      checkValidation(c, graph);
+    }
+
+    // if passed validation we gonna create update record
+    Map<String, Object> values = new LinkedHashMap<>();
+    for (Column c : updateColumns) {
       // we get role from environment
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         values.put(c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else
       // compute field, might depend on update values therefor run always on insert/update
       if (c.getComputed() != null) {
-        values.put(c.getName(), executeJavascriptOnRow(c.getComputed(), row));
+        values.put(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
       } else
       // otherwise, unless invisible
-      if (columnIsVisible(c, row)) {
-        checkValidation(c, row);
+      if (columnIsVisible(
+          c.getOldName() != null ? tableMetadata.getColumn(c.getOldName()) : c, graph)) {
         values.put(c.getName(), getTypedValue(c, row));
+      } else {
+        // invisible columns will be in updatedColumns so set to null
+        values.put(c.getName(), null);
       }
     }
     return values;
   }
 
-  private static boolean columnIsVisible(Column column, Row row) {
+  private static boolean columnIsVisible(Column column, Map values) {
     if (column.getVisible() != null) {
-      Object visibleResult = executeJavascriptOnRow(column.getVisible(), row);
-      if (Boolean.FALSE.equals(visibleResult) || visibleResult == null) {
+      String visibleResult = executeJavascriptOnMap(column.getVisible(), values);
+      if (visibleResult.equals("false") || visibleResult.equals("null")) {
         return false;
       }
     }
@@ -102,11 +133,9 @@ public class SqlTypeUtils extends TypeUtils {
     };
   }
 
-  public static void checkValidation(Column column, Row row) {
-    if (!row.isNull(column.getName(), column.getColumnType())) {
-      Map<String, Object> values = row.getValueMap();
-      column.getColumnType().validate(row.get(column));
-
+  public static void checkValidation(Column column, Map<String, Object> values) {
+    if (values.get(column.getName()) != null) {
+      column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
         String errorMessage = checkValidation(column.getValidation(), values);
@@ -119,22 +148,82 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static String checkValidation(String validationScript, Map<String, Object> values) {
     try {
-      Object error = executeJavascriptOnRow(validationScript, new Row(values));
+      String error = executeJavascriptOnMap(validationScript, values);
       if (error != null) {
-        if (Boolean.FALSE.equals(error)) {
-          // you can have a validation rule that simply returns true or false; false means not
-          // valid.
+        if (error.trim().equals("false")) {
+          // you can have a validation rule that simply returns true or false;
+          // false means not valid.
           return validationScript;
         } else
-        // you can have a validation script returning true which means valid, so false means error.
-        if (!(error instanceof Boolean)) {
-          return error.toString();
+        // you can have a validation script returning true which means valid, and undefined also
+        if (!error.trim().equals("true") && !error.trim().equals("undefined")) {
+          return error;
         }
       }
       return null;
     } catch (MolgenisException me) {
       // seperate syntax errors
       throw me;
+    }
+  }
+
+  static Map<String, Object> convertRowToMap(TableMetadata tableMetadata, Row row) {
+    Map<String, Object> map = new LinkedHashMap<>();
+    for (Column c : tableMetadata.getColumns()) {
+      if (c.isReference()) {
+        map.put(c.getIdentifier(), getRefFromRow(row, c));
+      } else if (c.isFile()) {
+        // skip file
+      } else {
+        map.put(c.getIdentifier(), row.get(c));
+      }
+    }
+    return map;
+  }
+
+  static Object getRefFromRow(Row row, Column c) {
+    if (c.isRefArray() || c.isRefback()) {
+      List<Map> result = new ArrayList<>();
+      for (Reference ref : c.getReferences()) {
+        if (!ref.isOverlapping()) {
+          // must be a list
+          if (row.getValueMap().get(ref.getName()) != null) {
+            int i = 0;
+            for (Object value : (Object[]) row.get(ref.getName(), ref.getPrimitiveType())) {
+              if (i == result.size()) {
+                result.add(new LinkedHashMap<>());
+              }
+              putMap(result.get(i), ref.getPath(), value);
+              i++;
+            }
+          }
+        }
+      }
+      return result;
+    } else {
+      // returns a value
+      Map<String, Object> result = new LinkedHashMap<>();
+      for (Reference ref : c.getReferences()) {
+        if (!ref.isOverlapping()) {
+          List<String> path = new ArrayList();
+          path.add(c.getIdentifier());
+          path.addAll(ref.getPath());
+          putMap(result, ref.getPath(), row.get(ref.getName(), ref.getPrimitiveType()));
+        }
+      }
+      return result;
+    }
+  }
+
+  // put map hierarchy
+  private static void putMap(Map<String, Object> result, List<String> path, Object value) {
+    if (path.size() == 1) {
+      result.put(path.get(0), value);
+    } else {
+      if (result.get(path.get(0)) == null) {
+        result.put(path.get(0), new LinkedHashMap<>());
+      }
+      putMap((Map) result.get(path.get(0)), path.subList(1, path.size()), value);
     }
   }
 }
