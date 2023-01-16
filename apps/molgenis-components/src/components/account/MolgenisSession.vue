@@ -51,7 +51,8 @@ import SignupForm from "./MolgenisSignup.vue";
 import { error } from "console";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
-import { IErrorMessage, IResponse, ISession, ISetting } from "./Interfaces";
+import { IErrorMessage, IResponse, ISession } from "./Interfaces";
+import { ISetting } from "../../Interfaces/ISetting";
 
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
@@ -83,6 +84,7 @@ export default defineComponent({
       error: null as string | null,
       loading: false,
       session: {} as ISession,
+      settingsMap: {} as Record<string, string>,
     };
   },
   watch: {
@@ -96,21 +98,19 @@ export default defineComponent({
   },
   computed: {
     isOidcEnabled() {
-      return this.session?.settings?.isOidcEnabled === "true";
+      return this.settingsMap.isOidcEnabled === "true";
     },
   },
   methods: {
     loadSettings(settings: { _settings: ISetting[] }) {
-      settings._settings.forEach((setting): void => {
+      this.settingsMap = settings._settings.reduce((accum, setting) => {
         const value: string =
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)
             : setting.value;
-        this.session.settings = {
-          ...this.session.settings,
-          [setting.key]: value,
-        };
-      });
+        accum[setting.key] = value;
+        return accum;
+      }, {} as Record<string, string>);
     },
     async reload() {
       this.loading = true;
