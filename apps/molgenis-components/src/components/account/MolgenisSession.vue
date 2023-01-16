@@ -51,7 +51,7 @@ import SignupForm from "./MolgenisSignup.vue";
 import { error } from "console";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
-import { IReason, IResponse, ISession, ISetting } from "./Interfaces";
+import { IErrorMessage, IResponse, ISession, ISetting } from "./Interfaces";
 
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
@@ -148,7 +148,7 @@ export default defineComponent({
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },
-    handleError(reason: IReason) {
+    handleError(reason: IErrorMessage) {
       this.error = "internal server error " + reason;
       if (reason?.response?.data?.errors[0]?.message) {
         this.$emit("error", reason.response.data.errors[0].message);

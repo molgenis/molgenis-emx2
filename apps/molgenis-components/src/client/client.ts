@@ -1,42 +1,45 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
 import { deepClone, convertToPascalCase } from "../components/utils";
 import { IRow } from "../Interfaces/IRow";
-import { IMetaData } from "../Interfaces/IMetaData";
+import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IColumn } from "../Interfaces/IColumn";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { ISetting } from "../components/account/Interfaces";
 import { IClientProperties } from "./IClientProperties";
+import { ISetting } from "../Interfaces/ISetting";
 
 export { request };
 
 export default {
-  newClient: (schemaName: string, externalAxios: Axios) => {
+  newClient: (schemaName?: string, externalAxios?: Axios) => {
     const myAxios = externalAxios || axios;
     // use closure to have metaData cache private to client
-    let metaData: IMetaData | null = null;
+    let schemaMetaData: ISchemaMetaData | null | void = null;
+    let schemaNameCache: string = schemaName || "";
 
     return {
       insertDataRow,
       updateDataRow,
       deleteRow: async (rowKey: IRow, tableName: string) => {
-        return deleteRow(rowKey, tableName, schemaName);
+        return deleteRow(rowKey, tableName, schemaNameCache);
       },
       deleteAllTableData: async (tableName: string) => {
-        return deleteAllTableData(tableName, schemaName);
+        return deleteAllTableData(tableName, schemaNameCache);
       },
-      fetchMetaData: async () => {
-        const schema: IMetaData = await fetchMetaData(myAxios, schemaName);
-        metaData = schema;
-        return deepClone(metaData);
+      fetchSchemaMetaData: async () => {
+        schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+        if (!schemaNameCache) {
+          schemaNameCache = schemaMetaData.name;
+        }
+        return deepClone(schemaMetaData);
       },
       fetchTableMetaData: async (tableName: string) => {
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, schemaName);
-          if (!schemaName) {
-            schemaName = metaData.name;
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (schemaMetaData && !schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
           }
         }
-        return deepClone(metaData).tables.find(
+        return deepClone(schemaMetaData).tables.find(
           (table: ITableMetaData) =>
             table.id === convertToPascalCase(tableName) &&
             table.externalSchema === schemaName
@@ -46,51 +49,59 @@ export default {
         tableId: string,
         properties: IClientProperties
       ) => {
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, schemaName);
-          if (!schemaName) {
-            schemaName = metaData.name;
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (schemaMetaData && !schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
           }
+        }
+        if (!schemaMetaData) {
+          throw "Schema meta data not found for schema: " + schemaNameCache;
         }
         return fetchTableData(
           tableId,
           properties,
-          metaData,
+          schemaMetaData,
           myAxios,
-          schemaName
+          schemaNameCache
         );
       },
       fetchTableDataValues: async (
         tableName: string,
         properties: IClientProperties
       ) => {
-        const tableId = convertToPascalCase(tableName) || tableName;
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, schemaName);
-          if (!schemaName) {
-            schemaName = metaData.name;
+        const tableId = convertToPascalCase(tableName);
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (!schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
           }
+        }
+        if (!schemaMetaData) {
+          throw "Schema meta data not found for schema: " + schemaNameCache;
         }
         const dataResp = await fetchTableData(
           tableId,
           properties,
-          metaData,
+          schemaMetaData,
           myAxios,
-          schemaName
+          schemaNameCache
         );
         return dataResp[tableId];
       },
       fetchRowData: async (tableName: string, rowId: IRow) => {
-        const tableId = convertToPascalCase(tableName) || tableName;
-        if (metaData === null) {
-          metaData = await fetchMetaData(myAxios, schemaName);
-          if (!schemaName) {
-            schemaName = metaData.name;
+        const tableId = convertToPascalCase(tableName);
+        if (schemaMetaData === null) {
+          schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
+          if (!schemaNameCache) {
+            schemaNameCache = schemaMetaData.name;
           }
         }
-        const tableMetaData = metaData.tables.find(
-          (table: ITableMetaData) =>
-            table.id === tableId && table.externalSchema === schemaName
+        if (!schemaMetaData) {
+          throw "Schema meta data not found for schema: " + schemaNameCache;
+        }
+        const tableMetaData = schemaMetaData.tables.find(
+          (table) => table.id === tableId && table.externalSchema === schemaName
         );
         const filter = tableMetaData?.columns
           ?.filter((column) => column.key === 1)
@@ -105,9 +116,9 @@ export default {
             {
               filter,
             },
-            metaData,
+            schemaMetaData,
             myAxios,
-            schemaName
+            schemaNameCache
           )
         )[tableId];
 
@@ -117,15 +128,15 @@ export default {
           return resultArray[0];
         }
       },
-      saveTableSettings: async (settings: any) => {
+      saveTableSettings: async (settings: ISetting[]) => {
         return request(
-          graphqlURL(schemaName),
+          graphqlURL(schemaNameCache),
           `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
           { settings }
         );
       },
       fetchSettings: async () => {
-        return fetchSettings(schemaName);
+        return fetchSettings(schemaNameCache);
       },
       fetchSettingValue: async (name: string) => {
         const settings = await fetchSettings(name);
@@ -150,11 +161,13 @@ export default {
           },
         };
 
-        await request(graphqlURL(schemaName), createMutation, variables).catch(
-          (e) => {
-            console.error(e);
-          }
-        );
+        await request(
+          graphqlURL(schemaNameCache),
+          createMutation,
+          variables
+        ).catch((e) => {
+          console.error(e);
+        });
       },
     };
   },
@@ -236,31 +249,26 @@ const deleteAllTableData = (tableName: string, schemaName: string) => {
   return axios.post(graphqlURL(schemaName), { query });
 };
 
-const fetchMetaData = async (
-  axios: Axios,
-  schemaName: string,
-  onError?: (error: AxiosError) => void
-) => {
-  const resp = await axios
+const fetchSchemaMetaData = async (axios: Axios, schemaName: string) => {
+  return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
-    .catch((error) => {
+    .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
+      return result.data.data._schema;
+    })
+    .catch((error: AxiosError) => {
       console.log(error);
-      if (typeof onError === "function") {
-        onError(error);
-      }
+      throw error;
     });
-  return resp?.data.data._schema as IMetaData;
 };
 
 const fetchTableData = async (
   tableName: string,
   properties: IClientProperties,
-  metaData: IMetaData,
+  metaData: ISchemaMetaData,
   axios: Axios,
-  schemaName: string,
-  onError?: (error: AxiosError) => void
+  schemaName: string
 ) => {
-  const tableId = convertToPascalCase(tableName) || tableName;
+  const tableId = convertToPascalCase(tableName);
   const limit =
     properties && Object.prototype.hasOwnProperty.call(properties, "limit")
       ? properties.limit
@@ -309,11 +317,7 @@ const fetchTableData = async (
     })
     .catch((error: AxiosError) => {
       console.log(error);
-      if (typeof onError === "function") {
-        onError(error);
-      } else {
-        throw error;
-      }
+      throw error;
     });
   return resp?.data.data;
 };
@@ -333,8 +337,8 @@ const request = async (url: string, graphql: string, variables?: any) => {
     .then((result: AxiosResponse) => {
       return result?.data?.data;
     })
-    .catch((error: AxiosError) => {
-      throw error;
+    .catch((error: AxiosError): string => {
+      throw error.message;
     });
 };
 
@@ -347,7 +351,7 @@ const request = async (url: string, graphql: string, variables?: any) => {
 const columnNames = (
   schemaName: string,
   tableName: string,
-  metaData: IMetaData
+  metaData: ISchemaMetaData
 ) => {
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
@@ -376,7 +380,7 @@ const columnNames = (
 const refGraphql = (
   schemaName: string,
   column: IColumn,
-  metaData: IMetaData
+  metaData: ISchemaMetaData
 ) => {
   let graphqlString = "";
   schemaName = column.refSchema ? column.refSchema : schemaName;

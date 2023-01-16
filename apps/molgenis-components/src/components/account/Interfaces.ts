@@ -10,13 +10,13 @@ export interface ISession {
 export interface IResponse {
   status: string;
   value: any;
-  reason: IReason;
+  reason: IErrorMessage;
   _settings: ISetting[];
   _manifest: IManifest;
   _session: ISession;
 }
 
-export interface IReason {
+export interface IErrorMessage {
   response?: { data?: { errors: { message: string }[] } };
 }
 
@@ -24,9 +24,4 @@ interface IManifest {
   ImplementationVersion: string;
   SpecificationVersion: string;
   DatabaseVersion: string;
-}
-
-export interface ISetting {
-  key: string;
-  value: string;
 }

@@ -150,15 +150,13 @@ export default defineComponent({
       );
 
       const policyData = response._settings.find(
-        (item: ISetting) => item.key === POLICY_TEXT_KEY
+        (item) => item.key === POLICY_TEXT_KEY
       );
       this.privacyPolicy = policyData?.value;
 
-      const policyEnabledSettings = response._settings.find(
-        (item: ISetting) => {
-          return item.key === "isPrivacyPolicyEnabled";
-        }
-      );
+      const policyEnabledSettings = response._settings.find((item) => {
+        return item.key === "isPrivacyPolicyEnabled";
+      });
       this.isPrivacyPolicyEnabled = policyEnabledSettings?.value === "true";
     },
   },

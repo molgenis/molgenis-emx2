@@ -1,6 +1,6 @@
 import { ITableMetaData } from "./ITableMetaData";
 
-export interface IMetaData {
-    name: string,
-    tables: ITableMetaData[]
+export interface ISchemaMetaData {
+  name: string;
+  tables: ITableMetaData[];
 }
