@@ -199,7 +199,6 @@ export default {
          <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
       <InputRef
         id="input-ref"
         label="Standard ref input"

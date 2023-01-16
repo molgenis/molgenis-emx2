@@ -699,7 +699,7 @@ function getCondition(columnType, condition) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
