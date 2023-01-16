@@ -50,15 +50,10 @@ export default {
     PaginationBar,
     BiobankCard,
   },
-  data() {
-    return {
-      biobanks: [],
-    };
-  },
   computed: {
     biobanksShown() {
       if (this.biobanksStore.waiting) return [];
-      return this.biobanks.slice(
+      return this.biobanksStore.biobankCards.slice(
         this.settingsStore.config.pageSize *
           (this.settingsStore.currentPage - 1),
         this.settingsStore.config.pageSize * this.settingsStore.currentPage
@@ -66,7 +61,7 @@ export default {
     },
   },
   async mounted() {
-    this.biobanks = await this.biobanksStore.getBiobankCards();
+    await this.biobanksStore.getBiobankCards();
   },
 };
 </script>

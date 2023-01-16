@@ -21,12 +21,20 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
     async function getBiobankCards () {
         waitingForResponse.value = true
         if (biobankCards.value.length === 0) {
-            const biobankResult = await baseQuery.execute()
 
+            const biobankResult = await baseQuery.execute()
             biobankCards.value = biobankResult.Biobanks
         }
         waitingForResponse.value = false
         return biobankCards.value
+    }
+
+    async function updateBiobankCards () {
+        waitingForResponse.value = true
+        biobankCards.value = []
+        const biobankResult = await baseQuery.execute()
+        biobankCards.value = biobankResult.Biobanks
+        waitingForResponse.value = false
     }
 
     const biobankCardsHaveResults = computed(() => {
@@ -53,5 +61,15 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
     })
 
 
-    return { getBiobankCards, waiting, biobankCardsHaveResults, biobankCardsBiobankCount, biobankCardsCollectionCount, biobankCardsSubcollectionCount, biobankCards, baseQuery }
+    return {
+        updateBiobankCards,
+        getBiobankCards,
+        waiting,
+        biobankCardsHaveResults,
+        biobankCardsBiobankCount,
+        biobankCardsCollectionCount,
+        biobankCardsSubcollectionCount,
+        biobankCards,
+        baseQuery
+    }
 })

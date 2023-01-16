@@ -187,6 +187,8 @@ class QueryEMX2 {
   /** Resets all filters, useful for when you want to add filters dynamically */
   resetAllFilters () {
     this.filters = {};
+    this.findInAllColumns = "";
+    this.page = {};
     return this;
   }
 

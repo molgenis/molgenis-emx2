@@ -4,10 +4,8 @@ import { applyFiltersToQuery } from '../functions/applyFiltersToQuery';
 import { useBiobanksStore } from './biobanksStore';
 
 export const useFiltersStore = defineStore('filtersStore', () => {
-    /** making a hardcopy, just to be sure */
-    const { baseQuery } = Object.assign({}, useBiobanksStore());
-
-    const filterResult = ref({})
+    const biobankStore = useBiobanksStore();
+    const { baseQuery, updateBiobankCards } = biobankStore
 
     let filters = ref({})
 
@@ -31,8 +29,8 @@ export const useFiltersStore = defineStore('filtersStore', () => {
             queryDelay = setTimeout(async () => {
                 clearTimeout(queryDelay);
 
-                const queryWithFiltersApplied = applyFiltersToQuery(baseQuery, filters)
-                filterResult.value = await queryWithFiltersApplied.execute();
+                applyFiltersToQuery(baseQuery, filters)
+                await updateBiobankCards()
 
             }, 750);
         },
@@ -53,8 +51,6 @@ export const useFiltersStore = defineStore('filtersStore', () => {
     }
 
     return {
-        baseQuery,
-        filterResult,
         resetFilters,
         updateFilter,
         getFilterValue,
