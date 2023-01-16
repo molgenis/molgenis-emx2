@@ -219,7 +219,7 @@ export default {
   async mounted() {
     this.loaded = false;
     this.client = Client.newClient(this.schemaName);
-    this.schemaMetaData = await this.client.fetchMetaData();
+    this.schemaMetaData = await this.client.fetchSchemaMetaData();
     const settings = await this.client.fetchSettings();
 
     this.useChapters =
