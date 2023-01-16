@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Publications,,,,,,,,,,,,Publications following bibtex format
 Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Organisations,Resources,,,,,,,,,,,Research departments and research groups
+myOrganisations,Organisations,,,,,UMCG,,,,,,"Institutions, research departments and research groups"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -11,6 +11,13 @@ Subcohorts,,,,,,,,,,,,"List of subcohorts or subpopulations for this resource (f
 Subcohort counts,,,,,,,,,,,,
 Documentation,,,,,,,,,,,,Documentation attached to a resource
 External identifiers,,,,,,,,,,,,External identifiers belonging to a resource
+myOrganisations,,id,,1,TRUE,,,,,,,Internal identifier
+myOrganisations,,pid,,,,,,,,,,Persistent identifier
+myOrganisations,,name,,2,TRUE,,,,,,,Name of the resource
+myOrganisations,,acronym,,,,,,,,,,Resource acronym
+myOrganisations,,website,,,,,,,,,,Link to the website of this resource
+myOrganisations,,description,text,,,,,,,,,Short description of this resource
+myOrganisations,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,overview,heading,,,,,,,,,General information about this resource
 Resources,,id,,1,TRUE,,,,,,,Internal identifier
 Resources,,pid,,,,,,,,,,Persistent identifier
@@ -25,8 +32,8 @@ Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study des
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,Any additional organisations that contributed to this resource
+Extended resources,,lead organisation,ref_array,,,UMCG,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
+Extended resources,,additional organisations,ref_array,,,UMCG,Organisations,,,,,Any additional organisations that contributed to this resource
 Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort
@@ -65,7 +72,7 @@ Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person
+Contacts,,organisation,ref,,,UMCG,Organisations,,,,,Affiliated organisation of the contact person
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
@@ -115,12 +122,12 @@ External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that 
 External identifiers,,identifier,,1,TRUE,,,,,,,"External identifier, e.g. UMCG research register number"
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type
 External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type"
-Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the institution
-Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
-Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
-Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
+myOrganisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
+myOrganisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
+myOrganisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
+myOrganisations,,institution acronym,string,,,,,,,,,Short name of the institution
+myOrganisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
+myOrganisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
+myOrganisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
+myOrganisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
+myOrganisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
