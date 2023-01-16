@@ -75,7 +75,7 @@ Biobanks {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "UMC" } }) {
+Biobanks(filter: { _and: { name: { like: "UMC" } } }) {
     id,
     name
   }
@@ -91,7 +91,7 @@ Biobanks(filter: { name: { like: "UMC" } }) {
       .getQuery()
 
     expect(query).toEqual(`{
-Biobanks(filter: { _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
+Biobanks(filter: { _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }] }) {
     id,
     name
   }
@@ -107,7 +107,7 @@ Biobanks(filter: { _or: [ { country: { name: { like: "DE" } } }, { collections: 
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden" }, country: { name: { equals: "DE" } } }) {
+Biobanks(filter: { _and: [{ name: { like: "Dresden" } }, { country: { name: { equals: "DE" } } }] }) {
     id,
     name
   }
@@ -118,12 +118,12 @@ Biobanks(filter: { name: { like: "Dresden" }, country: { name: { equals: "DE" } 
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name'])
-      .where('collections.id').like('Lifelines')
+      .where('collections.id').like('eric')
       .where('collections.name').like('Lifelines')
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { collections: { id: { like: "Lifelines" }, name: { like: "Lifelines" } } }) {
+Biobanks(filter: { _and: [{ collections: { id: { like: "eric" } } }, { name: { like: "Lifelines" } }] }) {
     id,
     name
   }
@@ -139,7 +139,7 @@ Biobanks(filter: { collections: { id: { like: "Lifelines" }, name: { like: "Life
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, filter: { name: { like: "UMC" } }) {
+Biobanks(limit: 100, filter: { _and: { name: { like: "UMC" } } }) {
     id,
     name
   }
@@ -157,7 +157,7 @@ Biobanks(limit: 100, filter: { name: { like: "UMC" } }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC" } }) {
+Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: { name: { like: "UMC" } } }) {
     id,
     name
   }
@@ -173,7 +173,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { name: { like: "UMC" } }) 
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: ["UMC", "Dresden"] } }) {
+Biobanks(filter: { _and: { name: { like: ["UMC", "Dresden"] } } }) {
     id,
     name
   }
@@ -189,7 +189,7 @@ Biobanks(filter: { name: { like: ["UMC", "Dresden"] } }) {
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "DE" } } } }) {
+Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: { country: { name: { like: "DE" } } } }) {
     id,
     name
   }
@@ -207,7 +207,7 @@ Biobanks(filter: { name: { like: "Dresden" }, _or: { country: { name: { like: "D
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden" }, _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
+Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }] }) {
     id,
     name
   }
@@ -265,7 +265,7 @@ Biobanks {
 Biobanks {
     id,
     name,
-    collections(filter: { name: { like: "cardiovascular" } }) {
+    collections(filter: { _and: { name: { like: "cardiovascular" } } }) {
         id,
         name
     }
@@ -358,7 +358,7 @@ NestedExample {
         layerB {
             id,
             name,
-            layerC(filter: { name: { like: "nameOfC" } }) {
+            layerC(filter: { _and: { name: { like: "nameOfC" } } }) {
                 id,
                 name
             }

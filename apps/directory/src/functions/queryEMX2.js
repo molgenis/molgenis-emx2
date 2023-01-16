@@ -17,7 +17,6 @@ class QueryEMX2 {
   findInAllColumns = "";
   page = {};
   aggregateQuery = false;
-  orCount = 0
 
   /**
    * @param {string} graphqlUrl the endpoint to query
@@ -360,109 +359,52 @@ ${root}${rootModifier} {\n`;
     return result;
   }
 
-  _foldFilters (filters, nextProperty, type) {
+  _foldFilters (filters, nextProperty, type, depth = 0) {
     let filterString = ''
 
     const filterLayer = filters[nextProperty]
 
+    /** nothing next or no filters */
     if (!filterLayer) return filterString
 
-    /** check if we have one or more branches */
+    /** check if we have branches */
+    const nextFilterLayerKeys = Object.keys(filterLayer)
 
-    const nextFilterLayerKeys = Object.keys(filterLayer).filter(key => key !== "value")
-
-    /** we have descended. so start the nesting! */
-    if (nextProperty !== "root") {
-      filterString += `${nextProperty}: { `
-    }
-
-    /** we are at the top of the tree, so we can safely add these now. */
-    if (filterLayer.value) {
-      filterString += filterLayer.value.join(", ")
-      /** remove it */
-      delete filterLayer.value
-    }
-
-    const keyCount = nextFilterLayerKeys.length
-    /** basecase */
-    if (keyCount === 0) return filterString
-
-    for (let keyIndex = 0; keyIndex < keyCount; keyIndex++) {
-      const nestedFilterString = this._foldFilters(filterLayer, nextFilterLayerKeys[keyIndex], type)
-
-      if (keyIndex > 0 && type === "_or") {
-        filterString += " } }"
-      }
-
-      if (filterString.length > 0) {
-        filterString += ", "
-
-        if (keyIndex > 0) {
-          filterString += "{ "
-        }
-      }
-
-      filterString += nestedFilterString
-    }
-
-    /** close it up */
-    if (nextProperty !== "root") {
-      filterString += " } }"
-    }
-
-    return filterString
-  }
-
-
-  _foldFilters3 (filters, nextProperty, type, filterStringArray) {
-    let processedFilters = filterStringArray ? filterStringArray : []
-
-    const filterLayer = filters[nextProperty]
-    /** so we are dealing with one or more filters. return that */
-    if (typeof filterLayer === 'string') {
+    /** we are down to the last part */
+    if (typeof filterLayer === "string") {
       return filterLayer
     }
-    else if (filterLayer) {
-      /** it is an object, so get the keys */
 
-      const nextObjectKeys = Object.keys(filterLayer)
-      let currentFilterContents = ''
-      for (const nextKey of nextObjectKeys) {
-        if (nextKey === "value") {
-          currentFilterContents = filterLayer.value.join(", ")
-          continue
-        }
+    const branchCount = nextFilterLayerKeys.length
 
-        const filterString = this._foldFilters(filterLayer, nextKey, type, processedFilters)
+    const branchFilters = []
 
-        if (currentFilterContents.length > 0) {
-          if (type === "_or") {
-            currentFilterContents += `, { ${nextKey}: { ${filterString} } }`
-          }
-          else {
-            currentFilterContents += `, ${nextKey}: { ${filterString} }`
-          }
-        }
-        else {
-          if (type === "_or") {
-            currentFilterContents += `{ ${nextKey}: { ${filterString} } }`
-          }
-          else {
-            currentFilterContents = `${nextKey}: { ${filterString} }`
-          }
-        }
-      }
-      /** we are at the bottom of the recursion, so don't push, it needs the key wrapper */
-      if (nextObjectKeys.length === 1 && nextObjectKeys[0] === "value") {
-        return currentFilterContents
-      }
-      else {
-        processedFilters.push(currentFilterContents)
-      }
+    for (let branch = 0; branch < branchCount; branch++) {
+      const nextLayerKey = nextFilterLayerKeys[branch]
+      const nestedFilterString = this._foldFilters(filterLayer, nextLayerKey, type, depth + 1)
+
+
+      branchFilters.push(`${nextLayerKey}: { ${nestedFilterString} }`)
+
     }
 
+    if (branchFilters) {
+      let joinSymbol = ", "
+      if (depth === 0) {
+        joinSymbol = branchCount > 1 ? " }, { " : ", "
+      }
+      filterString += branchFilters.join(joinSymbol)
+    }
 
-    return processedFilters
+    if (depth === 0 && branchCount > 1) {
+      return `${type}: [{ ${filterString} }]`
+    }
+    else if (depth === 0) {
+      return `${type}: { ${filterString} }`
+    }
+    else {
+      return filterString
+    }
   }
 
   _createFilterString (property, filters) {
@@ -471,14 +413,13 @@ ${root}${rootModifier} {\n`;
     let andFilters = this._foldFilters(filters._and, property, "_and")
     let orFilters = this._foldFilters(filters._or, property, "_or")
 
-    let filterString = Array.isArray(andFilters) ? andFilters.join(', ') : andFilters
+    let filterString = andFilters
 
-    const anyOrs = orFilters && orFilters.length > 0
-
-    if (anyOrs) {
-
-      let orString = filterString.length ? ", _or: " : "_or: "
-      filterString += this.orCount > 1 ? `${orString}[ { ${orFilters} } ]` : `{${orString}, ${orFilters}}`
+    if (filterString.length > 0 && orFilters.length > 0) {
+      filterString += `, ${orFilters}`
+    }
+    else if (orFilters.length > 0) {
+      filterString = orFilters
     }
 
     return filterString
@@ -523,41 +464,24 @@ ${root}${rootModifier} {\n`;
     const pathParts = path.split('.')
 
     /** the last part is the actual attribute. */
-    const attribute = pathParts.pop()
-    const filter = `${attribute}: { ${operator}: ${value} }`
 
+    const filter = `${operator}: ${value}`
     const queryType = !this.type ? "_and" : this.type
     const applyQueryTo = this.branch
-
-    const queryPathLength = pathParts.length
-
     if (!this.filters[this.branch][queryType][applyQueryTo]) {
       this.filters[this.branch][queryType][applyQueryTo] = {}
     }
 
-    /** we popped it, so there is noting left and we apply it to the top one */
-    if (queryPathLength === 0) {
-      this.filters[this.branch][queryType][applyQueryTo] = { value: [filter] }
-    }
-    else {
-      let filterRef = this.filters[this.branch][queryType][applyQueryTo]
-      for (let pi = 0; pi < queryPathLength; pi++) {
+    let filterRef = this.filters[this.branch][queryType][applyQueryTo]
 
-        /** we are at the last one */
-        if (pi === queryPathLength - 1) {
-          if (filterRef[pathParts[pi]] && filterRef[pathParts[pi]].value) {
-            filterRef[pathParts[pi]].value.push(filter)
-          }
-          else {
-            filterRef[pathParts[pi]] = { value: [filter] }
-          }
-        }
-        else if (filterRef[pathParts[pi]]) {
-          filterRef = filterRef[pathParts[pi]]
-        }
-        else {
-          filterRef[pathParts[pi]] = {}
-        }
+    const pathDepth = pathParts.length
+
+    for (let depth = 0; depth < pathDepth; depth++) {
+      const filterPath = pathParts[depth];
+
+      if (!filterRef[filterPath]) {
+        filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
+        filterRef = filterRef[filterPath]
       }
     }
   }
