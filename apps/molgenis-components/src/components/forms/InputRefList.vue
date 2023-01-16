@@ -89,7 +89,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import {convertToPascalCase, flattenObject, getPrimaryKey} from "../utils";
+import { convertToPascalCase, flattenObject, getPrimaryKey } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -168,13 +168,10 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      if(this.filter) {
-        options['filter'] = this.filter;
+      if (this.filter) {
+        options["filter"] = this.filter;
       }
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
@@ -185,7 +182,7 @@ export default {
     },
     filter() {
       this.loadOptions();
-    }
+    },
   },
   async mounted() {
     this.client = Client.newClient(this.schemaName);

@@ -11,7 +11,7 @@
 export default {
   props: {
     page: String,
-    session: Object
+    session: Object,
   },
   computed: {
     contents() {
@@ -30,7 +30,7 @@ export default {
         (this.session.email == "admin" ||
           (this.session.roles && this.session.roles.includes("Manager")))
       );
-    }
-  }
+    },
+  },
 };
 </script>

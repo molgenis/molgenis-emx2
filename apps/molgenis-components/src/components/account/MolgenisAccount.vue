@@ -24,7 +24,7 @@
         />
         <ButtonAction @click="updatePassword">Update password</ButtonAction>
         <h2 class="mt-4">Manage tokens</h2>
-        <TokenManager/>
+        <TokenManager />
       </LayoutForm>
     </template>
     <template v-slot:footer>
@@ -41,7 +41,7 @@ import MessageSuccess from "../forms/MessageSuccess.vue";
 import Spinner from "../layout/Spinner.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import InputPassword from "../forms/InputPassword.vue";
-import TokenManager from './TokenManager.vue';
+import TokenManager from "./TokenManager.vue";
 
 import { request } from "../../client/client.js";
 
@@ -54,7 +54,7 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
-    TokenManager
+    TokenManager,
   },
   props: {
     user: String,

@@ -9,9 +9,7 @@
       <div class="card-columns">
         <VariableCard
           v-for="variable in variables"
-          :key="
-            variable.resource.id + variable.dataset.name + variable.name
-          "
+          :key="variable.resource.id + variable.dataset.name + variable.name"
           :variable="variable"
           :tableName="tableName"
         />
@@ -36,11 +34,7 @@ dd {
 
 <script>
 import { request } from "graphql-request";
-import {
-  InputSearch,
-  MessageError,
-  Pagination,
-} from "molgenis-components";
+import { InputSearch, MessageError, Pagination } from "molgenis-components";
 import VariableCard from "./VariableCard.vue";
 
 export default {

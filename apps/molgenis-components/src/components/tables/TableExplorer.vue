@@ -29,7 +29,7 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem;">
+          <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -96,7 +96,8 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata"
+        <TableSettings
+          v-if="tableMetadata"
           :tableMetadata="tableMetadata"
           :schemaName="schemaName"
           @update:settings="reloadMetadata"
@@ -267,7 +268,7 @@
 
 <script>
 import Client from "../../client/client.js";
-import { getPrimaryKey,convertToPascalCase } from "../utils";
+import { getPrimaryKey, convertToPascalCase } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -604,7 +605,9 @@ export default {
     },
     async reloadMetadata() {
       this.client = Client.newClient(this.schemaName);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },

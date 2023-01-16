@@ -104,7 +104,7 @@ export default {
     },
     filter: Object,
     multipleColumns: Boolean,
-    itemsPerColumn: {type: Number, default: 12},
+    itemsPerColumn: { type: Number, default: 12 },
     maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
@@ -165,13 +165,10 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      if(this.filter) {
+      if (this.filter) {
         options.filter = this.filter;
       }
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
@@ -179,7 +176,7 @@ export default {
   watch: {
     filter() {
       this.loadOptions();
-    }
+    },
   },
   async mounted() {
     this.client = Client.newClient(this.schemaName);

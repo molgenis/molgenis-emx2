@@ -56,7 +56,7 @@ export default {
     },
     schemaMetaData: {
       type: Object,
-      required: false
+      required: false,
     },
   },
   mounted() {

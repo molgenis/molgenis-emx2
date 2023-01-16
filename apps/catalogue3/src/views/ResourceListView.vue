@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { TableExplorer,convertToPascalCase } from "molgenis-components";
+import { TableExplorer, convertToPascalCase } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 const css = {
@@ -65,9 +65,7 @@ export default {
       if (this.tableName == "Organisations") {
         return ["name", "id", "type", "country"];
       } else if (
-        ["Data sources", "Networks", "Models"].includes(
-          this.tableName
-        )
+        ["Data sources", "Networks", "Models"].includes(this.tableName)
       ) {
         return ["name", "id", "type", "leadOrganisation"];
       } else if (this.tableName == "Cohorts") {
@@ -84,10 +82,7 @@ export default {
           "homepage",
         ];
       } else if (this.tableName == "Datasets") {
-        return [
-          "source",
-          "name",
-        ];
+        return ["source", "name"];
       } else if (this.tableName == "Variables") {
         return [
           "source",
@@ -104,7 +99,7 @@ export default {
     },
     defaultFilters() {
       if (this.tableName == "Organisations") {
-        return ["institution","name","type", "country"];
+        return ["institution", "name", "type", "country"];
       }
       if (this.tableName == "Studies") {
         return ["keywords", "networks", "startYear", "endYear"];

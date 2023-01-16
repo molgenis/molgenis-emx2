@@ -4,9 +4,9 @@
       <b> {{ label }}</b>
     </label>
     <small
-        v-if="hasDescription(description)"
-        :id="id + '-help-text'"
-        class="form-text text-muted"
+      v-if="hasDescription(description)"
+      :id="id + '-help-text'"
+      class="form-text text-muted"
     >
       {{ description }}
     </small>

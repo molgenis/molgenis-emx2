@@ -5,7 +5,9 @@
       {{ formatStamp(update.stamp) }} ({{ update.tableName }})
     </a>
   </span>
-  <span v-else><em>{{statusMessage}}</em></span>
+  <span v-else
+    ><em>{{ statusMessage }}</em></span
+  >
 </template>
 
 <script>
@@ -24,7 +26,7 @@ export default {
     return {
       update: null,
       loading: true,
-      statusMessage: ""
+      statusMessage: "",
     };
   },
   methods: {
@@ -38,11 +40,11 @@ export default {
       `/${this.schema}/settings/graphql`,
       "{_changes(limit: 1) {operation, stamp, userId, tableName}}"
     ).catch((error) => {
-      this.statusMessage = "failed to fetch updated"
-      console.log(error)
+      this.statusMessage = "failed to fetch updated";
+      console.log(error);
     });
 
-    this.update =  resp ? resp["_changes"][0] : null;
+    this.update = resp ? resp["_changes"][0] : null;
 
     if (this.update && this.update.stamp) {
       // emit timestamp for use in row sort

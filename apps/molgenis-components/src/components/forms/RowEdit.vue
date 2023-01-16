@@ -26,7 +26,7 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
-import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
+import { getPrimaryKey, deepClone, convertToCamelCase } from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -160,7 +160,11 @@ export default {
     //create a filter in case inputs are linked by overlapping refs
     refLinkFilter(c) {
       //need to figure out what refs overlap
-      if(c.refLink && this.showColumn(c) && this.internalValues[convertToCamelCase(c.refLink)]) {
+      if (
+        c.refLink &&
+        this.showColumn(c) &&
+        this.internalValues[convertToCamelCase(c.refLink)]
+      ) {
         let filter = {};
         this.tableMetaData.columns.forEach((c2) => {
           if (c2.name === c.refLink) {
@@ -170,7 +174,8 @@ export default {
                 t.columns.forEach((c3) => {
                   if (c3.key === 1 && c3.refTable === c2.refTable) {
                     filter[c3.name] = {
-                      equals: this.internalValues[convertToCamelCase(c.refLink)],
+                      equals:
+                        this.internalValues[convertToCamelCase(c.refLink)],
                     };
                   }
                 });
@@ -178,7 +183,7 @@ export default {
             });
           }
         });
-          return filter;
+        return filter;
       }
     },
   },
