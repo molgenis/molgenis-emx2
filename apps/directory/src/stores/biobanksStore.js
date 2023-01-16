@@ -33,7 +33,9 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         waitingForResponse.value = true
         biobankCards.value = []
         const biobankResult = await baseQuery.execute()
-        biobankCards.value = biobankResult.Biobanks
+
+        const foundBiobanks = biobankResult.Biobanks
+        biobankCards.value = foundBiobanks || []
         waitingForResponse.value = false
     }
 
