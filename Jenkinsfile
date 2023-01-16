@@ -69,7 +69,7 @@ pipeline {
                 container (name: 'kaniko', shell: '/busybox/sh') {
                     sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
                     sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
-                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE} --destination docker.io/molgenis/ssr-catalogue-snapshot:test --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:test --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
