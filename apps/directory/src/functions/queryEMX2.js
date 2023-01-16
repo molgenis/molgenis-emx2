@@ -483,6 +483,9 @@ ${root}${rootModifier} {\n`;
         filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
         filterRef = filterRef[filterPath]
       }
+      else {
+        filterRef = filterRef[filterPath]
+      }
     }
   }
 

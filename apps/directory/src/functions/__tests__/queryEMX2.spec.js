@@ -123,7 +123,7 @@ Biobanks(filter: { _and: [{ name: { like: "Dresden" } }, { country: { name: { eq
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [{ collections: { id: { like: "eric" } } }, { name: { like: "Lifelines" } }] }) {
+Biobanks(filter: { _and: { collections: { id: { like: "eric" }, name: { like: "Lifelines" } } } }) {
     id,
     name
   }
@@ -215,7 +215,6 @@ Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name:
     )
   })
 
-  /** this one works now. */
   it('can create a query with multiple nested or clauses', () => {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
@@ -227,7 +226,7 @@ Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name:
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { name: { like: "Dresden" }, _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" }, materials: { name: { like: "covid" } } } } ] }) {
+Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" }, materials: { name: { like: "covid" } } } }] }) {
     id,
     name
   }
