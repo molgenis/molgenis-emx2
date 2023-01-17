@@ -8,8 +8,8 @@
       :columnType="column.columnType"
       :description="columnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
-      :graphqlURL="graphqlURL"
       :label="columnLabel(column)"
+      :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
@@ -18,6 +18,7 @@
       :required="column.required"
       :tableName="column.refTable"
       :canEdit="canEdit"
+      :filter="refLinkFilter(column)"
     />
   </div>
 </template>
@@ -25,7 +26,13 @@
 <script>
 import FormInput from "./FormInput.vue";
 import constants from "../constants";
-import {getPrimaryKey, deepClone, convertToCamelCase, getLocalizedLabel, getLocalizedDescription} from "../utils";
+import {
+  getPrimaryKey,
+  deepClone,
+  convertToCamelCase,
+  getLocalizedLabel,
+  getLocalizedDescription,
+} from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -75,10 +82,10 @@ export default {
       type: Object,
       required: false,
     },
-    // graphqlURL: url to graphql endpoint
-    graphqlURL: {
-      default: "graphql",
-      type: String,
+    // object with the whole schema, needed to create refLink filter
+    schemaMetaData: {
+      type: Object,
+      required: true,
     },
     canEdit: {
       type: Boolean,
@@ -87,8 +94,8 @@ export default {
     },
     locale: {
       type: String,
-      default: () => 'en'
-    }
+      default: () => "en",
+    },
   },
   emits: ["update:modelValue"],
   components: {
@@ -118,10 +125,10 @@ export default {
   methods: {
     getPrimaryKey,
     columnLabel(column) {
-     return getLocalizedLabel(column);
+      return getLocalizedLabel(column);
     },
     columnDescription(column) {
-     return getLocalizedDescription(column);
+      return getLocalizedDescription(column);
     },
     showColumn(column) {
       const isColumnVisible = Array.isArray(this.visibleColumns)
@@ -133,7 +140,7 @@ export default {
           this.visible(column.visible, column.id) &&
           column.name !== "mg_tableclass" &&
           !column.refLink) ||
-        this.internalValues[column.refLink]
+        this.internalValues[convertToCamelCase(column.refLink)]
       );
     },
     visible(expression, columnId) {
@@ -165,6 +172,35 @@ export default {
             this.tableMetaData
           );
         });
+    },
+    //create a filter in case inputs are linked by overlapping refs
+    refLinkFilter(c) {
+      //need to figure out what refs overlap
+      if (
+        c.refLink &&
+        this.showColumn(c) &&
+        this.internalValues[convertToCamelCase(c.refLink)]
+      ) {
+        let filter = {};
+        this.tableMetaData.columns.forEach((c2) => {
+          if (c2.name === c.refLink) {
+            this.schemaMetaData.tables.forEach((t) => {
+              //check how the reftable overlaps with columns in our column
+              if (t.name === c.refTable) {
+                t.columns.forEach((c3) => {
+                  if (c3.key === 1 && c3.refTable === c2.refTable) {
+                    filter[c3.name] = {
+                      equals:
+                        this.internalValues[convertToCamelCase(c.refLink)],
+                    };
+                  }
+                });
+              }
+            });
+          }
+        });
+        return filter;
+      }
     },
   },
   watch: {
@@ -286,8 +322,8 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
-            :graphqlURL="graphqlURL"
             :locale="locale"
+            :schemaMetaData="schemaMetaData"
         />
       </div>
       <div class="col-6 border-left">
@@ -323,8 +359,9 @@ function containsInvalidEmail(emails) {
         tableMetaData: {
           columns: [],
         },
+        schemaMetaData: {},
         rowData: {},
-        graphqlURL: '/pet store/graphql',
+        schemaName: 'pet store',
       };
     },
     watch: {
@@ -345,10 +382,9 @@ function containsInvalidEmail(emails) {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
-        const client = this.$Client.newClient(this.graphqlURL);
-        this.tableMetaData = (await client.fetchMetaData()).tables.find(
-            (table) => table.id === this.tableName,
-        );
+        const client = this.$Client.newClient(this.schemaName);
+        this.schemaMetaData = await client.fetchMetaData();
+        this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;
       },

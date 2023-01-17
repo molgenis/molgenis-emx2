@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
-import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.nimbusds.jose.*;
@@ -9,33 +8,22 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import org.molgenis.emx2.utils.EnvironmentProperty;
+import java.util.Objects;
 
 public class JWTgenerator {
   private static byte[] sharedSecret;
   private static MACSigner signer;
   private static JWSVerifier verifier;
 
-  private static void init() {
+  private static void init(Database database) {
     try {
-      sharedSecret = null;
-      String key =
-          (String)
-              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
-      if (key != null) {
-        // try to parse from environment variable
-        sharedSecret = key.getBytes();
-      } else {
-        // Generate random 256-bit (32-byte) shared secret
-        sharedSecret = new byte[32];
-        new SecureRandom().nextBytes(sharedSecret);
-      }
-
+      Objects.requireNonNull(database);
+      // we can be sure that this exists see SqlDatabase.init
+      sharedSecret = database.getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET).getBytes();
       // check enough bytes
       if (sharedSecret.length < 32) {
         throw new MolgenisException(
@@ -82,7 +70,7 @@ public class JWTgenerator {
     }
     try {
       if (signer == null) {
-        init();
+        init(db);
       }
       // Prepare JWT with claims set
       JWTClaimsSet claimsSet =
@@ -111,7 +99,7 @@ public class JWTgenerator {
     // On the consumer side, parse the JWS and verify its HMAC
     try {
       if (signer == null) {
-        init();
+        init(database);
       }
       SignedJWT signedJWT = SignedJWT.parse(token);
       Date experationTime = signedJWT.getJWTClaimsSet().getExpirationTime();

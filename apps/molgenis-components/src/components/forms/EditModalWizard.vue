@@ -7,7 +7,7 @@
       :pkey="pkey"
       :tableName="tableName"
       :tableMetaData="tableMetaData"
-      :graphqlURL="graphqlURL"
+      :schemaMetaData="schemaMetaData"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
       :locale="locale"
@@ -55,14 +55,14 @@ export default {
       type: Array,
       required: false,
     },
-    graphqlURL: {
-      default: "graphql",
-      type: String,
+    schemaMetaData: {
+      type: Object,
+      required: false,
     },
     locale: {
       type: String,
-      default: () => "en"
-    }
+      default: () => "en",
+    },
   },
   mounted() {
     this.columnsSplitByHeadings = splitColumnsByHeadings(

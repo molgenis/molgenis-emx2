@@ -1,6 +1,9 @@
 <template>
   <Spinner v-if="!tableMetadata" />
-  <div class="table-responsive" v-else-if="pkey && tableMetadata && refBackData">
+  <div
+    class="table-responsive"
+    v-else-if="pkey && tableMetadata && refBackData"
+  >
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th
@@ -93,10 +96,10 @@ export default {
   props: {
     table: {
       type: String,
-      required: true
+      required: true,
     },
     refLabel: String,
-     /** name of the column in the other table */
+    /** name of the column in the other table */
     refBack: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,
@@ -104,8 +107,8 @@ export default {
   data() {
     return {
       tableMetadata: null,
-      refBackData: null
-    }
+      refBackData: null,
+    };
   },
   methods: {
     routeParams(column, value) {
@@ -208,7 +211,9 @@ export default {
   async created() {
     this.client = Client.newClient();
     this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.refBackData = await this.client.fetchTableDataValues(this.table, { filter: this.graphqlFilter });
+    this.refBackData = await this.client.fetchTableDataValues(this.table, {
+      filter: this.graphqlFilter,
+    });
   },
 };
 </script>

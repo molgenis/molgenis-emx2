@@ -3,10 +3,7 @@
   <div v-else>
     <div>
       <span v-if="session.email && session.email != 'anonymous'">
-        <ButtonAlt
-          @click="showChangePasswordForm = true"
-          class="text-light"
-        >
+        <ButtonAlt @click="showChangePasswordForm = true" class="text-light">
           Hi {{ session.email }}</ButtonAlt
         >&nbsp;
         <MolgenisAccount
@@ -18,16 +15,16 @@
       </span>
       <span v-else>
         <ButtonAlt
-            v-show="!isOidcEnabled"
-            @click="showSignupForm = true"
-            :light="true"
+          v-show="!isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
         >
           Sign up
         </ButtonAlt>
         <SignupForm
-            v-if="showSignupForm"
-            :error="error"
-            @close="closeSignupForm"
+          v-if="showSignupForm"
+          :error="error"
+          @close="closeSignupForm"
         />
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
           Sign in</ButtonOutline
@@ -41,7 +38,12 @@
           @cancel="closeSigninForm"
         />
       </span>
-      <LocaleSwitch v-if="locales.length > 1" class="ml-2" v-model="session.locale" :locales="locales"/>
+      <LocaleSwitch
+        v-if="locales.length > 1"
+        class="ml-2"
+        v-model="session.locale"
+        :locales="locales"
+      />
     </div>
   </div>
 </template>
@@ -73,7 +75,7 @@ export default {
     MolgenisAccount,
     Spinner,
     ButtonAlt,
-    LocaleSwitch
+    LocaleSwitch,
   },
   props: {
     graphql: {
@@ -106,16 +108,16 @@ export default {
       return this.session?.settings?.isOidcEnabled === "true";
     },
     locales() {
-      if(this.session?.settings?.locales) {
+      if (this.session?.settings?.locales) {
         return this.session.settings.locales;
       } else {
-        return ['en'];
+        return ["en"];
       }
-    }
+    },
   },
   methods: {
     loadSettings(settings) {
-      console.log(settings)
+      console.log(settings);
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
@@ -157,8 +159,8 @@ export default {
         this.session.manifest = schemaSettings._manifest;
       }
       //set default locale
-      if(this.session.locale === undefined) {
-        this.session.locale = 'en';
+      if (this.session.locale === undefined) {
+        this.session.locale = "en";
       }
 
       this.loading = false;

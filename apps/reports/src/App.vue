@@ -1,11 +1,7 @@
 <template>
   <Molgenis id="__top" v-model="session">
     <MessageWarning v-if="error">{{ error }}</MessageWarning>
-    <router-view
-        v-else
-        :session="session"
-        :key="JSON.stringify(session)"
-    />
+    <router-view v-else :session="session" :key="JSON.stringify(session)" />
   </Molgenis>
 </template>
 
@@ -22,6 +18,6 @@ export default {
       session: null,
       error: null,
     };
-  }
+  },
 };
 </script>

@@ -83,7 +83,7 @@ export default {
     },
     locales: {
       type: Array,
-    }
+    },
   },
   data() {
     return {

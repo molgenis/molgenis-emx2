@@ -8,7 +8,11 @@
       harmonization projects, EU projects or by navigating all cohorts directly
       below.
     </p>
-    <InputSearch id="networks-home-search-input" v-model="searchTerms" placeholder="search cohorts" />
+    <InputSearch
+      id="networks-home-search-input"
+      v-model="searchTerms"
+      placeholder="search cohorts"
+    />
     <div v-if="harmonizationNetworks.length > 0">
       <h2>Networks</h2>
       <p>
@@ -146,7 +150,7 @@ export default {
           type {name}
           }}`
       ).catch((error) => console.log(error));
-  
+
       this.networks = result.Networks ? result.Networks : [];
     },
   },

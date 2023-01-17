@@ -8,7 +8,7 @@
       :pkey="pkey"
       :clone="true"
       :isModalShown="isModalShown"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="handleClose"
     />
   </div>
@@ -34,10 +34,9 @@ export default {
       type: Object,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
       required: false,
-      default: () => "graphql",
     },
   },
   data() {
@@ -63,7 +62,7 @@ export default {
           id="row-clone-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
-          graphqlURL="/pet store/graphql"
+          schemaName="pet store"
       />
     </div>
   </div>

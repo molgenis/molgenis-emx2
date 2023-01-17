@@ -20,19 +20,21 @@
             />
           </div>
           <div class="col-4">
-              <InputTextLocalized
-                  id="column_label"
-                  v-model="column.labels"
-                  label="label"
-                  :locales="locales" />
+            <InputTextLocalized
+              id="column_label"
+              v-model="column.labels"
+              label="label"
+              :locales="locales"
+            />
           </div>
           <div class="col-4">
             <div class="input-group">
               <InputTextLocalized
-                  id="column_description"
-                  v-model="column.descriptions"
-                  label="description"
-                  :locales="locales" />
+                id="column_description"
+                v-model="column.descriptions"
+                label="description"
+                :locales="locales"
+              />
             </div>
           </div>
         </div>
@@ -242,7 +244,7 @@ export default {
     /** can be set to 'add' */
     operation: {
       type: String,
-      default: "update:modelValue",
+      default: "edit",
     },
     /** Optional tooltip*/
     tooltip: {
@@ -250,8 +252,8 @@ export default {
       required: false,
     },
     locales: {
-      type: Array
-    }
+      type: Array,
+    },
   },
   data() {
     return {

@@ -50,9 +50,7 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    if (!tableMetadata.getSchemaName().equals(schema.getName())) {
-      this.externalSchema = tableMetadata.getSchemaName();
-    }
+    this.externalSchema = tableMetadata.getSchemaName();
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }

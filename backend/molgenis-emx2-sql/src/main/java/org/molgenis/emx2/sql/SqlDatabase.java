@@ -15,6 +15,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,6 +176,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       if (getSetting(Constants.LOCALES) == null) {
         this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
       }
+
+      String key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+      if (key == null) {
+        key =
+            (String)
+                EnvironmentProperty.getParameter(
+                    Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      }
+      // validate the key, or generate a good one
+      if (key == null || key.getBytes().length < 32) {
+        key = new RandomString(32).nextString();
+      }
+      // save the key again
+      this.setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, key);
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()

@@ -66,12 +66,18 @@
     </td>
     <td>
       <table v-if="column.labels" class="table-borderless">
-        <tr v-for="el in column.labels.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
+        <tr v-for="el in column.labels.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
       </table>
     </td>
     <td>
       <table v-if="column.descriptions" class="table-borderless">
-        <tr v-for="el in column.descriptions.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
+        <tr v-for="el in column.descriptions.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -124,7 +130,7 @@ export default {
     },
     locales: {
       type: Array,
-    }
+    },
   },
   computed: {
     table() {

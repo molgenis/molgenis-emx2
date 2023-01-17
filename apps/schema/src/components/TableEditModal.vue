@@ -14,15 +14,17 @@
         :errorMessage="nameInvalid"
       />
       <InputTextLocalized
-          id="table_label"
-          v-model="table.labels"
-          label="label"
-          :locales="locales" />
+        id="table_label"
+        v-model="table.labels"
+        label="label"
+        :locales="locales"
+      />
       <InputTextLocalized
-          id="table_description"
-          v-model="table.descriptions"
-          label="description"
-          :locales="locales" />
+        id="table_description"
+        v-model="table.descriptions"
+        label="description"
+        :locales="locales"
+      />
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_extends"
@@ -64,7 +66,7 @@ import {
   InputSelect,
   ButtonAlt,
   deepClone,
-  InputTextLocalized
+  InputTextLocalized,
 } from "molgenis-components";
 
 export default {
@@ -77,7 +79,7 @@ export default {
     MessageWarning,
     InputSelect,
     ButtonAlt,
-    InputTextLocalized
+    InputTextLocalized,
   },
   props: {
     /** Existing Table metadata object entered as v-model. In case of a new table this should be left empty. */
@@ -106,8 +108,8 @@ export default {
     },
     locales: {
       type: Array,
-      default: ["en"]
-    }
+      default: ["en"],
+    },
   },
   data: function () {
     return {
@@ -175,7 +177,7 @@ export default {
     },
     activeLocales() {
       return activeLocales(this.schema);
-    }
+    },
   },
   methods: {
     showModal() {

@@ -65,7 +65,7 @@
             @select="select($event)"
             @deselect="clearValue"
             @close="loadOptions"
-            :graphqlURL="graphqlURL"
+            :schemaName="schemaName"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -98,13 +98,13 @@ export default {
     ButtonAlt,
   },
   props: {
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
+      required: false,
       type: String,
     },
     filter: Object,
     multipleColumns: Boolean,
-    itemsPerColumn: {type: Number, default: 12},
+    itemsPerColumn: { type: Number, default: 12 },
     maxNum: { type: Number, default: 11 },
     tableName: {
       type: String,
@@ -165,22 +165,22 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      if(this.filter) {
+      if (this.filter) {
         options.filter = this.filter;
       }
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
   },
+  watch: {
+    filter() {
+      this.loadOptions();
+    },
+  },
   async mounted() {
-    this.client = Client.newClient(this.graphqlURL);
-    this.tableMetaData = (await this.client.fetchMetaData()).tables.find(
-      (table) => table.id === this.tableId
-    );
+    this.client = Client.newClient(this.schemaName);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     this.loadOptions();
   },
 };
@@ -206,7 +206,7 @@ export default {
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -219,7 +219,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -232,7 +232,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'cat' } } }"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -244,7 +244,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         multipleColumns
         :itemsPerColumn="3"
         :canEdit="canEdit"

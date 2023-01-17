@@ -1,17 +1,24 @@
 <template>
   <FormGroup
-      :id="id"
-      :label="label"
-      :required="required"
-      :description="description"
-      :errorMessage="errorMessage"
+    :id="id"
+    :label="label"
+    :required="required"
+    :description="description"
+    :errorMessage="errorMessage"
   >
     <InputGroup>
       <table class="table table-bordered table-sm mb-0">
-        <tr v-for="(el,idx) in modelValue">
-          <td v-if="modelValue.length > 1" class="pt-0 td-shrink text-right">{{el.locale}}:</td>
+        <tr v-for="(el, idx) in modelValue">
+          <td v-if="modelValue.length > 1" class="pt-0 td-shrink text-right">
+            {{ el.locale }}:
+          </td>
           <td class="p-0">
-            <InputText :id="id + ':' + el.locale" v-model="modelValue[idx]['value']" class="mb-0" @input=""/>
+            <InputText
+              :id="id + ':' + el.locale"
+              v-model="modelValue[idx]['value']"
+              class="mb-0"
+              @input=""
+            />
           </td>
         </tr>
       </table>
@@ -21,13 +28,13 @@
 
 <style>
 .td-shrink {
-  width:0.1%;
+  width: 0.1%;
   white-space: nowrap;
 }
 .small {
   float: right;
   transform: scale(0.8, 0.8);
-  transform-origin:top right;
+  transform-origin: top right;
   -ms-transform: scale(0.8, 0.8); /* IE 9 */
   -webkit-transform: scale(0.8, 0.8); /* Safari and Chrome */
   -o-transform: scale(0.8, 0.8); /* Opera */
@@ -36,7 +43,7 @@
 </style>
 
 <script>
-import BaseInput from "./baseInputs/BaseInput.vue"
+import BaseInput from "./baseInputs/BaseInput.vue";
 import InputText from "./InputText.vue";
 import InputSelect from "./InputSelect.vue";
 import FormGroup from "./FormGroup.vue";
@@ -48,36 +55,36 @@ export default {
     InputSelect,
     InputText,
     FormGroup,
-    InputGroup
+    InputGroup,
   },
   props: {
     locales: {
       type: Array,
-      default: () => ['en']
-    }
+      default: () => ["en"],
+    },
   },
   data() {
     return {
-      localeSelect: undefined //for selecting locale
-    }
+      localeSelect: undefined, //for selecting locale
+    };
   },
   mounted() {
     let value = this.modelValue;
-    if(!Array.isArray(value)) {
+    if (!Array.isArray(value)) {
       //should minimally be this object
-      value = [{locale: 'en', value: ''}]
+      value = [{ locale: "en", value: "" }];
     }
-    this.locales.forEach(locale => {
-      if(locale && !value.find(el => el.locale === locale)) {
-        value.push({locale: locale, value: ''});
+    this.locales.forEach((locale) => {
+      if (locale && !value.find((el) => el.locale === locale)) {
+        value.push({ locale: locale, value: "" });
       }
-      if(!value.find(el => el.locale === 'en')) {
-        this.addLocale('en');
+      if (!value.find((el) => el.locale === "en")) {
+        this.addLocale("en");
       }
-    })
-    this.$emit('update:modelValue', value);
-  }
-}
+    });
+    this.$emit("update:modelValue", value);
+  },
+};
 </script>
 
 <docs>

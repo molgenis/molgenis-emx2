@@ -48,14 +48,20 @@
         <div v-if="table.labels">
           <label class="mb-0">Label: </label>
           <table class="table-borderless ml-4">
-            <tr v-for="el in table.labels.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
+            <tr v-for="el in table.labels.filter((el) => el.value)">
+              <td>{{ el.locale }}:</td>
+              <td>{{ el.value }}</td>
+            </tr>
           </table>
         </div>
         <div v-if="table.descriptions">
           <label class="mb-0">Description: </label>
-            <table class="table-borderless ml-4">
-              <tr v-for="el in table.descriptions.filter(el => el.value)"><td>{{el.locale}}:</td><td>{{el.value}}</td></tr>
-            </table>
+          <table class="table-borderless ml-4">
+            <tr v-for="el in table.descriptions.filter((el) => el.value)">
+              <td>{{ el.locale }}:</td>
+              <td>{{ el.value }}</td>
+            </tr>
+          </table>
         </div>
 
         <div v-if="table.tableType !== 'ONTOLOGIES'">
@@ -231,7 +237,7 @@ export default {
     },
     locales: {
       type: Array,
-    }
+    },
   },
   data() {
     return {

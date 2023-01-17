@@ -16,7 +16,11 @@
         v-model="search"
       />
       <h2>Data tables</h2>
-      <TablesTable v-if="tables.length > 0" :tables="tables" :locale="session?.locale"/>
+      <TablesTable
+        v-if="tables.length > 0"
+        :tables="tables"
+        :locale="session?.locale"
+      />
       <p v-else>No tables found</p>
       <h2>Ontology tables</h2>
       <p>
@@ -64,7 +68,7 @@ export default {
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
         return this.schema.tables
-          .filter((table) => !table.externalSchema)
+          .filter((table) => table.externalSchema === this.schema.name)
           .filter((table) =>
             terms.every(
               (term) =>
@@ -74,7 +78,9 @@ export default {
             )
           );
       } else {
-        return this.schema.tables.filter((table) => !table.externalSchema);
+        return this.schema.tables.filter(
+          (table) => table.externalSchema === this.schema.name
+        );
       }
     },
     tables() {
