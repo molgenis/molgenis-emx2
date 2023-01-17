@@ -2,10 +2,13 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue';
 import { applyFiltersToQuery } from '../functions/applyFiltersToQuery';
 import { useBiobanksStore } from './biobanksStore';
+import { useSettingsStore } from './settingsStore';
 
 export const useFiltersStore = defineStore('filtersStore', () => {
     const biobankStore = useBiobanksStore();
     const { baseQuery, updateBiobankCards } = biobankStore
+
+    const settingsStore = useSettingsStore();
 
     let filters = ref({})
 
@@ -25,6 +28,8 @@ export const useFiltersStore = defineStore('filtersStore', () => {
             if (queryDelay) {
                 clearTimeout(queryDelay);
             }
+            /** reset pagination */
+            settingsStore.currentPage = 1
 
             queryDelay = setTimeout(async () => {
                 clearTimeout(queryDelay);
