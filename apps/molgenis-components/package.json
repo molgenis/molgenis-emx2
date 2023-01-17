@@ -24,7 +24,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test-ci": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "format": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
     "@molgenis/expressions": "0.21.2",
@@ -41,6 +42,7 @@
     "vite": "3.2.5",
     "vitest": "0.27.1",
     "vue-router": "4.1.6",
-    "vue-scrollto": "2.20.0"
+    "vue-scrollto": "2.20.0",
+    "prettier": "2.8.3"
   }
 }

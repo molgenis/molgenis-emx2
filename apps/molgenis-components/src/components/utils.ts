@@ -3,14 +3,8 @@ import { IRow } from "../Interfaces/IRow";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_BACKSPACE,
-  CODE_DELETE,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
+  constants;
 
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;

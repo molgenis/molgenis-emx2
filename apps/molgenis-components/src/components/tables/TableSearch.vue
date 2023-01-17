@@ -1,7 +1,7 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <div v-else style="text-align: center;">
+    <div v-else style="text-align: center">
       <form
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"

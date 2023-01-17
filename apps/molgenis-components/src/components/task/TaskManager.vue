@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 import Task from "./Task.vue";
 import TaskList from "./TaskList.vue";
 import IconAction from "../forms/IconAction.vue";

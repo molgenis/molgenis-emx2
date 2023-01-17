@@ -175,9 +175,8 @@ export default {
                 t.columns.forEach((c3) => {
                   if (c3.key === 1 && c3.refTable === c2.refTable) {
                     filter[c3.name] = {
-                      equals: this.internalValues[
-                        convertToCamelCase(c.refLink)
-                      ],
+                      equals:
+                        this.internalValues[convertToCamelCase(c.refLink)],
                     };
                   }
                 });

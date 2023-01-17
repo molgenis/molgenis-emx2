@@ -31,7 +31,7 @@
         <div v-if="pageCount > 1" class="border-left chapter-menu">
           <div class="mb-1"><b>Chapters</b></div>
           <div v-for="(heading, index) in pageHeadings">
-            <button 
+            <button
               type="button"
               class="btn btn-link"
               :title="heading"

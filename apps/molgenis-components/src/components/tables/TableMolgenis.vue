@@ -1,14 +1,14 @@
 /* eslint-disable vue/no-unused-components */
 <template>
-  <div style="max-width: 100%;" class="flex-grow-1">
+  <div style="max-width: 100%" class="flex-grow-1">
     <table
       class="table table-sm bg-white table-bordered table-hover"
       :class="{ 'table-hover': showSelect }"
     >
       <thead>
-        <th slot="header" scope="col" style="width: 1px;" v-if="hasColheader">
+        <th slot="header" scope="col" style="width: 1px" v-if="hasColheader">
           <h6 class="mb-0 mt-2 d-inline">#</h6>
-          <span style="text-align: left; font-weight: normal;">
+          <span style="text-align: left; font-weight: normal">
             <slot name="rowcolheader" />
           </span>
         </th>
@@ -45,7 +45,7 @@
           "
         >
           <td v-if="hasColheader">
-            <div style="display: flex;">
+            <div style="display: flex">
               <div v-if="showSelect" class="form-check form-check-inline mr-1">
                 <input
                   type="checkbox"
@@ -68,7 +68,7 @@
           <td
             v-for="col in columnsWithoutMeta"
             :key="idx + col.name + isSelected(row)"
-            style="cursor: pointer;"
+            style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
             @click="onRowClick(row)"
           >

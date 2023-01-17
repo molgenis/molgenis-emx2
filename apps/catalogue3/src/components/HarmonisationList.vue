@@ -77,8 +77,7 @@ export default {
       return [
         ...new Set(
           this.harmonisations.map(
-            (h) =>
-              h.source.id + ":" + h.sourceDataset.name
+            (h) => h.source.id + ":" + h.sourceDataset.name
           )
         ),
       ].sort();

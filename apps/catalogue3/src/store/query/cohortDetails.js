@@ -19,10 +19,10 @@ export default gql`
         extension
         url
       }
-      external_identifiers{
-        external_identifier_type{
+      external_identifiers {
+        external_identifier_type {
           name
-        },
+        }
         identifier
       }
       description

@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import ITask from './ITask'
+import { defineComponent } from "vue";
+import ITask from "./ITask";
 import { request } from "../../client/client";
 import SubTask from "./SubTask.vue";
 import Spinner from "../layout/Spinner.vue";

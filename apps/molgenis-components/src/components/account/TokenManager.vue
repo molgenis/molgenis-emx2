@@ -35,12 +35,13 @@
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IError } from "../../Interfaces/IError";
+import { ISetting } from "../../Interfaces/ISetting";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputString from "../forms/InputString.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
-import { ISession, ISetting, IResponse } from "./Interfaces";
+import { ISession, IResponse } from "./Interfaces";
 
 const query = `{_session { email, token, settings{key,value}}}`;
 const changeMutation = `mutation change($users:[UsersInput]){

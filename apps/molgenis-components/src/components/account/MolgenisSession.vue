@@ -115,12 +115,11 @@ export default defineComponent({
     async reload() {
       this.loading = true;
 
-      const responses: PromiseSettledResult<
-        IResponse
-      >[] = await Promise.allSettled([
-        request("/apps/central/graphql", query),
-        request(this.graphql, query),
-      ]);
+      const responses: PromiseSettledResult<IResponse>[] =
+        await Promise.allSettled([
+          request("/apps/central/graphql", query),
+          request(this.graphql, query),
+        ]);
       const dbSettings =
         responses[0].status === "fulfilled"
           ? responses[0].value
