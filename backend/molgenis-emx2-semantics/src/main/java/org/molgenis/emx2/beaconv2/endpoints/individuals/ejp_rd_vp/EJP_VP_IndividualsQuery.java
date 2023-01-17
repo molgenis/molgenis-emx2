@@ -1,6 +1,5 @@
 package org.molgenis.emx2.beaconv2.endpoints.individuals.ejp_rd_vp;
 
-import static org.molgenis.emx2.beaconv2.common.QueryHelper.finalizeFilter;
 import static org.molgenis.emx2.beaconv2.common.QueryHelper.findColumnPath;
 import static org.molgenis.emx2.beaconv2.endpoints.individuals.QueryIndividuals.queryIndividuals;
 import static org.molgenis.emx2.json.JsonUtil.getWriter;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.common.ColumnPath;
+import org.molgenis.emx2.beaconv2.common.QueryHelper;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.Diseases;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSets;
 import org.molgenis.emx2.beaconv2.endpoints.individuals.IndividualsResultSetsItem;
@@ -78,8 +78,11 @@ public class EJP_VP_IndividualsQuery {
       // value is the specific thing to match individuals on, e.g. a particular disease, age of
       // onset, for instance "ordo:ORPHA_79314", "LAMP2",
       // "http://purl.obolibrary.org/obo/NCIT_C16576".
-      String value = filter.getValue();
-      value = value.indexOf(":") == -1 ? value : value.substring(value.indexOf(":") + 1);
+      String[] values = filter.getValues();
+      for (int i = 0; i < values.length; i++) {
+        String value = values[i];
+        values[i] = value.indexOf(":") == -1 ? value : value.substring(value.indexOf(":") + 1);
+      }
 
       /**
        * All of the 'age' related queries. AGE_THIS_YEAR = Age this year ("Birth Year" for
@@ -89,19 +92,18 @@ public class EJP_VP_IndividualsQuery {
       boolean isAgeQuery =
           id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) || id.endsWith(AGE_AT_DIAG);
       if (isAgeQuery) {
-        Filter ageQuery = new Filter(id, operator, value);
+        Filter ageQuery = new Filter(id, operator, values);
         ageQueries.add(ageQuery);
       }
 
       /** Sex (i.e. GenderAtBirth) but requires a mapping NCIT to GSSO */
       else if (id.endsWith(SEX)) {
         HashMap<String, String> mapping = new NCITToGSSOSexMapping().getMapping();
-        String filterTerm = value;
-        if (mapping.containsKey(value)) {
-          filterTerm = mapping.get(value);
+        String[] filterTerms = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+          filterTerms[i] = mapping.containsKey(values[i]) ? mapping.get(values[i]) : values[i];
         }
-        String genderAtBirthFilter = "{sex: {ontologyTermURI: {like: \"" + filterTerm + "\"}}}";
-        filters.add(genderAtBirthFilter);
+        filters.add(valueArrayFilterBuilder("{sex: {ontologyTermURI: {like:", filterTerms));
       }
 
       /**
@@ -109,8 +111,7 @@ public class EJP_VP_IndividualsQuery {
        * ('name') at the moment instead of stable IRI ('ontologyTermURI').
        */
       else if (id.endsWith(CAUSAL_GENE)) {
-        String geneFilter = "{diseaseCausalGenes: {name: {equals: \"" + value + "\"}}}";
-        filters.add(geneFilter);
+        filters.add(valueArrayFilterBuilder("{diseaseCausalGenes: {name: {equals:", values));
       }
 
       /**
@@ -118,9 +119,8 @@ public class EJP_VP_IndividualsQuery {
        * that matches individuals via the genomic variation refback, throwing off the results
        */
       else if (id.endsWith(DISEASE)) {
-        String diseaseFilter =
-            "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + value + "\"}}}}";
-        filters.add(diseaseFilter);
+        filters.add(
+            valueArrayFilterBuilder("{diseases: { diseaseCode: { ontologyTermURI: {like:", values));
       }
 
       /**
@@ -128,17 +128,16 @@ public class EJP_VP_IndividualsQuery {
        * individuals via the genomic variation refback, throwing off the results
        */
       else if (id.endsWith(PHENOTYPE)) {
-        String phenotypeFilter =
-            "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + value + "\"}}}}";
-        filters.add(phenotypeFilter);
+        filters.add(
+            valueArrayFilterBuilder(
+                "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:", values));
       }
 
       /** Anything else: create filter dynamically. */
       else {
         ColumnPath columnPath = findColumnPath(new ArrayList<>(), id, this.tables.get(0));
         if (columnPath != null && columnPath.getColumn().isOntology()) {
-          String dynamicFilter = columnPath + "ontologyTermURI: {like: \"" + value + "\"";
-          filters.add(finalizeFilter(dynamicFilter));
+          filters.add(valueArrayFilterBuilder(columnPath + "ontologyTermURI: {like:", values));
         } else {
           return getWriter()
               .writeValueAsString(new BeaconCountResponse(host, beaconRequestBody, false, 0));
@@ -216,8 +215,14 @@ public class EJP_VP_IndividualsQuery {
             throw new Exception("Bad age query: " + ageQuery);
           }
           int[] ageYears = iso8601StringToIntYears(ageStr);
-          int age = Integer.parseInt(ageQuery.getValue());
-          boolean ageQueryPositiveMatch = evalAgeQuery(age, ageYears, ageQuery.getOperator());
+          boolean ageQueryPositiveMatch = false;
+          for (String valueStr : ageQuery.getValues()) {
+            int age = Integer.parseInt(valueStr);
+            ageQueryPositiveMatch = evalAgeQuery(age, ageYears, ageQuery.getOperator());
+            if (ageQueryPositiveMatch) {
+              break;
+            }
+          }
           if (!ageQueryPositiveMatch) {
             removeIndividualIDs.add(resultSet.getId() + "@" + individual.getId());
           }
@@ -282,5 +287,22 @@ public class EJP_VP_IndividualsQuery {
       result[i] = period.getYears();
     }
     return result;
+  }
+
+  /**
+   * Help build OR queries based on value arrays
+   * @param query
+   * @param values
+   * @return
+   */
+  private String valueArrayFilterBuilder(String query, String[] values) {
+    StringBuilder filter = new StringBuilder();
+    filter.append("{ _or: [");
+    for (String value : values) {
+      filter.append(QueryHelper.finalizeFilter(query + " \"" + value + "\"") + ",");
+    }
+    filter.deleteCharAt(filter.length() - 1);
+    filter.append("] }");
+    return filter.toString();
   }
 }

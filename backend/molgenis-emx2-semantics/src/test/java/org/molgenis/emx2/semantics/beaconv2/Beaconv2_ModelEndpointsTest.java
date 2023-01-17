@@ -806,6 +806,25 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_asArray_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": ["TTN"],
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnCausalGenes_TwoHits() throws Exception {
     assertNrOfHitsFor(
         """
@@ -821,6 +840,137 @@ public class Beaconv2_ModelEndpointsTest {
 			  }
 			}"""
             .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": "TTN",
+							"operator": "="
+						  },
+						  {
+							"id": "%s",
+							"value": "COL7A1",
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingAND_NoHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": "TTN",
+							"operator": "="
+						  },
+						  {
+							"id": "%s",
+							"value": "CHD7",
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        0);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_CombinedArrayAndString_OneHit()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": ["TTN","CHD7"],
+							"operator": "="
+						  },
+						  {
+							"id": "%s",
+							"value": "COL7A1",
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_ThreeHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": ["CHD7","COL7A1"],
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        3);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_TwoHits() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": ["TTN","CHD7"],
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
+        2);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnCausalGenes_usingOR_TTNinList_COL7doublehit_TwoHits()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "%s",
+							"value": ["TTN","COL7A1"],
+							"operator": "="
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         2);
   }
 
