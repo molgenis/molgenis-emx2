@@ -82,8 +82,7 @@ export default {
   methods: {
     alterUser() {
       if (this.email == null || this.password == null) {
-        this.alterError =
-          "Error: valid email and password should be filled in";
+        this.alterError = "Error: valid email and password should be filled in";
       } else {
         this.alterError = null;
         this.alterLoading = true;

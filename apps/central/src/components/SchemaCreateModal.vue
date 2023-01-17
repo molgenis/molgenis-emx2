@@ -9,16 +9,16 @@
     </LayoutModal>
     <!-- when update succesfull show result before close -->
     <LayoutModal
-        v-else-if="success"
-        :title="title"
-        :show="true"
-        @close="$emit('close')"
+      v-else-if="success"
+      :title="title"
+      :show="true"
+      @close="$emit('close')"
     >
       <template v-slot:body>
         <MessageSuccess>{{ success }}</MessageSuccess>
         <div v-if="template">
           Go to <a :href="'/' + schemaName">{{ schemaName }}</a
-        ><br />
+          ><br />
         </div>
         <div v-else>
           Go to edit <a :href="'/' + schemaName + '/schema/'">schema</a><br />
@@ -37,31 +37,31 @@
           <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
           <LayoutForm :key="key">
             <InputString
-                id="schema-create-name"
-                v-model="schemaName"
-                label="name"
-                :defaultValue="schemaName"
-                :required="true"
+              id="schema-create-name"
+              v-model="schemaName"
+              label="name"
+              :defaultValue="schemaName"
+              :required="true"
             />
             <InputSelect
-                id="schema-create-template"
-                label="template"
-                description="Load existing database template"
-                v-model="template"
-                :options="templates"
+              id="schema-create-template"
+              label="template"
+              description="Load existing database template"
+              v-model="template"
+              :options="templates"
             />
             <InputBoolean
-                id="schema-create-sample-data"
-                v-if="template"
-                label="load example data"
-                description="Include example data in the template"
-                v-model="includeDemoData"
+              id="schema-create-sample-data"
+              v-if="template"
+              label="load example data"
+              description="Include example data in the template"
+              v-model="includeDemoData"
             />
             <InputText
-                id="schema-create-description"
-                v-model="schemaDescription"
-                label="description (optional)"
-                :defaultValue="schemaDescription"
+              id="schema-create-description"
+              v-model="schemaDescription"
+              label="description (optional)"
+              :defaultValue="schemaDescription"
             />
           </LayoutForm>
         </div>
@@ -116,7 +116,17 @@ export default {
       schemaName: null,
       schemaDescription: null,
       template: null,
-      templates: [null, "PET_STORE", "FAIR_DATA_HUB", "DATA_CATALOGUE", "DIRECTORY", "DATA_CATALOGUE_COHORT_STAGING","DATA_CATALOGUE_NETWORK_STAGING","DATA_CATALOGUE3", "DATA_CATALOGUE_COHORT_STAGING3","DATA_CATALOGUE_NETWORK_STAGING3"],
+      templates: [
+        null,
+        "PET_STORE",
+        "FAIR_DATA_HUB",
+        "DATA_CATALOGUE",
+        "DATA_CATALOGUE_COHORT_STAGING",
+        "DATA_CATALOGUE_NETWORK_STAGING",
+        "DATA_CATALOGUE3",
+        "DATA_CATALOGUE_COHORT_STAGING3",
+        "DATA_CATALOGUE_NETWORK_STAGING3",
+      ],
       includeDemoData: false,
     };
   },
@@ -134,28 +144,28 @@ export default {
       this.graphqlError = null;
       this.success = null;
       request(
-          this.endpoint,
-          `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
-          {
-            name: this.schemaName,
-            description: this.schemaDescription,
-            template: this.template,
-            includeDemoData: this.includeDemoData,
-          }
+        this.endpoint,
+        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
+        {
+          name: this.schemaName,
+          description: this.schemaDescription,
+          template: this.template,
+          includeDemoData: this.includeDemoData,
+        }
       )
-          .then((data) => {
-            this.success = data.createSchema.message;
-            this.loading = false;
-          })
-          .catch((error) => {
-            if (error.response.status === 403) {
-              this.graphqlError =
-                  error.message + "Forbidden. Do you need to login?";
-            } else {
-              this.graphqlError = error.response.errors[0].message;
-            }
-            this.loading = false;
-          });
+        .then((data) => {
+          this.success = data.createSchema.message;
+          this.loading = false;
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            this.graphqlError =
+              error.message + "Forbidden. Do you need to login?";
+          } else {
+            this.graphqlError = error.response.errors[0].message;
+          }
+          this.loading = false;
+        });
     },
   },
 };

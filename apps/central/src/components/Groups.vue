@@ -116,7 +116,7 @@ import {
   Spinner,
   MessageWarning,
   InputSearch,
-  MessageError
+  MessageError,
 } from "molgenis-components";
 import LastUpdateField from "./LastUpdateField.vue";
 

@@ -52,7 +52,7 @@ export default {
     },
   },
   async mounted() {
-    this.client = Client.newClient("/pet store/graphql", this.$axios);
+    this.client = Client.newClient("pet store", this.$axios);
     this.fetchData();
   },
   watch: {

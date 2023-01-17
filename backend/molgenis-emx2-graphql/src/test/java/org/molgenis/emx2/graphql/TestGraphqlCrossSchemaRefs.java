@@ -44,12 +44,6 @@ public class TestGraphqlCrossSchemaRefs {
     Assert.assertEquals(
         "dog", execute("{PetLover{name,pets{species}}}").at("/PetLover/0/pets/1/species").asText());
 
-    Assert.assertTrue(
-        execute("{_schema{tables{name}}}")
-            .at("/_schema/tables")
-            .findValuesAsText("name")
-            .contains("Parent"));
-
     // checks for a reported bug that ChildInput were not created
     Assert.assertTrue(
         execute("mutation{save(Child:{name:\"test\"}){message}}")

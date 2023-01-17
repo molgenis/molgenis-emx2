@@ -8,20 +8,20 @@ const props = defineProps({
   },
   isMultiSelect: {
     type: Boolean,
-    default: true
+    default: true,
   },
   modelValue: {
     type: Array,
-    default: []
+    default: [],
   },
   options: {
     type: Array,
-  }
+  },
 });
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-let data = []
+let data = [];
 if (!props.options) {
   const query = `
     query 
@@ -40,16 +40,14 @@ if (!props.options) {
       ${props.tableName}_agg( filter:$filter ) { count }
       }
   `;
-  let resp = await fetchGql(query)
+  let resp = await fetchGql(query);
 
-  data = resp?.data[props.tableName]
-  let count = resp?.data[props.tableName + '_agg'].count
-  console.log(count)
+  data = resp?.data[props.tableName];
+  let count = resp?.data[props.tableName + "_agg"].count;
+  console.log(count);
 } else {
-  data = props.options
+  data = props.options;
 }
-
-
 
 // convert to tree of terms
 //list all terms, incl subtrees
@@ -90,9 +88,7 @@ data.forEach((e) => {
 
 let rootTerms = computed(() => {
   if (terms) {
-    const result = Object.values(terms).filter(
-      (t) => !t.parent && t.visible
-    );
+    const result = Object.values(terms).filter((t) => !t.parent && t.visible);
     return result;
   } else {
     return [];
@@ -106,9 +102,7 @@ function toggleExpand(term) {
 function select(item) {
   if (!props.isMultiSelect) {
     //deselect other items
-    Object.keys(terms).forEach(
-      (key) => (terms[key].selected = false)
-    );
+    Object.keys(terms).forEach((key) => (terms[key].selected = false));
   }
   let term = terms[item];
   term.selected = "complete";
@@ -147,9 +141,7 @@ function deselect(item) {
     });
   } else {
     //non-list, deselect all
-    Object.keys(terms).forEach(
-      (name) => (terms[name].selected = false)
-    );
+    Object.keys(terms).forEach((name) => (terms[name].selected = false));
   }
   emitValue();
   // $refs.search.focus();
@@ -178,8 +170,7 @@ function getAllChildren(term) {
   if (term.children) {
     result = term.children;
     term.children.forEach(
-      (childTerm) =>
-        (result = result.concat(getAllChildren(childTerm)))
+      (childTerm) => (result = result.concat(getAllChildren(childTerm)))
     );
   }
   return result;
@@ -202,9 +193,9 @@ function toggleSelect(term) {
   //if selecting then also expand
   //if deselection we keep it open
   if (term.selected == "complete") {
-    deselect(term.name)
+    deselect(term.name);
   } else {
-    select(term.name)
+    select(term.name);
   }
 }
 
@@ -215,43 +206,78 @@ function updateSelection(newConditions) {
     Object.values(terms).forEach((term) => (term.selected = false));
   }
 }
-
 </script>
 
 <template>
   <ul>
-    <li v-for="item in Object.values(rootTerms).sort((a, b) => a.name.localeCompare(b.name))" :key="item.name"
-      class="mb-2.5">
+    <li
+      v-for="item in Object.values(rootTerms).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )"
+      :key="item.name"
+      class="mb-2.5"
+    >
       <div class="flex items-start">
-        <span v-if="item.children" @click="toggleExpand(item)" :class="{ 'rotate-180': !terms[item.name].expanded }"
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer">
+        <span
+          v-if="item.children"
+          @click="toggleExpand(item)"
+          :class="{ 'rotate-180': !terms[item.name].expanded }"
+          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
+        >
           <BaseIcon name="caret-up" :width="20" />
         </span>
-        <span v-else
-          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer">
+        <span
+          v-else
+          class="flex items-center justify-center w-6 h-6 rounded-full text-search-filter-group-toggle hover:bg-search-filter-group-toggle hover:cursor-pointer"
+        >
         </span>
         <div class="flex items-center">
-          <input type="checkbox" :id="item.name" :name="item.name"
-            :checked="item.selected === 'complete' || item.selected === 'partial'" @click.stop="toggleSelect(item)"
-            :class="{ 'text-yellow-500': (item.selected === 'complete'), 'text-search-filter-group-checkbox': (item.selected !== 'complete') }"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border-0" />
+          <input
+            type="checkbox"
+            :id="item.name"
+            :name="item.name"
+            :checked="
+              item.selected === 'complete' || item.selected === 'partial'
+            "
+            @click.stop="toggleSelect(item)"
+            :class="{
+              'text-yellow-500': item.selected === 'complete',
+              'text-search-filter-group-checkbox': item.selected !== 'complete',
+            }"
+            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 border-0"
+          />
         </div>
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
-            <span v-if="item?.children?.length"
+            <span
+              v-if="item?.children?.length"
               class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
-              hoverColor="white">&nbsp;- {{ item.children.length }}
+              hoverColor="white"
+              >&nbsp;- {{ item.children.length }}
             </span>
             <div class="inline-block">
-              <CustomTooltip v-if="item.description" label="Read more" hoverColor="white" :content="item.description" />
+              <CustomTooltip
+                v-if="item.description"
+                label="Read more"
+                hoverColor="white"
+                :content="item.description"
+              />
             </div>
           </div>
         </label>
       </div>
 
-      <ul class="ml-10 mr-4" :class="{ hidden: !terms[item.name].expanded }" v-if="item.children">
-        <SearchFilterGroupChild :items="item.children" @select="select" @deselect="deselect" />
+      <ul
+        class="ml-10 mr-4"
+        :class="{ hidden: !terms[item.name].expanded }"
+        v-if="item.children"
+      >
+        <SearchFilterGroupChild
+          :items="item.children"
+          @select="select"
+          @deselect="deselect"
+        />
       </ul>
     </li>
   </ul>
