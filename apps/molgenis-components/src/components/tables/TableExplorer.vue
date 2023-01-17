@@ -138,7 +138,7 @@
           :table-name="tableName"
           :canEdit="canEdit"
           :template="cardTemplate"
-          @click="$emit('click', $event)"
+          @click="$emit('rowClick', $event)"
           @reload="reload"
           @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
           @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
@@ -151,7 +151,7 @@
           :table-name="tableName"
           :canEdit="canEdit"
           :template="recordTemplate"
-          @click="$emit('click', $event)"
+          @click="$emit('rowClick', $event)"
           @reload="reload"
           @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
           @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
@@ -166,7 +166,7 @@
           :data="dataRows"
           :showSelect="showSelect"
           @column-click="onColumnClick"
-          @click="$emit('click', $event)"
+          @rowClick="$emit('rowClick', $event)"
         >
           <template v-slot:header>
             <label>{{ count }} records found</label>
@@ -704,18 +704,18 @@ function getCondition(columnType, condition) {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
-        tableName="Pet"
-        graphqlURL="/pet store/graphql"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
-        :showPage="page"
-        :showLimit="limit"
-        :showOrderBy="showOrderBy"
-        :showOrder="showOrder"
-        :canEdit="canEdit"
-        :canManage="canManage"
+          id="my-table-explorer"
+          tableName="Pet"
+          graphqlURL="/pet store/graphql"
+          :showColumns="showColumns"
+          :showFilters="showFilters"
+          :urlConditions="urlConditions"
+          :showPage="page"
+          :showLimit="limit"
+          :showOrderBy="showOrderBy"
+          :showOrder="showOrder"
+          :canEdit="canEdit"
+          :canManage="canManage"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
