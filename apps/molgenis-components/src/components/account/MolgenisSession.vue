@@ -57,6 +57,8 @@ import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 import LocaleSwitch from "./LocaleSwitch.vue";
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
 
 import { request } from "../../client/client.js";
 
@@ -92,6 +94,7 @@ export default {
       loading: false,
       session: {},
       version: null,
+      cookies: null,
     };
   },
   watch: {
@@ -102,6 +105,7 @@ export default {
   },
   created() {
     this.reload();
+    this.cookies = useCookies();
   },
   computed: {
     isOidcEnabled() {
@@ -109,15 +113,20 @@ export default {
     },
     locales() {
       if (this.session?.settings?.locales) {
-        return this.session.settings.locales;
-      } else {
-        return ["en"];
+        if (Array.isArray(this.session.settings.locales)) {
+          return this.session.settings.locales;
+        } else {
+          this.error =
+            'locales should be array similar to ["en"] but instead was ' +
+            JSON.stringify(this.session.settings.locales);
+        }
       }
+      //default
+      return ["en"];
     },
   },
   methods: {
     loadSettings(settings) {
-      console.log(settings);
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
@@ -160,7 +169,13 @@ export default {
       }
       //set default locale
       if (this.session.locale === undefined) {
-        this.session.locale = "en";
+        //get from cookie
+        const lang = cookies.get("MOLGENIS.locale");
+        if (lang) {
+          this.session.locale = lang;
+        } else {
+          this.session.locale = "en";
+        }
       }
 
       this.loading = false;

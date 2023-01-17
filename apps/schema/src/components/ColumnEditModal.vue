@@ -342,7 +342,12 @@ export default {
     },
     apply() {
       this.show = false;
-      this.$emit(this.operation, this.column);
+      if (this.operation === "edit") {
+        this.$emit("update:modelValue", this.column);
+      } else {
+        this.$emit("add", this.column);
+        this.reset();
+      }
     },
     cancel() {
       this.show = false;
@@ -394,6 +399,7 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
+      this.show = false;
     },
   },
   created() {

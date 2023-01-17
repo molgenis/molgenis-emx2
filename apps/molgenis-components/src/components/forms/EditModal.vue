@@ -160,7 +160,9 @@ export default {
       return `${this.titlePrefix} into table: ${this.label} (${this.tableName})`;
     },
     label() {
-      return getLocalizedLabel(this.tableMetaData);
+      if (this.tableMetaData) {
+        return getLocalizedLabel(this.tableMetaData);
+      }
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns

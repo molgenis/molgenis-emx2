@@ -8283,6 +8283,13 @@ vue3-colorpicker@2.1.2:
     vue3-angle "^0.1.6"
     vue3-normal-library "^0.1.6"
 
+vue3-cookies@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/vue3-cookies/-/vue3-cookies-1.0.6.tgz#c1da41f1f3d6bbea8e75157d49d09dfc2a18ca8a"
+  integrity sha512-a1UvVD0qIgxyOqjlSOwnLnqAnz8ASltugEv8yX+96i/WGZAN9fEDci7xO4HIWZE1uToUnRq9JnFhvfDCSo45OA==
+  dependencies:
+    vue "^3.0.0"
+
 vue3-normal-library@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/vue3-normal-library/-/vue3-normal-library-0.1.6.tgz#f8731f861e325ebe39ab3df5af934d76b6998fe7"
@@ -8293,7 +8300,7 @@ vue3-normal-library@^0.1.6:
     vue "^3.2.6"
     vue-types "^4.1.0"
 
-vue@3.2.45, vue@^3.2.45, vue@^3.2.6:
+vue@3.2.45, vue@^3.0.0, vue@^3.2.45, vue@^3.2.6:
   version "3.2.45"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.2.45.tgz#94a116784447eb7dbd892167784619fef379b3c8"
   integrity sha512-9Nx/Mg2b2xWlXykmCwiTUCWHbWIj53bnkizBxKai1g61f2Xit700A1ljowpTIM11e3uipOeiPcSqnmBg6gyiaA==

@@ -48,7 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
-          :locales="session.settings.locales"
+          :locales="session?.settings?.locales"
         />
       </div>
     </div>
@@ -162,6 +162,7 @@ export default {
         }
       });
       tables.forEach((table) => {
+        delete table.externalSchema;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];

@@ -5,11 +5,20 @@
       :modelValue="modelValue"
       @input="emit"
     >
-      <option v-for="locale in locales" :key="locale">{{ locale }}</option>
+      <option
+        v-for="locale in locales"
+        :key="locale"
+        :selected="locale === modelValue"
+      >
+        {{ locale }}
+      </option>
     </select>
   </div>
 </template>
 <script>
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
+
 export default {
   name: "LocaleSwitch",
   props: {
@@ -22,9 +31,15 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      cookies: null,
+    };
+  },
   methods: {
     emit(event) {
       if (event.target.value !== undefined) {
+        cookies.set("MOLGENIS.locale", event.target.value);
         this.$emit("update:modelValue", event.target.value);
       } else {
         this.$emit("update:modelValue", "en");

@@ -41,7 +41,9 @@ public class Schema {
       TableMetadata tm = s.create(table(t.getName()));
       tm.setInherit(t.getInherit());
       tm.setSettings(
-          t.getSettings().stream().collect(Collectors.toMap(Setting::key, Setting::value)));
+          t.getSettings().stream()
+              .filter(d -> d.value() != null)
+              .collect(Collectors.toMap(Setting::key, Setting::value)));
       tm.setOldName(t.getOldName());
       if (t.getTableType() != null) {
         tm.setTableType(t.getTableType());
@@ -50,9 +52,11 @@ public class Schema {
       tm.setSemantics(t.getSemantics());
       tm.setLabels(
           t.getLabels().stream()
+              .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       tm.setDescriptions(
           t.getDescriptions().stream()
+              .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
         int i = 1;

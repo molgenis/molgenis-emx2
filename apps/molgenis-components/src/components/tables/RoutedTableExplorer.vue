@@ -224,7 +224,7 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
       />
     </div>
   </div>

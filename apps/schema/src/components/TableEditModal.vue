@@ -173,7 +173,7 @@ export default {
         : null;
     },
     isDisabled() {
-      return this.nameInvalid || this.subclassInvalid;
+      return this.nameInvalid !== null || this.subclassInvalid !== null;
     },
     activeLocales() {
       return activeLocales(this.schema);

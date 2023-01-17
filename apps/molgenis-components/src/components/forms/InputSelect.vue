@@ -55,7 +55,12 @@ export default {
     MessageError,
   },
   props: {
-    options: Array,
+    options: { type: Array, required: true },
+  },
+  created() {
+    if (this.required && this.options.length === 1) {
+      this.$emit("update:modelValue", this.options[0]);
+    }
   },
 };
 </script>
@@ -112,7 +117,7 @@ export default {
       check: null,
       requiredCheck: null,
       empty: null,
-      readonlyModel: 'lion' 
+      readonlyModel: 'lion'
     };
   },
 };

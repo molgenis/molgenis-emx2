@@ -83,7 +83,9 @@ public class Column {
     org.molgenis.emx2.Column c = new org.molgenis.emx2.Column(tm, name);
     c.setOldName(oldName);
     c.setLabels(
-        labels.stream().collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
+        labels.stream()
+            .filter(d -> d.value() != null)
+            .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setType(columnType);
     if (drop) c.drop();
     c.setRequired(required);
@@ -98,6 +100,7 @@ public class Column {
     c.setValidation(validation);
     c.setDescriptions(
         descriptions.stream()
+            .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
     c.setVisible(visible);

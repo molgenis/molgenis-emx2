@@ -137,7 +137,7 @@
               :schemaNames="schemaNames"
               operation="add"
               :tableName="table.name"
-              @add="addColumn(table.columns.length, $event)"
+              @add="addColumn(0, $event)"
               :locales="locales"
             />
           </div>
@@ -178,7 +178,7 @@
                   :schema="schema"
                   :schemaNames="schemaNames"
                   @update:modelValue="updateColumn(index, $event)"
-                  @add="addColumn(index, $event)"
+                  @add="addColumn(index + 1, $event)"
                   @delete="deleteColumn(index)"
                   :isManager="isManager"
                   :locales="locales"
@@ -251,10 +251,10 @@ export default {
       this.$emit("update:modelValue", this.table);
     },
     addColumn(index, column) {
-      if (this.table.columns == undefined) {
+      if (this.table.columns === undefined) {
         this.table.columns = [];
       }
-      this.table.columns.splice(index, 0, column);
+      this.table.columns.splice(index ? index : 0, 0, column);
       this.applyPosition();
       this.$emit("update:modelValue", this.table);
     },
