@@ -10,19 +10,26 @@ defineProps({
 
 <template>
   <div class="flex justify-between xl:hidden text-menu">
-    <a href="#">
+    <NuxtLink :to="Object.values(crumbs).slice(-1)[0]">
       <span class="sr-only">Go up one level</span>
       <BaseIcon name="arrow-left" />
-    </a>
+    </NuxtLink>
     <a href="#">
       <span class="sr-only">Favorite</span>
       <BaseIcon name="star" />
     </a>
   </div>
-  <nav class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg">
+  <nav
+    class="items-center justify-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
+  >
     <template v-for="(url, label, index) in crumbs" :key="label">
-      <a :href="url" class="text-breadcrumb hover:underline">{{ label }}</a>
-      <span v-if="index < Object.keys(crumbs).length - 1" class="text-breadcrumb-arrow">
+      <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{
+        label
+      }}</NuxtLink>
+      <span
+        v-if="index < Object.keys(crumbs).length - 1"
+        class="text-breadcrumb-arrow"
+      >
         <BaseIcon name="caret-right" :width="12" />
       </span>
     </template>

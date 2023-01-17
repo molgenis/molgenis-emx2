@@ -27,11 +27,7 @@ import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue.vue";
 import TextFieldValue from "./TextFieldValue.vue";
-import {
-  StringDisplay,
-  FileDisplay,
-  ObjectDisplay,
-} from "molgenis-components";
+import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
   name: "SectionField",

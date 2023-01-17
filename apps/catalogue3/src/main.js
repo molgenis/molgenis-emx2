@@ -210,8 +210,7 @@ const router = createRouter({
     },
     {
       name: "VariableMappings-details",
-      path:
-        "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
+      path: "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
       props: true,
       component: VariableMappingsView,
     },
@@ -288,8 +287,7 @@ const router = createRouter({
     },
     {
       name: "NetworkCohortCollectionEvent",
-      path:
-        "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
+      path: "/networks-catalogue/:network/cohorts/:cohort/collection-events/:name",
       props: true,
       component: CollectionEvent,
     },

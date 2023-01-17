@@ -2,7 +2,7 @@
 /** @type {import('tailwindcss').Config} */
 import typography from "@tailwindcss/typography"
 import forms from "@tailwindcss/forms"
-export default  {
+export default {
   content: [
     "./components/**/*.{js,vue,ts}",
     "./layouts/**/*.vue",
@@ -109,6 +109,9 @@ export default  {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      minWidth: {
+        95: "23.75rem",
+      },
       backgroundImage: {
         "sidebar-gradient":
           "linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%)",
@@ -179,6 +182,8 @@ export default  {
         "pagination-hover": "#fff",
         "pagination-label-white": theme("colors.white"),
         "pagination-label-gray": theme("colors.gray.400"),
+
+        "footer-link": theme("colors.blue.50"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),

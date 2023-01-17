@@ -32,7 +32,7 @@
           <TableSearch
             :lookupTableName="tableName"
             :filter="filter"
-            :graphqlURL="graphqlURL"
+            :schemaName="schemaName"
             :canEdit="canEdit"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
@@ -80,9 +80,9 @@ export default {
   },
   props: {
     tableName: String,
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false,
     },
     filter: Object,
     refLabel: String,
@@ -146,8 +146,8 @@ export default {
       id="input-ref-select-1" 
       v-model="value1" 
       tableName="Pet" 
-      graphqlURL="/pet store/graphql
-    "/>
+      schemaName="pet store"
+    />
     Selection: {{ value1 }}
   </div>
 
@@ -157,7 +157,7 @@ export default {
         id="input-ref-select-2"
         v-model="value2"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
     />
     Selection: {{ value2 }}
   </div>
@@ -169,7 +169,7 @@ export default {
         v-model="value3"
         tableName="Pet"
         :filter="{category:{name: {equals:'dog'}}}"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
     />
     Selection: {{ value3 }}
   </div>

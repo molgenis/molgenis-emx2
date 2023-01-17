@@ -250,7 +250,8 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
     // get primary key from parent, always first
     if (getInheritedTable() != null) {
       for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
-        result.put(pkey.getName(), pkey);
+        // rewrite metadata to point to current table instead of parent table
+        result.put(pkey.getName(), new Column(pkey).setTable(this));
       }
     }
 

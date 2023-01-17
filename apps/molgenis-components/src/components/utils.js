@@ -1,13 +1,7 @@
 import constants from "./constants";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_BACKSPACE,
-  CODE_DELETE,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
+  constants;
 
 export function isNumericKey(event) {
   const keyCode = event.which ? event.which : event.keyCode;
@@ -102,29 +96,33 @@ export function isInvalidBigInt(value) {
 }
 
 export function convertToCamelCase(string) {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word, index) => {
-    if (index === 0) {
-      result += word.charAt(0).toLowerCase();
-    } else {
-      result += word.charAt(0).toUpperCase();
-    }
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
+  if (string) {
+    const words = string.trim().split(/\s+/);
+    let result = "";
+    words.forEach((word, index) => {
+      if (index === 0) {
+        result += word.charAt(0).toLowerCase();
+      } else {
+        result += word.charAt(0).toUpperCase();
+      }
+      if (word.length > 1) {
+        result += word.slice(1);
+      }
+    });
+    return result;
+  }
 }
 
 export function convertToPascalCase(string) {
-  const words = string.trim().split(/\s+/);
-  let result = "";
-  words.forEach((word, index) => {
-    result += word.charAt(0).toUpperCase();
-    if (word.length > 1) {
-      result += word.slice(1);
-    }
-  });
-  return result;
+  if (string) {
+    const words = string.trim().split(/\s+/);
+    let result = "";
+    words.forEach((word, index) => {
+      result += word.charAt(0).toUpperCase();
+      if (word.length > 1) {
+        result += word.slice(1);
+      }
+    });
+    return result;
+  }
 }

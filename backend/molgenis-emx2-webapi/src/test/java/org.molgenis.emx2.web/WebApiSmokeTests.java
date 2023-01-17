@@ -285,7 +285,7 @@ public class WebApiSmokeTests {
     String schemaJson2 =
         given().sessionId(SESSION_ID).when().get("/pet store json/api/json").asString();
 
-    assertEquals(schemaJson, schemaJson2);
+    assertEquals(schemaJson, schemaJson2.replace("pet store json", "pet store"));
 
     String schemaYaml = given().sessionId(SESSION_ID).when().get("/pet store/api/yaml").asString();
 
@@ -302,7 +302,7 @@ public class WebApiSmokeTests {
     String schemaYaml2 =
         given().sessionId(SESSION_ID).when().get("/pet store yaml/api/yaml").asString();
 
-    assertEquals(schemaYaml, schemaYaml2);
+    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", "pet store"));
   }
 
   @Test

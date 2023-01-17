@@ -46,10 +46,10 @@ export default {
   },
   computed: {
     gradientStart() {
-      return this.baseColor + 'aa';
+      return this.baseColor + "aa";
     },
     gradientEnd() {
-      return this.baseColor + 'cc';
+      return this.baseColor + "cc";
     },
   },
   mounted: function () {

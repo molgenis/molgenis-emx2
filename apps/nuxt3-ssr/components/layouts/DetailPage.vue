@@ -10,7 +10,7 @@ import Container from "./../Container.vue";
         <slot name="side"></slot>
       </aside>
 
-      <div class="xl:pl-7.5">
+      <div class="xl:pl-7.5 grow">
         <slot name="main"></slot>
       </div>
     </div>
