@@ -35,7 +35,7 @@
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
+                  name: convertToPascalCase(col.refTable) + '-details',
                   params: routeParams(col, row[col.id]),
                 }"
               >
@@ -86,7 +86,11 @@
 
 <script>
 import { Spinner, ReadMore } from "molgenis-components";
-import { Client } from "molgenis-components";
+import {
+  Client,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "molgenis-components";
 
 export default {
   components: {
@@ -111,6 +115,7 @@ export default {
     };
   },
   methods: {
+    convertToPascalCase,
     routeParams(column, value) {
       if (column.name === "tables") {
         let result = {
@@ -190,7 +195,7 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[convertToCamelCase(this.refBack)] = {
         equals: this.pkey,
       };
       return result;

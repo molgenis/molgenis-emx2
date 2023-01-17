@@ -8,7 +8,7 @@
       :initialSearchTerms="searchTerm"
       :canEdit="canEdit"
       :canManage="canManage"
-      @click="openDetailView"
+      @rowClick="openDetailView"
       @searchTerms="onSearchTermUpdate"
     />
   </div>
@@ -69,7 +69,7 @@ export default {
       ) {
         return ["name", "id", "type", "leadOrganisation"];
       } else if (this.tableName == "Cohorts") {
-        return ["pid", "name", "keywords", "noParticipants"];
+        return ["id", "name", "keywords", "noParticipants"];
       } else if (this.tableName == "Studies") {
         return ["id", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
@@ -212,9 +212,10 @@ export default {
           params: { id: row.id },
         });
       } else {
+        console.log(this.detailRouteName + " " + row.target.value);
         this.$router.push({
           name: this.detailRouteName,
-          params: { name: row.name },
+          params: { id: row.id },
         });
       }
     },

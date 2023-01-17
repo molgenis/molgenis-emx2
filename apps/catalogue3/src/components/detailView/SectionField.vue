@@ -1,12 +1,19 @@
 <template>
-  <div class="m-2 showcontainer row">
+  <div
+    class="m-2 showcontainer"
+    :class="nextLineFields.includes(fieldTypeComponentName) ? '' : 'row'"
+  >
     <sectionFieldLabel
-      class="col-4"
+      :class="
+        nextLineFields.includes(fieldTypeComponentName) ? 'float-left' : 'col-4'
+      "
       :label="field.meta.name"
       :tooltip="field.description"
       :color="color"
     ></sectionFieldLabel>
-    <div class="col-8">
+    <div
+      :class="nextLineFields.includes(fieldTypeComponentName) ? '' : 'col-8'"
+    >
       <component
         v-if="!isEmptyValue"
         :is="fieldTypeComponentName"
@@ -27,6 +34,7 @@ import RefArrayFieldValue from "./RefArrayFieldValue.vue";
 import OntologyFieldValue from "./OntologyFieldValue.vue";
 import RefFieldValue from "./RefFieldValue.vue";
 import TextFieldValue from "./TextFieldValue.vue";
+import LinkedDataSourcesFieldValue from "./LinkedDataSourcesFieldValue.vue";
 import { StringDisplay, FileDisplay, ObjectDisplay } from "molgenis-components";
 
 export default {
@@ -42,6 +50,7 @@ export default {
     RefArrayFieldValue,
     OntologyFieldValue,
     RefFieldValue,
+    LinkedDataSourcesFieldValue,
   },
   props: {
     field: {
@@ -54,7 +63,16 @@ export default {
     },
   },
   computed: {
+    /** fields that should have label above*/
+    nextLineFields() {
+      return ["RefBackFieldValue", "LinkedDataSourcesFieldValue"];
+    },
     fieldTypeComponentName() {
+      //custom views
+      if (this.field.meta.refTable === "Linked data sources") {
+        return "LinkedDataSourcesFieldValue";
+      }
+      //standard views
       return {
         STRING: "StringDisplay",
         BOOL: "StringDisplay",
