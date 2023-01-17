@@ -4,7 +4,7 @@ import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IColumn } from "../Interfaces/IColumn";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
-import { IClientProperties } from "./IClientProperties";
+import { IQueryMetaData } from "./IQueryMetaData";
 import { ISetting } from "../Interfaces/ISetting";
 
 export { request };
@@ -45,10 +45,7 @@ export default {
             table.externalSchema === schemaName
         );
       },
-      fetchTableData: async (
-        tableId: string,
-        properties: IClientProperties
-      ) => {
+      fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
           if (schemaMetaData && !schemaNameCache) {
@@ -68,7 +65,7 @@ export default {
       },
       fetchTableDataValues: async (
         tableName: string,
-        properties: IClientProperties
+        properties: IQueryMetaData
       ) => {
         const tableId = convertToPascalCase(tableName);
         if (schemaMetaData === null) {
@@ -263,7 +260,7 @@ const fetchSchemaMetaData = async (axios: Axios, schemaName: string) => {
 
 const fetchTableData = async (
   tableName: string,
-  properties: IClientProperties,
+  properties: IQueryMetaData,
   metaData: ISchemaMetaData,
   axios: Axios,
   schemaName: string
