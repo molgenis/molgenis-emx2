@@ -12,7 +12,7 @@
         @updateConditions="handleUpdateFilter(index, $event)"
         :columnType="filter.columnType"
         :tableName="filter.refTable"
-        :graphqlURL="graphqlURL"
+        :schemaName="filter.refSchema ? filter.refSchema : schemaName"
       />
     </FilterContainer>
   </div>
@@ -39,9 +39,9 @@ export default {
       type: Array,
       default: () => [],
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
   },
   computed: {
@@ -66,10 +66,10 @@ export default {
   <demo-item>
     <div class="row">
       <div class="col-4">
-        <FilterSidebar :filters="filters" graphqlURL="/pet store/graphql" @updateFilters="onUpdate"/>
+        <FilterSidebar :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
       </div>
       <div class="col-8">
-        <FilterWells :filters="filters" graphqlURL="/pet store/graphql" @updateFilters="onUpdate"/>
+        <FilterWells :filters="filters" schemaName="pet store" @updateFilters="onUpdate"/>
         <pre>{{ filters }}</pre>
       </div>
     </div>

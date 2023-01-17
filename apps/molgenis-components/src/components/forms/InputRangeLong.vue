@@ -35,7 +35,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import BaseInputLong from "./baseInputs/BaseInputLong.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import {getBigIntError} from '../utils';
+import { getBigIntError } from "../utils";
 
 export default {
   components: { BaseInputLong, FormGroup, InputGroup },
@@ -55,16 +55,16 @@ export default {
   },
   computed: {
     bigIntError1() {
-      if(Array.isArray(this.modelValue)) {
+      if (Array.isArray(this.modelValue)) {
         return getBigIntError(this.modelValue[0]);
       }
     },
     bigIntError2() {
-      if(Array.isArray(this.modelValue)) {
+      if (Array.isArray(this.modelValue)) {
         return getBigIntError(this.modelValue[1]);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

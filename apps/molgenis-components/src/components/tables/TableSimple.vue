@@ -36,7 +36,9 @@
                 {{ item }}
               </li>
             </ul>
-            <span v-else-if="row[col] !== undefined">{{ flattenObject(row[col]) }}</span>
+            <span v-else-if="row[col] !== undefined">{{
+              flattenObject(row[col])
+            }}</span>
           </td>
         </tr>
       </tbody>
@@ -65,7 +67,7 @@ export default {
   created() {
     if (Array.isArray(this.defaultValue)) {
       this.selectedItems = this.defaultValue;
-    } else if(this.defaultValue !== null) {
+    } else if (this.defaultValue !== null) {
       this.selectedItems.push(this.defaultValue);
     } else {
       this.selectedItems = [];
@@ -111,7 +113,7 @@ export default {
       if (this.isSelected(row)) {
         /** when a row is deselected */
         this.selectedItems = this.selectedItems.filter(
-            (item) => item !== row[this.selectColumn]
+          (item) => item !== row[this.selectColumn]
         );
         this.$emit("deselect", row[this.selectColumn]);
       } else {
@@ -122,7 +124,7 @@ export default {
       this.$emit("update:modelValue", this.selectedItems);
     },
     onRowClick(row) {
-        this.$emit("rowClick", row);
+      this.$emit("rowClick", row);
     },
   },
 };

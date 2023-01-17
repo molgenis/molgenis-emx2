@@ -61,8 +61,11 @@
 <script>
 export default {
   props: {
+    /** current page */
     modelValue: { type: Number, default: 1 },
+    /** total records, i.e. sql count */
     count: Number,
+    /** number of records per page, i.e. sql limit */
     limit: { type: Number, default: 10 },
   },
   methods: {
@@ -141,4 +144,3 @@ export default {
   }
 </script>
 </docs>
-

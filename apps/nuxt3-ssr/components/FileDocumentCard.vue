@@ -11,15 +11,7 @@ defineProps({
 
 <template>
   <a
-    class="
-      border
-      rounded-3px
-      p-5
-      flex
-      items-center
-      hover:shadow-md
-      transition-shadow
-    "
+    class="border rounded-3px p-5 flex items-center hover:shadow-md transition-shadow"
     :href="url"
   >
     <div class="flex-grow align-middle">

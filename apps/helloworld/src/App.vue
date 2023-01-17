@@ -9,13 +9,13 @@ import { Molgenis } from "molgenis-components";
 
 export default {
   components: {
-    Molgenis
+    Molgenis,
   },
   data() {
     return {
       session: null,
-      page: null
+      page: null,
     };
-  }
+  },
 };
 </script>

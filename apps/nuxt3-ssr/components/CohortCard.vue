@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const props = withDefaults(defineProps<{
-  cohort: ICohort;
-  schema: string;
-  compact?: boolean;
-}>(), {
-  compact: false
-});
+const props = withDefaults(
+  defineProps<{
+    cohort: ICohort;
+    schema: string;
+    compact?: boolean;
+  }>(),
+  {
+    compact: false,
+  }
+);
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -35,12 +38,10 @@ const iconStarClasses = computed(() => {
     <header :class="headerClasses" class="flex">
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
-          <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`" class="
-              text-body-base
-              font-extrabold
-              text-blue-500
-              hover:underline hover:bg-blue-50
-            ">
+          <NuxtLink
+            :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`"
+            class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
+          >
             {{ cohort?.acronym }}
           </NuxtLink>
         </h2>
@@ -58,7 +59,10 @@ const iconStarClasses = computed(() => {
         />
         -->
         <NuxtLink :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`">
-          <IconButton icon="arrow-right" class="text-blue-500 hidden xl:flex xl:justify-end" />
+          <IconButton
+            icon="arrow-right"
+            class="text-blue-500 hidden xl:flex xl:justify-end"
+          />
         </NuxtLink>
       </div>
     </header>
@@ -75,7 +79,10 @@ const iconStarClasses = computed(() => {
         EHEN projects are working in 24 countries acros...
       </p>
 
-      <a class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden" href="#">
+      <a
+        class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden"
+        href="#"
+      >
         Read more
       </a>
 

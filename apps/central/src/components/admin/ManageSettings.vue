@@ -4,7 +4,7 @@
 
     <table class="table table-hover table-bordered bg-white">
       <thead>
-        <th style="width: 1px;">
+        <th style="width: 1px">
           <IconAction icon="plus" @click="handleCreateRequest" />
         </th>
         <th>key</th>
@@ -13,7 +13,7 @@
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">
           <td>
-            <div style="display: flex;">
+            <div style="display: flex">
               <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
               <IconDanger
                 icon="trash"
