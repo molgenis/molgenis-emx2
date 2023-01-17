@@ -24,15 +24,20 @@ import org.molgenis.emx2.beaconv2.responses.BeaconCountResponse;
 import spark.Request;
 import spark.Response;
 
-/**
- * Implements https://github.com/rini21/vp-api-specs-beaconised based on
- * https://github.com/ejp-rd-vp/vp-api-specs
- */
+/** Implements https://github.com/ejp-rd-vp/vp-api-specs */
 public class EJP_VP_IndividualsQuery {
 
   private Request request;
   private Response response;
   private List<Table> tables;
+
+  public static String SEX = "NCIT_C28421";
+  public static String DISEASE = "NCIT_C2991";
+  public static String PHENOTYPE = "SIO_010056";
+  public static String CAUSAL_GENE = "data_2295";
+  public static String AGE_THIS_YEAR = "NCIT_C83164";
+  public static String AGE_OF_ONSET = "NCIT_C124353";
+  public static String AGE_AT_DIAG = "NCIT_C156420";
 
   public EJP_VP_IndividualsQuery(Request request, Response response, List<Table> tables) {
     this.request = request;
@@ -77,45 +82,20 @@ public class EJP_VP_IndividualsQuery {
       value = value.indexOf(":") == -1 ? value : value.substring(value.indexOf(":") + 1);
 
       /**
-       * All of the 'age' related queries. NCIT_C25150 = Age this year, i.e. 'age', EFO_0004847 =
-       * Age at disease manifestation, i.e. 'age of onset', NCIT_C156420 = Age at diagnosis
+       * All of the 'age' related queries. AGE_THIS_YEAR = Age this year ("Birth Year" for
+       * interoperability reasons), i.e. 'age', AGE_OF_ONSET = Age at disease manifestation, i.e.
+       * 'age of onset', AGE_AT_DIAG = Age at diagnosis
        */
       boolean isAgeQuery =
-          id.endsWith("NCIT_C25150") || id.endsWith("EFO_0004847") || id.endsWith("NCIT_C156420");
+          id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) || id.endsWith(AGE_AT_DIAG);
       if (isAgeQuery) {
         Filter ageQuery = new Filter(id, operator, value);
         ageQueries.add(ageQuery);
       }
 
-      /** Sex (i.e. GenderAtBirth) but requires mapping NCIT to GSSO */
-      else if (id.endsWith("NCIT_C28421")) {
-        HashMap<String, String> mapping = new HashMap<>();
-        // full links? e.g. http://purl.obolibrary.org/obo/NCIT_C16576 ->
-        // http://purl.obolibrary.org/obo/GSSO_000123
-
-        // NCIT "Female". A person who belongs to the sex that normally produces ova. The term is
-        // used to indicate biological sex distinctions, or cultural gender role distinctions, or
-        // both.
-        mapping.put("//purl.obolibrary.org/obo/NCIT_C16576", "GSSO_000123");
-        mapping.put("NCIT_C16576", "GSSO_000123");
-
-        // NCIT "Male". A person who belongs to the sex that normally produces sperm. The term is
-        // used to indicate biological sex distinctions, cultural gender role distinctions, or both.
-        mapping.put("//purl.obolibrary.org/obo/NCIT_C20197", "GSSO_000124");
-        mapping.put("NCIT_C20197", "GSSO_000124");
-
-        // NCIT "Undetermined". A term referring to the lack of definitive criteria for
-        // classification of a finding.
-        mapping.put("//purl.obolibrary.org/obo/NCIT_C124294", "GSSO_009509");
-        mapping.put("NCIT_C124294", "GSSO_009509");
-
-        // NCIT "Unknown". Not known, observed, recorded; or reported as unknown by the data
-        // contributor.
-        mapping.put("//purl.obolibrary.org/obo/NCIT_C17998", "GSSO_009515");
-        mapping.put("NCIT_C17998", "GSSO_009515");
-
-        // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
-
+      /** Sex (i.e. GenderAtBirth) but requires a mapping NCIT to GSSO */
+      else if (id.endsWith(SEX)) {
+        HashMap<String, String> mapping = new NCITToGSSOSexMapping().getMapping();
         String filterTerm = value;
         if (mapping.containsKey(value)) {
           filterTerm = mapping.get(value);
@@ -125,29 +105,29 @@ public class EJP_VP_IndividualsQuery {
       }
 
       /**
-       * Causative genes, i.e. diseaseCausalGenes. Uses HGNC gene symbol directly ('name') at the
-       * moment instead of stable IRI ('ontologyTermURI').
+       * Causative genes (CAUSAL_GENE), i.e. diseaseCausalGenes. Uses HGNC gene symbol directly
+       * ('name') at the moment instead of stable IRI ('ontologyTermURI').
        */
-      else if (id.endsWith("NCIT_C16612")) {
+      else if (id.endsWith(CAUSAL_GENE)) {
         String geneFilter = "{diseaseCausalGenes: {name: {equals: \"" + value + "\"}}}";
         filters.add(geneFilter);
       }
 
       /**
-       * Diagnosis of the rare disease (SIO_001003) NOTE: This could have been a dynamic filter, but
+       * Diagnosis of the rare disease (DIAGNOSIS) NOTE: This could have been a dynamic filter, but
        * that matches individuals via the genomic variation refback, throwing off the results
        */
-      else if (id.endsWith("SIO_001003")) {
+      else if (id.endsWith(DISEASE)) {
         String diseaseFilter =
             "{diseases: { diseaseCode: { ontologyTermURI: {like: \"" + value + "\"}}}}";
         filters.add(diseaseFilter);
       }
 
       /**
-       * Phenotype (SIO_010056) NOTE: This could have been a dynamic filter, but that matches
+       * Phenotype (PHENOTYPE) NOTE: This could have been a dynamic filter, but that matches
        * individuals via the genomic variation refback, throwing off the results
        */
-      else if (id.endsWith("SIO_010056")) {
+      else if (id.endsWith(PHENOTYPE)) {
         String phenotypeFilter =
             "{phenotypicFeatures: { featureType: { ontologyTermURI: {like: \"" + value + "\"}}}}";
         filters.add(phenotypeFilter);
@@ -206,19 +186,17 @@ public class EJP_VP_IndividualsQuery {
   }
 
   private List<String> removeIndividualIDs(
-      List<Filter> ageQueries, List<IndividualsResultSets> resultSetsList) {
+      List<Filter> ageQueries, List<IndividualsResultSets> resultSetsList) throws Exception {
     List<String> removeIndividualIDs = new ArrayList<>();
     for (Filter ageQuery : ageQueries) {
       for (IndividualsResultSets resultSet : resultSetsList) {
         for (IndividualsResultSetsItem individual : resultSet.getResults()) {
           List<String> ageStr = new ArrayList<>();
-          if (ageQuery.getId().endsWith("NCIT_C25150")) {
-            // Age (Age this year)
+          if (ageQuery.getId().endsWith(AGE_THIS_YEAR)) {
             if (individual.getAge().getAge().getIso8601duration() != null) {
               ageStr.add(individual.getAge().getAge().getIso8601duration());
             }
-          } else if (ageQuery.getId().endsWith("EFO_0004847")) {
-            // Age at disease manifestation (i.e. Age of onset)
+          } else if (ageQuery.getId().endsWith(AGE_OF_ONSET)) {
             if (individual.getDiseases() != null) {
               for (Diseases diseases : individual.getDiseases()) {
                 if (diseases.getAgeOfOnset().getAge().getIso8601duration() != null) {
@@ -226,8 +204,7 @@ public class EJP_VP_IndividualsQuery {
                 }
               }
             }
-          } else {
-            // has to be NCIT_C156420, Age at diagnosis
+          } else if (ageQuery.getId().endsWith(AGE_AT_DIAG)) {
             if (individual.getDiseases() != null) {
               for (Diseases diseases : individual.getDiseases()) {
                 if (diseases.getAgeAtDiagnosis().getAge().getIso8601duration() != null) {
@@ -235,6 +212,8 @@ public class EJP_VP_IndividualsQuery {
                 }
               }
             }
+          } else {
+            throw new Exception("Bad age query: " + ageQuery);
           }
           int[] ageYears = iso8601StringToIntYears(ageStr);
           int age = Integer.parseInt(ageQuery.getValue());

@@ -8,6 +8,7 @@ public class Filter {
   private String operator; // todo: use BeaconFilterOperator but serialization is tricky
   private String value;
 
+  // required for JUnit tests
   public Filter() {
     super();
   }
@@ -28,5 +29,20 @@ public class Filter {
 
   public String getValue() {
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return "Filter{"
+        + "id='"
+        + id
+        + '\''
+        + ", operator='"
+        + operator
+        + '\''
+        + ", value='"
+        + value
+        + '\''
+        + '}';
   }
 }

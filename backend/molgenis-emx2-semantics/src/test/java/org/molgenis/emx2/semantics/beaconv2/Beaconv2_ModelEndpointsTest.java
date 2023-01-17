@@ -361,13 +361,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C28421",
+					"id": "%s",
 					"value": "NCIT_C16576",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -379,18 +380,19 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C28421",
+					"id": "%s",
 					"value": "NCIT_C16576",
 					"operator": "="
 				  },
 				  {
-					"id": "NCIT_C28421",
+					"id": "%s",
 					"value": "NCIT_C20197",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.SEX),
         0);
   }
 
@@ -402,13 +404,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C28421",
+					"id": "%s",
 					"value": "NCIT_C16577",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.SEX),
         0);
   }
 
@@ -420,13 +423,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_1895",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -438,18 +442,19 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_1895",
 					"operator": "="
 				  },
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_1955",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -461,13 +466,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_1955",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         2);
   }
 
@@ -479,13 +485,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_18730",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
         0);
   }
 
@@ -497,13 +504,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 31,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -515,13 +523,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 33,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         2);
   }
 
@@ -533,13 +542,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 30,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         0);
   }
 
@@ -551,13 +561,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 33,
 					"operator": ">"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -569,13 +580,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 50,
 					"operator": "<"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         3);
   }
 
@@ -587,13 +599,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 34,
 					"operator": "<"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         2);
   }
 
@@ -605,13 +618,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 2,
 					"operator": "<="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         1);
   }
 
@@ -623,13 +637,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 2,
 					"operator": "<"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR),
         0);
   }
 
@@ -641,13 +656,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "EFO_0004847",
+					"id": "%s",
 					"value": 3,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         1);
   }
 
@@ -659,13 +675,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "EFO_0004847",
+					"id": "%s",
 					"value": 91,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         0);
   }
 
@@ -677,13 +694,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "EFO_0004847",
+					"id": "%s",
 					"value": 25,
 					"operator": ">"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         2);
   }
 
@@ -695,13 +713,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "EFO_0004847",
+					"id": "%s",
 					"value": 89,
 					"operator": ">"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         0);
   }
 
@@ -713,13 +732,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "EFO_0004847",
+					"id": "%s",
 					"value": 89,
 					"operator": ">="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_OF_ONSET),
         1);
   }
 
@@ -731,18 +751,19 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C156420",
+					"id": "%s",
 					"value": 20,
 					"operator": "="
 				  },
 				  {
-					"id": "NCIT_C156420",
+					"id": "%s",
 					"value": 2,
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG, EJP_VP_IndividualsQuery.AGE_AT_DIAG),
         1);
   }
 
@@ -754,13 +775,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C156420",
+					"id": "%s",
 					"value": 50,
 					"operator": "<"
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_AT_DIAG),
         1);
   }
 
@@ -772,13 +794,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C16612",
+					"id": "%s",
 					"value": "TTN",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -790,13 +813,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C16612",
+					"id": "%s",
 					"value": "COL7A1",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.CAUSAL_GENE),
         2);
   }
 
@@ -808,13 +832,14 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "SIO_010056",
+					"id": "%s",
 					"value": "HP_0012651",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
         1);
   }
 
@@ -827,18 +852,19 @@ public class Beaconv2_ModelEndpointsTest {
 				"description": "Query to get count of female (NCIT_C16576) individuals with diagnostic opinion (sio:SIO_001003) Edinburgh malformation syndrome (Orphanet_1895)",
 				"filters": [
 				  {
-					"id": "NCIT_C28421",
+					"id": "%s",
 					"value": "NCIT_C16576",
 					"operator": "="
 				  },
 				  {
-					"id": "SIO_001003",
+					"id": "%s",
 					"value": "Orphanet_1895",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.SEX, EJP_VP_IndividualsQuery.DISEASE),
         1);
   }
 
@@ -850,18 +876,19 @@ public class Beaconv2_ModelEndpointsTest {
 			   "query": {
 				 "filters": [
 				   {
-					 "id": "SIO_001003",
+					 "id": "%s",
 					 "value": "Orphanet_1895",
 					 "operator": "="
 				   },
 				   {
-					 "id": "NCIT_C16612",
+					 "id": "%s",
 					 "value": "COL7A1",
 					 "operator": "="
 				   }
 				 ]
 			   }
-			 }""",
+			 }"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -873,18 +900,19 @@ public class Beaconv2_ModelEndpointsTest {
 			  "query": {
 				"filters": [
 				  {
-					"id": "NCIT_C25150",
+					"id": "%s",
 					"value": 50,
 					"operator": "<"
 				  },
 				  {
-					"id": "NCIT_C16612",
+					"id": "%s",
 					"value": "TTN",
 					"operator": "="
 				  }
 				]
 			  }
-			}""",
+			}"""
+            .formatted(EJP_VP_IndividualsQuery.AGE_THIS_YEAR, EJP_VP_IndividualsQuery.CAUSAL_GENE),
         1);
   }
 
@@ -896,23 +924,27 @@ public class Beaconv2_ModelEndpointsTest {
 			   "query": {
 				 "filters": [
 				   {
-					 "id": "SIO_001003",
+					 "id": "%s",
 					 "value": "Orphanet_1873",
 					 "operator": "="
 				   },
 				   {
-					 "id": "NCIT_C16612",
+					 "id": "%s",
 					 "value": "CHD7",
 					 "operator": "="
 				   },
 				   {
-					 "id": "NCIT_C28421",
+					 "id": "%s",
 					 "value": "NCIT_C20197",
 					 "operator": "="
 				   }
 				 ]
 			   }
-			 }""",
+			 }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -925,23 +957,27 @@ public class Beaconv2_ModelEndpointsTest {
 			   "query": {
 				 "filters": [
 				   {
-					 "id": "sio:SIO_001003",
+					 "id": "sio:%s",
 					 "value": "ordo:Orphanet_1873",
 					 "operator": "="
 				   },
 				   {
-					 "id": "obo:NCIT_C16612",
+					 "id": "obo:%s",
 					 "value": "CHD7",
 					 "operator": "="
 				   },
 				   {
-					 "id": "obo:NCIT_C28421",
+					 "id": "obo:%s",
 					 "value": "obo:NCIT_C20197",
 					 "operator": "="
 				   }
 				 ]
 			   }
-			 }""",
+			 }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
@@ -953,23 +989,27 @@ public class Beaconv2_ModelEndpointsTest {
 			   "query": {
 				 "filters": [
 				   {
-					 "id": "http://semanticscience.org/resource/SIO_001003",
+					 "id": "http://semanticscience.org/resource/%s",
 					 "value": "http://www.orpha.net/ORDO/Orphanet_1873",
 					 "operator": "="
 				   },
 				   {
-					 "id": "http://purl.obolibrary.org/obo/NCIT_C16612",
+					 "id": "http://purl.obolibrary.org/obo/%s",
 					 "value": "CHD7",
 					 "operator": "="
 				   },
 				   {
-					 "id": "http://purl.obolibrary.org/obo/NCIT_C28421",
+					 "id": "http://purl.obolibrary.org/obo/%s",
 					 "value": "http://purl.obolibrary.org/obo/NCIT_C20197",
 					 "operator": "="
 				   }
 				 ]
 			   }
-			 }""",
+			 }"""
+            .formatted(
+                EJP_VP_IndividualsQuery.DISEASE,
+                EJP_VP_IndividualsQuery.CAUSAL_GENE,
+                EJP_VP_IndividualsQuery.SEX),
         1);
   }
 
