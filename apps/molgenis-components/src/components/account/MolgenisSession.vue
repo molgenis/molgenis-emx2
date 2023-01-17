@@ -48,7 +48,6 @@ import Spinner from "../layout/Spinner.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import { error } from "console";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
@@ -115,11 +114,12 @@ export default defineComponent({
     async reload() {
       this.loading = true;
 
-      const responses: PromiseSettledResult<IResponse>[] =
-        await Promise.allSettled([
-          request("/apps/central/graphql", query),
-          request(this.graphql, query),
-        ]);
+      const responses: PromiseSettledResult<
+        IResponse
+      >[] = await Promise.allSettled([
+        request("/apps/central/graphql", query),
+        request(this.graphql, query),
+      ]);
       const dbSettings =
         responses[0].status === "fulfilled"
           ? responses[0].value
