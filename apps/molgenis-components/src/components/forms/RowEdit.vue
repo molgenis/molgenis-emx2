@@ -6,9 +6,9 @@
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="columnDescription(column)"
+      :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
-      :label="columnLabel(column)"
+      :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
@@ -124,11 +124,11 @@ export default {
   },
   methods: {
     getPrimaryKey,
-    columnLabel(column) {
-      return getLocalizedLabel(column);
+    getColumnLabel(column) {
+      return getLocalizedLabel(column, this.locale);
     },
-    columnDescription(column) {
-      return getLocalizedDescription(column);
+    getColumnDescription(column) {
+      return getLocalizedDescription(column, this.locale);
     },
     showColumn(column) {
       const isColumnVisible = Array.isArray(this.visibleColumns)

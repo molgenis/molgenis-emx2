@@ -5,8 +5,6 @@
     <p v-if="showHeader && tableMetadata">
       {{ localizedDescription }}
     </p>
-    {{ locale }}
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -295,7 +293,6 @@ import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
-import LocaleSwitch from "../account/LocaleSwitch.vue";
 
 const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
 
@@ -321,7 +318,6 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
-    LocaleSwitch,
   },
   data() {
     return {
@@ -747,7 +743,6 @@ function getCondition(columnType, condition) {
           <label for="canManage" class="pr-1">canManage: </label>
           <input type="checkbox" id="canManage" v-model="canManage">
         </div>
-        <LocaleSwitch :locales="['en','de','fr']" v-model="locale"/>
       </div>
     </div>
   </div>

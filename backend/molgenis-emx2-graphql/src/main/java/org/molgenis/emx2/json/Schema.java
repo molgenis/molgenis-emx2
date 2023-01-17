@@ -36,7 +36,10 @@ public class Schema {
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
-    s.setSettings(this.settings.stream().collect(Collectors.toMap(Setting::key, Setting::value)));
+    s.setSettings(
+        this.settings.stream()
+            .filter(d -> d.value() != null)
+            .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
       tm.setInherit(t.getInherit());

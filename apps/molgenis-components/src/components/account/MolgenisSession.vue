@@ -92,7 +92,7 @@ export default {
       showChangePasswordForm: false,
       error: null,
       loading: false,
-      session: {},
+      session: { locale: "en" },
       version: null,
       cookies: null,
     };
@@ -127,6 +127,7 @@ export default {
   },
   methods: {
     loadSettings(settings) {
+      console.log(settings);
       settings._settings.forEach(
         (s) =>
           (this.session.settings[s.key] =
@@ -173,8 +174,6 @@ export default {
         const lang = cookies.get("MOLGENIS.locale");
         if (lang) {
           this.session.locale = lang;
-        } else {
-          this.session.locale = "en";
         }
       }
 

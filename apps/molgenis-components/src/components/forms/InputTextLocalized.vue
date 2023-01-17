@@ -48,6 +48,7 @@ import InputText from "./InputText.vue";
 import InputSelect from "./InputSelect.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
+import { deepClone } from "../utils.js";
 
 export default {
   extends: BaseInput, //gives us 'options'
@@ -69,22 +70,27 @@ export default {
     };
   },
   mounted() {
-    let value = this.modelValue;
+    let value = deepClone(this.modelValue);
     if (!Array.isArray(value)) {
       //should minimally be this object
       value = [{ locale: "en", value: "" }];
     }
-    this.locales.forEach((locale) => {
-      if (locale && !value.find((el) => el.locale === locale)) {
-        value.push({ locale: locale, value: "" });
-      }
-      if (!value.find((el) => el.locale === "en")) {
-        this.addLocale("en");
-      }
-    });
+    initializeLocales(this.locales, value);
     this.$emit("update:modelValue", value);
   },
 };
+
+function initializeLocales(locales, value) {
+  locales.forEach((locale) => {
+    if (locale && !value.find((el) => el.locale === locale)) {
+      value.push({ locale: locale, value: "" });
+    }
+    if (!value.find((el) => el.locale === "en")) {
+      value.push({ locale: locale, value: "en" });
+    }
+  });
+  return locales;
+}
 </script>
 
 <docs>

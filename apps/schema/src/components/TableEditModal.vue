@@ -58,7 +58,6 @@
 <script>
 import {
   InputString,
-  InputText,
   LayoutModal,
   IconAction,
   ButtonAction,
@@ -73,7 +72,6 @@ export default {
   components: {
     LayoutModal,
     InputString,
-    InputText,
     IconAction,
     ButtonAction,
     MessageWarning,
