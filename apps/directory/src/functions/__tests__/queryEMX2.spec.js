@@ -226,7 +226,7 @@ Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name:
       .getQuery()
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" }, materials: { name: { like: "covid" } } } }] }) {
+Biobanks(filter: { _and: { name: { like: "Dresden" } }, _or: [{ country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } }] }) {
     id,
     name
   }

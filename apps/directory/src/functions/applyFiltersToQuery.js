@@ -22,7 +22,6 @@ export async function applyFiltersToQuery (baseQuery, filters) {
                 baseQuery.orWhere("collections.materials.name").like(filterValue)
                 baseQuery.orWhere("collections.materials.label").like(filterValue)
             }
-
         }
     }
 console.log(baseQuery.getQuery())

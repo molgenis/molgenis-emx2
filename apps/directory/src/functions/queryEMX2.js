@@ -362,43 +362,54 @@ ${root}${rootModifier} {\n`;
   }
 
   _foldFilters (filters, nextProperty, type, depth = 0) {
-    let filterString = ''
 
+    let filterCount = 0
+    let filterString = ''
     const filterLayer = filters[nextProperty]
 
     /** nothing next or no filters */
     if (!filterLayer) return filterString
-
-    /** check if we have branches */
-    const nextFilterLayerKeys = Object.keys(filterLayer)
 
     /** we are down to the last part */
     if (typeof filterLayer === "string") {
       return filterLayer
     }
 
-    const branchCount = nextFilterLayerKeys.length
-
-    const branchFilters = []
-
-    for (let branch = 0; branch < branchCount; branch++) {
-      const nextLayerKey = nextFilterLayerKeys[branch]
-      const nestedFilterString = this._foldFilters(filterLayer, nextLayerKey, type, depth + 1)
-
-
-      branchFilters.push(`${nextLayerKey}: { ${nestedFilterString} }`)
-
-    }
-
-    if (branchFilters) {
-      let joinSymbol = ", "
-      if (depth === 0) {
-        joinSymbol = branchCount > 1 ? " }, { " : ", "
+    /** check if we have prebuild filters for or. Checking or could work, but if we need more complex filters that would not suffice */
+    if (Array.isArray(filterLayer)) {
+      filterCount = filterLayer.length
+      if (filterCount > 1) {
+        filterString += filterLayer.join(" }, { ")
       }
-      filterString += branchFilters.join(joinSymbol)
+      else {
+        filterString = filterLayer[0]
+      }
+    }
+    else {
+      /** check if we have branches */
+      const nextFilterLayerKeys = Object.keys(filterLayer)
+
+      filterCount = nextFilterLayerKeys.length
+      const branchFilters = []
+
+      for (let filterBranch = 0; filterBranch < filterCount; filterBranch++) {
+        const nextLayerKey = nextFilterLayerKeys[filterBranch]
+        const nestedFilterString = this._foldFilters(filterLayer, nextLayerKey, type, depth + 1)
+
+        branchFilters.push(`${nextLayerKey}: { ${nestedFilterString} }`)
+      }
+
+      if (branchFilters) {
+        let joinSymbol = ", "
+        if (depth === 0) {
+          joinSymbol = filterCount > 1 ? " }, { " : ", "
+        }
+        filterString += branchFilters.join(joinSymbol)
+      }
     }
 
-    if (depth === 0 && branchCount > 1) {
+    /** depth 0, the start of the recursion, so this is where we actually return the constructed string */
+    if (depth === 0 && filterCount > 1) {
       return `${type}: [{ ${filterString} }]`
     }
     else if (depth === 0) {
@@ -471,22 +482,45 @@ ${root}${rootModifier} {\n`;
     const queryType = !this.type ? "_and" : this.type
     const applyQueryTo = this.branch
     if (!this.filters[this.branch][queryType][applyQueryTo]) {
-      this.filters[this.branch][queryType][applyQueryTo] = {}
+      /** or needs to be individual statements, the and needs to be folded into one
+       * _or [{collections: { name ... }}, {collections: {acronym ...}}] 
+       * Vs
+       * _and [{collections: {name: {...}, acronym: {....}}}]
+       */
+      this.filters[this.branch][queryType][applyQueryTo] = queryType === "_or" ? [] : {}
     }
 
     let filterRef = this.filters[this.branch][queryType][applyQueryTo]
 
-    const pathDepth = pathParts.length
+    /** make the query directly */
+    if (queryType === "_or") {
+      const reversePath = pathParts.reverse()
+      let filterStringPlaceholder = ''
+      for (const trail of reversePath) {
+        if (filterStringPlaceholder === '') {
+          filterStringPlaceholder = `${trail}: { ${filter} }`
+        }
+        else {
+          filterStringPlaceholder = `${trail}: { ${filterStringPlaceholder} }`
+        }
 
-    for (let depth = 0; depth < pathDepth; depth++) {
-      const filterPath = pathParts[depth];
-
-      if (!filterRef[filterPath]) {
-        filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
-        filterRef = filterRef[filterPath]
       }
-      else {
-        filterRef = filterRef[filterPath]
+      filterRef.push(filterStringPlaceholder)
+    }
+    /** split the parts, so we can combine them later */
+    else {
+      const pathDepth = pathParts.length
+
+      for (let depth = 0; depth < pathDepth; depth++) {
+        const filterPath = pathParts[depth];
+
+        if (!filterRef[filterPath]) {
+          filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
+          filterRef = filterRef[filterPath]
+        }
+        else {
+          filterRef = filterRef[filterPath]
+        }
       }
     }
   }
