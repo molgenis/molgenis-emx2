@@ -57,8 +57,8 @@ export default {
     title() {
       if (
         this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
+        this.session.settingsMap &&
+        this.session.settingsMap["page." + this.page]
       )
         return "Edit page '" + this.page + "'";
       else return "Create new page '" + this.page + "'";
@@ -81,7 +81,7 @@ export default {
       )
         .then((data) => {
           this.success = data.change.message;
-          this.session.settings["page." + this.page] = this.draft;
+          this.session.settingsMap["page." + this.page] = this.draft;
         })
         .catch((graphqlError) => {
           this.graphqlError = graphqlError.response.errors[0].message;
@@ -91,10 +91,10 @@ export default {
     reload() {
       if (
         this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
+        this.session.settingsMap &&
+        this.session.settingsMap["page." + this.page]
       ) {
-        this.draft = this.session.settings["page." + this.page];
+        this.draft = this.session.settingsMap["page." + this.page];
       } else {
         return "New page, edit here";
       }

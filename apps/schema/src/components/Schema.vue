@@ -48,7 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
-          :locales="session?.settings?.locales"
+          :locales="session?.settingsMap?.locales"
         />
       </div>
     </div>

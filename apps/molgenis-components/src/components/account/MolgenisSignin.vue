@@ -56,7 +56,6 @@
 </template>
 
 <script lang="ts">
-import { error } from "console";
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
 import { privacyConstants } from "../constants.js";

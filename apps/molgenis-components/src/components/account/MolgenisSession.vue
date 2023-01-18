@@ -93,9 +93,8 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: { locale: "en" } as ISession,
+      session: { locale: "en", settings: [] } as ISession,
       version: null,
-      cookies: null,
       settingsMap: {} as Record<string, string>,
     };
   },
@@ -107,21 +106,19 @@ export default defineComponent({
   },
   created() {
     this.reload();
-    this.cookies = useCookies();
   },
   computed: {
     isOidcEnabled() {
       return this.settingsMap.isOidcEnabled === "true";
     },
     locales() {
-      if (this.session?.settings) {
-        const locales = this.session.settings.find(setting => setting.key === 'locales')
-        if (Array.isArray(locales)) {
-          return locales;
+      if (this.settingsMap.locales) {
+        if (Array.isArray(this.settingsMap.locales)) {
+          return this.settingsMap.locales;
         } else {
           this.error =
             'locales should be array similar to ["en"] but instead was ' +
-            JSON.stringify(locales);
+            JSON.stringify(this.settingsMap.locales);
         }
       }
       //default
@@ -130,14 +127,14 @@ export default defineComponent({
   },
   methods: {
     loadSettings(settings: { _settings: ISetting[] }) {
-      this.settingsMap = settings._settings.reduce((accum, setting) => {
+      this.session.settings?.push(...settings._settings);
+      settings._settings.forEach((setting) => {
         const value: string =
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)
             : setting.value;
-        accum[setting.key] = value;
-        return accum;
-      }, {} as Record<string, string>);
+        this.settingsMap[setting.key] = value;
+      });
     },
     async reload() {
       this.loading = true;
@@ -179,6 +176,9 @@ export default defineComponent({
           this.session.locale = lang;
         }
       }
+      //get the map
+      console.log(this.settingsMap);
+      this.session.settingsMap = this.settingsMap;
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },
