@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.molgenis.emx2.Table;
@@ -69,8 +70,11 @@ public class EJP_VP_IndividualsQuery {
       // ("NCIT_C48697") or prefixed ("obo:NCIT_C48697") or full URL
       // ("http://purl.obolibrary.org/obo/NCIT_C48697"), it does not matter. We strip off anything
       // before the first ':' to make it work.
-      String id = filter.getId();
-      id = id.indexOf(":") == -1 ? id : id.substring(id.indexOf(":") + 1);
+      String[] ids = filter.getIds();
+      for (int i = 0; i < ids.length; i++) {
+        String id = ids[i];
+        ids[i] = id.indexOf(":") == -1 ? id : id.substring(id.indexOf(":") + 1);
+      }
 
       // operator (=, >, !, etc)
       String operator = filter.getOperator();
@@ -79,6 +83,26 @@ public class EJP_VP_IndividualsQuery {
       // onset, for instance "ordo:ORPHA_79314", "LAMP2",
       // "http://purl.obolibrary.org/obo/NCIT_C16576".
       String[] values = filter.getValues();
+
+      // special case for 'ontology filters' which (for some reason) supply their value via 'id'
+      // field and leave 'operator' and 'value' empty. in this case we query Disease and Phenotype
+      // with all supplied IDs as per spec, although its possible this should be a 'Google like'
+      // search where every reference to an ontology of Individual should be queried with each of
+      // these terms
+      if (operator == null && values == null) {
+        String[] queries =
+            new String[] {
+              "{diseases: { diseaseCode: { ontologyTermURI: {like:",
+              "{phenotypicFeatures: { featureType: { ontologyTermURI: {like:"
+            };
+        filters.add(valueArrayFilterBuilder(queries, ids));
+        continue;
+      }
+
+      // if not ontology filter, assume 1 ID to be present (regular query)
+      String id = ids[0];
+
+      // strip away prefixes for values as well
       for (int i = 0; i < values.length; i++) {
         String value = values[i];
         values[i] = value.indexOf(":") == -1 ? value : value.substring(value.indexOf(":") + 1);
@@ -92,8 +116,7 @@ public class EJP_VP_IndividualsQuery {
       boolean isAgeQuery =
           id.endsWith(AGE_THIS_YEAR) || id.endsWith(AGE_OF_ONSET) || id.endsWith(AGE_AT_DIAG);
       if (isAgeQuery) {
-        Filter ageQuery = new Filter(id, operator, values);
-        ageQueries.add(ageQuery);
+        ageQueries.add(filter);
       }
 
       /** Sex (i.e. GenderAtBirth) but requires a mapping NCIT to GSSO */
@@ -191,11 +214,11 @@ public class EJP_VP_IndividualsQuery {
       for (IndividualsResultSets resultSet : resultSetsList) {
         for (IndividualsResultSetsItem individual : resultSet.getResults()) {
           List<String> ageStr = new ArrayList<>();
-          if (ageQuery.getId().endsWith(AGE_THIS_YEAR)) {
+          if (ageQuery.getIds()[0].endsWith(AGE_THIS_YEAR)) {
             if (individual.getAge().getAge().getIso8601duration() != null) {
               ageStr.add(individual.getAge().getAge().getIso8601duration());
             }
-          } else if (ageQuery.getId().endsWith(AGE_OF_ONSET)) {
+          } else if (ageQuery.getIds()[0].endsWith(AGE_OF_ONSET)) {
             if (individual.getDiseases() != null) {
               for (Diseases diseases : individual.getDiseases()) {
                 if (diseases.getAgeOfOnset().getAge().getIso8601duration() != null) {
@@ -203,7 +226,7 @@ public class EJP_VP_IndividualsQuery {
                 }
               }
             }
-          } else if (ageQuery.getId().endsWith(AGE_AT_DIAG)) {
+          } else if (ageQuery.getIds()[0].endsWith(AGE_AT_DIAG)) {
             if (individual.getDiseases() != null) {
               for (Diseases diseases : individual.getDiseases()) {
                 if (diseases.getAgeAtDiagnosis().getAge().getIso8601duration() != null) {
@@ -291,18 +314,25 @@ public class EJP_VP_IndividualsQuery {
 
   /**
    * Help build OR queries based on value arrays
-   * @param query
+   *
+   * @param queries
    * @param values
    * @return
    */
-  private String valueArrayFilterBuilder(String query, String[] values) {
+  private String valueArrayFilterBuilder(String[] queries, String[] values) {
     StringBuilder filter = new StringBuilder();
     filter.append("{ _or: [");
-    for (String value : values) {
-      filter.append(QueryHelper.finalizeFilter(query + " \"" + value + "\"") + ",");
+    for (String query : queries) {
+      for (String value : values) {
+        filter.append(QueryHelper.finalizeFilter(query + " \"" + value + "\"") + ",");
+      }
     }
     filter.deleteCharAt(filter.length() - 1);
     filter.append("] }");
     return filter.toString();
+  }
+
+  private String valueArrayFilterBuilder(String query, String[] values) {
+    return valueArrayFilterBuilder(new String[] {query}, values);
   }
 }

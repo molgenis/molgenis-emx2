@@ -27,11 +27,6 @@ public class BeaconQuery {
   }
 
   public Filter[] getFilters() throws JsonProcessingException {
-    // post processing on the value needed to support both 'string' and 'string array' input as
-    // required per spec
-    for (Filter filter : filters) {
-      filter.parseValues();
-    }
     return filters;
   }
 

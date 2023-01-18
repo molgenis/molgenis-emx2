@@ -435,6 +435,23 @@ public class Beaconv2_ModelEndpointsTest {
   }
 
   @Test
+  public void test_EJP_RD_VP_API_FilterOnDisease_OntologyFilterSyntax_OneHit() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "Orphanet_1895"
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.DISEASE),
+        1);
+  }
+
+  @Test
   public void test_EJP_RD_VP_API_FilterOnDisease_AlsoOneHit() throws Exception {
     assertNrOfHitsFor(
         """
@@ -991,6 +1008,41 @@ public class Beaconv2_ModelEndpointsTest {
 			}"""
             .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
         1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotype_OntologyFilterSyntax() throws Exception {
+    assertNrOfHitsFor(
+        """
+					{
+					  "query": {
+						"filters": [
+						  {
+							"id": "HP_0012651"
+						  }
+						]
+					  }
+					}"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
+        1);
+  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnPhenotypeOrDisease_OntologyFilterSyntax()
+      throws Exception {
+    assertNrOfHitsFor(
+        """
+							{
+							  "query": {
+								"filters": [
+								  {
+									"id": ["HP_0012651","Orphanet_1895"]
+								  }
+								]
+							  }
+							}"""
+            .formatted(EJP_VP_IndividualsQuery.PHENOTYPE),
+        2);
   }
 
   @Test
