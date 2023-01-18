@@ -108,7 +108,7 @@ Cohorts,,release description,text,,,,,,,,,Description of the release cycle of th
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,,,
 Data resources,,access,heading,,,,,,,,,Access and validation information,,,
 Data resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,EMA,,
-Data resources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource
+Data resources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,,,
 Data sources,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",,,
 Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,,,
 Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,,,
@@ -212,6 +212,7 @@ Resource organisations,,resource,ref,1,TRUE,,Extended resources,,,,,Resource tha
 Resource organisations,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, completenes, reason for access, fees, processTime",,,
 Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,DAPs,populationSubsetOther
 Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,DAPs,reasonAccessOther
+Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,processTime
 Linked data sources,,,,,,,,,,,,Links between datasource and databank,,,
 Linked data sources,,main datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,datasource
 Linked data sources,,linked datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,databank
