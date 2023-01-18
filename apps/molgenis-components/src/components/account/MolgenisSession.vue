@@ -48,19 +48,20 @@
   </div>
 </template>
 
-<script>
-import Spinner from "../layout/Spinner.vue";
-import ButtonOutline from "../forms/ButtonOutline.vue";
+<script lang="ts">
 import ButtonAlt from "../forms/ButtonAlt.vue";
-
+import ButtonOutline from "../forms/ButtonOutline.vue";
+import Spinner from "../layout/Spinner.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 import LocaleSwitch from "./LocaleSwitch.vue";
 import { useCookies } from "vue3-cookies";
 const { cookies } = useCookies();
-
+import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
+import { IErrorMessage, IResponse, ISession } from "./Interfaces";
+import { ISetting } from "../../Interfaces/ISetting";
 
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
@@ -69,7 +70,7 @@ const query = `{
 }`;
 
 /** Element that is supposed to be put in menu holding all controls for user account */
-export default {
+export default defineComponent({
   components: {
     ButtonOutline,
     MolgenisSignin,
@@ -90,11 +91,12 @@ export default {
       showSigninForm: false,
       showSignupForm: false,
       showChangePasswordForm: false,
-      error: null,
+      error: null as string | null,
       loading: false,
-      session: { locale: "en" },
+      session: { locale: "en" } as ISession,
       version: null,
       cookies: null,
+      settingsMap: {} as Record<string, string>,
     };
   },
   watch: {
@@ -109,16 +111,17 @@ export default {
   },
   computed: {
     isOidcEnabled() {
-      return this.session?.settings?.isOidcEnabled === "true";
+      return this.settingsMap.isOidcEnabled === "true";
     },
     locales() {
-      if (this.session?.settings?.locales) {
-        if (Array.isArray(this.session.settings.locales)) {
-          return this.session.settings.locales;
+      if (this.session?.settings) {
+        const locales = this.session.settings.find(setting => setting.key === 'locales')
+        if (Array.isArray(locales)) {
+          return locales;
         } else {
           this.error =
             'locales should be array similar to ["en"] but instead was ' +
-            JSON.stringify(this.session.settings.locales);
+            JSON.stringify(locales);
         }
       }
       //default
@@ -126,23 +129,24 @@ export default {
     },
   },
   methods: {
-    loadSettings(settings) {
-      console.log(settings);
-      settings._settings.forEach(
-        (s) =>
-          (this.session.settings[s.key] =
-            s.value?.startsWith("[") || s.value?.startsWith("{")
-              ? this.parseJson(s.value)
-              : s.value)
-      );
+    loadSettings(settings: { _settings: ISetting[] }) {
+      this.settingsMap = settings._settings.reduce((accum, setting) => {
+        const value: string =
+          setting.value?.startsWith("[") || setting.value?.startsWith("{")
+            ? this.parseJson(setting.value)
+            : setting.value;
+        accum[setting.key] = value;
+        return accum;
+      }, {} as Record<string, string>);
     },
     async reload() {
       this.loading = true;
 
-      const responses = await Promise.allSettled([
-        request("/apps/central/graphql", query),
-        request(this.graphql, query),
-      ]);
+      const responses: PromiseSettledResult<IResponse>[] =
+        await Promise.allSettled([
+          request("/apps/central/graphql", query),
+          request(this.graphql, query),
+        ]);
       const dbSettings =
         responses[0].status === "fulfilled"
           ? responses[0].value
@@ -158,7 +162,6 @@ export default {
         this.session = {};
       }
       //convert settings to object
-      this.session.settings = {};
       if (dbSettings && dbSettings._settings) {
         this.loadSettings(dbSettings);
         this.session.manifest = dbSettings._manifest;
@@ -176,28 +179,23 @@ export default {
           this.session.locale = lang;
         }
       }
-
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },
-    handleError(reason) {
+    handleError(reason: IErrorMessage) {
       this.error = "internal server error " + reason;
-      if (
-        reason?.response?.data?.errors &&
-        reason.response.data.errors[0] &&
-        reason.response.data.errors[0].message
-      ) {
+      if (reason?.response?.data?.errors[0]?.message) {
         this.$emit("error", reason.response.data.errors[0].message);
       } else {
         this.$emit("error", this.error);
       }
     },
-    parseJson(value) {
+    parseJson(value: string) {
       try {
         return JSON.parse(value);
-      } catch (e) {
-        this.error = "Parsing of settings failed: " + e + ". value: " + value;
-        console.log(this.error);
+      } catch (error) {
+        this.error =
+          "Parsing of settings failed: " + error + ". value: " + value;
         return null;
       }
     },
@@ -218,7 +216,7 @@ export default {
       this.loading = true;
       this.showSigninForm = false;
       const data = await request("graphql", `mutation{signout{status}}`).catch(
-        (error) => (this.error = "internal server error" + error)
+        (error: string) => (this.error = "internal server error" + error)
       );
       if (data.signout.status === "SUCCESS") {
         this.session = {};
@@ -231,7 +229,7 @@ export default {
     },
   },
   emits: ["update:modelValue", "error"],
-};
+});
 </script>
 
 <docs>

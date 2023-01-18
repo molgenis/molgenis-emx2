@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";

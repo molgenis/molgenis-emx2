@@ -1,5 +1,5 @@
-import Client from "../src/client/client.js";
-import { request } from "../src/client/client.js";
+import Client from "../src/client/client.ts";
+import { request } from "../src/client/client.ts";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";

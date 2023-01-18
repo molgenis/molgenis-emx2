@@ -45,11 +45,13 @@
   </div>
 </template>
 
-<script>
-import { request } from "../../client/client.js";
+<script lang="ts">
+import { defineComponent } from "vue";
+import { request } from "../../client/client";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import IAggregateData from "./IAggregateData";
 
-export default {
+export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders },
   props: {
@@ -102,9 +104,9 @@ export default {
       selectedColumnHeader: this.selectedColumnHeaderProperty,
       selectedRowHeader: this.selectedRowHeaderProperty,
       loading: true,
-      rows: [],
-      columns: [],
-      aggregateData: {},
+      rows: [] as string[],
+      columns: [] as string[],
+      aggregateData: {} as IAggregateData,
     };
   },
   computed: {
@@ -126,9 +128,10 @@ export default {
     },
   },
   methods: {
-    addItem(item) {
-      const column = item[this.selectedColumnHeader].name || "not specified";
-      const row = item[this.selectedRowHeader].name || "not specified";
+    addItem(item: any) {
+      const column: string =
+        item[this.selectedColumnHeader].name || "not specified";
+      const row: string = item[this.selectedRowHeader].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -156,14 +159,14 @@ export default {
         this.$emit("error", reason);
       });
 
-      responseData[this.tableName].forEach((item) => this.addItem(item));
+      responseData[this.tableName].forEach((item: any) => this.addItem(item));
       this.loading = false;
     },
   },
   created() {
     this.fetchData();
   },
-};
+});
 </script>
 
 <docs>

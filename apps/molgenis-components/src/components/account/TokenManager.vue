@@ -30,13 +30,18 @@
     </form>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { request } from "../../client/client.js";
+import { IError } from "../../Interfaces/IError";
+import { ISetting } from "../../Interfaces/ISetting";
 import ButtonAction from "../forms/ButtonAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputString from "../forms/InputString.vue";
-import MessageSuccess from "../forms/MessageSuccess.vue";
 import MessageError from "../forms/MessageError.vue";
-import { request } from "../../client/client.js";
+import MessageSuccess from "../forms/MessageSuccess.vue";
+import { ISession, IResponse } from "./Interfaces";
 
 const query = `{_session { email, token, settings{key,value}}}`;
 const changeMutation = `mutation change($users:[UsersInput]){
@@ -49,7 +54,7 @@ const createMutation = `mutation createToken($email:String,$tokenName:String){
             message,token
           }
         }`;
-export default {
+export default defineComponent({
   components: {
     ButtonAction,
     InputString,
@@ -59,34 +64,29 @@ export default {
   },
   data() {
     return {
-      session: null,
-      tokenName: null,
-      lastTokenValue: null,
-      errorMessage: null,
-      successMessage: null,
+      session: null as null | ISession,
+      tokenName: null as null | string,
+      lastTokenValue: null as null | string,
+      errorMessage: null as null | string,
+      successMessage: null as null | string,
     };
   },
   computed: {
-    accessTokens() {
-      if (this.session && this.session.settings) {
-        const result = this.session.settings
-          .filter(
-            (setting) =>
-              setting && setting.key === "access-tokens" && setting.value
-          )
-          .map((setting) =>
-            setting.value.split(",").filter((value) => value !== "")
-          );
-        if (result.length == 1) {
-          return [...new Set(result[0])];
-        }
-      }
-      return [];
+    accessTokens(): string[] {
+      const tokens: ISetting | undefined = this.session?.settings?.find(
+        (setting: ISetting): boolean =>
+          setting.key === "access-tokes" && Boolean(setting.value)
+      );
+      return tokens
+        ? tokens.value
+            .split(",")
+            .filter((value: string): boolean => value !== "")
+        : [];
     },
   },
   methods: {
     async fetchSession() {
-      const resp = await request("/api/graphql", query);
+      const resp: IResponse = await request("/api/graphql", query);
       this.session = resp._session;
     },
     clean() {
@@ -94,15 +94,15 @@ export default {
       this.successMessage = null;
       this.lastTokenValue = null;
     },
-    async deleteToken(idx) {
+    async deleteToken(idx: number) {
       this.clean();
 
-      let newTokens = this.accessTokens;
+      let newTokens: string[] = this.accessTokens;
       newTokens.splice(idx, 1);
 
       const variables = {
         users: {
-          email: this.session.email,
+          email: this.session?.email,
           settings: {
             key: "access-tokens",
             value: newTokens.join(","),
@@ -111,35 +111,35 @@ export default {
       };
 
       request("/api/graphql", changeMutation, variables)
-        .then((result) => {
+        .then(() => {
           this.successMessage = "Token removed";
           this.lastTokenValue = null;
           this.fetchSession();
         })
-        .catch((e) => {
-          this.errorMessage = e.message;
+        .catch((error: IError) => {
+          this.errorMessage = error.message;
         });
     },
     async createToken() {
       this.clean();
       const variables = {
-        email: this.session.email,
+        email: this.session?.email,
         tokenName: this.tokenName,
       };
       request("/api/graphql", createMutation, variables)
-        .then((result) => {
+        .then((result: { createToken: { message: string; token: string } }) => {
           this.successMessage = result.createToken.message;
           this.lastTokenValue = result.createToken.token;
           this.tokenName = null;
           this.fetchSession();
         })
-        .catch((e) => {
-          this.errorMessage = e.message;
+        .catch((error: IError) => {
+          this.errorMessage = error.message;
         });
     },
   },
   mounted() {
     this.fetchSession();
   },
-};
+});
 </script>
