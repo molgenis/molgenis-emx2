@@ -1,30 +1,29 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
+import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
+import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
+import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Scalars;
 import graphql.schema.*;
-import org.molgenis.emx2.*;
-import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.sql.SqlSchemaMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
-import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
-import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
-import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
-import static org.molgenis.emx2.graphql.GraphqlConstants.*;
-import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GraphqlSchemaFieldFactory {
   private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
