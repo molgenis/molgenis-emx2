@@ -115,17 +115,18 @@ export default {
   methods: {
     getPrimaryKey,
     showColumn(column) {
-      const isColumnVisible = Array.isArray(this.visibleColumns)
-        ? this.visibleColumns.map((column) => column.name).includes(column.name)
-        : true;
-
-      return (
-        (isColumnVisible &&
+      if (column.reflink) {
+        return this.internalValues[convertToCamelCase(column.refLink)];
+      } else {
+        const isColumnVisible = Array.isArray(this.visibleColumns)
+          ? this.visibleColumns.find((col) => col.name === column.name)
+          : true;
+        return (
+          isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass" &&
-          !column.refLink) ||
-        this.internalValues[convertToCamelCase(column.refLink)]
-      );
+          column.name !== "mg_tableclass"
+        );
+      }
     },
     visible(expression, columnId) {
       if (expression) {
@@ -359,7 +360,7 @@ function containsInvalidEmail(emails) {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
         const client = this.$Client.newClient(this.schemaName);
-        this.schemaMetaData = await client.fetchMetaData();
+        this.schemaMetaData = await client.fetchSchemaMetaData();
         this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;

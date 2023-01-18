@@ -106,13 +106,13 @@ input:focus {
 </style>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
 import vClickOutside from "click-outside-vue3";
-import { convertToPascalCase } from "../utils";
+import { convertToPascalCase } from "../utils.ts";
 
 /**
  * Expects a table that has as structure {name, parent{name} and optionally code, definition, ontologyURI}
