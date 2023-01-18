@@ -64,8 +64,8 @@ export default {
   components: { FormGroup },
   data() {
     return {
-      filename: this.modelValue instanceof File ? this.modelValue?.name : ''
-    }
+      filename: this.modelValue instanceof File ? this.modelValue?.name : "",
+    };
   },
   props: {
     modelValue: {
@@ -76,12 +76,12 @@ export default {
     handleFileUpload(event) {
       const target = event.target;
       if (target?.files) {
-        this.filename = target.files[0]?.name
+        this.filename = target.files[0]?.name;
         this.$emit("update:modelValue", target.files[0]);
       }
     },
     clearInput() {
-      this.filename = null
+      this.filename = null;
       this.$emit("update:modelValue", null);
     },
   },
