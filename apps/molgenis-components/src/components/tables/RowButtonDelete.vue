@@ -17,7 +17,7 @@
 <script>
 import RowButton from "./RowButton.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 
 export default {
   name: "RowButtonDelete",

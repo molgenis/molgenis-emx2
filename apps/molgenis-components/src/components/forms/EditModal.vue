@@ -78,13 +78,13 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import LayoutModal from "../layout/LayoutModal.vue";
 import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone } from "../utils.js";
+import { filterObject, deepClone } from "../utils.ts";
 import constants from "../constants";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
@@ -219,7 +219,7 @@ export default {
   async mounted() {
     this.loaded = false;
     this.client = Client.newClient(this.schemaName);
-    this.schemaMetaData = await this.client.fetchMetaData();
+    this.schemaMetaData = await this.client.fetchSchemaMetaData();
     const settings = await this.client.fetchSettings();
 
     this.useChapters =
