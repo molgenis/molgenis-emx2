@@ -67,7 +67,7 @@
             :filter="filter"
             @select="emitSelection"
             @deselect="deselect"
-            :graphqlURL="graphqlURL"
+            :schemaName="schemaName"
             :showSelect="true"
             :limit="10"
             :canEdit="canEdit"
@@ -82,14 +82,14 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import {convertToPascalCase, flattenObject, getPrimaryKey} from "../utils";
+import { convertToPascalCase, flattenObject, getPrimaryKey } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -111,9 +111,9 @@ export default {
     ButtonAlt,
   },
   props: {
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
       type: String,
+      required: false,
     },
     filter: Object,
     multipleColumns: Boolean,
@@ -168,10 +168,10 @@ export default {
       const options = {
         limit: this.maxNum,
       };
-      const response = await this.client.fetchTableData(
-        this.tableId,
-        options
-      );
+      if (this.filter) {
+        options["filter"] = this.filter;
+      }
+      const response = await this.client.fetchTableData(this.tableId, options);
       this.data = response[this.tableId];
       this.count = response[this.tableId + "_agg"].count;
     },
@@ -179,17 +179,15 @@ export default {
   watch: {
     modelValue() {
       this.selection = this.modelValue;
-    }
+    },
+    filter() {
+      this.loadOptions();
+    },
   },
   async mounted() {
-    this.client = Client.newClient(this.graphqlURL);
-    const allMetaData = await this.client.fetchMetaData();
-    this.tableMetaData = allMetaData.tables.find(
-      (table) => table.id === this.tableId
-    );
-
+    this.client = Client.newClient(this.schemaName);
+    this.tableMetaData = await this.client.fetchTableMetaData(this.tableName);
     await this.loadOptions();
-
     if (!this.modelValue) {
       this.selection = [];
     }
@@ -210,14 +208,14 @@ export default {
         <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+      <!-- normally you don't need schemaName, it will use graphql on current path-->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"
         v-model="value"
         tableName="Pet"
         description="Standard input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ value }}
@@ -230,7 +228,7 @@ export default {
         tableName="Pet"
         description="This is a default value"
         :defaultValue="defaultValue"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ defaultValue }}
@@ -243,7 +241,7 @@ export default {
         tableName="Pet"
         description="Filter by name"
         :filter="{ category: { name: { equals: 'pooky' } } }"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :canEdit="canEdit"
       />
       Selection: {{ filterValue }}
@@ -255,7 +253,7 @@ export default {
         v-model="multiColumnValue"
         tableName="Pet"
         description="This is a multi column input"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         multipleColumns
         :canEdit="canEdit"
       />

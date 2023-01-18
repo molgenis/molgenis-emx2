@@ -130,11 +130,7 @@ dd {
 </style>
 
 <script>
-import {
-  ButtonAction,
-  LayoutModal,
-  MessageError,
-} from "molgenis-components";
+import { ButtonAction, LayoutModal, MessageError } from "molgenis-components";
 import { request } from "graphql-request";
 
 export default {

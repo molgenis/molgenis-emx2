@@ -58,6 +58,15 @@
 table {
   table-layout: fixed;
 }
+
+/*
+  Work around for bootstrap 4 interaction effect with dropdown ( from Breadcrumb )
+  Use the available space between z layers to move the sticky app header below the menu dropdown and modals
+  1000 - 2 = 998
+*/
+.sticky-top {
+  z-index: 998;
+}
 </style>
 
 <script>
@@ -73,7 +82,7 @@ import {
   Spinner,
   deepClone,
 } from "molgenis-components";
-import VueScrollTo from 'vue-scrollto';
+import VueScrollTo from "vue-scrollto";
 
 export default {
   components: {
@@ -214,7 +223,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType !== "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         tables.forEach((t) => {
           t.oldName = t.name;

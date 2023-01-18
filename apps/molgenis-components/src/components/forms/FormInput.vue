@@ -88,8 +88,8 @@ export default {
       type: Object,
       required: false,
     },
-    graphqlURL: {
-      default: "graphql",
+    schemaName: {
+      required: false,
       type: String,
     },
     pkey: {
@@ -363,7 +363,7 @@ export default {
           label="Example ref input"
           tableName="Pet"
           :defaultValue="{ name: 'spike' }"
-          :graphqlURL="graphqlUrl"
+          :schemaName="schemaName"
           v-model="refValue"
         />
       </div>
@@ -377,7 +377,7 @@ export default {
           label="Example ref array input"
           tableName="Pet"
           :defaultValue="[{ name: 'spike' }]"
-          :graphqlURL="graphqlUrl"
+          :schemaName="schemaName"
           v-model="refValueArray"
         />
       </div>
@@ -391,7 +391,7 @@ export default {
           label="Example ontology input"
           tableName="Category"
           v-model="ontologyValue"
-          :graphqlURL="graphqlUrl"
+          :schemaName="schemaName"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyValue, null, 2) }}</div>
@@ -404,7 +404,7 @@ export default {
           label="Example ontology array input"
           tableName="Category"
           v-model="ontologyArrayValue"
-          :graphqlURL="graphqlUrl"
+          :schemaName="schemaName"
         />
       </div>
       <div>You selected: {{ JSON.stringify(ontologyArrayValue, null, 2) }}</div>
@@ -435,11 +435,11 @@ export default {
   </div>
 </template>
 <script>
-const graphqlUrl = "/pet store/graphql";
+const schemaName = "pet store";
 export default {
   data: function () {
     return {
-      graphqlUrl,
+      schemaName,
       stringValue: "test",
       stringValueInplace: "inplace",
       stringValueArray: ["value1", "value2"],

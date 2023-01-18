@@ -12,7 +12,7 @@ export default {
     state.variableDetails[variableName] = variableDetails;
   },
   setVariableMappingDetails(state, { variableName, mappingName, details }) {
-      state.variableDetails[variableName].mappings[mappingName].details = details;
+    state.variableDetails[variableName].mappings[mappingName].details = details;
   },
   setSearchInput(state, searchInput) {
     state.searchInput = searchInput;

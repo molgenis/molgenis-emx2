@@ -1,16 +1,13 @@
+import { IColumn } from "../Interfaces/IColumn";
+import { IRow } from "../Interfaces/IRow";
+import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import constants from "./constants";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_BACKSPACE,
-  CODE_DELETE,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
+  constants;
 
-export function isNumericKey(event) {
-  const keyCode = event.which ? event.which : event.keyCode;
+export function isNumericKey(event: KeyboardEvent): boolean {
+  const keyCode = event.which ?? event.keyCode;
   return (
     (keyCode >= CODE_0 && keyCode <= CODE_9) ||
     keyCode === CODE_BACKSPACE ||
@@ -18,7 +15,7 @@ export function isNumericKey(event) {
   );
 }
 
-export function flattenObject(object) {
+export function flattenObject(object: Record<string, any>) {
   if (typeof object === "object") {
     let result = "";
     Object.keys(object).forEach((key) => {
@@ -26,7 +23,7 @@ export function flattenObject(object) {
         return;
       }
       if (typeof object[key] === "object") {
-        result += this.flattenObject(object[key]);
+        result += flattenObject(object[key]);
       } else {
         result += " " + object[key];
       }
@@ -37,21 +34,24 @@ export function flattenObject(object) {
   }
 }
 
-export function getPrimaryKey(row, tableMetaData) {
+export function getPrimaryKey(row: IRow, tableMetaData: ITableMetaData) {
   //we only have pkey when the record has been saved
   if (!row["mg_insertedOn"] || !tableMetaData) {
     return null;
   } else {
-    return tableMetaData.columns?.reduce((accum, column) => {
-      if (column.key === 1 && row[column.id]) {
-        accum[column.id] = row[column.id];
-      }
-      return accum;
-    }, {});
+    return tableMetaData.columns?.reduce(
+      (accum: Record<string, any>, column: IColumn) => {
+        if (column.key === 1 && row[column.id]) {
+          accum[column.id] = row[column.id];
+        }
+        return accum;
+      },
+      {}
+    );
   }
 }
 
-export function deepClone(original) {
+export function deepClone(original: any): any {
   // node js may not have structuredClone function, then fallback to deep clone via JSON
   // return typeof structuredClone === "function"
   //   ? structuredClone(original)
@@ -60,16 +60,22 @@ export function deepClone(original) {
   return JSON.parse(JSON.stringify(original));
 }
 
-export function filterObject(object, filter) {
-  return Object.keys(object).reduce((accum, key) => {
-    if (filter(key)) {
-      accum[key] = object[key];
-    }
-    return accum;
-  }, {});
+export function filterObject(
+  object: Record<string, any>,
+  filter: (key: string) => boolean
+): Record<string, any> {
+  return Object.keys(object).reduce(
+    (accum: Record<string, any>, key: string) => {
+      if (filter(key)) {
+        accum[key] = object[key];
+      }
+      return accum;
+    },
+    {}
+  );
 }
 
-export function flipSign(value) {
+export function flipSign(value: string): string | null {
   switch (value) {
     case "-":
       return null;
@@ -86,7 +92,7 @@ export function flipSign(value) {
 
 const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 
-export function getBigIntError(value) {
+export function getBigIntError(value: string): string | undefined {
   if (value === "-" || isInvalidBigInt(value)) {
     return BIG_INT_ERROR;
   } else {
@@ -94,17 +100,17 @@ export function getBigIntError(value) {
   }
 }
 
-export function isInvalidBigInt(value) {
+export function isInvalidBigInt(value: string): boolean {
   return (
     value !== null &&
     (BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG))
   );
 }
 
-export function convertToCamelCase(string) {
+export function convertToCamelCase(string: string): string {
   const words = string.trim().split(/\s+/);
   let result = "";
-  words.forEach((word, index) => {
+  words.forEach((word: string, index: number) => {
     if (index === 0) {
       result += word.charAt(0).toLowerCase();
     } else {
@@ -117,10 +123,10 @@ export function convertToCamelCase(string) {
   return result;
 }
 
-export function convertToPascalCase(string) {
+export function convertToPascalCase(string: string): string {
   const words = string.trim().split(/\s+/);
   let result = "";
-  words.forEach((word, index) => {
+  words.forEach((word: string) => {
     result += word.charAt(0).toUpperCase();
     if (word.length > 1) {
       result += word.slice(1);

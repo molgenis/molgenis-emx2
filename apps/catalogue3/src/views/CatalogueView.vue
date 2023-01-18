@@ -24,8 +24,8 @@
         <span class="badge badge-light float-right">{{ organisations }}</span>
         <h3>Organisations</h3>
         <p class="text-left">
-          Contributors to the catalogue such as departments from universities, companies, medical
-          centres and research institutes
+          Contributors to the catalogue such as departments from universities,
+          companies, medical centres and research institutes
         </p>
       </RouterLink>
       <RouterLink
@@ -36,7 +36,7 @@
         <h3>Networks</h3>
         <p class="text-left">Collaborations of multiple organisations</p>
       </RouterLink>
-             <RouterLink
+      <RouterLink
         to="Datasources"
         class="card card-body bg-primary text-white card-height"
       >
@@ -46,12 +46,12 @@
           Collections of data banks covering the same population
         </p>
       </RouterLink>
-       
+
       <RouterLink
         to="Cohorts"
         class="card card-body bg-primary text-white card-height"
         v-if="cohorts > 0"
-       >
+      >
         <span class="badge badge-light float-right">{{ cohorts }}</span>
         <h3>Cohorts</h3>
         <p class="text-left">
@@ -79,12 +79,14 @@
         </p>
       </RouterLink>
       <RouterLink
-          to="Models"
-          class="card card-body bg-warning text-dark card-height"
+        to="Models"
+        class="card card-body bg-warning text-dark card-height"
       >
         <span class="badge badge-light float-right">{{ models }}</span>
         <h3>Common data models</h3>
-        <p class="text-left">Standard/harmonized data dictionaries for integrated analysis</p>
+        <p class="text-left">
+          Standard/harmonized data dictionaries for integrated analysis
+        </p>
       </RouterLink>
     </div>
 
@@ -157,8 +159,9 @@
     </div>
     <p>
       This catalogue software has been made possible by contributions from H2020
-      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of European Human Exposome Network, BBMRI-ERIC, IMI Conception
-      and EMA Minerva.
+      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of
+      European Human Exposome Network, BBMRI-ERIC, IMI Conception and EMA
+      Minerva.
     </p>
   </div>
 </template>

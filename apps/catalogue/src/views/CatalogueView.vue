@@ -36,7 +36,7 @@
         <h3>Networks</h3>
         <p class="text-left">Collaborations of multiple institutions</p>
       </RouterLink>
-             <RouterLink
+      <RouterLink
         to="Datasources"
         class="card card-body bg-primary text-white card-height"
       >
@@ -46,19 +46,19 @@
           Collections of data banks covering the same population
         </p>
       </RouterLink>
-       
+
       <RouterLink
         to="Cohorts"
         class="card card-body bg-primary text-white card-height"
         v-if="cohorts > 0"
-       >
+      >
         <span class="badge badge-light float-right">{{ cohorts }}</span>
         <h3>Cohorts</h3>
         <p class="text-left">
           Systematic observations of large groups of individuals over time.
         </p>
       </RouterLink>
-      
+
       <RouterLink
         to="Databanks"
         class="card card-body bg-info text-white card-height"
@@ -149,8 +149,9 @@
     </div>
     <p>
       This catalogue software has been made possible by contributions from H2020
-      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of European Human Exposome Network, BBMRI-ERIC, IMI Conception
-      and EMA Minerva.
+      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of
+      European Human Exposome Network, BBMRI-ERIC, IMI Conception and EMA
+      Minerva.
     </p>
   </div>
 </template>

@@ -63,7 +63,7 @@ export default {
   },
   props: {
     name: String,
-    model: String
+    model: String,
   },
   data() {
     return {
