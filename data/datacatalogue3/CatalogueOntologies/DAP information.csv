@@ -14,3 +14,6 @@ order,name,code,parent,ontologyTermURI,definition
 ,Research,,DAP reasons for access,,
 ,Surveillance,,DAP reasons for access,,
 ,Other,,DAP reasons for access,,
+,Fees,,,,Are there fees for data access?
+,Yes,,Fees,,
+,No,,Fees,,
