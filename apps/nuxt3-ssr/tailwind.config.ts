@@ -120,7 +120,7 @@ export default {
       backgroundColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
         "button-primary-hover": theme("colors.blue.200"),
-        "button-secondary": theme("colors.blue.800"),
+        "button-secondary": "rgb(var(--color-primary) / <alpha-value>)",
         "button-secondary-hover": theme("colors.blue.300"),
         "button-tertiary": theme("colors.blue.500"),
         "button-tertiary-hover": theme("colors.blue.300"),

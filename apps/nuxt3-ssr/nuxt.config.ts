@@ -13,7 +13,7 @@ const devProxy = {
 }
 
 const config = {
-  css: ["assets/css/main.css"],
+
   modules: ['nuxt-proxy', '@nuxt/image-edge', '@nuxtjs/tailwindcss'],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
@@ -22,9 +22,11 @@ const config = {
     }
   },
   tailwindcss: {
-    cssPath: '~/assets/css/styles.css',
+    cssPath: '~/assets/css/main.css',
     configPath: process.env.EMX2_THEME ? 'tailwind.config.' + process.env.EMX2_THEME : 'tailwind.config',
-    exposeConfig: true
+    exposeConfig: true,
+    config: {},
+    injectPosition: 0,
   }
 }
 

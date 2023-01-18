@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* For rgb(48 204 30 / <alpha-value>) */
+  --color-primary: 1 79 158;
+}
+
 @font-face {
   font-family: "Bebas Neue";
   src: url("../fonts/BebasNeue-Regular.woff2");
