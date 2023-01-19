@@ -19,6 +19,9 @@ Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type o
 Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation",EMA,,
 Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of",EMA,,
 Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation,EMA,,
+Organisations,,email,email,,,,,,,,,Contact email address for person responsible for organization entry in catalogue,,,
+Organisations,,address,text,,,,,,,,,,,,
+Organisations,,expertise,text,,,,,,,,,A short description of the expertise of this institution,,,
 Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located,EMA,,
 Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation,EMA,,
 Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:,EMA,,
@@ -29,7 +32,7 @@ Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Cha
 Studies,,type,ontology,,,CatalogueOntologies,Study types,,,,,Select 1 of the following types of study,,,
 Studies,,type other,,,,,,,,,,"If other, describe the type of study",,,
 Data sources,,type,ontology_array,,,CatalogueOntologies,Datasource types,,,,,Which of the following families of databanks best describe this data source,EMA,,
-Data sources,,type other,,,,,,,,,,"If other, describe the type of datasource",EMA,,
+Data sources,,type other,text,,,,,,,,,"If other, describe the type of datasource",EMA,,
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description,,Resources,keywords
 Resources,,website,,,,,,,,,,Link to the website or homepage,EMA,,
 Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource,EMA,,
@@ -39,6 +42,7 @@ Data sources,,data collection description,text,,,,,,,,,Describe the process of c
 Data sources,,date established,date,,,,,,,,,"Date when the data source was first established. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,start data collection,date,,,,,,,,,"The date when data started to be collected or extracted. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
 Data sources,,end data collection,date,,,,,,,,,"If data collection in the data source has ceased, on what date did new records last enter the data source?. If the exact day of the month is not known, please enter 15. If the exact month is not known then please enter 15/06",EMA,,
+Data sources,,time span description,text,,,,,,,,,Description of time span,,,
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)",,,
 Studies,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,,,
 Models,,release frequency,int,,,,,,,,,Refreshing rate (in months),,,
@@ -104,6 +108,7 @@ Cohorts,,release description,text,,,,,,,,,Description of the release cycle of th
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource,,,
 Data resources,,access,heading,,,,,,,,,Access and validation information,,,
 Data resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,EMA,,
+Data resources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,,,
 Data sources,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",,,
 Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,,,
 Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,,,
@@ -182,6 +187,7 @@ Publications,,abstract,text,,,,,,,,,Publication abstract,,,
 Publications,,resources,refback,,,,Extended resources,,publications,,,List of resources that refer to this publication,,,
 Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated with,,Contributions,resource
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,,Contributions,contributionType
+Contacts,,role description,text,,,, ,,,,,Description of the role,,Contributions,contributionDescription
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person,,Contributions,contact.firstName
 Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person,,Contributions,contact.surname
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",,,
@@ -206,6 +212,7 @@ Resource organisations,,resource,ref,1,TRUE,,Extended resources,,,,,Resource tha
 Resource organisations,,is data access provider,ontology_array,,,CatalogueOntologies,DAP information,,,,,"Description of data access levels, completenes, reason for access, fees, processTime",,,
 Resource organisations,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,DAPs,populationSubsetOther
 Resource organisations,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,DAPs,reasonAccessOther
+Resource organisations,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,processTime
 Linked data sources,,,,,,,,,,,,Links between datasource and databank,,,
 Linked data sources,,main datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,datasource
 Linked data sources,,linked datasource,ref,1,,,Data sources,,,,,,,DatasourceDatabanks,databank
@@ -408,3 +415,15 @@ External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that 
 External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier,,,
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type,,,
 External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type",,,
+DAPs,,,,,,,,,,,,Data access provider relationship where an institution can provide access to (parts of) a resource,,,
+DAPs,,organisation,ref,1,TRUE,,Organisations,,,,,Institution that provides access,,,
+DAPs,,resource,ref,1,TRUE,,Resources,,,,,Resource that is access or has experience with provided to,,,
+DAPs,,population subset,ontology_array,,,CatalogueOntologies,Population subsets,,,,,"If the institution can only access a subset, which subsets can it access",,,
+DAPs,,population subset other,text,,,,,,,,,"If 'other' is selected above, describe the subset that can be accessed",,,
+DAPs,,access level,ontology,,,CatalogueOntologies,DAPs access levels,,,,,Can the institution access individual level data or only aggregate level data (where individual level data refer to individual records and aggregate level data refer to summary tables)?,,,
+DAPs,,access completeness,ontology,,,CatalogueOntologies,DAPs access completeness,,,,,Can the institution access the whole data source or only an extract of the data source?,,,
+DAPs,,reason access,ontology,,,CatalogueOntologies,DAPs reasons for access,,,,,What is the reason for being able to access (an extract of) the data source?,,,
+DAPs,,reason access other,text,,,,,,,,,"If reasonAccess is 'other', reason for being able to access (an extract of) the data source",,,
+DAPs,,access permission,ontology,,,CatalogueOntologies,DAPs access permissions,,,,,"Is permission required for your institute to access data source (e.g., from a data controller)?",,,
+DAPs,,process time,int,,,,,,,,,"On average, how many DAYS does it take for approval/access to be obtained following an application for data access?",,,
+DAPs,,fees,bool,,,,,,,,,Are there fees for data access?,,,
