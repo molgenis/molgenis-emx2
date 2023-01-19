@@ -1,14 +1,12 @@
 package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
-import static org.molgenis.emx2.Constants.IS_OIDC_ENABLED;
 import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlConstants.INHERITED;
 import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
-import static org.molgenis.emx2.graphql.GraphqlConstants.ROLES;
 import static org.molgenis.emx2.json.JsonUtil.jsonToSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -414,6 +412,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(EXTERNAL_SCHEMA)
                   .type(Scalars.GraphQLString))
           .build();
 
