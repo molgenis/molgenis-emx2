@@ -26,11 +26,13 @@ function setData() {
     },
     {
       label: "Design",
-      content: cohort?.design ? cohort?.design.name : undefined,
-    },
-    {
-      label: "Design definition",
-      content: cohort?.design?.definition,
+      content:
+        cohort?.design?.definition && cohort?.design?.name
+          ? {
+              value: cohort?.design?.name,
+              tooltip: cohort?.design?.definition,
+            }
+          : cohort?.design?.name,
     },
     {
       label: "Design description",

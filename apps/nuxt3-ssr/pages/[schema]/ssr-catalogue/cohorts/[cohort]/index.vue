@@ -131,6 +131,8 @@ const query = gql`
         }
         url
       }
+      fundingStatement
+      acknowledgements
     }
   }
 `;
@@ -257,6 +259,49 @@ let tocItems = computed(() => {
     cohort?.releaseDescription
   ) {
     items.push({ label: "Access Conditions", id: "access-conditions" });
+  }
+
+  if (cohort?.fundingStatement || cohort?.acknowledgements) {
+    items.push({
+      label: "Funding & Acknowledgements",
+      id: "funding-and-acknowledgement",
+    });
+  }
+
+  return items;
+});
+
+let accessConditionsItems = computed(() => {
+  let items = [];
+  if (cohort?.dataAccessConditions?.length) {
+    items.push({
+      label: "Conditions",
+      content: cohort.dataAccessConditions.map((c) => c.name),
+    });
+  }
+  if (cohort?.releaseDescription) {
+    items.push({
+      label: "Release",
+      content: cohort.releaseDescription,
+    });
+  }
+
+  return items;
+});
+
+let fundingAndAcknowledgementItems = computed(() => {
+  let items = [];
+  if (cohort?.fundingStatement) {
+    items.push({
+      label: "Funding",
+      content: cohort.fundingStatement,
+    });
+  }
+  if (cohort?.acknowledgements) {
+    items.push({
+      label: "Acknowledgements",
+      content: cohort.acknowledgements,
+    });
   }
 
   return items;
@@ -386,18 +431,15 @@ let tocItems = computed(() => {
             cohort?.releaseDescription
           "
         >
-          <DefinitionList
-            :items="[
-              {
-                label: 'Conditions',
-                content: cohort?.dataAccessConditions.map((c) => c.name),
-              },
-              {
-                label: 'Release',
-                content: cohort?.releaseDescription,
-              },
-            ]"
-          />
+          <DefinitionList :items="accessConditionsItems" />
+        </ContentBlock>
+
+        <ContentBlock
+          id="funding-and-acknowledgement"
+          title="Funding &amp; Acknowledgement"
+          v-if="cohort?.fundingStatement || cohort?.acknowledgements"
+        >
+          <DefinitionList :items="fundingAndAcknowledgementItems" />
         </ContentBlock>
       </ContentBlocks> </template
     >f

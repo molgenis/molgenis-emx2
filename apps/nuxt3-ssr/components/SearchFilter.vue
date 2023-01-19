@@ -51,7 +51,7 @@ watch(props.filters, (filters) => {
 
     <hr class="mx-5 border-black opacity-10" />
 
-    <div class="flex items-center p-5">
+    <!-- <div class="flex items-center p-5">
       <button class="flex items-center">
         <BaseIcon name="plus" class="text-search-filter-expand" :width="18" />
         <span
@@ -66,6 +66,6 @@ watch(props.filters, (filters) => {
         content="tooltip"
         class="ml-3"
       />
-    </div>
+    </div> -->
   </div>
 </template>
