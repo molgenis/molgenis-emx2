@@ -16,7 +16,12 @@ defineProps({
       <Button label="Harmonized variables" type="outline" size="medium" />
     </ButtonGroup>
 
-    <List :columnCount="2" title="Variables per topic" class="mt-18" type="link">
+    <List
+      :columnCount="2"
+      title="Variables per topic"
+      class="mt-18"
+      type="link"
+    >
       <ListItem
         type="link"
         class="font-normal text-blue-500 before:content-['›'] before:mr-2"

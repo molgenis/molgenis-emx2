@@ -28,7 +28,7 @@ export default {
       }
     },
   },
-  emits:["click"]
+  emits: ["click"],
 };
 </script>
 

@@ -30,7 +30,11 @@ subprojects {
     npmSetup.dependsOn parent.npmSetup
     nodeSetup.dependsOn parent.nodeSetup
 
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task format(type: YarnTask, dependsOn: parent.yarn_install) {
+        args = ['run', 'format']
+    }
+
+    task build(type: YarnTask, dependsOn: format) {
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"

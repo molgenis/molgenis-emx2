@@ -401,7 +401,7 @@ export default {
             "/" + this.column.refSchema + "/graphql",
             this.$axios
         );
-        const schema = await this.client.fetchMetaData((error) => {
+        const schema = await this.client.fetchSchemaMetaData((error) => {
           this.error = error;
         });
         this.refSchema = schema;

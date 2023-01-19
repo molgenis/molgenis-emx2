@@ -24,18 +24,7 @@ defineProps({
         </label>
         <select
           name="sort-by"
-          class="
-            h-14
-            border border-gray-400
-            pb-2
-            pt-6
-            pl-6
-            pr-12
-            rounded-full
-            appearance-none
-            hover:bg-gray-100 hover:cursor-pointer
-            bg-none
-          "
+          class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
         >
           <option value="name">Name</option>
           <option value="description">Description</option>

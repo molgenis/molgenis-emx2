@@ -82,7 +82,7 @@ import {
   Spinner,
   deepClone,
 } from "molgenis-components";
-import VueScrollTo from 'vue-scrollto';
+import VueScrollTo from "vue-scrollto";
 
 export default {
   components: {

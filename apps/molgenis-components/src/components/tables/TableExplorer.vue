@@ -29,7 +29,7 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem;">
+          <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -96,7 +96,8 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata"
+        <TableSettings
+          v-if="tableMetadata"
           :tableMetadata="tableMetadata"
           :schemaName="schemaName"
           @update:settings="reloadMetadata"
@@ -266,8 +267,8 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
-import { getPrimaryKey,convertToPascalCase } from "../utils";
+import Client from "../../client/client.ts";
+import { getPrimaryKey, convertToPascalCase } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -318,7 +319,7 @@ export default {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
@@ -604,7 +605,9 @@ export default {
     },
     async reloadMetadata() {
       this.client = Client.newClient(this.schemaName);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },
@@ -624,7 +627,6 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
@@ -644,13 +646,11 @@ export default {
     "searchTerms",
   ],
 };
-
 function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
 }
-
 function getCondition(columnType, condition) {
   if (condition) {
     switch (columnType) {
@@ -674,7 +674,6 @@ function getCondition(columnType, condition) {
   }
 }
 </script>
-
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {
@@ -683,18 +682,15 @@ function getCondition(columnType, condition) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .inline-form-group {
   margin-bottom: 0;
 }
 </style>
-
 <docs>
 <template>
   <div>
@@ -703,7 +699,7 @@ function getCondition(columnType, condition) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -728,7 +724,6 @@ function getCondition(columnType, condition) {
     </div>
   </div>
 </template>
-
 <script>
   export default {
     data() {

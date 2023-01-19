@@ -21,7 +21,7 @@
   </span>
 </template>
 
-<style  scoped>
+<style scoped>
 span.mg-dropdown-drop {
   /* bootstrap dropdown z-index */
   z-index: 1000;
