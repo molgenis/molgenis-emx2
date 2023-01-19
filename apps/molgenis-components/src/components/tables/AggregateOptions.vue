@@ -1,12 +1,24 @@
 <template>
   <div class="btn-group aggregate-options">
     <span>
-      <InputSelect id="aggregate-column-select" class="column-select" required :modelValue="selectedColumnHeader"
-        @update:modelValue="$emit('update:selectedColumnHeader', $event)" :options="refColumns" />
+      <InputSelect
+        id="aggregate-column-select"
+        class="column-select"
+        required
+        :modelValue="selectedColumnHeader"
+        @update:modelValue="$emit('update:selectedColumnHeader', $event)"
+        :options="refColumns"
+      />
     </span>
     <span>
-      <InputSelect id="aggregate-row-select" class="row-select" required :modelValue="selectedRowHeader"
-        @update:modelValue="$emit('update:selectedRowHeader', $event)" :options="refColumns" />
+      <InputSelect
+        id="aggregate-row-select"
+        class="row-select"
+        required
+        :modelValue="selectedRowHeader"
+        @update:modelValue="$emit('update:selectedRowHeader', $event)"
+        :options="refColumns"
+      />
     </span>
   </div>
 </template>
@@ -32,7 +44,7 @@
   color: var(--primary);
 }
 </style>
-    
+
 <script>
 import InputSelect from "../forms/InputSelect.vue";
 export default {
@@ -50,42 +62,50 @@ export default {
     selectedRowHeader: {
       type: String,
       required: true,
-    }
+    },
   },
   data: function () {
     return {
       loading: true,
-      refColumns: []
+      refColumns: [],
     };
   },
   methods: {
     isRefType(column) {
-      return (column.columnType.startsWith("REF") && column.required) || (column.columnType.startsWith("ONTOLOGY") && column.required)
+      return (
+        (column.columnType.startsWith("REF") && column.required) ||
+        (column.columnType.startsWith("ONTOLOGY") && column.required)
+      );
     },
     refTypeColumns(columns) {
-      return columns.filter(column => this.isRefType(column)).map(column => column.name)
+      return columns
+        .filter((column) => this.isRefType(column))
+        .map((column) => column.name);
     },
   },
   created() {
     if (this.columns?.length > 0) {
-      this.refColumns = this.refTypeColumns(this.columns)
+      this.refColumns = this.refTypeColumns(this.columns);
       if (this.refColumns?.length > 0) {
         this.$emit("setAggregateColumns", this.refColumns);
-        this.$emit('update:selectedColumnHeader', this.refColumns[0])
-        this.$emit('update:selectedRowHeader', this.refColumns[1] || this.refColumns[0])
+        this.$emit("update:selectedColumnHeader", this.refColumns[0]);
+        this.$emit(
+          "update:selectedRowHeader",
+          this.refColumns[1] || this.refColumns[0]
+        );
         this.loading = false;
       }
     }
   },
 };
 </script>
-    
+
 <docs>
 <template>
   <demo-item>
     <AutoAggregateTable
         :table="tableName"
-        :graphQlEndpoint="endpoint"
+        :schemaName="endpoint"
         :minimumValue="1"
         :columns="columns"
     />
@@ -104,4 +124,3 @@ export default {
   };
 </script>
 </docs>
-    

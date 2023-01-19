@@ -15,28 +15,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import Task from "./Task.vue";
 import TaskList from "./TaskList.vue";
 import IconAction from "../forms/IconAction.vue";
 
-export default {
+export default defineComponent({
   name: "TaskManager",
   components: { Task, TaskList, IconAction },
   data() {
     return {
-      selectedTaskId: null,
+      selectedTaskId: null as string | null,
     };
   },
   methods: {
-    selectTask(taskId) {
+    selectTask(taskId: string) {
       this.selectedTaskId = taskId;
     },
     clearSelection() {
       this.selectedTaskId = null;
     },
   },
-};
+});
 </script>
 
 <docs>

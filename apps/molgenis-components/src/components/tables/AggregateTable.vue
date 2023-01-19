@@ -1,7 +1,12 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <TableStickyHeaders v-else :columns="columns" :rows="rows" :data="aggregateData">
+    <TableStickyHeaders
+      v-else
+      :columns="columns"
+      :rows="rows"
+      :data="aggregateData"
+    >
       <template #column="columnProps">
         {{ columnProps.value }}
       </template>
@@ -17,20 +22,23 @@
   </div>
 </template>
 
-<script>
-import { request } from "../../client/client.js";
+<script lang="ts">
+import { defineComponent } from "vue";
+import { request } from "../../client/client";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import IAggregateData from "./IAggregateData";
+import Client from "../../client/client";
 
-export default {
+export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders },
   props: {
-    graphQlEndpoint: {
+    schemaName: {
       type: String,
       default: "graphql",
     },
     /** table to aggregate */
-    table: {
+    tableName: {
       type: String,
       required: true,
     },
@@ -64,33 +72,16 @@ export default {
       selectedColumnHeader: this.selectedColumnHeaderProperty,
       selectedRowHeader: this.selectedRowHeaderProperty,
       loading: true,
-      rows: [],
-      columns: [],
-      aggregateData: {},
+      rows: [] as string[],
+      columns: [] as string[],
+      aggregateData: {} as IAggregateData,
     };
   },
-  computed: {
-    tableName() {
-      return `${this.table}_groupBy`;
-    },
-    getAggregateQuery() {
-      return `{ 
-                ${this.tableName} {
-                  count,
-                  ${this.selectedColumnHeader} {
-                    ${this.columnHeaderNameProperty}
-                  },
-                  ${this.selectedRowHeader} {
-                    ${this.rowHeaderNameProperty}
-                  }
-                }
-              }`;
-    },
-  },
   methods: {
-    addItem(item) {
-      const column = item[this.selectedColumnHeader].name || "not specified";
-      const row = item[this.selectedRowHeader].name || "not specified";
+    addItem(item: any) {
+      const column: string =
+        item[this.selectedColumnHeader].name || "not specified";
+      const row: string = item[this.selectedRowHeader].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -110,15 +101,21 @@ export default {
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
-
-      const responseData = await request(
-        this.graphQlEndpoint,
-        this.getAggregateQuery
-      ).catch((reason) => {
-        this.$emit("error", reason);
-      });
-
-      responseData[this.tableName].forEach((item) => this.addItem(item));
+      const client = Client.newClient(this.schemaName);
+      const responseData = await client.fetchAggregateData(
+        this.tableName,
+        {
+          name: this.selectedColumnHeaderProperty,
+          column: this.columnHeaderNameProperty,
+        },
+        {
+          name: this.selectedRowHeaderProperty,
+          column: this.rowHeaderNameProperty,
+        }
+      );
+      responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+        this.addItem(item)
+      );
       this.loading = false;
     },
   },
@@ -128,22 +125,22 @@ export default {
   watch: {
     selectedColumnHeaderProperty(value) {
       this.selectedColumnHeader = value;
-      this.fetchData()
+      this.fetchData();
     },
     selectedRowHeaderProperty(value) {
       this.selectedRowHeader = value;
       this.fetchData();
-    }
-  }
-};
+    },
+  },
+});
 </script>
 
 <docs>
 <template>
   <demo-item>
     <AggregateTable
-        :table="tableName"
-        :graphQlEndpoint="endpoint"
+        :tableName="tableName"
+        :schemaName="endpoint"
         :columnHeaderProperties="selectableColumns"
         :rowHeaderProperties="selectableColumns"
         :selectedColumnHeaderProperty="columnName"

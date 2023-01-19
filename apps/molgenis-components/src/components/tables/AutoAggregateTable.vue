@@ -2,17 +2,30 @@
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="#">Aggregate</a>
-      <AggregateOptions class="mt-3" :columns="columns" @setAggregateColumns="aggregateColumns = $event"
-        v-model:selectedColumnHeader="selectedColumnHeader" v-model:selectedRowHeader="selectedRowHeader" />
+      <AggregateOptions
+        class="mt-3"
+        :columns="columns"
+        @setAggregateColumns="aggregateColumns = $event"
+        v-model:selectedColumnHeader="selectedColumnHeader"
+        v-model:selectedRowHeader="selectedRowHeader"
+      />
     </nav>
 
-    <AggregateTable v-if="aggregateColumns?.length > 0" :table="table" :graphQlEndpoint="graphQlEndpoint"
-      :minimumValue="1" :columnHeaderProperties="aggregateColumns" :rowHeaderProperties="aggregateColumns"
-      :selectedColumnHeaderProperty="selectedColumnHeader" columnHeaderNameProperty="name"
-      :selectedRowHeaderProperty="selectedRowHeader" rowHeaderNameProperty="name" />
+    <AggregateTable
+      v-if="aggregateColumns?.length > 0"
+      :table="table"
+      :schemaName="schemaName"
+      :minimumValue="1"
+      :columnHeaderProperties="aggregateColumns"
+      :rowHeaderProperties="aggregateColumns"
+      :selectedColumnHeaderProperty="selectedColumnHeader"
+      columnHeaderNameProperty="name"
+      :selectedRowHeaderProperty="selectedRowHeader"
+      rowHeaderNameProperty="name"
+    />
   </div>
 </template>
-  
+
 <script>
 import AggregateOptions from "./AggregateOptions.vue";
 import AggregateTable from "./AggregateTable.vue";
@@ -21,7 +34,7 @@ export default {
   name: "AutoAggregateTable",
   components: { AggregateOptions, AggregateTable },
   props: {
-    graphQlEndpoint: {
+    schemaName: {
       type: String,
       default: "graphql",
     },
@@ -36,26 +49,25 @@ export default {
     columns: {
       type: Object,
       required: true,
-    }
+    },
   },
   data: function () {
     return {
       loading: true,
       aggregateColumns: [],
       selectedColumnHeader: "",
-      selectedRowHeader: ""
+      selectedRowHeader: "",
     };
   },
-
 };
 </script>
-  
+
 <docs>
 <template>
   <demo-item>
     <AutoAggregateTable
         :table="tableName"
-        :graphQlEndpoint="endpoint"
+        :schemaName="endpoint"
         :minimumValue="1"
         :columns="columns"
     />
@@ -74,4 +86,3 @@ export default {
   };
 </script>
 </docs>
-  

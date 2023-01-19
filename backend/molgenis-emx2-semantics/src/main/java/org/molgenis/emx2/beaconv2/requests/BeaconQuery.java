@@ -3,6 +3,7 @@ package org.molgenis.emx2.beaconv2.requests;
 import static org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses.HIT;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
 import org.molgenis.emx2.beaconv2.endpoints.datasets.Pagination;
@@ -25,7 +26,7 @@ public class BeaconQuery {
     return requestParameters;
   }
 
-  public Filter[] getFilters() {
+  public Filter[] getFilters() throws JsonProcessingException {
     return filters;
   }
 
