@@ -1,9 +1,5 @@
 <template>
-  <LayoutModal
-    v-if="show === true"
-    :title="title"
-    :isCloseButtonShown="false"
-  >
+  <LayoutModal v-if="show === true" :title="title" :isCloseButtonShown="false">
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
       <InputString
@@ -184,7 +180,7 @@ export default {
       } else {
         this.table = {};
       }
-    }
+    },
   },
   created() {
     this.reset();
