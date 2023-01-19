@@ -1,5 +1,9 @@
 <template>
-  <InputRangeDateTime :id="id" :modelValue="condition" @update:modelValue="onUpdateCondition">
+  <InputRangeDateTime
+    :id="id"
+    :modelValue="condition"
+    @update:modelValue="onUpdateCondition"
+  >
     <template v-slot:append>
       <button
         v-if="condition"

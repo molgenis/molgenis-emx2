@@ -6,8 +6,9 @@ const pageSize = 10;
 
 const currentPage = ref(1);
 if (route.query?.page) {
-  const queryPageNumber = Number(route.query?.page)
-  currentPage.value = typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1
+  const queryPageNumber = Number(route.query?.page);
+  currentPage.value =
+    typeof queryPageNumber === "number" ? Math.round(queryPageNumber) : 1;
 }
 let offset = computed(() => (currentPage.value - 1) * pageSize);
 
@@ -111,8 +112,9 @@ const filter = computed(() => {
   const filterVariables = buildFilterVariables();
 
   // append search to the sub tables if set
-  const searchTables = filters.find((f) => f.columnType === "_SEARCH")
-    ?.searchTables;
+  const searchTables = filters.find(
+    (f) => f.columnType === "_SEARCH"
+  )?.searchTables;
 
   if (searchTables) {
     searchTables.forEach((searchTable) => {
@@ -141,7 +143,7 @@ const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
 });
 
 function setCurrentPage(pageNumber: number) {
-  router.push({ path: route.path, query: { page: pageNumber } })
+  router.push({ path: route.path, query: { page: pageNumber } });
   currentPage.value = pageNumber;
 }
 
@@ -161,13 +163,26 @@ let activeName = ref("detailed");
       <SearchResults>
         <template #header>
           <!-- <NavigationIconsMobile :link="" /> -->
-          <PageHeader title="Cohorts" description="Group of individuals sharing a defining demographic characteristic."
-            icon="image-link">
+          <PageHeader
+            title="Cohorts"
+            description="Group of individuals sharing a defining demographic characteristic."
+            icon="image-link"
+          >
             <template #suffix>
-              <SearchResultsViewTabs class="hidden xl:flex" buttonLeftLabel="Detailed" buttonLeftName="detailed"
-                buttonLeftIcon="view-normal" buttonRightLabel="Compact" buttonRightName="compact"
-                buttonRightIcon="view-compact" v-model:activeName="activeName" />
-              <SearchResultsViewTabsMobile class="flex xl:hidden" v-model:activeName="activeName">
+              <SearchResultsViewTabs
+                class="hidden xl:flex"
+                buttonLeftLabel="Detailed"
+                buttonLeftName="detailed"
+                buttonLeftIcon="view-normal"
+                buttonRightLabel="Compact"
+                buttonRightName="compact"
+                buttonRightIcon="view-compact"
+                v-model:activeName="activeName"
+              />
+              <SearchResultsViewTabsMobile
+                class="flex xl:hidden"
+                v-model:activeName="activeName"
+              >
                 <SearchFilter title="Filters" :filters="filters" />
               </SearchResultsViewTabsMobile>
             </template>
@@ -178,8 +193,15 @@ let activeName = ref("detailed");
           <FilterWell :filters="filters"></FilterWell>
           <SearchResultsList>
             <CardList v-if="data?.data?.Cohorts?.length > 0">
-              <CardListItem v-for="cohort in data?.data?.Cohorts" :key="cohort.name">
-                <CohortCard :cohort="cohort" :schema="route.params.schema" :compact="activeName !== 'detailed'" />
+              <CardListItem
+                v-for="cohort in data?.data?.Cohorts"
+                :key="cohort.name"
+              >
+                <CohortCard
+                  :cohort="cohort"
+                  :schema="route.params.schema"
+                  :compact="activeName !== 'detailed'"
+                />
               </CardListItem>
             </CardList>
             <div v-else class="flex justify-center pt-3">
@@ -191,8 +213,11 @@ let activeName = ref("detailed");
         </template>
 
         <template v-if="data?.data?.Cohorts?.length > 0" #pagination>
-          <Pagination :current-page="currentPage" :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
-            @update="setCurrentPage($event)" />
+          <Pagination
+            :current-page="currentPage"
+            :totalPages="Math.ceil(data?.data?.Cohorts_agg.count / pageSize)"
+            @update="setCurrentPage($event)"
+          />
         </template>
       </SearchResults>
     </template>

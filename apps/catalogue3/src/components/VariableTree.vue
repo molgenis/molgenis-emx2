@@ -28,7 +28,7 @@ import TopicFilter from "./TopicSelector.vue";
 export default {
   components: {
     TopicFilter,
-    
+
     VariablesList,
   },
   props: {

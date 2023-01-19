@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div v-if="schema">
     <router-link v-if="schema" to="/">
       &lt; Back to {{ schema.name }}
     </router-link>
     <RoutedTableExplorer
       :tableName="table"
+      :schemaName="schema.name"
       :canEdit="canEdit"
       :canManage="canManage"
     />

@@ -17,7 +17,7 @@ public class HasSettings<T> implements HasSettingsInterface<T> {
     Map<String, String> settings = new LinkedHashMap<>();
     settings.putAll(getSettings());
     settings.remove(key);
-    this.settings = settings;
+    this.setSettings(settings);
     return (T) this;
   }
 

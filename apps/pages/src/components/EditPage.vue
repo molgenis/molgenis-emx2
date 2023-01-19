@@ -1,13 +1,18 @@
 <template>
   <div>
-    {{page}}
+    {{ page }}
     <router-link :to="'/' + page">view page</router-link>
     <h1>{{ title }}</h1>
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <QuillEditor v-model:content="draft" toolbar="full" class="bg-white" contentType="html"/>
+      <QuillEditor
+        v-model:content="draft"
+        toolbar="full"
+        class="bg-white"
+        contentType="html"
+      />
       <div class="mt-2 float-right">
         <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
       </div>
@@ -16,17 +21,16 @@
 </template>
 
 <script>
-
 import {
   ButtonAction,
   ButtonAlt,
   MessageError,
   MessageSuccess,
-  Spinner
+  Spinner,
 } from "molgenis-components";
 import { request } from "graphql-request";
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 export default {
   components: {
@@ -35,7 +39,7 @@ export default {
     MessageError,
     MessageSuccess,
     Spinner,
-    QuillEditor
+    QuillEditor,
   },
   data() {
     return {

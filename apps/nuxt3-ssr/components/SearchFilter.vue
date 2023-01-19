@@ -20,15 +20,30 @@ watch(props.filters, (filters) => {
 
 <template>
   <div class="bg-sidebar-gradient mt-7.5 rounded-t-3px rounded-b-50px">
-    <h2 class="p-5 uppercase text-search-filter-title font-display text-heading-3xl">
+    <h2
+      class="p-5 uppercase text-search-filter-title font-display text-heading-3xl"
+    >
       {{ title }}
     </h2>
 
     <template v-if="filters">
-      <FilterContainer v-for="filter in filters" :title="filter.title" v-model:conditions="filter.conditions"
-        v-model:search="filter.search" :initialCollapsed="filter.initialCollapsed">
-        <FilterSearch v-if="filter.columnType === '_SEARCH'" v-model="filter.search" />
-        <SearchFilterGroup v-else :title="filter.title" :table-name="filter.refTable" v-model="filter.conditions" />
+      <FilterContainer
+        v-for="filter in filters"
+        :title="filter.title"
+        v-model:conditions="filter.conditions"
+        v-model:search="filter.search"
+        :initialCollapsed="filter.initialCollapsed"
+      >
+        <FilterSearch
+          v-if="filter.columnType === '_SEARCH'"
+          v-model="filter.search"
+        />
+        <SearchFilterGroup
+          v-else
+          :title="filter.title"
+          :table-name="filter.refTable"
+          v-model="filter.conditions"
+        />
       </FilterContainer>
     </template>
 

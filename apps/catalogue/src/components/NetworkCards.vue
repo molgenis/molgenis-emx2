@@ -2,12 +2,12 @@
   <div class="card p-4 w-100">
     <div class="image-container">
       <img
-          :src="
-            network.logo.url
-              ? network.logo.url
-              : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-          "
-          alt="..."
+        :src="
+          network.logo.url
+            ? network.logo.url
+            : 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+        "
+        alt="..."
       />
     </div>
     <div class="card-body">
@@ -64,6 +64,6 @@ export default {
   justify-content: center;
 }
 .image-container > img {
-  height:100%;
+  height: 100%;
 }
 </style>

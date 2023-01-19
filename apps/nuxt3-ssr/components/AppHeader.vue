@@ -1,7 +1,7 @@
 <script setup>
-let schema 
+let schema;
 if (useRoute) {
-  schema = useRoute().params.schema
+  schema = useRoute().params.schema;
 }
 const menu = [
   // { label: "Home", link: "#" },
@@ -34,7 +34,7 @@ const menu = [
           <!-- <HamburgerMenu :navigation="menu" /> -->
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile :link="`/${schema}/ssr-catalogue`"/>
+            <LogoMobile :link="`/${schema}/ssr-catalogue`" />
           </div>
 
           <div class="flex gap-3">

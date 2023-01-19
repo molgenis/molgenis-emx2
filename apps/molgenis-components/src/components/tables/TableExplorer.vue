@@ -29,7 +29,7 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem;">
+          <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -96,9 +96,10 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata"
+        <TableSettings
+          v-if="tableMetadata"
           :tableMetadata="tableMetadata"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
           @update:settings="reloadMetadata"
         />
 
@@ -113,7 +114,7 @@
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
-          :graphqlURL="graphqlURL"
+          :schemaName="schemaName"
         />
       </div>
       <div
@@ -175,7 +176,7 @@
               v-if="canEdit"
               type="add"
               :table="tableName"
-              :graphqlURL="graphqlURL"
+              :schemaName="schemaName"
               @add="handleRowAction('add')"
               class="d-inline p-0"
             />
@@ -229,7 +230,7 @@
       :tableName="tableName"
       :pkey="editRowPrimaryKey"
       :clone="editMode === 'clone'"
-      :graphqlURL="graphqlURL"
+      :schemaName="schemaName"
       @close="handleModalClose"
     />
 
@@ -267,7 +268,7 @@
 
 <script>
 import Client from "../../client/client.js";
-import { getPrimaryKey,convertToPascalCase } from "../utils";
+import { getPrimaryKey, convertToPascalCase } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -343,9 +344,9 @@ export default {
       type: String,
       required: true,
     },
-    graphqlURL: {
+    schemaName: {
       type: String,
-      default: () => "graphql",
+      required: false,
     },
     showSelect: {
       type: Boolean,
@@ -603,8 +604,10 @@ export default {
       this.tableMetadata = newTableMetadata;
     },
     async reloadMetadata() {
-      this.client = Client.newClient(this.graphqlURL);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      this.client = Client.newClient(this.schemaName);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },
@@ -707,9 +710,9 @@ function getCondition(columnType, condition) {
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
-        :showPage="page" 
+        :showPage="page"
         :showLimit="limit"
-        :showOrderBy="showOrderBy" 
+        :showOrderBy="showOrderBy"
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
