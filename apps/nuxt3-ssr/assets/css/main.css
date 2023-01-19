@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* For rgb(48 204 30 / <alpha-value>) */
+  /* For rgb with <alpha-value> */
   --color-primary: 1 79 158;
+
+  --mg-base-gradient-from: #017FFD 0%;
+  --mg-base-gradient-to: #0163C6 133.81%;
 }
 
 @font-face {

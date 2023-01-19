@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div v-show="show"
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden">
     <div class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient">
       <BackgroundGradient class="z-10" />
@@ -31,7 +31,23 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { onMounted, ref } from 'vue'
 import "@/assets/css/main.css";
 import BackgroundGradient from "./components/BackgroundGradient.vue";
+
+console.log('from setup before') 
+
+let show = ref(true);
+
+onBeforeMount(() => {
+  console.log('from onMounted')
+  document.documentElement.style.setProperty('--color-primary', "255 0 0");
+  console.log(document.documentElement.style.getPropertyValue('--color-primary'));
+  //FF0000
+  show.value = true
+})
+
+console.log('from setup after')
+
 </script>
