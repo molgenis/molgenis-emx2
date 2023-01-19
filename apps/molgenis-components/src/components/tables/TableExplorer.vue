@@ -9,11 +9,26 @@
 
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
-        <ShowHide v-if="view !== View.AGGREGATE" :columns="columns" @update:columns="emitFilters"
-          checkAttribute="showFilter" :exclude="['HEADING', 'FILE']" label="filters" icon="filter" />
+        <ShowHide
+          v-if="view !== View.AGGREGATE"
+          :columns="columns"
+          @update:columns="emitFilters"
+          checkAttribute="showFilter"
+          :exclude="['HEADING', 'FILE']"
+          label="filters"
+          icon="filter"
+        />
 
-        <ShowHide v-if="view !== View.AGGREGATE" :columns="columns" @update:columns="emitColumns"
-          checkAttribute="showColumn" label="columns" icon="columns" id="showColumn" :defaultValue="true" />
+        <ShowHide
+          v-if="view !== View.AGGREGATE"
+          :columns="columns"
+          @update:columns="emitColumns"
+          checkAttribute="showColumn"
+          label="columns"
+          icon="columns"
+          id="showColumn"
+          :defaultValue="true"
+        />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
           <form class="px-4 py-3" style="min-width: 15rem;">
@@ -40,7 +55,11 @@
         </ButtonDropdown>
 
         <span>
-          <button type="button" class="btn btn-outline-primary" @click="toggleView">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            @click="toggleView"
+          >
             view
             <span class="fas fa-fw" :class="viewIcon"></span>
           </button>
@@ -48,27 +67,56 @@
       </div>
       <!-- end first btn group -->
 
-      <InputSearch class="mx-1 inline-form-group" :id="'explorer-table-search' + Date.now()" :modelValue="searchTerms"
-        @update:modelValue="setSearchTerms($event)" />
-      <Pagination v-if="view !== View.AGGREGATE" :modelValue="page" @update:modelValue="setPage($event)" :limit="limit"
-        :count="count" />
+      <InputSearch
+        class="mx-1 inline-form-group"
+        :id="'explorer-table-search' + Date.now()"
+        :modelValue="searchTerms"
+        @update:modelValue="setSearchTerms($event)"
+      />
+      <Pagination
+        v-if="view !== View.AGGREGATE"
+        :modelValue="page"
+        @update:modelValue="setPage($event)"
+        :limit="limit"
+        :count="count"
+      />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD && view !== View.AGGREGATE">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
-        <InputSelect id="explorer-table-page-limit-select" :modelValue="limit" :options="[10, 20, 50, 100]"
-          :clear="false" @update:modelValue="setLimit($event)" class="mb-0" />
-        <SelectionBox v-if="showSelect" :selection="selectedItems" @update:selection="selectedItems = $event" />
+        <InputSelect
+          id="explorer-table-page-limit-select"
+          :modelValue="limit"
+          :options="[10, 20, 50, 100]"
+          :clear="false"
+          @update:modelValue="setLimit($event)"
+          class="mb-0"
+        />
+        <SelectionBox
+          v-if="showSelect"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+        />
       </div>
 
       <div v-if="!loading && view === View.AGGREGATE">
-        <AggregateOptions :columns="columns" @setAggregateColumns="aggregateColumns = $event"
+        <AggregateOptions
+          :columns="columns"
+          @setAggregateColumns="aggregateColumns = $event"
           v-model:selectedColumnHeader="aggregateSelectedColumnHeader"
-          v-model:selectedRowHeader="aggregateSelectedRowHeader" />
+          v-model:selectedRowHeader="aggregateSelectedRowHeader"
+        />
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata" :tableMetadata="tableMetadata" :graphqlURL="graphqlURL"
-          @update:settings="reloadMetadata" />
+        <TableSettings
+          v-if="tableMetadata"
+          :tableMetadata="tableMetadata"
+          :graphqlURL="graphqlURL"
+          @update:settings="reloadMetadata"
+        />
 
         <IconDanger icon="bomb" @click="isDeleteAllModalShown = true">
           Delete All
@@ -78,82 +126,170 @@
 
     <div class="d-flex">
       <div v-if="countFilters && view !== View.AGGREGATE" class="col-3 pl-0">
-        <FilterSidebar :filters="columns" @updateFilters="emitConditions" :graphqlURL="graphqlURL" />
+        <FilterSidebar
+          :filters="columns"
+          @updateFilters="emitConditions"
+          :graphqlURL="graphqlURL"
+        />
       </div>
-      <div class="flex-grow-1 pr-0 pl-0" :class="countFilters > 0 ? 'col-9' : 'col-12'">
-        <FilterWells v-if="view !== View.AGGREGATE" :filters="columns" @updateFilters="emitConditions"
-          class="border-top pt-3 pb-3" />
+      <div
+        class="flex-grow-1 pr-0 pl-0"
+        :class="countFilters > 0 ? 'col-9' : 'col-12'"
+      >
+        <FilterWells
+          v-if="view !== View.AGGREGATE"
+          :filters="columns"
+          @updateFilters="emitConditions"
+          class="border-top pt-3 pb-3"
+        />
         <div v-if="loading">
           <Spinner />
         </div>
-        <AggregateTable v-if="!loading && view === View.AGGREGATE && aggregateColumns?.length > 0" :table="tableName"
-          :graphQlEndpoint="graphqlURL" :minimumValue="1" :columnHeaderProperties="aggregateColumns"
-          :rowHeaderProperties="aggregateColumns" :selectedColumnHeaderProperty="aggregateSelectedColumnHeader"
-          columnHeaderNameProperty="name" :selectedRowHeaderProperty="aggregateSelectedRowHeader"
-          rowHeaderNameProperty="name" />
-        <RecordCards v-if="!loading && view === View.CARDS" class="card-columns" id="cards" :data="dataRows"
-          :columns="columns" :table-name="tableName" :canEdit="canEdit" :template="cardTemplate"
-          @click="$emit('click', $event)" @reload="reload"
+        <AggregateTable
+          v-if="
+            !loading && view === View.AGGREGATE && aggregateColumns?.length > 0
+          "
+          :table="tableName"
+          :graphQlEndpoint="graphqlURL"
+          :minimumValue="1"
+          :columnHeaderProperties="aggregateColumns"
+          :rowHeaderProperties="aggregateColumns"
+          :selectedColumnHeaderProperty="aggregateSelectedColumnHeader"
+          columnHeaderNameProperty="name"
+          :selectedRowHeaderProperty="aggregateSelectedRowHeader"
+          rowHeaderNameProperty="name"
+        />
+        <RecordCards
+          v-if="!loading && view === View.CARDS"
+          class="card-columns"
+          id="cards"
+          :data="dataRows"
+          :columns="columns"
+          :table-name="tableName"
+          :canEdit="canEdit"
+          :template="cardTemplate"
+          @click="$emit('click', $event)"
+          @reload="reload"
           @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))" />
-        <RecordCards v-if="!loading && view === View.RECORD" id="records" :data="dataRows" :columns="columns"
-          :table-name="tableName" :canEdit="canEdit" :template="recordTemplate" @click="$emit('click', $event)"
-          @reload="reload" @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))" />
-        <TableMolgenis v-if="!loading && view == View.TABLE" :selection="selectedItems"
-          @update:selection="selectedItems = $event" :columns="columns" @update:colums="columns = $event"
-          :table-metadata="tableMetadata" :data="dataRows" :showSelect="showSelect" @column-click="onColumnClick"
-          @click="$emit('click', $event)">
+          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
+        />
+        <RecordCards
+          v-if="!loading && view === View.RECORD"
+          id="records"
+          :data="dataRows"
+          :columns="columns"
+          :table-name="tableName"
+          :canEdit="canEdit"
+          :template="recordTemplate"
+          @click="$emit('click', $event)"
+          @reload="reload"
+          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
+          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
+        />
+        <TableMolgenis
+          v-if="!loading && view == View.TABLE"
+          :selection="selectedItems"
+          @update:selection="selectedItems = $event"
+          :columns="columns"
+          @update:colums="columns = $event"
+          :table-metadata="tableMetadata"
+          :data="dataRows"
+          :showSelect="showSelect"
+          @column-click="onColumnClick"
+          @click="$emit('click', $event)"
+        >
           <template v-slot:header>
             <label>{{ count }} records found</label>
           </template>
           <template v-slot:rowcolheader>
-            <RowButton v-if="canEdit" type="add" :table="tableName" :graphqlURL="graphqlURL"
-              @add="handleRowAction('add')" class="d-inline p-0" />
+            <RowButton
+              v-if="canEdit"
+              type="add"
+              :table="tableName"
+              :graphqlURL="graphqlURL"
+              @add="handleRowAction('add')"
+              class="d-inline p-0"
+            />
           </template>
           <template v-slot:colheader="slotProps">
-            <IconAction v-if="slotProps.col && orderByColumn === slotProps.col.id"
-              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'" class="d-inline p-0" />
+            <IconAction
+              v-if="slotProps.col && orderByColumn === slotProps.col.id"
+              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+              class="d-inline p-0"
+            />
           </template>
           <template v-slot:rowheader="slotProps">
-            <RowButton v-if="canEdit" type="edit" @edit="
-              handleRowAction(
-                'edit',
-                getPrimaryKey(slotProps.row, tableMetadata)
-              )
-            " />
-            <RowButton v-if="canEdit" type="clone" @clone="
-              handleRowAction(
-                'clone',
-                getPrimaryKey(slotProps.row, tableMetadata)
-              )
-            " />
-            <RowButton v-if="canEdit" type="delete" @delete="
-              handleDeleteRowRequest(
-                getPrimaryKey(slotProps.row, tableMetadata)
-              )
-            " />
+            <RowButton
+              v-if="canEdit"
+              type="edit"
+              @edit="
+                handleRowAction(
+                  'edit',
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
+            />
+            <RowButton
+              v-if="canEdit"
+              type="clone"
+              @clone="
+                handleRowAction(
+                  'clone',
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
+            />
+            <RowButton
+              v-if="canEdit"
+              type="delete"
+              @delete="
+                handleDeleteRowRequest(
+                  getPrimaryKey(slotProps.row, tableMetadata)
+                )
+              "
+            />
           </template>
         </TableMolgenis>
       </div>
     </div>
 
-    <EditModal v-if="isEditModalShown" :isModalShown="true" :id="tableName + '-edit-modal'" :tableName="tableName"
-      :pkey="editRowPrimaryKey" :clone="editMode === 'clone'" :graphqlURL="graphqlURL" @close="handleModalClose" />
+    <EditModal
+      v-if="isEditModalShown"
+      :isModalShown="true"
+      :id="tableName + '-edit-modal'"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      :clone="editMode === 'clone'"
+      :graphqlURL="graphqlURL"
+      @close="handleModalClose"
+    />
 
-    <ConfirmModal v-if="isDeleteModalShown" :title="'Delete from ' + tableName" actionLabel="Delete" actionType="danger"
-      :tableName="tableName" :pkey="editRowPrimaryKey" @close="isDeleteModalShown = false"
-      @confirmed="handleExecuteDelete" />
+    <ConfirmModal
+      v-if="isDeleteModalShown"
+      :title="'Delete from ' + tableName"
+      actionLabel="Delete"
+      actionType="danger"
+      :tableName="tableName"
+      :pkey="editRowPrimaryKey"
+      @close="isDeleteModalShown = false"
+      @confirmed="handleExecuteDelete"
+    />
 
-    <ConfirmModal v-if="isDeleteAllModalShown" :title="'Truncate ' + tableName" actionLabel="Truncate"
-      actionType="danger" :tableName="tableName" @close="isDeleteAllModalShown = false"
-      @confirmed="handelExecuteDeleteAll">
+    <ConfirmModal
+      v-if="isDeleteAllModalShown"
+      :title="'Truncate ' + tableName"
+      actionLabel="Truncate"
+      actionType="danger"
+      :tableName="tableName"
+      @close="isDeleteAllModalShown = false"
+      @confirmed="handelExecuteDeleteAll"
+    >
       <p>
         Truncate <strong>{{ tableName }}</strong>
       </p>
       <p>
         Are you sure that you want to delete ALL rows in table '{{
-    tableName
+          tableName
         }}'?
       </p>
     </ConfirmModal>
@@ -185,7 +321,13 @@ import MessageError from "../forms/MessageError.vue";
 import AggregateTable from "./AggregateTable.vue";
 import AggregateOptions from "./AggregateOptions.vue";
 
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit", AGGREGATE: "aggregate" };
+const View = {
+  TABLE: "table",
+  CARDS: "cards",
+  RECORD: "record",
+  EDIT: "edit",
+  AGGREGATE: "aggregate",
+};
 
 export default {
   name: "TableExplorer",
@@ -210,7 +352,7 @@ export default {
     EditModal,
     ConfirmModal,
     AggregateTable,
-    AggregateOptions
+    AggregateOptions,
   },
   data() {
     return {
@@ -237,7 +379,7 @@ export default {
       view: this.showView,
       aggregateColumns: [],
       aggregateSelectedColumnHeader: "",
-      aggregateSelectedRowHeader: ""
+      aggregateSelectedRowHeader: "",
     };
   },
   props: {
@@ -327,8 +469,8 @@ export default {
         this.columns.forEach((col) => {
           const conditions = col.conditions
             ? col.conditions.filter(
-              (condition) => condition !== "" && condition !== undefined
-            )
+                (condition) => condition !== "" && condition !== undefined
+              )
             : [];
           if (conditions.length) {
             if (
@@ -511,7 +653,9 @@ export default {
     },
     async reloadMetadata() {
       this.client = Client.newClient(this.graphqlURL);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },
@@ -584,14 +728,14 @@ function getCondition(columnType, condition) {
 
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
-.btn-group>>>span:not(:first-child) .btn {
+.btn-group >>> span:not(:first-child) .btn {
   margin-left: 0;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   border-left: 0;
 }
 
-.btn-group>>>span:not(:last-child) .btn {
+.btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
