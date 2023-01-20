@@ -175,7 +175,6 @@ export default defineComponent({
         }
       }
       //get the map
-      console.log(this.session);
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },

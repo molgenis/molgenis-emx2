@@ -70,26 +70,25 @@ export default {
     };
   },
   mounted() {
-    let value = deepClone(this.modelValue);
-    if (!Array.isArray(value)) {
-      //should minimally be this object
-      value = [{ locale: "en", value: "" }];
-    }
-    initializeLocales(this.locales, value);
-    this.$emit("update:modelValue", value);
+    const value = !Array.isArray(this.modelValue)
+      ? [{ locale: "en", value: "" }]
+      : deepClone(this.modelValue);
+    const initializedValue = initializeLocales(this.locales, value);
+    this.$emit("update:modelValue", initializedValue);
   },
 };
 
 function initializeLocales(locales, value) {
+  let newValue = [...value];
   locales.forEach((locale) => {
     if (locale && !value.find((el) => el.locale === locale)) {
-      value.push({ locale: locale, value: "" });
+      newValue.push({ locale: locale, value: "" });
     }
     if (!value.find((el) => el.locale === "en")) {
-      value.push({ locale: locale, value: "en" });
+      newValue.push({ locale: locale, value: "en" });
     }
   });
-  return locales;
+  return newValue;
 }
 </script>
 
