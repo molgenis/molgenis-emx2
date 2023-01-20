@@ -12,7 +12,7 @@ export interface IColumn {
   refLink: string;
   refSchema: string;
   refTable: string;
-  required: string;
+  required?: boolean;
   semantics: string;
   visible: string;
   validation: string;

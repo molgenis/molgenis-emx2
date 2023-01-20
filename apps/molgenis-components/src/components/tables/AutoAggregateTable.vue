@@ -26,11 +26,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import AggregateOptions from "./AggregateOptions.vue";
 import AggregateTable from "./AggregateTable.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   name: "AutoAggregateTable",
   components: { AggregateOptions, AggregateTable },
   props: {
@@ -59,7 +60,7 @@ export default {
       selectedRowHeader: "",
     };
   },
-};
+});
 </script>
 
 <docs>

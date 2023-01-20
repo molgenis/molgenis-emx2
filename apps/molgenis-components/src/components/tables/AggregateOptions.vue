@@ -45,14 +45,17 @@
 }
 </style>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { IColumn } from "../../Interfaces/IColumn";
 import InputSelect from "../forms/InputSelect.vue";
-export default {
+
+export default defineComponent({
   name: "AggregateOptions",
+  components: { InputSelect },
   props: {
-    components: { InputSelect },
     columns: {
-      type: Object,
+      type: Array,
       required: true,
     },
     selectedColumnHeader: {
@@ -66,26 +69,27 @@ export default {
   },
   data: function () {
     return {
-      loading: true,
-      refColumns: [],
+      loading: true as boolean,
+      refColumns: [] as string[],
     };
   },
   methods: {
-    isRefType(column) {
+    isRefType(column: IColumn): boolean {
+      console.log(column);
       return (
-        (column.columnType.startsWith("REF") && column.required) ||
-        (column.columnType.startsWith("ONTOLOGY") && column.required)
+        (column.columnType.startsWith("REF") && column?.required === true) ||
+        (column.columnType.startsWith("ONTOLOGY") && column?.required === true)
       );
     },
-    getRefTypeColumns(columns) {
+    getRefTypeColumns(columns: IColumn[]): string[] {
       return columns
-        .filter((column) => this.isRefType(column))
-        .map((column) => column.name);
+        .filter((column: IColumn) => this.isRefType(column))
+        .map((column: IColumn) => column.name);
     },
   },
   created() {
     if (this.columns.length > 0) {
-      this.refColumns = this.getRefTypeColumns(this.columns);
+      this.refColumns = this.getRefTypeColumns(this.columns as IColumn[]);
       if (this.refColumns?.length > 0) {
         this.$emit("setAggregateColumns", this.refColumns);
         this.$emit("update:selectedColumnHeader", this.refColumns[0]);
@@ -97,7 +101,7 @@ export default {
       }
     }
   },
-};
+});
 </script>
 
 <docs>
