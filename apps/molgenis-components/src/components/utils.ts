@@ -138,7 +138,7 @@ export function convertToPascalCase(string: string): string {
 export function getLocalizedLabel(
   tableOrColumnMetadata: ITableMetaData | IColumn,
   locale: string
-) {
+): string {
   let label;
   if (tableOrColumnMetadata?.labels) {
     label = tableOrColumnMetadata.labels.find(
@@ -159,7 +159,7 @@ export function getLocalizedLabel(
 export function getLocalizedDescription(
   tableOrColumnMetadata: ITableMetaData | IColumn,
   locale: string
-) {
+): string {
   if (tableOrColumnMetadata.descriptions) {
     return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
       ?.value;
