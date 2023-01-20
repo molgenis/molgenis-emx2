@@ -48,7 +48,7 @@ import InputText from "./InputText.vue";
 import InputSelect from "./InputSelect.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import { deepClone } from "../utils.js";
+import { deepClone } from "../utils.ts";
 
 export default {
   extends: BaseInput, //gives us 'options'
