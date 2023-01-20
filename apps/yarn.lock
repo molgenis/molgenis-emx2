@@ -8251,10 +8251,10 @@ vue-scrollto@2.20.0:
   dependencies:
     bezier-easing "2.1.0"
 
-vue-tabler-icons@2.17.0:
-  version "2.17.0"
-  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-2.17.0.tgz#e339f2c314197b4f076e923296f77ae3a44d399c"
-  integrity sha512-VEgm9tBwQ96asVVOp3+10zJvOLWg/kY5oV3/n4cAHPVPpsJrj/3z76JBm8WrRxTk9WNwnYl1JqzeCnhChGSFqw==
+vue-tabler-icons@2.18.0:
+  version "2.18.0"
+  resolved "https://registry.yarnpkg.com/vue-tabler-icons/-/vue-tabler-icons-2.18.0.tgz#1c5f6dd934a8dfac2f907a1f215e3164be8731e4"
+  integrity sha512-rB9xBlPWUQNR3oa5uC0btQ365VsTmz1gmoxNraoffA493Q/lRmg0ZtWXUZdwQXSJWJAYtc7jKslgrKGeFX9F0Q==
 
 vue-types@^4.1.0:
   version "4.2.1"

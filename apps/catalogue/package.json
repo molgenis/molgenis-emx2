@@ -15,7 +15,7 @@
     "molgenis-components": "*",
     "vue": "3.2.45",
     "vue-router": "4.1.6",
-    "vue-tabler-icons": "2.17.0",
+    "vue-tabler-icons": "2.18.0",
     "vuex": "4.1.0"
   },
   "browserslist": [
