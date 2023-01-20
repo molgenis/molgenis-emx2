@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { request } from "../../client/client";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
@@ -35,7 +34,7 @@ export default defineComponent({
   props: {
     schemaName: {
       type: String,
-      default: "graphql",
+      required: true,
     },
     /** table to aggregate */
     tableName: {

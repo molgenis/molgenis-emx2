@@ -77,15 +77,15 @@ export default {
         (column.columnType.startsWith("ONTOLOGY") && column.required)
       );
     },
-    refTypeColumns(columns) {
+    getRefTypeColumns(columns) {
       return columns
         .filter((column) => this.isRefType(column))
         .map((column) => column.name);
     },
   },
   created() {
-    if (this.columns?.length > 0) {
-      this.refColumns = this.refTypeColumns(this.columns);
+    if (this.columns.length > 0) {
+      this.refColumns = this.getRefTypeColumns(this.columns);
       if (this.refColumns?.length > 0) {
         this.$emit("setAggregateColumns", this.refColumns);
         this.$emit("update:selectedColumnHeader", this.refColumns[0]);

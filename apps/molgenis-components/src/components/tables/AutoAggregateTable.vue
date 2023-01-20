@@ -13,7 +13,7 @@
 
     <AggregateTable
       v-if="aggregateColumns?.length > 0"
-      :table="table"
+      :tableName="tableName"
       :schemaName="schemaName"
       :minimumValue="1"
       :columnHeaderProperties="aggregateColumns"
@@ -36,9 +36,9 @@ export default {
   props: {
     schemaName: {
       type: String,
-      default: "graphql",
+      required: true,
     },
-    table: {
+    tableName: {
       type: String,
       required: true,
     },
@@ -66,7 +66,7 @@ export default {
 <template>
   <demo-item>
     <AutoAggregateTable
-        :table="tableName"
+        :tableName="tableName"
         :schemaName="endpoint"
         :minimumValue="1"
         :columns="columns"
