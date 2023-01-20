@@ -136,7 +136,7 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,computed,semantics,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(

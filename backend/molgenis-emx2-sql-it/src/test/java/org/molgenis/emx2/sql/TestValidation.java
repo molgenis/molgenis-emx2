@@ -3,6 +3,7 @@ package org.molgenis.emx2.sql;
 import static org.junit.Assert.fail;
 import static org.molgenis.emx2.Row.row;
 
+import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
@@ -22,7 +23,7 @@ public class TestValidation {
   }
 
   @Test
-  public void testValidation() {
+  public void testValidation() throws IOException {
     new PetStoreLoader().load(schema, true);
 
     // system level validation using email data type (will also test hyperlink indirectly)
