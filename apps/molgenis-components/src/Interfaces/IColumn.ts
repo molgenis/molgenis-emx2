@@ -3,8 +3,8 @@ import { ILocale } from "./ILocales";
 export interface IColumn {
   columnType: string;
   conditions: string[];
-  labels: [ILocale];
-  descriptions: [ILocale];
+  labels: ILocale[];
+  descriptions: ILocale[];
   id: string;
   key: number;
   name: string;

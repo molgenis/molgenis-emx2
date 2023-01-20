@@ -113,12 +113,8 @@ export default {
       this.key = Math.random().toString(36).substring(7);
     },
     reset() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settingsMap.menu
-      ) {
-        this.draft = JSON.parse(JSON.stringify(this.session.settingsMap.menu));
+      if (this.session?.settings?.menu) {
+        this.draft = JSON.parse(JSON.stringify(this.session.settings.menu));
       } else {
         //deep clone
         this.draft = JSON.parse(JSON.stringify(defaultMenu));

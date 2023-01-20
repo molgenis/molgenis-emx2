@@ -21,7 +21,7 @@
       />
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
-      <a :href="this.session.settingsMap.cssURL">view theme css</a>
+      <a :href="this.session.settings.cssURL">view theme css</a>
     </div>
   </div>
 </template>
@@ -70,10 +70,10 @@ export default {
   },
   methods: {
     loadSettings() {
-      if (this.session.settingsMap.cssURL) {
-        this.logoURL = this.session.settingsMap.logoURL;
+      if (this.session?.settings?.cssURL) {
+        this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
-          this.session.settingsMap.cssURL,
+          this.session.settings.cssURL,
           document.baseURI
         ).searchParams;
         this.primaryColor = urlParams.get("primaryColor")

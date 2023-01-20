@@ -57,12 +57,12 @@ import SignupForm from "./MolgenisSignup.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 import LocaleSwitch from "./LocaleSwitch.vue";
 import { useCookies } from "vue3-cookies";
-const { cookies } = useCookies();
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
 import { ISetting } from "../../Interfaces/ISetting";
 
+const { cookies } = useCookies();
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
@@ -93,9 +93,8 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: { locale: "en", settings: [] } as ISession,
+      session: { locale: "en" } as ISession,
       version: null,
-      settingsMap: {} as Record<string, string>,
     };
   },
   watch: {
@@ -109,16 +108,16 @@ export default defineComponent({
   },
   computed: {
     isOidcEnabled() {
-      return this.settingsMap.isOidcEnabled === "true";
+      return this.session?.settings?.isOidcEnabled === "true";
     },
     locales() {
-      if (this.settingsMap.locales) {
-        if (Array.isArray(this.settingsMap.locales)) {
-          return this.settingsMap.locales;
+      if (this.session?.settings?.locales) {
+        if (Array.isArray(this.session.settings.locales)) {
+          return this.session.settings.locales;
         } else {
           this.error =
             'locales should be array similar to ["en"] but instead was ' +
-            JSON.stringify(this.settingsMap.locales);
+            JSON.stringify(this.session.settings.locales);
         }
       }
       //default
@@ -127,13 +126,12 @@ export default defineComponent({
   },
   methods: {
     loadSettings(settings: { _settings: ISetting[] }) {
-      this.session.settings?.push(...settings._settings);
       settings._settings.forEach((setting) => {
         const value: string =
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)
             : setting.value;
-        this.settingsMap[setting.key] = value;
+        this.session.settings[setting.key] = value;
       });
     },
     async reload() {
@@ -177,8 +175,7 @@ export default defineComponent({
         }
       }
       //get the map
-      console.log(this.settingsMap);
-      this.session.settingsMap = this.settingsMap;
+      console.log(this.session);
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },

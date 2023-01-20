@@ -68,7 +68,7 @@ import InputString from "../forms/InputString.vue";
 import MessageError from "../forms/MessageError.vue";
 import MessageSuccess from "../forms/MessageSuccess.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
-import { IResponse, ISetting } from "./Interfaces";
+import { IResponse } from "./Interfaces";
 
 const { POLICY_TEXT_KEY } = privacyConstants;
 
