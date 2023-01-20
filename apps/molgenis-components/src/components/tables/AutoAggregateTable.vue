@@ -54,10 +54,10 @@ export default defineComponent({
   },
   data: function () {
     return {
-      loading: true as boolean,
-      aggregateColumns: [],
-      selectedColumnHeader: "" as string,
-      selectedRowHeader: "" as string,
+      loading: true,
+      aggregateColumns: [] as string[],
+      selectedColumnHeader: "",
+      selectedRowHeader: "",
     };
   },
 });

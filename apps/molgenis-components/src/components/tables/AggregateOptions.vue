@@ -69,7 +69,7 @@ export default defineComponent({
   },
   data: function () {
     return {
-      loading: true as boolean,
+      loading: true,
       refColumns: [] as string[],
     };
   },
