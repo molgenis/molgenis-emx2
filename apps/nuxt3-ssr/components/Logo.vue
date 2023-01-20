@@ -4,9 +4,8 @@ defineProps<{
   link?: string;
 }>();
 
-// // extract the logo name from the theme
-const logoFileName = assetLoader.loadThemeConfig()?.logo;
-// const logoFileName  = 'UMCGkort.woordbeeld'
+const config = useRuntimeConfig()
+const logoFileName = config.public.logo 
 
 // load the svg data from the assets folder
 let svg = shallowRef();

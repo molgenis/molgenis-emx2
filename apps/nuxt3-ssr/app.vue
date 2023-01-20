@@ -31,7 +31,13 @@
   </div>
 </template>
 
-<script>
-import "@/assets/css/main.css";
+<script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
+const config = useRuntimeConfig()
+const href = config.public.theme ? `/css/styles.${config.public.theme}.css` : '/css/styles.css'
+useHead({
+  link: [
+    { rel: 'stylesheet', type: 'text/css', href }
+  ]
+});
 </script>

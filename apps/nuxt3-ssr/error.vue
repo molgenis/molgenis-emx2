@@ -1,5 +1,4 @@
 <script setup>
-import "@/assets/css/main.css";
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 
 defineProps(['error'])
