@@ -75,10 +75,10 @@ export default defineComponent({
   },
   methods: {
     isRefType(column: IColumn): boolean {
-      console.log(column);
       return (
-        (column.columnType.startsWith("REF") && column?.required === true) ||
-        (column.columnType.startsWith("ONTOLOGY") && column?.required === true)
+        column?.required === true &&
+        (column.columnType.startsWith("REF") ||
+          column.columnType.startsWith("ONTOLOGY"))
       );
     },
     getRefTypeColumns(columns: IColumn[]): string[] {
@@ -107,11 +107,10 @@ export default defineComponent({
 <docs>
 <template>
   <demo-item>
-    <AutoAggregateTable
-        :table="tableName"
-        :schemaName="endpoint"
-        :minimumValue="1"
+    <AggregateOptions
         :columns="columns"
+        selectedColumnHeader="category"
+        selectedRowHeader="tags"
     />
   </demo-item>
 </template>
@@ -120,9 +119,7 @@ export default defineComponent({
   export default {
     data() {
       return {
-        tableName: 'Pet',
-        endpoint: '/pet store/graphql',
-        columns: [{name: 'category',columnType: 'REF'}, {name: 'tags',columnType: 'REF'} ]
+        columns: [{name: 'category', columnType: 'REF', required: true}, {name: 'tags', columnType: 'REF', required: true} ]
       };
     },
   };

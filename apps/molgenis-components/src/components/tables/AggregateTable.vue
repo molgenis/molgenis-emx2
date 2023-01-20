@@ -139,7 +139,7 @@ export default defineComponent({
   <demo-item>
     <AggregateTable
         :tableName="tableName"
-        :schemaName="endpoint"
+        :schemaName="schemaName"
         :columnHeaderProperties="selectableColumns"
         :rowHeaderProperties="selectableColumns"
         :selectedColumnHeaderProperty="columnName"
@@ -160,7 +160,7 @@ export default defineComponent({
           'tags',
         ],
         tableName: 'Pet',
-        endpoint: '/pet store/graphql',
+        schemaName: 'pet store',
         columnName: 'category',
         rowName: 'tags',
         columnNameProperty: 'name',

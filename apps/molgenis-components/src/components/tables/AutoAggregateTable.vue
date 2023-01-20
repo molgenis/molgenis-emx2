@@ -48,16 +48,16 @@ export default defineComponent({
       default: 1,
     },
     columns: {
-      type: Object,
+      type: Array,
       required: true,
     },
   },
   data: function () {
     return {
-      loading: true,
+      loading: true as boolean,
       aggregateColumns: [],
-      selectedColumnHeader: "",
-      selectedRowHeader: "",
+      selectedColumnHeader: "" as string,
+      selectedRowHeader: "" as string,
     };
   },
 });
@@ -68,7 +68,7 @@ export default defineComponent({
   <demo-item>
     <AutoAggregateTable
         :tableName="tableName"
-        :schemaName="endpoint"
+        :schemaName="schemaName"
         :minimumValue="1"
         :columns="columns"
     />
@@ -80,8 +80,8 @@ export default defineComponent({
     data() {
       return {
         tableName: 'Pet',
-        endpoint: '/pet store/graphql',
-        columns: [{name: 'category',columnType: 'REF'}, {name: 'tags',columnType: 'REF'} ]
+        schemaName: 'pet store',
+        columns: [{name: 'category', columnType: 'REF', required: true}, {name: 'tags', columnType: 'REF', required: true} ]
       };
     },
   };
