@@ -37,6 +37,11 @@ interface ICohort {
   partners: IPartner[];
   contributors: IContributor[];
   networks: INetwork[];
+  releaseDescription?: string;
+  dataAccessConditionsDescription?: string;
+  dataAccessConditions?: { name: string }[];
+  fundingStatement?: string;
+  acknowledgements?: string;
 }
 
 interface IPartner {
