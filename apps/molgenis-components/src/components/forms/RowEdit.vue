@@ -6,10 +6,10 @@
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="column.description"
+      :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
+      :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
@@ -25,8 +25,14 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import constants from "../constants";
-import { getPrimaryKey, deepClone, convertToCamelCase } from "../utils";
+import constants from "../constants.js";
+import {
+  getPrimaryKey,
+  deepClone,
+  convertToCamelCase,
+  getLocalizedLabel,
+  getLocalizedDescription,
+} from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -86,6 +92,10 @@ export default {
       required: false,
       default: () => true,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   emits: ["update:modelValue"],
   components: {
@@ -114,6 +124,12 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    getColumnLabel(column) {
+      return getLocalizedLabel(column, this.locale);
+    },
+    getColumnDescription(column) {
+      return getLocalizedDescription(column, this.locale);
+    },
     showColumn(column) {
       if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
@@ -307,6 +323,7 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
+            :locale="locale"
             :schemaMetaData="schemaMetaData"
         />
       </div>
@@ -322,7 +339,7 @@ function containsInvalidEmail(emails) {
               <option>User</option>
             </select>
           </dd>
-
+          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -338,6 +355,7 @@ function containsInvalidEmail(emails) {
     data: function() {
       return {
         showRowEdit: true,
+        locale: 'en',
         tableName: 'Pet',
         tableMetaData: {
           columns: [],
@@ -349,6 +367,12 @@ function containsInvalidEmail(emails) {
     },
     watch: {
       async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+      async locale(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();

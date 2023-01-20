@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.molgenis.emx2.Table;
@@ -32,13 +31,13 @@ public class EJP_VP_IndividualsQuery {
   private Response response;
   private List<Table> tables;
 
-  public final static String SEX = "NCIT_C28421";
-  public final static String DISEASE = "NCIT_C2991";
-  public final static String PHENOTYPE = "SIO_010056";
-  public final static String CAUSAL_GENE = "data_2295";
-  public final static String AGE_THIS_YEAR = "NCIT_C83164";
-  public final static String AGE_OF_ONSET = "NCIT_C124353";
-  public final static String AGE_AT_DIAG = "NCIT_C156420";
+  public static final String SEX = "NCIT_C28421";
+  public static final String DISEASE = "NCIT_C2991";
+  public static final String PHENOTYPE = "SIO_010056";
+  public static final String CAUSAL_GENE = "data_2295";
+  public static final String AGE_THIS_YEAR = "NCIT_C83164";
+  public static final String AGE_OF_ONSET = "NCIT_C124353";
+  public static final String AGE_AT_DIAG = "NCIT_C156420";
 
   public EJP_VP_IndividualsQuery(Request request, Response response, List<Table> tables) {
     this.request = request;
