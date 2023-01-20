@@ -173,9 +173,6 @@ export default {
     isDisabled() {
       return this.nameInvalid !== null || this.subclassInvalid !== null;
     },
-    activeLocales() {
-      return activeLocales(this.schema);
-    },
   },
   methods: {
     showModal() {
