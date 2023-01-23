@@ -29,6 +29,7 @@ Frequency of exercise,,,Lifestyle
 Other lifestyle,,,Lifestyle
 Population pregnancy and neonates,,Does the data source collect information on pregnant women and/or neonatal subpopulation?,
 Clinical data,,,
+Disease data,,,Clinical data
 Diagnoses codes included,,"Is information on diagnostic codes or medical events included, select all vocabulary items that apply",Clinical data
 Diagnoses codes included: Not captured,Not captured,,Diagnoses codes included
 Diagnoses codes included: ICPC,ICPC,,Diagnoses codes included
@@ -44,8 +45,7 @@ Diagnoses codes included: CCS,CCS,,Diagnoses codes included
 Diagnoses codes included: EDC,EDC,,Diagnoses codes included
 Diagnoses codes included: Not coded (Free text),Not coded (Free text),,Diagnoses codes included
 Diagnoses codes included: Other,Other,,Diagnoses codes included
-Hospital admission,,Is information on hospital admission available?,Clinical data
-Hospital discharge,,Is information on hospital discharge available?,Clinical data
+Hospital admission discharge,,Is information on hospital admission and discharge available?,Clinical data
 ICU admission,,Is information on intensive care unit admission available?,Clinical data
 Cause of death,,Is cause of death available?,Clinical data
 Cause of death vocabulary,,What cause of death vocabulary is used? Select from the following:,Clinical data
