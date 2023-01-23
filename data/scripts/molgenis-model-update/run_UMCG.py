@@ -130,6 +130,9 @@ schema_description = session.get_database_description(database_name=CATALOGUE_SC
 session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
 session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
 
+# delete SharedStaging schema
+session.drop_database(database_name=SHARED_STAGING_NAME)
+
 # delete and create new CatalogueOntologies schema
 schema_description = session.get_database_description(database_name=ONTOLOGIES_SCHEMA_NAME)
 session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
