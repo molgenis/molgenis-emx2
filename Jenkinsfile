@@ -107,7 +107,7 @@ pipeline {
                     script {
                         sh 'rancher context switch dev-molgenis'
                         env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} emx2 ${CHART_VERSION}"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${TAG_NAME}"
                     }
                 }
             }
