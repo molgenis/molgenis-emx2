@@ -1421,7 +1421,7 @@ order,name,code,parent,ontologyTermURI,definition
 1420,"C83.9 Non-follicular (diffuse) lymphoma, unspecified",C83.9,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C83.9,
 1421,C84 Mature T/NK-cell lymphomas,C84,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84,
 1422,C84.0 Mature T/NK-cell lymphomas - Mycosis fungoides,C84.0,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.0,ORPHAcode: 2584 Classic mycosis fungoides
-1423,C84.1 Mature T/NK-cell lymphomas - SÈzary disea,C84.1,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.1,ORPHAcode: 3162 Sézary syndro
+1423,C84.1 Mature T/NK-cell lymphomas - S��zary d,C84.1,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.1,ORPHAcode: 3162 S��zary sy
 1424,"C84.4 Mature T/NK-cell lymphomas - Peripheral T-cell lymphoma, not elsewhere classified",C84.4,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.4,ORPHAcode: 86885 Primary cutaneous peripheral T-cell lymphoma not otherwise specified
 1425,C84.5 Other mature T/NK-cell lymphomas,C84.5,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.5,ORPHAcode: 178528 Primary cutaneous aggressive epidermotropic CD8+ T-cell lymphoma
 1426,"C84.6 Mature T/NK-cell lymphomas - Anaplastic large cell lymphoma, ALK-positive",C84.6,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C84.6,ORPHAcode: 98841 Anaplastic large cell lymphoma
@@ -1442,7 +1442,7 @@ order,name,code,parent,ontologyTermURI,definition
 1441,C86.5 Angioimmunoblastic T-cell lymphoma,C86.5,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C86.5,ORPHAcode: 86886 Angioimmunoblastic T-cell lymphoma
 1442,C86.6 Other specified types of T/NK-cell lymphoma - Primary cutaneous CD30-positive T-cell proliferations,C86.6,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C86.6,ORPHAcode: 98842 Lymphomatoid papulosis
 1443,C88 Malignant immunoproliferative diseases,C88,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88,
-1444,C88.0 Malignant immunoproliferative diseases - Waldenstrˆm macroglobulinaem,C88.0,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88.0,ORPHAcode: 33226 Waldenström macroglobulinem
+1444,C88.0 Malignant immunoproliferative diseases - Waldenstr��m macroglobuli,C88.0,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88.0,ORPHAcode: 33226 Waldenstr��m macroglobul
 1445,C88.2 Malignant immunoproliferative diseases - Other heavy chain disease,C88.2,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88.2,ORPHAcode: 86864 Heavy chain disease
 1446,C88.3 Immunoproliferative small intestinal disease,C88.3,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88.3,
 1447,C88.4 Malignant immunoproliferative diseases - Extranodal marginal zone B-cell lymphoma of mucosa-associated lymphoid tissue [MALT-lyphoma],C88.4,"C81-C96 Malignant neoplasms, stated or presumed to be primary, of lymphoid, haematopoietic and related tissue",http://identifiers.org/icd/C88.4,ORPHAcode: 52417 MALT lymphoma
@@ -1672,7 +1672,7 @@ order,name,code,parent,ontologyTermURI,definition
 1671,D23.5 Skin of trunk,D23.5,D10-D36 Benign neoplasms,http://identifiers.org/icd/D23.5,
 1672,"D23.6 Skin of upper limb, including shoulder",D23.6,D10-D36 Benign neoplasms,http://identifiers.org/icd/D23.6,
 1673,"D23.7 Skin of lower limb, including hip",D23.7,D10-D36 Benign neoplasms,http://identifiers.org/icd/D23.7,
-1674,"D23.9 Skin, unspecified",D23.9,D10-D36 Benign neoplasms,http://identifiers.org/icd/D23.9,ORPHAcode: 122 Birt-Hogg-Dubé syndro
+1674,"D23.9 Skin, unspecified",D23.9,D10-D36 Benign neoplasms,http://identifiers.org/icd/D23.9,ORPHAcode: 122 Birt-Hogg-Dub�� sy
 1675,D24 Benign neoplasm of breast,D24,D10-D36 Benign neoplasms,http://identifiers.org/icd/D24,ORPHAcode: 180267 Giant adenofibroma of the breast
 1676,D25 Leiomyoma of uterus,D25,D10-D36 Benign neoplasms,http://identifiers.org/icd/D25,
 1677,D25.0 Submucous leiomyoma of uterus,D25.0,D10-D36 Benign neoplasms,http://identifiers.org/icd/D25.0,
@@ -1846,7 +1846,7 @@ order,name,code,parent,ontologyTermURI,definition
 1845,"D50.9 Iron deficiency anaemia, unspecified",D50.9,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D50.9,
 1846,D51 deficiency anaemia,D51,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51,
 1847,D51.0 deficiency anaemia due to intrinsic factor deficiency,D51.0,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.0,ORPHAcode: 332 Congenital intrinsic factor deficiency
-1848,D51.1 deficiency anaemia - malabsorption with proteinuria,D51.1,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.1,ORPHAcode: 35858 Imerslund-Gräsbeck syndro
+1848,D51.1 deficiency anaemia - malabsorption with proteinuria,D51.1,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.1,ORPHAcode: 35858 Imerslund-Gr��sbeck sy
 1849,D51.2 Transcobalamin II deficiency,D51.2,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.2,ORPHAcode: 859 Transcobalamin deficiency
 1850,D51.3 deficiency anaemia,D51.3,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.3,
 1851,D51.8 deficiency anaemias,D51.8,D50-D53 Nutritional anaemias,http://identifiers.org/icd/D51.8,
@@ -1973,7 +1973,7 @@ order,name,code,parent,ontologyTermURI,definition
 1972,"D74.9 Methaemoglobinaemia, unspecified",D74.9,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D74.9,
 1973,D75 Other diseases of blood and blood-forming organs,D75,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75,
 1974,D75.0 Other diseases of blood and blood-forming organs - Familial erythrocytosis,D75.0,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75.0,ORPHAcode: 90042 Primary familial polycythemia
-1975,D75.1 Other diseases of blood and blood-forming organs - Secondary polycythaemia,D75.1,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75.1,ORPHAcode: 90041 Gaisböck syndro
+1975,D75.1 Other diseases of blood and blood-forming organs - Secondary polycythaemia,D75.1,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75.1,ORPHAcode: 90041 Gaisb��ck sy
 1976,D75.8 Other specified diseases of blood and blood-forming organs,D75.8,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75.8,
 1977,"D75.9 Disease of blood and blood-forming organs, unspecified",D75.9,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D75.9,
 1978,D76 Other specified diseases with participation of lymphoreticular and reticulohistiocytic tissue,D76,D70-D77 Other diseases of blood and blood-forming organs,http://identifiers.org/icd/D76,
@@ -2241,7 +2241,7 @@ order,name,code,parent,ontologyTermURI,definition
 2240,"E34.3 Other endocrine disorders - Short stature, not elsewhere classified",E34.3,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.3,ORPHAcode: 633 Laron syndrome
 2241,E34.4 Other endocrine disorders - Constitutional tall stature,E34.4,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.4,
 2242,E34.5 Other endocrine disorders - Androgen resistance syndrome,E34.5,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.5,ORPHAcode: 90797 Partial androgen insensitivity syndrome
-2243,E34.8 Other specified endocrine disorders,E34.8,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.8,ORPHAcode: 64 Alström syndro
+2243,E34.8 Other specified endocrine disorders,E34.8,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.8,ORPHAcode: 64 Alstr��m sy
 2244,"E34.9 Endocrine disorder, unspecified",E34.9,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E34.9,
 2245,E35 Disorders of endocrine glands in diseases classified elsewhere,E35,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E35,
 2246,E35.0 Disorders of thyroid gland in diseases classified elsewhere,E35.0,E20-E35 Disorders of other endocrine glands,http://identifiers.org/icd/E35.0,
@@ -2934,7 +2934,7 @@ order,name,code,parent,ontologyTermURI,definition
 2933,"G31.0 Other degenerative diseases of nervous system, not elsewhere classified - Circumscribed brain atrophy",G31.0,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.0,ORPHAcode: 2289 Neuronal intranuclear inclusion disease
 2934,"G31.1 Senile degeneration of brain, not elsewhere classified",G31.1,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.1,ORPHAcode: 54247 Posterior cortical atrophy
 2935,G31.2 Degeneration of nervous system due to alcohol,G31.2,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.2,
-2936,G31.8 Other specified degenerative diseases of nervous system,G31.8,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.8,ORPHAcode: 51 Aicardi-Goutières syndro
+2936,G31.8 Other specified degenerative diseases of nervous system,G31.8,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.8,ORPHAcode: 51 Aicardi-Gouti��res sy
 2937,"G31.9 Degenerative disease of nervous system, unspecified",G31.9,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G31.9,
 2938,G32 Other degenerative disorders of nervous system in diseases classified elsewhere,G32,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G32,
 2939,G32.0 Subacute combined degeneration of spinal cord in diseases classified elsewhere,G32.0,G30-G32 Other degenerative diseases of the nervous system,http://identifiers.org/icd/G32.0,
@@ -2952,7 +2952,7 @@ order,name,code,parent,ontologyTermURI,definition
 2951,G37.2 Central pontine myelinolysis,G37.2,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.2,
 2952,G37.3 Acute transverse myelitis in demyelinating disease of central nervous system,G37.3,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.3,ORPHAcode: 139417 Acute transverse myelitis
 2953,G37.4 Other demyelinating diseases of central nervous system - Subacute necrotizing myelitis,G37.4,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.4,ORPHAcode: 79093 Foix-Alajouanine syndrome
-2954,G37.5 Other demyelinating diseases of central nervous system - Concentric sclerosis [Bal�,G37.5,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.5,ORPHAcode: 228165 Baló concentric scleros
+2954,G37.5 Other demyelinating diseases of central nervous system - Concentric sclerosis [Bal�,G37.5,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.5,ORPHAcode: 228165 Bal�� concentric scl
 2955,G37.8 Other specified demyelinating diseases of central nervous system,G37.8,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.8,ORPHAcode: 3151 Multiple sclerosis-ichthyosis-factor VIII deficiency syndrome
 2956,"G37.9 Demyelinating disease of central nervous system, unspecified",G37.9,G35-G37 Demyelinating diseases of the central nervous system,http://identifiers.org/icd/G37.9,
 2957,G40-G47 Episodic and paroxysmal disorders,,VI Diseases of the nervous system,,
@@ -3095,7 +3095,7 @@ order,name,code,parent,ontologyTermURI,definition
 3094,G60.8 Other hereditary and idiopathic neuropathies,G60.8,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G60.8,ORPHAcode: 642 Hereditary sensory and autonomic neuropathy type 4
 3095,"G60.9 Hereditary and idiopathic neuropathy, unspecified",G60.9,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G60.9,
 3096,G61 Inflammatory polyneuropathy,G61,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61,
-3097,G61.0 Inflammatory polyneuropathy - Guillain-BarrÈ syndro,G61.0,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61.0,ORPHAcode: 79138 Bickerstaff brainstem encephalitis
+3097,G61.0 Inflammatory polyneuropathy - Guillain-Barr�� sy,G61.0,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61.0,ORPHAcode: 79138 Bickerstaff brainstem encephalitis
 3098,G61.1 Inflammatory polyneuropathy - Serum neuropathy,G61.1,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61.1,
 3099,G61.8 Other inflammatory polyneuropathies,G61.8,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61.8,ORPHAcode: 639 Polyneuropathy associated with IgM monoclonal gammapathy with anti-MAG
 3100,"G61.9 Inflammatory polyneuropathy, unspecified",G61.9,G60-G64 Polyneuropathies and other disorders of the peripheral nervous system,http://identifiers.org/icd/G61.9,
@@ -3629,7 +3629,7 @@ order,name,code,parent,ontologyTermURI,definition
 3628,H80.8 Other otosclerosis,H80.8,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H80.8,
 3629,"H80.9 Otosclerosis, unspecified",H80.9,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H80.9,
 3630,H81 Disorders of vestibular function,H81,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81,
-3631,H81.0 Disorders of vestibular function - MÈni?re disea,H81.0,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81.0,
+3631,H81.0 Disorders of vestibular function - M��ni?re d,H81.0,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81.0,
 3632,H81.1 Disorders of vestibular function - Benign paroxysmal vertigo,H81.1,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81.1,
 3633,H81.3 Disorders of vestibular function - Other peripheral vertigo,H81.3,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81.3,
 3634,H81.4 Vertigo of central origin,H81.4,H80-H83 Diseases of inner ear,http://identifiers.org/icd/H81.4,
@@ -4426,7 +4426,7 @@ order,name,code,parent,ontologyTermURI,definition
 4425,J96.1 Chronic respiratory failure,J96.1,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J96.1,
 4426,"J96.9 Respiratory failure, unspecified",J96.9,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J96.9,
 4427,J98 Other respiratory disorders,J98,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98,
-4428,"J98.0 Other respiratory disorders - Diseases of bronchus, not elsewhere classified",J98.0,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98.0,ORPHAcode: 3347 Mounier-Kühn syndro
+4428,"J98.0 Other respiratory disorders - Diseases of bronchus, not elsewhere classified",J98.0,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98.0,ORPHAcode: 3347 Mounier-K��hn sy
 4429,J98.1 Other respiratory disorders - Pulmonary collapse,J98.1,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98.1,
 4430,J98.2 Other respiratory disorders - Interstitial emphysema,J98.2,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98.2,
 4431,J98.3 Other respiratory disorders - Compensatory emphysema,J98.3,J95-J99 Other diseases of the respiratory system,http://identifiers.org/icd/J98.3,
@@ -4596,7 +4596,7 @@ order,name,code,parent,ontologyTermURI,definition
 4595,K29.3 Chronic superficial gastritis,K29.3,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.3,
 4596,K29.4 Chronic atrophic gastritis,K29.4,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.4,
 4597,"K29.5 Chronic gastritis, unspecified",K29.5,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.5,
-4598,K29.6 Other gastritis,K29.6,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.6,ORPHAcode: 2494 Ménétrier dis
+4598,K29.6 Other gastritis,K29.6,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.6,ORPHAcode: 2494 M��n��t
 4599,"K29.7 Gastritis, unspecified",K29.7,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.7,
 4600,K29.8 Duodenitis,K29.8,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.8,
 4601,"K29.9 Gastroduodenitis, unspecified",K29.9,"K20-K31 Diseases of oesophagus, stomach and duodenum",http://identifiers.org/icd/K29.9,
@@ -5193,7 +5193,7 @@ order,name,code,parent,ontologyTermURI,definition
 5192,L70.1 Acne conglobata,L70.1,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.1,
 5193,L70.2 Acne varioliformis,L70.2,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.2,
 5194,L70.3 Acne tropica,L70.3,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.3,
-5195,L70.5 Acne - AcnÈ excori,L70.5,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.5,
+5195,L70.5 Acne - Acn�� ex,L70.5,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.5,
 5196,L70.8 Other acne,L70.8,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.8,
 5197,"L70.9 Acne, unspecified",L70.9,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L70.9,
 5198,L71 Rosacea,L71,L60-L75 Disorders of skin appendages,http://identifiers.org/icd/L71,
@@ -5233,7 +5233,7 @@ order,name,code,parent,ontologyTermURI,definition
 5232,L81.0 Postinflammatory hyperpigmentation,L81.0,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.0,
 5233,L81.1 Other disorders of pigmentation - Chloasma,L81.1,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.1,
 5234,L81.2 Other disorders of pigmentation - Freckles,L81.2,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.2,
-5235,L81.3 Other disorders of pigmentation - CafÈ au lait spo,L81.3,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.3,ORPHAcode: 2678 Neurofibromatosis type 6
+5235,L81.3 Other disorders of pigmentation - Caf�� au lait,L81.3,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.3,ORPHAcode: 2678 Neurofibromatosis type 6
 5236,L81.4 Other melanin hyperpigmentation,L81.4,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.4,ORPHAcode: 39 Acromelanosis
 5237,"L81.5 Other disorders of pigmentation - Leukoderma, not elsewhere classified",L81.5,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.5,
 5238,L81.6 Other disorders of diminished melanin formation,L81.6,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L81.6,
@@ -5315,7 +5315,7 @@ order,name,code,parent,ontologyTermURI,definition
 5314,L98.5 Mucinosis of skin,L98.5,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.5,ORPHAcode: 86797 Atypical lichen myxedematosus
 5315,L98.6 Other infiltrative disorders of skin and subcutaneous tissue,L98.6,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.6,ORPHAcode: 33314 Jessner lymphocytic infiltration of the skin
 5316,L98.7 Excessive and redundant skin and subcutaneous tissue,L98.7,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.7,
-5317,L98.8 Other specified disorders of skin and subcutaneous tissue,L98.8,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.8,ORPHAcode: 113 Bazex-Dupré-Christol syndro
+5317,L98.8 Other specified disorders of skin and subcutaneous tissue,L98.8,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.8,ORPHAcode: 113 Bazex-Dupr��-Christol sy
 5318,"L98.9 Disorder of skin and subcutaneous tissue, unspecified",L98.9,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L98.9,
 5319,L99 Other disorders of skin and subcutaneous tissue in diseases classified elsewhere,L99,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L99,
 5320,L99.0 Amyloidosis of skin,L99.0,L80-L99 Other disorders of the skin and subcutaneous tissue,http://identifiers.org/icd/L99.0,
@@ -5559,9 +5559,9 @@ order,name,code,parent,ontologyTermURI,definition
 5558,M34.8 Other forms of systemic sclerosis,M34.8,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M34.8,ORPHAcode: 352763 Scleredema
 5559,"M34.9 Systemic sclerosis, unspecified",M34.9,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M34.9,
 5560,M35 Other systemic involvement of connective tissue,M35,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35,
-5561,M35.0 Other systemic involvement of connective tissue - Sicca syndrome [Sjˆgre,M35.0,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.0,ORPHAcode: 289390 Primary Sjögren syndro
+5561,M35.0 Other systemic involvement of connective tissue - Sicca syndrome [Sj��,M35.0,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.0,ORPHAcode: 289390 Primary Sj��gren sy
 5562,M35.1 Other overlap syndromes,M35.1,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.1,ORPHAcode: 809 Mixed connective tissue disease
-5563,M35.2 Other systemic involvement of connective tissue - BehÁet disea,M35.2,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.2,ORPHAcode: 117 Behçet disea
+5563,M35.2 Other systemic involvement of connective tissue - Beh��et d,M35.2,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.2,ORPHAcode: 117 Beh��et d
 5564,M35.3 Other systemic involvement of connective tissue - Polymyalgia rheumatica,M35.3,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.3,ORPHAcode: 93569 Polymyalgia rheumatica
 5565,M35.4 Other systemic involvement of connective tissue - Diffuse (eosinophilic) fasciitis,M35.4,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.4,ORPHAcode: 3165 Eosinophilic fasciitis
 5566,M35.5 Other systemic involvement of connective tissue - Multifocal fibrosclerosis,M35.5,M30-M36 Systemic connective tissue disorders,http://identifiers.org/icd/M35.5,
@@ -5905,7 +5905,7 @@ order,name,code,parent,ontologyTermURI,definition
 5904,M91-M94 Chondropathies,M91-M94,M80-M94 Osteopathies and chondropathies,,
 5905,M91 Juvenile osteochondrosis of hip and pelvis,M91,M91-M94 Chondropathies,http://identifiers.org/icd/M91,
 5906,M91.0 Juvenile osteochondrosis of pelvis,M91.0,M91-M94 Chondropathies,http://identifiers.org/icd/M91.0,
-5907,M91.1 Juvenile osteochondrosis of head of femur [Legg-CalvÈ-Perthe,M91.1,M91-M94 Chondropathies,http://identifiers.org/icd/M91.1,ORPHAcode: 2380 Legg-Calvé-Perthes disea
+5907,M91.1 Juvenile osteochondrosis of head of femur [Legg-Calv��-Pe,M91.1,M91-M94 Chondropathies,http://identifiers.org/icd/M91.1,ORPHAcode: 2380 Legg-Calv��-Perthes d
 5908,M91.2 Juvenile osteochondrosis of hip and pelvis - Coxa plana,M91.2,M91-M94 Chondropathies,http://identifiers.org/icd/M91.2,
 5909,M91.3 Juvenile osteochondrosis of hip and pelvis - Pseudocoxalgia,M91.3,M91-M94 Chondropathies,http://identifiers.org/icd/M91.3,
 5910,M91.8 Other juvenile osteochondrosis of hip and pelvis,M91.8,M91-M94 Chondropathies,http://identifiers.org/icd/M91.8,ORPHAcode: 3408 Upington disease
@@ -5923,7 +5923,7 @@ order,name,code,parent,ontologyTermURI,definition
 5922,"M92.9 Juvenile osteochondrosis, unspecified",M92.9,M91-M94 Chondropathies,http://identifiers.org/icd/M92.9,
 5923,M93 Other osteochondropathies,M93,M91-M94 Chondropathies,http://identifiers.org/icd/M93,
 5924,M93.0 Other osteochondropathies - Slipped upper femoral epiphysis (nontraumatic),M93.0,M91-M94 Chondropathies,http://identifiers.org/icd/M93.0,
-5925,M93.1 Other osteochondropathies - Kienbˆck disease of adul,M93.1,M91-M94 Chondropathies,http://identifiers.org/icd/M93.1,
+5925,M93.1 Other osteochondropathies - Kienb��ck disease of ,M93.1,M91-M94 Chondropathies,http://identifiers.org/icd/M93.1,
 5926,M93.2 Other osteochondropathies - Osteochondritis dissecans,M93.2,M91-M94 Chondropathies,http://identifiers.org/icd/M93.2,ORPHAcode: 2764 Osteochondritis dissecans
 5927,M93.8 Other specified osteochondropathies,M93.8,M91-M94 Chondropathies,http://identifiers.org/icd/M93.8,
 5928,"M93.9 Other osteochondropathies - Osteochondropathy, unspecified",M93.9,M91-M94 Chondropathies,http://identifiers.org/icd/M93.9,ORPHAcode: 399329 Epiphysiolysis of the hip
@@ -7326,7 +7326,7 @@ order,name,code,parent,ontologyTermURI,definition
 7325,"Q06.9 Congenital malformation of spinal cord, unspecified",Q06.9,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q06.9,
 7326,Q07 Other congenital malformations of nervous system,Q07,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q07,
 7327,Q07.0 Other congenital malformations of nervous system - Arnold-Chiari syndrome,Q07.0,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q07.0,ORPHAcode: 1136 Arnold-Chiari malformation type II
-7328,Q07.8 Other specified congenital malformations of nervous system,Q07.8,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q07.8,ORPHAcode: 1532 Gómez-López-Hernández sy
+7328,Q07.8 Other specified congenital malformations of nervous system,Q07.8,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q07.8,ORPHAcode: 1532 G��mez-L��pez-Hern�
 7329,"Q07.9 Congenital malformation of nervous system, unspecified",Q07.9,Q00-Q07 Congenital malformations of the nervous system,http://identifiers.org/icd/Q07.9,
 7330,"Q10-Q18 Congenital malformations of eye, ear, face and neck",,"XVII Congenital malformations, deformations and chromosomal abnormalities",,
 7331,"Q10 Congenital malformations of eyelid, lacrimal apparatus and orbit",Q10,"Q10-Q18 Congenital malformations of eye, ear, face and neck",http://identifiers.org/icd/Q10,
@@ -7630,7 +7630,7 @@ order,name,code,parent,ontologyTermURI,definition
 7629,Q51.5 Agenesis and aplasia of cervix,Q51.5,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.5,ORPHAcode: 180145 Uterine cervical aplasia and agenesis
 7630,Q51.6 Embryonic cyst of cervix,Q51.6,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.6,
 7631,Q51.7 Congenital fistulae between uterus and digestive and urinary tracts,Q51.7,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.7,
-7632,Q51.8 Other congenital malformations of uterus and cervix,Q51.8,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.8,ORPHAcode: 3109 Mayer-Rokitansky-Küster-Hauser syndro
+7632,Q51.8 Other congenital malformations of uterus and cervix,Q51.8,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.8,ORPHAcode: 3109 Mayer-Rokitansky-Kuster-Hauser syndro
 7633,"Q51.9 Congenital malformation of uterus and cervix, unspecified",Q51.9,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q51.9,
 7634,Q52 Other congenital malformations of female genitalia,Q52,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q52,
 7635,Q52.0 Congenital absence of vagina,Q52.0,Q50-Q56 Congenital malformations of genital organs,http://identifiers.org/icd/Q52.0,ORPHAcode: 65681 Vaginal atresia
@@ -7839,7 +7839,7 @@ order,name,code,parent,ontologyTermURI,definition
 7838,Q78 Other osteochondrodysplasias,Q78,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78,
 7839,Q78.0 Other osteochondrodysplasias - Osteogenesis imperfecta,Q78.0,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.0,ORPHAcode: 666 Osteogenesis imperfecta
 7840,Q78.1 Other osteochondrodysplasias - Polyostotic fibrous dysplasia,Q78.1,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.1,ORPHAcode: 249 Fibrous dysplasia of bone
-7841,Q78.2 Other osteochondrodysplasias - Osteopetrosis,Q78.2,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.2,ORPHAcode: 53 Albers-Schönberg osteopetros
+7841,Q78.2 Other osteochondrodysplasias - Osteopetrosis,Q78.2,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.2,ORPHAcode: 53 Albers-Sch��nberg osteope
 7842,Q78.3 Other osteochondrodysplasias - Progressive diaphyseal dysplasia,Q78.3,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.3,ORPHAcode: 1328 Camurati-Engelmann disease
 7843,Q78.5 Other osteochondrodysplasias - Metaphyseal dysplasia,Q78.5,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.5,"ORPHAcode: 174 Metaphyseal chondrodysplasia, Schmid type"
 7844,Q78.6 Other osteochondrodysplasias - Multiple congenital exostoses,Q78.6,Q65-Q79 Congenital malformations and deformations of the musculoskeletal system,http://identifiers.org/icd/Q78.6,ORPHAcode: 321 Multiple osteochondromas
@@ -11807,7 +11807,7 @@ order,name,code,parent,ontologyTermURI,definition
 11806,"Ocular motor apraxia, Cogan type",1125,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1125,
 11807,Aprosencephaly cerebellar dysgenesis,1126,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1126,
 11808,Arachnodactyly-abnormal ossification-intellectual disability syndrome,1129,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1129,
-11809,Bazex-Dupré-Christol syndrom,113,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_113,
+11809,Bazex-Dupr��-Christol syn,113,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_113,
 11810,Arachnodactyly-intellectual disability-dysmorphism syndrome,1130,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1130,
 11811,X-linked mandibulofacial dysostosis,1131,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1131,
 11812,Aortic arch defects,1132,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1132,
@@ -11834,7 +11834,7 @@ order,name,code,parent,ontologyTermURI,definition
 11833,Allergic bronchopulmonary aspergillosis,1164,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1164,
 11834,Congenital unilateral hypoplasia of depressor anguli oris,1166,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1166,
 11835,Ataxia-oculomotor apraxia type 1,1168,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1168,
-11836,Behçet diseas,117,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_117,
+11836,Beh��et di,117,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_117,
 11837,Autosomal recessive cerebelloparenchymal disorder type 3,1170,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1170,
 11838,Cerebellar ataxia-areflexia-pes cavus-optic atrophy-sensorineural hearing loss syndrome,1171,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1171,
 11839,Autosomal recessive cerebellar ataxia,1172,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1172,
@@ -11877,7 +11877,7 @@ order,name,code,parent,ontologyTermURI,definition
 11876,Autosomal dominant congenital benign spinal muscular atrophy,1216,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1216,
 11877,Spinal atrophy-ophthalmoplegia-pyramidal syndrome,1217,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1217,
 11878,Aurocephalosyndactyly,1219,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1219,
-11879,Birt-Hogg-Dubé syndrom,122,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_122,
+11879,Birt-Hogg-Dub�� syn,122,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_122,
 11880,Cheilitis glandularis,1221,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1221,
 11881,Balantidiasis,1223,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1223,
 11882,Baller-Gerold syndrome,1225,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1225,
@@ -11885,7 +11885,7 @@ order,name,code,parent,ontologyTermURI,definition
 11884,Bangstad syndrome,1227,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1227,
 11885,Banki syndrome,1228,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1228,
 11886,Congenital intrauterine infection-like syndrome,1229,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1229,
-11887,Björnstad syndrom,123,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_123,
+11887,Bj��rnstad syn,123,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_123,
 11888,Barber-Say syndrome,1231,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1231,
 11889,NON RARE IN EUROPE: Barrett esophagus,1232,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1232,
 11890,Bartsocas-Papas syndrome,1234,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1234,
@@ -11907,7 +11907,7 @@ order,name,code,parent,ontologyTermURI,definition
 11906,Blepharoptosis-myopia-ectopia lentis syndrome,1259,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1259,
 11907,Blepharophimosis-ptosis-epicanthus inversus syndrome,126,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_126,
 11908,Bonnemann-Meinecke-Reich syndrome,1261,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1261,
-11909,Böök syndro,1262,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1262,
+11909,B����,1262,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1262,
 11910,Boomerang dysplasia,1263,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1263,
 11911,Tricho-retino-dento-digital syndrome,1264,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1264,
 11912,"Dermato-cardio-skeletal syndrome, Borrone type",1266,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1266,
@@ -11915,7 +11915,7 @@ order,name,code,parent,ontologyTermURI,definition
 11914,Borjeson-Forssman-Lehmann syndrome,127,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_127,
 11915,Bowen-Conradi syndrome,1270,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1270,
 11916,Bowen syndrome,1271,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1271,
-11917,Aymé-Gripp syndrom,1272,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1272,
+11917,Aym��-Gripp syn,1272,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1272,
 11918,Brachydactyly-elbow wrist dysplasia syndrome,1275,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1275,
 11919,Brachydactyly-arterial hypertension syndrome,1276,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1276,
 11920,Brachydactyly-mesomelia-intellectual disability-heart defects syndrome,1277,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1277,
@@ -12022,7 +12022,7 @@ order,name,code,parent,ontologyTermURI,definition
 12021,X-linked intellectual disability-cerebellar hypoplasia syndrome,137831,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137831,
 12022,Frank-Ter Haar syndrome,137834,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137834,
 12023,Lemierre syndrome,137839,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137839,
-12024,Martínez-Frías syndro,137862,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137862,
+12024,Mart��nez-Fr��a,137862,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137862,
 12025,Madras motor neuron disease,137867,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137867,
 12026,Auriculocondylar syndrome,137888,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137888,
 12027,Male infertility due to large-headed multiflagellar polyploid spermatozoa,137893,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_137893,
@@ -12316,7 +12316,7 @@ order,name,code,parent,ontologyTermURI,definition
 12315,Craniotelencephalic dysplasia,1528,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1528,
 12316,Craniofacial-deafness-hand syndrome,1529,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1529,
 12317,Craniosynostosis,1531,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1531,
-12318,Gómez-López-Hernández syndr,1532,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1532,
+12318,G��mez-L��pez-Hern��,1532,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1532,
 12319,Craniosynostosis-fibular aplasia syndrome,1533,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1533,
 12320,Craniosynostosis-dysmorphism-brachydactyly syndrome,1535,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1535,
 12321,Craniosynostosis-Dandy-Walker malformation-hydrocephalus syndrome,1538,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1538,
@@ -12414,7 +12414,7 @@ order,name,code,parent,ontologyTermURI,definition
 12413,Mesoaxial synostotic syndactyly with phalangeal reduction,157801,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157801,
 12414,Congenital pseudoarthrosis of the limbs,157808,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157808,
 12415,Cold-induced sweating syndrome,157820,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157820,
-12416,Klüver-Bucy syndrom,157823,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157823,
+12416,Kl��ver-Bucy syn,157823,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157823,
 12417,Congenital epulis,157826,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157826,
 12418,Craniorhiny,157832,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157832,
 12419,Paroxysmal hemicrania,157835,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_157835,
@@ -12439,7 +12439,7 @@ order,name,code,parent,ontologyTermURI,definition
 12438,Xanthoma disseminatum,158003,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158003,
 12439,Papular xanthoma,158008,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158008,
 12440,Necrobiotic xanthogranuloma,158011,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158011,
-12441,Rosaï-Dorfman diseas,158014,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158014,
+12441,Rosa��-Dorfman di,158014,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158014,
 12442,Indeterminate cell histiocytosis,158019,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158019,
 12443,Progressive nodular histiocytosis,158022,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158022,
 12444,Hereditary progressive mucinous histiocytosis,158025,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_158025,
@@ -12551,7 +12551,7 @@ order,name,code,parent,ontologyTermURI,definition
 12550,Neutral lipid storage disease,165,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_165,
 12551,Dent disease,1652,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1652,
 12552,Dentin dysplasia,1653,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1653,
-12553,Müllerian derivatives-lymphangiectasia-polydactyly syndro,1655,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1655,
+12553,M��llerian derivatives-lymphangiectasia-polydactyly sy,1655,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1655,
 12554,Dermatitis herpetiformis,1656,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1656,
 12555,Rare genetic gastroenterological disease,165652,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_165652,
 12556,Genetic intestinal disease,165655,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_165655,
@@ -12633,7 +12633,7 @@ order,name,code,parent,ontologyTermURI,definition
 12632,Dextrocardia,1666,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1666,
 12633,Wolcott-Rallison syndrome,1667,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1667,
 12634,Rare hemorrhagic disorder due to an acquired coagulation factor defect,166775,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_166775,
-12635,Chédiak-Higashi syndrom,167,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_167,
+12635,Ch��diak-Higashi syn,167,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_167,
 12636,Chronic diarrhea with villous atrophy,1670,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1670,
 12637,Split cord malformation type I,1671,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1671,
 12638,Diencephalic syndrome,1672,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1672,
@@ -12656,7 +12656,7 @@ order,name,code,parent,ontologyTermURI,definition
 12655,Spondyloepimetaphyseal dysplasia-hypotrichosis syndrome,168443,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168443,
 12656,"Spondyloepimetaphyseal dysplasia, Bieganski type",168448,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168448,
 12657,Spondyloepimetaphyseal dysplasia-abnormal dentition syndrome,168451,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168451,
-12658,"Spondyloepimetaphyseal dysplasia, Geneviève typ",168454,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168454,
+12658,"Spondyloepimetaphyseal dysplasia, Genevi��ve",168454,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168454,
 12659,Congenital neuronal ceroid lipofuscinosis,168486,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168486,
 12660,Late infantile neuronal ceroid lipofuscinosis,168491,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_168491,
 12661,Distomatosis,1685,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1685,
@@ -12858,7 +12858,7 @@ order,name,code,parent,ontologyTermURI,definition
 12857,Isolated sternocostoclavicular hyperostosis,178311,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178311,
 12858,Undifferentiated embryonal sarcoma of the liver,178315,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178315,
 12859,Acute lung injury,178320,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178320,
-12860,�land Islands eye disease,178333,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178333,
+12860,�land Islands eye disease,178333,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178333,
 12861,UV-sensitive syndrome,178338,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178338,
 12862,Inflammatory myofibroblastic tumor,178342,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178342,
 12863,Aromatase excess syndrome,178345,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178345,
@@ -12897,7 +12897,7 @@ order,name,code,parent,ontologyTermURI,definition
 12896,Mycosis fungoides and variants,178566,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178566,
 12897,"Acrofacial dysostosis, Catania type",1786,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1786,
 12898,"Acrofacial dysostosis, Palagonia type",1787,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1787,
-12899,"Acrofacial dysostosis, Rodríguez typ",1788,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1788,
+12899,"Acrofacial dysostosis, Rodr��guez",1788,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1788,
 12900,Acquired neutropenia,178996,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_178996,
 12901,Birdshot chorioretinopathy,179,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_179,
 12902,Hypomandibular faciocranial dysostosis,1790,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_1790,
@@ -12915,8 +12915,8 @@ order,name,code,parent,ontologyTermURI,definition
 12914,Choroideremia,180,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180,
 12915,Uterovaginal malformation,180062,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180062,
 12916,Non-syndromic uterovaginal malformation,180065,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180065,
-12917,Partial bilateral aplasia of the Müllerian duct,180068,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180068,
-12918,Unilateral aplasia of the Müllerian duct,180071,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180071,
+12917,Partial bilateral aplasia of the M��llerian ,180068,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180068,
+12918,Unilateral aplasia of the M��llerian ,180071,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180071,
 12919,True unicornuate uterus,180074,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180074,
 12920,Pseudounicornuate uterus,180079,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180079,
 12921,Didelphys uterus,180086,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_180086,
@@ -13520,8 +13520,8 @@ order,name,code,parent,ontologyTermURI,definition
 13519,Adult hepatocellular carcinoma,210159,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210159,
 13520,"Congenital lethal myopathy, Compton-North type",210163,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210163,
 13521,GTP cyclohydrolase I deficiency,2102,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2102,
-13522,Mal de débarquemen,210272,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210272,
-13523,Guillain-Barré syndrom,2103,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2103,
+13522,Mal de d��barqu,210272,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210272,
+13523,Guillain-Barr�� syn,2103,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2103,
 13524,Dysmorphism-pectus carinatum-joint laxity syndrome,2104,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2104,
 13525,Macrocephaly-intellectual disability-autism syndrome,210548,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210548,
 13526,Myoclonic dystonia 15,210566,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_210566,
@@ -13573,7 +13573,7 @@ order,name,code,parent,ontologyTermURI,definition
 13572,Hennekam-Beemer syndrome,2135,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2135,
 13573,Ovarian cancer,213500,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213500,
 13574,Adenocarcinoma of ovary,213504,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213504,
-13575,Malignant mixed Müllerian tumor of the ovar,213512,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213512,
+13575,Malignant mixed M��llerian tumor of the ,213512,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213512,
 13576,Familial ovarian cancer,213517,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213517,
 13577,Hereditary site-specific ovarian cancer syndrome,213524,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213524,
 13578,Rare adenocarcinoma of the breast,213528,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213528,
@@ -13617,7 +13617,7 @@ order,name,code,parent,ontologyTermURI,definition
 13616,Adenoid basal carcinoma of the cervix uteri,213828,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213828,
 13617,Glassy cell carcinoma of the cervix uteri,213833,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213833,
 13618,Malignant germ cell tumor of the cervix uteri,213837,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_213837,
-13619,Hernández-Aguirre Negrete syndrom,2139,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2139,
+13619,Hern��ndez-Aguirre Negrete syn,2139,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2139,
 13620,Cystinuria,214,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_214,
 13621,Congenital diaphragmatic hernia,2140,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2140,
 13622,Diaphragmatic defect-limb deficiency-skull defect syndrome,2141,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2141,
@@ -13881,7 +13881,7 @@ order,name,code,parent,ontologyTermURI,definition
 13880,"Idiopathic ventricular fibrillation, non Brugada type",228140,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228140,
 13881,Multiple sclerosis variant,228145,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228145,
 13882,Marburg acute multiple sclerosis,228157,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228157,
-13883,Baló concentric sclerosi,228165,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228165,
+13883,Bal�� concentric scle,228165,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228165,
 13884,Autosomal dominant striatal neurodegeneration,228169,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228169,
 13885,Autosomal dominant Charcot-Marie-Tooth disease type 2N,228174,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228174,
 13886,Autosomal dominant Charcot-Marie-Tooth disease type 2M,228179,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_228179,
@@ -13998,11 +13998,11 @@ order,name,code,parent,ontologyTermURI,definition
 13997,Beta-thalassemia-X-linked thrombocytopenia syndrome,231393,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231393,
 13998,Autosomal dominant hyper-IgE syndrome,2314,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2314,
 13999,Alpha-thalassemia-myelodysplastic syndrome,231401,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231401,
-14000,Variant of Guillain-Barré syndrom,231413,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231413,
-14001,Regional variant of Guillain-Barré syndrom,231416,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231416,
-14002,Functional variant of Guillain-Barré syndrom,231419,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231419,
-14003,Pharyngeal-cervical-brachial variant of Guillain-Barré syndrom,231426,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231426,
-14004,Paraparetic variant of Guillain-Barré syndrom,231445,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231445,
+14000,Variant of Guillain-Barr�� syn,231413,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231413,
+14001,Regional variant of Guillain-Barr�� syn,231416,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231416,
+14002,Functional variant of Guillain-Barr�� syn,231419,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231419,
+14003,Pharyngeal-cervical-brachial variant of Guillain-Barr�� syn,231426,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231426,
+14004,Paraparetic variant of Guillain-Barr�� syn,231445,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231445,
 14005,Acute pure sensory neuropathy,231450,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231450,
 14006,Acute pandysautonomia,231457,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231457,
 14007,Acute sensory ataxic neuropathy,231466,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_231466,
@@ -14085,7 +14085,7 @@ order,name,code,parent,ontologyTermURI,definition
 14084,Laurin-Sandrow syndrome,2378,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2378,
 14085,Early-onset parkinsonism-intellectual disability syndrome,2379,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2379,
 14086,Digestive duplication,238,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_238,
-14087,Legg-Calvé-Perthes diseas,2380,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2380,
+14087,Legg-Calv��-Perthes di,2380,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2380,
 14088,Lennox-Gastaut syndrome,2382,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2382,
 14089,AApoAII amyloidosis,238269,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_238269,
 14090,Infundibulo-neurohypophysitis,238305,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_238305,
@@ -14140,7 +14140,7 @@ order,name,code,parent,ontologyTermURI,definition
 14139,Multiple symmetric lipomatosis,2398,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2398,
 14140,Nasopalpebral lipoma-coloboma syndrome,2399,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2399,
 14141,Fumaric aciduria,24,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_24,
-14142,Léri-Weill dyschondrosteosi,240,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_240,
+14142,L��ri-Weill dyschondrost,240,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_240,
 14143,Peripheral motor neuropathy-dysautonomia syndrome,2400,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2400,
 14144,Classic progressive supranuclear palsy syndrome,240071,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_240071,
 14145,Progressive supranuclear palsy-parkinsonism syndrome,240085,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_240085,
@@ -14243,8 +14243,8 @@ order,name,code,parent,ontologyTermURI,definition
 14242,Idiopathic eosinophilic myositis,247724,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247724,
 14243,Lipoblastoma,247762,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247762,
 14244,X-linked cerebellar ataxia,247765,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247765,
-14245,Müllerian aplasia and hyperandrogenis,247768,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247768,
-14246,Mayer-Rokitansky-Küster-Hauser syndrome type ,247775,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247775,
+14245,Mullerian aplasia and hyperandrogenis,247768,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247768,
+14246,Mayer-Rokitansky-Kuster-Hauser syndrome type (duplicate 1),247775,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247775,
 14247,FTH1-related iron overload,247790,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247790,
 14248,Juvenile cataract-microcornea-renal glucosuria syndrome,247794,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247794,
 14249,MUTYH-related attenuated familial adenomatous polyposis,247798,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_247798,
@@ -14287,9 +14287,9 @@ order,name,code,parent,ontologyTermURI,definition
 14286,Lower limb malformation-hypospadias syndrome,2487,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2487,
 14287,Upper limb defect-eye and ear abnormalities syndrome,2489,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2489,
 14288,Fibrous dysplasia of bone,249,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_249,
-14289,Müllerian duct anomalies-limb anomalies syndrom,2491,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2491,
+14289,M��llerian duct anomalies-limb anomalies syn,2491,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2491,
 14290,FATCO syndrome,2492,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2492,
-14291,Ménétrier disea,2494,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2494,
+14291,M��n��tri,2494,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2494,
 14292,Meningioma,2495,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2495,
 14293,Mesomelia-synostoses syndrome,2496,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2496,
 14294,Upper limb mesomelic dysplasia,2497,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2497,
@@ -14557,7 +14557,7 @@ order,name,code,parent,ontologyTermURI,definition
 14556,Moynahan syndrome,2574,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2574,
 14557,Cystic fibrosis-gastritis-megaloblastic anemia syndrome,2575,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2575,
 14558,Mulibrey nanism,2576,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2576,
-14559,Mayer-Rokitansky-Küster-Hauser syndrome type ,2578,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2578,
+14559,Mayer-Rokitansky-Kuster-Hauser syndrome type ,2578,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2578,
 14560,Muscular atrophy-ataxia-retinitis pigmentosa-diabetes mellitus syndrome,2579,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2579,
 14561,Laminin subunit alpha 2-related congenital muscular dystrophy,258,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_258,
 14562,Myalgia-eosinophilia syndrome associated with tryptophan,2582,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2582,
@@ -15355,7 +15355,7 @@ order,name,code,parent,ontologyTermURI,definition
 15354,Serpentine fibula-polycystic kidneys syndrome,2853,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2853,
 15355,Fuhrmann syndrome,2854,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2854,
 15356,Perrault syndrome,2855,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2855,
-15357,Persistent Müllerian duct syndrom,2856,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2856,
+15357,Persistent M��llerian duct syn,2856,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2856,
 15358,Disorder of folate metabolism and transport,285657,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_285657,
 15359,Vascular Ehlers-Danlos syndrome,286,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_286,
 15360,Short stature-wormian bones-dextrocardia syndrome,2863,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_2863,
@@ -15401,8 +15401,8 @@ order,name,code,parent,ontologyTermURI,definition
 15400,Early-onset myopathy with fatal cardiomyopathy,289377,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289377,
 15401,Myosclerosis,289380,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289380,
 15402,Malignancy diagnosed during pregnancy,289385,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289385,
-15403,Primary Sjögren syndrom,289390,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289390,
-15404,NON RARE IN EUROPE: Secondary Sjögren syndrom,289395,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289395,
+15403,Primary Sj��gren syn,289390,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289390,
+15404,NON RARE IN EUROPE: Secondary Sj��gren syn,289395,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289395,
 15405,Isolated congenital adermatoglyphia,289465,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289465,
 15406,Pyoderma gangrenosum-acne-suppurative hidradenitis syndrome,289478,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289478,
 15407,Intellectual disability-alacrima-achalasia syndrome,289483,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_289483,
@@ -15957,13 +15957,13 @@ order,name,code,parent,ontologyTermURI,definition
 15956,Robinow-like syndrome,3105,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3105,
 15957,Robinow-Sorauf syndrome,3106,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3106,
 15958,Autosomal dominant Robinow syndrome,3107,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3107,
-15959,Mayer-Rokitansky-Küster-Hauser syndrom,3109,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3109,
+15959,Mayer-Rokitansky-Kuster-Hauser syndrom,3109,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3109,
 15960,Rombo syndrome,3110,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3110,
 15961,Rotor syndrome,3111,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3111,
 15962,Dermatofibrosarcoma protuberans,31112,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_31112,
 15963,Patella aplasia-coxa vara-tarsal synostosis syndrome,3112,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3112,
 15964,Oral erosive lichen,31142,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_31142,
-15965,Roussy-Lévy syndrom,3115,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3115,
+15965,Roussy-L��vy syn,3115,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3115,
 15966,Tangier disease,31150,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_31150,
 15967,Hypoalphalipoproteinemia,31153,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_31153,
 15968,Hypobetalipoproteinemia,31154,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_31154,
@@ -16086,7 +16086,7 @@ order,name,code,parent,ontologyTermURI,definition
 16085,Septo-optic dysplasia spectrum,3157,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3157,
 16086,Progressive symmetric erythrokeratodermia,316,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_316,
 16087,Congenital pulmonary sequestration,3161,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3161,
-16088,Sézary syndrom,3162,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3162,
+16088,S��zary syn,3162,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3162,
 16089,Spastic ataxia,316226,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_316226,
 16090,Autosomal dominant spastic ataxia,316235,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_316235,
 16091,Autosomal recessive spastic ataxia,316240,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_316240,
@@ -16234,7 +16234,7 @@ order,name,code,parent,ontologyTermURI,definition
 16233,Spastic paraplegia-optic atrophy-neuropathy syndrome,320406,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_320406,
 16234,Autosomal recessive spastic paraplegia type 56,320411,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_320411,
 16235,Sturge-Weber syndrome,3205,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3205,
-16236,Stüve-Wiedemann syndrom,3206,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3206,
+16236,St��ve-Wiedemann syn,3206,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3206,
 16237,White matter hypoplasia-corpus callosum agenesis-intellectual disability syndrome,3207,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3207,
 16238,Isolated succinate-CoQ reductase deficiency,3208,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3208,
 16239,Multiple osteochondromas,321,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_321,
@@ -16403,7 +16403,7 @@ order,name,code,parent,ontologyTermURI,definition
 16402,Fatty acid hydroxylase-associated neurodegeneration,329308,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329308,
 16403,Adult-onset multiple mitochondrial DNA deletion syndrome due to DGUOK deficiency,329314,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329314,
 16404,Thrombocythemia with distal limb defects,329319,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329319,
-16405,Inverse Klippel-Trénaunay syndrom,329324,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329324,
+16405,Inverse Klippel-Tr��naunay syn,329324,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329324,
 16406,Autosomal recessive frontotemporal pachygyria,329329,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329329,
 16407,Microcephaly-cerebellar hypoplasia-cardiac conduction defect syndrome,329332,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329332,
 16408,Adult-onset chronic progressive external ophthalmoplegia with mitochondrial myopathy,329336,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_329336,
@@ -16489,7 +16489,7 @@ order,name,code,parent,ontologyTermURI,definition
 16488,Thrombocytopenia-absent radius syndrome,3320,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3320,
 16489,Idiopathic hypersomnia,33208,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33208,
 16490,Hoyeraal-Hreidarsson syndrome,3322,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3322,
-16491,Waldenström macroglobulinemi,33226,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33226,
+16491,Waldenstr��m macroglobuli,33226,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33226,
 16492,Braddock-Carey syndrome,3323,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3323,
 16493,Familial thrombomodulin anomalies,3324,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3324,
 16494,Heparin-induced thrombocytopenia,3325,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3325,
@@ -16504,7 +16504,7 @@ order,name,code,parent,ontologyTermURI,definition
 16503,Hypoplastic tibiae-postaxial polydactyly syndrome,3332,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3332,
 16504,"Connective tissue dysplasia, Spellacy type",3333,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3333,
 16505,Reticular dysgenesis,33355,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33355,
-16506,Tomé-Brunet-Fardeau syndrom,3336,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3336,
+16506,Tom��-Brunet-Fardeau syn,3336,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3336,
 16507,Trichothiodystrophy,33364,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33364,
 16508,Primary Fanconi renotubular syndrome,3337,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3337,
 16509,Toriello-Carey syndrome,3338,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3338,
@@ -16519,7 +16519,7 @@ order,name,code,parent,ontologyTermURI,definition
 16518,Weismann-Netter syndrome,3344,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3344,
 16519,Neuroectodermal melanolysosomal disease,33445,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33445,
 16520,Tracheal agenesis,3346,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3346,
-16521,Mounier-Kühn syndrom,3347,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3347,
+16521,Mounier-K��hn syn,3347,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3347,
 16522,Meningococcal meningitis,33475,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_33475,
 16523,Tracheobronchopathia osteochondroplastica,3348,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3348,
 16524,Treft-Sanborn-Carey syndrome,3349,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_3349,
@@ -16693,7 +16693,7 @@ order,name,code,parent,ontologyTermURI,definition
 16692,CLN13 disease,352709,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352709,
 16693,Facial dysmorphism-immunodeficiency-livedo-short stature syndrome,352712,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352712,
 16694,Progressive retinal dystrophy due to retinol transport defect,352718,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352718,
-16695,Attenuated Chédiak-Higashi syndrom,352723,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352723,
+16695,Attenuated Ch��diak-Higashi syn,352723,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352723,
 16696,Disorder of melanin metabolism,352728,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352728,
 16697,Oculocutaneous albinism type 1,352731,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352731,
 16698,Minimal pigment oculocutaneous albinism type 1,352734,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_352734,
@@ -16764,7 +16764,7 @@ order,name,code,parent,ontologyTermURI,definition
 16763,Gitelman syndrome,358,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_358,
 16764,Malignant germ cell tumor of ovary,35807,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35807,
 16765,Malignant sex cord stromal tumor of ovary,35808,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35808,
-16766,Imerslund-Gräsbeck syndrom,35858,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35858,
+16766,Imerslund-Gr��sbeck syn,35858,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35858,
 16767,Hyperinsulinism-hyperammonemia syndrome,35878,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35878,
 16768,Acute opioid poisoning,35889,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_35889,
 16769,Hereditary glaucoma,359,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_359,
@@ -16986,7 +16986,7 @@ order,name,code,parent,ontologyTermURI,definition
 16985,Generalized isolated dystonia,376724,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_376724,
 16986,Gorlin syndrome,377,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_377,
 16987,Schnitzler syndrome,37748,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_37748,
-16988,NON RARE IN EUROPE: Sjögren syndrom,378,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_378,
+16988,NON RARE IN EUROPE: Sj��gren syn,378,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_378,
 16989,Chronic granulomatous disease,379,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_379,
 16990,Acrokeratoelastoidosis of Costa,38,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_38,
 16991,Greig cephalopolysyndactyly syndrome,380,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_380,
@@ -17038,7 +17038,7 @@ order,name,code,parent,ontologyTermURI,definition
 17037,Off-periods in Parkinson disease not responding to oral treatment,391655,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391655,
 17038,Homozygous familial hypercholesterolemia,391665,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391665,
 17039,Necrotizing enterocolitis,391673,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391673,
-17040,Short stature-optic atrophy-Pelger-Huët anomaly syndrom,391677,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391677,
+17040,Short stature-optic atrophy-Pelger-Hu��t anomaly syn,391677,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391677,
 17041,Persistent combined dystonia,391711,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391711,
 17042,Mucinous adenocarcinoma of the appendix,391723,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391723,
 17043,Rare genetic dystonia,391799,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_391799,
@@ -17195,7 +17195,7 @@ order,name,code,parent,ontologyTermURI,definition
 17194,Partial corpus callosum agenesis-cerebellar vermis hypoplasia with posterior fossa cysts syndrome,401959,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401959,
 17195,Autosomal dominant Charcot-Marie-Tooth disease type 2 with giant axons,401964,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401964,
 17196,MEND syndrome,401973,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401973,
-17197,"Autosomal recessive spondylometaphyseal dysplasia, Mégarbané ty",401979,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401979,
+17197,"Autosomal recessive spondylometaphyseal dysplasia, M��garban�",401979,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401979,
 17198,1p31p32 microdeletion syndrome,401986,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401986,
 17199,Cold-induced sweating syndrome-hyperthermia spectrum,401993,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401993,
 17200,Karyomegalic interstitial nephritis,401996,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_401996,
@@ -17635,7 +17635,7 @@ order,name,code,parent,ontologyTermURI,definition
 17634,Autosomal recessive cerebellar ataxia due to CWF19L1 deficiency,453521,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_453521,
 17635,Polyendocrine-polyneuropathy syndrome,453533,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_453533,
 17636,Congenital fibrosis of extraocular muscles,45358,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_45358,
-17637,NON RARE IN EUROPE: Menière diseas,45360,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_45360,
+17637,NON RARE IN EUROPE: Meni��re di,45360,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_45360,
 17638,Acquired ichthyosis,454,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_454,
 17639,Miyoshi myopathy,45448,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_45448,
 17640,Idiopathic neonatal atrial flutter,45452,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_45452,
@@ -17823,7 +17823,7 @@ order,name,code,parent,ontologyTermURI,definition
 17822,BVES-related limb-girdle muscular dystrophy,476084,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476084,
 17823,Autosomal dominant distal axonal motor neuropathy-myofibrillar myopathy syndrome,476093,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476093,
 17824,Erythrokeratodermia-cardiomyopathy syndrome,476096,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476096,
-17825,Hereditary pediatric Behçet-like diseas,476102,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476102,
+17825,Hereditary pediatric Beh��et-like di,476102,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476102,
 17826,Axonal hereditary motor and sensory neuropathy,476109,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476109,
 17827,Combined immunodeficiency due to TFRC deficiency,476113,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476113,
 17828,Demyelinating hereditary motor and sensory neuropathy,476116,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_476116,
@@ -18135,7 +18135,7 @@ order,name,code,parent,ontologyTermURI,definition
 18134,8q24.3 microdeletion syndrome,508488,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508488,
 18135,Intellectual disability-cardiac anomalies-short stature-joint laxity syndrome,508498,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508498,
 18136,Oral-facial-digital syndrome with short stature and brachymesophalangy,508501,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508501,
-18137,Intrauterine growth restriction-congenital multiple café-au-lait macules-increased sister chromatid exchange syndro,508512,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508512,
+18137,Intrauterine growth restriction-congenital multiple caf��-au-lait macules-increased sister chromatid exchange sy,508512,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508512,
 18138,Hyperphenylalaninemia due to DNAJC12 deficiency,508523,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508523,
 18139,Intermediate epidermolysis bullosa simplex with cardiomyopathy,508529,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508529,
 18140,Skeletal dysplasia-T-cell immunodeficiency-developmental delay syndrome,508533,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_508533,
@@ -18144,9 +18144,9 @@ order,name,code,parent,ontologyTermURI,definition
 18143,Kikuchi-Fujimoto disease,50918,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50918,
 18144,Striate palmoplantar keratoderma,50942,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50942,
 18145,Keratolytic winter erythema,50943,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50943,
-18146,Schöpf-Schulz-Passarge syndrom,50944,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50944,
+18146,Sch��pf-Schulz-Passarge syn,50944,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50944,
 18147,Blomstrand lethal chondrodysplasia,50945,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_50945,
-18148,Aicardi-Goutières syndrom,51,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_51,
+18148,Aicardi-Gouti��res syn,51,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_51,
 18149,Lesch-Nyhan syndrome,510,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_510,
 18150,Familial short QT syndrome,51083,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_51083,
 18151,Torsade-de-pointes syndrome with short coupling interval,51084,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_51084,
@@ -18354,7 +18354,7 @@ order,name,code,parent,ontologyTermURI,definition
 18353,Immune dysregulation with inflammatory bowel disease,529974,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_529974,
 18354,Immune dysregulation-inflammatory bowel disease-arthritis-recurrent infections-lymphopenia syndrome,529977,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_529977,
 18355,Inflammatory bowel disease-recurrent sinopulmonary infections syndrome,529980,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_529980,
-18356,Albers-Schönberg osteopetrosi,53,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_53,
+18356,Albers-Sch��nberg osteopet,53,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_53,
 18357,Lipoid proteinosis,530,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_530,
 18358,Dermoid or epidermoid cyst of the central nervous system,530033,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_530033,
 18359,Progressive myoclonic epilepsy with neuroserpin inclusion bodies,530298,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_530298,
@@ -18495,7 +18495,7 @@ order,name,code,parent,ontologyTermURI,definition
 18494,Idiopathic gastroparesis,558411,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_558411,
 18495,Chondrosarcoma,55880,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_55880,
 18496,Adamantinoma,55881,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_55881,
-18497,Marinesco-Sjögren syndrom,559,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_559,
+18497,Marinesco-Sj��gren syn,559,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_559,
 18498,Alkaptonuria,56,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_56,
 18499,Marshall syndrome,560,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_560,
 18500,Carcinoma of gallbladder and extrahepatic biliary tract,56044,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_56044,
@@ -18782,7 +18782,7 @@ order,name,code,parent,ontologyTermURI,definition
 18781,Schisis association,63862,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_63862,
 18782,Polyneuropathy associated with IgM monoclonal gammapathy with anti-MAG,639,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_639,
 18783,IgG4-related mediastinitis,63999,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_63999,
-18784,Alström syndrom,64,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_64,
+18784,Alstr��m syn,64,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_64,
 18785,Hereditary neuropathy with liability to pressure palsies,640,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_640,
 18786,Multifocal motor neuropathy,641,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_641,
 18787,Hereditary sensory and autonomic neuropathy type 4,642,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_642,
@@ -18891,7 +18891,7 @@ order,name,code,parent,ontologyTermURI,definition
 18890,Annular pancreas,675,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_675,
 18891,Hereditary chronic pancreatitis,676,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_676,
 18892,Pancreatoblastoma,677,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_677,
-18893,Papillon-Lefèvre syndrom,678,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_678,
+18893,Papillon-Lef��vre syn,678,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_678,
 18894,Malignant atrophic papulosis,679,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_679,
 18895,Amoebiasis due to free-living amoebae,68,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_68,
 18896,Normokalemic periodic paralysis,680,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_680,
@@ -19040,7 +19040,7 @@ order,name,code,parent,ontologyTermURI,definition
 19039,Intractable diarrhea of infancy,73014,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73014,
 19040,Autosomal recessive polycystic kidney disease,731,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_731,
 19041,Polymyositis,732,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_732,
-19042,Müllerian aplasi,73217,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73217,
+19042,M��llerian ap,73217,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73217,
 19043,X-linked intellectual disability-hypotonic face syndrome,73220,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73220,
 19044,Global developmental delay-osteopenia-ectodermal defect syndrome,73223,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73223,
 19045,Tubular renal disease-cardiomyopathy syndrome,73224,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_73224,
@@ -19167,7 +19167,7 @@ order,name,code,parent,ontologyTermURI,definition
 19166,Juvenile polyposis of infancy,79076,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79076,
 19167,IgG4-related dacryoadenitis and sialadenitis,79078,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79078,
 19168,PPARG-related familial partial lipodystrophy,79083,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79083,
-19169,"Familial partial lipodystrophy, Köbberling typ",79084,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79084,
+19169,"Familial partial lipodystrophy, K��bberling",79084,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79084,
 19170,AKT2-related familial partial lipodystrophy,79085,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79085,
 19171,Acquired generalized lipodystrophy,79086,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79086,
 19172,Acquired partial lipodystrophy,79087,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_79087,
@@ -19469,7 +19469,7 @@ order,name,code,parent,ontologyTermURI,definition
 19468,Shwachman-Diamond syndrome,811,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_811,
 19469,Sialidosis type 1,812,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_812,
 19470,Silver-Russell syndrome,813,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_813,
-19471,Sjögren-Larsson syndrom,816,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_816,
+19471,Sj��gren-Larsson syn,816,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_816,
 19472,Peeling skin syndrome,817,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_817,
 19473,Smith-Lemli-Opitz syndrome,818,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_818,
 19474,Smith-Magenis syndrome,819,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_819,
@@ -19843,7 +19843,7 @@ order,name,code,parent,ontologyTermURI,definition
 19842,Drug-induced autoimmune hemolytic anemia,90037,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90037,
 19843,Shiga toxin-associated hemolytic uremic syndrome,90038,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90038,
 19844,Hemoglobin D disease,90039,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90039,
-19845,Gaisböck syndrom,90041,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90041,
+19845,Gaisb��ck syn,90041,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90041,
 19846,Primary familial polycythemia,90042,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90042,
 19847,Familial pseudohyperkalemia,90044,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90044,
 19848,Hereditary folate malabsorption,90045,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90045,
@@ -19896,7 +19896,7 @@ order,name,code,parent,ontologyTermURI,definition
 19895,Von Willebrand disease,903,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_903,
 19896,Acanthosis nigricans-insulin resistance-muscle cramps-acral enlargement syndrome,90301,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90301,
 19897,Parkes Weber syndrome,90307,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90307,
-19898,Klippel-Trénaunay syndrom,90308,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90308,
+19898,Klippel-Tr��naunay syn,90308,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90308,
 19899,Cockayne syndrome type 1,90321,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90321,
 19900,Cockayne syndrome type 2,90322,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90322,
 19901,Cockayne syndrome type 3,90324,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_90324,
@@ -20922,7 +20922,7 @@ order,name,code,parent,ontologyTermURI,definition
 20921,Climatic droplet keratopathy,98958,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98958,
 20922,Subepithelial mucinous corneal dystrophy,98959,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98959,
 20923,Thiel-Behnke corneal dystrophy,98960,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98960,
-20924,Reis-Bücklers corneal dystroph,98961,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98961,
+20924,Reis-B��cklers corneal dyst,98961,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98961,
 20925,Granular corneal dystrophy type I,98962,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98962,
 20926,Granular corneal dystrophy type II,98963,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98963,
 20927,Lattice corneal dystrophy type I,98964,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98964,
@@ -20931,7 +20931,7 @@ order,name,code,parent,ontologyTermURI,definition
 20930,Macular corneal dystrophy,98969,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98969,
 20931,Fleck corneal dystrophy,98970,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98970,
 20932,Posterior amorphous corneal dystrophy,98971,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98971,
-20933,Central cloudy dystrophy of Françoi,98972,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98972,
+20933,Central cloudy dystrophy of Fran��,98972,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98972,
 20934,Posterior polymorphous corneal dystrophy,98973,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98973,
 20935,Fuchs endothelial corneal dystrophy,98974,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98974,
 20936,Congenital hereditary endothelial dystrophy type I,98975,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_98975,
@@ -21215,5 +21215,3 @@ order,name,code,parent,ontologyTermURI,definition
 21214,Relapsing epidemic typhus,99991,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_99991,
 21215,Complex regional pain syndrome type 2,99994,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_99994,
 21216,Complex regional pain syndrome type 1,99995,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_99995,
-21217,Complex regional pain syndrome type 2,99994,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_99994,
-21218,Complex regional pain syndrome type 1,99995,ORPHAcodes,http://www.orpha.net/ORDO/Orphanet_99995,
