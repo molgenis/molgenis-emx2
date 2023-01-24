@@ -43,7 +43,7 @@ public class OntologyTableSemantics {
     when(request.url()).thenReturn("http://localhost:8080/petStore/api/fdp");
     OutputStream outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchema);
+        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
     String result = outputStream.toString();
 
     /**
@@ -66,7 +66,7 @@ public class OntologyTableSemantics {
 
     outputStream = new ByteArrayOutputStream();
     RDFService.describeAsRDF(
-        outputStream, request, response, RDF_API_LOCATION, null, null, petStoreSchema);
+        outputStream, request, response, RDF_API_LOCATION, null, null, null, petStoreSchema);
     result = outputStream.toString();
 
     /**
