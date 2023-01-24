@@ -1,5 +1,8 @@
 <template>
-  <div class="schema-toc sticky-top mr-n3 overflow-auto" style="top: 50px; height: 90vh">
+  <div
+    class="schema-toc sticky-top mr-n3 overflow-auto"
+    style="top: 50px; height: 90vh"
+  >
     <div class="hoverContainer">
       <label class="m-0">Tables:</label>
       <TableEditModal

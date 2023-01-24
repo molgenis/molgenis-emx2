@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import TableMolgenis from "../tables/TableMolgenis.vue";

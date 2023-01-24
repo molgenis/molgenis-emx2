@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { request } from "../../client/client.js";
+import { request } from "../../client/client.ts";
 import IconAction from "../forms/IconAction.vue";
 import InputText from "../forms/InputText.vue";
 import ButtonAction from "../forms/ButtonAction.vue";

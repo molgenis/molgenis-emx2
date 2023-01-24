@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import BaseInput from "./baseInputs/BaseInput.vue";
 import TableSearch from "../tables/TableSearch.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
@@ -199,7 +199,7 @@ export default {
          <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need graphqlURL, default url = 'graphql' just works -->
+      <!-- normally you don't need schemaName, usually scope is all you need -->
       <InputRef
         id="input-ref"
         label="Standard ref input"

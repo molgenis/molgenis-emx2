@@ -1,12 +1,10 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
-
+    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.description }}
+      {{ localizedDescription }}
     </p>
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -232,6 +230,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       @close="handleModalClose"
+      :locale="locale"
     />
 
     <ConfirmModal
@@ -267,8 +266,13 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
-import { getPrimaryKey, convertToPascalCase } from "../utils";
+import Client from "../../client/client.ts";
+import {
+  getPrimaryKey,
+  convertToPascalCase,
+  getLocalizedDescription,
+  getLocalizedLabel,
+} from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -319,7 +323,7 @@ export default {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
@@ -396,10 +400,20 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     tableId() {
       return convertToPascalCase(this.tableName);
+    },
+    localizedLabel() {
+      return getLocalizedLabel(this.tableMetadata, this.locale);
+    },
+    localizedDescription() {
+      return getLocalizedDescription(this.tableMetadata, this.locale);
     },
     View() {
       return View;
@@ -627,7 +641,6 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
@@ -647,13 +660,11 @@ export default {
     "searchTerms",
   ],
 };
-
 function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
 }
-
 function getCondition(columnType, condition) {
   if (condition) {
     switch (columnType) {
@@ -677,7 +688,6 @@ function getCondition(columnType, condition) {
   }
 }
 </script>
-
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {
@@ -686,36 +696,34 @@ function getCondition(columnType, condition) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .inline-form-group {
   margin-bottom: 0;
 }
 </style>
-
 <docs>
 <template>
   <div>
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-          id="my-table-explorer"
-          tableName="Pet"
-          graphqlURL="/pet store/graphql"
-          :showColumns="showColumns"
-          :showFilters="showFilters"
-          :urlConditions="urlConditions"
-          :showPage="page"
-          :showLimit="limit"
-          :showOrderBy="showOrderBy"
-          :showOrder="showOrder"
-          :canEdit="canEdit"
-          :canManage="canManage"
+        id="my-table-explorer"
+        tableName="Pet"
+        schemaName="pet store"
+        :showColumns="showColumns"
+        :showFilters="showFilters"
+        :urlConditions="urlConditions"
+        :showPage="page"
+        :showLimit="limit"
+        :showOrderBy="showOrderBy"
+        :showOrder="showOrder"
+        :canEdit="canEdit"
+        :canManage="canManage"
+        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -731,7 +739,6 @@ function getCondition(columnType, condition) {
     </div>
   </div>
 </template>
-
 <script>
   export default {
     data() {
@@ -744,7 +751,8 @@ function getCondition(columnType, condition) {
         showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
-        canManage: false
+        canManage: false,
+        locale: 'en'
       }
     },
   }

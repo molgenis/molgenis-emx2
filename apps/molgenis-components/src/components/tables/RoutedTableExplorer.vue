@@ -20,6 +20,7 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
+      :locale="locale"
     />
   </div>
 </template>
@@ -53,6 +54,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    locale: {
+      type: String,
+      default: () => "en",
     },
   },
   methods: {
@@ -219,7 +224,7 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
       />
     </div>
   </div>

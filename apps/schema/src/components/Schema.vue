@@ -48,6 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
+          :locales="session?.settings?.locales"
         />
       </div>
     </div>
@@ -82,7 +83,7 @@ import {
   Spinner,
   deepClone,
 } from "molgenis-components";
-import VueScrollTo from 'vue-scrollto';
+import VueScrollTo from "vue-scrollto";
 
 export default {
   components: {
@@ -94,6 +95,11 @@ export default {
     SchemaToc,
     Spinner,
     NomnomDiagram,
+  },
+  props: {
+    session: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -156,6 +162,7 @@ export default {
         }
       });
       tables.forEach((table) => {
+        delete table.externalSchema;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];
@@ -193,7 +200,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,labels{locale,value},descriptions{locale,value},semantics,columns{name,labels{locale,value},table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,descriptions{locale,value},semantics,validation,visible} } } }"
       )
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);

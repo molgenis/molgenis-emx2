@@ -263,7 +263,7 @@ export default {
 </template>
 
 <script>
-import Client from "../../../src/client/client.js";
+import Client from "../../../src/client/client.ts";
 
 export default {
   data() {
@@ -313,7 +313,7 @@ export default {
   },
   async mounted() {
     const client = Client.newClient("pet store", this.$axios);
-    const remoteMetaData = await client.fetchMetaData();
+    const remoteMetaData = await client.fetchSchemaMetaData();
     const petColumns = remoteMetaData.tables.find(
       (t) => t.name === "Pet"
     ).columns;
