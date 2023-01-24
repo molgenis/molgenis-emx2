@@ -16,7 +16,9 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         .table('Biobanks')
         .select(['id', 'name', 'collections.id', 'collections.name', 'collections.size', ...biobankCardGraphql]) // TODO: add different config for the collection side
         .orderBy("Biobanks", "name", "asc")
+        .orderBy("collections", "name", "asc")
 
+    console.log(baseQuery.getQuery() , '<< base bio query')
     /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
     async function getBiobankCards () {
         waitingForResponse.value = true

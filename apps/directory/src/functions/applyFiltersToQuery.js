@@ -9,6 +9,7 @@ export async function applyFiltersToQuery (baseQuery, filters) {
         const filterValue = filters[filterKey]
         switch (filterKey) {
             case "search": {
+                /** add filters to Biobanks */
                 baseQuery.orWhere("id").like(filterValue)
                 baseQuery.orWhere("name").like(filterValue)
                 baseQuery.orWhere("acronym").like(filterValue)
@@ -21,10 +22,21 @@ export async function applyFiltersToQuery (baseQuery, filters) {
                 baseQuery.orWhere("collections.diagnosisAvailable.definition").like(filterValue)
                 baseQuery.orWhere("collections.materials.name").like(filterValue)
                 baseQuery.orWhere("collections.materials.label").like(filterValue)
+
+                /** and filter the collections  */
+                baseQuery.filter("collections", "id").like(filterValue)
+                baseQuery.filter("collections", "name").like(filterValue)
+                baseQuery.filter("collections", "acronym").like(filterValue)
+                baseQuery.filter("collections", "diagnosisAvailable.name").like(filterValue)
+                baseQuery.filter("collections", "diagnosisAvailable.code").like(filterValue)
+                baseQuery.filter("collections", "diagnosisAvailable.label").like(filterValue)
+                baseQuery.filter("collections", "diagnosisAvailable.definition").like(filterValue)
+                baseQuery.filter("collections", "materials.name").like(filterValue)
+                baseQuery.filter("collections", "materials.label").like(filterValue)
             }
         }
     }
-console.log(baseQuery.getQuery())
+    console.log(baseQuery.getQuery())
 }
 
 // TODO: add the properties to the base query, 

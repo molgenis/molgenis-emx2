@@ -12,8 +12,8 @@ import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {
   setup() {
-    const filterStore = useFiltersStore();
-    return { filterStore };
+    const filtersStore = useFiltersStore();
+    return { filtersStore };
   },
   components: {
     StringFilter,
@@ -21,10 +21,10 @@ export default {
   computed: {
     search: {
       get() {
-        return this.filterStore.getFilterValue("search");
+        return this.filtersStore.getFilterValue("search");
       },
       set(value) {
-          this.filterStore.updateFilter("search", value);
+          this.filtersStore.updateFilter("search", value);
       },
     },
   },

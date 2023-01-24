@@ -11,6 +11,7 @@ export const useFiltersStore = defineStore('filtersStore', () => {
     const settingsStore = useSettingsStore();
 
     let filters = ref({})
+    let filterType = ref({})
 
     function resetFilters () {
         this.baseQuery.resetFilters();
@@ -55,10 +56,25 @@ export const useFiltersStore = defineStore('filtersStore', () => {
         return filters.value[filterName]
     }
 
+    function updateFilterType (filterName, value) {
+        /** filter reset, so delete */
+        if (value === "" || value === undefined || value.length === 0) {
+            delete filterType.value[filterName]
+        } else {
+            filterType.value[filterName] = value
+        }
+    }
+
+    function getFilterType (filterName) {
+        return filterType.value[filterName]
+    }
+
     return {
         resetFilters,
         updateFilter,
         getFilterValue,
+        updateFilterType,
+        getFilterType,
         hasActiveFilters,
         filters
     }

@@ -485,7 +485,7 @@ ${root}${rootModifier} {\n`;
       /** or needs to be individual statements, the and needs to be folded into one
        * _or [{collections: { name ... }}, {collections: {acronym ...}}] 
        * Vs
-       * _and [{collections: {name: {...}, acronym: {....}}}]
+       * _and: {collections: {name: {...}, acronym: {....}}}
        */
       this.filters[this.branch][queryType][applyQueryTo] = queryType === "_or" ? [] : {}
     }
@@ -505,6 +505,10 @@ ${root}${rootModifier} {\n`;
         }
 
       }
+      /** if we already have this exact filter, just return. */
+      if (filterRef.includes(filterStringPlaceholder)) return
+
+      /** add it to the filter stack */
       filterRef.push(filterStringPlaceholder)
     }
     /** split the parts, so we can combine them later */
