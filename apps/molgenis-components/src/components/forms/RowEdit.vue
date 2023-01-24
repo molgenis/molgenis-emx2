@@ -189,12 +189,12 @@ export default {
         if (c.computed) {
           try {
             this.internalValues[c.id] = executeExpression(
-                c.computed,
-                this.internalValues,
-                this.tableMetaData
-            )
-          } catch(error) {
-            this.errorPerColumn[c.id] = "Computation failed: "+ error;
+              c.computed,
+              this.internalValues,
+              this.tableMetaData
+            );
+          } catch (error) {
+            this.errorPerColumn[c.id] = "Computation failed: " + error;
           }
         }
       });
@@ -240,7 +240,7 @@ export default {
     },
     tableMetaData: {
       handler() {
-        console.log('nu')
+        console.log("nu");
         this.validateTable();
         this.applyComputed();
       },

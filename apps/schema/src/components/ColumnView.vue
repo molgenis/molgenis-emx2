@@ -66,7 +66,6 @@
       </span>
       <span v-if="column.key"> key={{ column.key }}</span>
       <span v-if="column.computed"> computed="{{ column.computed }}"</span>
-
     </td>
     <td>
       <table v-if="column.labels" class="table-borderless">
@@ -137,8 +136,8 @@ export default {
     },
     columnIndex: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     table() {

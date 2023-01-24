@@ -145,7 +145,7 @@
                   class="float-right"
                   v-if="!previewShow"
                   @click="previewShow = true"
-                  >
+                >
                   show form preview
                 </ButtonAction>
               </div>
@@ -316,8 +316,8 @@ export default {
     },
     columnIndex: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -340,10 +340,10 @@ export default {
     //current table object unedited
     originalTable() {
       return this.schema.tables.find(
-          (table) =>
-              table.name === this.tableName ||
-              table.name === this.column.table ||
-              (table.subclasses && table.subclasses.includes(this.column.table))
+        (table) =>
+          table.name === this.tableName ||
+          table.name === this.column.table ||
+          (table.subclasses && table.subclasses.includes(this.column.table))
       );
     },
     //current table object edited
@@ -354,8 +354,8 @@ export default {
         (c) => c.name == this.column.name || c.name == this.column.oldName
       );
       // or if new, we add it
-      if(index === -1) {
-        console.log('found '+index);
+      if (index === -1) {
+        console.log("found " + index);
         table.columns.splice(this.columnIndex, 0, this.column);
       } else {
         table.columns[index] = this.column;
@@ -406,8 +406,8 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter((c) => c.name === this.column.name).length >
-          0
+        this.originalTable.columns?.filter((c) => c.name === this.column.name)
+          .length > 0
       ) {
         return "Name should be unique";
       } else {

@@ -172,7 +172,13 @@ export default {
       tables.push(...schema.ontologies);
       request(
         "graphql",
-        `mutation change($tables:[MolgenisTableInput]){change(tables:$tables){message} }`,
+        gql`
+          mutation change($tables: [MolgenisTableInput]) {
+            change(tables: $tables) {
+              message
+            }
+          }
+        `,
         {
           tables: tables,
         }
@@ -221,7 +227,7 @@ export default {
               }
               semantics
               columns {
-                id,
+                id
                 name
                 labels {
                   locale
