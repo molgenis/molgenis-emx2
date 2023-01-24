@@ -76,9 +76,8 @@ export default defineComponent({
   methods: {
     isRefType(column: IColumn): boolean {
       return (
-        column?.required === true &&
-        (column.columnType.startsWith("REF") ||
-          column.columnType.startsWith("ONTOLOGY"))
+        column.columnType.startsWith("REF") ||
+        column.columnType.startsWith("ONTOLOGY")
       );
     },
     getRefTypeColumns(columns: IColumn[]): string[] {
