@@ -240,7 +240,6 @@ export default {
     },
     tableMetaData: {
       handler() {
-        console.log("nu");
         this.validateTable();
         this.applyComputed();
       },
@@ -281,7 +280,7 @@ function getColumnError(column, values, tableMetaData) {
     return "Invalid hyperlink";
   }
   if (column.validation) {
-    return evaluateValidationExpression(column, values, tableMetaData);
+    return getColumnValidationError(column, values, tableMetaData);
   }
   if (isRefLinkWithoutOverlap(column, tableMetaData, values)) {
     return `value should match your selection in column '${column.refLink}' `;
@@ -290,10 +289,7 @@ function getColumnError(column, values, tableMetaData) {
   return undefined;
 }
 
-function evaluateValidationExpression(column, values, tableMetaData) {
-  //true means 'valid'
-  //false means 'invalid' => show the script as message
-  //anything else also means 'invalid' => show the result as message
+function getColumnValidationError(column, values, tableMetaData) {
   try {
     //use the keys as variables
     const result = executeExpression(column.validation, values, tableMetaData);

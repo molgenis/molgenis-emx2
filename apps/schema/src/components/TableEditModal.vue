@@ -1,5 +1,5 @@
 <template>
-  <LayoutModal v-if="show === true" :title="title" :isCloseButtonShown="false">
+  <LayoutModal v-if="modalVisible === true" :title="title" :isCloseButtonShown="false">
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
       <InputString
@@ -110,8 +110,8 @@ export default {
     return {
       /** copy of table metadata being edited now */
       table: {},
-      /** whether modal is shown */
-      show: false,
+      /** whether modal is visible */
+      modalVisible: false,
     };
   },
   computed: {
@@ -176,15 +176,15 @@ export default {
       if (!this.modelValue) {
         this.table = {};
       }
-      this.show = true;
+      this.modalVisible = true;
     },
     emitOperation() {
       this.$emit(this.operation, this.table);
-      this.show = false;
+      this.modalVisible = false;
     },
     cancel() {
       this.reset();
-      this.show = false;
+      this.modalVisible = false;
     },
     reset() {
       if (this.modelValue) {

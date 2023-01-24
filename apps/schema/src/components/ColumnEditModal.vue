@@ -1,6 +1,6 @@
 <template>
   <LayoutModal
-    v-if="show === true"
+    v-if="modalVisible === true"
     title="Edit column metadata"
     :isCloseButtonShown="false"
   >
@@ -321,8 +321,8 @@ export default {
   },
   data() {
     return {
-      //show
-      show: false,
+      //if modal is visible
+      modalVisible: false,
       // working value of the column (copy of the value)
       column: null,
       //the type options
@@ -355,7 +355,6 @@ export default {
       );
       // or if new, we add it
       if (index === -1) {
-        console.log("found " + index);
         table.columns.splice(this.columnIndex, 0, this.column);
       } else {
         table.columns[index] = this.column;
@@ -420,10 +419,10 @@ export default {
   },
   methods: {
     showModal() {
-      this.show = true;
+      this.modalVisible = true;
     },
     apply() {
-      this.show = false;
+      this.modalVisible = false;
       if (this.operation === "edit") {
         this.$emit("update:modelValue", this.column);
       } else {
@@ -432,9 +431,8 @@ export default {
       }
     },
     cancel() {
-      this.show = false;
       this.reset();
-      this.show = false;
+      this.modalVisible = false;
     },
     refLinkCandidates() {
       return this.table.columns
@@ -482,7 +480,7 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
-      this.show = false;
+      this.modalVisible = false;
     },
   },
   created() {
