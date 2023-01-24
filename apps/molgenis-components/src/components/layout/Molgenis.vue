@@ -157,7 +157,7 @@ export default {
       );
     },
     menu() {
-      if (this.session && this.session.settings && this.session.settings.menu) {
+      if (this.session?.settings?.menu) {
         return this.session.settings.menu;
       } else {
         return this.menuItems;
@@ -168,10 +168,8 @@ export default {
     session: {
       deep: true,
       handler() {
-        if (this.session != undefined && this.session.settings) {
-          if (this.session.settings.logoURL) {
-            this.logoURL = this.session.settings.logoURL;
-          }
+        if (this.session?.settings?.logoURL) {
+          this.logoURL = this.session.settings.logoURL;
         }
         this.$emit("update:modelValue", this.session);
       },

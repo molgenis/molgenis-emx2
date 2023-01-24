@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 7;
+  private static final int SOFTWARE_DATABASE_VERSION = 8;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -73,6 +73,8 @@ public class Migrations {
             executeMigration7(
                 (SqlDatabase) tdb,
                 "refactor settings, rename molgenis_version table to database_metadata");
+
+          if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);

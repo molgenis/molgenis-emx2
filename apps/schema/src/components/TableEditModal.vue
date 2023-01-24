@@ -8,10 +8,17 @@
         label="Name"
         :errorMessage="nameInvalid"
       />
-      <InputText
+      <InputTextLocalized
+        id="table_label"
+        v-model="table.labels"
+        label="label"
+        :locales="locales"
+      />
+      <InputTextLocalized
         id="table_description"
-        v-model="table.description"
-        label="Description"
+        v-model="table.descriptions"
+        label="description"
+        :locales="locales"
       />
       <InputSelect
         v-if="rootTable !== undefined"
@@ -32,7 +39,9 @@
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="cancel">Cancel</ButtonAlt>
-      <ButtonAction @click="apply" :disabled="isDisabled">Apply</ButtonAction>
+      <ButtonAction @click="emitOperation" :disabled="isDisabled"
+        >Apply</ButtonAction
+      >
     </template>
   </LayoutModal>
   <IconAction
@@ -46,7 +55,6 @@
 <script>
 import {
   InputString,
-  InputText,
   LayoutModal,
   IconAction,
   ButtonAction,
@@ -54,18 +62,19 @@ import {
   InputSelect,
   ButtonAlt,
   deepClone,
+  InputTextLocalized,
 } from "molgenis-components";
 
 export default {
   components: {
     LayoutModal,
     InputString,
-    InputText,
     IconAction,
     ButtonAction,
     MessageWarning,
     InputSelect,
     ButtonAlt,
+    InputTextLocalized,
   },
   props: {
     /** Existing Table metadata object entered as v-model. In case of a new table this should be left empty. */
@@ -91,6 +100,10 @@ export default {
     /** type, either 'ontology' or nothing*/
     tableType: {
       type: String,
+    },
+    locales: {
+      type: Array,
+      default: ["en"],
     },
   },
   data: function () {
@@ -155,7 +168,7 @@ export default {
         : null;
     },
     isDisabled() {
-      return this.nameInvalid || this.subclassInvalid;
+      return this.nameInvalid !== null || this.subclassInvalid !== null;
     },
   },
   methods: {
@@ -165,7 +178,7 @@ export default {
       }
       this.show = true;
     },
-    apply() {
+    emitOperation() {
       this.$emit(this.operation, this.table);
       this.show = false;
     },
@@ -174,7 +187,6 @@ export default {
       this.show = false;
     },
     reset() {
-      //deep copy
       if (this.modelValue) {
         this.table = deepClone(this.modelValue);
       } else {

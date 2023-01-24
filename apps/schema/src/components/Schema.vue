@@ -48,6 +48,7 @@
           :schemaNames="schemaNames"
           @update:modelValue="handleInput"
           :isManager="isManager"
+          :locales="session?.settings?.locales"
         />
       </div>
     </div>
@@ -70,7 +71,7 @@ table {
 </style>
 
 <script>
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import SchemaView from "./SchemaView.vue";
 import SchemaToc from "./SchemaToc.vue";
 import NomnomDiagram from "./NomnomDiagram.vue";
@@ -94,6 +95,11 @@ export default {
     SchemaToc,
     Spinner,
     NomnomDiagram,
+  },
+  props: {
+    session: {
+      type: Object,
+    },
   },
   data() {
     return {
@@ -156,6 +162,7 @@ export default {
         }
       });
       tables.forEach((table) => {
+        delete table.externalSchema;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];
@@ -191,10 +198,60 @@ export default {
     loadSchema() {
       this.error = null;
       this.loading = true;
-      request(
-        "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,description,semantics,columns{id,name,table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,description,semantics,validation,visible} } } }"
-      )
+      const query = gql`
+        {
+          _session {
+            schemas
+            roles
+          }
+          _schema {
+            name
+            tables {
+              name
+              tableType
+              inherit
+              externalSchema
+              labels {
+                locale
+                value
+              }
+              descriptions {
+                locale
+                value
+              }
+              semantics
+              columns {
+                id,
+                name
+                labels {
+                  locale
+                  value
+                }
+                table
+                position
+                columnType
+                inherited
+                key
+                refSchema
+                refTable
+                refLink
+                refBack
+                required
+                readonly
+                descriptions {
+                  locale
+                  value
+                }
+                semantics
+                validation
+                visible
+                computed
+              }
+            }
+          }
+        }
+      `;
+      request("graphql", query)
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(this.rawSchema);

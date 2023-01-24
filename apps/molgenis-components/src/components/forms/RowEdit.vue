@@ -2,14 +2,14 @@
   <div>
     <FormInput
       v-for="column in columnsWithoutMeta.filter(showColumn)"
-      :key="column.name"
+      :key="JSON.stringify(column)"
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="column.description"
+      :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
+      :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="
         column.readonly ||
@@ -29,9 +29,14 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import constants from "../constants";
-import { getPrimaryKey, deepClone, convertToCamelCase } from "../utils";
-
+import constants from "../constants.js";
+import {
+  getPrimaryKey,
+  deepClone,
+  convertToCamelCase,
+  getLocalizedLabel,
+  getLocalizedDescription,
+} from "../utils";
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
 
 export default {
@@ -89,6 +94,10 @@ export default {
       required: false,
       default: () => true,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   emits: ["update:modelValue"],
   components: {
@@ -98,7 +107,7 @@ export default {
     columnsWithoutMeta() {
       return this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column) => !column.name.startsWith("mg_")
+            (column) => !column.name?.startsWith("mg_")
           )
         : [];
     },
@@ -117,6 +126,12 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    getColumnLabel(column) {
+      return getLocalizedLabel(column, this.locale);
+    },
+    getColumnDescription(column) {
+      return getLocalizedDescription(column, this.locale);
+    },
     showColumn(column) {
       if (column.reflink) {
         return this.internalValues[convertToCamelCase(column.refLink)];
@@ -168,6 +183,22 @@ export default {
           );
         });
     },
+    applyComputed() {
+      //apply computed
+      this.tableMetaData.columns.forEach((c) => {
+        if (c.computed) {
+          try {
+            this.internalValues[c.id] = executeExpression(
+                c.computed,
+                this.internalValues,
+                this.tableMetaData
+            )
+          } catch(error) {
+            this.errorPerColumn[c.id] = "Computation failed: "+ error;
+          }
+        }
+      });
+    },
     //create a filter in case inputs are linked by overlapping refs
     refLinkFilter(c) {
       //need to figure out what refs overlap
@@ -200,25 +231,18 @@ export default {
   },
   watch: {
     internalValues: {
-      handler(newValue) {
+      handler() {
         this.validateTable();
-        //apply computed
-        this.tableMetaData.columns.forEach((c) => {
-          if (c.computed) {
-            newValue[c.id] = executeExpression(
-              c.computed,
-              newValue,
-              this.tableMetaData
-            );
-          }
-        });
-        this.$emit("update:modelValue", newValue);
+        this.applyComputed();
+        this.$emit("update:modelValue", this.internalValues);
       },
       deep: true,
     },
     tableMetaData: {
       handler() {
+        console.log('nu')
         this.validateTable();
+        this.applyComputed();
       },
       deep: true,
     },
@@ -228,6 +252,7 @@ export default {
       this.internalValues = deepClone(this.defaultValue);
     }
     this.validateTable();
+    this.applyComputed();
   },
 };
 
@@ -350,6 +375,7 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
+            :locale="locale"
             :schemaMetaData="schemaMetaData"
         />
       </div>
@@ -365,7 +391,7 @@ function containsInvalidEmail(emails) {
               <option>User</option>
             </select>
           </dd>
-
+          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -381,6 +407,7 @@ function containsInvalidEmail(emails) {
     data: function() {
       return {
         showRowEdit: true,
+        locale: 'en',
         tableName: 'Pet',
         tableMetaData: {
           columns: [],
@@ -392,6 +419,12 @@ function containsInvalidEmail(emails) {
     },
     watch: {
       async tableName(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
+      async locale(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.rowData = {};
           await this.reload();

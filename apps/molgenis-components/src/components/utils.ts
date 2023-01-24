@@ -134,3 +134,34 @@ export function convertToPascalCase(string: string): string {
   });
   return result;
 }
+
+export function getLocalizedLabel(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale: string | undefined
+): string {
+  let label;
+  if (tableOrColumnMetadata?.labels) {
+    label = tableOrColumnMetadata.labels.find(
+      (el) => el.locale === locale
+    )?.value;
+    if (!label) {
+      label = tableOrColumnMetadata.labels.find(
+        (el) => el.locale === "en"
+      )?.value;
+    }
+  }
+  if (!label) {
+    label = tableOrColumnMetadata.name;
+  }
+  return label;
+}
+
+export function getLocalizedDescription(
+  tableOrColumnMetadata: ITableMetaData | IColumn,
+  locale: string
+): string | undefined {
+  if (tableOrColumnMetadata.descriptions) {
+    return tableOrColumnMetadata.descriptions.find((el) => el.locale === locale)
+      ?.value;
+  }
+}

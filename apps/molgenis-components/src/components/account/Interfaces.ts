@@ -2,9 +2,10 @@ import { ISetting } from "../../Interfaces/ISetting";
 
 export interface ISession {
   email?: string;
+  locale?: string;
   roles?: string[];
   schemas?: any;
-  settings?: ISetting[];
+  settings?: Record<string, string>;
   manifest?: IManifest;
   token?: string;
 }

@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     loadSettings() {
-      if (this.session.settings.cssURL) {
+      if (this.session?.settings?.cssURL) {
         this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
           this.session.settings.cssURL,

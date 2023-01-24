@@ -10,8 +10,8 @@
           <Spinner v-if="loading" />
           <div v-else>
             <MessageWarning v-if="column.drop"
-              >Marked for deletion</MessageWarning
-            >
+              >Marked for deletion
+            </MessageWarning>
             <MessageError v-if="error">{{ error }}</MessageError>
             <div class="row">
               <div class="col-4">
@@ -22,16 +22,23 @@
                   :errorMessage="nameInvalid"
                 />
               </div>
-              <div
-                :class="
-                  !previewShow || column.type === 'REFBACK' ? 'col-8' : 'col-4'
-                "
-              >
-                <InputText
-                  id="column_description"
-                  v-model="column.description"
-                  label="description"
+              <div class="col-4">
+                <InputTextLocalized
+                  id="column_label"
+                  v-model="column.labels"
+                  label="label"
+                  :locales="locales"
                 />
+              </div>
+              <div class="col-4">
+                <div class="input-group">
+                  <InputTextLocalized
+                    id="column_description"
+                    v-model="column.descriptions"
+                    label="description"
+                    :locales="locales"
+                  />
+                </div>
               </div>
             </div>
             <div class="row">
@@ -138,8 +145,9 @@
                   class="float-right"
                   v-if="!previewShow"
                   @click="previewShow = true"
-                  >show form preview</ButtonAction
-                >
+                  >
+                  show form preview
+                </ButtonAction>
               </div>
             </div>
             <div class="row">
@@ -198,8 +206,8 @@
           <h4>
             Form preview
             <ButtonAlt @click="previewShow = false" class="pl-0 pr-0"
-              >hide</ButtonAlt
-            >
+              >hide
+            </ButtonAlt>
           </h4>
           <RowEdit
             id="form-edit"
@@ -207,6 +215,7 @@
             :schemaMetaData="schema"
             :tableMetaData="table"
             :tableName="table.name"
+            :key="JSON.stringify(table)"
           />
           Values:
           {{ previewData }}
@@ -239,6 +248,7 @@
 import {
   LayoutForm,
   InputText,
+  InputTextLocalized,
   InputString,
   InputBoolean,
   InputSelect,
@@ -263,6 +273,7 @@ export default {
     InputBoolean,
     InputSelect,
     IconAction,
+    InputTextLocalized,
     LayoutModal,
     ButtonAction,
     MessageWarning,
@@ -300,6 +311,13 @@ export default {
       type: String,
       required: false,
     },
+    locales: {
+      type: Array,
+    },
+    columnIndex: {
+      type: Number,
+      required: true
+    }
   },
   data() {
     return {
@@ -319,21 +337,29 @@ export default {
     };
   },
   computed: {
-    //current table object
-    table() {
-      const table = deepClone(
-        this.schema.tables.find(
+    //current table object unedited
+    originalTable() {
+      return this.schema.tables.find(
           (table) =>
-            table.name === this.tableName ||
-            table.name === this.column.table ||
-            (table.subclasses && table.subclasses.includes(this.column.table))
-        )
+              table.name === this.tableName ||
+              table.name === this.column.table ||
+              (table.subclasses && table.subclasses.includes(this.column.table))
       );
+    },
+    //current table object edited
+    table() {
+      const table = deepClone(this.originalTable);
       //replace column with current changes
       const index = table.columns.findIndex(
         (c) => c.name == this.column.name || c.name == this.column.oldName
       );
-      table.columns[index] = this.column;
+      // or if new, we add it
+      if(index === -1) {
+        console.log('found '+index);
+        table.columns.splice(this.columnIndex, 0, this.column);
+      } else {
+        table.columns[index] = this.column;
+      }
       return table;
     },
     //listing of related subclasses, used to indicate if column is part of subclass
@@ -380,7 +406,7 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.table.columns?.filter((c) => c.name === this.column.name).length >
+        this.originalTable.columns?.filter((c) => c.name === this.column.name).length >
           0
       ) {
         return "Name should be unique";
@@ -394,16 +420,19 @@ export default {
   },
   methods: {
     showModal() {
-      console.log("click");
       this.show = true;
     },
     apply() {
-      console.log("apply");
-      this.$emit(this.operation, this.column);
       this.show = false;
+      if (this.operation === "edit") {
+        this.$emit("update:modelValue", this.column);
+      } else {
+        this.$emit("add", this.column);
+        this.reset();
+      }
     },
     cancel() {
-      console.log("cancel");
+      this.show = false;
       this.reset();
       this.show = false;
     },
@@ -453,6 +482,7 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
+      this.show = false;
     },
   },
   created() {

@@ -36,10 +36,30 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
           .build();
+  public static final GraphQLInputObjectType inputLanguageValueType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisLanguageValueInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(LOCALE)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField().name(VALUE).type(Scalars.GraphQLString))
+          .build();
   public static final GraphQLType outputSettingsType =
       new GraphQLObjectType.Builder()
           .name("MolgenisSettingsType")
           .field(GraphQLFieldDefinition.newFieldDefinition().name(KEY).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.VALUE)
+                  .type(Scalars.GraphQLString))
+          .build();
+  public static final GraphQLType outputLanguageValueType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisLanguageValueType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(LOCALE).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.VALUE)
@@ -114,12 +134,16 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(LABELS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(COLUMN_POSITION)
@@ -195,6 +219,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(LABELS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
@@ -207,8 +235,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(outputLanguageValueType)))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.COLUMNS)
@@ -266,6 +294,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(LABELS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
@@ -319,8 +351,8 @@ public class GraphqlSchemaFieldFactory {
           //                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(VALIDATION_EXPRESSION)
@@ -353,6 +385,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(LABELS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(GraphqlConstants.ID)
                   .type(Scalars.GraphQLString))
           .field(
@@ -367,8 +403,8 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(DESCRIPTION)
-                  .type(Scalars.GraphQLString))
+                  .name(DESCRIPTIONS)
+                  .type(GraphQLList.list(inputLanguageValueType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(SEMANTICS)
