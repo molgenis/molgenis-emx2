@@ -14,16 +14,20 @@ Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and 
 Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 ### Retrieve one schema
-By adding a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
+By including a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
 The schema name is added between the server location and RDF API location: `<server>/<schema>/api/rdf`.
 For example: `<server>/pet%20store/api/rdf`.
 
 ### Retrieve one table
-One particular table from a schema can be retrieved by adding a table name to a URL that already includes the schema name: `<server>/<schema>/api/rdf/<table>`.
+One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name: `<server>/<schema>/api/rdf/<table>`.
 For example: `<server>/pet%20store/api/rdf/Pet`
 
+### Retrieve one column
+One particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/column/<column-name>`.
+For example: `<server>/pet%20store/api/rdf/Pet/column/name`
+
 ### Retrieve one row
-One particular row from a table within schema can be retrieved by adding the row id name to a URL that already includes the schema and table name: `<server>/<schema>/api/rdf/<table>/<row-id>`.
+One particular row from a table within a schema can be retrieved by adding a row identifier to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/<row-id>`.
 For example: `<server>/pet%20store/api/rdf/Pet/spike`
 
 ## RDF data formats
