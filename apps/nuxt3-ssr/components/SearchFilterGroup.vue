@@ -250,12 +250,14 @@ function updateSelection(newConditions) {
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
+            <!--
             <span
               v-if="item?.children?.length"
               class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
               hoverColor="white"
               >&nbsp;- {{ item.children.length }}
             </span>
+            -->
             <div class="inline-block">
               <CustomTooltip
                 v-if="item.description"

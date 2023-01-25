@@ -47,6 +47,8 @@ interface ICohort {
 interface IPartner {
   institution: {
     pid: string;
+    acronym: string;
+    website: string;
     name: string;
     description: string;
     logo: IUrlObject;

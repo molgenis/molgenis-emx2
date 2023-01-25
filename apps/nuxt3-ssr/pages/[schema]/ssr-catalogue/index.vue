@@ -166,6 +166,7 @@ let activeName = ref("detailed");
           <PageHeader
             title="Cohorts"
             description="Group of individuals sharing a defining demographic characteristic."
+            note="Welcome to the Beta version of the UMCG Research Data Catalogue intended for final public testing before the official launch in Q1 2023. We will be fine-tuning the site’s content, navigation and layout based. For questions or feedback, please email us at researchdatacatalogue@umcg.nl. "
             icon="image-link"
           >
             <template #suffix>

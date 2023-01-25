@@ -53,7 +53,9 @@ const query = gql`
       partners {
         institution {
           pid
+          acronym
           name
+          website
           description
           logo {
             url
@@ -220,7 +222,7 @@ function onSubcohortsLoaded(rows: any) {
               return ageGroups;
             }, [])
             .map((ag: { name: string }) => ag.name)
-            .join(","),
+            .join(", "),
       _renderComponent: "SubCohortDisplay",
       _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
     };
@@ -384,7 +386,7 @@ let fundingAndAcknowledgementItems = computed(() => {
           description="List of subcohorts or subpopulations for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
             { id: 'ageGroups', label: 'Age categories' },
           ]"
@@ -398,7 +400,7 @@ let fundingAndAcknowledgementItems = computed(() => {
           description="List of collection events defined for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Participants' },
             { id: 'startAndEndYear', label: 'Start end year' },
           ]"

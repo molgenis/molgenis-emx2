@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
+const mobileShowMoreText = ref(false);
+const mobileShowMoreTextLength = 250;
 
 const props = withDefaults(
   defineProps<{
@@ -30,6 +32,14 @@ const headerClasses = computed(() => {
 
 const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
+});
+
+const isShowingMobileMoreText = computed(() => {
+  return (
+    mobileShowMoreText.value ||
+    (props.cohort?.description &&
+      props.cohort?.description?.length < mobileShowMoreTextLength)
+  );
 });
 </script>
 
@@ -73,18 +83,23 @@ const iconStarClasses = computed(() => {
       </p>
 
       <p class="text-body-base mt-5 block xl:hidden">
-        The European Human Exposome Network (EHEN) is the world’s largest
-        network of projects studying the impact of environmental exposures
-        across a lifetime - the exposome - on human health. Collectively, the
-        EHEN projects are working in 24 countries acros...
+        {{
+          isShowingMobileMoreText
+            ? cohort?.description
+            : `${cohort?.description?.substring(
+                0,
+                mobileShowMoreTextLength
+              )}...`
+        }}
       </p>
 
-      <a
-        class="text-blue-500 hover:underline hover:bg-blue-50 mb-5 xl:hidden"
-        href="#"
+      <button
+        v-if="!isShowingMobileMoreText"
+        class="text-blue-500 hover:underline hover:bg-blue-50 mt-5 xl:hidden"
+        @click="mobileShowMoreText = true"
       >
         Read more
-      </a>
+      </button>
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
