@@ -45,7 +45,7 @@ public class TestColumnTypeIsFile {
   public void testExcelShouldNotIncludeFileColumns() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path excelFile = tmp.resolve("test.xlsx");
-    MolgenisIO.toExcelFile(excelFile, schema);
+    MolgenisIO.toExcelFile(excelFile, schema, false);
     TableStore store = new TableStoreForXlsxFile(excelFile);
     assertFalse(store.readTable("User").iterator().next().getColumnNames().contains("picture"));
   }
@@ -72,7 +72,7 @@ public class TestColumnTypeIsFile {
   public void testCanExportImportFilesInZip() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path zipFile = tmp.resolve("test.zip");
-    MolgenisIO.toZipFile(zipFile, schema);
+    MolgenisIO.toZipFile(zipFile, schema, false);
 
     schema = database.dropCreateSchema(SCHEMA_NAME);
     MolgenisIO.fromZipFile(zipFile, schema, true);
@@ -95,7 +95,7 @@ public class TestColumnTypeIsFile {
     Path directory = tmp.resolve("test");
     Files.createDirectories(directory);
 
-    MolgenisIO.toDirectory(directory, schema);
+    MolgenisIO.toDirectory(directory, schema, false);
 
     schema = database.dropCreateSchema(SCHEMA_NAME);
     MolgenisIO.fromDirectory(directory, schema, true);

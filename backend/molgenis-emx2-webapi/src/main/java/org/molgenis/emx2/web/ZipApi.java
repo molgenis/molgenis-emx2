@@ -54,13 +54,13 @@ public class ZipApi {
   }
 
   static String getZip(Request request, Response response) throws IOException {
-
+    boolean includeSystemColumns = includeSystemColumns(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       Path zipFile = tempDir.resolve("download.zip");
-      MolgenisIO.toZipFile(zipFile, schema);
+      MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(

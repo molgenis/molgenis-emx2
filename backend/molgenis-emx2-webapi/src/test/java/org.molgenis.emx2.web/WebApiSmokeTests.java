@@ -15,12 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -31,7 +36,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
-import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -767,13 +771,14 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testApiIncludeSystemColumnsParam() throws IOException {
+  public void testTableApiIncludeSystemColumnsParam() throws IOException {
+
     String csvPet = "/pet store/api/csv/Pet";
     Response csvResponse = downloadPet(csvPet);
     assertFalse(csvResponse.getBody().asString().contains("mg_"));
 
     Response csvResponseWithSystemColumns =
-        downloadPet(csvPet + "?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+            downloadPet(csvPet + "?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     assertTrue(csvResponseWithSystemColumns.getBody().asString().contains("mg_"));
   }
 

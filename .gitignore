@@ -45,3 +45,4 @@ tls
 yarn_error.log
 .nyc_output
 coverage
+/.run/Run Molgenis .run.xml

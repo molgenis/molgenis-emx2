@@ -20,25 +20,25 @@ public class MolgenisIO {
     // hide constructor
   }
 
-  private static void outputAll(TableStore store, Schema schema) {
+  private static void outputAll(TableStore store, Schema schema, boolean includeSystemColumns) {
     outputMetadata(store, schema);
     outputRoles(store, schema);
     outputSettings(store, schema);
     for (String tableName : schema.getTableNames()) {
-      outputTable(store, schema.getTable(tableName));
+      writeTableToStore(store, schema.getTable(tableName), includeSystemColumns);
     }
   }
 
-  public static void toDirectory(Path directory, Schema schema) {
-    outputAll(new TableStoreForCsvFilesDirectory(directory), schema);
+  public static void toDirectory(Path directory, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForCsvFilesDirectory(directory), schema, includeSystemColumns);
   }
 
-  public static void toZipFile(Path zipFile, Schema schema) {
-    outputAll(new TableStoreForCsvInZipFile(zipFile), schema);
+  public static void toZipFile(Path zipFile, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForCsvInZipFile(zipFile), schema, includeSystemColumns);
   }
 
-  public static void toExcelFile(Path excelFile, Schema schema) {
-    outputAll(new TableStoreForXlsxFile(excelFile), schema);
+  public static void toExcelFile(Path excelFile, Schema schema, boolean includeSystemColumns) {
+    outputAll(new TableStoreForXlsxFile(excelFile), schema, includeSystemColumns);
   }
 
   public static void toEmx1ExcelFile(Path excelFile, Schema schema) {
@@ -71,6 +71,11 @@ public class MolgenisIO {
 
   private static void toFile(Path path, Table table, boolean includeSystemColumns) {
     TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(path);
+    writeTableToStore(store, table, includeSystemColumns);
+  }
+
+  private static void writeTableToStore(
+      TableStore store, Table table, boolean includeSystemColumns) {
     if (includeSystemColumns) {
       outputTableWithSystemColumns(store, table);
     } else {
