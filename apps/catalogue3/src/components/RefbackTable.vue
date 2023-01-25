@@ -52,7 +52,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -117,12 +117,18 @@ export default {
   methods: {
     convertToPascalCase,
     routeParams(column, value) {
-      if (column.name === "tables") {
+      if (column.name === "datasets") {
         let result = {
-          id: value.resource.id,
+          resource: value.resource.id,
           name: value.name,
         };
         return result;
+      } else if (column.name === "contacts") {
+        return {
+          resource: value.resource.id,
+          firstName: value.firstName,
+          lastName: value.lastName,
+        };
       } else {
         return value;
       }

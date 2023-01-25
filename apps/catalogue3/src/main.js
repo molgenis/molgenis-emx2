@@ -124,6 +124,21 @@ const router = createRouter({
       component: ResourceListView,
     },
     {
+      name: "Publications",
+      path: "/publications",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Publications",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Resources-details",
+      path: "/resources/:id",
+      component: ResourceRedirectView,
+      props: true,
+    },
+    {
       name: "Organisations-details",
       path: "/organisations/:id",
       component: ResourceDetailsView,
@@ -160,6 +175,16 @@ const router = createRouter({
       }),
     },
     {
+      name: "Publications-details",
+      path: "/publications/:doi",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Publications",
+        color: "secondary",
+        filter: { doi: { equals: route.params.doi } },
+      }),
+    },
+    {
       name: "Models-details",
       path: "/models/:id",
       component: ResourceDetailsView,
@@ -189,10 +214,24 @@ const router = createRouter({
         filter: { id: { equals: route.params.id } },
       }),
     },
+    {
+      name: "Contacts-details",
+      path: "/contacts/:resource/:firstName/:lastName",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Contacts",
+        color: "success",
+        filter: {
+          firstName: { equals: route.params.firstName },
+          lastName: { equals: route.params.lastName },
+          resource: { id: { equals: route.params.resource } },
+        },
+      }),
+    },
     //variable details
     {
       name: "Variables-details",
-      path: "/variables/:id/:dataset/:name",
+      path: "/variables/:resource/:dataset/:name",
       props: (route) => ({
         ...route.params,
         tableName: "Variables",
@@ -201,7 +240,7 @@ const router = createRouter({
     },
     {
       name: "Datasets-details",
-      path: "/datasets/:id/:name",
+      path: "/datasets/:resource/:name",
       component: DatasetView,
       props: (route) => ({
         ...route.params,
@@ -215,7 +254,7 @@ const router = createRouter({
       component: VariableMappingsView,
     },
     {
-      name: "DatasetMappings-detail",
+      name: "DatasetMappings-details",
       path: "/dataset-mappings/:source/:sourceDataset/:target/:targetDataset",
       props: true,
       component: DatasetMappingsView,

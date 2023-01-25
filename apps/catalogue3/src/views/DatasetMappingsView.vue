@@ -4,68 +4,49 @@
       <h6>
         <RouterLink to="/" class="text-white"> home</RouterLink>
         /
-        <RouterLink to="/list/TableMappings" class="text-white">
-          tablemappings
+        <RouterLink to="TableMappings" class="text-white">
+          datasetmappings
         </RouterLink>
         /
       </h6>
     </div>
-    <h4>Table mapping</h4>
+    <h4>Dataset mapping</h4>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <table class="table table-bordered">
       <tr>
-        <td><h6>Target table:&nbsp;</h6></td>
+        <td><h6>Source table:&nbsp;</h6></td>
         <td colspan="4">
           <RouterLink
             :to="{
-              name: 'Tables-details',
-              params: { pid: toPid, version: toVersion, name: toTable },
+              name: 'Datasets-details',
+              params: {
+                resource: source,
+                name: sourceDataset,
+              },
             }"
-            >{{ toTable }}
-          </RouterLink>
-          within release
-          <RouterLink
-            :to="{
-              name: 'Releases-details',
-              params: { pid: toPid, version: toVersion },
-            }"
-            >{{ toPid }}
-            {{ toVersion }}
+            >{{ sourceDataset }}
           </RouterLink>
         </td>
       </tr>
       <tr>
-        <td><h6>Origin table:&nbsp;</h6></td>
+        <td><h6>Target dataset:&nbsp;</h6></td>
         <td colspan="4">
           <RouterLink
             :to="{
-              name: 'Tables-details',
-              params: {
-                pid: fromPid,
-                version: fromVersion,
-                name: fromTable,
-              },
+              name: 'Datasets-details',
+              params: { resource: target, name: targetDataset },
             }"
-            >{{ fromTable }}
-          </RouterLink>
-          within release
-          <RouterLink
-            :to="{
-              name: 'Releases-details',
-              params: { pid: fromPid, version: fromVersion },
-            }"
-            >{{ fromPid }}
-            {{ fromVersion }}
+            >{{ targetDataset }}
           </RouterLink>
         </td>
       </tr>
 
       <tr>
         <td colspan="5">
-          <h6>Action:</h6>
+          <h6>Description:</h6>
           {{
-            tablemapping && tablemapping.description
-              ? tablemapping.description
+            datasetmappings && datasetmappings.description
+              ? datasetmappings.description
               : "N/A"
           }}
         </td>
@@ -83,8 +64,8 @@
           </h6>
         </th>
         <th><h6>Target column</h6></th>
-        <th><h6>Origin column</h6></th>
-        <th><h6>Rule</h6></th>
+        <th><h6>Source column</h6></th>
+        <th><h6>Description</h6></th>
         <th><h6>Syntax</h6></th>
         <th><h6>Notes</h6></th>
       </tr>
@@ -105,54 +86,51 @@
             />
           </div>
         </td>
-        <td v-if="m.toVariable">
+        <td v-if="m.targetVariable">
           <RouterLink
             :to="{
-              name: 'TargetVariables-details',
+              name: 'Variables-details',
               params: {
-                pid: toPid,
-                version: toVersion,
-                table: toTable,
-                name: m.toVariable.name,
+                resource: target,
+                dataset: targetDataset,
+                name: m.targetVariable.name,
               },
             }"
           >
-            {{ m.toVariable.name }}
+            {{ m.targetVariable.name }}
           </RouterLink>
         </td>
         <td>
-          <div v-if="m.fromVariable">
+          <div v-if="m.sourceVariables">
             <RouterLink
-              v-for="v in m.fromVariable"
+              v-for="v in m.sourceVariables"
               :key="v.name"
               :to="{
-                name: 'SourceVariables-details',
+                name: 'Variables-details',
                 params: {
-                  pid: fromPid,
-                  version: fromVersion,
-                  table: fromTable,
-                  name: m.fromVariable.name,
-                },
-              }"
-            >
-              {{ fromTable }}.{{ v.name }}
-            </RouterLink>
-          </div>
-          <div v-if="m.fromVariablesOtherTables">
-            <RouterLink
-              v-for="v in m.fromVariablesOtherTables"
-              :key="v.name"
-              :to="{
-                name: 'SourceVariables-details',
-                params: {
-                  pid: fromPid,
-                  version: fromVersion,
-                  table: v.table.name,
+                  resource: source,
+                  dataset: sourceDataset,
                   name: v.name,
                 },
               }"
             >
-              {{ v.table.name }}.{{ v.name }}
+              {{ sourceDataset }}.{{ v.name }}
+            </RouterLink>
+          </div>
+          <div v-if="m.sourceVariablesOtherDataset">
+            <RouterLink
+              v-for="v in m.sourceVariablesOtherDataset"
+              :key="v.name"
+              :to="{
+                name: 'Variables-details',
+                params: {
+                  resource: source,
+                  dataset: v.dataset.name,
+                  name: v.name,
+                },
+              }"
+            >
+              {{ v.dataset.name }}.{{ v.name }}
             </RouterLink>
           </div>
         </td>
@@ -189,48 +167,38 @@ export default {
     RowButtonDelete,
   },
   props: {
-    fromPid: String,
-    fromVersion: String,
-    fromTable: String,
-    toPid: String,
-    toVersion: String,
-    toTable: String,
+    source: String,
+    sourceDataset: String,
+    target: String,
+    targetDataset: String,
   },
   data() {
     return {
       graphqlError: null,
-      tablemapping: null,
+      datasetmappings: null,
       variablemappings: null,
     };
   },
   computed: {
     ...mapGetters(["canEdit"]),
     resourceType() {
-      if (this.tablemapping.release) {
-        return this.tablemapping.release.resource.mg_tableclass
+      if (this.datasetmapping.source) {
+        return this.datasetmapping.source.mg_tableclass
           .split(".")[1]
           .slice(0, -1);
       }
     },
     defaultValueMapping() {
-      let fromDataDictionary = {
-        resource: { pid: this.fromPid },
-        version: this.fromVersion,
-      };
-      let toDataDictionary = {
-        resource: { pid: this.toPid },
-        version: this.toVersion,
-      };
       return {
-        fromDataDictionary: fromDataDictionary,
-        fromTable: {
-          dataDictionary: fromDataDictionary,
-          name: this.fromTable,
+        source: { id: this.source },
+        sourceDataset: {
+          resource: { id: this.source },
+          name: this.sourceDataset,
         },
-        toDataDictionary: toDataDictionary,
-        toTable: {
-          dataDictionary: toDataDictionary,
-          name: this.toTable,
+        target: { id: this.target },
+        targetDataset: {
+          resource: { id: this.target },
+          name: this.targetDataset,
         },
       };
     },
@@ -239,11 +207,10 @@ export default {
     ...mapActions(["reloadMetadata"]),
     pkey(mapping) {
       return {
-        fromDataDictionary: mapping.fromDataDictionary,
-        fromTable: mapping.fromTable,
-        toDataDictionary: mapping.toDataDictionary,
-        toTable: mapping.toTable,
-        toVariable: mapping.toVariable,
+        source: mapping.source,
+        sourceDataset: mapping.sourceDataset,
+        target: mapping.target,
+        targetDataset: mapping.targetDataset,
       };
     },
     handleModalClose() {
@@ -256,9 +223,8 @@ export default {
       this.$router.push({
         name: "variable",
         params: {
-          pid: this.pid,
-          version: this.version,
-          table: this.name,
+          resource: row.resource,
+          dataset: row.dataset,
           name: row.name,
         },
       });
@@ -267,120 +233,85 @@ export default {
       request(
         "graphql",
         gql`
-          query TableMappings(
-            $fromPid: String
-            $fromVersion: String
-            $fromTable: String
-            $toPid: String
-            $toVersion: String
-            $toTable: String
+          query MyMappings(
+            $source: String
+            $sourceDataset: String
+            $target: String
+            $targetDataset: String
           ) {
-            TableMappings(
+            DatasetMappings(
               filter: {
-                fromDataDictionary: {
-                  version: { equals: [$fromVersion] }
-                  resource: { pid: { equals: [$fromPid] } }
+                sourceDataset: {
+                  equals: { resource: { id: $source }, name: $sourceDataset }
                 }
-                fromTable: { name: { equals: [$fromTable] } }
-                toDataDictionary: {
-                  version: { equals: [$toVersion] }
-                  resource: { pid: { equals: [$toPid] } }
+                targetDataset: {
+                  equals: { resource: { id: $target }, name: $targetDataset }
                 }
-                toTable: { name: { equals: [$toTable] } }
               }
             ) {
+              source {
+                id
+              }
+              sourceDataset {
+                name
+              }
               description
+              syntax
             }
             VariableMappings(
               filter: {
-                fromDataDictionary: {
-                  version: { equals: [$fromVersion] }
-                  resource: { pid: { equals: [$fromPid] } }
+                sourceDataset: {
+                  equals: { resource: { id: $source }, name: $sourceDataset }
                 }
-                fromTable: { name: { equals: [$fromTable] } }
-                toDataDictionary: {
-                  version: { equals: [$toVersion] }
-                  resource: { pid: { equals: [$toPid] } }
+                targetDataset: {
+                  equals: { resource: { id: $target }, name: $targetDataset }
                 }
-                toTable: { name: { equals: [$toTable] } }
               }
             ) {
+              source {
+                id
+              }
+              sourceDataset {
+                name
+              }
+              sourceVariables {
+                name
+              }
+              sourceVariablesOtherDatasets {
+                dataset {
+                  name
+                }
+                name
+              }
+              target {
+                id
+              }
+              targetDataset {
+                name
+              }
+              targetVariable {
+                name
+              }
               description
-              fromVariable {
-                name
-              }
-              toVariable {
-                name
-              }
               syntax
-              fromVariablesOtherTables {
-                table {
-                  name
-                }
+              status {
                 name
               }
-              fromDataDictionary {
-                resource {
-                  pid
-                }
-                version
-              }
-              fromTable {
-                dataDictionary {
-                  resource {
-                    pid
-                  }
-                  version
-                }
-                name
-              }
-              toDataDictionary {
-                resource {
-                  pid
-                }
-                version
-              }
-              toTable {
-                dataDictionary {
-                  resource {
-                    pid
-                  }
-                  version
-                }
-                name
-              }
-              toVariable {
-                dataDictionary {
-                  resource {
-                    pid
-                  }
-                  version
-                }
-                table {
-                  dataDictionary {
-                    resource {
-                      pid
-                    }
-                    version
-                  }
-                  name
-                }
+              match {
                 name
               }
             }
           }
         `,
         {
-          fromPid: this.fromPid,
-          fromVersion: this.fromVersion,
-          fromTable: this.fromTable,
-          toPid: this.toPid,
-          toVersion: this.toVersion,
-          toTable: this.toTable,
+          source: this.source,
+          sourceDataset: this.sourceDataset,
+          target: this.target,
+          targetDataset: this.targetDataset,
         }
       )
         .then((data) => {
-          if (data.TableMappings) this.tablemapping = data.TableMappings[0];
+          this.datasetmappings = data.DatasetMappings[0];
           this.variablemappings = data.VariableMappings;
         })
         .catch((error) => {

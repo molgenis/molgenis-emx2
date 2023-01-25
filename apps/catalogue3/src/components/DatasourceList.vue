@@ -3,7 +3,7 @@
     <li v-for="d in datasources" :key="d.id">
       <RouterLink
         :to="{
-          name: 'datasource',
+          name: 'Datasources-details',
           params: { id: d.id },
         }"
         >{{ d.id }} - {{ d.name }}

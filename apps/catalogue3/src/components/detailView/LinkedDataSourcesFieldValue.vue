@@ -77,7 +77,6 @@ export default {
             preLinked
           }
         }`;
-    console.log(this.metaData);
     const response = await request("graphql", query, {
       filter: this.filter,
     }).catch((error) => (this.error = error));

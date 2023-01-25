@@ -9,9 +9,7 @@
         <h6>
           <RouterLink to="/" class="text-white"> home</RouterLink>
           /
-          <RouterLink to="/list/Variables" class="text-white">
-            variables
-          </RouterLink>
+          <RouterLink to="Variables" class="text-white"> variables </RouterLink>
           /
         </h6>
       </div>
@@ -20,43 +18,23 @@
         :to="{
           name: resourceType + '-details',
           params: {
-            pid: variable.dataDictionary.resource.pid,
+            id: variable.resource.id,
           },
         }"
-        >{{ variable.dataDictionary.resource.pid }}
+        >{{ variable.resource.id }}
       </RouterLink>
       /
-      <h6 class="d-inline">DataDictionary</h6>
+      <h6 class="d-inline">Dataset name</h6>
       <RouterLink
         :to="{
-          name:
-            tableName == 'SourceVariables'
-              ? 'SourceDataDictionaries-details'
-              : 'TargetDataDictionaries-details',
+          name: 'Datasets-details',
           params: {
-            resource: variable.dataDictionary.resource.pid,
-            version: variable.dataDictionary.version,
+            id: variable.resource.id,
+            name: variable.dataset.name,
           },
         }"
       >
-        {{ variable.dataDictionary.version }}
-      </RouterLink>
-      /
-      <h6 class="d-inline">Table name</h6>
-      <RouterLink
-        :to="{
-          name:
-            tableName == 'SourceVariables'
-              ? 'SourceTables-details'
-              : 'TargetTables-details',
-          params: {
-            pid: variable.dataDictionary.resource.pid,
-            name: variable.table.name,
-            version: variable.dataDictionary.version,
-          },
-        }"
-      >
-        {{ variable.table.name }}
+        {{ variable.dataset.name }}
       </RouterLink>
 
       <h1>Variable: {{ variable.name }}</h1>
@@ -69,7 +47,7 @@
             <p>{{ variable.description ? variable.description : "N/A" }}</p>
           </span>
           <span v-if="variable.format">
-            <h6>Variable type</h6>
+            <h6>Variable fromat</h6>
             <OntologyTerms :terms="[variable.format]" color="dark" />
           </span>
           <span v-if="variable.keywords">
@@ -153,8 +131,8 @@
         <table v-if="variable.mappings" class="table table-sm table-bordered">
           <thead>
             <tr>
-              <th>fromTable</th>
-              <th>fromVariables</th>
+              <th>source</th>
+              <th>sourceVariables</th>
               <th>match</th>
               <th>description</th>
               <th>syntax</th>
@@ -165,33 +143,30 @@
               <td>
                 <RouterLink
                   :to="{
-                    name: 'tablemapping',
+                    name: 'DatasetMappings-details',
                     params: {
-                      fromPid: m.fromDataDictionary.resource.pid,
-                      fromVersion: m.fromDataDictionary.version,
-                      fromTable: m.fromTable.name,
-                      toPid: variable.dataDictionary.resource.pid,
-                      toVersion: variable.dataDictionary.version,
-                      toTable: variable.table.name,
+                      source: m.source.id,
+                      sourceDataset: m.sourceDataset.name,
+                      target: variable.resource.id,
+                      targetDataset: variable.dataset.name,
                     },
                   }"
                 >
-                  {{ getType(m.fromDataDictionary.resource.mg_tableclass) }}:
-                  {{ m.fromDataDictionary.resource.pid }}
-                  {{ m.fromDataDictionary.version }}, table:
-                  {{ m.fromTable.name }}
+                  {{ getType(m.source.mg_tableclass) }}:
+                  {{ m.source.id }}
+                  Dataset:
+                  {{ m.sourceDataset.name }}
                 </RouterLink>
               </td>
 
               <td>
-                <div v-for="v in m.fromVariable" :key="v.name">
+                <div v-for="v in m.sourceVariables" :key="v.name">
                   <RouterLink
                     :to="{
-                      name: 'tablemapping',
+                      name: 'Variables-details',
                       params: {
-                        fromPid: m.fromDataDictionary.resource.pid,
-                        version: m.fromDataDictionary.version,
-                        table: m.fromTable.name,
+                        resource: v.resource.id,
+                        dataset: v.dataset.name,
                         name: v.name,
                       },
                     }"
@@ -214,8 +189,12 @@
 </template>
 
 <script>
-import { MessageError, ButtonAlt } from "molgenis-components";
-import { request } from "graphql-request";
+import {
+  MessageError,
+  ButtonAlt,
+  convertToPascalCase,
+} from "molgenis-components";
+import { request, gql } from "graphql-request";
 import OntologyTerms from "../components/OntologyTerms.vue";
 
 export default {
@@ -225,10 +204,8 @@ export default {
     ButtonAlt,
   },
   props: {
-    tableName: String,
-    pid: String,
-    version: String,
-    table: String,
+    resource: String,
+    dataset: String,
     name: String,
   },
   data() {
@@ -240,10 +217,8 @@ export default {
   },
   computed: {
     resourceType() {
-      if (this.variable.dataDictionary) {
-        return this.getType(
-          this.variable.dataDictionary.resource.mg_tableclass
-        );
+      if (this.variable.resource) {
+        return this.getType(this.variable.resource.mg_tableclass);
       }
     },
   },
@@ -252,25 +227,110 @@ export default {
       this.hideNA = !this.hideNA;
     },
     getType(mg_tableclass) {
-      return mg_tableclass.split(".")[1];
+      return convertToPascalCase(mg_tableclass.split(".")[1]);
     },
     reload() {
       request(
         "graphql",
-        `query ${this.tableName}($pid:String,$version:String,$table:String,$name:String){${this.tableName}(filter:{dataDictionary:{version:{equals:[$version]},resource:{pid:{equals:[$pid]}}},table:{name:{equals:[$table]}},name:{equals:[$name]}})
-        {name,table{name},repeats{name,table{name},collectionEvent{name}},format{name},vocabularies{name,definition,ontologyTermURI},mandatory,unit{name,definition,ontologyTermURI},exampleValues,permittedValues{value,label,isMissing},dataDictionary{version,resource{pid,name,mg_tableclass}},description,notes,label,keywords{name,ontologyTermURI,definition}
-                mappings{description,syntax,match{name}fromTable{name}fromVariable{name}fromDataDictionary{resource{pid,mg_tableclass}version}}}}`,
+        gql`
+          query Variables($resource: String, $dataset: String, $name: String) {
+            Variables(
+              filter: {
+                resource: { id: { equals: [$resource] } }
+                dataset: { name: { equals: [$dataset] } }
+                name: { equals: [$name] }
+              }
+            ) {
+              name
+              resource {
+                id
+                name
+                mg_tableclass
+              }
+              dataset {
+                name
+                resource {
+                  id
+                }
+              }
+              unit {
+                name
+                definition
+                ontologyTermURI
+              }
+              format {
+                name
+                definition
+                ontologyTermURI
+              }
+              repeats {
+                name
+                dataset {
+                  name
+                }
+              }
+              collectionEvent {
+                name
+              }
+              vocabularies {
+                name
+                definition
+                ontologyTermURI
+              }
+              label
+              notes
+              mandatory
+              description
+              exampleValues
+              permittedValues {
+                isMissing
+                value
+                label
+              }
+              keywords {
+                name
+                definition
+                ontologyTermURI
+              }
+              mappings {
+                description
+                syntax
+                match {
+                  name
+                }
+                source {
+                  id
+                  name
+                  mg_tableclass
+                }
+                target {
+                  id
+                }
+                sourceDataset {
+                  name
+                }
+                sourceVariables {
+                  name
+                  dataset {
+                    name
+                  }
+                  resource {
+                    id
+                  }
+                }
+              }
+              sinceVersion
+            }
+          }
+        `,
         {
-          pid: this.pid,
-          version: this.version,
-          table: this.table,
+          resource: this.resource,
+          dataset: this.dataset,
           name: this.name,
         }
       )
         .then((data) => {
-          this.variable = data.SourceVariables
-            ? data.SourceVariables[0]
-            : data.TargetVariables[0];
+          this.variable = data.Variables[0];
         })
         .catch((error) => {
           if (error.response)

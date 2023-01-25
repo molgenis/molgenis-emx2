@@ -384,6 +384,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    filter: {
+      type: Object,
+      default: () => ({})
+    },
     showOrderBy: {
       type: String,
       required: false,
@@ -433,7 +437,7 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = {};
+      let filter = this.filter;
       if (this.columns) {
         this.columns.forEach((col) => {
           const conditions = col.conditions
@@ -652,7 +656,7 @@ export default {
   },
   emits: [
     "updateShowFilters",
-    "click",
+    "rowClick",
     "updateShowLimit",
     "updateShowPage",
     "updateConditions",

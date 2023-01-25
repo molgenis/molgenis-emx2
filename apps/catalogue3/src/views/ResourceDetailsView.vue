@@ -23,7 +23,15 @@
       :table-name="table"
     />
     <div class="row p-2">
-      <div :class="'border border-' + color" class="col-10 p-0">
+      <div
+        :class="
+          'border border-' +
+          color +
+          ' ' +
+          (sectionsNames.length > 1 ? 'col-10' : 'col-12')
+        "
+        class="p-0"
+      >
         <div v-for="section in sections" :key="section.meta.name">
           <section-card
             :section="section"

@@ -18,7 +18,7 @@
     <h2>Metadata on data collections</h2>
     <div class="card-columns">
       <RouterLink
-        to="Organisations"
+        to="organisations"
         class="card card-body bg-dark text-white card-height"
       >
         <span class="badge badge-light float-right">{{ organisations }}</span>
@@ -29,7 +29,7 @@
         </p>
       </RouterLink>
       <RouterLink
-        to="Networks"
+        to="networks"
         class="card card-body bg-danger text-white card-height"
       >
         <span class="badge badge-light float-right">{{ networks }}</span>
@@ -37,7 +37,7 @@
         <p class="text-left">Collaborations of multiple organisations</p>
       </RouterLink>
       <RouterLink
-        to="Datasources"
+        to="datasources"
         class="card card-body bg-primary text-white card-height"
       >
         <span class="badge badge-light float-right">{{ datasources }}</span>
@@ -48,7 +48,7 @@
       </RouterLink>
 
       <RouterLink
-        to="Cohorts"
+        to="cohorts"
         class="card card-body bg-primary text-white card-height"
         v-if="cohorts > 0"
       >
@@ -60,7 +60,7 @@
       </RouterLink>
 
       <RouterLink
-        to="Datasets"
+        to="datasets"
         class="card card-body bg-info text-white card-height"
       >
         <span class="badge badge-light float-right">{{ datasets }}</span>
@@ -68,7 +68,7 @@
         <p class="text-left">Data sets as collected</p>
       </RouterLink>
       <RouterLink
-        to="Studies"
+        to="studies"
         class="card card-body bg-success text-white card-height"
       >
         <span class="badge badge-light float-right">{{ studies }}</span>
@@ -79,7 +79,7 @@
         </p>
       </RouterLink>
       <RouterLink
-        to="Models"
+        to="models"
         class="card card-body bg-warning text-dark card-height"
       >
         <span class="badge badge-light float-right">{{ models }}</span>
@@ -95,44 +95,14 @@
       <div class="card card-body border border-dark rounded card-height">
         <h3>Collected data dictionaries</h3>
         <div class="text-left">
-          Data dictionaries of collected data in databanks and/or cohorts.
+          Data dictionaries
           <ul>
             <li>
-              <RouterLink to="source-data-dictionaries">
-                Source Data dictionaries ({{ sourceDataDictionaries }})
-              </RouterLink>
+              <RouterLink to="datasets"> Datasets ({{ datasets }}) </RouterLink>
             </li>
             <li>
-              <RouterLink to="source-tables">
-                Source Tables ({{ sourceTables }})
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="source-variables">
-                Source Variables ({{ sourceVariables }})
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="card card-body border border-dark rounded card-height">
-        <h3>Common data models</h3>
-        <div class="text-left">
-          Data dictionaries of standards for integrated analysis
-          <ul>
-            <li>
-              <RouterLink to="target-data-dictionaries">
-                Target Data dictionaries ({{ targetDataDictionaries }})
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="target-tables">
-                Target Tables ({{ targetTables }})
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="target-variables">
-                Target Variables ({{ targetVariables }})
+              <RouterLink to="variables">
+                Variables ({{ variables }})
               </RouterLink>
             </li>
           </ul>
@@ -149,8 +119,8 @@
               </RouterLink>
             </li>
             <li>
-              <RouterLink to="table-mappings">
-                Table mappings ({{ tableMappings }})
+              <RouterLink to="dataset-mappings">
+                Dataset mappings ({{ datasetMappings }})
               </RouterLink>
             </li>
           </ul>
@@ -179,7 +149,7 @@
 </style>
 
 <script>
-import { request } from "graphql-request";
+import { request, gql } from "graphql-request";
 import { MessageError } from "molgenis-components";
 
 export default {
@@ -196,15 +166,12 @@ export default {
       models: null,
       datasources: null,
       datasets: null,
-      sourceVariables: null,
-      targetVariables: null,
-      sourceTables: null,
-      targetTables: null,
+      variables: null,
       graphqlError: null,
       sourceDataDictionaries: null,
       targetDataDictionaries: null,
       variableMappings: null,
-      tableMappings: null,
+      datasetMappings: null,
       studies: null,
     };
   },
@@ -212,7 +179,49 @@ export default {
     reload() {
       request(
         "graphql",
-        `query {_schema{name}, Organisations_agg{count}, Studies_agg{count}, Cohorts_agg{count},DataSources_agg{count},Networks_agg{count},Datasets_agg{count},Models_agg{count},Studies_agg{count},VariableMappings_agg{count}, DatasetMappings_agg{count}}`
+        gql`
+          query {
+            _schema {
+              name
+            }
+            Organisations_agg {
+              count
+            }
+            Studies_agg {
+              count
+            }
+            Cohorts_agg {
+              count
+            }
+            DataSources_agg {
+              count
+            }
+            Networks_agg {
+              count
+            }
+            Datasets_agg {
+              count
+            }
+            Models_agg {
+              count
+            }
+            Studies_agg {
+              count
+            }
+            Datasets_agg {
+              count
+            }
+            Variables_agg {
+              count
+            }
+            VariableMappings_agg {
+              count
+            }
+            DatasetMappings_agg {
+              count
+            }
+          }
+        `
       )
         .then((data) => {
           this.schemaName = data._schema.name;
@@ -222,6 +231,7 @@ export default {
           this.datasources = data.DataSources_agg.count;
           this.models = data.Models_agg.count;
           this.datasets = data.Datasets_agg.count;
+          this.variables = data.Variables_agg.count;
           this.variableMappings = data.VariableMappings_agg.count;
           this.datasetMappings = data.DatasetMappings_agg.count;
           this.studies = data.Studies_agg.count;
