@@ -171,7 +171,7 @@ Contributions,,contributionType,ontology_array,,,CatalogueOntologies,Contributio
 Contributions,,contributionDescription,text,,,,,,,,,Contribution description
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
-Contacts,,consent,bool,,TRUE,,,,,,,"This person gives permission to display their filled out contact details in the catalogue, which is openly accessible"
+Contacts,,consent,bool,,TRUE,,,,,,,"This person gives permission to display their filled out contact details in the catalogue, which is openly accessible",,,
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
