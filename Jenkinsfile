@@ -58,9 +58,9 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                anyOf {
+                allOf {
+                    changeRequest()
                     branch 'PR-*'
-                    branch 'master'
                }
             }
             environment {
