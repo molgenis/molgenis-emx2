@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 CoreVariables,,,,,,,,,,,,Listing of core variables for cohorts
-Version,,,,,,,,,,,,2.8
+Version,,,,,,,,,,,,2.9
 Institutions,,,,,,,,,,,,"Universities, companies, medical centres and research institutes"
 Contacts,,,,,,,,,,,,
 Institutions,,pid,,1,true,,,,,,,Persistent identifier for this institution
@@ -19,12 +19,14 @@ Institutions,,rolesOther,text,,,,,,,,,"If role is 'other', a description of the 
 Institutions,,expertise,text,,,,,,,,,A short description of the expertise of this institution
 Contacts,,firstName,,1,true,,,,,,,First name of the contact person
 Contacts,,surname,,1,true,,,,,,,Last name of the contact person
+Contacts,,consent,bool,,TRUE,,,,,,,"This person gives permission to display their filled out contact details in the catalogue, which is openly accessible"
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,2,,,,,,,,Contact's email address
+Contacts,,consent email,bool,,,,,,,,,This person gives permission to display their e-mail address in the catalogue
 Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
