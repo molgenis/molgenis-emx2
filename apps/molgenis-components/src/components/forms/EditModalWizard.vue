@@ -10,6 +10,7 @@
       :schemaMetaData="schemaMetaData"
       :visibleColumns="columnsSplitByHeadings[page - 1]"
       :clone="clone"
+      :locale="locale"
       @update:modelValue="$emit('update:modelValue', $event)"
     />
   </div>
@@ -57,6 +58,10 @@ export default {
     schemaMetaData: {
       type: Object,
       required: false,
+    },
+    locale: {
+      type: String,
+      default: () => "en",
     },
   },
   mounted() {

@@ -32,9 +32,7 @@ public class Filter {
     this.value = value;
   }
 
-  /**
-   * Helper function to support both 'string' and 'string array' inputs for Values
-   */
+  /** Helper function to support both 'string' and 'string array' inputs for Values */
   public void parseValues() {
     if (this.value instanceof ArrayList<?>) {
       ArrayList<String> valArrList = (ArrayList<String>) this.value;
@@ -44,9 +42,7 @@ public class Filter {
     }
   }
 
-  /**
-   * Helper function to support both 'string' and 'string array' inputs for IDs
-   */
+  /** Helper function to support both 'string' and 'string array' inputs for IDs */
   public void parseIDs() {
     if (this.id instanceof ArrayList<?>) {
       ArrayList<String> idArrList = (ArrayList<String>) this.id;
@@ -58,6 +54,7 @@ public class Filter {
 
   /**
    * Getter that checks last-moment if IDs still need parsing
+   *
    * @return
    */
   public String[] getIds() {
@@ -70,6 +67,7 @@ public class Filter {
 
   /**
    * Getter that checks last-moment if Values still need parsing
+   *
    * @return
    */
   public String[] getValues() {

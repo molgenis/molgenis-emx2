@@ -173,6 +173,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
       }
 
+      if (getSetting(Constants.LOCALES) == null) {
+        this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
+      }
+
       String key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
       if (key == null) {
         key =

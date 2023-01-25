@@ -14,6 +14,7 @@
           :clone="clone"
           :page="currentPage"
           @setPageCount="pageCount = $event"
+          :locale="locale"
           class="flex-grow-1"
         />
         <RowEdit
@@ -26,6 +27,7 @@
           :schemaMetadata="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
+          :locale="locale"
           class="flex-grow-1"
         />
         <div v-if="pageCount > 1" class="border-left chapter-menu">
@@ -84,7 +86,7 @@ import RowEditFooter from "./RowEditFooter.vue";
 import EditModalWizard from "./EditModalWizard.vue";
 import RowEdit from "./RowEdit.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { filterObject, deepClone } from "../utils.ts";
+import { filterObject, deepClone, getLocalizedLabel } from "../utils.ts";
 import constants from "../constants";
 
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
@@ -148,10 +150,19 @@ export default {
       required: false,
       default: () => null,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     title() {
-      return `${this.titlePrefix} ${this.tableName}`;
+      return `${this.titlePrefix} into table: ${this.label} (${this.tableName})`;
+    },
+    label() {
+      if (this.tableMetaData) {
+        return getLocalizedLabel(this.tableMetaData);
+      }
     },
     pageHeadings() {
       const headings = this.tableMetaData.columns

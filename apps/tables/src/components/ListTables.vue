@@ -16,7 +16,11 @@
         v-model="search"
       />
       <h2>Data tables</h2>
-      <TablesTable v-if="tables.length > 0" :tables="tables" />
+      <TablesTable
+        v-if="tables.length > 0"
+        :tables="tables"
+        :locale="session?.locale"
+      />
       <p v-else>No tables found</p>
       <h2>Ontology tables</h2>
       <p>

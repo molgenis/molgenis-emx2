@@ -4,8 +4,8 @@ defineProps<{
   link?: string;
 }>();
 
-const config = useRuntimeConfig()
-const logoFileName = config.public.logo 
+const config = useRuntimeConfig();
+const logoFileName = config.public.logo;
 
 // load the svg data from the assets folder
 let svg = shallowRef();
