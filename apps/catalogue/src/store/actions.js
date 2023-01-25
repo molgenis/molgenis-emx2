@@ -12,9 +12,9 @@ export default {
       `{
           _session { email,roles } _schema {
             name, tables {
-              name, tableType, id, description, externalSchema, semantics, columns {
+              name, tableType, id, descriptions {locale,value}, externalSchema, semantics, columns {
                 name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
-                semantics, description, position, validation, visible
+                semantics, descriptions {locale,value} , position, validation, visible
               } settings { key, value }
             }
           }

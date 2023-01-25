@@ -584,6 +584,7 @@ export default {
       this.reload();
     },
     handleError(error) {
+      console.log(error);
       if (Array.isArray(error?.response?.data?.errors)) {
         this.graphqlError = error.response.data.errors[0].message;
       } else {

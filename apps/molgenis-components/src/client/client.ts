@@ -39,11 +39,17 @@ export default {
             schemaNameCache = schemaMetaData.name;
           }
         }
-        return deepClone(schemaMetaData).tables.find(
+        const tableId = convertToPascalCase(tableName);
+        const tableMetaData = deepClone(schemaMetaData).tables.find(
           (table: ITableMetaData) =>
-            table.id === convertToPascalCase(tableName) &&
-            table.externalSchema === schemaName
+            table.id === tableId &&
+            table.externalSchema === schemaNameCache
         );
+        if(!tableMetaData) {
+          console.log(schemaMetaData);
+          throw "Table metaddata not found for table "+schemaNameCache +"." + tableName;
+        }
+        return tableMetaData;
       },
       fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
         if (schemaMetaData === null) {
