@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,tableName_old,columnName_old
-Version,,,,,,,,,,,,3.1,,,
+Version,,,,,,,,,,,,3.2,,,
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies",,,
 Organisations,Resources,,,,,,,,,,,Research departments and research groups,,,
 Extended resources,Resources,,,,,,,,,,,,,,
@@ -184,11 +184,13 @@ Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated 
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource,,Contributions,contributionType
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person,,Contributions,contact.firstName
 Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person,,Contributions,contact.surname
+Contacts,,consent,bool,,TRUE,,,,,,,"This person gives permission to display their filled out contact details in the catalogue, which is openly accessible"
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable",,,
 Contacts,,initials,,,,,,,,,,Initials of the contact person,,,
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person,,,
 Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person,,,
 Contacts,,email,,,,,,,,,,Contact's email address,,,
+Contacts,,consent email,bool,,,,,,,,,This person gives permission to display their e-mail address in the catalogue,,,
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person,,,
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage,,,
 Contacts,,photo,file,,,,,,,,,Contact's photograph,,,
