@@ -52,7 +52,8 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                branch 'PR-*' || branch 'master'
+                branch 'PR-*'
+                branch 'master'
             }
             environment {
                 NAME = "preview-emx2-pr-${CHANGE_ID.toLowerCase()}"
