@@ -49,3 +49,7 @@ procedure is to update.
 | 2.6 => 2.7  | Add Network.type and CatalogueOntologies.NetworkTypes. To update: upload molgenis.csv and add 'h2020' and 'harmonization' to NetworkTypes                                                                                                                                                                                                                                                                                                | |
 | 2.7 => 2.8  | Change: Cohorts.designDescription columnType from STRING to TEXT . Upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                | |
 | 2.8 => 2.9  | Add Contacts.consent and Contacts.consent email. Upload molgenis.csv to update                                                                                                                                                                                                                                                                                                | |
+| 2.9 => 3.0  | to do ...| |
+| 3.0 => 3.1  | to do ...| |
+
+
