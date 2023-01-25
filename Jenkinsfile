@@ -14,6 +14,12 @@ pipeline {
     }
     stages {
         stage('Prepare') {
+            when {
+                anyOf {
+                    branch 'PR-*'
+                    branch 'master'
+               }
+            }
             steps {
                 checkout scm
                 container('vault') {
@@ -52,8 +58,10 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                branch 'PR-*'
-                branch 'master'
+                anyOf {
+                    branch 'PR-*'
+                    branch 'master'
+               }
             }
             environment {
                 NAME = "preview-emx2-pr-${CHANGE_ID.toLowerCase()}"
