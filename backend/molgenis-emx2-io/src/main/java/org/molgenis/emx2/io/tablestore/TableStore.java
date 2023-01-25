@@ -8,6 +8,9 @@ public interface TableStore {
 
   void writeTable(String name, List<String> columnNames, Iterable<Row> rows);
 
+  void writeTable(
+      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns);
+
   Iterable<Row> readTable(String name);
 
   void processTable(String name, RowProcessor processor);

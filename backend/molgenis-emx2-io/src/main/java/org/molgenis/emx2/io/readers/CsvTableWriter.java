@@ -13,18 +13,17 @@ public class CsvTableWriter {
     // hide constructor
   }
 
-  public static void write(Iterable<Row> rows, Writer writer, Character seperator)
+  public static void write(
+      Iterable<Row> rows, Writer writer, Character seperator, boolean includeSystemColumns)
       throws IOException {
-
     // get most extensive headers
     Set<String> columnNames = new LinkedHashSet<>();
     Row firstRow = rows.iterator().next();
     columnNames.addAll(firstRow.getColumnNames());
 
-    // we filter mg_ columns. TODO make option to choose
     columnNames =
         columnNames.stream()
-            .filter(name -> !name.startsWith("mg_"))
+            .filter(name -> includeSystemColumns || !name.startsWith("mg_"))
             .collect(Collectors.toCollection(LinkedHashSet::new));
 
     CsvWriter.CsvWriterDSL<Map> writerDsl =
@@ -39,5 +38,10 @@ public class CsvTableWriter {
       }
       csvWriter.append(values);
     }
+  }
+
+  public static void write(Iterable<Row> rows, Writer writer, Character seperator)
+      throws IOException {
+    CsvTableWriter.write(rows, writer, seperator, false);
   }
 }

@@ -54,9 +54,18 @@ public class TestColumnTypeIsFile {
   public void testCsvShouldNotIncludeFileColumns() throws IOException {
     Path tmp = Files.createTempDirectory(null);
     Path csvFile = tmp.resolve("User.csv");
-    MolgenisIO.toExcelFile(csvFile, schema.getTable("User"));
+    MolgenisIO.toExcelFile(csvFile, schema.getTable("User"), false);
     TableStore store = new TableStoreForCsvFile(csvFile);
     assertFalse(store.readTable("User").iterator().next().getColumnNames().contains("picture"));
+  }
+
+  @Test
+  public void testCsvWithSystemColumnsShouldIncludeFileColumns() throws IOException {
+    Path tmp = Files.createTempDirectory(null);
+    Path csvFile = tmp.resolve("User.csv");
+    MolgenisIO.toExcelFile(csvFile, schema.getTable("User"), true);
+    TableStore store = new TableStoreForCsvFile(csvFile);
+    assertFalse(store.readTable("User").iterator().next().getColumnNames().contains("mg_draft"));
   }
 
   @Test

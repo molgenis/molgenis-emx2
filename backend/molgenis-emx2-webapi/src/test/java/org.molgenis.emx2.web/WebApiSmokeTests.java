@@ -31,6 +31,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
@@ -763,5 +764,26 @@ public class WebApiSmokeTests {
         .statusCode(400)
         .when()
         .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+  }
+
+  @Test
+  public void testApiIncludeSystemColumnsParam() throws IOException {
+    String csvPet = "/pet store/api/csv/Pet";
+    Response csvResponse = downloadPet(csvPet);
+    assertFalse(csvResponse.getBody().asString().contains("mg_"));
+
+    Response csvResponseWithSystemColumns =
+        downloadPet(csvPet + "?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    assertTrue(csvResponseWithSystemColumns.getBody().asString().contains("mg_"));
+  }
+
+  private Response downloadPet(String requestString) {
+    return given()
+        .sessionId(SESSION_ID)
+        .accept(ACCEPT_EXCEL)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get(requestString);
   }
 }

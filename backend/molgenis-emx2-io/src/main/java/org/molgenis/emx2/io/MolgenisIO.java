@@ -4,6 +4,7 @@ import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
 import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
+import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -56,16 +57,25 @@ public class MolgenisIO {
     }
   }
 
-  public static void toZipFile(Path zipFile, Table table) {
-    outputTable(new TableStoreForCsvInZipFile(zipFile), table);
+  public static void toZipFile(Path zipFile, Table table, boolean includeSystemColumns) {
+    toFile(zipFile, table, includeSystemColumns);
   }
 
-  public static void toExcelFile(Path excelFile, Table table) {
-    outputTable(new TableStoreForXlsxFile(excelFile), table);
+  public static void toExcelFile(Path excelFile, Table table, boolean includeSystemColumns) {
+    toFile(excelFile, table, includeSystemColumns);
   }
 
-  public static void toCsvFile(Path csvFile, Table table) {
-    outputTable(new TableStoreForCsvFile(csvFile), table);
+  public static void toCsvFile(Path csvFile, Table table, boolean includeSystemColumns) {
+    toFile(csvFile, table, includeSystemColumns);
+  }
+
+  private static void toFile(Path path, Table table, boolean includeSystemColumns) {
+    TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(path);
+    if (includeSystemColumns) {
+      outputTableWithSystemColumns(store, table);
+    } else {
+      outputTable(store, table);
+    }
   }
 
   public static void fromDirectory(Path directory, Schema schema, boolean strict) {

@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 import static org.molgenis.emx2.web.Constants.TABLE;
+import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
@@ -95,7 +96,7 @@ public class ExcelApi {
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path excelFile = tempDir.resolve("download.xlsx");
-      MolgenisIO.toExcelFile(excelFile, table);
+      MolgenisIO.toExcelFile(excelFile, table, includeSystemColumns(request));
       response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       response.header(
           "Content-Disposition",
