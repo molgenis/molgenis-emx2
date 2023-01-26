@@ -13,8 +13,8 @@
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="
         column.readonly ||
-        (pkey && column.key == 1 && !clone) ||
-        (column.computed != undefined && column.computed.trim() != '')
+        (pkey && column.key === 1 && !clone) ||
+        (column.computed !== undefined && column.computed.trim() != '')
       "
       :refBack="column.refBack"
       :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
@@ -232,6 +232,8 @@ export default {
   watch: {
     internalValues: {
       handler() {
+        //clean up errors
+        this.errorPerColumn = {};
         this.validateTable();
         this.applyComputed();
         this.$emit("update:modelValue", this.internalValues);

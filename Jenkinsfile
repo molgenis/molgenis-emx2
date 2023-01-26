@@ -14,6 +14,15 @@ pipeline {
     }
     stages {
         stage('Prepare') {
+            when {
+                anyOf {
+                    allOf {
+                        changeRequest()
+                        branch 'PR-*'
+                    }
+                    branch 'master'
+               }
+            }
             steps {
                 checkout scm
                 container('vault') {
@@ -52,7 +61,10 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                changeRequest()
+                allOf {
+                    changeRequest()
+                    branch 'PR-*'
+               }
             }
             environment {
                 NAME = "preview-emx2-pr-${CHANGE_ID.toLowerCase()}"
@@ -118,5 +130,6 @@ pipeline {
                 }
             }
         }
+        
     }
 }

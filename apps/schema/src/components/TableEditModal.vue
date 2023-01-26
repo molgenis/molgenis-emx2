@@ -1,5 +1,9 @@
 <template>
-  <LayoutModal v-if="modalVisible === true" :title="title" :isCloseButtonShown="false">
+  <LayoutModal
+    v-if="modalVisible === true"
+    :title="title"
+    :isCloseButtonShown="false"
+  >
     <template v-slot:body>
       <MessageWarning v-if="table.drop">Marked for deletion</MessageWarning>
       <InputString
