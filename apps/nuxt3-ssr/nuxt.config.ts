@@ -18,8 +18,8 @@ const config = {
     // Keys within public, will be also exposed to the client-side
     public: {
       apiBase: 'http://localhost:3000/', //'https://emx2.molgeniscloud.org/',
-      theme: process.env.EMX2_THEME ? process.env.EMX2_THEME : undefined,
-      logo: process.env.EMX2_LOGO ? process.env.EMX2_LOGO : undefined
+      emx2Theme: '',
+      emx2Logo: '',
     }
   }
 }
