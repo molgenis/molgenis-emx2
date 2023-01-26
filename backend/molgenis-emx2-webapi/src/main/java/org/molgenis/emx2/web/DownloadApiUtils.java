@@ -9,6 +9,7 @@ public class DownloadApiUtils {
   private DownloadApiUtils() {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
+
   static boolean includeSystemColumns(Request request) {
     return String.valueOf(request.queryParams(INCLUDE_SYSTEM_COLUMNS)).equalsIgnoreCase("true");
   }

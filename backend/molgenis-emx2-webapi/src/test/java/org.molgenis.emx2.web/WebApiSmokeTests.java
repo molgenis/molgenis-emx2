@@ -15,17 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -270,7 +270,14 @@ public class WebApiSmokeTests {
   }
 
   private byte[] getContentAsByteArray(String fileType, String path) {
-    return given().sessionId(SESSION_ID).accept(fileType).when().get(path).asByteArray();
+    return given()
+        .sessionId(SESSION_ID)
+        .accept(fileType)
+        .when()
+        .get(path)
+        .then()
+        .extract()
+        .asByteArray();
   }
 
   @Test
@@ -778,8 +785,22 @@ public class WebApiSmokeTests {
     assertFalse(csvResponse.getBody().asString().contains("mg_"));
 
     Response csvResponseWithSystemColumns =
-            downloadPet(csvPet + "?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+        downloadPet(csvPet + "?" + INCLUDE_SYSTEM_COLUMNS + "=true");
     assertTrue(csvResponseWithSystemColumns.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  public void testFile() throws IOException, InvalidFormatException {
+
+    String exelPet = "/pet store/api/exel/Pet";
+    byte[] bytes = getContentAsByteArray(ACCEPT_EXCEL, exelPet);
+
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel/Pet");
+
+    Path p = Files.write(Paths.get("./pet2.xlsx"), excelContents);
+
+    List<String> rows = ExelTestUtils.readExcelSheet(p.toFile());
+    assertEquals("foo", rows.get(0));
   }
 
   private Response downloadPet(String requestString) {
