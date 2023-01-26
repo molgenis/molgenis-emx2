@@ -16,7 +16,10 @@ pipeline {
         stage('Prepare') {
             when {
                 anyOf {
-                    branch 'PR-*'
+                    allOf {
+                        changeRequest()
+                        branch 'PR-*'
+                    }
                     branch 'master'
                }
             }
