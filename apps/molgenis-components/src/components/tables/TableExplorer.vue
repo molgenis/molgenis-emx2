@@ -8,7 +8,6 @@
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
-          v-if="view !== View.AGGREGATE"
           :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
@@ -99,15 +98,6 @@
         />
       </div>
 
-      <div v-if="!loading && view === View.AGGREGATE">
-        <AggregateOptions
-          :columns="columns"
-          @setAggregateColumns="aggregateColumns = $event"
-          v-model:selectedColumn="aggregateSelectedColumn"
-          v-model:selectedRow="aggregateSelectedRow"
-        />
-      </div>
-
       <div class="btn-group" v-if="canManage">
         <TableSettings
           v-if="tableMetadata"
@@ -123,7 +113,7 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters && view !== View.AGGREGATE" class="col-3 pl-0">
+      <div v-if="countFilters" class="col-3 pl-0">
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
@@ -143,6 +133,16 @@
         <div v-if="loading">
           <Spinner />
         </div>
+
+        <div v-if="!loading && view === View.AGGREGATE">
+          <AggregateOptions
+            :columns="columns"
+            @setAggregateColumns="aggregateColumns = $event"
+            v-model:selectedColumn="aggregateSelectedColumn"
+            v-model:selectedRow="aggregateSelectedRow"
+          />
+        </div>
+
         <AggregateTable
           v-if="
             !loading && view === View.AGGREGATE && aggregateColumns?.length > 0

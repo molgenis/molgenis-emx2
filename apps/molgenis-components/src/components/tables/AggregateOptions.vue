@@ -1,47 +1,45 @@
 <template>
-  <div class="btn-group aggregate-options">
-    <span>
-      <InputSelect
-        id="aggregate-column-select"
-        class="column-select"
-        required
-        :modelValue="selectedColumn"
-        @update:modelValue="$emit('update:selectedColumn', $event)"
-        :options="refColumns"
-      />
-    </span>
-    <span>
-      <InputSelect
-        id="aggregate-row-select"
-        class="row-select"
-        required
-        :modelValue="selectedRow"
-        @update:modelValue="$emit('update:selectedRow', $event)"
-        :options="refColumns"
-      />
-    </span>
+  <div class="aggregate-options container">
+    <div class="row">
+      <div class="col-1">
+        <label class="mr-2 col-form-label" for="aggregate-column-select">
+          Column:
+        </label>
+      </div>
+      <div class="col-3">
+        <InputSelect
+          id="aggregate-column-select"
+          class="column-select"
+          required
+          :modelValue="selectedColumn"
+          @update:modelValue="$emit('update:selectedColumn', $event)"
+          :options="refColumns"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-1">
+        <label class="mr-2 col-form-label" for="aggregate-row-select">
+          Row:
+        </label>
+      </div>
+      <div class="col-3">
+        <InputSelect
+          id="aggregate-row-select"
+          class="row-select"
+          required
+          :modelValue="selectedRow"
+          @update:modelValue="$emit('update:selectedRow', $event)"
+          :options="refColumns"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <style>
 .aggregate-options .float-right {
   display: none;
-}
-
-.column-select select {
-  border-color: var(--primary);
-  border-right: 0px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  padding-right: 1rem;
-  color: var(--primary);
-}
-
-.row-select select {
-  border-color: var(--primary);
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  color: var(--primary);
 }
 </style>
 
