@@ -216,7 +216,7 @@
               class="d-inline p-0"
             />
           </template>
-          <template v-slot:row="slotProps">
+          <template v-slot:rowheader="slotProps">
             <RowButton
               v-if="canEdit"
               type="edit"
