@@ -14,6 +14,18 @@
         <ButtonOutline @click="signout" :light="true">Sign out</ButtonOutline>
       </span>
       <span v-else>
+        <ButtonAlt
+          v-show="!isOidcEnabled"
+          @click="showSignupForm = true"
+          :light="true"
+        >
+          Sign up
+        </ButtonAlt>
+        <SignupForm
+          v-if="showSignupForm"
+          :error="error"
+          @close="closeSignupForm"
+        />
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
           Sign in</ButtonOutline
         >
@@ -25,18 +37,13 @@
           @signin="changed"
           @cancel="closeSigninForm"
         />
-        <ButtonAlt
-          v-show="!isOidcEnabled"
-          @click="showSignupForm = true"
-          :light="true"
-          >Sign up</ButtonAlt
-        >
-        <SignupForm
-          v-if="showSignupForm"
-          :error="error"
-          @close="closeSignupForm"
-        />
       </span>
+      <LocaleSwitch
+        v-if="locales.length > 1"
+        class="ml-2"
+        v-model="session.locale"
+        :locales="locales"
+      />
     </div>
   </div>
 </template>
@@ -45,17 +52,20 @@
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import Spinner from "../layout/Spinner.vue";
-import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
+import MolgenisAccount from "./MolgenisAccount.vue";
+import LocaleSwitch from "./LocaleSwitch.vue";
+import { useCookies } from "vue3-cookies";
 import { defineComponent } from "vue";
 import { request } from "../../client/client.js";
 import { IErrorMessage, IResponse, ISession } from "./Interfaces";
 import { ISetting } from "../../Interfaces/ISetting";
 
+const { cookies } = useCookies();
 const query = `{
   _session { email, roles, schemas, token, settings{key,value} },
-  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled"]){ key, value },
+  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
 
@@ -68,6 +78,7 @@ export default defineComponent({
     MolgenisAccount,
     Spinner,
     ButtonAlt,
+    LocaleSwitch,
   },
   props: {
     graphql: {
@@ -82,8 +93,8 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: {} as ISession,
-      settingsMap: {} as Record<string, string>,
+      session: { locale: "en" } as ISession,
+      version: null,
     };
   },
   watch: {
@@ -97,19 +108,31 @@ export default defineComponent({
   },
   computed: {
     isOidcEnabled() {
-      return this.settingsMap.isOidcEnabled === "true";
+      return this.session?.settings?.isOidcEnabled === "true";
+    },
+    locales() {
+      if (this.session?.settings?.locales) {
+        if (Array.isArray(this.session.settings.locales)) {
+          return this.session.settings.locales;
+        } else {
+          this.error =
+            'locales should be array similar to ["en"] but instead was ' +
+            JSON.stringify(this.session.settings.locales);
+        }
+      }
+      //default
+      return ["en"];
     },
   },
   methods: {
     loadSettings(settings: { _settings: ISetting[] }) {
-      this.settingsMap = settings._settings.reduce((accum, setting) => {
+      settings._settings.forEach((setting) => {
         const value: string =
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)
             : setting.value;
-        accum[setting.key] = value;
-        return accum;
-      }, {} as Record<string, string>);
+        this.session.settings[setting.key] = value;
+      });
     },
     async reload() {
       this.loading = true;
@@ -143,6 +166,15 @@ export default defineComponent({
         this.loadSettings(schemaSettings);
         this.session.manifest = schemaSettings._manifest;
       }
+      //set default locale
+      if (this.session.locale === undefined) {
+        //get from cookie
+        const lang = cookies.get("MOLGENIS.locale");
+        if (lang) {
+          this.session.locale = lang;
+        }
+      }
+      //get the map
       this.loading = false;
       this.$emit("update:modelValue", this.session);
     },

@@ -79,7 +79,7 @@ function toggleSelect(term) {
           :checked="
             child.selected === 'complete' || child.selected === 'partial'
           "
-          class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border-0"
+          class="w-5 h-5 rounded-3px ml-2.5 mr-2.5 mt-0.5 text-search-filter-group-checkbox border border-checkbox"
         />
       </div>
       <label :for="child.name" class="hover:cursor-pointer text-body-sm group">

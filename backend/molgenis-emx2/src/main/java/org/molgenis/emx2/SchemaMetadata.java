@@ -165,4 +165,21 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
       }
     }
   }
+
+  public Set<String> getLocales() {
+    // sorted on alphabet
+    Set<String> result = new TreeSet<>();
+    getTables()
+        .forEach(
+            table -> {
+              table
+                  .getColumns()
+                  .forEach(
+                      column -> {
+                        result.addAll(column.getLabels().keySet());
+                        result.addAll(column.getDescriptions().keySet());
+                      });
+            });
+    return result;
+  }
 }

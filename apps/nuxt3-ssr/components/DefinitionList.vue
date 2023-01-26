@@ -63,6 +63,10 @@ function emptyContent(item: DefinitionListItem) {
             {{ row }}
           </li>
         </ul>
+        <p v-else-if="item?.content?.tooltip" class="flex items-center gap-1">
+          {{ item.content.value }}
+          <CustomTooltip label="Read more" :content="item.content.tooltip" />
+        </p>
         <p v-else>
           {{ item.content }}
         </p>

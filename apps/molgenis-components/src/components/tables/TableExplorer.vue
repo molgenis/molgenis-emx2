@@ -1,12 +1,10 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
-
+    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.description }}
+      {{ localizedDescription }}
     </p>
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -262,6 +260,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       @close="handleModalClose"
+      :locale="locale"
     />
 
     <ConfirmModal
@@ -298,7 +297,12 @@
 
 <script>
 import Client from "../../client/client.ts";
-import { getPrimaryKey, convertToPascalCase } from "../utils";
+import {
+  getPrimaryKey,
+  convertToPascalCase,
+  getLocalizedDescription,
+  getLocalizedLabel,
+} from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -439,10 +443,20 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     tableId() {
       return convertToPascalCase(this.tableName);
+    },
+    localizedLabel() {
+      return getLocalizedLabel(this.tableMetadata, this.locale);
+    },
+    localizedDescription() {
+      return getLocalizedDescription(this.tableMetadata, this.locale);
     },
     View() {
       return View;
@@ -758,6 +772,7 @@ function getCondition(columnType, condition) {
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
+        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -785,7 +800,8 @@ function getCondition(columnType, condition) {
         showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
-        canManage: false
+        canManage: false,
+        locale: 'en'
       }
     },
   }
