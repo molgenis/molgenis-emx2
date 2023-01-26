@@ -6,8 +6,8 @@
         class="mt-3"
         :columns="columns"
         @setAggregateColumns="aggregateColumns = $event"
-        v-model:selectedColumn="selectedColumn"
-        v-model:selectedRow="selectedRow"
+        v-model:selectedColumnHeader="selectedColumnHeader"
+        v-model:selectedRowHeader="selectedRowHeader"
       />
     </nav>
 
@@ -16,11 +16,11 @@
       :tableName="tableName"
       :schemaName="schemaName"
       :minimumValue="1"
-      :columnProperties="aggregateColumns"
+      :columnHeaderProperties="aggregateColumns"
       :rowHeaderProperties="aggregateColumns"
-      :selectedColumnProperty="selectedColumn"
-      columnNameProperty="name"
-      :selectedRowProperty="selectedRow"
+      :selectedColumnHeaderProperty="selectedColumnHeader"
+      columnHeaderNameProperty="name"
+      :selectedRowHeaderProperty="selectedRowHeader"
       rowHeaderNameProperty="name"
     />
   </div>
@@ -56,8 +56,8 @@ export default defineComponent({
     return {
       loading: true,
       aggregateColumns: [] as string[],
-      selectedColumn: "",
-      selectedRow: "",
+      selectedColumnHeader: "",
+      selectedRowHeader: "",
     };
   },
 });

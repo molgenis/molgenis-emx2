@@ -42,22 +42,22 @@ export default defineComponent({
       required: true,
     },
     /** property of the table to aggregate mref/xref */
-    selectedColumnProperty: {
+    selectedColumnHeaderProperty: {
       type: String,
       required: true,
     },
     /** property of the mref/xref to display in the header cell */
-    columnNameProperty: {
+    columnHeaderNameProperty: {
       type: String,
       required: true,
     },
     /** property of the table to aggregate mref/xref */
-    selectedRowProperty: {
+    selectedRowHeaderProperty: {
       type: String,
       required: true,
     },
     /** property of the mref/xref to display in the header cell */
-    rowNameProperty: {
+    rowHeaderNameProperty: {
       type: String,
       required: true,
     },
@@ -68,8 +68,8 @@ export default defineComponent({
   },
   data: function () {
     return {
-      selectedColumn: this.selectedColumnProperty,
-      selectedRow: this.selectedRowProperty,
+      selectedColumnHeader: this.selectedColumnHeaderProperty,
+      selectedRowHeader: this.selectedRowHeaderProperty,
       loading: true,
       rows: [] as string[],
       columns: [] as string[],
@@ -78,8 +78,9 @@ export default defineComponent({
   },
   methods: {
     addItem(item: any) {
-      const column: string = item[this.selectedColumn].name || "not specified";
-      const row: string = item[this.selectedRow].name || "not specified";
+      const column: string =
+        item[this.selectedColumnHeader].name || "not specified";
+      const row: string = item[this.selectedRowHeader].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -103,12 +104,12 @@ export default defineComponent({
       const responseData = await client.fetchAggregateData(
         this.tableName,
         {
-          name: this.selectedColumnProperty,
-          column: this.columnNameProperty,
+          name: this.selectedColumnHeaderProperty,
+          column: this.columnHeaderNameProperty,
         },
         {
-          name: this.selectedRowProperty,
-          column: this.rowNameProperty,
+          name: this.selectedRowHeaderProperty,
+          column: this.rowHeaderNameProperty,
         }
       );
       responseData[this.tableName + "_groupBy"].forEach((item: any) =>
@@ -121,12 +122,12 @@ export default defineComponent({
     this.fetchData();
   },
   watch: {
-    selectedColumnProperty(value) {
-      this.selectedColumn = value;
+    selectedColumnHeaderProperty(value) {
+      this.selectedColumnHeader = value;
       this.fetchData();
     },
-    selectedRowProperty(value) {
-      this.selectedRow = value;
+    selectedRowHeaderProperty(value) {
+      this.selectedRowHeader = value;
       this.fetchData();
     },
   },
@@ -139,12 +140,12 @@ export default defineComponent({
     <AggregateTable
         :tableName="tableName"
         :schemaName="schemaName"
-        :columnProperties="selectableColumns"
-        :rowProperties="selectableColumns"
-        :selectedColumnProperty="columnName"
-        :columnNameProperty="columnNameProperty"
-        :selectedRowProperty="rowName"
-        :rowNameProperty="columnNameProperty"
+        :columnHeaderProperties="selectableColumns"
+        :rowHeaderProperties="selectableColumns"
+        :selectedColumnHeaderProperty="columnName"
+        :columnHeaderNameProperty="columnNameProperty"
+        :selectedRowHeaderProperty="rowName"
+        :rowHeaderNameProperty="columnNameProperty"
         :minimumValue="1"
     />
   </demo-item>

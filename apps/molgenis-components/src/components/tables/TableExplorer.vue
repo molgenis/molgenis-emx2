@@ -105,8 +105,8 @@
         <AggregateOptions
           :columns="columns"
           @setAggregateColumns="aggregateColumns = $event"
-          v-model:selectedColumn="aggregateSelectedColumn"
-          v-model:selectedRow="aggregateSelectedRow"
+          v-model:selectedColumnHeader="aggregateSelectedColumnHeader"
+          v-model:selectedRowHeader="aggregateSelectedRowHeader"
         />
       </div>
 
@@ -152,12 +152,12 @@
           :tableName="tableName"
           :schemaName="schemaName"
           :minimumValue="1"
-          :columnProperties="aggregateColumns"
-          :rowProperties="aggregateColumns"
-          :selectedColumnProperty="aggregateSelectedColumn"
-          columnNameProperty="name"
-          :selectedRowProperty="aggregateSelectedRow"
-          rowNameProperty="name"
+          :columnHeaderProperties="aggregateColumns"
+          :rowHeaderProperties="aggregateColumns"
+          :selectedColumnHeaderProperty="aggregateSelectedColumnHeader"
+          columnHeaderNameProperty="name"
+          :selectedRowHeaderProperty="aggregateSelectedRowHeader"
+          rowHeaderNameProperty="name"
         />
         <RecordCards
           v-if="!loading && view === View.CARDS"
@@ -378,8 +378,8 @@ export default {
       tableMetadata: null,
       view: this.showView,
       aggregateColumns: [],
-      aggregateSelectedColumn: "",
-      aggregateSelectedRow: "",
+      aggregateSelectedColumnHeader: "",
+      aggregateSelectedRowHeader: "",
     };
   },
   props: {
