@@ -50,16 +50,25 @@
             </div>
           </form>
         </ButtonDropdown>
-
         <span>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            @click="toggleView"
-          >
-            view
-            <span class="fas fa-fw" :class="viewIcon"></span>
-          </button>
+          <ButtonDropdown>
+            <template v-slot:label>
+              {{ ViewButtons.find((button) => button.id == view).label }}
+              <span
+                class="fas fa-fw"
+                :class="ViewButtons.find((button) => button.id == view).icon"
+              ></span>
+            </template>
+            <div
+              v-for="button in ViewButtons"
+              class="dropdown-item"
+              @click="setView(button)"
+              role="button"
+            >
+              <span class="fas fa-fw" :class="button.icon"></span>
+              {{ button.label }}
+            </div>
+          </ButtonDropdown>
         </span>
       </div>
       <!-- end first btn group -->
@@ -333,6 +342,13 @@ const View = {
   AGGREGATE: "aggregate",
 };
 
+const ViewButtons = [
+  { id: View.TABLE, label: "Table", icon: "fa-th" },
+  { id: View.CARDS, label: "Card", icon: "fa-list-alt" },
+  { id: View.RECORD, label: "Record", icon: "fa-th-list", limitOverride: 1 },
+  { id: View.AGGREGATE, label: "Aggregate", icon: "fa-object-group" },
+];
+
 export default {
   name: "TableExplorer",
   components: {
@@ -461,16 +477,8 @@ export default {
     View() {
       return View;
     },
-    viewIcon() {
-      if (this.view === View.CARDS) {
-        return "fa-list-alt";
-      } else if (this.view === View.TABLE) {
-        return "fa-th";
-      } else if (this.view === View.AGGREGATE) {
-        return "fa-object-group";
-      } else {
-        return "fa-th-list";
-      }
+    ViewButtons() {
+      return ViewButtons;
     },
     countFilters() {
       return this.columns
@@ -565,22 +573,15 @@ export default {
         this.reload();
       }
     },
-    toggleView() {
-      if (this.view === View.TABLE) {
-        this.view = View.CARDS;
-        this.limit = this.showLimit;
-      } else if (this.view === View.CARDS) {
-        this.view = View.RECORD;
-        this.limit = 1;
-      } else if (this.view === View.RECORD) {
-        this.view = View.AGGREGATE;
-        this.limit = this.showLimit;
+    setView(button) {
+      this.view = button.id;
+      if (button.limitOverride) {
+        this.limit = button.limitOverride;
       } else {
-        this.view = View.TABLE;
-        this.limit = 20;
+        this.limit = this.showLimit;
       }
       this.page = 1;
-      this.$emit("updateShowView", this.view, this.limit);
+      this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
     onColumnClick(column) {
