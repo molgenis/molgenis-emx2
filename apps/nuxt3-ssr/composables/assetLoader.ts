@@ -1,4 +1,3 @@
-// import tailwindConfig from "#tailwind-config";
 export default {
   load: async function (assetName: string) {
     const logos = import.meta.glob("../assets/logos/**/*.svg", { as: "raw" });

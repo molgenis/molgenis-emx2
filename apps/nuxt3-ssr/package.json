@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "prepare": "nuxt prepare",
-    "build": "nuxt build",
+    "build": "node custom-build.js",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
     "tailwind": "tailwindcss -c ./tailwind.config.cjs -i ./public/css/main.css -o ./public/css/styles.css --watch",
-    "tailwind-ci": "node gen-themes.js"
+    "gen-themes": "node gen-themes.js"
   },
   "devDependencies": {
     "@nuxt/image-edge": "^1.0.0-27809804.194d2d6",
