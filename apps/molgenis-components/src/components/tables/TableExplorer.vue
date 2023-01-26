@@ -105,8 +105,8 @@
         <AggregateOptions
           :columns="columns"
           @setAggregateColumns="aggregateColumns = $event"
-          v-model:selectedColumnHeader="aggregateSelectedColumnHeader"
-          v-model:selectedRowHeader="aggregateSelectedRowHeader"
+          v-model:selectedColumn="aggregateSelectedColumn"
+          v-model:selectedRow="aggregateSelectedRow"
         />
       </div>
 
@@ -152,12 +152,12 @@
           :tableName="tableName"
           :schemaName="schemaName"
           :minimumValue="1"
-          :columnHeaderProperties="aggregateColumns"
-          :rowHeaderProperties="aggregateColumns"
-          :selectedColumnHeaderProperty="aggregateSelectedColumnHeader"
-          columnHeaderNameProperty="name"
-          :selectedRowHeaderProperty="aggregateSelectedRowHeader"
-          rowHeaderNameProperty="name"
+          :columnProperties="aggregateColumns"
+          :rowProperties="aggregateColumns"
+          :selectedColumnProperty="aggregateSelectedColumn"
+          columnNameProperty="name"
+          :selectedRowProperty="aggregateSelectedRow"
+          rowNameProperty="name"
         />
         <RecordCards
           v-if="!loading && view === View.CARDS"
@@ -218,7 +218,7 @@
               class="d-inline p-0"
             />
           </template>
-          <template v-slot:rowheader="slotProps">
+          <template v-slot:row="slotProps">
             <RowButton
               v-if="canEdit"
               type="edit"
@@ -378,8 +378,8 @@ export default {
       tableMetadata: null,
       view: this.showView,
       aggregateColumns: [],
-      aggregateSelectedColumnHeader: "",
-      aggregateSelectedRowHeader: "",
+      aggregateSelectedColumn: "",
+      aggregateSelectedRow: "",
     };
   },
   props: {

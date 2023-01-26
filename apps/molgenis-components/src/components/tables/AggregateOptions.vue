@@ -5,8 +5,8 @@
         id="aggregate-column-select"
         class="column-select"
         required
-        :modelValue="selectedColumnHeader"
-        @update:modelValue="$emit('update:selectedColumnHeader', $event)"
+        :modelValue="selectedColumn"
+        @update:modelValue="$emit('update:selectedColumn', $event)"
         :options="refColumns"
       />
     </span>
@@ -15,8 +15,8 @@
         id="aggregate-row-select"
         class="row-select"
         required
-        :modelValue="selectedRowHeader"
-        @update:modelValue="$emit('update:selectedRowHeader', $event)"
+        :modelValue="selectedRow"
+        @update:modelValue="$emit('update:selectedRow', $event)"
         :options="refColumns"
       />
     </span>
@@ -58,11 +58,11 @@ export default defineComponent({
       type: Array,
       required: true,
     },
-    selectedColumnHeader: {
+    selectedColumn: {
       type: String,
       required: true,
     },
-    selectedRowHeader: {
+    selectedRow: {
       type: String,
       required: true,
     },
@@ -91,9 +91,9 @@ export default defineComponent({
       this.refColumns = this.getRefTypeColumns(this.columns as IColumn[]);
       if (this.refColumns?.length > 0) {
         this.$emit("setAggregateColumns", this.refColumns);
-        this.$emit("update:selectedColumnHeader", this.refColumns[0]);
+        this.$emit("update:selectedColumn", this.refColumns[0]);
         this.$emit(
-          "update:selectedRowHeader",
+          "update:selectedRow",
           this.refColumns[1] || this.refColumns[0]
         );
         this.loading = false;
@@ -108,8 +108,8 @@ export default defineComponent({
   <demo-item>
     <AggregateOptions
         :columns="columns"
-        selectedColumnHeader="category"
-        selectedRowHeader="tags"
+        selectedColumn="category"
+        selectedRow="tags"
     />
   </demo-item>
 </template>
