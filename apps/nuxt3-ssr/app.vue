@@ -34,7 +34,7 @@
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 const config = useRuntimeConfig()
-const href = config.public.theme ? `/_nuxt-styles/css/styles.${config.public.theme}.css` : '/_nuxt-styles/css/styles.css'
+const href = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
 useHead({
   link: [
     { rel: 'stylesheet', type: 'text/css', href }
