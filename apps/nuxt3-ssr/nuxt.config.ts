@@ -13,18 +13,14 @@ const devProxy = {
 }
 
 const config = {
-  css: ["assets/css/main.css"],
-  modules: ['nuxt-proxy', '@nuxt/image-edge', '@nuxtjs/tailwindcss'],
+  modules: ['nuxt-proxy', '@nuxt/image-edge'],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
-      apiBase: 'http://localhost:3000/' //'https://emx2.molgeniscloud.org/'
+      apiBase: 'http://localhost:3000/', //'https://emx2.molgeniscloud.org/',
+      emx2Theme: '',
+      emx2Logo: '',
     }
-  },
-  tailwindcss: {
-    cssPath: '~/assets/css/styles.css',
-    configPath: process.env.EMX2_THEME ? 'tailwind.config.' + process.env.EMX2_THEME : 'tailwind.config',
-    exposeConfig: true
   }
 }
 
