@@ -20,9 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -790,17 +787,16 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFile() throws IOException, InvalidFormatException {
+  public void testFile() throws IOException, InvalidFormatException, InterruptedException {
 
-    String exelPet = "/pet store/api/exel/Pet";
-    byte[] bytes = getContentAsByteArray(ACCEPT_EXCEL, exelPet);
+    String location = RestAssured.baseURI + ":" + RestAssured.port;
+    //String uri = location + "/pet%20store/api/excel/Pet";
+     String uri = "https://emx2.dev.molgenis.org/pet%20store/api/excel/Pet";
 
-    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel/Pet");
+    File file = ExelTestUtils.downLoadFile(uri);
 
-    Path p = Files.write(Paths.get("./pet2.xlsx"), excelContents);
-
-    List<String> rows = ExelTestUtils.readExcelSheet(p.toFile());
-    assertEquals("foo", rows.get(0));
+    List<String> rows = ExelTestUtils.readExcelSheet(file);
+    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
   }
 
   private Response downloadPet(String requestString) {

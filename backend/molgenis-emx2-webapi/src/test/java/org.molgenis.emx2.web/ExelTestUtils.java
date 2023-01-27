@@ -2,10 +2,17 @@ package org.molgenis.emx2.web;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -38,5 +45,27 @@ public class ExelTestUtils {
     }
     workbook.close();
     return result;
+  }
+
+  public static File downLoadFile(String apiGetRequest) throws IOException, InterruptedException {
+
+    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(apiGetRequest)).GET().build();
+    HttpResponse<InputStream> response =
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
+
+    Optional<String> s = response.headers().firstValue("content-disposition");
+    if (s.isEmpty()) {
+      return null;
+    }
+    String fileName = s.get().substring(21);
+    FileOutputStream fos = new FileOutputStream(fileName);
+
+    fos.write(response.body().readAllBytes());
+    fos.close();
+
+    File file = new File(fileName);
+    file.deleteOnExit();
+
+    return file;
   }
 }
