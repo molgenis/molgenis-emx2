@@ -125,6 +125,24 @@ export default {
           return resultArray[0];
         }
       },
+      fetchAggregateData: async (
+        tableName: string,
+        selectedColumn: { name: string; column: string },
+        selectedRow: { name: string; column: string }
+      ) => {
+        const aggregateQuery = `{
+          ${tableName}_groupBy {
+            count,
+            ${selectedColumn.name} {
+              ${selectedColumn.column}
+            },
+            ${selectedRow.name} {
+              ${selectedRow.column}
+            }
+          }
+        }`;
+        return request(graphqlURL(schemaNameCache), aggregateQuery);
+      },
       saveTableSettings: async (settings: ISetting[]) => {
         return request(
           graphqlURL(schemaNameCache),

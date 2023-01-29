@@ -45,4 +45,9 @@ tls
 yarn_error.log
 .nyc_output
 coverage
+
 /.run/Run Molgenis .run.xml
+
+apps/nuxt3-ssr/assets/css/*.css
+!apps/nuxt3-ssr/assets/css/main.css
+

@@ -1,9 +1,30 @@
 /* eslint-disable no-undef */
 /** @type {import('tailwindcss').Config} */
-import config from "./tailwind.config"
-
 module.exports = {
-  presets: [config],
+  presets: [require("./tailwind.config.cjs")],
+  content: [
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",
+    "./*.vue",
+  ],
+  safelist: [
+    {
+      pattern: /^bg-/,
+    },
+    {
+      pattern: /^text-/,
+    },
+    {
+      pattern: /^border-/,
+    },
+    {
+      pattern: /^antialiased/,
+    },
+  ],
+
   theme: {
     extend: {
       boxShadow: {
@@ -102,7 +123,7 @@ module.exports = {
         "search-input": "#CCCCCC",
 
         pagination: "#003183",
-        
+
         checkbox: "#ccc",
       }),
       borderRadius: {
@@ -114,6 +135,6 @@ module.exports = {
         "background-gradient": 0,
       },
     },
-    logo: 'UMCGkort.woordbeeld'
+    logo: "UMCGkort.woordbeeld",
   },
 };

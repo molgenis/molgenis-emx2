@@ -717,6 +717,12 @@ public class WebApiSmokeTests {
         .expect()
         .statusCode(200)
         .when()
+        .get("http://localhost:8080/pet store/api/rdf/Category/column/name");
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
         .get("http://localhost:8080/pet store/api/rdf/Category/cat");
     given()
         .sessionId(SESSION_ID)
