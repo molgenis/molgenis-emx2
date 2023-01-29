@@ -58,20 +58,15 @@ public class MolgenisIO {
   }
 
   public static void toZipFile(Path zipFile, Table table, boolean includeSystemColumns) {
-    toFile(zipFile, table, includeSystemColumns);
+    writeTableToStore(new TableStoreForCsvInZipFile(zipFile), table, includeSystemColumns);
   }
 
   public static void toExcelFile(Path excelFile, Table table, boolean includeSystemColumns) {
-    toFile(excelFile, table, includeSystemColumns);
+    writeTableToStore(new TableStoreForXlsxFile(excelFile), table, includeSystemColumns);
   }
 
   public static void toCsvFile(Path csvFile, Table table, boolean includeSystemColumns) {
-    toFile(csvFile, table, includeSystemColumns);
-  }
-
-  private static void toFile(Path path, Table table, boolean includeSystemColumns) {
-    TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(path);
-    writeTableToStore(store, table, includeSystemColumns);
+    writeTableToStore(new TableStoreForCsvFile(csvFile), table, includeSystemColumns);
   }
 
   private static void writeTableToStore(
