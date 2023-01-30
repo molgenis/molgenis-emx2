@@ -11,7 +11,10 @@ export default gql`
         name
       }
       name
-      descriptions{locale,label}
+      descriptions {
+        locale
+        value
+      }
       numberOfParticipants
       inclusionStart
       inclusionEnd

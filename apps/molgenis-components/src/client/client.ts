@@ -42,7 +42,7 @@ export default {
         return deepClone(schemaMetaData).tables.find(
           (table: ITableMetaData) =>
             table.id === convertToPascalCase(tableName) &&
-            table.externalSchema === schemaName
+            table.externalSchema === schemaNameCache
         );
       },
       fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
@@ -238,7 +238,8 @@ _schema {
 }}`;
 
 const graphqlURL = (schemaName: string) => {
-  return schemaName ? "/" + schemaName + "/graphql" : "graphql";
+  const graphqlURL = schemaName ? "/" + schemaName + "/graphql" : "graphql";
+  return graphqlURL;
 };
 
 const insertDataRow = (

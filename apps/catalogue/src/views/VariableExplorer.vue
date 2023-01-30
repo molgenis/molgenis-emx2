@@ -18,6 +18,7 @@
             v-model="keywords"
             :isMultiSelect="true"
             tableName="Keywords"
+            schemaName="CatalogueOntologies"
             :show-expanded="true"
           />
         </div>
