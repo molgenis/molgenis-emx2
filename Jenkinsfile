@@ -80,6 +80,11 @@ pipeline {
                         sh "./gradlew --no-daemon helmLintMainChart --info"
                     }
                 }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME}"
+                }
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
@@ -114,6 +119,11 @@ pipeline {
                         def props = readProperties file: 'build/ci.properties'
                         env.TAG_NAME = props.tagName
                     }
+                }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue:${TAG_NAME}"
                 }
                 container('rancher') {
                     script {
