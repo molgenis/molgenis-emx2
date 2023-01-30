@@ -6,10 +6,10 @@
       :id="`${id}-${column.name}`"
       v-model="internalValues[column.id]"
       :columnType="column.columnType"
-      :description="column.description"
+      :description="getColumnDescription(column)"
       :errorMessage="errorPerColumn[column.id]"
+      :label="getColumnLabel(column)"
       :schemaName="column.refSchema ? column.refSchema : schemaMetaData.name"
-      :label="column.name"
       :pkey="getPrimaryKey(internalValues, tableMetaData)"
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
@@ -25,8 +25,14 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import constants from "../constants";
-import {getPrimaryKey, deepClone, convertToCamelCase} from "../utils";
+import constants from "../constants.js";
+import {
+  getPrimaryKey,
+  deepClone,
+  convertToCamelCase,
+  getLocalizedLabel,
+  getLocalizedDescription,
+} from "../utils";
 import Expressions from "@molgenis/expressions";
 
 const { EMAIL_REGEX, HYPERLINK_REGEX } = constants;
@@ -86,6 +92,10 @@ export default {
       required: false,
       default: () => true,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   emits: ["update:modelValue"],
   components: {
@@ -114,18 +124,25 @@ export default {
   },
   methods: {
     getPrimaryKey,
+    getColumnLabel(column) {
+      return getLocalizedLabel(column, this.locale);
+    },
+    getColumnDescription(column) {
+      return getLocalizedDescription(column, this.locale);
+    },
     showColumn(column) {
-      const isColumnVisible = Array.isArray(this.visibleColumns)
-        ? this.visibleColumns.map((column) => column.name).includes(column.name)
-        : true;
-
-      return (
-        (isColumnVisible &&
+      if (column.reflink) {
+        return this.internalValues[convertToCamelCase(column.refLink)];
+      } else {
+        const isColumnVisible = Array.isArray(this.visibleColumns)
+          ? this.visibleColumns.find((col) => col.name === column.name)
+          : true;
+        return (
+          isColumnVisible &&
           this.visible(column.visible, column.id) &&
-          column.name !== "mg_tableclass" &&
-          !column.refLink) ||
-        this.internalValues[convertToCamelCase(column.refLink)]
-      );
+          column.name !== "mg_tableclass"
+        );
+      }
     },
     visible(expression, columnId) {
       if (expression) {
@@ -160,7 +177,11 @@ export default {
     //create a filter in case inputs are linked by overlapping refs
     refLinkFilter(c) {
       //need to figure out what refs overlap
-      if(c.refLink && this.showColumn(c) && this.internalValues[convertToCamelCase(c.refLink)]) {
+      if (
+        c.refLink &&
+        this.showColumn(c) &&
+        this.internalValues[convertToCamelCase(c.refLink)]
+      ) {
         let filter = {};
         this.tableMetaData.columns.forEach((c2) => {
           if (c2.name === c.refLink) {
@@ -170,7 +191,8 @@ export default {
                 t.columns.forEach((c3) => {
                   if (c3.key === 1 && c3.refTable === c2.refTable) {
                     filter[c3.name] = {
-                      equals: this.internalValues[convertToCamelCase(c.refLink)],
+                      equals:
+                        this.internalValues[convertToCamelCase(c.refLink)],
                     };
                   }
                 });
@@ -178,7 +200,7 @@ export default {
             });
           }
         });
-          return filter;
+        return filter;
       }
     },
   },
@@ -301,6 +323,7 @@ function containsInvalidEmail(emails) {
             v-model="rowData"
             :tableName="tableName"
             :tableMetaData="tableMetaData"
+            :locale="locale"
             :schemaMetaData="schemaMetaData"
         />
       </div>
@@ -316,7 +339,7 @@ function containsInvalidEmail(emails) {
               <option>User</option>
             </select>
           </dd>
-
+          <InputString v-model="locale" label="locale" id="locale"/>
           <dt>Row data</dt>
           <dd>{{ rowData }}</dd>
 
@@ -332,6 +355,7 @@ function containsInvalidEmail(emails) {
     data: function() {
       return {
         showRowEdit: true,
+        locale: 'en',
         tableName: 'Pet',
         tableMetaData: {
           columns: [],
@@ -348,13 +372,19 @@ function containsInvalidEmail(emails) {
           await this.reload();
         }
       },
+      async locale(newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.rowData = {};
+          await this.reload();
+        }
+      },
     },
     methods: {
       async reload() {
         // force complete component reload to have a clean demo component and hit all lifecycle events
         this.showRowEdit = false;
         const client = this.$Client.newClient(this.schemaName);
-        this.schemaMetaData = await client.fetchMetaData();
+        this.schemaMetaData = await client.fetchSchemaMetaData();
         this.tableMetaData = await client.fetchTableMetaData(this.tableName);
         // this.rowData = (await client.fetchTableData(this.tableName))[this.tableName];
         this.showRowEdit = true;

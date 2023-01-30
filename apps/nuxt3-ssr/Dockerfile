@@ -27,6 +27,12 @@ ENV NUXT_PORT=$PORT
 # Set the base url
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 
+# Set the theme name
+ENV NUXT_PUBLIC_EMX2_THEME=$NUXT_PUBLIC_EMX2_THEME
+
+# Set the logo name 
+ENV NUXT_PUBLIC_EMX2_LOGO=$NUXT_PUBLIC_EMX2_LOGO
+
 ## Start the server
 CMD node .output/server/index.mjs
 

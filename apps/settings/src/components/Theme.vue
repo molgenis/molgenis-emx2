@@ -5,9 +5,15 @@
     <div v-else>
       <p>Use settings below to change look and feel:</p>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
-      <label><b>Choose primary color</b></label><br />
-      <ColorPicker class="mb-2" v-model:pureColor="primaryColor" format="hex6" shape="circle" />
-     {{primaryColor}}
+      <label><b>Choose primary color</b></label
+      ><br />
+      <ColorPicker
+        class="mb-2"
+        v-model:pureColor="primaryColor"
+        format="hex6"
+        shape="circle"
+      />
+      {{ primaryColor }}
       <InputString
         id="theme-url-input"
         label="Set logo url"
@@ -28,7 +34,7 @@ import {
   MessageSuccess,
   Spinner,
 } from "molgenis-components";
-import {ColorPicker} from "vue3-colorpicker";
+import { ColorPicker } from "vue3-colorpicker";
 import "vue3-colorpicker/style.css";
 import { request } from "graphql-request";
 
@@ -64,7 +70,7 @@ export default {
   },
   methods: {
     loadSettings() {
-      if (this.session.settings.cssURL) {
+      if (this.session?.settings?.cssURL) {
         this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
           this.session.settings.cssURL,

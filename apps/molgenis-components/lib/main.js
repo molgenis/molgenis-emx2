@@ -1,5 +1,5 @@
-import Client from "../src/client/client.js";
-import { request } from "../src/client/client.js";
+import Client from "../src/client/client.ts";
+import { request } from "../src/client/client.ts";
 
 //account
 import MolgenisAccount from "../src/components/account/MolgenisAccount.vue";
@@ -27,6 +27,7 @@ import FilterWell from "../src/components/filters/FilterWell.vue";
 import FilterWells from "../src/components/filters/FilterWells.vue";
 
 //forms
+import InputTextLocalized from "../src/components/forms/InputTextLocalized.vue";
 import ArrayInput from "../src/components/forms/ArrayInput.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
@@ -72,6 +73,7 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
+import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
@@ -108,6 +110,7 @@ import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
 import TableStickyHeaders from "../src/components/tables/TableStickyHeaders.vue";
 import AggregateTable from "../src/components/tables/AggregateTable.vue";
+import AutoAggregateTable from "../src/components/tables/AutoAggregateTable.vue";
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -129,6 +132,8 @@ import {
   deepClone,
   convertToCamelCase,
   convertToPascalCase,
+  getLocalizedDescription,
+  getLocalizedLabel,
 } from "../src/components/utils";
 import constants, { privacyConstants } from "../src/components/constants";
 
@@ -169,6 +174,7 @@ export {
   IconBar,
   IconDanger,
   Info,
+  InputTextLocalized,
   InlineInput,
   InputBoolean,
   InputCheckbox,
@@ -197,6 +203,7 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
+  LocaleSwitch,
   MessageError,
   MessageSuccess,
   RowButtonAdd,
@@ -214,6 +221,7 @@ export {
   VueTemplate,
   DataDisplayCell,
   AggregateTable,
+  AutoAggregateTable,
   RoutedTableExplorer,
   TableExplorer,
   TableMolgenis,
@@ -246,4 +254,6 @@ export {
   request,
   convertToPascalCase,
   convertToCamelCase,
+  getLocalizedDescription,
+  getLocalizedLabel,
 };

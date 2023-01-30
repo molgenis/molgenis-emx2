@@ -20,6 +20,7 @@
       :showLimit="getLimit()"
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
+      :locale="locale"
     />
   </div>
 </template>
@@ -53,6 +54,10 @@ export default {
     canManage: {
       type: Boolean,
       default: () => false,
+    },
+    locale: {
+      type: String,
+      default: () => "en",
     },
   },
   methods: {
@@ -186,10 +191,8 @@ export default {
             case "INT":
             case "LONG":
             case "DECIMAL":
-              const result = conditions
-                .map((v) => v.join(".."))
-                .join(",");
-              if(result !== "..") {
+              const result = conditions.map((v) => v.join("..")).join(",");
+              if (result !== "..") {
                 query[column.name] = result;
               } else {
                 delete query[column.name];
@@ -221,7 +224,7 @@ export default {
       <routed-table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
       />
     </div>
   </div>

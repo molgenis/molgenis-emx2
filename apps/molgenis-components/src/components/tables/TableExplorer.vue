@@ -1,12 +1,10 @@
 <template>
   <div>
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.name }}</h1>
-
+    <h1 v-if="showHeader && tableMetadata">{{ localizedLabel }}</h1>
     <p v-if="showHeader && tableMetadata">
-      {{ tableMetadata.description }}
+      {{ localizedDescription }}
     </p>
-
     <div class="btn-toolbar mb-3">
       <div class="btn-group">
         <ShowHide
@@ -19,6 +17,7 @@
         />
 
         <ShowHide
+          v-if="view !== View.AGGREGATE"
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
@@ -29,7 +28,7 @@
         />
 
         <ButtonDropdown label="download" icon="download" v-slot="scope">
-          <form class="px-4 py-3" style="min-width: 15rem;">
+          <form class="px-4 py-3" style="min-width: 15rem">
             <IconAction icon="times" @click="scope.close" class="float-right" />
 
             <h6>download</h6>
@@ -72,13 +71,17 @@
         @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
+        v-if="view !== View.AGGREGATE"
         :modelValue="page"
         @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
@@ -96,7 +99,8 @@
       </div>
 
       <div class="btn-group" v-if="canManage">
-        <TableSettings v-if="tableMetadata"
+        <TableSettings
+          v-if="tableMetadata"
           :tableMetadata="tableMetadata"
           :schemaName="schemaName"
           @update:settings="reloadMetadata"
@@ -121,6 +125,7 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
+          v-if="view !== View.AGGREGATE"
           :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
@@ -128,6 +133,30 @@
         <div v-if="loading">
           <Spinner />
         </div>
+
+        <div v-if="!loading && view === View.AGGREGATE">
+          <AggregateOptions
+            :columns="columns"
+            @setAggregateColumns="aggregateColumns = $event"
+            v-model:selectedColumn="aggregateSelectedColumn"
+            v-model:selectedRow="aggregateSelectedRow"
+          />
+        </div>
+
+        <AggregateTable
+          v-if="
+            !loading && view === View.AGGREGATE && aggregateColumns?.length > 0
+          "
+          :tableName="tableName"
+          :schemaName="schemaName"
+          :minimumValue="1"
+          :columnProperties="aggregateColumns"
+          :rowProperties="aggregateColumns"
+          :selectedColumnProperty="aggregateSelectedColumn"
+          columnNameProperty="name"
+          :selectedRowProperty="aggregateSelectedRow"
+          rowNameProperty="name"
+        />
         <RecordCards
           v-if="!loading && view === View.CARDS"
           class="card-columns"
@@ -231,6 +260,7 @@
       :clone="editMode === 'clone'"
       :schemaName="schemaName"
       @close="handleModalClose"
+      :locale="locale"
     />
 
     <ConfirmModal
@@ -266,8 +296,13 @@
 </template>
 
 <script>
-import Client from "../../client/client.js";
-import { getPrimaryKey,convertToPascalCase } from "../utils";
+import Client from "../../client/client.ts";
+import {
+  getPrimaryKey,
+  convertToPascalCase,
+  getLocalizedDescription,
+  getLocalizedLabel,
+} from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -287,8 +322,16 @@ import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import AggregateTable from "./AggregateTable.vue";
+import AggregateOptions from "./AggregateOptions.vue";
 
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
+const View = {
+  TABLE: "table",
+  CARDS: "cards",
+  RECORD: "record",
+  EDIT: "edit",
+  AGGREGATE: "aggregate",
+};
 
 export default {
   name: "TableExplorer",
@@ -312,13 +355,15 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
+    AggregateTable,
+    AggregateOptions,
   },
   data() {
     return {
       cardTemplate: null,
       client: null,
       columns: [],
-      count: null,
+      count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: null,
@@ -336,6 +381,9 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      aggregateColumns: [],
+      aggregateSelectedColumn: "",
+      aggregateSelectedRow: "",
     };
   },
   props: {
@@ -395,10 +443,20 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    locale: {
+      type: String,
+      default: () => "en",
+    },
   },
   computed: {
     tableId() {
       return convertToPascalCase(this.tableName);
+    },
+    localizedLabel() {
+      return getLocalizedLabel(this.tableMetadata, this.locale);
+    },
+    localizedDescription() {
+      return getLocalizedDescription(this.tableMetadata, this.locale);
     },
     View() {
       return View;
@@ -408,6 +466,8 @@ export default {
         return "fa-list-alt";
       } else if (this.view === View.TABLE) {
         return "fa-th";
+      } else if (this.view === View.AGGREGATE) {
+        return "fa-object-group";
       } else {
         return "fa-th-list";
       }
@@ -512,6 +572,9 @@ export default {
       } else if (this.view === View.CARDS) {
         this.view = View.RECORD;
         this.limit = 1;
+      } else if (this.view === View.RECORD) {
+        this.view = View.AGGREGATE;
+        this.limit = this.showLimit;
       } else {
         this.view = View.TABLE;
         this.limit = 20;
@@ -604,7 +667,9 @@ export default {
     },
     async reloadMetadata() {
       this.client = Client.newClient(this.schemaName);
-      const newTableMetadata = await this.client.fetchTableMetaData(this.tableName).catch(this.handleError);
+      const newTableMetadata = await this.client
+        .fetchTableMetaData(this.tableName)
+        .catch(this.handleError);
       this.setTableMetadata(newTableMetadata);
       this.reload();
     },
@@ -624,7 +689,6 @@ export default {
           orderby: orderBy,
         })
         .catch(this.handleError);
-
       this.dataRows = dataResponse[this.tableId];
       this.count = dataResponse[this.tableId + "_agg"]["count"];
       this.loading = false;
@@ -644,13 +708,11 @@ export default {
     "searchTerms",
   ],
 };
-
 function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
 }
-
 function getCondition(columnType, condition) {
   if (condition) {
     switch (columnType) {
@@ -674,7 +736,6 @@ function getCondition(columnType, condition) {
   }
 }
 </script>
-
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {
@@ -683,13 +744,11 @@ function getCondition(columnType, condition) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -703,7 +762,7 @@ function getCondition(columnType, condition) {
       <table-explorer
         id="my-table-explorer"
         tableName="Pet"
-        graphqlURL="/pet store/graphql"
+        schemaName="pet store"
         :showColumns="showColumns"
         :showFilters="showFilters"
         :urlConditions="urlConditions"
@@ -713,6 +772,7 @@ function getCondition(columnType, condition) {
         :showOrder="showOrder"
         :canEdit="canEdit"
         :canManage="canManage"
+        :locale="locale"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>
@@ -728,7 +788,6 @@ function getCondition(columnType, condition) {
     </div>
   </div>
 </template>
-
 <script>
   export default {
     data() {
@@ -741,7 +800,8 @@ function getCondition(columnType, condition) {
         showOrder: 'DESC',
         showOrderBy: 'name',
         canEdit: false,
-        canManage: false
+        canManage: false,
+        locale: 'en'
       }
     },
   }

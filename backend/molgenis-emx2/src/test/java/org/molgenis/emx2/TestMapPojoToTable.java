@@ -50,8 +50,6 @@ public class TestMapPojoToTable {
 
     assertTrue(firstName.isRequired());
     assertFalse(lastName.isRequired());
-
-    assertEquals("This is required first name", firstName.getDescription());
   }
 
   @Test

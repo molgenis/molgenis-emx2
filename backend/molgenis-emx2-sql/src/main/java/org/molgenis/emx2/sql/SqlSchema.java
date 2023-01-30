@@ -300,8 +300,11 @@ public class SqlSchema implements Schema {
         if (!mergeTable.getSettings().isEmpty()) {
           oldTable.setSettings(mergeTable.getSettings());
         }
-        if (mergeTable.getDescription() != null) {
-          oldTable.setDescription(mergeTable.getDescription());
+        if (mergeTable.getDescriptions() != null) {
+          oldTable.setDescriptions(mergeTable.getDescriptions());
+        }
+        if (mergeTable.getLabels() != null) {
+          oldTable.setLabels(mergeTable.getLabels());
         }
         if (mergeTable.getSemantics() != null) {
           oldTable.setSemantics(mergeTable.getSemantics());

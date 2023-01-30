@@ -26,7 +26,7 @@ const props = defineProps({
   },
 });
 
-  const emit = defineEmits(['update:activeName'])
+const emit = defineEmits(["update:activeName"]);
 
 const IDLE =
   "bg-white text-search-results-view-tabs hover:text-search-results-view-tabs-hover";
@@ -51,14 +51,20 @@ function setRight() {
 
 <template>
   <div class="flex self-center">
-    <button :class="buttonClassesLeft" @click="setLeft"
-      class="flex items-center pr-5 tracking-widest uppercase rounded-l-full h-50px pl-7 font-display text-heading-xl">
+    <button
+      :class="buttonClassesLeft"
+      @click="setLeft"
+      class="flex items-center pr-5 tracking-widest uppercase rounded-l-full h-50px pl-7 font-display text-heading-xl"
+    >
       <BaseIcon :name="buttonLeftIcon" class="mr-3" />
       {{ buttonLeftLabel }}
     </button>
 
-    <button :class="buttonClassesRight" @click="setRight"
-      class="flex items-center pl-5 tracking-widest uppercase rounded-r-full h-50px pr-7 font-display text-heading-xl">
+    <button
+      :class="buttonClassesRight"
+      @click="setRight"
+      class="flex items-center pl-5 tracking-widest uppercase rounded-r-full h-50px pr-7 font-display text-heading-xl"
+    >
       <BaseIcon :name="buttonRightIcon" class="mr-3" />
       {{ buttonRightLabel }}
     </button>

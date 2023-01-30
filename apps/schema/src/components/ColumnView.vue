@@ -23,6 +23,7 @@
           :schema="schema"
           :schemaNames="schemaNames"
           @update:modelValue="$emit('update:modelValue', column)"
+          :locales="locales"
         />
         <IconDanger
           v-if="isManager"
@@ -38,6 +39,7 @@
           :tableName="column.table"
           @add="addColumn"
           tooltip="Add column at this position"
+          :locales="locales"
         />
       </IconBar>
     </td>
@@ -62,7 +64,22 @@
       </span>
       <span v-if="column.key">key={{ column.key }}</span>
     </td>
-    <td>{{ column.description }}</td>
+    <td>
+      <table v-if="column.labels" class="table-borderless">
+        <tr v-for="el in column.labels.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
+    <td>
+      <table v-if="column.descriptions" class="table-borderless">
+        <tr v-for="el in column.descriptions.filter((el) => el.value)">
+          <td>{{ el.locale }}:</td>
+          <td>{{ el.value }}</td>
+        </tr>
+      </table>
+    </td>
   </tr>
 </template>
 
@@ -110,6 +127,9 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
+    },
+    locales: {
+      type: Array,
     },
   },
   computed: {

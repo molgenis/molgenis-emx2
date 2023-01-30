@@ -14,6 +14,15 @@ pipeline {
     }
     stages {
         stage('Prepare') {
+            when {
+                anyOf {
+                    allOf {
+                        changeRequest()
+                        branch 'PR-*'
+                    }
+                    branch 'master'
+               }
+            }
             steps {
                 checkout scm
                 container('vault') {
@@ -50,7 +59,10 @@ pipeline {
         }
         stage("Pull request") {
             when {
-                changeRequest()
+                allOf {
+                    changeRequest()
+                    branch 'PR-*'
+               }
             }
             environment {
                 NAME = "preview-emx2-pr-${CHANGE_ID.toLowerCase()}"
@@ -106,11 +118,17 @@ pipeline {
                         env.TAG_NAME = props.tagName
                     }
                 }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue:${TAG_NAME}"
+                }
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
+                        sh "sleep 30s" // wait for chart publish
                         env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} c-l4svj:molgenis-emx2 ${CHART_VERSION}"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${TAG_NAME}"
                     }
                 }
             }
@@ -120,5 +138,6 @@ pipeline {
                 }
             }
         }
+        
     }
 }

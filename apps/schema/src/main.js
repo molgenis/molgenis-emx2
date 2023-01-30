@@ -13,5 +13,5 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(router);
-app.directive("scroll-to", VueScrollTo);
+app.use(VueScrollTo);
 app.mount("#app");

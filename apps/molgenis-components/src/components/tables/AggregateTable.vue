@@ -1,28 +1,5 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Aggregate</a>
-      <ul class="navbar-nav mr-auto">
-        <li>
-          <InputSelect
-            class="m-0 mr-2"
-            id="column-select"
-            :valueModel="selectedColumnHeader"
-            :options="columnHeaderProperties"
-            @update:modelValue="fetchData"
-          />
-        </li>
-        <li>
-          <InputSelect
-            class="m-0"
-            id="row-select"
-            v-model="selectedRowHeader"
-            :options="rowHeaderProperties"
-            @update:modelValue="fetchData"
-          />
-        </li>
-      </ul>
-    </nav>
     <Spinner v-if="loading" class="m-3" />
     <TableStickyHeaders
       v-else
@@ -45,50 +22,42 @@
   </div>
 </template>
 
-<script>
-import { request } from "../../client/client.js";
+<script lang="ts">
+import { defineComponent } from "vue";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import IAggregateData from "./IAggregateData";
+import Client from "../../client/client";
 
-export default {
+export default defineComponent({
   name: "AggregateTable",
   components: { TableStickyHeaders },
   props: {
-    graphQlEndpoint: {
+    schemaName: {
       type: String,
-      default: "graphql",
+      required: true,
     },
     /** table to aggregate */
-    table: {
-      type: String,
-      required: true,
-    },
-    /** list of references(string) to a aggregate on */
-    columnHeaderProperties: {
-      type: Array,
-      required: true,
-    },
-    /** list of references(string) to a aggregate on */
-    rowHeaderProperties: {
-      type: Array,
-      required: true,
-    },
-    /** property of the table to aggregate mref/xref */
-    selectedColumnHeaderProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the mref/xref to display in the header cell */
-    columnHeaderNameProperty: {
+    tableName: {
       type: String,
       required: true,
     },
     /** property of the table to aggregate mref/xref */
-    selectedRowHeaderProperty: {
+    selectedColumnProperty: {
       type: String,
       required: true,
     },
     /** property of the mref/xref to display in the header cell */
-    rowHeaderNameProperty: {
+    columnNameProperty: {
+      type: String,
+      required: true,
+    },
+    /** property of the table to aggregate mref/xref */
+    selectedRowProperty: {
+      type: String,
+      required: true,
+    },
+    /** property of the mref/xref to display in the header cell */
+    rowNameProperty: {
       type: String,
       required: true,
     },
@@ -99,36 +68,18 @@ export default {
   },
   data: function () {
     return {
-      selectedColumnHeader: this.selectedColumnHeaderProperty,
-      selectedRowHeader: this.selectedRowHeaderProperty,
+      selectedColumn: this.selectedColumnProperty,
+      selectedRow: this.selectedRowProperty,
       loading: true,
-      rows: [],
-      columns: [],
-      aggregateData: {},
+      rows: [] as string[],
+      columns: [] as string[],
+      aggregateData: {} as IAggregateData,
     };
   },
-  computed: {
-    tableName() {
-      return `${this.table}_groupBy`;
-    },
-    getAggregateQuery() {
-      return `{ 
-                ${this.tableName} {
-                  count,
-                  ${this.selectedColumnHeader} {
-                    ${this.columnHeaderNameProperty}
-                  },
-                  ${this.selectedRowHeader} {
-                    ${this.rowHeaderNameProperty}
-                  }
-                }
-              }`;
-    },
-  },
   methods: {
-    addItem(item) {
-      const column = item[this.selectedColumnHeader].name || "not specified";
-      const row = item[this.selectedRowHeader].name || "not specified";
+    addItem(item: any) {
+      const column: string = item[this.selectedColumn].name || "not specified";
+      const row: string = item[this.selectedRow].name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -148,39 +99,54 @@ export default {
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
-
-      const responseData = await request(
-        this.graphQlEndpoint,
-        this.getAggregateQuery
-      ).catch((reason) => {
-        this.$emit("error", reason);
-      });
-
-      responseData[this.tableName].forEach((item) => this.addItem(item));
+      const client = Client.newClient(this.schemaName);
+      const responseData = await client.fetchAggregateData(
+        this.tableName,
+        {
+          name: this.selectedColumnProperty,
+          column: this.columnNameProperty,
+        },
+        {
+          name: this.selectedRowProperty,
+          column: this.rowNameProperty,
+        }
+      );
+      responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+        this.addItem(item)
+      );
       this.loading = false;
     },
   },
   created() {
     this.fetchData();
   },
-};
+  watch: {
+    selectedColumnProperty(value) {
+      this.selectedColumn = value;
+      this.fetchData();
+    },
+    selectedRowProperty(value) {
+      this.selectedRow = value;
+      this.fetchData();
+    },
+  },
+});
 </script>
 
 <docs>
 <template>
   <demo-item>
     <AggregateTable
-        :table="tableName"
-        :graphQlEndpoint="endpoint"
-        :columnHeaderProperties="selectableColumns"
-        :rowHeaderProperties="selectableColumns"
-        :selectedColumnHeaderProperty="columnName"
-        :columnHeaderNameProperty="columnNameProperty"
-        :selectedRowHeaderProperty="rowName"
-        :rowHeaderNameProperty="columnNameProperty"
+        :tableName="tableName"
+        :schemaName="schemaName"
+        :columnProperties="selectableColumns"
+        :rowProperties="selectableColumns"
+        :selectedColumnProperty="columnName"
+        :columnNameProperty="columnNameProperty"
+        :selectedRowProperty="rowName"
+        :rowNameProperty="columnNameProperty"
         :minimumValue="1"
-    >
-    </AggregateTable>
+    />
   </demo-item>
 </template>
 
@@ -193,7 +159,7 @@ export default {
           'tags',
         ],
         tableName: 'Pet',
-        endpoint: '/pet store/graphql',
+        schemaName: 'pet store',
         columnName: 'category',
         rowName: 'tags',
         columnNameProperty: 'name',

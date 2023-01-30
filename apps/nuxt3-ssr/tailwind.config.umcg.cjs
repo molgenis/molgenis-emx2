@@ -1,9 +1,30 @@
 /* eslint-disable no-undef */
 /** @type {import('tailwindcss').Config} */
-import config from "./tailwind.config"
-
 module.exports = {
-  presets: [config],
+  presets: [require("./tailwind.config.cjs")],
+  content: [
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",
+    "./*.vue",
+  ],
+  safelist: [
+    {
+      pattern: /^bg-/,
+    },
+    {
+      pattern: /^text-/,
+    },
+    {
+      pattern: /^border-/,
+    },
+    {
+      pattern: /^antialiased/,
+    },
+  ],
+
   theme: {
     extend: {
       boxShadow: {
@@ -71,7 +92,7 @@ module.exports = {
         "search-filter-title": "#003183",
         "search-filter-expand": "#0075FF",
         "search-filter-group-title": "#003183",
-        "search-filter-group-checkbox": "#fff",
+        "search-filter-group-checkbox": "#ccc",
         "search-filter-group-toggle": "#003183",
 
         "tooltip-hover-dark": "#003183",
@@ -102,6 +123,8 @@ module.exports = {
         "search-input": "#CCCCCC",
 
         pagination: "#003183",
+
+        checkbox: "#ccc",
       }),
       borderRadius: {
         "search-input": "3px",
@@ -112,6 +135,6 @@ module.exports = {
         "background-gradient": 0,
       },
     },
-    logo: 'UMCGkort.woordbeeld'
+    logo: "UMCGkort.woordbeeld",
   },
 };

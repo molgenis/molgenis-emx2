@@ -19,12 +19,23 @@
               :errorMessage="nameInvalid"
             />
           </div>
-          <div class="col-8">
-            <InputText
-              id="column_description"
-              v-model="column.description"
-              label="description"
+          <div class="col-4">
+            <InputTextLocalized
+              id="column_label"
+              v-model="column.labels"
+              label="label"
+              :locales="locales"
             />
+          </div>
+          <div class="col-4">
+            <div class="input-group">
+              <InputTextLocalized
+                id="column_description"
+                v-model="column.descriptions"
+                label="description"
+                :locales="locales"
+              />
+            </div>
           </div>
         </div>
         <div class="row">
@@ -179,6 +190,7 @@
 import {
   LayoutForm,
   InputText,
+  InputTextLocalized,
   InputString,
   InputBoolean,
   InputSelect,
@@ -202,6 +214,7 @@ export default {
     InputBoolean,
     InputSelect,
     IconAction,
+    InputTextLocalized,
     LayoutModal,
     ButtonAction,
     MessageWarning,
@@ -237,6 +250,9 @@ export default {
     tooltip: {
       type: String,
       required: false,
+    },
+    locales: {
+      type: Array,
     },
   },
   data() {
@@ -326,7 +342,12 @@ export default {
     },
     apply() {
       this.show = false;
-      this.$emit(this.operation, this.column);
+      if (this.operation === "edit") {
+        this.$emit("update:modelValue", this.column);
+      } else {
+        this.$emit("add", this.column);
+        this.reset();
+      }
     },
     cancel() {
       this.show = false;
@@ -358,7 +379,7 @@ export default {
           "/" + this.column.refSchema + "/graphql",
           this.$axios
         );
-        const schema = await this.client.fetchMetaData((error) => {
+        const schema = await this.client.fetchSchemaMetaData((error) => {
           this.error = error;
         });
         this.refSchema = schema;
@@ -378,6 +399,7 @@ export default {
       if (this.column.refSchema != undefined) {
         this.loadRefSchema();
       }
+      this.show = false;
     },
   },
   created() {

@@ -36,9 +36,7 @@ export default {
       const cohortMapping = !this.variable.mappings
         ? undefined
         : this.variable.mappings.find(
-            (mapping) =>
-              mapping.sourceDataset.resource.id ===
-              this.sourceCohort
+            (mapping) => mapping.sourceDataset.resource.id === this.sourceCohort
           );
       let repeats = [
         {
@@ -52,8 +50,7 @@ export default {
             if (repeat.mappings) {
               repeat.cohortMapping = repeat.mappings.find(
                 (mapping) =>
-                  mapping.sourceDataset.resource.id ===
-                  this.sourceCohort
+                  mapping.sourceDataset.resource.id === this.sourceCohort
               );
             }
             return repeat;
