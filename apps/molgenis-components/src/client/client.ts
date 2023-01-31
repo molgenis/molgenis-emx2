@@ -238,8 +238,7 @@ _schema {
 }}`;
 
 const graphqlURL = (schemaName: string) => {
-  const graphqlURL = schemaName ? "/" + schemaName + "/graphql" : "graphql";
-  return graphqlURL;
+  return schemaName ? "/" + schemaName + "/graphql" : "graphql";
 };
 
 const insertDataRow = (
