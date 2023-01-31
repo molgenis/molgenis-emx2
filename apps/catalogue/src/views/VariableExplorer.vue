@@ -126,6 +126,10 @@ export default {
       type: String,
       default: null,
     },
+    ontologySchema: {
+      type: String,
+      default: CATALOGUE_ONTOLOGIES,
+    },
   },
   computed: {
     ...mapState(["filters"]),
@@ -137,9 +141,6 @@ export default {
       "selectedKeywords",
       "selectedCohorts",
     ]),
-    ontologySchema() {
-      return CATALOGUE_ONTOLOGIES;
-    },
     filtersFiltered() {
       //filter if network filter set external
       return this.filters.filter(
