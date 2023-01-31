@@ -2,6 +2,7 @@ import { request, gql } from "graphql-request";
 import schema from "./query/schema.js";
 import mappings from "./query/mappings.js";
 import { fetchResources } from "./repository/resourceRepository";
+import { CATALOGUE_ONTOLOGIES_GRAPHQL } from "../constants.js";
 
 export default {
   reloadMetadata({ state }) {
@@ -264,9 +265,10 @@ export default {
         }
       }
     `;
-    const keyWordResp = await request("/CatalogueOntologies/graphql", keywordQuery).catch((e) =>
-      console.error(e)
-    );
+    const keyWordResp = await request(
+      CATALOGUE_ONTOLOGIES_GRAPHQL,
+      keywordQuery
+    ).catch((e) => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
     return state.keywords;
   },

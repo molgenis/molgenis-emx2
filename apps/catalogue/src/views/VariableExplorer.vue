@@ -18,7 +18,7 @@
             v-model="keywords"
             :isMultiSelect="true"
             tableName="Keywords"
-            schemaName="CatalogueOntologies"
+            :schemaName="ontologySchema"
             :show-expanded="true"
           />
         </div>
@@ -109,6 +109,8 @@ import {
   FilterWells,
 } from "molgenis-components";
 
+import { CATALOGUE_ONTOLOGIES } from "../constants.js";
+
 export default {
   name: "VariableExplorer",
   components: {
@@ -135,6 +137,9 @@ export default {
       "selectedKeywords",
       "selectedCohorts",
     ]),
+    ontologySchema() {
+      return CATALOGUE_ONTOLOGIES;
+    },
     filtersFiltered() {
       //filter if network filter set external
       return this.filters.filter(
