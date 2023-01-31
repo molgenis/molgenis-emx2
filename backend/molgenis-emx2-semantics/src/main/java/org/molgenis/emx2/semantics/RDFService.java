@@ -53,7 +53,7 @@ public class RDFService {
    * @param request
    * @param response
    */
-  private RDFService(Request request, Response response) throws Exception {
+  public RDFService(Request request, Response response) throws Exception {
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
     // etc
@@ -182,19 +182,19 @@ public class RDFService {
     return jsonMapper;
   }
 
-  private ModelBuilder getBuilder() {
+  public ModelBuilder getBuilder() {
     return builder;
   }
 
-  private WriterConfig getConfig() {
+  public WriterConfig getConfig() {
     return config;
   }
 
-  private RDFFormat getRdfFormat() {
+  public RDFFormat getRdfFormat() {
     return rdfFormat;
   }
 
-  private String getHost() {
+  public String getHost() {
     return host;
   }
 }

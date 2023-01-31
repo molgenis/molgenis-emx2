@@ -1,6 +1,8 @@
 package org.molgenis.emx2.beaconv2.endpoints.genomicvariants;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Arrays;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class GenomicVariantsResultSetsItem {
@@ -16,6 +18,9 @@ public class GenomicVariantsResultSetsItem {
   private String[] transcriptHGVSIds;
   private VariantLevelData variantLevelData;
   private CaseLevelData[] caseLevelData;
+
+  // hidden helper variable to remember schema name for graph genome API
+  @JsonIgnore private String GenomicVariantsResultSetId;
 
   public void setVariantInternalId(String variantInternalId) {
     this.variantInternalId = variantInternalId;
@@ -79,5 +84,37 @@ public class GenomicVariantsResultSetsItem {
 
   public void setTranscriptHGVSIds(String[] transcriptHGVSIds) {
     this.transcriptHGVSIds = transcriptHGVSIds;
+  }
+
+  public String getVariantInternalId() {
+    return variantInternalId;
+  }
+
+  public String getVariantType() {
+    return variantType;
+  }
+
+  public String getReferenceBases() {
+    return referenceBases;
+  }
+
+  public String getAlternateBases() {
+    return alternateBases;
+  }
+
+  public Position getPosition() {
+    return position;
+  }
+
+  public String getGeneId() {
+    return geneId;
+  }
+
+  public String getGenomicVariantsResultSetId() {
+    return GenomicVariantsResultSetId;
+  }
+
+  public void setGenomicVariantsResultSetId(String genomicVariantsResultSetId) {
+    GenomicVariantsResultSetId = genomicVariantsResultSetId;
   }
 }
