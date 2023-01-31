@@ -1,13 +1,20 @@
 <template>
   <div>
-    <MatchTypeRadiobutton v-if="showSatisfyAllSelector" :matchTypeForFilter="filterName"/>
-    <b-form-checkbox-group
-      class="checkbox-group"
-      v-model="selection"
-      stacked
-      :options="visibleOptions"
+    <MatchTypeRadiobutton
+      v-if="showMatchTypeSelector"
+      :matchTypeForFilter="filterName"
     />
-    <span v-if="bulkOperation">
+
+    <div>
+      <CheckboxComponent
+        v-for="(option, index) of resolvedOptions"
+        :key="index"
+        v-model="selection"
+        :option="option"
+      />
+    </div>
+
+    <!-- <span v-if="bulkOperation">
       <b-link
         v-if="showToggleSlice"
         class="toggle-slice card-link"
@@ -18,30 +25,24 @@
       <b-link class="toggle-select card-link" @click.prevent="toggleSelect">
         {{ toggleSelectText }}
       </b-link>
-    </span>
+    </span> -->
   </div>
 </template>
 
 <script>
 import MatchTypeRadiobutton from "./micro-components/MatchTypeRadiobutton.vue";
+import CheckboxComponent from "./micro-components/CheckboxComponent.vue";
 
 export default {
   name: "CheckboxFilter",
   components: {
     MatchTypeRadiobutton,
+    CheckboxComponent,
   },
   props: {
     filterName: {
       type: String,
-      required: true
-    },
-    /**
-     * Toggle to switch between returning an array with values or an array with the full option
-     */
-    returnTypeAsObject: {
-      type: Boolean,
-      required: false,
-      default: () => false,
+      required: true,
     },
     /**
      * A Promise-function that resolves with an array of options.
@@ -64,7 +65,7 @@ export default {
      * This is the v-model value; an array of selected options.
      * Can also be a { text, value } object array
      */
-    value: {
+    modelValue: {
       type: Array,
       default: () => [],
     },
@@ -81,20 +82,14 @@ export default {
      */
     maxVisibleOptions: {
       type: Number,
-      default: () => undefined,
+      default: () => 20,
+    },
+    showMatchTypeSelector: {
+      type: Boolean,
+      default: () => false,
     },
   },
-  data() {
-    return {
-      externalUpdate: false,
-      selection: [],
-      resolvedOptions: [],
-      sliceOptions:
-        this.maxVisibleOptions &&
-        this.optionsToRender &&
-        this.maxVisibleOptions < this.optionsToRender.length,
-    };
-  },
+
   computed: {
     visibleOptions() {
       return this.sliceOptions
@@ -128,34 +123,17 @@ export default {
     },
   },
   watch: {
-    value() {
-      this.setValue();
-    },
     resolvedOptions() {
       this.sliceOptions = this.showToggleSlice;
     },
-    selection(newValue) {
-      if (!this.externalUpdate) {
-        let newSelection = [];
-
-        if (this.returnTypeAsObject) {
-          newSelection = Object.assign(
-            newSelection,
-            this.optionsToRender.filter((of) => newValue.includes(of.value))
-          );
-        } else {
-          newSelection = [...newValue];
-        }
-        this.$emit("input", newSelection);
-      }
-      this.externalUpdate = false;
-    },
   },
-  created() {
-    this.options().then((response) => {
-      this.resolvedOptions = response;
-    });
-    this.setValue();
+  data() {
+    return {
+      externalUpdate: false,
+      selection: [],
+      resolvedOptions: [],
+      sliceOptions: false,
+    };
   },
   methods: {
     toggleSelect() {
@@ -170,16 +148,18 @@ export default {
     },
     setValue() {
       this.externalUpdate = true;
-      if (
-        this.value &&
-        this.value.length > 0 &&
-        typeof this.value[0] === "object"
-      ) {
-        this.selection = this.value.map((vo) => vo.value);
-      } else {
-        this.selection = this.value;
-      }
+      this.selection = Object.assign([], this.modelValue);
     },
+  },
+  created() {
+    this.options().then((response) => {
+      this.resolvedOptions = response;
+    });
+
+    this.sliceOptions =
+      this.maxVisibleOptions &&
+      this.optionsToRender &&
+      this.maxVisibleOptions < this.optionsToRender.length;
   },
 };
 </script>
