@@ -1,6 +1,6 @@
 export default {
   setVariables(state, variables) {
-    Vstate.variables = Array.isArray(variables) ? variables : [];
+    state.variables = Array.isArray(variables) ? variables : [];
   },
   addVariables(state, variables) {
     state.variables = state.variables.concat(variables);
