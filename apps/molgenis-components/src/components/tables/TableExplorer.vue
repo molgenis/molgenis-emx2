@@ -674,6 +674,7 @@ export default {
     "updateConditions",
     "updateShowColumns",
     "updateShowOrder",
+    "updateShowView",
     "searchTerms",
   ],
 };
