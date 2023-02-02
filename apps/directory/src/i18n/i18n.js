@@ -17,6 +17,8 @@ export const i18n = {
       card_collections_details: 'View biobank collections',
       match_option1: 'Match all',
       match_option2: 'Match any',
-      filter_loading: 'Loading filters'
+      filter_loading: 'Loading filters',
+      select_all: "Select all",
+      deselect_all: "Deselect all"
     }
   }

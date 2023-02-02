@@ -5,35 +5,31 @@
       :matchTypeForFilter="filterName"
     />
 
-    <div>
+    <div class="d-flex flex-column">
       <CheckboxComponent
-        v-for="(option, index) of resolvedOptions"
+        v-for="(option, index) of checkboxOptions"
         :key="index"
         v-model="selection"
         :option="option"
       />
     </div>
 
-    <!-- <span v-if="bulkOperation">
-      <b-link
-        v-if="showToggleSlice"
-        class="toggle-slice card-link"
-        @click.prevent="toggleSlice"
-      >
-        {{ toggleSliceText }}
-      </b-link>
-      <b-link class="toggle-select card-link" @click.prevent="toggleSelect">
-        {{ toggleSelectText }}
-      </b-link>
-    </span> -->
+    <button v-if="selectAll" type="button" class="btn btn-link p-0" @click.prevent="toggleSelect">
+      {{ selectAllText }}
+    </button>
   </div>
 </template>
 
 <script>
 import MatchTypeRadiobutton from "./micro-components/MatchTypeRadiobutton.vue";
 import CheckboxComponent from "./micro-components/CheckboxComponent.vue";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 export default {
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   name: "CheckboxFilter",
   components: {
     MatchTypeRadiobutton,
@@ -46,7 +42,7 @@ export default {
     },
     /**
      * A Promise-function that resolves with an array of options.
-     * {text: 'foo', value: 'bar'}
+     * { text: 'foo', value: 'bar' }
      */
     options: {
       type: [Function],
@@ -72,47 +68,34 @@ export default {
     /**
      * Whether to use (De)Select All or not.
      */
-    bulkOperation: {
+    selectAll: {
       type: Boolean,
       required: false,
       default: () => true,
-    },
-    /**
-     * Limit the maximum number of visible items.
-     */
-    maxVisibleOptions: {
-      type: Number,
-      default: () => 20,
     },
     showMatchTypeSelector: {
       type: Boolean,
       default: () => false,
     },
   },
-
+  data() {
+    return {
+      selection: [],
+      resolvedOptions: [],
+    };
+  },
   computed: {
-    visibleOptions() {
-      return this.sliceOptions
-        ? this.optionsToRender.slice(0, this.maxVisibleOptions)
-        : typeof this.optionsToRender === "function"
-        ? []
-        : this.optionsToRender;
+    uiText() {
+      return this.settingsStore.uiText;
     },
-    showToggleSlice() {
-      return (
-        this.maxVisibleOptions &&
-        this.maxVisibleOptions < this.optionsToRender.length
-      );
+    selectAllText() {
+      if (this.selection && this.selection.length > 0) {
+        return this.uiText["deselect_all"];
+      } else {
+        return this.uiText["select_all"];
+      }
     },
-    toggleSelectText() {
-      return this.value.length ? "Deselect all" : "Select all";
-    },
-    toggleSliceText() {
-      return this.sliceOptions
-        ? `Show ${this.optionsToRender.length - this.maxVisibleOptions} more`
-        : "Show less";
-    },
-    optionsToRender() {
+    checkboxOptions() {
       if (this.optionsFilter && this.optionsFilter.length) {
         return this.resolvedOptions.filter((option) =>
           this.optionsFilter.includes(option.value)
@@ -122,57 +105,25 @@ export default {
       }
     },
   },
-  watch: {
-    resolvedOptions() {
-      this.sliceOptions = this.showToggleSlice;
-    },
-  },
-  data() {
-    return {
-      externalUpdate: false,
-      selection: [],
-      resolvedOptions: [],
-      sliceOptions: false,
-    };
-  },
   methods: {
     toggleSelect() {
       if (this.selection && this.selection.length > 0) {
         this.selection = [];
       } else {
-        this.selection = this.optionsToRender.map((option) => option.value);
+        this.selection = this.checkboxOptions;
       }
-    },
-    toggleSlice() {
-      this.sliceOptions = !this.sliceOptions;
-    },
-    setValue() {
-      this.externalUpdate = true;
-      this.selection = Object.assign([], this.modelValue);
     },
   },
   created() {
     this.options().then((response) => {
       this.resolvedOptions = response;
     });
-
-    this.sliceOptions =
-      this.maxVisibleOptions &&
-      this.optionsToRender &&
-      this.maxVisibleOptions < this.optionsToRender.length;
   },
 };
 </script>
 
-<style>
-.checkbox-group {
-  max-height: 15rem;
-  overflow-y: auto;
-  padding-left: 0.25rem;
-}
-
-.card-link {
-  font-size: small;
-  font-style: italic;
+<style scoped>
+.btn-link:focus {
+  box-shadow: none;
 }
 </style>

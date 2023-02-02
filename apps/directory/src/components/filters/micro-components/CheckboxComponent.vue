@@ -1,13 +1,14 @@
 <template>
-  <input
-    :id="uniqueSelector"
-    type="checkbox"
-    :name="uniqueSelector"
-    v-model="checkboxModel"
-    :value="option"
-  /><label :for="uniqueSelector"
-    ><span>{{ option.text }}</span></label
-  >
+  <label class="m-0">
+    <input
+      :id="uniqueSelector"
+      type="checkbox"
+      v-model="checkboxModel"
+      :value="option"
+      class="mr-1"
+    />
+    <span>{{ option.text }}</span>
+  </label>
   <!-- custom control class seems to be broken  -->
 </template>
 
@@ -41,3 +42,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+input[type="checkbox"] {
+  accent-color: var(--primary);
+}
+</style>
