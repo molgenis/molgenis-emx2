@@ -25,7 +25,7 @@ Resources,,website,,,,,,,,,,Link to the website or homepage
 Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
 Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
 Resources,,description,text,,,,,,,,,Short description
-Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
+Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, DataCatalogue register number)"
 Models,,release frequency,int,,,,,,,,,Refreshing rate (in months)
 Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s)
 Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
@@ -69,9 +69,9 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-Networks,,cohorts,ref_array,,,UMCG,Cohorts,,,,,
+Networks,,cohorts,ref_array,,,DataCatalogue,Cohorts,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
-Networks,,studies,ref_array,,,UMCG,Studies,,networks,,,
+Networks,,studies,ref_array,,,DataCatalogue,Studies,,networks,,,
 Collection events,,,,,,,,,,,,Definition of a data collection event for a resource
 Collection events,,resource,ref,1,TRUE,,Extended resources,,,,,Resource this collection event is part of
 Collection events,,name,,1,TRUE,,,,,,,Name of the collection event

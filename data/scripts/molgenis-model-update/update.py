@@ -35,7 +35,7 @@ class TransformGeneral:
         """Get path to data model file
         """
         # get molgenis.csv location
-        if self.database_type == 'catalogue':
+        if self.database_type in ['catalogue_staging', 'catalogue']:
             data_model = os.path.abspath('../../datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
             data_model = os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv')
@@ -45,7 +45,7 @@ class TransformGeneral:
             data_model = os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
 
         # copy molgenis.csv to appropriate folder
-        if self.database_type == 'catalogue':
+        if self.database_type in ['catalogue_staging', 'catalogue']:
             path = './downloads/' + 'catalogue_data_model'
             os.mkdir(path)
             shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
@@ -77,7 +77,7 @@ class TransformDataCatalogue:
         self.identifiers()
 
         # transformations for data catalogue
-        if self.database_type == 'catalogue':
+        if self.database_type in ['catalogue', 'catalogue_staging']:
             self.tables()
             self.variables()
             self.variable_values()
@@ -110,9 +110,10 @@ class TransformDataCatalogue:
                                          'contact.firstName': 'firstName',
                                          'contact.surname': 'surname',
                                          'institution': 'organisation'}, inplace=True)
-
         if self.database_type == 'catalogue':
             df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+        if self.database_type == 'catalogue_staging':
+            df_contacts = pd.read_csv(self.path_shared_staging + 'Contacts.csv')
         if self.database_type == 'UMCG':
             df_contacts = pd.read_csv(self.path_shared_staging + 'Contacts.csv')
 
@@ -237,13 +238,13 @@ class TransformDataCatalogue:
             #isDataAccessProvider ontology filled from several data items in DAPs
 
 
-class TransformDataStagingCohorts:
+class TransformDataStaging:
     """Functions to update catalogue data model for cohort staging areas from 2.8 to 3.0.
     """
 
     def __init__(self, database, database_type):
-        self.cohort_name = database
-        self.path = './downloads/' + self.cohort_name + '_data/'
+        self.database_name = database
+        self.path = './downloads/' + self.database_name + '_data/'
         self.shared_staging = 'SharedStaging'
         self.path_shared_staging = './downloads/' + self.shared_staging + '_data/'
         self.database_type = database_type
@@ -252,22 +253,30 @@ class TransformDataStagingCohorts:
     def transform_data(self):
         """Make changes per table
         """
-        # transformations for staging UMCG and data catalogue staging
-        self.cohorts()
-        self.contacts()
-        self.organisations()
-        self.identifiers()
-        self.copy_files()
+        # transformations for staging UMCG and data catalogue staging cohorts
+        if self.database_type in ['cohort', 'UMCG']:
+            self.cohorts()
+            self.contacts()
+            self.organisations()
+            self.identifiers()
+            self.copy_files()
+
+        # transformations for data catalogue staging networks
+        if self.database_type == 'network':
+            self.networks()
+            self.models()
 
         # transformations for data catalogue staging
-        if self.database_type == 'cohort':
+        if self.database_type in ['cohort', 'network']:
             self.tables()
             self.variables()
             self.variable_values()
             self.repeated_variables()
+
+        # transformations for data catalogue staging cohorts
+        if self.database_type in ['cohort']:
             self.dataset_mappings()
             self.variable_mappings()
-            self.copy_files()
 
     def cohorts(self):
         """Rename column in cohorts
@@ -287,7 +296,7 @@ class TransformDataStagingCohorts:
 
     def contacts(self):
         """Merge Contributions & Contacts on firstName and surname and rename columns
-        Only keep resource == cohort_name
+        Only keep resource == database_name
         """
         df_contributions = pd.read_csv(self.path + 'Contributions.csv')
         df_contributions.rename(columns={'contributionType': 'role',
@@ -309,7 +318,7 @@ class TransformDataStagingCohorts:
         df_contacts = pd.read_csv(self.path + 'Contacts.csv')
         institutions_from_contacts = df_contacts['organisation'].tolist()
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        institutions_from_cohorts = df_cohorts['lead organisation'].tolist()
+        institutions_from_cohorts = df_cohorts['lead organisation'][0].split(",")
         df_partners = pd.read_csv(self.path + 'Partners.csv')
         institutions_from_partners = df_partners['institution'].tolist()
         combined_institutions = institutions_from_partners + institutions_from_contacts + institutions_from_cohorts
@@ -329,27 +338,50 @@ class TransformDataStagingCohorts:
         df_identifiers = df_identifiers[['id', 'externalIdentifiers']]
         df_identifiers.to_csv('External identifiers.csv', mode='a', index=False, header=False)
 
-    def tables(self):
-        """Rename SourceTables and rename columns
+    def networks(self):
+        """ Rename column
         """
-        df_datasets = pd.read_csv(self.path + 'SourceTables.csv')
+        df_networks = pd.read_csv(self.path + 'Networks.csv')
+        df_networks.rename(columns={'pid': 'id'}, inplace=True)
+        df_networks.to_csv(self.path + 'Networks.csv', index=False, mode='w+')
+
+    def models(self):
+        """ Rename column
+        """
+        df_models = pd.read_csv(self.path + 'Models.csv')
+        df_models.rename(columns={'pid': 'id'}, inplace=True)
+        df_models.to_csv(self.path + 'Models.csv', index=False, mode='w+')
+
+    def tables(self):
+        """Rename SourceTables and TargetTables and rename columns
+        """
+        if self.database_type == 'cohort':
+            df_datasets = pd.read_csv(self.path + 'SourceTables.csv')
+        elif self.database_type == 'network':
+            df_datasets = pd.read_csv(self.path + 'TargetTables.csv')
         df_datasets.rename(columns={'dataDictionary.resource': 'resource'}, inplace=True)
         df_datasets = float_to_int(df_datasets)  # convert float back to integer
         df_datasets.to_csv(self.path + 'Datasets.csv', index=False)
 
     def variables(self):
-        """Rename SourceVariables and rename columns
+        """Rename SourceVariables and TargetVariables and rename columns
         """
-        df_variables = pd.read_csv(self.path + 'SourceVariables.csv', keep_default_na=False)
+        if self.database_type == 'cohort':
+            df_variables = pd.read_csv(self.path + 'SourceVariables.csv', keep_default_na=False)
+        elif self.database_type == 'network':
+            df_variables = pd.read_csv(self.path + 'TargetVariables.csv', keep_default_na=False)
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
                                      'table': 'dataset'}, inplace=True)
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
-        """Rename SourceVariableValues and rename columns
+        """Rename SourceVariableValues and TargetVariableValues and rename columns
         """
-        df_variable_values = pd.read_csv(self.path + 'SourceVariableValues.csv', keep_default_na=False)
+        if self.database_type == 'cohort':
+            df_variable_values = pd.read_csv(self.path + 'SourceVariableValues.csv', keep_default_na=False)
+        elif self.database_type == 'network':
+            df_variable_values = pd.read_csv(self.path + 'TargetVariableValues.csv', keep_default_na=False)
         df_variable_values.rename(columns={'dataDictionary.resource': 'resource',
                                            'variable.table': 'variable.dataset',
                                            'ontologyTermIRI': 'ontologyTermURI'}, inplace=True)
@@ -357,9 +389,13 @@ class TransformDataStagingCohorts:
         df_variable_values.to_csv(self.path + 'VariableValues.csv', index=False)
 
     def repeated_variables(self):
-        """Rename RepeatedSourceVariables and rename columns
+        """Rename RepeatedSourceVariables and RepeatedTargetVariables and rename columns
         """
-        df_repeated_variables = pd.read_csv(self.path + 'RepeatedSourceVariables.csv', keep_default_na=False)
+        if self.database_type == 'cohort':
+            df_repeated_variables = pd.read_csv(self.path + 'RepeatedSourceVariables.csv', keep_default_na=False)
+        elif self.database_type == 'network':
+            df_repeated_variables = pd.read_csv(self.path + 'RepeatedTargetVariables.csv', keep_default_na=False)
+
         df_repeated_variables.rename(columns={'dataDictionary.resource': 'resource',
                                               'table': 'dataset',
                                               'isRepeatOf.table': 'isRepeatOf.dataset'}, inplace=True)
