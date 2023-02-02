@@ -497,53 +497,10 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = {};
-      if (this.columns) {
-        this.columns.forEach((col) => {
-          const conditions = col.conditions
-            ? col.conditions.filter(
-                (condition) => condition !== "" && condition !== undefined
-              )
-            : [];
-          if (conditions.length) {
-            if (
-              col.columnType.startsWith("STRING") ||
-              col.columnType.startsWith("TEXT")
-            ) {
-              filter[col.id] = { like: conditions };
-            } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              col.columnType.startsWith("REF") ||
-              col.columnType.startsWith("ONTOLOGY")
-            ) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              [
-                "LONG",
-                "LONG_ARRAY",
-                "DECIMAL",
-                "DECIMAL_ARRAY",
-                "INT",
-                "INT_ARRAY",
-                "DATE",
-                "DATE_ARRAY",
-              ].includes(col.columnType)
-            ) {
-              filter[col.id] = {
-                between: conditions.flat(),
-              };
-            } else {
-              const msg =
-                "filter unsupported for column type '" +
-                col.columnType +
-                "' (please report a bug)";
-              this.graphqlError = msg;
-            }
-          }
-        });
-      }
-      return filter;
+      const errorCallback = (msg) => {
+        this.graphqlError = msg;
+      };
+      return graphqlFilter(this.columns, errorCallback);
     },
   },
   methods: {
@@ -720,11 +677,13 @@ export default {
     "searchTerms",
   ],
 };
+
 function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
 }
+
 function getCondition(columnType, condition) {
   if (condition) {
     switch (columnType) {
@@ -747,7 +706,56 @@ function getCondition(columnType, condition) {
     return [];
   }
 }
+
+function graphqlFilter(columns, errorCallback) {
+  let filter = {};
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DECIMAL",
+            "DECIMAL_ARRAY",
+            "INT",
+            "INT_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
+}
 </script>
+
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {
