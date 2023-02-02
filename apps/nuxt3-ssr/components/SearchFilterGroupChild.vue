@@ -42,9 +42,7 @@ function toggleSelect(term) {
 
 <template>
   <li
-    v-for="child in Object.values(items).sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )"
+    v-for="child in Object.values(items).sort((a, b) => a.order > b.order)"
     :key="child.name"
     class="mt-2.5 relative"
   >
