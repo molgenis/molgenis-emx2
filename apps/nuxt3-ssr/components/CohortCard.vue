@@ -52,12 +52,16 @@ const isShowingMobileMoreText = computed(() => {
             :to="`/${schema}/ssr-catalogue/cohorts/${cohort.pid}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
-            {{ cohort?.acronym }}
+            {{ cohort?.acronym || cohort?.name }}
           </NuxtLink>
         </h2>
 
-        <span :class="subtitleClasses" class="text-body-base">
-          {{ cohort?.name }}
+        <span :class="subtitleClasses" class="mr-4 text-body-base">
+          {{ cohort?.acronym ? cohort?.name : "" }}
+        </span>
+
+        <span :class="subtitleClasses" class="text-body-base text-gray-400">
+          ( {{ cohort?.numberOfParticipants }} Participants )
         </span>
       </div>
       <div class="flex">

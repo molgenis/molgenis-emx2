@@ -68,6 +68,7 @@ const query = computed(() => {
       acronym
       description
       keywords
+      numberOfParticipants
       type {
           name
       }
