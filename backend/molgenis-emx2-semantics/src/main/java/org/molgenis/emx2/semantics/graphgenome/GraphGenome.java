@@ -1,14 +1,12 @@
 package org.molgenis.emx2.semantics.graphgenome;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQuery.GENOMIC_VARIATIONS_TABLE_NAME;
 import static org.molgenis.emx2.beaconv2.endpoints.genomicvariants.GenomicQueryType.GENEID;
 import static org.molgenis.emx2.semantics.rdf.RootToRDF.describeRoot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.OutputStream;
 import java.util.*;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -23,13 +21,18 @@ import spark.Response;
 public class GraphGenome {
 
   private static final int DNA_PADDING = 10;
-
-  // also in org.molgenis.emx2.web.RDFApi, but that cannot be reached from here
-  public static final String RDF_API_LOCATION = "/api/rdf";
-  public static final IRI IS_DOWNSTREAM_OF = iri("http://purl.obolibrary.org/obo/RO_0002530");
   public static final String REFERENCE = "REF";
   public static final String ALTERNATIVE = "ALT";
 
+  /**
+   * Construct graph genome based on Beacon v2 variants and output as RDF
+   *
+   * @param outputStream
+   * @param request
+   * @param response
+   * @param graphGenomeApiLocation
+   * @param tables
+   */
   public static void graphGenomeAsRDF(
       OutputStream outputStream,
       Request request,
@@ -187,11 +190,15 @@ public class GraphGenome {
           upstreamRefSeqNode = refSeqNodeId;
         }
 
+        // define variant alt first because we need it later for linking
+        String variantAltNode =
+            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.getAlternateBases());
+        addNode(builder, variantAltNode, ALTERNATIVE, variant, upstreamRefSeqNode, null);
+
+        // define variant ref next, except for Situation 1
         if (situation != Situation.SITUATION_1) {
-          // if not Situation 1, add new ref and clear alts.
           String variantRefNode =
               formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, variant.getReferenceBases());
-          // only in Situation 2: connect to previous alts
           addNode(
               builder,
               variantRefNode,
@@ -199,13 +206,20 @@ public class GraphGenome {
               variant,
               upstreamRefSeqNode,
               (situation == Situation.SITUATION_2 ? upstreamVariantAltNodes : null));
+
+          // make explicit which alts replace which refs because we now do not revisit nodes,
+          // causing less-than-ideal representation of graph genome when variants are within indels
+          // todo ideally revisit and split up indels when another variant is located inside them
+          builder.add(variantAltNode, DCTERMS.REPLACES, iri(variantRefNode));
+
           previousVariantRefNode = variantRefNode;
           previousVariantConnectedTo = upstreamRefSeqNode;
           upstreamVariantAltNodes.clear();
+        } else {
+          // only connect new alt to previous ref
+          builder.add(variantAltNode, DCTERMS.REPLACES, iri(previousVariantRefNode));
         }
-        String variantAltNode =
-            formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.getAlternateBases());
-        addNode(builder, variantAltNode, ALTERNATIVE, variant, upstreamRefSeqNode, null);
+
         upstreamVariantAltNodes.add(variantAltNode);
         previousVariantRefBaseLength = variant.getReferenceBases().length();
         previousRefSeqEnd = refSeqEnd;
@@ -228,11 +242,32 @@ public class GraphGenome {
     }
   }
 
+  /**
+   * Format node identifiers
+   *
+   * @param apiContext
+   * @param gene
+   * @param nodeCounter
+   * @param type
+   * @param seq
+   * @return
+   */
   public static String formatNodeId(
       String apiContext, String gene, int nodeCounter, String type, String seq) {
     return apiContext + "/" + gene + "/node" + nodeCounter + "/" + type + "/" + shorten(seq);
   }
 
+  /**
+   * Add a variant node to the graph
+   *
+   * @param builder
+   * @param nodeId
+   * @param type
+   * @param variant
+   * @param downstreamOfRef
+   * @param downstreamOfAlts
+   * @throws Exception
+   */
   public static void addNode(
       ModelBuilder builder,
       String nodeId,
@@ -241,9 +276,6 @@ public class GraphGenome {
       String downstreamOfRef,
       List<String> downstreamOfAlts)
       throws Exception {
-
-    printNode(nodeId, type, downstreamOfRef, downstreamOfAlts);
-
     if (type.equals(REFERENCE)) {
       builder.add(nodeId, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C164388"));
     } else if (type.equals(ALTERNATIVE)) {
@@ -252,11 +284,11 @@ public class GraphGenome {
       throw new Exception("Bad type: " + type);
     }
     if (downstreamOfRef != null) {
-      builder.add(nodeId, IS_DOWNSTREAM_OF, iri(downstreamOfRef));
+      builder.add(nodeId, iri("http://purl.obolibrary.org/obo/RO_0002530"), iri(downstreamOfRef));
     }
     if (downstreamOfAlts != null) {
       for (String downstreamOfAlt : downstreamOfAlts) {
-        builder.add(nodeId, IS_DOWNSTREAM_OF, iri(downstreamOfAlt));
+        builder.add(nodeId, iri("http://purl.obolibrary.org/obo/RO_0002530"), iri(downstreamOfAlt));
       }
     }
     if (variant != null) {
@@ -264,38 +296,17 @@ public class GraphGenome {
     }
   }
 
+  /**
+   * Shorten lengthy strings of DNA
+   *
+   * @param input
+   * @return
+   */
   public static String shorten(String input) {
     if (input.length() > 50) {
       return input.substring(0, 25) + "..." + input.substring(input.length() - 25);
     } else {
       return input;
     }
-  }
-
-  public static void printNode(
-      String nodeId, String type, String downstreamOfRef, List<String> downstreamOfAlts) {
-    System.out.println(
-        "Adding new node: \n\t"
-            + nodeId
-            + "\n\t"
-            + type
-            + "\n\tdownstream of ref "
-            + downstreamOfRef
-            + "\n\tdownstream of alts"
-            + downstreamOfAlts
-            + "\n");
-  }
-
-  public static String getRdfApiVariantLink(
-      RDFService rdfService, GenomicVariantsResultSetsItem variant) {
-    String schemaContext = rdfService.getHost() + "/" + variant.getGenomicVariantsResultSetId();
-    String rdfApiVariantLink =
-        schemaContext
-            + RDF_API_LOCATION
-            + "/"
-            + GENOMIC_VARIATIONS_TABLE_NAME
-            + "/"
-            + variant.getVariantInternalId();
-    return rdfApiVariantLink;
   }
 }
