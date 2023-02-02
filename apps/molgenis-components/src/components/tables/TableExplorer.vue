@@ -53,11 +53,8 @@
         <span>
           <ButtonDropdown>
             <template v-slot:label>
-              {{ ViewButtons.find((button) => button.id == view).label }}
-              <span
-                class="fas fa-fw"
-                :class="ViewButtons.find((button) => button.id == view).icon"
-              ></span>
+              {{ ViewButtons[view].label }}
+              <i class="fas fa-fw" :class="ViewButtons[view].icon" />
             </template>
             <div
               v-for="button in ViewButtons"
@@ -65,7 +62,7 @@
               @click="setView(button)"
               role="button"
             >
-              <span class="fas fa-fw" :class="button.icon"></span>
+              <i class="fas fa-fw" :class="button.icon" />
               {{ button.label }}
             </div>
           </ButtonDropdown>
@@ -142,121 +139,127 @@
         <div v-if="loading">
           <Spinner />
         </div>
-
-        <div v-if="!loading && view === View.AGGREGATE">
-          <AggregateOptions
-            :columns="columns"
-            @setAggregateColumns="aggregateColumns = $event"
-            v-model:selectedColumn="aggregateSelectedColumn"
-            v-model:selectedRow="aggregateSelectedRow"
-          />
-        </div>
-
-        <AggregateTable
-          v-if="
-            !loading && view === View.AGGREGATE && aggregateColumns?.length > 0
-          "
-          :tableName="tableName"
-          :schemaName="schemaName"
-          :minimumValue="1"
-          :columnProperties="aggregateColumns"
-          :rowProperties="aggregateColumns"
-          :selectedColumnProperty="aggregateSelectedColumn"
-          columnNameProperty="name"
-          :selectedRowProperty="aggregateSelectedRow"
-          rowNameProperty="name"
-        />
-        <RecordCards
-          v-if="!loading && view === View.CARDS"
-          class="card-columns"
-          id="cards"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="cardTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <RecordCards
-          v-if="!loading && view === View.RECORD"
-          id="records"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="recordTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <TableMolgenis
-          v-if="!loading && view == View.TABLE"
-          :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-          :columns="columns"
-          @update:colums="columns = $event"
-          :table-metadata="tableMetadata"
-          :data="dataRows"
-          :showSelect="showSelect"
-          @column-click="onColumnClick"
-          @click="$emit('click', $event)"
-        >
-          <template v-slot:header>
-            <label>{{ count }} records found</label>
-          </template>
-          <template v-slot:rowcolheader>
-            <RowButton
-              v-if="canEdit"
-              type="add"
-              :table="tableName"
+        <div v-if="!loading">
+          <div v-if="view === View.AGGREGATE">
+            <AggregateOptions
+              :columns="columns"
+              @setAggregateColumns="aggregateColumns = $event"
+              v-model:selectedColumn="aggregateSelectedColumn"
+              v-model:selectedRow="aggregateSelectedRow"
+            />
+            <AggregateTable
+              v-if="aggregateColumns?.length > 0"
+              :tableName="tableName"
               :schemaName="schemaName"
-              @add="handleRowAction('add')"
-              class="d-inline p-0"
+              :minimumValue="1"
+              :columnProperties="aggregateColumns"
+              :rowProperties="aggregateColumns"
+              :selectedColumnProperty="aggregateSelectedColumn"
+              columnNameProperty="name"
+              :selectedRowProperty="aggregateSelectedRow"
+              rowNameProperty="name"
             />
-          </template>
-          <template v-slot:colheader="slotProps">
-            <IconAction
-              v-if="slotProps.col && orderByColumn === slotProps.col.id"
-              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:rowheader="slotProps">
-            <RowButton
-              v-if="canEdit"
-              type="edit"
-              @edit="
-                handleRowAction(
-                  'edit',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="clone"
-              @clone="
-                handleRowAction(
-                  'clone',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="delete"
-              @delete="
-                handleDeleteRowRequest(
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-          </template>
-        </TableMolgenis>
+          </div>
+          <RecordCards
+            v-if="view === View.CARDS"
+            class="card-columns"
+            id="cards"
+            :data="dataRows"
+            :columns="columns"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="cardTemplate"
+            @click="$emit('click', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
+          />
+          <RecordCards
+            v-if="view === View.RECORD"
+            id="records"
+            :data="dataRows"
+            :columns="columns"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="recordTemplate"
+            @click="$emit('click', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
+          />
+          <TableMolgenis
+            v-if="view == View.TABLE"
+            :selection="selectedItems"
+            @update:selection="selectedItems = $event"
+            :columns="columns"
+            @update:colums="columns = $event"
+            :table-metadata="tableMetadata"
+            :data="dataRows"
+            :showSelect="showSelect"
+            @column-click="onColumnClick"
+            @click="$emit('click', $event)"
+          >
+            <template v-slot:header>
+              <label>{{ count }} records found</label>
+            </template>
+            <template v-slot:rowcolheader>
+              <RowButton
+                v-if="canEdit"
+                type="add"
+                :table="tableName"
+                :schemaName="schemaName"
+                @add="handleRowAction('add')"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:colheader="slotProps">
+              <IconAction
+                v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:rowheader="slotProps">
+              <RowButton
+                v-if="canEdit"
+                type="edit"
+                @edit="
+                  handleRowAction(
+                    'edit',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="clone"
+                @clone="
+                  handleRowAction(
+                    'clone',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="delete"
+                @delete="
+                  handleDeleteRowRequest(
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+            </template>
+          </TableMolgenis>
+        </div>
       </div>
     </div>
 
@@ -338,16 +341,24 @@ const View = {
   TABLE: "table",
   CARDS: "cards",
   RECORD: "record",
-  EDIT: "edit",
   AGGREGATE: "aggregate",
 };
 
-const ViewButtons = [
-  { id: View.TABLE, label: "Table", icon: "fa-th" },
-  { id: View.CARDS, label: "Card", icon: "fa-list-alt" },
-  { id: View.RECORD, label: "Record", icon: "fa-th-list", limitOverride: 1 },
-  { id: View.AGGREGATE, label: "Aggregate", icon: "fa-object-group" },
-];
+const ViewButtons = {
+  table: { id: View.TABLE, label: "Table", icon: "fa-th" },
+  cards: { id: View.CARDS, label: "Card", icon: "fa-list-alt" },
+  record: {
+    id: View.RECORD,
+    label: "Record",
+    icon: "fa-th-list",
+    limitOverride: 1,
+  },
+  aggregate: {
+    id: View.AGGREGATE,
+    label: "Aggregate",
+    icon: "fa-object-group",
+  },
+};
 
 export default {
   name: "TableExplorer",
