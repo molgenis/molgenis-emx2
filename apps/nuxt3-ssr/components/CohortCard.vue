@@ -107,16 +107,19 @@ const isShowingMobileMoreText = computed(() => {
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
-          <dt class="flex-auto block text-gray-600">Keywords</dt>
-          <dd>{{ cohort?.keywords }}</dd>
-        </div>
-        <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
           <dd>{{ cohort?.type?.map((type) => type.name).join(",") }}</dd>
         </div>
         <div>
           <dt class="flex-auto block text-gray-600">Design</dt>
           <dd>{{ cohort?.design?.name }}</dd>
+        </div>
+        <div>
+          <dt class="flex-auto block text-gray-600">Duration</dt>
+          <dd>
+            {{ cohort?.startYear || "Unknown" }} -
+            {{ cohort?.endYear || "Ongoing" }}
+          </dd>
         </div>
       </dl>
     </div>
