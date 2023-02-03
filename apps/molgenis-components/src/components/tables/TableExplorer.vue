@@ -51,18 +51,18 @@
           </form>
         </ButtonDropdown>
         <span>
-          <ButtonDropdown>
-            <template v-slot:label>
-              {{ ViewButtons[view].label }}
-              <i class="fas fa-fw" :class="ViewButtons[view].icon" />
-            </template>
+          <ButtonDropdown
+            :closeOnClick="true"
+            :label="ViewButtons[view].label"
+            :icon="ViewButtons[view].icon"
+          >
             <div
               v-for="button in ViewButtons"
               class="dropdown-item"
               @click="setView(button)"
               role="button"
             >
-              <i class="fas fa-fw" :class="button.icon" />
+              <i class="fas fa-fw" :class="'fa-' + button.icon" />
               {{ button.label }}
             </div>
           </ButtonDropdown>
@@ -349,18 +349,18 @@ const View = {
 };
 
 const ViewButtons = {
-  table: { id: View.TABLE, label: "Table", icon: "fa-th" },
-  cards: { id: View.CARDS, label: "Card", icon: "fa-list-alt" },
+  table: { id: View.TABLE, label: "Table", icon: "th" },
+  cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
   record: {
     id: View.RECORD,
     label: "Record",
-    icon: "fa-th-list",
+    icon: "th-list",
     limitOverride: 1,
   },
   aggregate: {
     id: View.AGGREGATE,
     label: "Aggregate",
-    icon: "fa-object-group",
+    icon: "object-group",
   },
 };
 
