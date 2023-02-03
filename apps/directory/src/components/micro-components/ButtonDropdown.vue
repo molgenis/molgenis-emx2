@@ -7,6 +7,7 @@
       <div class="dropdown bg-white" @click.stop>
         <slot />
       </div>
+      <div class="close" @click="closeSelf"></div>
     </div>
   </details>
 </template>
@@ -18,11 +19,29 @@ export default {
       type: String,
       required: true,
     },
-  }
+  },
+  methods: {
+    closeSelf(event) {
+      event.target.parentElement.parentElement.removeAttribute("open");
+    },
+  },
 };
 </script>
 
 <style scoped>
+.close {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.close:hover {
+  cursor: pointer;
+}
+
 details {
   position: relative;
   display: inline-block;
