@@ -2,10 +2,11 @@
   <div>
     <MatchTypeRadiobutton
       v-if="showMatchTypeSelector"
-      :matchTypeForFilter="filterName"
+      class="p-2"
+      :matchTypeForFilter="facetTitle"
     />
 
-    <div class="d-flex flex-column">
+    <div class="d-flex flex-column scrollable-content">
       <CheckboxComponent
         v-for="(option, index) of checkboxOptions"
         :key="index"
@@ -13,16 +14,22 @@
         :option="option"
       />
     </div>
-
-    <button v-if="selectAll" type="button" class="btn btn-link p-0" @click.prevent="toggleSelect">
-      {{ selectAllText }}
-    </button>
+    <div>
+      <button
+        v-if="selectAll"
+        type="button"
+        class="btn btn-link p-2"
+        @click.prevent="toggleSelect"
+      >
+        {{ selectAllText }}
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
-import MatchTypeRadiobutton from "./micro-components/MatchTypeRadiobutton.vue";
-import CheckboxComponent from "./micro-components/CheckboxComponent.vue";
+import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
+import CheckboxComponent from "./base/CheckboxComponent.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 export default {
@@ -36,7 +43,7 @@ export default {
     CheckboxComponent,
   },
   props: {
-    filterName: {
+    facetTitle: {
       type: String,
       required: true,
     },

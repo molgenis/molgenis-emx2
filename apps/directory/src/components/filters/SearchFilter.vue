@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import StringFilter from "../filters/StringFilter.vue";
+import StringFilter from "./base/StringFilter.vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 
 export default {

@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-2 d-flex">
+  <div class="d-flex">
     <div class="ml-auto d-flex">
       <label :for="idOption1">
         <input

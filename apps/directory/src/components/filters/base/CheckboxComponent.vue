@@ -46,4 +46,8 @@ export default {
 input[type="checkbox"] {
   accent-color: var(--primary);
 }
+
+input[type="checkbox"]:hover {
+  cursor: pointer;
+}
 </style>

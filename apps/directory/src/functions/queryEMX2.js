@@ -40,8 +40,11 @@ class QueryEMX2 {
 
     if (!Array.isArray(columns)) {
       requestedColumns = [columns];
-    } else {
+    } else if (columns) {
       requestedColumns = this._createPathFromObject("", columns);
+    }
+    else {
+      requestedColumns = this.selection
     }
 
     /** column names are always lowercase */
@@ -59,11 +62,11 @@ class QueryEMX2 {
    */
   async execute () {
     /** Fail fast */
-    if (!this.tableName)
+    if (!this.tableName) {
       throw Error(
-        "You need to provide ",
-        this.tableName ? "a table name" : "columns"
+        `You need to provide ${this.tableName ? "columns" : "a table name"}`
       );
+    }
 
     /** Add all columns that are not linked to other tables */
     if (this.selection.length === 0) {

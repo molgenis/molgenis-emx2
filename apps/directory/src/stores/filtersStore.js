@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue';
+import { createFilters } from '../filter-config/facetConfigurator';
 import { applyFiltersToQuery } from '../functions/applyFiltersToQuery';
 import { useBiobanksStore } from './biobanksStore';
 import { useSettingsStore } from './settingsStore';
@@ -12,6 +13,8 @@ export const useFiltersStore = defineStore('filtersStore', () => {
 
     let filters = ref({})
     let filterType = ref({})
+    let filterOptionsCache = ref({})
+    const filterFacets = createFilters(filters)
 
     function resetFilters () {
         this.baseQuery.resetFilters();
@@ -75,7 +78,9 @@ export const useFiltersStore = defineStore('filtersStore', () => {
         getFilterValue,
         updateFilterType,
         getFilterType,
+        filterOptionsCache,
         hasActiveFilters,
-        filters
+        filters,
+        filterFacets
     }
 })
