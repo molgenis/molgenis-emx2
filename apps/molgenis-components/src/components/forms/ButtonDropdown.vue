@@ -7,7 +7,7 @@
       :class="{ 'dropdown-toggle': !icon, 'nav-link': isMenuItem }"
       @click="toggle"
     >
-      <slot name="label">{{ label }}</slot>
+      <span v-if="label">{{ label }}</span>
       <span v-if="icon" :class="'fa fa-' + icon + ' fa-lg ml-2'"></span>
     </button>
     <span
