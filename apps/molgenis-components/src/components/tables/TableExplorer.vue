@@ -141,24 +141,28 @@
         </div>
         <div v-if="!loading">
           <div v-if="view === View.AGGREGATE">
-            <AggregateOptions
-              :columns="columns"
-              @setAggregateColumns="aggregateColumns = $event"
-              v-model:selectedColumn="aggregateSelectedColumn"
-              v-model:selectedRow="aggregateSelectedRow"
-            />
-            <AggregateTable
-              v-if="aggregateColumns?.length > 0"
-              :tableName="tableName"
-              :schemaName="schemaName"
-              :minimumValue="1"
-              :columnProperties="aggregateColumns"
-              :rowProperties="aggregateColumns"
-              :selectedColumnProperty="aggregateSelectedColumn"
-              columnNameProperty="name"
-              :selectedRowProperty="aggregateSelectedRow"
-              rowNameProperty="name"
-            />
+            <div v-if="aggregateColumns?.length > 0">
+              <AggregateOptions
+                :columns="columns"
+                @setAggregateColumns="aggregateColumns = $event"
+                v-model:selectedColumn="aggregateSelectedColumn"
+                v-model:selectedRow="aggregateSelectedRow"
+              />
+              <AggregateTable
+                :tableName="tableName"
+                :schemaName="schemaName"
+                :minimumValue="1"
+                :columnProperties="aggregateColumns"
+                :rowProperties="aggregateColumns"
+                :selectedColumnProperty="aggregateSelectedColumn"
+                columnNameProperty="name"
+                :selectedRowProperty="aggregateSelectedRow"
+                rowNameProperty="name"
+              />
+            </div>
+            <div v-else class="alert">
+              Not enough input to create an aggregate table
+            </div>
           </div>
           <RecordCards
             v-if="view === View.CARDS"
