@@ -10,6 +10,7 @@ import java.util.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Table;
@@ -132,11 +133,24 @@ public class GraphGenome {
       ModelBuilder builder = rdfService.getBuilder();
       builder.add(apiContext, DCTERMS.IS_PART_OF, iri(rdfService.getHost()));
 
+      // first node we connect is the gene with some context
+      String apiContextGene = apiContext + "/" + gene;
+      builder.add(apiContextGene, DCTERMS.IS_PART_OF, iri(apiContext));
+      builder.add(apiContextGene, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C16612"));
+      builder.add(
+          apiContextGene,
+          SKOS.EXACT_MATCH,
+          iri("https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/" + gene));
+      builder.add(
+          apiContextGene,
+          iri("http://purl.obolibrary.org/obo/NCIT_C13202"),
+          iri("https://en.wikipedia.org/wiki/Chromosome_" + chromosome));
+
       int nodeCounter = 0;
       int previousRefSeqStart = 0;
       int previousRefSeqEnd = 0;
       int previousVariantRefBaseLength = 0;
-      String previousVariantRefNode = apiContext; // connect first node to API endpoint
+      String previousVariantRefNode = apiContextGene; // connect first node to gene context
       String upstreamRefSeqNode;
       List<String> upstreamVariantAltNodes = new ArrayList<>();
       String previousVariantConnectedTo = null;
