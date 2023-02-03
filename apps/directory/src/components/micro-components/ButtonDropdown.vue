@@ -1,6 +1,6 @@
 <template>
   <details class="dropdown-button border border-secondary p-0">
-    <summary @click.stop="toggleSelf">
+    <summary>
       {{ buttonText }} <span class="fa-solid fa-caret-down"></span>
     </summary>
     <div>
@@ -18,16 +18,7 @@ export default {
       type: String,
       required: true,
     },
-  },
-  methods: {
-    toggleSelf(event) {
-      if (event.target.parentElement.hasAttribute("open")) {
-        event.target.parentElement.setAttribute("open", false);
-      } else {
-        event.target.parentElement.setAttribute("open");
-      }
-    },
-  },
+  }
 };
 </script>
 
