@@ -18,7 +18,6 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         .orderBy("Biobanks", "name", "asc")
         .orderBy("collections", "id", "asc")
 
-    console.log(baseQuery.getQuery() , '<< base bio query')
     /** GraphQL query to get all the data necessary for the home screen 'aka biobank card view */
     async function getBiobankCards () {
         waitingForResponse.value = true

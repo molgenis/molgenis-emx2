@@ -1,13 +1,10 @@
 <template>
-  <details
-    class="drawer-button border border-secondary p-0"
-    @click="toggleDrawer"
-  >
-    <summary>
+  <details class="dropdown-button border border-secondary p-0">
+    <summary @click.stop="toggleSelf">
       {{ buttonText }} <span class="fa-solid fa-caret-down"></span>
     </summary>
     <div>
-      <div class="drawer bg-white">
+      <div class="dropdown bg-white" @click.stop>
         <slot />
       </div>
     </div>
@@ -23,9 +20,11 @@ export default {
     },
   },
   methods: {
-    toggleDrawer(event) {
-      if (event.target.hasAttribute(open)) {
-        console.log("hello");
+    toggleSelf(event) {
+      if (event.target.parentElement.hasAttribute("open")) {
+        event.target.parentElement.setAttribute("open", false);
+      } else {
+        event.target.parentElement.setAttribute("open");
       }
     },
   },
@@ -73,11 +72,11 @@ details.align-right > *:not(summary) {
   right: 0;
 }
 
-.drawer {
+.dropdown {
   position: absolute;
   top: 2.6rem;
   width: inherit;
-  z-index: 1000;
+
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 }
 
@@ -89,7 +88,7 @@ details.align-right > *:not(summary) {
   padding: 0 0.5rem 0.5rem 0.5rem;
 }
 
-.drawer-button {
+.dropdown-button {
   border-radius: 4px;
 }
 </style>

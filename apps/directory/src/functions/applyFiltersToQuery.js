@@ -36,7 +36,6 @@ export async function applyFiltersToQuery (baseQuery, filters) {
             }
         }
     }
-    console.log(baseQuery.getQuery())
 }
 
 // TODO: add the properties to the base query, 
