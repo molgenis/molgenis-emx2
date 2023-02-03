@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       display: false,
-      popperInstance: Popper,
+      popperInstance: null,
     };
   },
   methods: {
