@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+
 const mobileShowMoreText = ref(false);
 const mobileShowMoreTextLength = 250;
 
@@ -13,6 +14,8 @@ const props = withDefaults(
     compact: false,
   }
 );
+
+const startEndYear = filters.startEndYear;
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -58,10 +61,6 @@ const isShowingMobileMoreText = computed(() => {
 
         <span :class="subtitleClasses" class="mr-4 text-body-base">
           {{ cohort?.acronym ? cohort?.name : "" }}
-        </span>
-
-        <span :class="subtitleClasses" class="text-body-base text-gray-400">
-          ( {{ cohort?.numberOfParticipants }} Participants )
         </span>
       </div>
       <div class="flex">
@@ -115,10 +114,13 @@ const isShowingMobileMoreText = computed(() => {
           <dd>{{ cohort?.design?.name }}</dd>
         </div>
         <div>
+          <dt class="flex-auto block text-gray-600">Participants</dt>
+          <dd>{{ cohort?.numberOfParticipants }}</dd>
+        </div>
+        <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ cohort?.startYear || "Unknown" }} -
-            {{ cohort?.endYear || "Ongoing" }}
+            {{ startEndYear(cohort?.startYear, cohort?.endYear) }}
           </dd>
         </div>
       </dl>

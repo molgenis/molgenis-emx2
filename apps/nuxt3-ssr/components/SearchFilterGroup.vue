@@ -44,7 +44,6 @@ if (!props.options) {
 
   data = resp?.data[props.tableName];
   let count = resp?.data[props.tableName + "_agg"].count;
-  console.log(count);
 } else {
   data = props.options;
 }
@@ -61,6 +60,7 @@ data.forEach((e) => {
     //else simply add the record
     terms[e.name] = {
       name: e.name,
+      order: e.order,
       visible: true,
       selected: false,
       definition: e.definition,

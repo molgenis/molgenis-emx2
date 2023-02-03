@@ -8,7 +8,6 @@ defineProps({
     type: String,
     required: true,
   },
-  note: { type: String },
   description: { type: String },
   icon: {
     type: String,
@@ -38,13 +37,6 @@ defineProps({
       <p v-if="description" class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
         {{ description }}
       </p>
-      <div
-        v-if="note"
-        class="mt-1 mb-5 text-left text-body-sm leading-snug bg-yellow-200 rounded-lg text-black p-2 flex"
-      >
-        <BaseIcon name="info" :width="55" class="mr-3" />
-        <div class="inline-block">{{ note }}</div>
-      </div>
     </div>
     <slot name="suffix"></slot>
   </header>
