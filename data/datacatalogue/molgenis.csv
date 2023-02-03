@@ -32,7 +32,7 @@ Resources,,description,text,,,,,,,,,Short description of this resource
 Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Select one or multiple datasource types
 Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Cohorts,Resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
-Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
+Cohorts,,contactEmail,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
 Resources,,contributors,refback,,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
@@ -171,14 +171,14 @@ Contributions,,contributionType,ontology_array,,,CatalogueOntologies,Contributio
 Contributions,,contributionDescription,text,,,,,,,,,Contribution description
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
-Contacts,,consent,bool,,TRUE,,,,,,,"This person gives permission to display their filled out contact details in the catalogue, which is openly accessible",,,
+Contacts,,statementOfConsentPersonalData,bool,,TRUE,,,,,,,"This person consents to display their filled out contact details in the catalogue, which is openly accessible",,,
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,email,,2,,,,,,,,Contact's email address
-Contacts,,consent email,bool,,,,,,,,,This person gives permission to display their e-mail address in the catalogue
+Contacts,,statementOfConsentEmail,bool,,,,,,,,,This person consents to display their e-mail address in the catalogue
 Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
