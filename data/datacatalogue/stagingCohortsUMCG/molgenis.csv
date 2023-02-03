@@ -26,7 +26,7 @@ Resources,,institution,ref_array,,,SharedStaging,Institutions,,,,,Institution pr
 Resources,,partners,refback,,,,Partners,,resource,,,Institutions that partnered in the creation of this resource
 Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
-Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
+Cohorts,,contactEmail,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
 Resources,,contributors,refback,,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
 Resources,,numberOfParticipants,int,,,,,,,,,Total number of individuals for which data is collected
