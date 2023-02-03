@@ -26,7 +26,7 @@ Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact p
 Contacts,,institution,ref,,,,Institutions,,,,,Affiliated institution of the contact person
 Contacts,,department,text,,,,,,,,,Affiliated department of the contact person
 Contacts,,,,2,,,,,,,,Contact's email address
-Contacts,,statementOfConsentEmail,bool,,,,,,,,,"Indicate whether this person consents to display their email address in the catalogue (which is openly accessible). The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent for their email address will be shown without their email address in the UMCG Research Data Catalogue"
+Contacts,,statementOfConsentEmail,bool,,TRUE,,,,,,,"Indicate whether this person consents to display their email address in the catalogue (which is openly accessible). The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent for their email address will be shown without their email address in the UMCG Research Data Catalogue"
 Contacts,,orcid,,3,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
 Contacts,,photo,file,,,,,,,,,Contact's photograph
