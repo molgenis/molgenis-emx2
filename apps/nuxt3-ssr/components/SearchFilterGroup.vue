@@ -210,11 +210,7 @@ function updateSelection(newConditions) {
 
 <template>
   <ul>
-    <li
-      v-for="item in Object.values(rootTerms).sort((a, b) => a.order > b.order)"
-      :key="item.name"
-      class="mb-2.5"
-    >
+    <li v-for="item in rootTerms" :key="item.name" class="mb-2.5">
       <div class="flex items-start">
         <span
           v-if="item.children"

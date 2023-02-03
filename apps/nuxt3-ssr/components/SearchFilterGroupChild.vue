@@ -81,9 +81,7 @@ function toggleSelect(term) {
           :for="child.name"
           class="hover:cursor-pointer text-body-sm group"
         >
-          <span class="group-hover:underline"
-            >{{ child.name }} ({{ child.order }})</span
-          >
+          <span class="group-hover:underline">{{ child.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
             <span
               v-if="child?.children?.length"
