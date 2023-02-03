@@ -34,7 +34,7 @@ subprojects {
         args = ['run', 'format']
     }
 
-    task build(type: YarnTask, dependsOn: format) {
+   task build(type: YarnTask, dependsOn: format) {
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
@@ -52,7 +52,45 @@ subprojects {
             outputs.dir('gen-docs')
             outputs.dir('showCase')
         } else if (project.name == 'nuxt3-ssr') {
+//            inputs.file('package.json')
+//            inputs.files(fileTree('assets'))
+//            inputs.files(fileTree('components'))
+//            inputs.files(fileTree('composables'))
+//            inputs.files(fileTree('middleware'))
+//            inputs.files(fileTree('layouts'))
+//            inputs.files(fileTree('pages'))
+//            inputs.files(fileTree('static'))
+//            inputs.files(fileTree('store'))
+//            inputs.file('nuxt.config.ts')
+//            inputs.file('app.vue')
+//            inputs.file('router.options.ts')
+//            inputs.file('tailwind.config.ts')
+//            outputs.dir('.nuxt')
+//            outputs.dir('.output')
+        } else {
             inputs.file('package.json')
+            inputs.files(fileTree('src'))
+            inputs.files(fileTree('public'))
+            inputs.files(fileTree('assets'))
+            inputs.file('vite.config.js')
+            inputs.file('index.html')
+            outputs.dir('dist')
+        }
+
+        outputs.cacheIf { false }
+
+        if(project.name != 'nuxt3-ssr') {
+            args = ['run', 'build']
+        }
+
+        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
+    }
+
+   task buildSsr3(type: YarnTask, dependsOn: build){
+
+       if(project.name == 'nuxt3-ssr'){
+           yarn_install.enabled = true;
+           inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
@@ -67,25 +105,15 @@ subprojects {
             inputs.file('tailwind.config.ts')
             outputs.dir('.nuxt')
             outputs.dir('.output')
-        } else {
-            inputs.file('package.json')
-            inputs.files(fileTree('src'))
-            inputs.files(fileTree('public'))
-            inputs.files(fileTree('assets'))
-            inputs.file('vite.config.js')
-            inputs.file('index.html')
-            outputs.dir('dist')
+
+            args = ['run', 'build']
+           yarn_install.enabled = false;
         }
 
-        outputs.cacheIf { false }
-
-        args = ['run', 'build']
-
-        delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
-    }
+   }
 
     if (project.name == 'molgenis-components') {
-        task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
+        task buildComponentsShowcase(type: YarnTask, dependsOn: buildSsr3) {
             if (project.name == 'molgenis-components') {
                 inputs.file('package.json')
                 inputs.files(fileTree('src'))
