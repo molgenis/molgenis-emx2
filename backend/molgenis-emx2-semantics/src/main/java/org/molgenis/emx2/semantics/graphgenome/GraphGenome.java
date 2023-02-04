@@ -10,6 +10,7 @@ import java.util.*;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
@@ -24,17 +25,10 @@ public class GraphGenome {
   private static final int DNA_PADDING = 10;
   public static final String REFERENCE = "REF";
   public static final String ALTERNATIVE = "ALT";
+  public String host;
 
-  /**
-   * Construct graph genome based on Beacon v2 variants and output as RDF
-   *
-   * @param outputStream
-   * @param request
-   * @param response
-   * @param graphGenomeApiLocation
-   * @param tables
-   */
-  public static void graphGenomeAsRDF(
+  /** Construct graph genome based on Beacon v2 variants and output as RDF */
+  public void graphGenomeAsRDF(
       OutputStream outputStream,
       Request request,
       Response response,
@@ -77,12 +71,16 @@ public class GraphGenome {
       ArrayList<GenomicVariantsResultSetsItem> sortedVariants = new ArrayList<>();
       for (GenomicVariantsResultSets variantSet : variants) {
         for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
+          // skip variants without a start position
+          if (variant.getPosition().getStart() == null) {
+            continue;
+          }
           variant.setGenomicVariantsResultSetId(variantSet.getId());
           sortedVariants.add(variant);
           Position position = variant.getPosition();
           if (chromosome == null) {
             chromosome = position.getRefseqId();
-          } else if (!chromosome.equals(position.getRefseqId())) {
+          } else if (position.getRefseqId() != null && !chromosome.equals(position.getRefseqId())) {
             throw new Exception(
                 "At least 2 different chromosomes present: "
                     + chromosome
@@ -90,13 +88,12 @@ public class GraphGenome {
                     + position.getRefseqId());
           }
           for (Long stLong : position.getStart()) {
-
             if (stLong < earliestStart) {
               earliestStart = stLong;
             }
           }
           for (Long endLong : position.getEnd()) {
-            if (endLong > latestEnd) {
+            if (endLong != null && endLong > latestEnd) {
               latestEnd = endLong;
             }
           }
@@ -107,29 +104,18 @@ public class GraphGenome {
       if (earliestStart == Long.MAX_VALUE || latestEnd == Long.MIN_VALUE) {
         throw new Exception("No start or end position available");
       }
-      String chromosomeWithChr = chromosome.startsWith("chr") ? chromosome : "chr" + chromosome;
 
-      String UCSCResponseStr =
-          HTTPGet.httpGet(
-              "https://api.genome.ucsc.edu/getData/sequence?genome="
-                  + ucscgenome
-                  + ";chrom="
-                  + chromosomeWithChr
-                  + ";start="
-                  + (earliestStart - DNA_PADDING)
-                  + ";end="
-                  + (latestEnd + DNA_PADDING));
-      UCSCAPIResponse UCSCResponse =
-          new ObjectMapper().readValue(UCSCResponseStr, UCSCAPIResponse.class);
-      String dna = UCSCResponse.getDna();
+      // get reference genome sequence from UCSC API
+      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestEnd);
 
       // sort variants for lineair iteration
-      Collections.sort(sortedVariants, new SortByPosition());
+      sortedVariants.sort(new SortByPosition());
 
       // prep RDF export
       RDFService rdfService = new RDFService(request, response);
       String apiContext = rdfService.getHost() + graphGenomeApiLocation;
       describeRoot(rdfService.getBuilder(), rdfService.getHost());
+      host = rdfService.getHost();
       ModelBuilder builder = rdfService.getBuilder();
       builder.add(apiContext, DCTERMS.IS_PART_OF, iri(rdfService.getHost()));
 
@@ -143,8 +129,16 @@ public class GraphGenome {
           iri("https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/" + gene));
       builder.add(
           apiContextGene,
-          iri("http://purl.obolibrary.org/obo/NCIT_C13202"),
-          iri("https://en.wikipedia.org/wiki/Chromosome_" + chromosome));
+          "http://purl.obolibrary.org/obo/NCIT_C13202",
+          "https://en.wikipedia.org/wiki/Chromosome_" + chromosome);
+      builder.add(apiContextGene, "http://purl.obolibrary.org/obo/NCIT_C164388", assembly);
+      builder.add(apiContextGene, "http://purl.obolibrary.org/obo/NCIT_C164388", ucscgenome);
+      builder.add(
+          apiContextGene,
+          "http://purl.obolibrary.org/obo/GENO_0000894",
+          (earliestStart - DNA_PADDING));
+      builder.add(
+          apiContextGene, "http://purl.obolibrary.org/obo/GENO_0000895", (latestEnd + DNA_PADDING));
 
       int nodeCounter = 0;
       int previousRefSeqStart = 0;
@@ -155,9 +149,7 @@ public class GraphGenome {
       List<String> upstreamVariantAltNodes = new ArrayList<>();
       String previousVariantConnectedTo = null;
 
-      for (int i = 0; i < sortedVariants.size(); i++) {
-
-        GenomicVariantsResultSetsItem variant = sortedVariants.get(i);
+      for (GenomicVariantsResultSetsItem variant : sortedVariants) {
 
         int refSeqStart = previousRefSeqEnd + previousVariantRefBaseLength;
         int refSeqEnd =
@@ -186,7 +178,7 @@ public class GraphGenome {
           refSeqStart = previousRefSeqStart;
           String refSeq = dna.substring(refSeqStart, refSeqEnd);
           String refSeqNodeId = formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, refSeq);
-          addNode(builder, refSeqNodeId, REFERENCE, null, previousVariantConnectedTo, null);
+          addNode(builder, refSeqNodeId, REFERENCE, null, previousVariantConnectedTo, null, refSeq);
           upstreamRefSeqNode = refSeqNodeId;
         } else {
           situation = Situation.SITUATION_4;
@@ -200,14 +192,22 @@ public class GraphGenome {
               REFERENCE,
               null,
               previousVariantRefNode,
-              upstreamVariantAltNodes);
+              upstreamVariantAltNodes,
+              refSeq);
           upstreamRefSeqNode = refSeqNodeId;
         }
 
         // define variant alt first because we need it later for linking
         String variantAltNode =
             formatNodeId(apiContext, gene, nodeCounter++, ALTERNATIVE, variant.getAlternateBases());
-        addNode(builder, variantAltNode, ALTERNATIVE, variant, upstreamRefSeqNode, null);
+        addNode(
+            builder,
+            variantAltNode,
+            ALTERNATIVE,
+            variant,
+            upstreamRefSeqNode,
+            null,
+            variant.getAlternateBases());
 
         // define variant ref next, except for Situation 1
         if (situation != Situation.SITUATION_1) {
@@ -219,7 +219,8 @@ public class GraphGenome {
               REFERENCE,
               variant,
               upstreamRefSeqNode,
-              (situation == Situation.SITUATION_2 ? upstreamVariantAltNodes : null));
+              (situation == Situation.SITUATION_2 ? upstreamVariantAltNodes : null),
+              variant.getReferenceBases());
 
           // make explicit which alts replace which refs because we now do not revisit nodes,
           // causing less-than-ideal representation of graph genome when variants are within indels
@@ -241,9 +242,15 @@ public class GraphGenome {
       }
       // one last part of reference sequence remaining
       String refSeq = dna.substring(previousRefSeqEnd + previousVariantRefBaseLength);
-      String refSeqNode = apiContext + "/" + gene + "/" + (nodeCounter++) + "/" + shorten(refSeq);
+      String refSeqNode = apiContext + "/" + gene + "/" + nodeCounter + "/" + shorten(refSeq);
       addNode(
-          builder, refSeqNode, REFERENCE, null, previousVariantRefNode, upstreamVariantAltNodes);
+          builder,
+          refSeqNode,
+          REFERENCE,
+          null,
+          previousVariantRefNode,
+          upstreamVariantAltNodes,
+          refSeq);
 
       Rio.write(
           rdfService.getBuilder().build(),
@@ -256,40 +263,23 @@ public class GraphGenome {
     }
   }
 
-  /**
-   * Format node identifiers
-   *
-   * @param apiContext
-   * @param gene
-   * @param nodeCounter
-   * @param type
-   * @param seq
-   * @return
-   */
-  public static String formatNodeId(
+  /** Format node identifiers */
+  public String formatNodeId(
       String apiContext, String gene, int nodeCounter, String type, String seq) {
     return apiContext + "/" + gene + "/node" + nodeCounter + "/" + type + "/" + shorten(seq);
   }
 
-  /**
-   * Add a variant node to the graph
-   *
-   * @param builder
-   * @param nodeId
-   * @param type
-   * @param variant
-   * @param downstreamOfRef
-   * @param downstreamOfAlts
-   * @throws Exception
-   */
-  public static void addNode(
+  /** Add a variant node to the graph */
+  public void addNode(
       ModelBuilder builder,
       String nodeId,
       String type,
       GenomicVariantsResultSetsItem variant,
       String downstreamOfRef,
-      List<String> downstreamOfAlts)
+      List<String> downstreamOfAlts,
+      String value)
       throws Exception {
+    builder.add(nodeId, RDF.VALUE, value);
     if (type.equals(REFERENCE)) {
       builder.add(nodeId, RDF.TYPE, iri("http://purl.obolibrary.org/obo/NCIT_C164388"));
     } else if (type.equals(ALTERNATIVE)) {
@@ -298,29 +288,122 @@ public class GraphGenome {
       throw new Exception("Bad type: " + type);
     }
     if (downstreamOfRef != null) {
-      builder.add(nodeId, iri("http://purl.obolibrary.org/obo/RO_0002530"), iri(downstreamOfRef));
+      builder.add(nodeId, "http://purl.obolibrary.org/obo/RO_0002530", iri(downstreamOfRef));
     }
     if (downstreamOfAlts != null) {
       for (String downstreamOfAlt : downstreamOfAlts) {
-        builder.add(nodeId, iri("http://purl.obolibrary.org/obo/RO_0002530"), iri(downstreamOfAlt));
+        builder.add(nodeId, "http://purl.obolibrary.org/obo/RO_0002530", iri(downstreamOfAlt));
       }
     }
-    if (variant != null) {
-      // todo add variant properties
+    if (variant != null && type.equals(ALTERNATIVE)) {
+
+      builder.add(
+          nodeId,
+          "http://purl.obolibrary.org/obo/GENO_0000894",
+          variant.getPosition().getStart()[0]);
+      builder.add(
+          nodeId, "http://purl.obolibrary.org/obo/GENO_0000895", variant.getPosition().getEnd()[0]);
+      String variantIRI =
+          host
+              + "/"
+              + variant.getGenomicVariantsResultSetId()
+              + "/api/rdf/GenomicVariations/"
+              + variant.getVariantInternalId();
+      builder.add(nodeId, RDFS.ISDEFINEDBY, iri(variantIRI));
+      if (variant.getVariantType() != null) {
+        builder.add(
+            nodeId, "http://purl.obolibrary.org/obo/GENO_0000773", variant.getVariantType());
+      }
+      if (variant.getGenomicHGVSId() != null) {
+        builder.add(
+            nodeId, "http://purl.obolibrary.org/obo/NCIT_C172243", variant.getGenomicHGVSId());
+      }
+      if (variant.getProteinHGVSIds() != null) {
+        for (String proteinHGVSId : variant.getProteinHGVSIds()) {
+          builder.add(nodeId, "http://ensembl.org/glossary/ENSGLOSSARY_0000274", proteinHGVSId);
+        }
+      }
+      if (variant.getTranscriptHGVSIds() != null) {
+        for (String transcriptHGVSId : variant.getTranscriptHGVSIds()) {
+          builder.add(nodeId, "http://purl.obolibrary.org/obo/NCIT_C172244", transcriptHGVSId);
+        }
+      }
+
+      // todo predicate IRIs
+      int clinIntCounter = 0;
+      if (variant.getVariantLevelData() != null) {
+        for (ClinicalInterpretations ci :
+            variant.getVariantLevelData().getClinicalInterpretations()) {
+          String clinIntNode = nodeId + "/clinical_interpretation" + (clinIntCounter++);
+          builder.add(nodeId, "http://snomed.info/id/363713009", iri(clinIntNode));
+          builder.add(clinIntNode, RDF.TYPE, "http://purl.obolibrary.org/obo/NCIT_C125009");
+          if (ci.getCategory() != null) {
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/NCIT_C25372",
+                ci.getCategory().getLabel());
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/NCIT_C25372",
+                iri(ci.getCategory().getId()));
+          }
+          if (ci.getEffect() != null) {
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/NCIT_C15607",
+                ci.getEffect().getLabel());
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/NCIT_C15607",
+                iri(ci.getEffect().getId()));
+          }
+          if (ci.getClinicalRelevance() != null) {
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/HP_0045088",
+                ci.getClinicalRelevance().getLabel());
+            builder.add(
+                clinIntNode,
+                "http://purl.obolibrary.org/obo/HP_0045088",
+                iri(ci.getClinicalRelevance().getId()));
+          }
+          if (ci.getConditionId() != null) {
+            builder.add(clinIntNode, "http://edamontology.org/data_3667", ci.getConditionId());
+          }
+        }
+      }
     }
   }
 
-  /**
-   * Shorten lengthy strings of DNA
-   *
-   * @param input
-   * @return
-   */
-  public static String shorten(String input) {
+  /** Shorten lengthy strings of DNA */
+  public String shorten(String input) {
     if (input.length() > 50) {
       return input.substring(0, 25) + "..." + input.substring(input.length() - 25);
     } else {
       return input;
+    }
+  }
+
+  /** Get DNA reference from UCSC API. If that fails, return N-repeat sequence as fallback. */
+  public String getDnaFromUCSC(
+      String ucscgenome, String chromosome, Long earliestStart, Long latestEnd) {
+    String chromosomeWithChr = chromosome.startsWith("chr") ? chromosome : "chr" + chromosome;
+    try {
+      String UCSCResponseStr =
+          HTTPGet.httpGet(
+              "https://api.genome.ucsc.edu/getData/sequence?genome="
+                  + ucscgenome
+                  + ";chrom="
+                  + chromosomeWithChr
+                  + ";start="
+                  + (earliestStart - DNA_PADDING)
+                  + ";end="
+                  + (latestEnd + DNA_PADDING));
+      UCSCAPIResponse UCSCResponse =
+          new ObjectMapper().readValue(UCSCResponseStr, UCSCAPIResponse.class);
+      return UCSCResponse.getDna();
+    } catch (Exception e) {
+      return "N".repeat((int) (latestEnd - earliestStart) + (DNA_PADDING * 2));
     }
   }
 }
