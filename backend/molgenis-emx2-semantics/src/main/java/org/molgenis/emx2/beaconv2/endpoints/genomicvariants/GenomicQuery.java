@@ -148,12 +148,15 @@ public class GenomicQuery {
             new Position(
                 TypeUtils.toString(map.get("position_assemblyId")),
                 TypeUtils.toString(map.get("position_refseqId")),
-                new Long[] {TypeUtils.toLong(map.get("position_start"))},
-                new Long[] {TypeUtils.toLong(map.get("position_end")).longValue()}));
+                (map.get("position_start") != null)
+                    ? new Long[] {TypeUtils.toLong(map.get("position_start"))}
+                    : null,
+                (map.get("position_end") != null)
+                    ? new Long[] {TypeUtils.toLong(map.get("position_end"))}
+                    : null));
         VariantLevelData variantLevelData =
             new VariantLevelData(ClinicalInterpretations.get(map.get("clinicalInterpretations")));
-        if (variantLevelData != null
-            && variantLevelData.getClinicalInterpretations() != null
+        if (variantLevelData.getClinicalInterpretations() != null
             && variantLevelData.getClinicalInterpretations().length > 0) {
           genomicVariantsItem.setVariantLevelData(variantLevelData);
         }
