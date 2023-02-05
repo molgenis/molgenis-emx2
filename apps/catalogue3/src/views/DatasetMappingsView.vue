@@ -29,7 +29,7 @@
         </td>
       </tr>
       <tr>
-        <td><h6>Target dataset:&nbsp;</h6></td>
+        <td><h6>Source table:&nbsp;</h6></td>
         <td colspan="4">
           <RouterLink
             :to="{

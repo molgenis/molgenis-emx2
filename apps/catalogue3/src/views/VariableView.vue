@@ -47,7 +47,7 @@
             <p>{{ variable.description ? variable.description : "N/A" }}</p>
           </span>
           <span v-if="variable.format">
-            <h6>Variable fromat</h6>
+            <h6>Variable format</h6>
             <OntologyTerms :terms="[variable.format]" color="dark" />
           </span>
           <span v-if="variable.keywords">

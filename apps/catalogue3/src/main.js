@@ -61,6 +61,15 @@ const router = createRouter({
       component: ResourceListView,
     },
     {
+      name: "Databanks",
+      path: "/databanks",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Databanks",
+      }),
+      component: ResourceListView,
+    },
+    {
       name: "Networks",
       path: "/networks",
       props: (route) => ({
@@ -171,6 +180,16 @@ const router = createRouter({
       props: (route) => ({
         table: "Data sources",
         color: "secondary",
+        filter: { id: { equals: route.params.id } },
+      }),
+    },
+    {
+      name: "Databanks-details",
+      path: "/databanks/:id",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Databanks",
+        color: "info",
         filter: { id: { equals: route.params.id } },
       }),
     },

@@ -1,19 +1,12 @@
 <template>
-  <div
-    class="m-2 showcontainer"
-    :class="nextLineFields.includes(fieldTypeComponentName) ? '' : 'row'"
-  >
+  <div class="m-2 showcontainer row">
     <sectionFieldLabel
-      :class="
-        nextLineFields.includes(fieldTypeComponentName) ? 'float-left' : 'col-4'
-      "
+      class="col-4"
       :label="field.meta.name"
       :tooltip="field.description"
       :color="color"
     ></sectionFieldLabel>
-    <div
-      :class="nextLineFields.includes(fieldTypeComponentName) ? '' : 'col-8'"
-    >
+    <div class="col-8">
       <component
         v-if="!isEmptyValue"
         :is="fieldTypeComponentName"
@@ -63,10 +56,6 @@ export default {
     },
   },
   computed: {
-    /** fields that should have label above*/
-    nextLineFields() {
-      return ["RefBackFieldValue", "LinkedDataSourcesFieldValue"];
-    },
     fieldTypeComponentName() {
       //custom views
       if (this.field.meta.refTable === "Linked data sources") {
