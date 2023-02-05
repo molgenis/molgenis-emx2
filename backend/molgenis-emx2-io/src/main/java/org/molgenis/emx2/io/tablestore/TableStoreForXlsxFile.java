@@ -72,6 +72,12 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
+  @Override
+  public void writeTable(
+      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns) {
+    this.writeTable(name, columnNames, rows);
+  }
+
   private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
     Sheet sheet = wb.createSheet(name);
     org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);

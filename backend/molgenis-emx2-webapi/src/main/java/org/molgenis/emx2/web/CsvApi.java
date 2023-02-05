@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
+import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
@@ -89,7 +90,7 @@ public class CsvApi {
     Table table = MolgenisWebservice.getTable(request);
     List<Row> rows = table.retrieveRows();
     StringWriter writer = new StringWriter();
-    CsvTableWriter.write(rows, writer, getSeperator(request));
+    CsvTableWriter.write(rows, writer, getSeperator(request), includeSystemColumns(request));
     response.type(ACCEPT_CSV);
     response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     response.status(200);

@@ -22,13 +22,19 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    this.writeTable(name, columnNames, rows, false);
+  }
+
+  @Override
+  public void writeTable(
+      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns) {
     try {
       Writer writer = new StringWriter();
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, bufferedWriter, separator);
+        CsvTableWriter.write(rows, bufferedWriter, separator, includeSystemColumns);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));

@@ -17,6 +17,7 @@
         />
 
         <ShowHide
+          v-if="view !== View.AGGREGATE"
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
@@ -70,13 +71,17 @@
         @update:modelValue="setSearchTerms($event)"
       />
       <Pagination
+        v-if="view !== View.AGGREGATE"
         :modelValue="page"
         @update:modelValue="setPage($event)"
         :limit="limit"
         :count="count"
       />
 
-      <div class="btn-group m-0" v-if="view !== View.RECORD">
+      <div
+        class="btn-group m-0"
+        v-if="view !== View.RECORD && view !== View.AGGREGATE"
+      >
         <span class="btn">Rows per page:</span>
         <InputSelect
           id="explorer-table-page-limit-select"
@@ -120,6 +125,7 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
+          v-if="view !== View.AGGREGATE"
           :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
@@ -127,6 +133,30 @@
         <div v-if="loading">
           <Spinner />
         </div>
+
+        <div v-if="!loading && view === View.AGGREGATE">
+          <AggregateOptions
+            :columns="columns"
+            @setAggregateColumns="aggregateColumns = $event"
+            v-model:selectedColumn="aggregateSelectedColumn"
+            v-model:selectedRow="aggregateSelectedRow"
+          />
+        </div>
+
+        <AggregateTable
+          v-if="
+            !loading && view === View.AGGREGATE && aggregateColumns?.length > 0
+          "
+          :tableName="tableName"
+          :schemaName="schemaName"
+          :minimumValue="1"
+          :columnProperties="aggregateColumns"
+          :rowProperties="aggregateColumns"
+          :selectedColumnProperty="aggregateSelectedColumn"
+          columnNameProperty="name"
+          :selectedRowProperty="aggregateSelectedRow"
+          rowNameProperty="name"
+        />
         <RecordCards
           v-if="!loading && view === View.CARDS"
           class="card-columns"
@@ -292,8 +322,16 @@ import EditModal from "../forms/EditModal.vue";
 import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import AggregateTable from "./AggregateTable.vue";
+import AggregateOptions from "./AggregateOptions.vue";
 
-const View = { TABLE: "table", CARDS: "cards", RECORD: "record", EDIT: "edit" };
+const View = {
+  TABLE: "table",
+  CARDS: "cards",
+  RECORD: "record",
+  EDIT: "edit",
+  AGGREGATE: "aggregate",
+};
 
 export default {
   name: "TableExplorer",
@@ -317,6 +355,8 @@ export default {
     TableSettings,
     EditModal,
     ConfirmModal,
+    AggregateTable,
+    AggregateOptions,
   },
   data() {
     return {
@@ -341,6 +381,9 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      aggregateColumns: [],
+      aggregateSelectedColumn: "",
+      aggregateSelectedRow: "",
     };
   },
   props: {
@@ -427,6 +470,8 @@ export default {
         return "fa-list-alt";
       } else if (this.view === View.TABLE) {
         return "fa-th";
+      } else if (this.view === View.AGGREGATE) {
+        return "fa-object-group";
       } else {
         return "fa-th-list";
       }
@@ -531,6 +576,9 @@ export default {
       } else if (this.view === View.CARDS) {
         this.view = View.RECORD;
         this.limit = 1;
+      } else if (this.view === View.RECORD) {
+        this.view = View.AGGREGATE;
+        this.limit = this.showLimit;
       } else {
         this.view = View.TABLE;
         this.limit = 20;
@@ -710,6 +758,7 @@ function getCondition(columnType, condition) {
   margin-bottom: 0;
 }
 </style>
+
 <docs>
 <template>
   <div>

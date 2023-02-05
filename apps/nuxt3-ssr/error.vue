@@ -1,8 +1,16 @@
 <script setup>
-import "@/assets/css/main.css";
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 
 defineProps(['error'])
+
+const config = useRuntimeConfig()
+console.log(config.public)
+const href = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+useHead({
+  link: [
+    { rel: 'stylesheet', type: 'text/css', href }
+  ]
+});
 
 </script>
 
