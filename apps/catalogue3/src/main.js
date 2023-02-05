@@ -148,6 +148,12 @@ const router = createRouter({
       props: true,
     },
     {
+      name: "ExtendedResources-details",
+      path: "/resources/:id",
+      component: ResourceRedirectView,
+      props: true,
+    },
+    {
       name: "Organisations-details",
       path: "/organisations/:id",
       component: ResourceDetailsView,

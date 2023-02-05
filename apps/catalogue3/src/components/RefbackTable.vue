@@ -18,6 +18,7 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
+          @click="handleRowClick(row)"
         >
           <td
             v-for="col in visibleColumns.filter(
@@ -85,8 +86,9 @@
 </template>
 
 <script>
-import { Spinner, ReadMore } from "molgenis-components";
 import {
+  Spinner,
+  ReadMore,
   Client,
   convertToCamelCase,
   convertToPascalCase,
@@ -116,6 +118,17 @@ export default {
   },
   methods: {
     convertToPascalCase,
+    handleRowClick(row) {
+      //good guessing the parameters :-)
+      this.$router.push({
+        name: convertToPascalCase(this.table) + "-details",
+        params: {
+          id: row.id ? row.id : this.pkey.id,
+          resource: row.id ? row.id : this.pkey.id,
+          name: row.name,
+        },
+      });
+    },
     routeParams(column, value) {
       if (column.name === "datasets") {
         let result = {

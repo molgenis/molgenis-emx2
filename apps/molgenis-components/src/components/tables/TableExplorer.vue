@@ -429,7 +429,7 @@ export default {
     },
     filter: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     showOrderBy: {
       type: String,

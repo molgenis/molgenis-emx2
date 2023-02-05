@@ -163,12 +163,11 @@ export default {
             fromTable: row.fromTable.name,
           },
         });
-      }
-      else  if (this.tableName == "Publications") {
+      } else if (this.tableName == "Publications") {
         this.$router.push({
           name: "Publications-details",
           params: {
-            doi: row.doi
+            doi: row.doi,
           },
         });
       } else if (row.id) {

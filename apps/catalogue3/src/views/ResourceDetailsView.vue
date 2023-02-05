@@ -1,5 +1,5 @@
 <template>
-  <div class="container bg-white" id="_top" v-if="resourceData">
+  <div class="container bg-white" id="_top" v-if="resourceData" :key="filter">
     <RowButton
       v-if="canEdit"
       type="edit"
@@ -135,16 +135,24 @@ export default {
     toggleNA() {
       this.hideNA = !this.hideNA;
     },
+    async reload() {
+      this.client = Client.newClient();
+      this.reloadMetadata();
+      this.tableMetadata = await this.client.fetchTableMetaData(this.table);
+      this.resourceData = (
+        await this.client.fetchTableDataValues(this.table, {
+          filter: this.filter,
+        })
+      )[0];
+    },
+  },
+  watch: {
+    async filter() {
+      await this.reload();
+    },
   },
   async mounted() {
-    this.client = Client.newClient();
-    this.reloadMetadata();
-    this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.resourceData = (
-      await this.client.fetchTableDataValues(this.table, {
-        filter: this.filter,
-      })
-    )[0];
+    await this.reload();
   },
 };
 </script>

@@ -42,12 +42,16 @@ export default {
         const tableId = convertToPascalCase(tableName);
         const tableMetaData = deepClone(schemaMetaData).tables.find(
           (table: ITableMetaData) =>
-            table.id === tableId &&
-            table.externalSchema === schemaNameCache
+            table.id === tableId && table.externalSchema === schemaNameCache
         );
-        if(!tableMetaData) {
+        if (!tableMetaData) {
           console.log(schemaMetaData);
-          throw "Table metaddata not found for table "+schemaNameCache +"." + tableName;
+          throw (
+            "Table metaddata not found for table " +
+            schemaNameCache +
+            "." +
+            tableName
+          );
         }
         return tableMetaData;
       },
