@@ -42,7 +42,7 @@ export default {
         return deepClone(schemaMetaData).tables.find(
           (table: ITableMetaData) =>
             table.id === convertToPascalCase(tableName) &&
-            table.externalSchema === schemaName
+            table.externalSchema === schemaNameCache
         );
       },
       fetchTableData: async (tableId: string, properties: IQueryMetaData) => {
