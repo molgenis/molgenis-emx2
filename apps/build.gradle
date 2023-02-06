@@ -51,23 +51,7 @@ subprojects {
             outputs.dir('dist')
             outputs.dir('gen-docs')
             outputs.dir('showCase')
-        } else if (project.name == 'nuxt3-ssr') {
-//            inputs.file('package.json')
-//            inputs.files(fileTree('assets'))
-//            inputs.files(fileTree('components'))
-//            inputs.files(fileTree('composables'))
-//            inputs.files(fileTree('middleware'))
-//            inputs.files(fileTree('layouts'))
-//            inputs.files(fileTree('pages'))
-//            inputs.files(fileTree('static'))
-//            inputs.files(fileTree('store'))
-//            inputs.file('nuxt.config.ts')
-//            inputs.file('app.vue')
-//            inputs.file('router.options.ts')
-//            inputs.file('tailwind.config.ts')
-//            outputs.dir('.nuxt')
-//            outputs.dir('.output')
-        } else {
+        } else if (project.name != 'nuxt3-ssr') {
             inputs.file('package.json')
             inputs.files(fileTree('src'))
             inputs.files(fileTree('public'))
@@ -87,10 +71,9 @@ subprojects {
     }
 
    task buildSsr3(type: YarnTask, dependsOn: build){
-
        if(project.name == 'nuxt3-ssr'){
-           yarn_install.enabled = true;
-           inputs.file('package.json')
+            yarn_install.enabled = true;
+            inputs.file('package.json')
             inputs.files(fileTree('assets'))
             inputs.files(fileTree('components'))
             inputs.files(fileTree('composables'))
@@ -107,9 +90,8 @@ subprojects {
             outputs.dir('.output')
 
             args = ['run', 'build']
-           yarn_install.enabled = false;
+            yarn_install.enabled = false;
         }
-
    }
 
     if (project.name == 'molgenis-components') {
