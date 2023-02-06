@@ -3,14 +3,14 @@
     <MatchTypeRadiobutton
       v-if="showMatchTypeSelector"
       class="p-2"
-      :matchTypeForFilter="facetTitle"
+      :matchTypeForFilter="facetIdentifier"
     />
 
     <div class="d-flex flex-column scrollable-content">
       <CheckboxComponent
         v-for="(option, index) of checkboxOptions"
         :key="index"
-        v-model="selection"
+        v-model="filterSelection"
         :option="option"
       />
     </div>
@@ -31,11 +31,13 @@
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useFiltersStore } from '../../stores/filtersStore';
 
 export default {
   setup() {
     const settingsStore = useSettingsStore();
-    return { settingsStore };
+    const filtersStore = useFiltersStore();
+    return { settingsStore, filtersStore };
   },
   name: "CheckboxFilter",
   components: {
@@ -46,6 +48,11 @@ export default {
     facetTitle: {
       type: String,
       required: true,
+    },
+    /** a JSON friendly identifier */
+    facetIdentifier: {
+      type: String,
+      required: true
     },
     /**
      * A Promise-function that resolves with an array of options.
@@ -96,7 +103,7 @@ export default {
       return this.settingsStore.uiText;
     },
     selectAllText() {
-      if (this.selection && this.selection.length > 0) {
+      if (this.filterSelection && this.filterSelection.length > 0) {
         return this.uiText["deselect_all"];
       } else {
         return this.uiText["select_all"];
@@ -111,13 +118,22 @@ export default {
         return this.resolvedOptions;
       }
     },
+    filterSelection: {
+      get() {
+        return this.filtersStore.getFilterValue(this.facetIdentifier) || [];
+      },
+      set(value) {
+        this.filtersStore.updateFilter(this.facetIdentifier, value);
+      },
+    },
   },
   methods: {
     toggleSelect() {
-      if (this.selection && this.selection.length > 0) {
-        this.selection = [];
+
+      if (this.filterSelection && this.filterSelection.length > 0) {
+        this.filterSelection = [];
       } else {
-        this.selection = this.checkboxOptions;
+        this.filterSelection = this.checkboxOptions;
       }
     },
   },

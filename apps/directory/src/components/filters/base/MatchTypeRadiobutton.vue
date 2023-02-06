@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { useFiltersStore } from '../../../stores/filtersStore';
+import { useFiltersStore } from "../../../stores/filtersStore";
 import { useSettingsStore } from "../../../stores/settingsStore";
 export default {
   setup() {
@@ -37,7 +37,7 @@ export default {
   props: {
     matchTypeForFilter: {
       type: String,
-      required: true
+      required: true,
     },
     option1: {
       type: String,
@@ -62,7 +62,9 @@ export default {
     },
     matchType: {
       get() {
-        return this.filtersStore.getFilterType(this.matchTypeForFilter) || "any";
+        return (
+          this.filtersStore.getFilterType(this.matchTypeForFilter) || "any"
+        );
       },
       set(value) {
         this.filtersStore.updateFilterType(this.matchTypeForFilter, value);

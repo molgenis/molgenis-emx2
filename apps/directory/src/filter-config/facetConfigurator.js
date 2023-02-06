@@ -26,6 +26,7 @@ export function createFilters (filters) {
     filterFacets.push(
       {
         facetTitle: facet.facetTitle || facet.applyToColumn, /** a custom 'human readable' text for on the button */
+        facetIdentifier: facet.facetTitle ? facet.facetTitle.replaceAll(" ", "") : facet.applyToColumn,
         component: facet.component || 'CheckboxFilter', /** a custom specified component, or just the default */
         sourceTable: facet.sourceTable, /** the table where the options are coming from. */
         applyToColumn: facet.applyToColumn, /** the column in the main table to apply the filter on. */

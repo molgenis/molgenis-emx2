@@ -181,15 +181,35 @@ class QueryEMX2 {
    * @param {string} nestedColumn
    * @returns
    */
-  filter (propertyToFilter, column) {
-    this.branch = this._toCamelCase(propertyToFilter);
-    this.column = this._toCamelCase(column);
+  filter (column) {
+    this.type = "_and"
+    const firstDot = column.indexOf(".")
+    this.branch = this._toCamelCase(column.substring(0, firstDot));
+    this.column = this._toCamelCase(column.substring(firstDot + 1));
+
+    return this;
+  }
+
+  /**
+   * Works as orwhere, but then for nested properties
+   * @param {string} column
+   * @param {string} nestedColumn
+   * @returns
+   */
+  subfilter (column) {
+    const firstDot = column.indexOf(".")
+    const subcolumn = column.substring(firstDot + 1)
+    let secondDot = subcolumn.indexOf(".")
+
+    this.type = "_or"
+    this.branch = this._toCamelCase(subcolumn.substring(0, secondDot));
+    this.column = this._toCamelCase(subcolumn.substring(secondDot + 1));
 
     return this;
   }
   /** Resets all filters, useful for when you want to add filters dynamically */
   resetAllFilters () {
-    this.filters = {};
+    this.filters = {}
     this.findInAllColumns = "";
     this.page = {};
     return this;
@@ -428,7 +448,6 @@ ${root}${rootModifier} {\n`;
 
     let andFilters = this._foldFilters(filters._and, property, "_and")
     let orFilters = this._foldFilters(filters._or, property, "_or")
-
     let filterString = andFilters
 
     if (filterString.length > 0 && orFilters.length > 0) {
@@ -493,6 +512,7 @@ ${root}${rootModifier} {\n`;
       this.filters[this.branch][queryType][applyQueryTo] = queryType === "_or" ? [] : {}
     }
 
+    // TODO we have to check if there is already a filter in this slot! Else it will be overridden.
     let filterRef = this.filters[this.branch][queryType][applyQueryTo]
 
     /** make the query directly */

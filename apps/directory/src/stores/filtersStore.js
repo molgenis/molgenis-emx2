@@ -14,7 +14,13 @@ export const useFiltersStore = defineStore('filtersStore', () => {
     let filters = ref({})
     let filterType = ref({})
     let filterOptionsCache = ref({})
-    const filterFacets = createFilters(filters)
+    let filterFacets = createFilters(filters)
+    const facetDetails = {}
+
+    /** extract the components types so we can use that in adding the correct query parts */
+    filterFacets.forEach(filterFacet => {
+        facetDetails[filterFacet.facetIdentifier] = { ...filterFacet }
+    })
 
     function resetFilters () {
         this.baseQuery.resetFilters();
@@ -38,12 +44,31 @@ export const useFiltersStore = defineStore('filtersStore', () => {
             queryDelay = setTimeout(async () => {
                 clearTimeout(queryDelay);
 
-                applyFiltersToQuery(baseQuery, filters)
+                applyFiltersToQuery(baseQuery, filters, facetDetails, filterType)
                 await updateBiobankCards()
 
             }, 750);
         },
-        { deep: true }
+        { deep: true },
+    )
+
+    watch(
+        filterType,
+        (filterType) => {
+            if (queryDelay) {
+                clearTimeout(queryDelay);
+            }
+            /** reset pagination */
+            settingsStore.currentPage = 1
+
+            queryDelay = setTimeout(async () => {
+                clearTimeout(queryDelay);
+                applyFiltersToQuery(baseQuery, filters.value, facetDetails, filterType)
+                await updateBiobankCards()
+
+            }, 750);
+        },
+        { deep: true, immediat: true },
     )
 
     function updateFilter (filterName, value) {

@@ -257,7 +257,7 @@ Biobanks {
     const query = new QueryEMX2('graphql')
       .table('Biobanks')
       .select(['id', 'name', { collections: ['id', 'name'] }])
-      .filter('Collections', 'Name').like('cardiovascular')
+      .filter('Collections.Name').like('cardiovascular')
       .getQuery()
 
     expect(query).toStrictEqual(`{

@@ -12,7 +12,7 @@ export const initialFilterFacets = [
   {
     facetTitle: 'Countries',
     component: 'CheckboxFilter',
-    sourceTable: 'Countries' ,
+    sourceTable: 'Countries',
     applyToColumn: 'country.name',
     filterValueAttribute: 'name',
     filterLabelAttribute: 'label',
@@ -27,7 +27,7 @@ export const initialFilterFacets = [
   {
     facetTitle: 'Collection type',
     component: 'CheckboxFilter',
-    sourceTable: 'CollectionTypes' ,
+    sourceTable: 'CollectionTypes',
     applyToColumn: 'collections.collectionType.name',
     filterValueAttribute: 'name',
     filterLabelAttribute: 'label',
@@ -42,7 +42,7 @@ export const initialFilterFacets = [
   {
     facetTitle: 'Categories',
     component: 'CheckboxFilter',
-    sourceTable: 'Categories' ,
+    sourceTable: 'Categories',
     applyToColumn: 'collections.categories.name',
     filterValueAttribute: 'name',
     filterLabelAttribute: 'label',
@@ -106,10 +106,10 @@ export const initialFilterFacets = [
   //   removeOptions: ['other'],
   //   showFacet: false
   // },
-  // {
-  //   name: 'search',
-  //   label: 'Search',
-  //   humanReadableString: 'Text search is',
-  //   builtIn: true /** search should not be generated */
-  // }
+  {
+    facetTitle: 'search',
+    component: "StringFilter",
+    humanReadableString: 'Text search is',
+    builtIn: true /** search should not be generated */
+  }
 ]

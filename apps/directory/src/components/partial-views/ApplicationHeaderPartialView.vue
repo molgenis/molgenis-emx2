@@ -12,9 +12,9 @@
       <!-- @shown="calculateOptions(filter)"
         @hidden="setInactive(filter)" -->
       <ButtonDropdown
-        :id="filter.facetTitle"
-        v-for="filter in filtersStore.filterFacets"
-        :key="filter.facetTitle"
+        :id="filter.facetIdentifier"
+        v-for="filter in filtersToRender"
+        :key="filter.facetIdentifier"
         :button-text="filter.facetTitle"
       >
         <!-- v-if="filterLoading !== filter.name"
@@ -101,6 +101,13 @@ export default {
     SearchFilter,
     ButtonDropdown,
     CheckboxFilter,
+  },
+  computed: {
+    filtersToRender() {
+      return this.filtersStore.filterFacets.filter(
+        (filterFacet) => !filterFacet.builtIn
+      );
+    },
   },
 };
 </script>
