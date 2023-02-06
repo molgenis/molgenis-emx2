@@ -1255,7 +1255,7 @@ public class SqlQuery extends QueryBean {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
             query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(convertToCamelCase(ref.getName()))).asc());
           }
         } else {
           query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).asc());
@@ -1264,7 +1264,7 @@ public class SqlQuery extends QueryBean {
         if (column.isReference()) {
           for (Reference ref : column.getReferences()) {
             query =
-                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(ref.getName())).asc());
+                (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(convertToCamelCase(ref.getName()))).asc());
           }
         } else {
           query = (SelectJoinStep<org.jooq.Record>) query.orderBy(field(name(col.getKey())).desc());
