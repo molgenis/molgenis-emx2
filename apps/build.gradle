@@ -31,7 +31,9 @@ subprojects {
     nodeSetup.dependsOn parent.nodeSetup
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'format']
+        if (project.name != 'nuxt3-ssr') {
+            args = ['run', 'format']
+        }
     }
 
    task build(type: YarnTask, dependsOn: format) {

@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "format": "whoami",
+    "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
     "tailwind": "tailwindcss -c ./tailwind.config.cjs -i ./public/css/main.css -o ./public/css/styles.css --watch",
     "gen-themes": "node gen-themes.js"
   },
