@@ -12,9 +12,16 @@ public class RetrieveRefSeq {
 
   /** Get DNA reference from UCSC API. If that fails, return N-repeat sequence as fallback. */
   public static String getDnaFromUCSC(
-      String ucscgenome, String chromosome, Long earliestStart, Long latestEnd) {
-    String chromosomeWithChr = chromosome.startsWith("chr") ? chromosome : "chr" + chromosome;
+      String ucscgenome,
+      String chromosome,
+      Long earliestStart,
+      Long latestEnd,
+      boolean offlineMode) {
+    if (offlineMode) {
+      return offlineDefaultSequence(earliestStart, latestEnd);
+    }
     try {
+      String chromosomeWithChr = chromosome.startsWith("chr") ? chromosome : "chr" + chromosome;
       String UCSCResponseStr =
           RetrieveRefSeq.httpGet(
               "https://api.genome.ucsc.edu/getData/sequence?genome="
@@ -29,8 +36,13 @@ public class RetrieveRefSeq {
           new ObjectMapper().readValue(UCSCResponseStr, UCSCAPIResponse.class);
       return UCSCResponse.getDna();
     } catch (Exception e) {
-      return "N".repeat((int) (latestEnd - earliestStart) + (DNA_PADDING * 2));
+      return offlineDefaultSequence(earliestStart, latestEnd);
     }
+  }
+
+  /** Print sequence of N bases (="any DNA base") to replace reference DNA when offline */
+  public static String offlineDefaultSequence(Long earliestStart, Long latestEnd) {
+    return "N".repeat((int) (latestEnd - earliestStart) + (DNA_PADDING * 2));
   }
 
   /**

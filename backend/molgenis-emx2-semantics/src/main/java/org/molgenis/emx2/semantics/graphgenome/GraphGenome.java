@@ -31,7 +31,8 @@ public class GraphGenome {
       Request request,
       Response response,
       String graphGenomeApiLocation,
-      List<Table> tables) {
+      List<Table> tables,
+      boolean offlineMode) {
     try {
       String gene = request.queryParams("gene");
       String assembly = request.queryParams("assembly");
@@ -104,7 +105,7 @@ public class GraphGenome {
       }
 
       // get reference genome sequence from UCSC API
-      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestEnd);
+      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestEnd, offlineMode);
 
       // sort variants for lineair iteration
       sortedVariants.sort(new SortByPosition());
@@ -261,5 +262,15 @@ public class GraphGenome {
     } catch (Exception e) {
       throw new MolgenisException("Graph genome export failed due to an exception", e);
     }
+  }
+
+  /** Overload with default FALSE for offline mode */
+  public void graphGenomeAsRDF(
+      OutputStream outputStream,
+      Request request,
+      Response response,
+      String graphGenomeApiLocation,
+      List<Table> tables) {
+    this.graphGenomeAsRDF(outputStream, request, response, graphGenomeApiLocation, tables, false);
   }
 }
