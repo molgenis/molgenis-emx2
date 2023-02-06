@@ -22,6 +22,12 @@ public class TableStoreForCsvFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    this.writeTable(name, columnNames, rows, false);
+  }
+
+  @Override
+  public void writeTable(
+      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns) {
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
       if (rows.iterator().hasNext()) {

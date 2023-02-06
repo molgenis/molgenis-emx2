@@ -20,6 +20,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -769,5 +771,64 @@ public class WebApiSmokeTests {
         .statusCode(400)
         .when()
         .get("http://localhost:8080/api/fdp/distribution/pet store/Category/ttl");
+  }
+
+  @Test
+  public void downloadCsvTable() {
+    Response response = downloadPet("/pet store/api/csv/Pet");
+    assertTrue(
+        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
+    assertFalse(response.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  public void downloadCsvTableWithSystemColumns() {
+    Response response = downloadPet("/pet store/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    assertTrue(response.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  public void downloadExelTable() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
+    assertEquals("pooky,cat,,available,,9.4", rows.get(1));
+  }
+
+  @Test
+  public void downloadExelTableWithSystemColumns() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertTrue(rows.get(0).contains("mg_"));
+  }
+
+  @Test
+  public void downloadZipTable() throws IOException, InterruptedException {
+    File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(result.contains("pooky,cat,,available,,9.4"));
+  }
+
+  @Test
+  public void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
+    File file =
+        TestUtils.responseToFile(
+            downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("mg_"));
+  }
+
+  private Response downloadPet(String requestString) {
+    return given()
+        .sessionId(SESSION_ID)
+        .accept(ACCEPT_EXCEL)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get(requestString);
   }
 }

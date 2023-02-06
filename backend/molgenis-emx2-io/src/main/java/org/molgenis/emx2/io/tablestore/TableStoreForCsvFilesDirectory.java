@@ -32,6 +32,12 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    this.writeTable(name, columnNames, rows, false);
+  }
+
+  @Override
+  public void writeTable(
+      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);

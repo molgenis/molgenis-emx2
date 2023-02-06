@@ -1,6 +1,7 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.Constants.TABLE;
+import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.getTable;
 import static spark.Spark.get;
@@ -53,13 +54,13 @@ public class ZipApi {
   }
 
   static String getZip(Request request, Response response) throws IOException {
-
+    boolean includeSystemColumns = includeSystemColumns(request);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Schema schema = getSchema(request);
       Path zipFile = tempDir.resolve("download.zip");
-      MolgenisIO.toZipFile(zipFile, schema);
+      MolgenisIO.toZipFile(zipFile, schema, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(
@@ -120,12 +121,13 @@ public class ZipApi {
 
   static String getZipTable(Request request, Response response) throws IOException {
     Table table = getTable(request);
+    boolean includeSystemColumns = includeSystemColumns(request);
     if (table == null) throw new MolgenisException("Table " + request.params(TABLE) + " unknown");
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
     try (OutputStream outputStream = response.raw().getOutputStream()) {
       Path zipFile = tempDir.resolve("download.zip");
-      MolgenisIO.toZipFile(zipFile, table);
+      MolgenisIO.toZipFile(zipFile, table, includeSystemColumns);
       outputStream.write(Files.readAllBytes(zipFile));
       response.type("application/zip");
       response.header(

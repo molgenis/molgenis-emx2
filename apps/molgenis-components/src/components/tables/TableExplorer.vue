@@ -50,16 +50,22 @@
             </div>
           </form>
         </ButtonDropdown>
-
         <span>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            @click="toggleView"
+          <ButtonDropdown
+            :closeOnClick="true"
+            :label="ViewButtons[view].label"
+            :icon="ViewButtons[view].icon"
           >
-            view
-            <span class="fas fa-fw" :class="viewIcon"></span>
-          </button>
+            <div
+              v-for="button in ViewButtons"
+              class="dropdown-item"
+              @click="setView(button)"
+              role="button"
+            >
+              <i class="fas fa-fw" :class="'fa-' + button.icon" />
+              {{ button.label }}
+            </div>
+          </ButtonDropdown>
         </span>
       </div>
       <!-- end first btn group -->
@@ -133,121 +139,131 @@
         <div v-if="loading">
           <Spinner />
         </div>
-
-        <div v-if="!loading && view === View.AGGREGATE">
-          <AggregateOptions
+        <div v-if="!loading">
+          <div v-if="view === View.AGGREGATE">
+            <div v-if="aggregateColumns?.length > 0">
+              <AggregateOptions
+                :columns="columns"
+                @setAggregateColumns="aggregateColumns = $event"
+                v-model:selectedColumn="aggregateSelectedColumn"
+                v-model:selectedRow="aggregateSelectedRow"
+              />
+              <AggregateTable
+                :tableName="tableName"
+                :schemaName="schemaName"
+                :minimumValue="1"
+                :columnProperties="aggregateColumns"
+                :rowProperties="aggregateColumns"
+                :selectedColumnProperty="aggregateSelectedColumn"
+                columnNameProperty="name"
+                :selectedRowProperty="aggregateSelectedRow"
+                rowNameProperty="name"
+              />
+            </div>
+            <div v-else class="alert">
+              Not enough input to create an aggregate table
+            </div>
+          </div>
+          <RecordCards
+            v-if="view === View.CARDS"
+            class="card-columns"
+            id="cards"
+            :data="dataRows"
             :columns="columns"
-            @setAggregateColumns="aggregateColumns = $event"
-            v-model:selectedColumn="aggregateSelectedColumn"
-            v-model:selectedRow="aggregateSelectedRow"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="cardTemplate"
+            @click="$emit('click', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
           />
+          <RecordCards
+            v-if="view === View.RECORD"
+            id="records"
+            :data="dataRows"
+            :columns="columns"
+            :table-name="tableName"
+            :canEdit="canEdit"
+            :template="recordTemplate"
+            @click="$emit('click', $event)"
+            @reload="reload"
+            @edit="
+              handleRowAction('edit', getPrimaryKey($event, tableMetadata))
+            "
+            @delete="
+              handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))
+            "
+          />
+          <TableMolgenis
+            v-if="view == View.TABLE"
+            :selection="selectedItems"
+            @update:selection="selectedItems = $event"
+            :columns="columns"
+            @update:colums="columns = $event"
+            :table-metadata="tableMetadata"
+            :data="dataRows"
+            :showSelect="showSelect"
+            @column-click="onColumnClick"
+            @click="$emit('click', $event)"
+          >
+            <template v-slot:header>
+              <label>{{ count }} records found</label>
+            </template>
+            <template v-slot:rowcolheader>
+              <RowButton
+                v-if="canEdit"
+                type="add"
+                :table="tableName"
+                :schemaName="schemaName"
+                @add="handleRowAction('add')"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:colheader="slotProps">
+              <IconAction
+                v-if="slotProps.col && orderByColumn === slotProps.col.id"
+                :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
+                class="d-inline p-0"
+              />
+            </template>
+            <template v-slot:rowheader="slotProps">
+              <RowButton
+                v-if="canEdit"
+                type="edit"
+                @edit="
+                  handleRowAction(
+                    'edit',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="clone"
+                @clone="
+                  handleRowAction(
+                    'clone',
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+              <RowButton
+                v-if="canEdit"
+                type="delete"
+                @delete="
+                  handleDeleteRowRequest(
+                    getPrimaryKey(slotProps.row, tableMetadata)
+                  )
+                "
+              />
+            </template>
+          </TableMolgenis>
         </div>
-
-        <AggregateTable
-          v-if="
-            !loading && view === View.AGGREGATE && aggregateColumns?.length > 0
-          "
-          :tableName="tableName"
-          :schemaName="schemaName"
-          :minimumValue="1"
-          :columnProperties="aggregateColumns"
-          :rowProperties="aggregateColumns"
-          :selectedColumnProperty="aggregateSelectedColumn"
-          columnNameProperty="name"
-          :selectedRowProperty="aggregateSelectedRow"
-          rowNameProperty="name"
-        />
-        <RecordCards
-          v-if="!loading && view === View.CARDS"
-          class="card-columns"
-          id="cards"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="cardTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <RecordCards
-          v-if="!loading && view === View.RECORD"
-          id="records"
-          :data="dataRows"
-          :columns="columns"
-          :table-name="tableName"
-          :canEdit="canEdit"
-          :template="recordTemplate"
-          @click="$emit('click', $event)"
-          @reload="reload"
-          @edit="handleRowAction('edit', getPrimaryKey($event, tableMetadata))"
-          @delete="handleDeleteRowRequest(getPrimaryKey($event, tableMetadata))"
-        />
-        <TableMolgenis
-          v-if="!loading && view == View.TABLE"
-          :selection="selectedItems"
-          @update:selection="selectedItems = $event"
-          :columns="columns"
-          @update:colums="columns = $event"
-          :table-metadata="tableMetadata"
-          :data="dataRows"
-          :showSelect="showSelect"
-          @column-click="onColumnClick"
-          @click="$emit('click', $event)"
-        >
-          <template v-slot:header>
-            <label>{{ count }} records found</label>
-          </template>
-          <template v-slot:rowcolheader>
-            <RowButton
-              v-if="canEdit"
-              type="add"
-              :table="tableName"
-              :schemaName="schemaName"
-              @add="handleRowAction('add')"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:colheader="slotProps">
-            <IconAction
-              v-if="slotProps.col && orderByColumn === slotProps.col.id"
-              :icon="order === 'ASC' ? 'sort-alpha-down' : 'sort-alpha-up'"
-              class="d-inline p-0"
-            />
-          </template>
-          <template v-slot:rowheader="slotProps">
-            <RowButton
-              v-if="canEdit"
-              type="edit"
-              @edit="
-                handleRowAction(
-                  'edit',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="clone"
-              @clone="
-                handleRowAction(
-                  'clone',
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-            <RowButton
-              v-if="canEdit"
-              type="delete"
-              @delete="
-                handleDeleteRowRequest(
-                  getPrimaryKey(slotProps.row, tableMetadata)
-                )
-              "
-            />
-          </template>
-        </TableMolgenis>
       </div>
     </div>
 
@@ -329,8 +345,23 @@ const View = {
   TABLE: "table",
   CARDS: "cards",
   RECORD: "record",
-  EDIT: "edit",
   AGGREGATE: "aggregate",
+};
+
+const ViewButtons = {
+  table: { id: View.TABLE, label: "Table", icon: "th" },
+  cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
+  record: {
+    id: View.RECORD,
+    label: "Record",
+    icon: "th-list",
+    limitOverride: 1,
+  },
+  aggregate: {
+    id: View.AGGREGATE,
+    label: "Aggregate",
+    icon: "object-group",
+  },
 };
 
 export default {
@@ -461,16 +492,8 @@ export default {
     View() {
       return View;
     },
-    viewIcon() {
-      if (this.view === View.CARDS) {
-        return "fa-list-alt";
-      } else if (this.view === View.TABLE) {
-        return "fa-th";
-      } else if (this.view === View.AGGREGATE) {
-        return "fa-object-group";
-      } else {
-        return "fa-th-list";
-      }
+    ViewButtons() {
+      return ViewButtons;
     },
     countFilters() {
       return this.columns
@@ -478,53 +501,10 @@ export default {
         : null;
     },
     graphqlFilter() {
-      let filter = {};
-      if (this.columns) {
-        this.columns.forEach((col) => {
-          const conditions = col.conditions
-            ? col.conditions.filter(
-                (condition) => condition !== "" && condition !== undefined
-              )
-            : [];
-          if (conditions.length) {
-            if (
-              col.columnType.startsWith("STRING") ||
-              col.columnType.startsWith("TEXT")
-            ) {
-              filter[col.id] = { like: conditions };
-            } else if (col.columnType.startsWith("BOOL")) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              col.columnType.startsWith("REF") ||
-              col.columnType.startsWith("ONTOLOGY")
-            ) {
-              filter[col.id] = { equals: conditions };
-            } else if (
-              [
-                "LONG",
-                "LONG_ARRAY",
-                "DECIMAL",
-                "DECIMAL_ARRAY",
-                "INT",
-                "INT_ARRAY",
-                "DATE",
-                "DATE_ARRAY",
-              ].includes(col.columnType)
-            ) {
-              filter[col.id] = {
-                between: conditions.flat(),
-              };
-            } else {
-              const msg =
-                "filter unsupported for column type '" +
-                col.columnType +
-                "' (please report a bug)";
-              this.graphqlError = msg;
-            }
-          }
-        });
-      }
-      return filter;
+      const errorCallback = (msg) => {
+        this.graphqlError = msg;
+      };
+      return graphqlFilter(this.columns, errorCallback);
     },
   },
   methods: {
@@ -565,22 +545,15 @@ export default {
         this.reload();
       }
     },
-    toggleView() {
-      if (this.view === View.TABLE) {
-        this.view = View.CARDS;
-        this.limit = this.showLimit;
-      } else if (this.view === View.CARDS) {
-        this.view = View.RECORD;
-        this.limit = 1;
-      } else if (this.view === View.RECORD) {
-        this.view = View.AGGREGATE;
-        this.limit = this.showLimit;
+    setView(button) {
+      this.view = button.id;
+      if (button.limitOverride) {
+        this.limit = button.limitOverride;
       } else {
-        this.view = View.TABLE;
-        this.limit = 20;
+        this.limit = this.showLimit;
       }
       this.page = 1;
-      this.$emit("updateShowView", this.view, this.limit);
+      this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
     onColumnClick(column) {
@@ -705,14 +678,17 @@ export default {
     "updateConditions",
     "updateShowColumns",
     "updateShowOrder",
+    "updateShowView",
     "searchTerms",
   ],
 };
+
 function getColumnNames(columns, property) {
   return columns
     .filter((column) => column[property] && column.columnType !== "HEADING")
     .map((column) => column.name);
 }
+
 function getCondition(columnType, condition) {
   if (condition) {
     switch (columnType) {
@@ -735,7 +711,56 @@ function getCondition(columnType, condition) {
     return [];
   }
 }
+
+function graphqlFilter(columns, errorCallback) {
+  let filter = {};
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DECIMAL",
+            "DECIMAL_ARRAY",
+            "INT",
+            "INT_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
+}
 </script>
+
 <style scoped>
 /* fix style for use of dropdown btns in within button-group, needed as dropdown component add span due `to` single route element constraint */
 .btn-group >>> span:not(:first-child) .btn {

@@ -4,6 +4,16 @@ defineProps<{
   description?: string;
   partners: IPartner[];
 }>();
+const linkToWebsite = (partner: IPartner) => {
+  if (partner?.institution?.website) {
+    const url = partner?.institution?.website;
+    const protocolCheck = new RegExp("^https?:\/\/");
+    if (!protocolCheck.test(url)) return `https://${url}`;
+    else return url;
+  } else {
+    return undefined;
+  }
+};
 </script>
 
 <template>
@@ -14,8 +24,8 @@ defineProps<{
         :imageUrl="partner?.institution?.logo?.url"
         :title="partner?.institution?.name"
         :description="partner?.institution?.description"
-        url="#"
-        :links="[{ title: 'Read more', url: '#' }]"
+        :url="linkToWebsite(partner)"
+        :links="[{ title: 'Read more', url: linkToWebsite(partner) }]"
       />
     </ReferenceCardList>
   </ContentBlock>
