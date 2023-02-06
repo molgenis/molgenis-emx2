@@ -32,7 +32,7 @@ Resources,,description,text,,,,,,,,,Short description of this resource
 Datasources,,type,ontology_array,,,CatalogueOntologies,DatasourceTypes,,,,,Select one or multiple datasource types
 Resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Cohorts,Resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
-Cohorts,,contactEmail,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
+Cohorts,,contactEmail,,,,,,,,,,Contact e-mail address for this cohort
 Resources,,contributors,refback,,,,Contributions,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Resources,,externalIdentifiers,,,,,,,,,,"External identifier for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ontology_array,,,CatalogueOntologies,ResourceTypes,,,,,"Type of resource, e.g. registry, cohort, biobank"
