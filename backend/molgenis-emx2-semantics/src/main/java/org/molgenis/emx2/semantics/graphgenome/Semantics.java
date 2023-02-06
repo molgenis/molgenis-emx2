@@ -134,7 +134,7 @@ public class Semantics {
             builder.add(
                 clinIntNode,
                 "http://purl.obolibrary.org/obo/NCIT_C25372",
-                iri(ci.getCategory().getId()));
+                iri(ci.getCategory().getURI()));
           }
           if (ci.getEffect() != null) {
             builder.add(
@@ -144,7 +144,7 @@ public class Semantics {
             builder.add(
                 clinIntNode,
                 "http://purl.obolibrary.org/obo/NCIT_C15607",
-                iri(ci.getEffect().getId()));
+                iri(ci.getEffect().getURI()));
           }
           if (ci.getClinicalRelevance() != null) {
             builder.add(
@@ -154,7 +154,7 @@ public class Semantics {
             builder.add(
                 clinIntNode,
                 "http://purl.obolibrary.org/obo/HP_0045088",
-                iri(ci.getClinicalRelevance().getId()));
+                iri(ci.getClinicalRelevance().getURI()));
           }
           if (ci.getConditionId() != null) {
             builder.add(clinIntNode, "http://edamontology.org/data_3667", ci.getConditionId());
