@@ -89,7 +89,7 @@ const query = computed(() => {
   `;
 });
 
-const orderby = { name: "ASC" };
+const orderby = { acronym: "ASC" };
 
 function buildFilterVariables() {
   const filtersVariables = filters.reduce<
