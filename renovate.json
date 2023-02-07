@@ -40,6 +40,12 @@
       "matchPackagePrefixes": [
         "org.graalvm.js"
       ]
+    },
+    {
+      "groupName": "org.apache.poi",
+      "matchPackagePrefixes": [
+        "org.apache.poi"
+      ]
     }
   ]
 }
