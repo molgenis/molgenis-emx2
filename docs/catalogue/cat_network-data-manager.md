@@ -34,7 +34,7 @@ columns. A column with an asterisk (\*) after its name is mandatory, i.e., it sh
 accept a data upload. You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary_testCDM.xlsx)
 as a reference for filling out the template. Note that there is no sheet for *AllVariables*. This table is a generic listing of all
-variables entered for the cohort; it shows *Variables* and *RepeatedVariables* in one table.
+variables entered for the cohort; it shows *Variables* and *Repeated variables* in one table.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
 upload the metadata to the Data Catalogue see the section To upload the metadata to the Data Catalogue see the
@@ -45,13 +45,25 @@ section [Upload metadata](cat_network-data-manager.md#upload-metadata) to the Da
 <sup>Figure 1. Tables in a Network’s staging area in the Data Catalogue.</sup>
 
 
+### Fill out network rich metadata
+
+Open your staging area, navigate to 'Tables' and open the table 'Networks'. Your network id and name are already 
+filled out. Click on the pencil sign next to this entry to start editing your network rich metadata by filling out 
+the form. The network's common data model should also be filled out in the same manner under 'Models'.'Subcohorts' 
+and 'Collection events' are filled out through the same route, by accessing the corresponding tables. Make sure to 
+choose the right <b>model</b> id under resource when defining your 'Subcohorts' and 'Collection events', e.g. LongITools
+should select LongITools_CDM.
+
+
+### Define the common data model
+
 #### *Datasets* sheet
 
-The cohort tables are defined in the *Datasets* sheet. Columns with an asterisk (\*) after their name are mandatory.
+The network's datasets are defined in the *Datasets* sheet. Columns with an asterisk (\*) after their name are mandatory.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the model. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
+| resource \* | Id of the <b>model</b>. | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
 | name \* | Unique dataset name | |
 | label | Dataset label | |
 | description | Dataset description | |
@@ -60,11 +72,11 @@ The cohort tables are defined in the *Datasets* sheet. Columns with an asterisk 
 
 #### *Variables* sheet
 
-The cohort variables are defined in the *Variables* sheet.
+The network's variables are defined in the *Variables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the model that contains this variable | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
+| resource \* | Id of the <b>model</b> that contains this variable | e.g LifeCycle_CDM, LongITools_CDM or ATHLETE_CDM |
 | dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
@@ -90,7 +102,7 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the model that contains this variable | e.g LifeCycle_CDM |
+| resource \* | Id of the <b>model</b> that contains this variable | e.g LifeCycle_CDM |
 | variable.dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
 | variable.name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
@@ -104,7 +116,7 @@ insightful for those that are interested.
 
 <sup>Table 3. Description of the columns that can be filled out for Variable values. * = mandatory</sup>
 
-#### *RepeatedTargetVariables* sheet
+#### *Repeated variables* sheet
 
 The *Repeated variables* sheet is optional. Variables that are repeats of a variable defined in the sheet *Variables* 
 are defined in the *Repeated variables* sheet. Defining your repeated variables using this sheet
@@ -113,7 +125,7 @@ optional.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the model that contains this variable | e.g LifeCycle_CDM or ATHLETE_CDM |
+| resource \* | Id of the <b>model</b> that contains this variable | e.g LifeCycle_CDM or ATHLETE_CDM |
 | dataset \* | Dataset name | e.g. core |
 | name \* | Variable name | e.g. height\_1 |
 | is repeat of.table \* | Dataset that contains the variable that is repeated | Datasets must be predefined in the _Datasets_ sheet; e.g. core |
