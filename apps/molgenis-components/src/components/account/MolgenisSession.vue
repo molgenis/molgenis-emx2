@@ -154,7 +154,9 @@ export default defineComponent({
       if (schemaSettings && schemaSettings._session) {
         this.session = schemaSettings._session;
       } else {
-        this.session = {};
+        this.session = {
+          settings: {},
+        };
       }
       //convert settings to object
       if (dbSettings && dbSettings._settings) {
