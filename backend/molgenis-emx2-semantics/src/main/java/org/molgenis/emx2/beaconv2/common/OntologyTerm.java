@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class OntologyTerm {
   private String id;
   private String label;
-  @JsonIgnore private String URI;
+
+  // no getter because JSON will pick it up again, instead public...
+  @JsonIgnore public String URI;
 
   public OntologyTerm(String id, String label, String URI) {
     this.id = id;
@@ -32,10 +34,6 @@ public class OntologyTerm {
 
   public String getLabel() {
     return label;
-  }
-
-  public String getURI() {
-    return URI;
   }
 
   public void setURI(String URI) {
