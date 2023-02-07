@@ -21,7 +21,6 @@ import spark.Response;
 public class GraphGenomeTest {
 
   static Database database;
-  // static Schema fairDataHubSchemas;
   static List<Table> genomicVariationsTables;
   static final String GRAPH_GENOME_API_LOCATION = "/api/graphgenome";
 
