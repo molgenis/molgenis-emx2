@@ -10,8 +10,10 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "nuxt3-ssr",
     "molgenis-components",
     "helloworld",
     "reports"
-  ]
+   ]
 }
+
