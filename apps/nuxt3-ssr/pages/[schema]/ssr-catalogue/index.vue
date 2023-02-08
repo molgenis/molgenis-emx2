@@ -89,7 +89,7 @@ const query = computed(() => {
   `;
 });
 
-const orderby = { name: "ASC" };
+const orderby = { acronym: "ASC" };
 
 function buildFilterVariables() {
   const filtersVariables = filters.reduce<
@@ -155,6 +155,21 @@ watch(filters, () => {
 });
 
 let activeName = ref("detailed");
+
+const NOTICE_SETTING_KEY = "CATALOGUE_NOTICE";
+const underConstructionNotice = ref();
+
+fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
+  const setting = resp.data["_settings"].find(
+    (setting: { key: string; value: string }) => {
+      return setting.key === NOTICE_SETTING_KEY;
+    }
+  );
+
+  if (setting) {
+    underConstructionNotice.value = setting.value;
+  }
+});
 </script>
 
 <template>
@@ -172,6 +187,14 @@ let activeName = ref("detailed");
             icon="image-link"
           >
             <template #suffix>
+              <div
+                v-if="underConstructionNotice"
+                class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
+              >
+                <BaseIcon name="info" :width="55" class="hidden md:block mr-3" />
+                <div class="inline-block">{{ underConstructionNotice }}</div>
+              </div>
+
               <SearchResultsViewTabs
                 class="hidden xl:flex"
                 buttonLeftLabel="Detailed"
