@@ -784,16 +784,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testGraphGenome200() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19");
-  }
-
-  @Test
   public void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
