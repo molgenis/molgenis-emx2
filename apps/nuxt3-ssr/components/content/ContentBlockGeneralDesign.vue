@@ -41,7 +41,7 @@ function setData() {
     {
       label: "Collection type",
       content: cohort?.collectionType
-        ? cohort?.collectionType[0].name
+        ? cohort?.collectionType.map((collectionType) => collectionType.name).join(", ")
         : undefined,
     },
     {
