@@ -774,6 +774,16 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testGraphGenome400() {
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(400)
+        .when()
+        .get("http://localhost:8080/api/graphgenome");
+  }
+
+  @Test
   public void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
