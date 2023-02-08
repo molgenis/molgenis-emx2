@@ -83,12 +83,12 @@ function toggleSelect(term) {
         >
           <span class="group-hover:underline">{{ child.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
-            <span
+            <!-- <span
               v-if="child?.children?.length"
               class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200"
             >
               &nbsp;- {{ child.children.length }}
-            </span>
+            </span> -->
             <div class="inline-block">
               <CustomTooltip
                 v-if="child.description"
