@@ -110,7 +110,9 @@
           <dd class="col-10">
             <span v-if="variable.variableDetails.mappings">
               <span
-                v-for="mapping in Object.values(variable.variableDetails.mappings).filter(m => ['complete','partial'].includes(m.match.name))"
+                v-for="mapping in Object.values(
+                  variable.variableDetails.mappings
+                ).filter((m) => ['complete', 'partial'].includes(m.match.name))"
                 :key="mapping.fromTable.dataDictionary.resource.pid"
               >
                 {{ mapping.fromTable.dataDictionary.resource.pid }},
