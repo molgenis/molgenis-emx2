@@ -23,4 +23,12 @@ public class GenomicVariantsResultSets {
     this.resultsCount = results.length;
     this.results = results;
   }
+
+  public GenomicVariantsResultSetsItem[] getResults() {
+    return results;
+  }
+
+  public String getId() {
+    return id;
+  }
 }
