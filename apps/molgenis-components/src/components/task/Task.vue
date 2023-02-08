@@ -61,7 +61,8 @@ export default defineComponent({
           })
           .catch((error) => {
             console.log(JSON.stringify(error));
-            this.error = true;
+            this.error = error;
+            this.loading = false;
           });
         await sleep(500);
       }
