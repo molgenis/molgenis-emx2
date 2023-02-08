@@ -246,7 +246,7 @@ let tocItems = computed(() => {
 
   if (cohort?.fundingStatement || cohort?.acknowledgements) {
     items.push({
-      label: "Funding & Acknowledgements",
+      label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
   }
@@ -282,7 +282,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (cohort?.acknowledgements) {
     items.push({
-      label: "Acknowledgements",
+      label: "Citation requirements ",
       content: cohort.acknowledgements,
     });
   }
@@ -418,7 +418,7 @@ let fundingAndAcknowledgementItems = computed(() => {
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Acknowledgement"
+          title="Funding &amp; Citation requirements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
           <DefinitionList :items="fundingAndAcknowledgementItems" />
