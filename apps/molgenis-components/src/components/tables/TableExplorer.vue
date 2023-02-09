@@ -505,10 +505,11 @@ export default {
         : null;
     },
     graphqlFilter() {
+      let filter = this.filter;
       const errorCallback = (msg) => {
         this.graphqlError = msg;
       };
-      return graphqlFilter(this.columns, errorCallback);
+      return graphqlFilter(filter, this.columns, errorCallback);
     },
   },
   methods: {
@@ -716,8 +717,8 @@ function getCondition(columnType, condition) {
   }
 }
 
-function graphqlFilter(columns, errorCallback) {
-  let filter = {};
+function graphqlFilter(defaultFilter, columns, errorCallback) {
+  let filter = defaultFilter;
   if (columns) {
     columns.forEach((col) => {
       const conditions = col.conditions
