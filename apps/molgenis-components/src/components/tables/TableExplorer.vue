@@ -173,7 +173,7 @@
             :table-name="tableName"
             :canEdit="canEdit"
             :template="cardTemplate"
-            @click="$emit('click', $event)"
+            @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
               handleRowAction('edit', getPrimaryKey($event, tableMetadata))
@@ -190,7 +190,7 @@
             :table-name="tableName"
             :canEdit="canEdit"
             :template="recordTemplate"
-            @click="$emit('click', $event)"
+            @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
               handleRowAction('edit', getPrimaryKey($event, tableMetadata))
@@ -209,7 +209,7 @@
             :data="dataRows"
             :showSelect="showSelect"
             @column-click="onColumnClick"
-            @click="$emit('click', $event)"
+            @rowClick="$emit('rowClick', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
