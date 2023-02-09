@@ -403,7 +403,7 @@ export default {
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: false,
+      loading: true,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,

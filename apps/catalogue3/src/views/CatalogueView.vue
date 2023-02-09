@@ -15,151 +15,160 @@
       registries, biobanks, and multi-center collaborations thereof such as
       networks, common data models and studies.
     </p>
-    <h2>Metadata on data collections</h2>
-    <div class="row">
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="organisations"
-          class="card card-body bg-dark text-white card-height h-100"
-        >
-          <h3>
-            Organisations
-            <span class="badge badge-light text-inline float-right">{{
-              organisations
-            }}</span>
-          </h3>
-          <p class="text-left">
-            Contributors to the catalogue such as departments from universities,
-            companies, medical centres and research institutes
-          </p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="datasources"
-          class="card card-body bg-primary text-white card-height h-100"
-        >
-          <h3>
-            Data sources
-            <span class="badge badge-light float-right">{{ datasources }}</span>
-          </h3>
-          <p class="text-left">
-            Collections of data banks covering the same population
-          </p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3" v-if="cohorts > 0">
-        <RouterLink
-          to="cohorts"
-          class="card card-body bg-primary text-white card-height h-100"
-        >
-          <h3>
-            Cohorts
-            <span class="badge badge-light float-right">{{ cohorts }}</span>
-          </h3>
-          <p class="text-left">
-            Systematic observations of large groups of individuals over time.
-          </p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="databanks"
-          class="card card-body bg-info text-white card-height h-100"
-        >
-          <h3>
-            Databanks
-            <span class="badge badge-light float-right">{{ databanks }}</span>
-          </h3>
-          <p class="text-left">
-            Collections of data banks covering the same population
-          </p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="networks"
-          class="card card-body bg-danger text-white card-height h-100"
-        >
-          <h3>
-            Networks
-            <span class="badge badge-light float-right">{{ networks }}</span>
-          </h3>
-          <p class="text-left">Collaborations of multiple organisations</p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="studies"
-          class="card card-body bg-success text-white card-height h100"
-        >
-          <h3>
-            Studies
-            <span class="badge badge-light float-right">{{ studies }}</span>
-          </h3>
-          <p class="text-left">
-            Collaborations of multiple institutions, addressing research
-            questions using data sources and/or data banks
-          </p>
-        </RouterLink>
-      </div>
-      <div class="col-auto mb-3">
-        <RouterLink
-          to="models"
-          class="card card-body bg-warning text-dark card-height h-100"
-        >
-          <h3>
-            Data models
-            <span class="badge badge-light float-right">{{ models }}</span>
-          </h3>
-          <p class="text-left">
-            Standard/harmonized data dictionaries for integrated analysis
-          </p>
-        </RouterLink>
-      </div>
+    <div v-if="loading">
+      <Spinner />
     </div>
+    <div v-else>
+      <h2>Metadata on data collections</h2>
+      <div class="row">
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="organisations"
+            class="card card-body bg-dark text-white card-height h-100"
+          >
+            <h3>
+              Organisations
+              <span class="badge badge-light text-inline float-right">{{
+                organisations
+              }}</span>
+            </h3>
+            <p class="text-left">
+              Contributors to the catalogue such as departments from
+              universities, companies, medical centres and research institutes
+            </p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="datasources"
+            class="card card-body bg-primary text-white card-height h-100"
+          >
+            <h3>
+              Data sources
+              <span class="badge badge-light float-right">{{
+                datasources
+              }}</span>
+            </h3>
+            <p class="text-left">
+              Collections of data banks covering the same population
+            </p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3" v-if="cohorts > 0">
+          <RouterLink
+            to="cohorts"
+            class="card card-body bg-primary text-white card-height h-100"
+          >
+            <h3>
+              Cohorts
+              <span class="badge badge-light float-right">{{ cohorts }}</span>
+            </h3>
+            <p class="text-left">
+              Systematic observations of large groups of individuals over time.
+            </p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="databanks"
+            class="card card-body bg-info text-white card-height h-100"
+          >
+            <h3>
+              Databanks
+              <span class="badge badge-light float-right">{{ databanks }}</span>
+            </h3>
+            <p class="text-left">
+              Collections of data banks covering the same population
+            </p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="networks"
+            class="card card-body bg-danger text-white card-height h-100"
+          >
+            <h3>
+              Networks
+              <span class="badge badge-light float-right">{{ networks }}</span>
+            </h3>
+            <p class="text-left">Collaborations of multiple organisations</p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="studies"
+            class="card card-body bg-success text-white card-height h100"
+          >
+            <h3>
+              Studies
+              <span class="badge badge-light float-right">{{ studies }}</span>
+            </h3>
+            <p class="text-left">
+              Collaborations of multiple institutions, addressing research
+              questions using data sources and/or data banks
+            </p>
+          </RouterLink>
+        </div>
+        <div class="col-auto mb-3">
+          <RouterLink
+            to="models"
+            class="card card-body bg-warning text-dark card-height h-100"
+          >
+            <h3>
+              Data models
+              <span class="badge badge-light float-right">{{ models }}</span>
+            </h3>
+            <p class="text-left">
+              Standard/harmonized data dictionaries for integrated analysis
+            </p>
+          </RouterLink>
+        </div>
+      </div>
 
-    <h2>Browse data definitions</h2>
-    <div class="card-columns">
-      <div class="card card-body border border-dark rounded card-height">
-        <h3>Datasets and variables</h3>
-        <div class="text-left">
-          <ul>
-            <li>
-              <RouterLink to="datasets"> Datasets ({{ datasets }})</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="variables">
-                Variables ({{ variables }})
-              </RouterLink>
-            </li>
-          </ul>
+      <h2>Browse data definitions</h2>
+      <div class="card-columns">
+        <div class="card card-body border border-dark rounded card-height">
+          <h3>Datasets and variables</h3>
+          <div class="text-left">
+            <ul>
+              <li>
+                <RouterLink to="datasets">
+                  Datasets ({{ datasets }})</RouterLink
+                >
+              </li>
+              <li>
+                <RouterLink to="variables">
+                  Variables ({{ variables }})
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card card-body border border-dark card-height">
+          <h3>Data model mappings</h3>
+          <div class="text-left">
+            <ul>
+              <li>
+                <RouterLink to="dataset-mappings">
+                  Dataset mappings ({{ datasetMappings }})
+                </RouterLink>
+              </li>
+              <li>
+                <RouterLink to="variable-mappings">
+                  Variable mappings ({{ variableMappings }})
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="card card-body border border-dark card-height">
-        <h3>Data model mappings</h3>
-        <div class="text-left">
-          <ul>
-            <li>
-              <RouterLink to="dataset-mappings">
-                Dataset mappings ({{ datasetMappings }})
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="variable-mappings">
-                Variable mappings ({{ variableMappings }})
-              </RouterLink>
-            </li>
-          </ul>
-        </div>
-      </div>
+      <p>
+        This catalogue software has been made possible by contributions from
+        H2020 EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members
+        of European Human Exposome Network, BBMRI-ERIC, IMI Conception and EMA
+        Minerva.
+      </p>
     </div>
-    <p>
-      This catalogue software has been made possible by contributions from H2020
-      EUCAN-connect, CINECA, LifeCycle, Longitools and ATHLETE, members of
-      European Human Exposome Network, BBMRI-ERIC, IMI Conception and EMA
-      Minerva.
-    </p>
   </div>
 </template>
 
@@ -167,6 +176,7 @@
 .card {
   width: 20rem;
 }
+
 .badge {
   font-size: small;
   vertical-align: top;
@@ -188,14 +198,16 @@
 
 <script>
 import { request, gql } from "graphql-request";
-import { MessageError } from "molgenis-components";
+import { MessageError, Spinner } from "molgenis-components";
 
 export default {
   components: {
     MessageError,
+    Spinner,
   },
   data() {
     return {
+      loading: true,
       schemaName: null,
       organisations: null,
       cohorts: null,

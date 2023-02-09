@@ -35,7 +35,7 @@ export default {
     defaultValue: {
       type: Object,
       required: false,
-    }
+    },
   },
   data() {
     return {

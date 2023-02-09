@@ -190,10 +190,16 @@ export default {
     },
     defaultValueMapping() {
       return {
-        source: {id: this.source},
-        sourceDataset: {resource: {id: this.source}, name: this.sourceDataset},
-        target: {id: this.target},
-        targetDataset: {resource: {id: this.target}, name: this.targetDataset}
+        source: { id: this.source },
+        sourceDataset: {
+          resource: { id: this.source },
+          name: this.sourceDataset,
+        },
+        target: { id: this.target },
+        targetDataset: {
+          resource: { id: this.target },
+          name: this.targetDataset,
+        },
       };
     },
   },
@@ -202,10 +208,23 @@ export default {
     pkey(mapping) {
       return {
         source: mapping.source,
-        sourceDataset: {resource: mapping.source, name: mapping.sourceDataset.name },
+        sourceDataset: {
+          resource: mapping.source,
+          name: mapping.sourceDataset.name,
+        },
         target: mapping.target,
-        targetDataset: {resource: mapping.target, name: mapping.targetDataset.name},
-        targetVariable: {resource: mapping.target, dataset: {resource: mapping.target, name: mapping.targetDataset.name}, name: mapping.targetVariable.name}
+        targetDataset: {
+          resource: mapping.target,
+          name: mapping.targetDataset.name,
+        },
+        targetVariable: {
+          resource: mapping.target,
+          dataset: {
+            resource: mapping.target,
+            name: mapping.targetDataset.name,
+          },
+          name: mapping.targetVariable.name,
+        },
       };
     },
     handleModalClose() {
