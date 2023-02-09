@@ -40,7 +40,7 @@ if (!props.options) {
       ${props.tableName}_agg( filter:$filter ) { count }
       }
   `;
-  let resp = await fetchGql(query);
+  let resp = await fetchOntology(query);
 
   data = resp?.data[props.tableName];
   let count = resp?.data[props.tableName + "_agg"].count;
