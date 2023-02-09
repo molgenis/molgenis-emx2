@@ -68,6 +68,7 @@ const query = `{
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
+conse defaultSession = { locale: "en", settings: {} };
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default defineComponent({
@@ -93,7 +94,7 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: { locale: "en" } as ISession,
+      session: defaultSession as ISession,
       version: null,
     };
   },
@@ -154,9 +155,7 @@ export default defineComponent({
       if (schemaSettings && schemaSettings._session) {
         this.session = schemaSettings._session;
       } else {
-        this.session = {
-          settings: {},
-        };
+        this.session = defaultSession;
       }
       //convert settings to object
       if (dbSettings && dbSettings._settings) {
