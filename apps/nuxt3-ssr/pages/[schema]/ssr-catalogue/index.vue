@@ -191,7 +191,11 @@ fetchSetting(NOTICE_SETTING_KEY).then((resp) => {
                 v-if="underConstructionNotice"
                 class="mt-1 mb-5 text-left bg-yellow-200 rounded-lg text-black py-5 px-5 flex"
               >
-                <BaseIcon name="info" :width="55" class="hidden md:block mr-3" />
+                <BaseIcon
+                  name="info"
+                  :width="55"
+                  class="hidden md:block mr-3"
+                />
                 <div class="inline-block">{{ underConstructionNotice }}</div>
               </div>
 
