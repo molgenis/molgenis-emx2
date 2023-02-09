@@ -21,7 +21,7 @@
     "autoprefixer": "^10.4.13",
     "graphql-tag": "2.12.6",
     "nuxt": "^3.0.0",
-    "nuxt-proxy": "^0.3.3",
+    "nuxt-proxy": "^0.4.0",
     "postcss": "^8.4.19",
     "postcss-custom-properties": "^13.0.0",
     "prettier": "2.8.4",
