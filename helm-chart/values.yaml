@@ -42,5 +42,7 @@ postgres:
 
 ssrCatalogue:
   image:
-    repository: ssr-catalogue-snapshot
+    repository: molgenis/ssr-catalogue-snapshot
+    tag: latest
+    pullPolicy: IfNotPresent
 
