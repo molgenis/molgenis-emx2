@@ -68,7 +68,7 @@ const query = `{
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
-conse defaultSession = { locale: "en", settings: {} };
+const defaultSession = { locale: "en", settings: {} };
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default defineComponent({
