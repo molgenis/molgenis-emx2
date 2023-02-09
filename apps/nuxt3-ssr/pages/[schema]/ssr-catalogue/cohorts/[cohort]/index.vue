@@ -53,7 +53,9 @@ const query = gql`
       partners {
         institution {
           pid
+          acronym
           name
+          website
           description
           logo {
             url
@@ -197,30 +199,11 @@ function onSubcohortsLoaded(rows: any) {
     return;
   }
 
-  const topLevelAgeGroup = (ageGroup: { parent: any }): any => {
-    if (!ageGroup.parent) {
-      return ageGroup;
-    }
-    return topLevelAgeGroup(ageGroup.parent);
-  };
-
   const mapped = rows.map((subcohort: any) => {
     return {
       name: subcohort.name,
       description: subcohort.description,
       numberOfParticipants: subcohort.numberOfParticipants,
-      ageGroups: !subcohort.ageGroups
-        ? undefined
-        : subcohort?.ageGroups
-            .map(topLevelAgeGroup)
-            .reduce((ageGroups: any[], ageGroup: { name: string }) => {
-              if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
-                ageGroups.push(ageGroup);
-              }
-              return ageGroups;
-            }, [])
-            .map((ag: { name: string }) => ag.name)
-            .join(","),
       _renderComponent: "SubCohortDisplay",
       _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
     };
@@ -263,7 +246,7 @@ let tocItems = computed(() => {
 
   if (cohort?.fundingStatement || cohort?.acknowledgements) {
     items.push({
-      label: "Funding & Acknowledgements",
+      label: "Funding & Citation requirements ",
       id: "funding-and-acknowledgement",
     });
   }
@@ -299,7 +282,7 @@ let fundingAndAcknowledgementItems = computed(() => {
   }
   if (cohort?.acknowledgements) {
     items.push({
-      label: "Acknowledgements",
+      label: "Citation requirements ",
       content: cohort.acknowledgements,
     });
   }
@@ -384,9 +367,8 @@ let fundingAndAcknowledgementItems = computed(() => {
           description="List of subcohorts or subpopulations for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
-            { id: 'ageGroups', label: 'Age categories' },
           ]"
           :rows="subcohorts"
         />
@@ -398,7 +380,7 @@ let fundingAndAcknowledgementItems = computed(() => {
           description="List of collection events defined for this resource"
           :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Participants' },
             { id: 'startAndEndYear', label: 'Start end year' },
           ]"
@@ -436,7 +418,7 @@ let fundingAndAcknowledgementItems = computed(() => {
 
         <ContentBlock
           id="funding-and-acknowledgement"
-          title="Funding &amp; Acknowledgement"
+          title="Funding &amp; Citation requirements "
           v-if="cohort?.fundingStatement || cohort?.acknowledgements"
         >
           <DefinitionList :items="fundingAndAcknowledgementItems" />

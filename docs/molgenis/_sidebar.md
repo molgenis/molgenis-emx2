@@ -27,6 +27,7 @@
     - [FAIR Data Point](dev_fairdatapoint.md)
     - [Beacon v2](dev_beaconv2.md)
     - [RDF](dev_rdf.md)
+    - [Graph genome](dev_graphgenome.md)
     - [App development](dev_apps.md)
     - [Migrations](dev_migrations.md)
     - [Principles](dev_principles.md)

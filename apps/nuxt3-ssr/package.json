@@ -10,7 +10,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils  --write --config ../.prettierrc.js",
-    "tailwind": "tailwindcss -c ./tailwind.config.cjs -i ./public/css/main.css -o ./public/css/styles.css --watch",
+    "tailwind": "tailwindcss -c ./tailwind.config.cjs -i ./public/_nuxt-styles/css/main.css -o ./public/_nuxt-styles/css/styles.css --watch",
     "gen-themes": "node gen-themes.js"
   },
   "devDependencies": {
@@ -24,7 +24,7 @@
     "nuxt-proxy": "^0.3.3",
     "postcss": "^8.4.19",
     "postcss-custom-properties": "^13.0.0",
-    "prettier": "2.8.3",
+    "prettier": "2.8.4",
     "shelljs": "^0.8.5",
     "tailwindcss": "^3.2.4"
   },

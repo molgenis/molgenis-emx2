@@ -33,14 +33,14 @@
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "popper.js": "1.16.1",
-    "vue": "3.2.45",
+    "vue": "3.2.47",
     "vue-flatpickr-component": "11.0.1",
     "vue3-cookies": "^1.0.6",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "3.2.0",
-    "prettier": "2.8.3",
+    "prettier": "2.8.4",
     "vite": "3.2.5",
     "vitest": "0.28.4",
     "vue-router": "4.1.6",

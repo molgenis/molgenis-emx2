@@ -82,5 +82,15 @@ export const buildOntologyTree = (
     (node: { name: string; parent: {}[] }) => !node.parent
   );
 
-  return tree;
+  return ontologyTreeSortOrder(tree);
+};
+
+const ontologyTreeSortOrder = (tree: any) => {
+  return tree.sort((a: any, b: any) => {
+    if (a.order !== undefined && b.order !== undefined) {
+      return a.order > b.order;
+    } else {
+      return a.name.localeCompare(b.name);
+    }
+  });
 };

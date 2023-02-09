@@ -48,7 +48,7 @@ export default {
           const resourceMapping = this.resourceMappings.find((mapping) => {
             return (
               mapping.toVariable.name === repeatedVariable.name &&
-                mapping.fromTable.dataDictionary.resource.pid === resource.pid
+              mapping.fromTable.dataDictionary.resource.pid === resource.pid
             );
           });
 
