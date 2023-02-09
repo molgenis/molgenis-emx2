@@ -1,5 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
+import { EditModal } from "molgenis-components";
+
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
@@ -361,4 +363,8 @@ const router = createRouter({
 const app = createApp(App);
 app.use(router);
 app.use(store);
+
+// workaround for not importing recursive component
+app.component("EditModal", EditModal);
+
 app.mount("#app");

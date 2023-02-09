@@ -109,7 +109,7 @@
           class="card card-body bg-warning text-dark card-height h-100"
         >
           <h3>
-            Common data models
+            Data models
             <span class="badge badge-light float-right">{{ models }}</span>
           </h3>
           <p class="text-left">

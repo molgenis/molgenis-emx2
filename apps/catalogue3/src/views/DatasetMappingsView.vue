@@ -15,7 +15,7 @@
     <table class="table table-bordered">
       <tr>
         <td><h6>Source table:&nbsp;</h6></td>
-        <td colspan="4">
+        <td colspan="5">
           <RouterLink
             :to="{
               name: 'Datasets-details',
@@ -30,7 +30,7 @@
       </tr>
       <tr>
         <td><h6>Source table:&nbsp;</h6></td>
-        <td colspan="4">
+        <td colspan="5">
           <RouterLink
             :to="{
               name: 'Datasets-details',
@@ -42,7 +42,7 @@
       </tr>
 
       <tr>
-        <td colspan="5">
+        <td colspan="6">
           <h6>Description:</h6>
           {{
             datasetmappings && datasetmappings.description
@@ -69,7 +69,7 @@
         <th><h6>Syntax</h6></th>
         <th><h6>Notes</h6></th>
       </tr>
-      <tr v-for="(m, index) in variablemappings" :key="index">
+      <tr v-for="(m, index) in variablemappings">
         <td v-if="canEdit">
           <div class="d-flex flex-row">
             <RowButtonEdit
@@ -190,16 +190,10 @@ export default {
     },
     defaultValueMapping() {
       return {
-        source: { id: this.source },
-        sourceDataset: {
-          resource: { id: this.source },
-          name: this.sourceDataset,
-        },
-        target: { id: this.target },
-        targetDataset: {
-          resource: { id: this.target },
-          name: this.targetDataset,
-        },
+        source: {id: this.source},
+        sourceDataset: {resource: {id: this.source}, name: this.sourceDataset},
+        target: {id: this.target},
+        targetDataset: {resource: {id: this.target}, name: this.targetDataset}
       };
     },
   },
@@ -208,9 +202,10 @@ export default {
     pkey(mapping) {
       return {
         source: mapping.source,
-        sourceDataset: mapping.sourceDataset,
+        sourceDataset: {resource: mapping.source, name: mapping.sourceDataset.name },
         target: mapping.target,
-        targetDataset: mapping.targetDataset,
+        targetDataset: {resource: mapping.target, name: mapping.targetDataset.name},
+        targetVariable: {resource: mapping.target, dataset: {resource: mapping.target, name: mapping.targetDataset.name}, name: mapping.targetVariable.name}
       };
     },
     handleModalClose() {
