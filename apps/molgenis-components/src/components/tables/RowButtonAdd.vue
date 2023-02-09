@@ -7,6 +7,7 @@
       :tableName="tableName"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
+      :defaultValue="defaultValue"
       @close="handleClose"
     />
   </span>
@@ -31,6 +32,10 @@ export default {
       type: String,
       required: false,
     },
+    defaultValue: {
+      type: Object,
+      required: false,
+    }
   },
   data() {
     return {

@@ -1,7 +1,7 @@
 <template>
   <span>
     <RowButton type="edit" @edit="isModalShown = true" />
-    <EditModal
+    <EditModal v-if="isModalShown"
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"

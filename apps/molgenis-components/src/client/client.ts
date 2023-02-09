@@ -45,7 +45,6 @@ export default {
             table.id === tableId && table.externalSchema === schemaNameCache
         );
         if (!tableMetaData) {
-          console.log(schemaMetaData);
           throw (
             "Table metaddata not found for table " +
             schemaNameCache +
@@ -108,7 +107,7 @@ export default {
           throw "Schema meta data not found for schema: " + schemaNameCache;
         }
         const tableMetaData = schemaMetaData.tables.find(
-          (table) => table.id === tableId && table.externalSchema === schemaName
+          (table) => table.id === tableId && table.externalSchema === schemaNameCache
         );
         const filter = tableMetaData?.columns
           ?.filter((column) => column.key === 1)
