@@ -42,7 +42,7 @@ defineProps({
           <div class="hidden sm:block">
             <div class="flex">
               <!-- <IconButton icon="star" class="text-blue-500" /> -->
-              <a :href="url" >
+              <a :href="url">
                 <IconButton icon="arrow-right" class="text-blue-500" />
               </a>
             </div>
