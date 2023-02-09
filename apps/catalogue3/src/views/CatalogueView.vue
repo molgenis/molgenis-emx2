@@ -126,39 +126,43 @@
       </div>
 
       <h2>Browse data definitions</h2>
-      <div class="card-columns">
-        <div class="card card-body border border-dark rounded card-height">
-          <h3>Datasets and variables</h3>
-          <div class="text-left">
-            <ul>
-              <li>
-                <RouterLink to="datasets">
-                  Datasets ({{ datasets }})</RouterLink
-                >
-              </li>
-              <li>
-                <RouterLink to="variables">
-                  Variables ({{ variables }})
-                </RouterLink>
-              </li>
-            </ul>
+      <div class="row">
+        <div class="col-auto mb-3">
+          <div class="card card-body border border-dark rounded card-height">
+            <h3>Dataset and variable definitions</h3>
+            <div class="text-left">
+              <ul>
+                <li>
+                  <RouterLink to="datasets">
+                    Datasets ({{ datasets }})</RouterLink
+                  >
+                </li>
+                <li>
+                  <RouterLink to="variables">
+                    Variables ({{ variables }})
+                  </RouterLink>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="card card-body border border-dark card-height">
-          <h3>Data model mappings</h3>
-          <div class="text-left">
-            <ul>
-              <li>
-                <RouterLink to="dataset-mappings">
-                  Dataset mappings ({{ datasetMappings }})
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink to="variable-mappings">
-                  Variable mappings ({{ variableMappings }})
-                </RouterLink>
-              </li>
-            </ul>
+        <div class="col-auto mb-3">
+          <div class="card card-body border border-dark card-height">
+            <h3>Mappings to standards</h3>
+            <div class="text-left">
+              <ul>
+                <li>
+                  <RouterLink to="dataset-mappings">
+                    Dataset mappings ({{ datasetMappings }})
+                  </RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="variable-mappings">
+                    Variable mappings ({{ variableMappings }})
+                  </RouterLink>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

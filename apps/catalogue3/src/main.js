@@ -280,6 +280,29 @@ const router = createRouter({
       props: true,
       component: VariableMappingsView,
     },
+    //redirect breadcrumbs
+    {
+      path: "/dataset-mappings/:source/:sourceDataset/:target",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.params.target,
+      }),
+    },
+    {
+      path: "/dataset-mappings/:source/:sourceDataset",
+      component: DatasetView,
+      props: (route) => ({
+        resource: route.source,
+        name: route.params.sourceDataset,
+      }),
+    },
+    {
+      path: "/dataset-mappings/:source/:sourceDataset/:target",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.params.target,
+      }),
+    },
     {
       name: "DatasetMappings-details",
       path: "/dataset-mappings/:source/:sourceDataset/:target/:targetDataset",

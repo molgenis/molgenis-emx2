@@ -25,9 +25,10 @@
     <p>{{ dataset.description ? dataset.description : "Description: N/A" }}</p>
 
     <MessageError v-if="graphqlError"> {{ graphqlError }}</MessageError>
-    <h6>Mappings/ETLs</h6>
-    <ul v-if="dataset.mappings">
-      <li v-for="(m, index) in dataset.mappings" :key="index">
+    <div  v-if="dataset.mappedFrom">
+    <h6>The following datasets are mapped to this standard:</h6>
+    <ul>
+      <li v-for="(m, index) in dataset.mappedFrom" :key="index">
         <RouterLink
           :to="{
             name: 'DatasetMappings-details',
@@ -39,11 +40,31 @@
             },
           }"
         >
-          <span> To: {{ m.target.id }} : {{ m.targetDataset.name }} </span>
+          <span>{{ m.source.id }} : {{ m.sourceDataset.name }} </span>
         </RouterLink>
       </li>
     </ul>
-    <p v-else>N/A</p>
+    </div>
+    <div v-if="dataset.mappedTo">
+      <h6>This dataset is mapped to the following standards:</h6>
+      <ul >
+      <li v-for="(m, index) in dataset.mappedTo" :key="index">
+        <RouterLink
+            :to="{
+            name: 'DatasetMappings-details',
+            params: {
+              source: m.source.id,
+              sourceDataset: m.sourceDataset.name,
+              target: m.target.id,
+              targetDataset: m.targetDataset.name,
+            },
+          }"
+        >
+          <span>{{ m.target.id }} : {{ m.targetDataset.name }} </span>
+        </RouterLink>
+      </li>
+    </ul>
+    </div>
     <h6>Variables</h6>
     <TableExplorer
       tableName="Variables"
@@ -122,8 +143,22 @@ export default {
                 id
                 mg_tableclass
               }
-              mappings {
+              mappedFrom {
                 source {
+                  id
+                }
+                sourceDataset {
+                  name
+                }
+                                target {
+                  id
+                }
+                targetDataset {
+                  name
+                }
+              }
+              mappedTo {
+                         source {
                   id
                 }
                 sourceDataset {
