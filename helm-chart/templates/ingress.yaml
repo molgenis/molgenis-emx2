@@ -20,18 +20,21 @@ spec:
     http:
       paths:
         - path: ~* /.+/ssr-catalogue/
+          pathType: Prefix
           backend:
             service:
               name: ssr-catalogue
               port:
                 number: 3000
         - path: ~* /_nuxt/
+          pathType: Prefix
           backend:
             service:
               name: ssr-catalogue
               port:
                 number: 3000
         - path: {{ default "/" .path }}
+          pathType: Prefix
           backend:
             service:
               name: {{ $fullName }}
