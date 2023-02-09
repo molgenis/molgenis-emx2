@@ -121,7 +121,7 @@ export default {
       this.$router.push({
         name: "Variables-details",
         params: {
-          id: this.resource,
+          resource: this.resource,
           dataset: this.name,
           name: row.name,
         },

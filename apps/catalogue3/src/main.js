@@ -274,6 +274,14 @@ const router = createRouter({
         tableName: "Datasets",
       }),
     },
+    //breadcrumb redirect
+    {
+      path: "/datasets/:resource",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.resource
+      }),
+    },
     {
       name: "VariableMappings-details",
       path: "/variable-mappings/:source/:sourceDataset/:target/:targetDataset/:targetVariable",
