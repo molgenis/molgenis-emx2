@@ -19,7 +19,7 @@ questions:
     default: "molgenis/molgenis-emx2"
     group: "Provisioning"
   - variable: ssrCatalogue.image.repository
-    label: Repository
+    label: SSR Catalogue Repository
     description: "Specify a ssr catalogue repository"
     type: enum
     required: true
@@ -36,7 +36,7 @@ questions:
     default: "latest"
     group: "Provisioning"
   - variable: ssrCatalogue.image.tag
-    label: Version
+    label: SSR Catalogue image version
     description: "Specify a version of the ssr catalogue application"
     type: string
     required: true
@@ -47,6 +47,27 @@ questions:
     description: "Specify an administrator password"
     type: password
     required: true
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.apiBase
+    label: emx2 backend api location
+    description: "Specify location to use for the api calls from the ssr catalogue"
+    type: string
+    required: true
+    default: "emx2.dev.molgenis.org"
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.theme
+    label: SSR catalogue theme
+    description: "Specify a theme name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
+    group: "Provisioning"
+  - variable: ssrCatalogue.environment.logo
+    label: emx2 backend api location
+    description: "Specify logo name to use for the ssr catalogue"
+    type: string
+    required: false
+    default: ""
     group: "Provisioning"
   - variable: oidc.enabled
     label: OIDC enabled

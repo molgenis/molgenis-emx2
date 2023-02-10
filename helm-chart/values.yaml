@@ -45,4 +45,10 @@ ssrCatalogue:
     repository: molgenis/ssr-catalogue-snapshot
     tag: latest
     pullPolicy: IfNotPresent
+  environment:
+    apiBase: "emx2.dev.molgenis.org"
+    theme: ""
+    logo: ""
+
+
 

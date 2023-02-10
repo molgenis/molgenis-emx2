@@ -85,6 +85,13 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 3000
+          env:
+            - name: NUXT_PUBLIC_API_BASE
+              value: {{ .Values.ssrCatalogue.environment.apiBase }}
+            - name: NUXT_PUBLIC_EMX2_THEME
+              value: {{ .Values.ssrCatalogue.environment.theme }}
+            - name: NUXT_PUBLIC_EMX2_LOGO
+              value: {{ .Values.ssrCatalogue.environment.logo }}
       volumes:
         - name: postgres-initdb
           configMap:
