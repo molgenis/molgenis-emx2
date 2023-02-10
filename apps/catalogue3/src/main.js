@@ -279,7 +279,7 @@ const router = createRouter({
       path: "/datasets/:resource",
       component: ResourceRedirectView,
       props: (route) => ({
-        id: route.resource
+        id: route.params.resource,
       }),
     },
     {
@@ -300,7 +300,7 @@ const router = createRouter({
       path: "/dataset-mappings/:source/:sourceDataset",
       component: DatasetView,
       props: (route) => ({
-        resource: route.source,
+        resource: route.params.source,
         name: route.params.sourceDataset,
       }),
     },

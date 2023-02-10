@@ -62,7 +62,9 @@ export default {
       return false;
     },
     defaultColumns() {
-      if (this.tableName == "Organisations") {
+      if (this.tableName == "Data sources") {
+        return ["id", "name", "lead organisation", "website"];
+      } else if (this.tableName == "Organisations") {
         return ["name", "id", "type", "country"];
       } else if (
         ["Data sources", "Networks", "Models"].includes(this.tableName)
