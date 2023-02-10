@@ -66,13 +66,17 @@ public class GraphGenome {
       // also, check that there is only 1 chromosome for all variants
       String chromosome = null;
       Long earliestStart = Long.MAX_VALUE;
-      Long latestEnd = Long.MIN_VALUE;
+      Long latestStart = Long.MIN_VALUE;
+      int longestVarRefSeq = Integer.MIN_VALUE;
       ArrayList<GenomicVariantsResultSetsItem> sortedVariants = new ArrayList<>();
       for (GenomicVariantsResultSets variantSet : variants) {
         for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
-          // skip variants without a start position
-          if (variant.getPosition().getStart() == null) {
+          // skip variants without a start position or ref base
+          if (variant.getPosition().getStart() == null || variant.getReferenceBases() == null) {
             continue;
+          }
+          if (variant.getReferenceBases().length() > longestVarRefSeq) {
+            longestVarRefSeq = variant.getReferenceBases().length();
           }
           variant.setGenomicVariantsResultSetId(variantSet.getId());
           sortedVariants.add(variant);
@@ -90,22 +94,24 @@ public class GraphGenome {
             if (stLong < earliestStart) {
               earliestStart = stLong;
             }
-          }
-          for (Long endLong : position.getEnd()) {
-            if (endLong != null && endLong > latestEnd) {
-              latestEnd = endLong;
+            if (stLong > latestStart) {
+              latestStart = stLong;
             }
           }
         }
       }
+      latestStart = latestStart + longestVarRefSeq;
 
-      // get corresponding full DNA sequence
-      if (earliestStart == Long.MAX_VALUE || latestEnd == Long.MIN_VALUE) {
-        throw new Exception("No start or end position available");
+      // sanity checks
+      if (earliestStart == Long.MAX_VALUE
+          || latestStart == Long.MIN_VALUE
+          || earliestStart.longValue() == latestStart.longValue()) {
+        throw new Exception(
+            "Cannot determine start/end range because of missing starting positions or variant reference bases");
       }
 
       // get reference genome sequence from UCSC API
-      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestEnd, offlineMode);
+      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestStart, offlineMode);
 
       // sort variants for lineair iteration
       sortedVariants.sort(new SortByPosition());
@@ -127,7 +133,7 @@ public class GraphGenome {
               assembly,
               ucscgenome,
               earliestStart,
-              latestEnd);
+              latestStart);
 
       int nodeCounter = 0;
       int previousRefSeqStart = 0;

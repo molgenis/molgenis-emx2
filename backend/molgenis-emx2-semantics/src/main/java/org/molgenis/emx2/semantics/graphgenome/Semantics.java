@@ -85,13 +85,16 @@ public class Semantics {
       }
     }
     if (variant != null && type.equals(ALTERNATIVE)) {
-
       builder.add(
           nodeId,
           "http://purl.obolibrary.org/obo/GENO_0000894",
           variant.getPosition().getStart()[0]);
-      builder.add(
-          nodeId, "http://purl.obolibrary.org/obo/GENO_0000895", variant.getPosition().getEnd()[0]);
+      if (variant.getPosition().getEnd() != null) {
+        builder.add(
+            nodeId,
+            "http://purl.obolibrary.org/obo/GENO_0000895",
+            variant.getPosition().getEnd()[0]);
+      }
       String variantIRI =
           host
               + "/"
