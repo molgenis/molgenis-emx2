@@ -21,12 +21,14 @@
       :showOrderBy="getOrderBy()"
       :showOrder="getOrder()"
       :locale="locale"
+      @rowClick="$emit('rowClick', $event)"
     />
   </div>
 </template>
 
 <script>
 import TableExplorer from "./TableExplorer.vue";
+import { deepClone } from "../utils";
 
 export default {
   name: "RoutedTableExplorer",
@@ -59,6 +61,14 @@ export default {
       type: String,
       default: () => "en",
     },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     getOrderBy() {
@@ -83,7 +93,7 @@ export default {
           return this.$route.query._col.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showColumns);
       }
     },
     getFilters() {
@@ -94,7 +104,7 @@ export default {
           return this.$route.query._filter.split(",");
         }
       } else {
-        return [];
+        return deepClone(this.showFilters);
       }
     },
     getPage() {
@@ -213,6 +223,7 @@ export default {
       }
     },
   },
+  emits: ["rowClick"],
 };
 </script>
 

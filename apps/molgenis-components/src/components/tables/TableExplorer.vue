@@ -173,7 +173,7 @@
             :table-name="tableName"
             :canEdit="canEdit"
             :template="cardTemplate"
-            @click="$emit('click', $event)"
+            @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
               handleRowAction('edit', getPrimaryKey($event, tableMetadata))
@@ -190,7 +190,7 @@
             :table-name="tableName"
             :canEdit="canEdit"
             :template="recordTemplate"
-            @click="$emit('click', $event)"
+            @click="$emit('rowClick', $event)"
             @reload="reload"
             @edit="
               handleRowAction('edit', getPrimaryKey($event, tableMetadata))
@@ -209,7 +209,7 @@
             :data="dataRows"
             :showSelect="showSelect"
             @column-click="onColumnClick"
-            @click="$emit('click', $event)"
+            @rowClick="$emit('rowClick', $event)"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -314,6 +314,7 @@
 <script>
 import Client from "../../client/client.ts";
 import {
+  deepClone,
   getPrimaryKey,
   convertToPascalCase,
   getLocalizedDescription,
@@ -403,7 +404,7 @@ export default {
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: false,
+      loading: true,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
@@ -458,6 +459,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    filter: {
+      type: Object,
+      default: () => ({}),
+    },
     showOrderBy: {
       type: String,
       required: false,
@@ -501,10 +506,11 @@ export default {
         : null;
     },
     graphqlFilter() {
+      let filter = this.filter;
       const errorCallback = (msg) => {
         this.graphqlError = msg;
       };
-      return graphqlFilter(this.columns, errorCallback);
+      return graphqlFilter(filter, this.columns, errorCallback);
     },
   },
   methods: {
@@ -672,7 +678,7 @@ export default {
   },
   emits: [
     "updateShowFilters",
-    "click",
+    "rowClick",
     "updateShowLimit",
     "updateShowPage",
     "updateConditions",
@@ -712,8 +718,8 @@ function getCondition(columnType, condition) {
   }
 }
 
-function graphqlFilter(columns, errorCallback) {
-  let filter = {};
+function graphqlFilter(defaultFilter, columns, errorCallback) {
+  let filter = deepClone(defaultFilter);
   if (columns) {
     columns.forEach((col) => {
       const conditions = col.conditions

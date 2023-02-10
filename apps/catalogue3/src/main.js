@@ -1,5 +1,8 @@
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
+import { EditModal } from "molgenis-components";
+import VueScrollTo from "vue-scrollto";
+
 import App from "./App.vue";
 import store from "./store/store";
 import CatalogueView from "./views/CatalogueView.vue";
@@ -24,8 +27,12 @@ import HomeView from "./views/HomeView.vue";
 
 import "molgenis-components/dist/style.css";
 
+const scrollBehavior = (to, from, savedPosition) => {
+  return savedPosition || { top: 0, left: 0 }
+}
 const router = createRouter({
   history: createWebHashHistory(),
+  scrollBehavior: scrollBehavior,
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
 
@@ -57,6 +64,15 @@ const router = createRouter({
       props: (route) => ({
         searchTerm: route.query.q,
         tableName: "Data sources",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Databanks",
+      path: "/databanks",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Databanks",
       }),
       component: ResourceListView,
     },
@@ -124,6 +140,27 @@ const router = createRouter({
       component: ResourceListView,
     },
     {
+      name: "Publications",
+      path: "/publications",
+      props: (route) => ({
+        searchTerm: route.query.q,
+        tableName: "Publications",
+      }),
+      component: ResourceListView,
+    },
+    {
+      name: "Resources-details",
+      path: "/resources/:id",
+      component: ResourceRedirectView,
+      props: true,
+    },
+    {
+      name: "ExtendedResources-details",
+      path: "/resources/:id",
+      component: ResourceRedirectView,
+      props: true,
+    },
+    {
       name: "Organisations-details",
       path: "/organisations/:id",
       component: ResourceDetailsView,
@@ -160,6 +197,26 @@ const router = createRouter({
       }),
     },
     {
+      name: "Databanks-details",
+      path: "/databanks/:id",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Databanks",
+        color: "info",
+        filter: { id: { equals: route.params.id } },
+      }),
+    },
+    {
+      name: "Publications-details",
+      path: "/publications/:doi",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Publications",
+        color: "secondary",
+        filter: { doi: { equals: route.params.doi } },
+      }),
+    },
+    {
       name: "Models-details",
       path: "/models/:id",
       component: ResourceDetailsView,
@@ -189,10 +246,24 @@ const router = createRouter({
         filter: { id: { equals: route.params.id } },
       }),
     },
+    {
+      name: "Contacts-details",
+      path: "/contacts/:resource/:firstName/:lastName",
+      component: ResourceDetailsView,
+      props: (route) => ({
+        table: "Contacts",
+        color: "success",
+        filter: {
+          firstName: { equals: route.params.firstName },
+          lastName: { equals: route.params.lastName },
+          resource: { id: { equals: route.params.resource } },
+        },
+      }),
+    },
     //variable details
     {
       name: "Variables-details",
-      path: "/variables/:id/:dataset/:name",
+      path: "/variables/:resource/:dataset/:name",
       props: (route) => ({
         ...route.params,
         tableName: "Variables",
@@ -201,11 +272,19 @@ const router = createRouter({
     },
     {
       name: "Datasets-details",
-      path: "/datasets/:id/:name",
+      path: "/datasets/:resource/:name",
       component: DatasetView,
       props: (route) => ({
         ...route.params,
         tableName: "Datasets",
+      }),
+    },
+    //breadcrumb redirect
+    {
+      path: "/datasets/:resource",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.params.resource,
       }),
     },
     {
@@ -214,8 +293,31 @@ const router = createRouter({
       props: true,
       component: VariableMappingsView,
     },
+    //redirect breadcrumbs
     {
-      name: "DatasetMappings-detail",
+      path: "/dataset-mappings/:source/:sourceDataset/:target",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.params.target,
+      }),
+    },
+    {
+      path: "/dataset-mappings/:source/:sourceDataset",
+      component: DatasetView,
+      props: (route) => ({
+        resource: route.params.source,
+        name: route.params.sourceDataset,
+      }),
+    },
+    {
+      path: "/dataset-mappings/:source/:sourceDataset/:target",
+      component: ResourceRedirectView,
+      props: (route) => ({
+        id: route.params.target,
+      }),
+    },
+    {
+      name: "DatasetMappings-details",
       path: "/dataset-mappings/:source/:sourceDataset/:target/:targetDataset",
       props: true,
       component: DatasetMappingsView,
@@ -297,4 +399,9 @@ const router = createRouter({
 const app = createApp(App);
 app.use(router);
 app.use(store);
+app.use(VueScrollTo);
+
+// workaround for not importing recursive component
+app.component("EditModal", EditModal);
+
 app.mount("#app");
