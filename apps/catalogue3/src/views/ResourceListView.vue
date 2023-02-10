@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TableExplorer
+    <RoutedTableExplorer
       :showColumns="defaultColumns"
       :showFilters="defaultFilters"
       :tableName="tableName"
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { TableExplorer, convertToPascalCase } from "molgenis-components";
+import { RoutedTableExplorer, convertToPascalCase } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 const css = {
@@ -37,7 +37,7 @@ const css = {
 
 export default {
   components: {
-    TableExplorer,
+    RoutedTableExplorer,
   },
   props: {
     tableName: String,
