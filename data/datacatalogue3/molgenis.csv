@@ -60,7 +60,7 @@ Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepage
 Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource,,,
 Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected,,Resources,numberOfParticipants
 Data resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,,Resources,numberOfParticipantsWithSamples
-RWE resources,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,,Databanks,underlyingPopulation
+Databanks,,underlying population,text,,,,,,,,,Provide a summary description of the underlying population (maximum 100 words) or URL to a description,,Databanks,underlyingPopulation
 Extended resources,,countries,ontology_array,,,CatalogueOntologies,Countries,,,,,Countries where data from this resource largely originate from,,,
 Data resources,,regions,ontology_array,,,CatalogueOntologies,Regions,,,,,Geographical regions where data from this resource largely originate from,EMA,Resources,regions
 Data resources,,population age groups,ontology_array,,,CatalogueOntologies,Age groups,,,,,Which population age groups are captured in this resource? Select all that are relevant.,EMA,Databanks,populationAgeGroups
@@ -85,18 +85,18 @@ RWE resources,,cause of death code other,text,,,,,,,,,"If 'other,' what cause of
 RWE resources,,indication vocabulary other,text,,,,,,,,,"If 'other,' what indication for use vocabulary is used?",EMA,,
 RWE resources,,genetic data vocabulary other,text,,,,,,,,,"If 'other,' what genetic data vocabulary is used?",EMA,,
 RWE resources,,care setting other,text,,,,,,,,,"If 'other,' description of the setting of care",EMA,Databanks,careSettingOther
-RWE resources,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
+Databanks,,data dictionary available,bool,,,,,,,,,Are a data dictionary and a data model available?,,,
 RWE resources,,disease details,ontology_array,,,CatalogueOntologies,MedDRA,,,,,"If data on a specific disease is collected, which diseases does the data source collect information on",EMA,,
 RWE resources,,disease details other,text,,,,,,,,,Specify disease details if not present in MedDRA,,,
 RWE resources,,biospecimen collected,ontology_array,,,CatalogueOntologies,Informed consents,,,,,"If the data bank contains biospecimens, what types of specimen",,,
 RWE resources,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,"Languages in which that the records are recorded (in ISO 639, https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)",EMA,,
 RWE resources,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g., hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly",EMA,,
 Cohorts,,collection events,refback,,,,Collection events,,resource,,,List of collection events defined for this resource,,,
-RWE resources,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",,,
-RWE resources,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",,,
+Databanks,,unit of observation,text,,,,,,,,,"Based on the prompt, what is the unit of observation of a record (e.g., person, prescription)?",,,
+Databanks,,multiple entries,bool,,,,,,,,,"Can there be multiple entries for a single person in the data bank? For example, may a person contribute multiple records to the data bank?",,,
 RWE resources,,linkage,heading,,,,,,,,,Data linkage,,,
-RWE resources,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,,Databanks,hasIdentifier
-RWE resources,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",,Databanks,identifierDescription
+Databanks,,has identifier,bool,,,,,,,,,Is there a unique identifier for a person in the data bank?,,Databanks,hasIdentifier
+Databanks,,identifier description,text,,,,,,,,,"Describe the variable that is used as a unique identifier for a person in the data bank? If the unique identifier is not at level of a person (for example hospital encounter), describe how this translated to an individual level",,Databanks,identifierDescription
 RWE resources,,linkage description,text,,,,,,,,,Provide a high-level description of the linkages that are either: currently available between data sources in the data source (when pre-linked = yes); linkages that are possible when using the data source,EMA,,
 RWE resources,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used,EMA,,
 RWE resources,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link a data bank to others, a name and description of the variable is provided. One entry per data bank",EMA,,
@@ -111,7 +111,7 @@ Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sourc
 Data resources,,access,heading,,,,,,,,,Access and validation information,,,
 Data resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank,EMA,,
 Data resources,,DAPs,refback,,,,DAPs,,resource,,,List of DAPs that are listed in the catalogue as having (conditional) permission to access (an extract of) the data resource,,,
-RWE resources,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",,,
+Databanks,,reason sustained,text,,,,,,,,,"Description of the reason why the data bank is sustained by the organisation (e.g., for surveillance, clinical purposes, financial or administrative purposes, research purposes)",,,
 Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions,,,
 Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions,,,
 Cohorts,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions,,,
@@ -123,18 +123,18 @@ RWE resources,,access identifiable data route,text,,,,,,,,,"If yes above, what i
 RWE resources,,access subject details,bool,,,,,,,,,Can individual patients/practitioners/practices be contacted in the data bank?,EMA,,
 RWE resources,,access subject details route,text,,,,,,,,,"If yes above, what is the route to access or process this information? What permission is required?",,,
 RWE resources,,audit possible,bool,,,,,,,,,"Are external parties allowed to audit the data? For example, is it possible for an external party to audit the quality or validity of the data source?",,,
-RWE resources,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?,,,
-RWE resources,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted",,,
-RWE resources,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?,,,
-RWE resources,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted",,,
+Databanks,,access third party,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a third party?,,,
+Databanks,,access third party conditions,text,,,,,,,,,"If above is 'yes', describe the conditions under which third-party access may be granted",,,
+Databanks,,access non EU,bool,,,,,,,,,Can (an extract of) the data bank be accessed with permission by a non-EU/EEA institution?,,,
+Databanks,,access non EU conditions,text,,,,,,,,,"If yes above, describe the conditions under which non-EU/EEA access may be granted",,,
 RWE resources,,standard operating procedures,bool,,,,,,,,,Is there a standard operating procedure document that defines the processes and procedures for data capture and management?,,,
 RWE resources,,biospecimen access,bool,,,,,,,,,"If the data bank contains biospecimens (e.g., tissue samples), can these be retrieved?",EMA,,
 RWE resources,,biospecimen access conditions,text,,,,,,,,,"If yes above, describe the conditions under which permission to retrieve biospecimens may be granted",EMA,,
 RWE resources,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)",,,
 RWE resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,EMA,,
 RWE resources,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags,,,
-RWE resources,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records,,,
-RWE resources,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",,,
+Databanks,,refresh,int,,,,,,,,,Average number of days between refresh of data bank with new records,,,
+Databanks,,lag time,int,,,,,,,,,"How many days is the lag time after refresh before a record can be extracted? (e.g., a lag time may occur if the originator conducts quality checks)",,,
 RWE resources,,preservation,bool,,,,,,,,,Are records preserved in the data bank indefinitely?,EMA,,
 RWE resources,,preservation duration,int,,,,,,,,,"If no to the above, for how long (in years) are records preserved in the data bank?",EMA,,
 RWE resources,,refresh period,ontology_array,,,CatalogueOntologies,Months,,,,,"If data are refreshed on fixed dates (e.g., every June and December), when are the refreshes scheduled? Select all that apply from the following:",EMA,,
@@ -142,12 +142,12 @@ RWE resources,,date last refresh,date,,,,,,,,,Date of last update/refresh,EMA,,
 RWE resources,,quality,heading,,,,,,,,,List of relevant studies conducted using the data bank,,,
 RWE resources,,qualification,bool,,,,,,,,,"Has the data source successfully undergone a formal qualification process (e.g., from the EMA, or ISO or other certifications)?",EMA,,
 RWE resources,,qualifications description,text,,,,,,,,,"Has the resource successfully undergone a qualification process (e.g., from the EMA)? If yes, describe the qualification(s) granted",EMA,,
-RWE resources,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),,,
-RWE resources,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)",,,
-RWE resources,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",,,
-RWE resources,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?,,,
-RWE resources,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)",,,
-RWE resources,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time,,,
+Databanks,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),,,
+Databanks,,completeness,text,,,,,,,,,"Describe the completeness of the data bank (e.g., variables with more or fewer missing values)",,,
+Databanks,,completeness over time,text,,,,,,,,,"Describe any changes in completeness of the data bank (e.g., variables with more or fewer missing values) that have occurred  over time",,,
+Databanks,,completeness results,text,,,,,,,,,What methods or processes are applied to check completeness of the data bank?,,,
+Databanks,,quality description,text,,,,,,,,,"Describe the quality of the data bank (e.g., variables with more or fewer missing values)",,,
+Databanks,,quality over time,text,,,,,,,,,Describe any changes in quality of the data bank that have occurred  over time,,,
 RWE resources,,access for validation,bool,,,,,,,,,"Can validity of the data in the data bank be verified, e.g., by review of origin medical charts?",EMA,,
 RWE resources,,quality validation frequency,text,,,,,,,,,How often are data quality checks and validation steps conducted on the data bank?,,,
 RWE resources,,quality validation methods,text,,,,,,,,,What methods or processes are applied for data quality checks and validation steps conducted on the data bank?,,,
@@ -157,8 +157,8 @@ RWE resources,,standards,heading,,,,,,,,,Use of standard data models and ontolog
 RWE resources,,cdms,refback,,,,Mappings,,source,,,Common data models used or ETL-ed to by this data source,EMA,,
 RWE resources,,cdms other,text,,,,,,,,,"If not in list above, give the name of cdm(s) used by this data source",EMA,,
 RWE resources,,ETL frequency,int,,,,,,,,,"The frequency of the ETL process, in months",,,
-RWE resources,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
-RWE resources,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
+Databanks,,ETL standard vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,"Are data mapped to standardised vocabularies during ETL to the CDM? If yes, what vocabularies are used for events, such as diagnoses?",,Databanks,ETLstandardVocabularies
+Databanks,,ETL standard vocabularies other,text,,,,,,,,,"If other, what other vocabularies are used?",,Databanks,ETLstandardVocabulariesOther
 Data resources,,information,heading,,,,,,,,,Other information,,,
 Data resources,,design paper,ref_array,,,,Publications,,,,,Publication(s) that describe(s) the design of this resource,,,
 Extended resources,,publications,ref_array,,,,Publications,,,,,Other publication(s) about this resource,EMA,,
