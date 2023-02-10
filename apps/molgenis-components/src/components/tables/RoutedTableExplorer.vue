@@ -59,6 +59,14 @@ export default {
       type: String,
       default: () => "en",
     },
+    showFilters: {
+      type: Array,
+      default: () => [],
+    },
+    showColumns: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     getOrderBy() {
@@ -83,7 +91,7 @@ export default {
           return this.$route.query._col.split(",");
         }
       } else {
-        return [];
+        return this.showColumns;
       }
     },
     getFilters() {
@@ -94,7 +102,7 @@ export default {
           return this.$route.query._filter.split(",");
         }
       } else {
-        return [];
+        return this.showFilters;
       }
     },
     getPage() {
@@ -119,12 +127,14 @@ export default {
       }
     },
     getConditions() {
+      console.log('getConditions')
       let result = {};
       Object.keys(this.$route.query).forEach((key) => {
         if (!key.startsWith("_")) {
           result[key] = this.$route.query[key];
         }
       });
+      console.log(result)
       return result;
     },
     updatePage(page) {

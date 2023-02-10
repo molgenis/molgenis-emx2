@@ -314,6 +314,7 @@
 <script>
 import Client from "../../client/client.ts";
 import {
+  deepClone,
   getPrimaryKey,
   convertToPascalCase,
   getLocalizedDescription,
@@ -403,7 +404,7 @@ export default {
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
-      loading: true,
+      loading: false,
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
@@ -718,7 +719,7 @@ function getCondition(columnType, condition) {
 }
 
 function graphqlFilter(defaultFilter, columns, errorCallback) {
-  let filter = defaultFilter;
+  let filter = deepClone(defaultFilter);
   if (columns) {
     columns.forEach((col) => {
       const conditions = col.conditions
