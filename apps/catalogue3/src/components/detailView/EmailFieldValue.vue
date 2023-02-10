@@ -7,7 +7,7 @@ export default {
   name: "EmailFieldValue",
   props: {
     data: {
-      type: [String, Object],
+      type: [String],
       required: true,
     },
     metaData: {

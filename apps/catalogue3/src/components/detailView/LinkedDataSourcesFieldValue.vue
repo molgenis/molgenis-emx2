@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <table class="table-bordered w-100">
+  <div class="table-responsive">
+    <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th>name</th>
         <th>databank family</th>
@@ -10,7 +10,7 @@
         <th>linkage variable unique</th>
         <th>linkage completeness</th>
       </thead>
-      <tr v-for="row in rows" :key="row.id">
+      <tr v-for="row in rows" :key="row.id" @click="handleRowClick(row)">
         <td>
           {{ row.linkedDatasource?.name }}
           <span v-if="row.linkedDatasource?.name !== row.linkedDatasource?.id"
@@ -51,6 +51,16 @@ export default {
       return {
         mainDatasource: { equals: this.metaData.primaryTableKey },
       };
+    },
+  },
+  methods: {
+    handleRowClick(row) {
+      this.$router.push({
+        name: 'Resources-details',
+        params: {
+          id: row.linkedDatasource.id
+        },
+      });
     },
   },
   async mounted() {

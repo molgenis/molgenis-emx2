@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { EditModal } from "molgenis-components";
+import VueScrollTo from "vue-scrollto";
 
 import App from "./App.vue";
 import store from "./store/store";
@@ -26,8 +27,12 @@ import HomeView from "./views/HomeView.vue";
 
 import "molgenis-components/dist/style.css";
 
+const scrollBehavior = (to, from, savedPosition) => {
+  return savedPosition || { top: 0, left: 0 }
+}
 const router = createRouter({
   history: createWebHashHistory(),
+  scrollBehavior: scrollBehavior,
   routes: [
     { name: "Catalogue", path: "/", component: CatalogueView },
 
@@ -394,6 +399,7 @@ const router = createRouter({
 const app = createApp(App);
 app.use(router);
 app.use(store);
+app.use(VueScrollTo);
 
 // workaround for not importing recursive component
 app.component("EditModal", EditModal);

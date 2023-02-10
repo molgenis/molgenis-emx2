@@ -13,7 +13,7 @@
           /
         </h6>
       </div>
-      <h6 class="d-inline">{{ resourceType }}&nbsp;</h6>
+      <h6 class="d-inline">{{ resourceType.slice(0, -1) }}:&nbsp;</h6>
       <RouterLink
         :to="{
           name: resourceType + '-details',
@@ -24,7 +24,7 @@
         >{{ variable.resource.id }}
       </RouterLink>
       /
-      <h6 class="d-inline">Dataset name</h6>
+      <h6 class="d-inline">Dataset:</h6>
       <RouterLink
         :to="{
           name: 'Datasets-details',
@@ -42,31 +42,31 @@
         <div class="col">
           <h6>Variable name</h6>
           <p>{{ variable.name }}</p>
-          <span v-if="variable.description">
+          <span v-if="variable.description || !hideNA">
             <h6>Variable Description</h6>
             <p>{{ variable.description ? variable.description : "N/A" }}</p>
           </span>
-          <span v-if="variable.format">
+          <span v-if="variable.format || !hideNA">
             <h6>Variable format</h6>
             <OntologyTerms :terms="[variable.format]" color="dark" />
           </span>
-          <span v-if="variable.keywords">
+          <span v-if="variable.keywords || !hideNA">
             <h6>Variable keywords</h6>
             <OntologyTerms :terms="variable.keywords" color="dark" />
           </span>
-          <span v-if="variable.unit">
+          <span v-if="variable.unit || !hideNA">
             <h6>Variable unit</h6>
             <OntologyTerms :terms="[variable.unit]" color="dark" />
           </span>
-          <span v-if="variable.mandatory">
+          <span v-if="variable.mandatory || !hideNA">
             <h6>Mandatory</h6>
             <p>{{ variable.mandatory ? "YES" : "NO" }}</p>
           </span>
-          <span v-if="variable.vocabularies">
+          <span v-if="variable.vocabularies || !hideNA">
             <h6>Vocabularies</h6>
             <OntologyTerms :terms="variable.vocabularies" color="dark" />
           </span>
-          <span v-if="variable.permittedValues">
+          <span v-if="variable.permittedValues || !hideNA">
             <h6>Permitted values</h6>
             <table
               v-if="variable.permittedValues"
@@ -89,14 +89,14 @@
             </table>
             <p v-else>N/A</p>
           </span>
-          <span v-if="variable.exampleValues">
+          <span v-if="variable.exampleValues || !hideNA">
             <h6>Variable Example values</h6>
             <ul v-if="variable.exampleValues">
               <li v-for="v in variable.exampleValues" :key="v">'{{ v }}'</li>
             </ul>
             <p v-else>N/A</p>
           </span>
-          <span v-if="variable.repeats">
+          <span v-if="variable.repeats || !hideNA">
             <h6>This variable is repeated as:</h6>
             <table
               v-if="variable.repeats"
@@ -119,14 +119,14 @@
             </table>
             <p v-else>N/A</p>
           </span>
-          <span v-if="variable.notes">
+          <span v-if="variable.notes || !hideNA">
             <h6>Variable Notes</h6>
             <p>{{ variable.notes ? variable.notes : "N/A" }}</p>
           </span>
         </div>
         <div class="col"></div>
       </div>
-      <span v-if="variable.mappings">
+      <span v-if="variable.mappings || !hideNA">
         <h6>Mappings</h6>
         <table v-if="variable.mappings" class="table table-sm table-bordered">
           <thead>
