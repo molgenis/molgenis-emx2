@@ -1,5 +1,5 @@
 <template>
-  <div>loading {{ resourceData }}</div>
+  <div>loading {{ id }}</div>
 </template>
 
 <script>
@@ -25,7 +25,7 @@ export default {
   watch: {
     resourceData() {
       if (this.resourceData) {
-        this.$router.push({
+        this.$router.replace({
           name: this.resource + "-details",
           params: { id: this.id },
         });
