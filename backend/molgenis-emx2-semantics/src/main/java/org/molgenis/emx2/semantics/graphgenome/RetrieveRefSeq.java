@@ -29,9 +29,9 @@ public class RetrieveRefSeq {
                   + ";chrom="
                   + chromosomeWithChr
                   + ";start="
-                  + (earliestStart - DNA_PADDING)
+                  + (earliestStart - DNA_PADDING - 1)
                   + ";end="
-                  + (latestEnd + DNA_PADDING));
+                  + (latestEnd + DNA_PADDING - 1));
       UCSCAPIResponse UCSCResponse =
           new ObjectMapper().readValue(UCSCResponseStr, UCSCAPIResponse.class);
       return UCSCResponse.getDna();

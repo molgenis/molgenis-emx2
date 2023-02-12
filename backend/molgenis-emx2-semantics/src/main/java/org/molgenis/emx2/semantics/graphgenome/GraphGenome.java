@@ -65,18 +65,14 @@ public class GraphGenome {
       // compatible with 'uncertainty range' SV start positions
       // also, check that there is only 1 chromosome for all variants
       String chromosome = null;
-      Long earliestStart = Long.MAX_VALUE;
-      Long latestStart = Long.MIN_VALUE;
-      int longestVarRefSeq = Integer.MIN_VALUE;
+      Long firstStart = Long.MAX_VALUE;
+      Long lastEnd = Long.MIN_VALUE;
       ArrayList<GenomicVariantsResultSetsItem> sortedVariants = new ArrayList<>();
       for (GenomicVariantsResultSets variantSet : variants) {
         for (GenomicVariantsResultSetsItem variant : variantSet.getResults()) {
           // skip variants without a start position or ref base
           if (variant.getPosition().getStart() == null || variant.getReferenceBases() == null) {
             continue;
-          }
-          if (variant.getReferenceBases().length() > longestVarRefSeq) {
-            longestVarRefSeq = variant.getReferenceBases().length();
           }
           variant.setGenomicVariantsResultSetId(variantSet.getId());
           sortedVariants.add(variant);
@@ -91,27 +87,32 @@ public class GraphGenome {
                     + position.getRefseqId());
           }
           for (Long stLong : position.getStart()) {
-            if (stLong < earliestStart) {
-              earliestStart = stLong;
+            if (stLong < firstStart) {
+              firstStart = stLong;
             }
-            if (stLong > latestStart) {
-              latestStart = stLong;
+            long startPlusRefLength = stLong + variant.getReferenceBases().length();
+            if (startPlusRefLength > lastEnd) {
+              lastEnd = startPlusRefLength;
             }
           }
         }
       }
-      latestStart = latestStart + longestVarRefSeq;
 
       // sanity checks
-      if (earliestStart == Long.MAX_VALUE
-          || latestStart == Long.MIN_VALUE
-          || earliestStart.longValue() == latestStart.longValue()) {
+      if (firstStart == Long.MAX_VALUE
+          || lastEnd == Long.MIN_VALUE
+          || firstStart >= lastEnd) {
         throw new Exception(
             "Cannot determine start/end range because of missing starting positions or variant reference bases");
       }
 
+      // todo instead of exception, could compensate, but does it ever occur?
+      if (firstStart <= DNA_PADDING) {
+        throw new Exception("Start position must be greater than " + DNA_PADDING);
+      }
+
       // get reference genome sequence from UCSC API
-      String dna = getDnaFromUCSC(ucscgenome, chromosome, earliestStart, latestStart, offlineMode);
+      String dna = getDnaFromUCSC(ucscgenome, chromosome, firstStart, lastEnd, offlineMode);
 
       // sort variants for lineair iteration
       sortedVariants.sort(new SortByPosition());
@@ -132,8 +133,8 @@ public class GraphGenome {
               chromosome,
               assembly,
               ucscgenome,
-              earliestStart,
-              latestStart);
+              firstStart,
+              lastEnd);
 
       int nodeCounter = 0;
       int previousRefSeqStart = 0;
@@ -147,8 +148,7 @@ public class GraphGenome {
       for (GenomicVariantsResultSetsItem variant : sortedVariants) {
 
         int refSeqStart = previousRefSeqEnd + previousVariantRefBaseLength;
-        int refSeqEnd =
-            (int) (variant.getPosition().getStart()[0] - earliestStart) + DNA_PADDING - 1;
+        int refSeqEnd = (int) (variant.getPosition().getStart()[0] - firstStart) + DNA_PADDING;
 
         Situation situation;
         if (refSeqEnd == previousRefSeqEnd) {
@@ -170,6 +170,7 @@ public class GraphGenome {
           // Situation 3: Variant within previous indel length causing start to overshoot. We must
           // produce a new reference sequence node between this variant and the last reference, and
           // connect the variant to that.
+          // todo fails on multiple stacked indels, need breadcrumb implementation
           refSeqStart = previousRefSeqStart;
           String refSeq = dna.substring(refSeqStart, refSeqEnd);
           String refSeqNodeId = formatNodeId(apiContext, gene, nodeCounter++, REFERENCE, refSeq);

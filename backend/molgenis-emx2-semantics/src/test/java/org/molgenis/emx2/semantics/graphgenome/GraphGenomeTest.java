@@ -58,13 +58,13 @@ public class GraphGenomeTest {
             "<http://localhost:8080/api/graphgenome/TERC> a <http://purl.obolibrary.org/obo/NCIT_C16612>"));
     assertTrue(
         result.contains(
-            "<http://localhost:8080/api/graphgenome/TERC/node0/REF/NNNNNNNNN> a <http://purl.obolibrary.org/obo/NCIT_C164388>"));
+            "<http://localhost:8080/api/graphgenome/TERC/node0/REF/NNNNNNNNNN> a <http://purl.obolibrary.org/obo/NCIT_C164388>"));
     assertTrue(
         result.contains(
             "<http://localhost:8080/api/graphgenome/TERC/node1/ALT/T> a <http://ensembl.org/glossary/ENSGLOSSARY_0000187>"));
     assertTrue(
         result.contains(
-            "<http://purl.obolibrary.org/obo/RO_0002530> <http://localhost:8080/api/graphgenome/TERC/node0/REF/NNNNNNNNN>"));
+            "<http://purl.obolibrary.org/obo/RO_0002530> <http://localhost:8080/api/graphgenome/TERC/node0/REF/NNNNNNNNNN>"));
     assertTrue(
         result.contains(
             "<http://snomed.info/id/363713009> <http://localhost:8080/api/graphgenome/TERC/node1/ALT/T/clinical_interpretation0>"));
@@ -74,5 +74,8 @@ public class GraphGenomeTest {
     assertTrue(
         result.contains(
             "<http://purl.obolibrary.org/obo/HP_0045088> \"Likely benign\", <http://purl.obolibrary.org/obo/NCIT_C168801>"));
+    assertTrue(
+        result.contains(
+            "<http://localhost:8080/api/graphgenome/TERC/26/NNNNNNNNNN> a <http://purl.obolibrary.org/obo/NCIT_C164388>"));
   }
 }
