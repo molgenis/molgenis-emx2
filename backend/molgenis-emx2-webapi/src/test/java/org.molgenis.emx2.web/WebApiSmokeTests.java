@@ -246,6 +246,31 @@ public class WebApiSmokeTests {
     assertEquals(new String(contentsTagData), contentsTagDataNew);
   }
 
+  @Test
+  public void testCsvApi_tableFilter() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("spike"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("jerry"));
+    assertFalse(result.contains("spike"));
+  }
+
   private void acceptFileUpload(File content, String table) {
     given()
         .sessionId(SESSION_ID)
