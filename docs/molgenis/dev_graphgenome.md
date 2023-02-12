@@ -62,3 +62,7 @@ The graph building algorithm can handle the following situations:
 
 However, the resulting graph in case of variants inside upstream indels is currently not a proper graph genome representation because the appended reference sequence is 'restarted' instead of recursive backtracking on previous nodes to split up indel reference notation to accomodate additional variation.
 A more powerful implementation would be needed to resolve this issue.
+
+Furthermore, multiple such indels at the same location will now crash the algorithm because backtracking cannot be done multiple times. This could be resolved by keeping breadcrumbs of all visited coordinates, and keep backtracking until the end position is again after start position.
+
+Lastly, determining the optimal window to obtain a piece of reference genome sequence from UCSC is currently not optimal. Ideally, both correctly provided start and end positions of variants should be used. But end positions are not always provided. Using earliest and last start position combined with longest observed variant reference base length works better, but has a risk of adding more sequence than needed, e.g. with a huge deletion at the start of a gene - its length added to the last start location to form a window. Ideally, a combination of available information should be used instead.
