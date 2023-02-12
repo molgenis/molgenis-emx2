@@ -40,6 +40,9 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    if (columnNames.size() == 0) {
+      throw new MolgenisException("Write " + name + " to Excel failed: columnNames.size() == 0");
+    }
     SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
@@ -55,7 +58,7 @@ public class TableStoreForXlsxFile implements TableStore {
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
       if (rows.iterator().hasNext()) {
-        writeRowsToSheet(name, rows, wb);
+        writeRowsToSheet(name, columnNames, rows, wb);
       } else {
         writeHeaderOnlyToSheet(name, columnNames, wb);
       }
@@ -72,12 +75,6 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  @Override
-  public void writeTable(
-      String name, List<String> columnNames, Iterable<Row> rows, boolean includeSystemColumns) {
-    this.writeTable(name, columnNames, rows);
-  }
-
   private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
     Sheet sheet = wb.createSheet(name);
     org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
@@ -86,14 +83,9 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeRowsToSheet(String name, Iterable<Row> rows, SXSSFWorkbook wb)
+  private void writeRowsToSheet(
+      String name, List<String> columnNames, Iterable<Row> rows, SXSSFWorkbook wb)
       throws IOException {
-
-    // get the row columns
-    Set<String> columnNames = new LinkedHashSet<>();
-    for (Row row : rows) {
-      columnNames.addAll(row.getColumnNames());
-    }
 
     // create the sheet
     SXSSFSheet sheet = wb.createSheet(name);

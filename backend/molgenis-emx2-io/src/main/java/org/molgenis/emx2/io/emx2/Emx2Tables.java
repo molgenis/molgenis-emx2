@@ -53,14 +53,9 @@ public class Emx2Tables {
                       MG_TABLECLASS,
                       Operator.EQUALS,
                       table.getSchema().getName() + "." + table.getName()))
-              .retrieveRows(),
-          includeSystemColumns);
+              .retrieveRows());
     } else {
-      store.writeTable(
-          table.getName(),
-          downloadColumnNames,
-          table.select(select).retrieveRows(),
-          includeSystemColumns);
+      store.writeTable(table.getName(), downloadColumnNames, table.select(select).retrieveRows());
     }
 
     // in case of zip file we include the attached files

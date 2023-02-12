@@ -1,11 +1,13 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
+import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static spark.Spark.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
@@ -19,6 +21,7 @@ import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import spark.Request;
 import spark.Response;
 
@@ -70,7 +73,11 @@ public class CsvApi {
   static String getMetadata(Request request, Response response) throws IOException {
     Schema schema = getSchema(request);
     StringWriter writer = new StringWriter();
-    CsvTableWriter.write(Emx2.toRowList(schema.getMetadata()), writer, getSeperator(request));
+    CsvTableWriter.write(
+        Emx2.toRowList(schema.getMetadata()),
+        getHeaders(schema.getMetadata()),
+        writer,
+        getSeperator(request));
     response.type(ACCEPT_CSV);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     response.header(
@@ -82,6 +89,25 @@ public class CsvApi {
 
   private static String tableRetrieve(Request request, Response response) throws IOException {
     Table table = MolgenisWebservice.getTable(request);
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeperator(request));
+    store.writeTable(
+        table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
+    response.type(ACCEPT_CSV);
+    response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
+    response.status(200);
+    return store.getCsvString(table.getName());
+  }
+
+  public static List<String> getDownloadColumns(Request request, Table table) {
+    boolean includeSystem = includeSystemColumns(request);
+    return table.getMetadata().getDownloadColumnNames().stream()
+        .map(column -> column.getName())
+        .filter(name -> !name.startsWith("mg_") || includeSystem)
+        .toList();
+  }
+
+  public static List<Row> getDownloadRows(Request request, Table table)
+      throws JsonProcessingException {
     Query q = table.query();
     // extract filter argument if exists
     if (request.queryParams(GraphqlConstants.FILTER_ARGUMENT) != null) {
@@ -94,12 +120,7 @@ public class CsvApi {
                   .readValue(request.queryParams(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
     List<Row> rows = q.retrieveRows();
-    StringWriter writer = new StringWriter();
-    CsvTableWriter.write(rows, writer, getSeperator(request), includeSystemColumns(request));
-    response.type(ACCEPT_CSV);
-    response.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
-    response.status(200);
-    return writer.toString();
+    return rows;
   }
 
   private static String tableUpdate(Request request, Response response) {

@@ -34,18 +34,64 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
+                zip
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
+                csv
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt>
+                </span>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableId">
-                  jsonld
+                excel
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt></span
+                >
+              </div>
+              <div>
+                jsonld
+                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                  all rows
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
+                ttl
+                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
             </div>
           </form>

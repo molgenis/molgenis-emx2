@@ -172,6 +172,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     getTables()
         .forEach(
             table -> {
+              result.addAll(table.getLabels().keySet());
+              result.addAll(table.getDescriptions().keySet());
               table
                   .getColumns()
                   .forEach(

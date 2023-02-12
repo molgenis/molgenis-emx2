@@ -111,8 +111,8 @@ public class TestReadWriteStores {
     StopWatch.start("created some rows");
 
     // write them
-    store.writeTable("test", List.of(), rows);
-    store.writeTable("test2", List.of(), rows);
+    store.writeTable("test", new ArrayList<>(rows.get(0).getColumnNames()), rows);
+    store.writeTable("test2", new ArrayList<>(rows.get(0).getColumnNames()), rows);
 
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
@@ -126,7 +126,7 @@ public class TestReadWriteStores {
     CompareTools.assertEquals(rows, rows2);
 
     // write another one
-    store.writeTable("test3", List.of(), rows);
+    store.writeTable("test3", new ArrayList<>(rows.get(0).getColumnNames()), rows);
     StopWatch.print("wrote them to " + store.getClass().getSimpleName(), count);
 
     rows2 =

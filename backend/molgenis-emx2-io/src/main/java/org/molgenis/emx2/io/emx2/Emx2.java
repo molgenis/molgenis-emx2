@@ -147,7 +147,12 @@ public class Emx2 {
 
   public static void outputMetadata(TableStore store, SchemaMetadata schema) {
     // headers
-    List<String> headers = new ArrayList<>();
+    List<String> headers = getHeaders(schema);
+    store.writeTable("molgenis", headers, toRowList(schema));
+  }
+
+  public static List getHeaders(SchemaMetadata schema) {
+    List headers = new ArrayList();
     headers.addAll(
         List.of(
             TABLE_NAME,
@@ -164,14 +169,12 @@ public class Emx2 {
             VALIDATION,
             SEMANTICS));
     // add label locales that are used
-    schema
-        .getLocales()
-        .forEach(locale -> headers.add("en".equals(locale) ? LABEL : LABEL + ":" + locale));
-    schema
-        .getLocales()
-        .forEach(
-            locale -> headers.add("en".equals(locale) ? DESCRIPTION : DESCRIPTION + ":" + locale));
-    store.writeTable("molgenis", headers, toRowList(schema));
+    Set<String> locales = new TreeSet<>();
+    locales.addAll(schema.getLocales());
+    locales.forEach(locale -> headers.add("en".equals(locale) ? LABEL : LABEL + ":" + locale));
+    locales.forEach(
+        locale -> headers.add("en".equals(locale) ? DESCRIPTION : DESCRIPTION + ":" + locale));
+    return headers;
   }
 
   /** Outputs tables + columns. */
