@@ -99,9 +99,7 @@ public class GraphGenome {
       }
 
       // sanity checks
-      if (firstStart == Long.MAX_VALUE
-          || lastEnd == Long.MIN_VALUE
-          || firstStart >= lastEnd) {
+      if (firstStart == Long.MAX_VALUE || lastEnd == Long.MIN_VALUE || firstStart >= lastEnd) {
         throw new Exception(
             "Cannot determine start/end range because of missing starting positions or variant reference bases");
       }
