@@ -169,11 +169,13 @@ public class Emx2 {
             VALIDATION,
             SEMANTICS));
     // add label locales that are used
-    Set<String> locales = new TreeSet<>();
-    locales.addAll(schema.getLocales());
-    locales.forEach(locale -> headers.add("en".equals(locale) ? LABEL : LABEL + ":" + locale));
-    locales.forEach(
-        locale -> headers.add("en".equals(locale) ? DESCRIPTION : DESCRIPTION + ":" + locale));
+    schema
+        .getLocales()
+        .forEach(locale -> headers.add("en".equals(locale) ? LABEL : LABEL + ":" + locale));
+    schema
+        .getLocales()
+        .forEach(
+            locale -> headers.add("en".equals(locale) ? DESCRIPTION : DESCRIPTION + ":" + locale));
     return headers;
   }
 
