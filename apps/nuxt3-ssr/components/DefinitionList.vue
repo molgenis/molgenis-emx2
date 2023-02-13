@@ -56,7 +56,7 @@ function emptyContent(item: DefinitionListItem) {
           :collapse-all="false"
         ></ContentOntology>
         <ul
-          v-else-if="isArray(item.content)"
+          v-else-if="isArray(item.content) && item.content.length > 1"
           class="grid gap-1 pl-4 list-disc list-outside"
         >
           <li v-for="row in item.content" :key="row">
@@ -68,7 +68,7 @@ function emptyContent(item: DefinitionListItem) {
           <CustomTooltip label="Read more" :content="item.content.tooltip" />
         </p>
         <p v-else>
-          {{ item.content }}
+          {{ Array.isArray(item.content) ? item.content[0] : item.content }}
         </p>
       </dd>
     </div>
