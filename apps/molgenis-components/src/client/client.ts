@@ -129,10 +129,12 @@ export default {
       fetchAggregateData: async (
         tableName: string,
         selectedColumn: { name: string; column: string },
-        selectedRow: { name: string; column: string }
+        selectedRow: { name: string; column: string },
+        filter: Object
       ) => {
-        const aggregateQuery = `{
-          ${tableName}_groupBy {
+        const aggregateQuery = `
+        query ${tableName}_groupBy($filter: ${tableName}Filter){
+          ${tableName}_groupBy(filter: $filter) {
             count,
             ${selectedColumn.name} {
               ${selectedColumn.column}
@@ -142,7 +144,7 @@ export default {
             }
           }
         }`;
-        return request(graphqlURL(schemaNameCache), aggregateQuery);
+        return request(graphqlURL(schemaNameCache), aggregateQuery, { filter });
       },
       saveTableSettings: async (settings: ISetting[]) => {
         return request(

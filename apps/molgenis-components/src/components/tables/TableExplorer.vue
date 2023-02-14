@@ -131,7 +131,6 @@
         :class="countFilters > 0 ? 'col-9' : 'col-12'"
       >
         <FilterWells
-          v-if="view !== View.AGGREGATE"
           :filters="columns"
           @updateFilters="emitConditions"
           class="border-top pt-3 pb-3"
@@ -141,13 +140,13 @@
         </div>
         <div v-if="!loading">
           <div v-if="view === View.AGGREGATE">
-            <div v-if="aggregateColumns?.length > 0">
-              <AggregateOptions
-                :columns="columns"
-                @setAggregateColumns="aggregateColumns = $event"
-                v-model:selectedColumn="aggregateSelectedColumn"
-                v-model:selectedRow="aggregateSelectedRow"
-              />
+            <AggregateOptions
+              :columns="columns"
+              @setAggregateColumns="aggregateColumns = $event"
+              v-model:selectedColumn="aggregateSelectedColumn"
+              v-model:selectedRow="aggregateSelectedRow"
+            />
+            <div v-if="aggregateColumns?.length">
               <AggregateTable
                 :tableName="tableName"
                 :schemaName="schemaName"
@@ -158,6 +157,7 @@
                 columnNameProperty="name"
                 :selectedRowProperty="aggregateSelectedRow"
                 rowNameProperty="name"
+                :graphqlFilter="graphqlFilter"
               />
             </div>
             <div v-else class="alert">

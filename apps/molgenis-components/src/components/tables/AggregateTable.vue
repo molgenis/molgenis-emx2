@@ -65,6 +65,10 @@ export default defineComponent({
       type: Number,
       default: 1,
     },
+    graphqlFilter: {
+      type: Object,
+      default: {},
+    },
   },
   data: function () {
     return {
@@ -109,7 +113,8 @@ export default defineComponent({
         {
           name: this.selectedRowProperty,
           column: this.rowNameProperty,
-        }
+        },
+        this.graphqlFilter
       );
       responseData[this.tableName + "_groupBy"].forEach((item: any) =>
         this.addItem(item)
