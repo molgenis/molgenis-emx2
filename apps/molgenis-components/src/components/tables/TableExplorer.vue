@@ -34,13 +34,13 @@
             <h6>download</h6>
             <div>
               <div>
-                zip
+                <span class="fixed-width">zip</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
                   >all rows</ButtonAlt
                 >
               </div>
               <div>
-                csv
+                <span class="fixed-width">csv</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
                   >all rows</ButtonAlt
                 >
@@ -61,7 +61,7 @@
                 </span>
               </div>
               <div>
-                excel
+                <span class="fixed-width">excel</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
                   >all rows</ButtonAlt
                 >
@@ -82,13 +82,13 @@
                 >
               </div>
               <div>
-                jsonld
+                <span class="fixed-width">jsonld</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
                   all rows
                 </ButtonAlt>
               </div>
               <div>
-                ttl
+                <span class="fixed-width">ttl</span>
                 <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
                   >all rows</ButtonAlt
                 >
@@ -356,6 +356,13 @@
     </ConfirmModal>
   </div>
 </template>
+
+<style scoped>
+.fixed-width {
+  width: 3em;
+  display: inline-block;
+}
+</style>
 
 <script>
 import Client from "../../client/client.ts";
