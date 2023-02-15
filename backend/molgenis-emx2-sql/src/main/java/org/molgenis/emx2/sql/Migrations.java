@@ -4,12 +4,13 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.createMgTableClassCannotUpdateCheck;
+import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 
 import java.io.IOException;
-import org.jooq.DSLContext;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -153,16 +154,51 @@ public class Migrations {
   }
 
   static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
-    // should add trigger to all root tables, identfied by having MG_TABLCLASS column
-    for (String schemaName : db.getSchemaNames()) {
-      Schema schema = db.getSchema(schemaName);
-      for (String tableName : schema.getTableNames()) {
-        TableMetadata tableMetadata = schema.getTable(tableName).getMetadata();
-        if (tableMetadata.getLocalColumnNames().contains(MG_TABLECLASS)) {
-          createMgTableClassCannotUpdateCheck((SqlTableMetadata) tableMetadata, db.getJooq());
-          logger.debug(
-              "added mg_tableclass update trigger for table "
-                  + tableMetadata.getJooqTable().getName());
+    // should add trigger to all root tables, identfied by having MG_TABLECLASS column
+    DSLContext jooq = db.getJooq();
+    // all schemas, except MOLGENIS
+    for (org.jooq.Table table : jooq.meta().getTables()) {
+      for (Field field : table.fields()) {
+        if (field.getName().equals(MG_TABLECLASS)) {
+          // rewrite of createMgTableClassCannotUpdateCheck
+          // such that it doesn't use the metadata schema because that gives errors if migration is not yet executed, savvy?
+          String functionName = table.getName() + MG_TABLECLASS_UPDATE;
+          List<TableField> keyFields = ((UniqueKey)table.getKeys().get(0)).getFields();
+          String keyColumns =
+              keyFields.stream()
+                  .map(keyField -> keyField.getName())
+                  .collect(Collectors.joining(","));
+          String keyValues =
+              keyFields.stream()
+                  .map(keyField -> "OLD." + name(keyField.getName()))
+                  .collect(Collectors.joining("||','||"));
+
+          jooq.execute(
+              "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+                  + "\nBEGIN"
+                  + "\n\tIF OLD.{1} <> NEW.{1} THEN"
+                  + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
+                  + ", MESSAGE = 'insert or update on table ' || NEW.{1} || ' violates primary key constraint'"
+                  + ", DETAIL = 'Duplicate key: ('||{2}||')=('|| {3} ||') already exists in inherited table ' || OLD.{1};"
+                  + "\n\tEND IF;"
+                  + "\n\tRETURN NEW;"
+                  + "\nEND; $BODY$ LANGUAGE plpgsql;",
+              name(table.getSchema().getName(), functionName),
+              name(MG_TABLECLASS),
+              inline(keyColumns),
+              keyword(keyValues));
+
+          jooq.execute(
+              "CREATE CONSTRAINT TRIGGER {0} "
+                  + "\n\tAFTER UPDATE OF {1} ON {2}"
+                  + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
+                  + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
+              name(functionName),
+              name(MG_TABLECLASS),
+              table,
+              name(table.getSchema().getName(), functionName));
+
+          logger.info("migration 5 added mg_tableclass update trigger for table " + table.getName());
         }
       }
     }
