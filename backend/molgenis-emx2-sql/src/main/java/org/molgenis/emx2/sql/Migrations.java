@@ -161,9 +161,10 @@ public class Migrations {
       for (Field field : table.fields()) {
         if (field.getName().equals(MG_TABLECLASS)) {
           // rewrite of createMgTableClassCannotUpdateCheck
-          // such that it doesn't use the metadata schema because that gives errors if migration is not yet executed, savvy?
+          // such that it doesn't use the metadata schema because that gives errors if migration is
+          // not yet executed, savvy?
           String functionName = table.getName() + MG_TABLECLASS_UPDATE;
-          List<TableField> keyFields = ((UniqueKey)table.getKeys().get(0)).getFields();
+          List<TableField> keyFields = ((UniqueKey) table.getKeys().get(0)).getFields();
           String keyColumns =
               keyFields.stream()
                   .map(keyField -> keyField.getName())
@@ -173,8 +174,12 @@ public class Migrations {
                   .map(keyField -> "OLD." + name(keyField.getName()))
                   .collect(Collectors.joining("||','||"));
 
+          jooq.execute("DROP TRIGGER IF EXISTS {0} ON {1};", name(functionName), table);
           jooq.execute(
-              "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
+              "DROP FUNCTION IF EXISTS {0}", name(table.getSchema().getName(), functionName));
+
+          jooq.execute(
+              "CREATE FUNCTION {0}() RETURNS trigger AS $BODY$ "
                   + "\nBEGIN"
                   + "\n\tIF OLD.{1} <> NEW.{1} THEN"
                   + "\n\t\tRAISE EXCEPTION USING ERRCODE='23505'"
@@ -189,7 +194,7 @@ public class Migrations {
               keyword(keyValues));
 
           jooq.execute(
-              "CREATE OR REPLACE CONSTRAINT TRIGGER {0} "
+              "CREATE CONSTRAINT TRIGGER {0} "
                   + "\n\tAFTER UPDATE OF {1} ON {2}"
                   + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                   + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
@@ -198,7 +203,8 @@ public class Migrations {
               table,
               name(table.getSchema().getName(), functionName));
 
-          logger.info("migration 5 added mg_tableclass update trigger for table " + table.getName());
+          logger.info(
+              "migration 5 added mg_tableclass update trigger for table " + table.getName());
         }
       }
     }
