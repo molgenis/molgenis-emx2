@@ -189,7 +189,7 @@ public class Migrations {
               keyword(keyValues));
 
           jooq.execute(
-              "CREATE CONSTRAINT TRIGGER {0} "
+              "CREATE OR REPLACE CONSTRAINT TRIGGER {0} "
                   + "\n\tAFTER UPDATE OF {1} ON {2}"
                   + "\n\tDEFERRABLE INITIALLY IMMEDIATE "
                   + "\n\tFOR EACH ROW EXECUTE PROCEDURE {3}()",
