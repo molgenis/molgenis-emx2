@@ -56,9 +56,9 @@ export default {
   methods: {
     handleRowClick(row) {
       this.$router.push({
-        name: 'Resources-details',
+        name: "Resources-details",
         params: {
-          id: row.linkedDatasource.id
+          id: row.linkedDatasource.id,
         },
       });
     },

@@ -34,18 +34,64 @@
             <h6>download</h6>
             <div>
               <div>
-                <ButtonAlt :href="'../api/zip/' + tableId">zip</ButtonAlt>
+                <span class="fixed-width">zip</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/zip/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
               <div>
-                <ButtonAlt :href="'../api/excel/' + tableId">excel</ButtonAlt>
+                <span class="fixed-width">csv</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/csv/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/csv/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt>
+                </span>
               </div>
               <div>
-                <ButtonAlt :href="'../api/jsonld/' + tableId">
-                  jsonld
+                <span class="fixed-width">excel</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/excel/' + tableId"
+                  >all rows</ButtonAlt
+                >
+                <span v-if="Object.keys(graphqlFilter).length > 0">
+                  |
+                  <ButtonAlt
+                    :href="
+                      '/' +
+                      schemaName +
+                      '/api/excel/' +
+                      tableId +
+                      '?filter=' +
+                      JSON.stringify(graphqlFilter)
+                    "
+                  >
+                    filtered rows
+                  </ButtonAlt></span
+                >
+              </div>
+              <div>
+                <span class="fixed-width">jsonld</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/jsonld/' + tableId">
+                  all rows
                 </ButtonAlt>
               </div>
               <div>
-                <ButtonAlt :href="'../api/ttl/' + tableId">ttl</ButtonAlt>
+                <span class="fixed-width">ttl</span>
+                <ButtonAlt :href="'/' + schemaName + '/api/ttl/' + tableId"
+                  >all rows</ButtonAlt
+                >
               </div>
             </div>
           </form>
@@ -310,6 +356,13 @@
     </ConfirmModal>
   </div>
 </template>
+
+<style scoped>
+.fixed-width {
+  width: 3em;
+  display: inline-block;
+}
+</style>
 
 <script>
 import Client from "../../client/client.ts";
