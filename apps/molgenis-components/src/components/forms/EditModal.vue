@@ -24,7 +24,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :schemaMetadata="schemaMetaData"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :locale="locale"
