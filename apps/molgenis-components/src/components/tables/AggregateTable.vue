@@ -224,48 +224,12 @@ export default {
           columnType: "REF",
         },
         {
-          name: "photoUrls",
-          columnType: "STRING_ARRAY",
-        },
-        {
-          name: "details",
-          columnType: "HEADING",
-        },
-        {
-          name: "status",
-          columnType: "STRING",
-        },
-        {
           name: "tags",
           columnType: "ONTOLOGY_ARRAY",
         },
         {
-          name: "weight",
-          columnType: "DECIMAL",
-        },
-        {
           name: "orders",
           columnType: "REFBACK",
-        },
-        {
-          name: "mg_draft",
-          columnType: "BOOL",
-        },
-        {
-          name: "mg_insertedBy",
-          columnType: "STRING",
-        },
-        {
-          name: "mg_insertedOn",
-          columnType: "DATETIME",
-        },
-        {
-          name: "mg_updatedBy",
-          columnType: "STRING",
-        },
-        {
-          name: "mg_updatedOn",
-          columnType: "DATETIME",
         },
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
