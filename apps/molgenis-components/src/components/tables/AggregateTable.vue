@@ -1,6 +1,9 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
+    <div v-else-if="noResults" class="alert alert-warning">
+      No results found
+    </div>
     <TableStickyHeaders
       v-else
       :columns="columns"
@@ -65,6 +68,10 @@ export default defineComponent({
       type: Number,
       default: 1,
     },
+    graphqlFilter: {
+      type: Object,
+      default: {},
+    },
   },
   data: function () {
     return {
@@ -74,9 +81,38 @@ export default defineComponent({
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
+      noResults: false,
     };
   },
   methods: {
+    async fetchData() {
+      this.loading = true;
+      this.rows = [];
+      this.columns = [];
+      this.aggregateData = {};
+      const client = Client.newClient(this.schemaName);
+      const responseData = await client.fetchAggregateData(
+        this.tableName,
+        {
+          name: this.selectedColumnProperty,
+          column: this.columnNameProperty,
+        },
+        {
+          name: this.selectedRowProperty,
+          column: this.rowNameProperty,
+        },
+        this.graphqlFilter
+      );
+      if (responseData[this.tableName + "_groupBy"]) {
+        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+          this.addItem(item)
+        );
+        this.noResults = !Boolean(this.columns.length);
+      } else {
+        this.noResults = true;
+      }
+      this.loading = false;
+    },
     addItem(item: any) {
       const column: string = item[this.selectedColumn].name || "not specified";
       const row: string = item[this.selectedRow].name || "not specified";
@@ -93,28 +129,6 @@ export default defineComponent({
       if (!this.rows.includes(row)) {
         this.rows.push(row);
       }
-    },
-    async fetchData() {
-      this.loading = true;
-      this.rows = [];
-      this.columns = [];
-      this.aggregateData = {};
-      const client = Client.newClient(this.schemaName);
-      const responseData = await client.fetchAggregateData(
-        this.tableName,
-        {
-          name: this.selectedColumnProperty,
-          column: this.columnNameProperty,
-        },
-        {
-          name: this.selectedRowProperty,
-          column: this.rowNameProperty,
-        }
-      );
-      responseData[this.tableName + "_groupBy"].forEach((item: any) =>
-        this.addItem(item)
-      );
-      this.loading = false;
     },
   },
   created() {

@@ -1,5 +1,5 @@
 <template>
-  <div class="aggregate-options container">
+  <div class="aggregate-options container" v-if="refColumns.length">
     <div class="row">
       <div class="col-1">
         <label class="mr-2 col-form-label" for="aggregate-column-select">
