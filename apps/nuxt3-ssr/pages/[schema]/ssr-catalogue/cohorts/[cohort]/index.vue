@@ -41,6 +41,12 @@ const query = gql`
       numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
+      designSchematic {
+        id
+        url
+        size
+        extension
+      }
       design {
         definition
         name
