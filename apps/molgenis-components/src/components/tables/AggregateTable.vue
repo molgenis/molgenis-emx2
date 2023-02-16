@@ -194,30 +194,83 @@ function isRefType(column: IColumn): boolean {
   <demo-item>
     <label>AggregateTable</label>
     <AggregateTable
-        tableName="Pet"
-        schemaName="pet store"
-        :allColumns="allColumns"
-        :minimumValue="1"
+      tableName="Pet"
+      schemaName="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
     />
     <label>AggregateTable with filters set</label>
     <AggregateTable
-        tableName="Pet"
-        schemaName="pet store"
-        :allColumns="allColumns"
-        :minimumValue="1"
-        :graphqlFilter="graphqlFilter"
+      tableName="Pet"
+      schemaName="pet store"
+      :allColumns="allColumns"
+      :minimumValue="1"
+      :graphqlFilter="graphqlFilter"
     />
   </demo-item>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        allColumns: [ { "name": "name", "id": "name", "columnType": "STRING", "key": 1, "required": true, "descriptions": [ { "locale": "en", "value": "the name" } ], "showColumn": true, "showFilter": true, "conditions": [ "pooky", "spike" ] }, { "name": "category", "id": "category", "columnType": "REF", "refTable": "Category", "refLabel": "${name}", "required": true, "position": 1, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "photoUrls", "id": "photoUrls", "columnType": "STRING_ARRAY", "position": 2, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "details", "id": "details", "columnType": "HEADING", "descriptions": [ { "locale": "en", "value": "Details" } ], "position": 3, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "status", "id": "status", "columnType": "STRING", "position": 4, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "tags", "id": "tags", "columnType": "ONTOLOGY_ARRAY", "refTable": "Tag", "refLabel": "${name}", "position": 5, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "weight", "id": "weight", "columnType": "DECIMAL", "required": true, "position": 6, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "orders", "id": "orders", "columnType": "REFBACK", "refTable": "Order", "refLabel": "${orderId}", "refBack": "pet", "position": 9, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_draft", "id": "mg_draft", "columnType": "BOOL", "position": -5, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_insertedBy", "id": "mg_insertedBy", "columnType": "STRING", "position": -4, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_insertedOn", "id": "mg_insertedOn", "columnType": "DATETIME", "position": -3, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_updatedBy", "id": "mg_updatedBy", "columnType": "STRING", "position": -2, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_updatedOn", "id": "mg_updatedOn", "columnType": "DATETIME", "position": -1, "showColumn": false, "showFilter": false, "conditions": [] } ],
-        graphqlFilter: { "name": { "like": [ "pooky" ] } }
-      };
-    },
-  };
+export default {
+  data() {
+    return {
+      allColumns: [
+        {
+          name: "name",
+          columnType: "STRING",
+        },
+        {
+          name: "category",
+          columnType: "REF",
+        },
+        {
+          name: "photoUrls",
+          columnType: "STRING_ARRAY",
+        },
+        {
+          name: "details",
+          columnType: "HEADING",
+        },
+        {
+          name: "status",
+          columnType: "STRING",
+        },
+        {
+          name: "tags",
+          columnType: "ONTOLOGY_ARRAY",
+        },
+        {
+          name: "weight",
+          columnType: "DECIMAL",
+        },
+        {
+          name: "orders",
+          columnType: "REFBACK",
+        },
+        {
+          name: "mg_draft",
+          columnType: "BOOL",
+        },
+        {
+          name: "mg_insertedBy",
+          columnType: "STRING",
+        },
+        {
+          name: "mg_insertedOn",
+          columnType: "DATETIME",
+        },
+        {
+          name: "mg_updatedBy",
+          columnType: "STRING",
+        },
+        {
+          name: "mg_updatedOn",
+          columnType: "DATETIME",
+        },
+      ],
+      graphqlFilter: { name: { like: ["pooky"] } },
+    };
+  },
+};
 </script>
 </docs>
