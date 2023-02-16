@@ -62,7 +62,7 @@ let search = computed(() => {
 const query = computed(() => {
   return `
   query Cohorts($filter:CohortsFilter, $orderby:Cohortsorderby){
-    Cohorts(limit: ${pageSize} offset: ${offset.value} search:"${search.value}" filter:$filter  orderby:$orderby) {
+    Cohorts(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       pid
       name
       acronym
@@ -82,7 +82,7 @@ const query = computed(() => {
           acronym
       }
     }
-    Cohorts_agg (filter:$filter, search:"${search.value}"){
+    Cohorts_agg (filter:$filter){
         count
     }
   }
@@ -111,27 +111,29 @@ function buildFilterVariables() {
 }
 
 const filter = computed(() => {
-  // build the active filters
-  const filterVariables = buildFilterVariables();
+  // build the active (non search) filters
+  let filterBuilder = buildFilterVariables();
 
-  // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
+  if (search.value) {
+    // add the search to the filters
+    // @ts-ignore (dynamic object)
+    filterBuilder = {
+      ...filterBuilder,
+      ...{ _or: [{ _search: search.value }] },
+    };
 
-  if (searchTables) {
-    searchTables.forEach((searchTable) => {
-      if (search.value) {
-        if (Object.keys(filterVariables).includes(searchTable)) {
-          filterVariables[searchTable]["_search"] = search.value;
-        } else {
-          filterVariables[searchTable] = { _search: search.value };
-        }
-      }
-    });
+    // expand the search to the subtabels
+    // @ts-ignore (dynamic object)
+    filters
+      .find((f) => f.columnType === "_SEARCH")
+      ?.searchTables.forEach((sub) => {
+        // if (Object.keys(filterBuilder).includes(sub)) {
+        filterBuilder["_or"].push({ [sub]: { _search: search.value } });
+        // }
+      });
   }
 
-  return filterVariables;
+  return filterBuilder;
 });
 
 let graphqlURL = computed(() => `/${route.params.schema}/catalogue/graphql`);
