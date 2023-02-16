@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "8.73.1"
+        CHART_VERSION = "8.150.0"
         MOLGENIS_POSTGRES_USER = 'molgenis'
         MOLGENIS_POSTGRES_PASS = 'molgenis'
         MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenis'
@@ -130,7 +130,7 @@ pipeline {
                         sh 'rancher context switch dev-molgenis'
                         sh "sleep 30s" // wait for chart publish
                         env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${TAG_NAME}"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${CHART_VERSION}"
                     }
                 }
             }
