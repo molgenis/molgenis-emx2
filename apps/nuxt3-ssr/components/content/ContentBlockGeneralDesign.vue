@@ -39,6 +39,10 @@ function setData() {
       content: cohort?.designDescription,
     },
     {
+      label: "Design schematic",
+      content: cohort?.designSchematic,
+    },
+    {
       label: "Collection type",
       content: cohort?.collectionType
         ? cohort?.collectionType

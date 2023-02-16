@@ -457,7 +457,8 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private FilterBean[] convertMapToFilterArray(TableMetadata table, Map<String, Object> filter) {
+  public static FilterBean[] convertMapToFilterArray(
+      TableMetadata table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
@@ -514,7 +515,7 @@ public class GraphqlTableFieldFactory {
     return subFilters.toArray(new FilterBean[subFilters.size()]);
   }
 
-  private Filter createKeyFilter(Map<String, Object> map) {
+  private static Filter createKeyFilter(Map<String, Object> map) {
     List<Filter> result = new ArrayList<>();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       if (entry.getValue() instanceof Map) {
@@ -526,7 +527,7 @@ public class GraphqlTableFieldFactory {
     return and(result);
   }
 
-  private Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
+  private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
     int count = 0;
     for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
       count++;

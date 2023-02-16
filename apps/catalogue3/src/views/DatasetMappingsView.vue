@@ -49,6 +49,10 @@
               ? datasetmappings.description
               : "N/A"
           }}
+          <br />
+          <br />
+          <a :href="downloadURLcsv">Download ETL as csv</a><br />
+          <a :href="downloadURLexcel">Download ETL as Excel</a><br />
         </td>
       </tr>
       <tr>
@@ -181,6 +185,28 @@ export default {
   },
   computed: {
     ...mapGetters(["canEdit"]),
+    downloadURLcsv() {
+      return (
+        "../api/csv/Variable mappings?filter=" +
+        JSON.stringify(this.downloadFilter)
+      );
+    },
+    downloadURLexcel() {
+      return (
+        "../api/excel/Variable mappings?filter=" +
+        JSON.stringify(this.downloadFilter)
+      );
+    },
+    downloadFilter() {
+      return {
+        sourceDataset: {
+          equals: [{ resource: { id: this.source }, name: this.sourceDataset }],
+        },
+        targetDataset: {
+          equals: [{ resource: { id: this.target }, name: this.targetDataset }],
+        },
+      };
+    },
     resourceType() {
       if (this.datasetmapping.source) {
         return this.datasetmapping.source.mg_tableclass
