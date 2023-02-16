@@ -5,7 +5,7 @@
       Not enough input to create an aggregate table
     </div>
 
-    <div class="border d-inline-block p-2">
+    <div class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
           <tr>
