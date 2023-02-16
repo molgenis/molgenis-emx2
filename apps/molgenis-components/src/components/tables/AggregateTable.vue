@@ -1,35 +1,83 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
-    <div v-else-if="noResults" class="alert alert-warning">
-      No results found
+    <div v-else-if="!refColumns.length" class="alert alert-warning">
+      Not enough input to create an aggregate table
     </div>
-    <TableStickyHeaders
-      v-else
-      :columns="columns"
-      :rows="rows"
-      :data="aggregateData"
-    >
-      <template #column="columnProps">
-        {{ columnProps.value }}
-      </template>
-      <template #row="rowProps">
-        {{ rowProps.value }}
-      </template>
-      <template #cell="cell">
-        <div v-if="!cell.value" class="text-center text-black-50">-</div>
-        <div v-else-if="cell.value < minimumValue">﹤{{ minimumValue }}</div>
-        <div v-else>{{ cell.value }}</div>
-      </template>
-    </TableStickyHeaders>
+
+    <div>
+      <div class="aggregate-options container">
+        <div class="row">
+          <div class="col-1">
+            <label class="mr-2 col-form-label" for="aggregate-column-select">
+              Column:
+            </label>
+          </div>
+          <div class="col-3">
+            <InputSelect
+              id="aggregate-column-select"
+              v-model="selectedColumn"
+              @update:modelValue="fetchData"
+              :options="refColumns"
+              required
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-1">
+            <label class="mr-2 col-form-label" for="aggregate-row-select">
+              Row:
+            </label>
+          </div>
+          <div class="col-3">
+            <InputSelect
+              id="aggregate-row-select"
+              v-model="selectedRow"
+              @update:modelValue="fetchData"
+              :options="refColumns"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div v-if="noResults" class="alert alert-warning">No results found</div>
+
+      <TableStickyHeaders
+        v-else
+        :columns="columns"
+        :rows="rows"
+        :data="aggregateData"
+      >
+        <template #column="columnProps">
+          {{ columnProps.value }}
+        </template>
+        <template #row="rowProps">
+          {{ rowProps.value }}
+        </template>
+        <template #cell="cell">
+          <div v-if="!cell.value" class="text-center text-black-50">-</div>
+          <div v-else-if="cell.value < minimumValue">﹤{{ minimumValue }}</div>
+          <div v-else>{{ cell.value }}</div>
+        </template>
+      </TableStickyHeaders>
+    </div>
   </div>
 </template>
+
+<style>
+.aggregate-options .float-right {
+  display: none;
+}
+</style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
 import IAggregateData from "./IAggregateData";
 import Client from "../../client/client";
+import InputSelect from "../forms/InputSelect.vue";
+import { IColumn } from "../../Interfaces/IColumn";
 
 export default defineComponent({
   name: "AggregateTable",
@@ -39,28 +87,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    /** table to aggregate */
+    allColumns: {
+      type: Array,
+      required: true,
+    },
     tableName: {
-      type: String,
-      required: true,
-    },
-    /** property of the table to aggregate mref/xref */
-    selectedColumnProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the mref/xref to display in the header cell */
-    columnNameProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the table to aggregate mref/xref */
-    selectedRowProperty: {
-      type: String,
-      required: true,
-    },
-    /** property of the mref/xref to display in the header cell */
-    rowNameProperty: {
       type: String,
       required: true,
     },
@@ -75,8 +106,9 @@ export default defineComponent({
   },
   data: function () {
     return {
-      selectedColumn: this.selectedColumnProperty,
-      selectedRow: this.selectedRowProperty,
+      selectedColumn: "",
+      selectedRow: "",
+      refColumns: [] as string[],
       loading: true,
       rows: [] as string[],
       columns: [] as string[],
@@ -94,12 +126,12 @@ export default defineComponent({
       const responseData = await client.fetchAggregateData(
         this.tableName,
         {
-          name: this.selectedColumnProperty,
-          column: this.columnNameProperty,
+          name: this.selectedColumn,
+          column: "name",
         },
         {
-          name: this.selectedRowProperty,
-          column: this.rowNameProperty,
+          name: this.selectedRow,
+          column: "name",
         },
         this.graphqlFilter
       );
@@ -132,34 +164,48 @@ export default defineComponent({
     },
   },
   created() {
+    if (this.allColumns.length > 0) {
+      this.refColumns = getRefTypeColumns(this.allColumns as IColumn[]);
+      if (this.refColumns?.length > 0) {
+        this.selectedColumn = this.refColumns[0];
+        this.selectedRow = this.refColumns[1] || this.refColumns[0];
+      }
+    }
     this.fetchData();
   },
-  watch: {
-    selectedColumnProperty(value) {
-      this.selectedColumn = value;
-      this.fetchData();
-    },
-    selectedRowProperty(value) {
-      this.selectedRow = value;
-      this.fetchData();
-    },
-  },
 });
+
+function getRefTypeColumns(columns: IColumn[]): string[] {
+  return columns
+    .filter((column: IColumn) => isRefType(column))
+    .map((column: IColumn) => column.name);
+}
+
+function isRefType(column: IColumn): boolean {
+  return (
+    column.columnType.startsWith("REF") ||
+    column.columnType.startsWith("ONTOLOGY")
+  );
+}
 </script>
 
 <docs>
 <template>
   <demo-item>
+    <label>AggregateTable</label>
     <AggregateTable
-        :tableName="tableName"
-        :schemaName="schemaName"
-        :columnProperties="selectableColumns"
-        :rowProperties="selectableColumns"
-        :selectedColumnProperty="columnName"
-        :columnNameProperty="columnNameProperty"
-        :selectedRowProperty="rowName"
-        :rowNameProperty="columnNameProperty"
+        tableName="Pet"
+        schemaName="pet store"
+        :allColumns="allColumns"
         :minimumValue="1"
+    />
+    <label>AggregateTable with filters set</label>
+    <AggregateTable
+        tableName="Pet"
+        schemaName="pet store"
+        :allColumns="allColumns"
+        :minimumValue="1"
+        :graphqlFilter="graphqlFilter"
     />
   </demo-item>
 </template>
@@ -168,15 +214,8 @@ export default defineComponent({
   export default {
     data() {
       return {
-        selectableColumns: [
-          'category',
-          'tags',
-        ],
-        tableName: 'Pet',
-        schemaName: 'pet store',
-        columnName: 'category',
-        rowName: 'tags',
-        columnNameProperty: 'name',
+        allColumns: [ { "name": "name", "id": "name", "columnType": "STRING", "key": 1, "required": true, "descriptions": [ { "locale": "en", "value": "the name" } ], "showColumn": true, "showFilter": true, "conditions": [ "pooky", "spike" ] }, { "name": "category", "id": "category", "columnType": "REF", "refTable": "Category", "refLabel": "${name}", "required": true, "position": 1, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "photoUrls", "id": "photoUrls", "columnType": "STRING_ARRAY", "position": 2, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "details", "id": "details", "columnType": "HEADING", "descriptions": [ { "locale": "en", "value": "Details" } ], "position": 3, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "status", "id": "status", "columnType": "STRING", "position": 4, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "tags", "id": "tags", "columnType": "ONTOLOGY_ARRAY", "refTable": "Tag", "refLabel": "${name}", "position": 5, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "weight", "id": "weight", "columnType": "DECIMAL", "required": true, "position": 6, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "orders", "id": "orders", "columnType": "REFBACK", "refTable": "Order", "refLabel": "${orderId}", "refBack": "pet", "position": 9, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_draft", "id": "mg_draft", "columnType": "BOOL", "position": -5, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_insertedBy", "id": "mg_insertedBy", "columnType": "STRING", "position": -4, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_insertedOn", "id": "mg_insertedOn", "columnType": "DATETIME", "position": -3, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_updatedBy", "id": "mg_updatedBy", "columnType": "STRING", "position": -2, "showColumn": false, "showFilter": false, "conditions": [] }, { "name": "mg_updatedOn", "id": "mg_updatedOn", "columnType": "DATETIME", "position": -1, "showColumn": false, "showFilter": false, "conditions": [] } ],
+        graphqlFilter: { "name": { "like": [ "pooky" ] } }
       };
     },
   };
