@@ -5,40 +5,50 @@
       Not enough input to create an aggregate table
     </div>
 
-    <div>
-      <div class="aggregate-options container">
-        <div class="row">
-          <div class="col-1">
-            <label class="mr-2 col-form-label" for="aggregate-column-select">
-              Column:
-            </label>
-          </div>
-          <div class="col-3">
-            <InputSelect
-              id="aggregate-column-select"
-              v-model="selectedColumn"
-              @update:modelValue="fetchData"
-              :options="refColumns"
-              required
-            />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-1">
-            <label class="mr-2 col-form-label" for="aggregate-row-select">
-              Row:
-            </label>
-          </div>
-          <div class="col-3">
-            <InputSelect
-              id="aggregate-row-select"
-              v-model="selectedRow"
-              @update:modelValue="fetchData"
-              :options="refColumns"
-              required
-            />
-          </div>
-        </div>
+    <div class="border d-inline-block p-2">
+      <div class="aggregate-options">
+        <table>
+          <tr>
+            <td>
+              <label
+                class="mx-2 col-form-label form-group mb-0 mr-3"
+                for="aggregate-column-select"
+              >
+                Column:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-0"
+                id="aggregate-column-select"
+                v-model="selectedColumn"
+                @update:modelValue="fetchData"
+                :options="refColumns"
+                required
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label
+                class="mx-2 col-form-label form-group mb-0"
+                for="aggregate-row-select"
+              >
+                Row:
+              </label>
+            </td>
+            <td>
+              <InputSelect
+                class="mb-2"
+                id="aggregate-row-select"
+                v-model="selectedRow"
+                @update:modelValue="fetchData"
+                :options="refColumns"
+                required
+              />
+            </td>
+          </tr>
+        </table>
       </div>
 
       <div v-if="noResults" class="alert alert-warning">No results found</div>
@@ -48,6 +58,7 @@
         :columns="columns"
         :rows="rows"
         :data="aggregateData"
+        class="mb-n3"
       >
         <template #column="columnProps">
           {{ columnProps.value }}
