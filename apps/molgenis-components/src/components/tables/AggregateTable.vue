@@ -81,7 +81,7 @@ import { IColumn } from "../../Interfaces/IColumn";
 
 export default defineComponent({
   name: "AggregateTable",
-  components: { TableStickyHeaders },
+  components: { TableStickyHeaders, InputSelect },
   props: {
     schemaName: {
       type: String,
