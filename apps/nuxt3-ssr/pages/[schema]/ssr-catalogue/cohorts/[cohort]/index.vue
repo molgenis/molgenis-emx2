@@ -4,6 +4,7 @@ import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import ontologyFragment from "~~/gql/fragments/ontology";
+import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -41,12 +42,7 @@ const query = gql`
       numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
-      designSchematic {
-        id
-        url
-        size
-        extension
-      }
+      designSchematic ${loadGql(fileFragment)}
       design {
         definition
         name
@@ -63,9 +59,7 @@ const query = gql`
           name
           website
           description
-          logo {
-            url
-          }
+          logo ${loadGql(fileFragment)}
         }
       }
       networks {
@@ -73,12 +67,7 @@ const query = gql`
         name
         description
         website
-        logo {
-          id
-          url
-          size
-          extension
-        }
+        logo ${loadGql(fileFragment)}
       }
       collectionEvents {
         name
@@ -132,15 +121,14 @@ const query = gql`
       }
       dataAccessFee
       releaseDescription
-      documentation {
-        name
-        file {
-          url
-        }
-        url
-      }
       fundingStatement
       acknowledgements
+      documentation { 
+        name
+        description
+        url
+        file ${loadGql(fileFragment)}
+      }
     }
   }
 `;
@@ -342,10 +330,12 @@ let fundingAndAcknowledgementItems = computed(() => {
           :description="cohort?.designDescription"
           :cohort="cohort"
         />
-        <!-- <ContentBlockAttachedFiles
+        <ContentBlockAttachedFiles
+          v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files Generic Example"
-        /> -->
+          title="Attached Files"
+          :documents="cohort.documentation"
+        />
 
         <ContentBlockContact
           v-if="cohort?.contributors"
