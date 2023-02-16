@@ -24,7 +24,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :schemaMetadata="schemaMetaData"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :locale="locale"
@@ -230,6 +230,7 @@ export default {
   async mounted() {
     this.loaded = false;
     this.client = Client.newClient(this.schemaName);
+    console.log('fetch schema meta data')
     this.schemaMetaData = await this.client.fetchSchemaMetaData();
     const settings = await this.client.fetchSettings();
 
