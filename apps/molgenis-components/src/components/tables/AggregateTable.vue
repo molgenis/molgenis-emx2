@@ -1,6 +1,9 @@
 <template>
   <div>
     <Spinner v-if="loading" class="m-3" />
+    <div v-else-if="noResults" class="alert alert-warning">
+      No results found
+    </div>
     <TableStickyHeaders
       v-else
       :columns="columns"
@@ -78,26 +81,10 @@ export default defineComponent({
       rows: [] as string[],
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
+      noResults: false,
     };
   },
   methods: {
-    addItem(item: any) {
-      const column: string = item[this.selectedColumn].name || "not specified";
-      const row: string = item[this.selectedRow].name || "not specified";
-
-      if (!this.aggregateData[row]) {
-        this.aggregateData[row] = { [column]: item.count };
-      } else {
-        this.aggregateData[row][column] = item.count;
-      }
-
-      if (!this.columns.includes(column)) {
-        this.columns.push(column);
-      }
-      if (!this.rows.includes(row)) {
-        this.rows.push(row);
-      }
-    },
     async fetchData() {
       this.loading = true;
       this.rows = [];
@@ -116,10 +103,32 @@ export default defineComponent({
         },
         this.graphqlFilter
       );
-      responseData[this.tableName + "_groupBy"].forEach((item: any) =>
-        this.addItem(item)
-      );
+      if (responseData[this.tableName + "_groupBy"]) {
+        responseData[this.tableName + "_groupBy"].forEach((item: any) =>
+          this.addItem(item)
+        );
+        this.noResults = !Boolean(this.columns.length);
+      } else {
+        this.noResults = true;
+      }
       this.loading = false;
+    },
+    addItem(item: any) {
+      const column: string = item[this.selectedColumn].name || "not specified";
+      const row: string = item[this.selectedRow].name || "not specified";
+
+      if (!this.aggregateData[row]) {
+        this.aggregateData[row] = { [column]: item.count };
+      } else {
+        this.aggregateData[row][column] = item.count;
+      }
+
+      if (!this.columns.includes(column)) {
+        this.columns.push(column);
+      }
+      if (!this.rows.includes(row)) {
+        this.rows.push(row);
+      }
     },
   },
   created() {

@@ -146,21 +146,20 @@
               v-model:selectedColumn="aggregateSelectedColumn"
               v-model:selectedRow="aggregateSelectedRow"
             />
-            <div v-if="aggregateColumns?.length">
-              <AggregateTable
-                :tableName="tableName"
-                :schemaName="schemaName"
-                :minimumValue="1"
-                :columnProperties="aggregateColumns"
-                :rowProperties="aggregateColumns"
-                :selectedColumnProperty="aggregateSelectedColumn"
-                columnNameProperty="name"
-                :selectedRowProperty="aggregateSelectedRow"
-                rowNameProperty="name"
-                :graphqlFilter="graphqlFilter"
-              />
-            </div>
-            <div v-else class="alert">
+            <AggregateTable
+              v-if="aggregateColumns?.length"
+              :tableName="tableName"
+              :schemaName="schemaName"
+              :minimumValue="1"
+              :columnProperties="aggregateColumns"
+              :rowProperties="aggregateColumns"
+              :selectedColumnProperty="aggregateSelectedColumn"
+              columnNameProperty="name"
+              :selectedRowProperty="aggregateSelectedRow"
+              rowNameProperty="name"
+              :graphqlFilter="graphqlFilter"
+            />
+            <div v-else class="alert alert-warning">
               Not enough input to create an aggregate table
             </div>
           </div>
