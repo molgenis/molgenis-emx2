@@ -185,30 +185,14 @@
           <Spinner />
         </div>
         <div v-if="!loading">
-          <div v-if="view === View.AGGREGATE">
-            <AggregateOptions
-              :columns="columns"
-              @setAggregateColumns="aggregateColumns = $event"
-              v-model:selectedColumn="aggregateSelectedColumn"
-              v-model:selectedRow="aggregateSelectedRow"
-            />
-            <AggregateTable
-              v-if="aggregateColumns?.length"
-              :tableName="tableName"
-              :schemaName="schemaName"
-              :minimumValue="1"
-              :columnProperties="aggregateColumns"
-              :rowProperties="aggregateColumns"
-              :selectedColumnProperty="aggregateSelectedColumn"
-              columnNameProperty="name"
-              :selectedRowProperty="aggregateSelectedRow"
-              rowNameProperty="name"
-              :graphqlFilter="graphqlFilter"
-            />
-            <div v-else class="alert alert-warning">
-              Not enough input to create an aggregate table
-            </div>
-          </div>
+          <AggregateTable
+            v-if="view === View.AGGREGATE"
+            :allColumns="columns"
+            :tableName="tableName"
+            :schemaName="schemaName"
+            :minimumValue="1"
+            :graphqlFilter="graphqlFilter"
+          />
           <RecordCards
             v-if="view === View.CARDS"
             class="card-columns"
@@ -392,7 +376,6 @@ import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
 import AggregateTable from "./AggregateTable.vue";
-import AggregateOptions from "./AggregateOptions.vue";
 
 const View = {
   TABLE: "table",
@@ -440,7 +423,6 @@ export default {
     EditModal,
     ConfirmModal,
     AggregateTable,
-    AggregateOptions,
   },
   data() {
     return {
@@ -465,9 +447,6 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
-      aggregateColumns: [],
-      aggregateSelectedColumn: "",
-      aggregateSelectedRow: "",
     };
   },
   props: {
