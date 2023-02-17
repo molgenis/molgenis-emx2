@@ -127,9 +127,7 @@ const filter = computed(() => {
     filters
       .find((f) => f.columnType === "_SEARCH")
       ?.searchTables.forEach((sub) => {
-        // if (Object.keys(filterBuilder).includes(sub)) {
         filterBuilder["_or"].push({ [sub]: { _search: search.value } });
-        // }
       });
   }
 
