@@ -231,6 +231,21 @@ binding to a particular schema greatly limits flexibility of the data structure.
 table from the other schema should not have a name conflict with any table in the current schema. This is because in
 practice, the table from the other schema will be imported into the current schema.
 
+### refLabel
+
+Using 'refLabel' you can change the way on how a reference is being shown on the screen. By default the key=1 fields of the refTable are used.
+Caveat: you should make sure that the refLabel is unique and not null. To make sure, we recommend you make the fields required and part of a secondary key.
+
+Example:
+
+| tableName | columnName | type  | key | required | refTable                 | refLabel |
+|-----------|------------|-------|-----|----------|--------------------------|----------|
+| person    | id         |       | 1   | true     |                          |          |
+| person    | firstName  |       | 2   | true     |                          |          |
+| person    | lastName   |       | 2   | true     |                          |          |
+| person    | mother     | ref   |     | person   | ${firstName} ${lastName} |          | 
+
+
 ## Changelog
 Data changes made by a user can be tracked via a changelog. When enabled,
 all (data) changes made by a user are stored in a changelog table. 
