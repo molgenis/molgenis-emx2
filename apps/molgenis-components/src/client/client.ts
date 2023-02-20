@@ -82,7 +82,8 @@ export default {
           properties,
           schemaMetaData,
           myAxios,
-          schemaNameCache
+          schemaNameCache,
+          1
         );
         return dataResp[tableId];
       },
@@ -116,7 +117,8 @@ export default {
             },
             schemaMetaData,
             myAxios,
-            schemaNameCache
+            schemaNameCache,
+            1
           )
         )[tableId];
 
@@ -221,6 +223,7 @@ _schema {
       refSchema,
       refLink,
       refLabel,
+      refLabelDefault,
       refBack,
       required,
       readonly,
@@ -298,7 +301,8 @@ const fetchTableData = async (
   properties: IQueryMetaData,
   metaData: ISchemaMetaData,
   axios: Axios,
-  schemaName: string
+  schemaName: string,
+  expandLevel: number = 2
 ) => {
   const tableId = convertToPascalCase(tableName);
   const limit =
@@ -318,7 +322,7 @@ const fetchTableData = async (
       ? ',search:"' + properties.searchTerms?.trim() + '"'
       : "";
 
-  const cNames = columnNames(schemaName, tableId, metaData);
+  const cNames = columnNames(schemaName, tableId, metaData, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -375,61 +379,48 @@ const request = async (url: string, graphql: string, variables?: any) => {
 };
 
 /**
- *
+ * @pram {String} schemaName - schema where initial table is in
  * @param {String} tableName
  * @param {Object} metaData - object that contains all schema meta data
- * @returns String of fields for use in gql query
+ * @param {Number} expandLevel - how many levels of grahpql should be expanded
+ * @returns String of fields for use in gql query.
+ * key=1 fields will always be expanded.
+ * Other fields until level is reached
  */
 const columnNames = (
   schemaName: string,
   tableName: string,
-  metaData: ISchemaMetaData
+  metaData: ISchemaMetaData,
+  expandLevel: number
 ) => {
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
-    if (
-      ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-        col.columnType
-      )
-    ) {
-      result =
-        result +
-        " " +
-        col.id +
-        "{" +
-        refGraphql(schemaName, col, metaData) +
-        "}";
-    } else if (col.columnType === "FILE") {
-      result = result + " " + col.id + "{id,size,extension,url}";
-    } else if (col.columnType !== "HEADING") {
-      result = result + " " + col.id;
-    }
-  });
-
-  return result;
-};
-
-const refGraphql = (
-  schemaName: string,
-  column: IColumn,
-  metaData: ISchemaMetaData
-) => {
-  let graphqlString = "";
-  schemaName = column.refSchema ? column.refSchema : schemaName;
-  const refTable = getTable(schemaName, column.refTable, metaData.tables);
-  refTable?.columns?.forEach((c) => {
-    if (c.key == 1) {
-      graphqlString += c.id + " ";
+    if (expandLevel > 0 || col.key == 1) {
       if (
         ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-          c.columnType
+          col.columnType
         )
       ) {
-        graphqlString += "{" + refGraphql(schemaName, c, metaData) + "}";
+        result =
+          result +
+          " " +
+          col.id +
+          "{" +
+          columnNames(
+            col.refSchema ? col.refSchema : schemaName,
+            col.refTable,
+            metaData,
+            expandLevel - 1
+          ) +
+          "}";
+      } else if (col.columnType === "FILE") {
+        result = result + " " + col.id + "{id,size,extension,url}";
+      } else if (col.columnType !== "HEADING") {
+        result = result + " " + col.id;
       }
     }
   });
-  return graphqlString;
+  return result;
 };
 
 const getTable = (
