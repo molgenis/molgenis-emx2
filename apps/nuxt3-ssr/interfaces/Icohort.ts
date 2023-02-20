@@ -24,6 +24,7 @@ interface ICohort {
   numberOfParticipants: number;
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
+  designSchematic: IFile;
   design: {
     definition: string;
     name: string;
@@ -42,11 +43,28 @@ interface ICohort {
   dataAccessConditions?: { name: string }[];
   fundingStatement?: string;
   acknowledgements?: string;
+  documentation?: IDocumentation[];
+}
+
+interface IFile {
+  id?: string;
+  size?: number;
+  extension?: string;
+  url?: string;
+}
+
+interface IDocumentation {
+  name: string;
+  description: string;
+  url: string;
+  file: IFile;
 }
 
 interface IPartner {
   institution: {
     pid: string;
+    acronym: string;
+    website: string;
     name: string;
     description: string;
     logo: IUrlObject;

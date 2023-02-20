@@ -24,7 +24,7 @@
           :pkey="pkey"
           :tableName="tableName"
           :tableMetaData="tableMetaData"
-          :schemaMetadata="schemaMetaData"
+          :schemaMetaData="schemaMetaData"
           :visibleColumns="visibleColumns"
           :clone="clone"
           :locale="locale"
@@ -215,7 +215,7 @@ export default {
       }
     },
     async fetchRowData() {
-      const result = this.client.fetchRowData(this.tableName, this.pkey);
+      const result = await this.client.fetchRowData(this.tableName, this.pkey);
       if (!result) {
         this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
       } else {

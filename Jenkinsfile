@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         DOCKER_CONFIG = "/root/.docker"
-        CHART_VERSION = "8.73.1"
+        CHART_VERSION = "8.150.0"
         MOLGENIS_POSTGRES_USER = 'molgenis'
         MOLGENIS_POSTGRES_PASS = 'molgenis'
         MOLGENIS_POSTGRES_URI = 'jdbc:postgresql://localhost/molgenis'
@@ -80,6 +80,11 @@ pipeline {
                         sh "./gradlew --no-daemon helmLintMainChart --info"
                     }
                 }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
+                }
                 container('rancher') {
                     sh "rancher apps delete ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
@@ -115,12 +120,17 @@ pipeline {
                         env.TAG_NAME = props.tagName
                     }
                 }
+                container (name: 'kaniko', shell: '/busybox/sh') {
+                    sh "#!/busybox/sh\nmkdir -p ${DOCKER_CONFIG}"
+                    sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
+                    sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue:latest"
+                }
                 container('rancher') {
                     script {
                         sh 'rancher context switch dev-molgenis'
                         sh "sleep 30s" // wait for chart publish
                         env.REPOSITORY = env.TAG_NAME.toString().contains('-SNAPSHOT') ? 'molgenis/molgenis-emx2-snapshot' : 'molgenis/molgenis-emx2'
-                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${TAG_NAME}"
+                        sh "rancher apps upgrade --set image.tag=${TAG_NAME} --set image.repository=${REPOSITORY} p-tl227:emx2 ${CHART_VERSION}"
                     }
                 }
             }

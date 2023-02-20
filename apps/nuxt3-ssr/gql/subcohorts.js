@@ -8,23 +8,6 @@ export default gql`
       name
       description
       numberOfParticipants
-      ageGroups {
-        name
-        code
-        order
-        parent {
-          name
-          code
-          parent {
-            name
-            code
-          }
-          parent {
-            name
-            code
-          }
-        }
-      }
     }
   }
 `;

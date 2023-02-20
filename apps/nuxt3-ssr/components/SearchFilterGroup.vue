@@ -40,11 +40,10 @@ if (!props.options) {
       ${props.tableName}_agg( filter:$filter ) { count }
       }
   `;
-  let resp = await fetchGql(query);
+  let resp = await fetchOntology(query);
 
   data = resp?.data[props.tableName];
   let count = resp?.data[props.tableName + "_agg"].count;
-  console.log(count);
 } else {
   data = props.options;
 }
@@ -61,6 +60,7 @@ data.forEach((e) => {
     //else simply add the record
     terms[e.name] = {
       name: e.name,
+      order: e.order,
       visible: true,
       selected: false,
       definition: e.definition,
@@ -210,13 +210,7 @@ function updateSelection(newConditions) {
 
 <template>
   <ul>
-    <li
-      v-for="item in Object.values(rootTerms).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      )"
-      :key="item.name"
-      class="mb-2.5"
-    >
+    <li v-for="item in rootTerms" :key="item.name" class="mb-2.5">
       <div class="flex items-start">
         <span
           v-if="item.children"
@@ -250,12 +244,14 @@ function updateSelection(newConditions) {
         <label :for="item.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ item.name }}</span>
           <div class="inline-flex items-center whitespace-nowrap">
+            <!--
             <span
               v-if="item?.children?.length"
               class="inline-block mr-2 text-blue-200 group-hover:underline decoration-blue-200 fill-black"
               hoverColor="white"
               >&nbsp;- {{ item.children.length }}
             </span>
+            -->
             <div class="inline-block">
               <CustomTooltip
                 v-if="item.description"

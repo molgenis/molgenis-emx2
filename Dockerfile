@@ -11,8 +11,8 @@ FROM node:18.13.0-alpine
 WORKDIR /
 
 ## Copy the files need from the contaxt into to image
-COPY ./nuxt3-ssr/.nuxt /.nuxt
-COPY ./nuxt3-ssr/.output /.output
+COPY ./.nuxt /.nuxt
+COPY ./.output /.output
 
 # Expose $PORT on container.
 # We use a varibale here as the port is something that can differ on the environment.
@@ -26,6 +26,12 @@ ENV NUXT_PORT=$PORT
 
 # Set the base url
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
+
+# Set the theme name
+ENV NUXT_PUBLIC_EMX2_THEME=$NUXT_PUBLIC_EMX2_THEME
+
+# Set the logo name 
+ENV NUXT_PUBLIC_EMX2_LOGO=$NUXT_PUBLIC_EMX2_LOGO
 
 ## Start the server
 CMD node .output/server/index.mjs

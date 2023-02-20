@@ -57,14 +57,15 @@ export default defineComponent({
           .then((data) => {
             this.task = data._tasks[0];
             this.$emit("taskUpdated", this.task);
+            this.loading = false;
           })
           .catch((error) => {
             console.log(JSON.stringify(error));
-            this.error = true;
+            this.error = error;
+            this.loading = false;
           });
         await sleep(500);
       }
-      this.loading = false;
     },
   },
   created() {
