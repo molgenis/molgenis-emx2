@@ -514,7 +514,7 @@ public class MetadataUtils {
             refSchema,
             column.getRefTableName(),
             column.getRefLink(),
-            column.getRefLabelIfSet(),
+            column.getRefLabel(),
             column.getRefBack(),
             column.getValidation(),
             column.getComputed(),
@@ -534,7 +534,7 @@ public class MetadataUtils {
         .set(COLUMN_REF_SCHEMA, refSchema)
         .set(COLUMN_REF_TABLE, column.getRefTableName())
         .set(COLUMN_REF_LINK, column.getRefLink())
-        .set(COLUMN_REF_LABEL, column.getRefLabelIfSet())
+        .set(COLUMN_REF_LABEL, column.getRefLabel())
         .set(COLUMN_REF_BACK, column.getRefBack())
         .set(COLUMN_VALIDATION, column.getValidation())
         .set(COLUMN_COMPUTED, column.getComputed())
