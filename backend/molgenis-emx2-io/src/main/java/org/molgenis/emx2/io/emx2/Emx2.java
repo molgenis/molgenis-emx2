@@ -166,6 +166,7 @@ public class Emx2 {
             REF_TABLE,
             REF_LINK,
             REF_BACK,
+            REF_JS_TEMPLATE,
             VALIDATION,
             SEMANTICS));
     // add label locales that are used
@@ -246,6 +247,7 @@ public class Emx2 {
         if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
         if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
         if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
+        if (c.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, c.getRefLabel());
         for (Map.Entry<String, String> label : c.getDescriptions().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(DESCRIPTION, label.getValue());
