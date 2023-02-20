@@ -200,7 +200,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,labels{locale,value},descriptions{locale,value},semantics,columns{name,labels{locale,value},table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,required,readonly,descriptions{locale,value},semantics,validation,visible} } } }"
+        "{_session{schemas,roles}_schema{name,tables{name,tableType,inherit,externalSchema,labels{locale,value},descriptions{locale,value},semantics,columns{name,labels{locale,value},table,position,columnType,inherited,key,refSchema,refTable,refLink,refBack,refLabel,refLabelDefault,required,readonly,descriptions{locale,value},semantics,validation,visible} } } }"
       )
         .then((data) => {
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);

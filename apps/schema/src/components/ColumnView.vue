@@ -62,7 +62,8 @@
       <span v-if="column.readonly === true || column.readonly === 'true'">
         readonly
       </span>
-      <span v-if="column.key">key={{ column.key }}</span>
+      <span v-if="column.refLabel"> refLabel='{{ column.refLabel }}' </span>
+      <span v-if="column.key"> key={{ column.key }}</span>
     </td>
     <td>
       <table v-if="column.labels" class="table-borderless">
