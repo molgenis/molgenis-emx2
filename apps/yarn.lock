@@ -990,7 +990,7 @@
   resolved "https://registry.yarnpkg.com/@nuxt/ui-templates/-/ui-templates-1.1.1.tgz#db3539e3c9391c217510def5242cf74739e685ea"
   integrity sha512-PjVETP7+iZXAs5Q8O4ivl4t6qjWZMZqwiTVogUXHoHGZZcw7GZW3u3tzfYfE1HbzyYJfr236IXqQ02MeR8Fz2w==
 
-"@nuxt/vite-builder@3.2.0", "@nuxt/vite-builder@^3.0.0":
+"@nuxt/vite-builder@3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@nuxt/vite-builder/-/vite-builder-3.2.0.tgz#26680d339c76698f071602a24ea10af59e41df19"
   integrity sha512-1rApkhjQMUndRKl9bFn/NdAVxUgPeAB/XIEgP0YN4KPTM156Q/fvgu8LrzUp4lzYgGGKfm4r8IfuxYS9BremMQ==
@@ -5164,7 +5164,7 @@ nuxt-proxy@^0.4.0:
     http-proxy-middleware "^3.0.0-beta.0"
     ohash "^1.0.0"
 
-nuxt@^3.0.0:
+nuxt@3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/nuxt/-/nuxt-3.2.0.tgz#d952f8d2c2776a74656b80cc72a6533b56c0ad6c"
   integrity sha512-8jAYyjU1Ht+MXPLLDIdIUmV56KiI0g7KusKwzvqn+vlzyCNtSHg2W/VBCGw5QWplb/MXruogcMl2sDenlQRZFg==
