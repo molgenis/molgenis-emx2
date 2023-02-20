@@ -14,7 +14,7 @@
       :readonly="column.readonly || (pkey && column.key == 1 && !clone)"
       :refBack="column.refBack"
       :refTablePrimaryKeyObject="getPrimaryKey(internalValues, tableMetaData)"
-      :refLabel="column.refLabel"
+      :refLabel="column.refLabel ? column.refLabel : column.refLabelDefault"
       :required="column.required"
       :tableName="column.refTable"
       :canEdit="canEdit"

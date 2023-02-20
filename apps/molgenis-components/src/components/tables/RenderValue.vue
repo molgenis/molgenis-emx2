@@ -7,7 +7,7 @@
       />
       <EmailDisplay v-else-if="col.columnType === 'EMAIL_ARRAY'" :data="val" />
       <span v-else>
-        {{ col.refLabel ? applyJsTemplate(col.refLabel, val) : val }}
+        {{ getLabel(col) ? applyJsTemplate(getLabel(col), val) : val }}
       </span>
     </span>
   </span>
@@ -19,7 +19,9 @@
     <EmailDisplay v-else-if="col.columnType === 'EMAIL'" :data="row[col.id]" />
     <span v-else>
       {{
-        col.refLabel ? applyJsTemplate(col.refLabel, row[col.id]) : row[col.id]
+        getLabel(col)
+          ? applyJsTemplate(getLabel(col), row[col.id])
+          : row[col.id]
       }}
     </span>
   </span>
@@ -39,6 +41,9 @@ export default {
     EmailDisplay,
   },
   methods: {
+    getLabel(col) {
+      return col.refLabel ? col.refLabel : col.refLabelDefault;
+    },
     applyJsTemplate(template, object) {
       const names = Object.keys(object);
       const vals = Object.values(object);
