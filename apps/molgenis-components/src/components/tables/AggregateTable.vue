@@ -137,11 +137,14 @@ export default defineComponent({
       const responseData = await client.fetchAggregateData(
         this.tableName,
         {
-          name: this.selectedColumn,
+          name: columnNameToId(
+            this.selectedColumn,
+            this.allColumns as IColumn[]
+          ),
           column: "name",
         },
         {
-          name: this.selectedRow,
+          name: columnNameToId(this.selectedRow, this.allColumns as IColumn[]),
           column: "name",
         },
         this.graphqlFilter
@@ -157,8 +160,15 @@ export default defineComponent({
       this.loading = false;
     },
     addItem(item: any) {
-      const column: string = item[this.selectedColumn].name || "not specified";
-      const row: string = item[this.selectedRow].name || "not specified";
+      console.log(item);
+      console.log(JSON.stringify(item));
+
+      const column: string =
+        item[columnNameToId(this.selectedColumn, this.allColumns as IColumn[])]
+          .name || "not specified";
+      const row: string =
+        item[columnNameToId(this.selectedRow, this.allColumns as IColumn[])]
+          .name || "not specified";
 
       if (!this.aggregateData[row]) {
         this.aggregateData[row] = { [column]: item.count };
@@ -185,6 +195,11 @@ export default defineComponent({
     this.fetchData();
   },
 });
+
+function columnNameToId(name: string, columns: IColumn[]): string {
+  const id = columns.find((item) => item.name === name)?.id;
+  return id || name;
+}
 
 function getRefTypeColumns(columns: IColumn[]): string[] {
   return columns
