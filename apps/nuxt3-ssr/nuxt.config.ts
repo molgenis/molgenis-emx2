@@ -13,7 +13,7 @@ const devProxy = {
 }
 
 const config = {
-  modules: ['nuxt-proxy', '@nuxt/image-edge'],
+  modules: ['nuxt-proxy', '@nuxt/image-edge', '@nuxt/devtools'],
   runtimeConfig: {
     // Keys within public, will be also exposed to the client-side
     public: {
