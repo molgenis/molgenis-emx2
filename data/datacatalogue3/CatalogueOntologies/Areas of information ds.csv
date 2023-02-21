@@ -65,7 +65,7 @@ Cause of death vocabulary: EDC,EDC,,Cause of death vocabulary
 Cause of death vocabulary: Not coded (Free text),Not coded (Free text),,Cause of death vocabulary
 Cause of death vocabulary: Other,Other,,Cause of death vocabulary
 Rare diseases,,Are rare diseases (<1 in 2000 people) captured?,Clinical data
-Prescription included,,Is information on prescriptions or dispensings of medications included?,Clinical data
+Prescriptions included,,Is information on prescriptions or dispensings of medications included?,Clinical data
 Prescriptions included: ATC,ATC,,Prescriptions included
 Prescriptions included: RxNorm,RxNorm,,Prescriptions included
 Prescriptions included: EphMRA,EphMRA,,Prescriptions included
