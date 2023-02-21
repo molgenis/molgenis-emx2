@@ -109,6 +109,12 @@ if (collectionEvent?.areasOfInformation?.length) {
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
+let standardizedToolsTree = [];
+if (collectionEvent.standardizedTools) {
+  standardizedToolsTree = buildOntologyTree(collectionEvent.standardizedTools);
+  tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
+}
+
 if (collectionEvent?.coreVariables?.length) {
   items.push({
     label: "Core variables",
@@ -158,6 +164,27 @@ if (collectionEvent?.coreVariables?.length) {
         >
           <ContentOntology
             :tree="areasOfInformationTree"
+            :collapse-all="false"
+          />
+        </ContentBlock>
+        <ContentBlock
+          v-if="collectionEvent.standardizedTools"
+          id="standardized_tools"
+          title="Standardized tools"
+        >
+          <ContentOntology
+            :tree="standardizedToolsTree"
+            :collapse-all="false"
+          />
+          <DefinitionList
+            v-if="collectionEvent.standardizedToolsOther"
+            class="mt-6"
+            :items="[
+              {
+                label: 'Standardized tools other',
+                content: collectionEvent.standardizedToolsOther,
+              },
+            ]"
             :collapse-all="false"
           />
         </ContentBlock>
