@@ -1,6 +1,7 @@
 {
   "private": true,
   "workspaces": [
+    "beacon",
     "catalogue",
     "catalogue3",
     "settings",
