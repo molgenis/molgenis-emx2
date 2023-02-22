@@ -259,6 +259,7 @@ export default {
       `;
       request("graphql", query)
         .then((data) => {
+          console.log(data._schema)
           this.rawSchema = this.addOldNamesAndRemoveMeta(data._schema);
           this.schema = this.convertToSubclassTables(this.rawSchema);
           this.schemaNames = data._session.schemas;
@@ -279,6 +280,7 @@ export default {
     addOldNamesAndRemoveMeta(rawSchema) {
       //deep copy to not change the input
       const schema = deepClone(rawSchema);
+      console.log(schema)
       if (schema) {
         //normal tables
         let tables = !schema.tables
@@ -307,7 +309,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {
