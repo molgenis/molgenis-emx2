@@ -144,11 +144,11 @@ public class WebApiSmokeTests {
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,.,,,,,TestSem,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
-        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
