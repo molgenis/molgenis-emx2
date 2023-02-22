@@ -32,10 +32,6 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.size() == 0) {
-      throw new MolgenisException(
-          "Write " + name + " to csv directory failed: columnNames.size() == 0");
-    }
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Writer writer = Files.newBufferedWriter(relativePath);

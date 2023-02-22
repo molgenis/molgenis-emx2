@@ -40,9 +40,6 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.size() == 0) {
-      throw new MolgenisException("Write " + name + " to Excel failed: columnNames.size() == 0");
-    }
     SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
