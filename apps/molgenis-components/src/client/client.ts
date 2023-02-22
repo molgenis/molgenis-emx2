@@ -380,7 +380,7 @@ const request = async (url: string, graphql: string, variables?: any) => {
 };
 
 /**
- * @pram {String} schemaName - schema where initial table is in
+ * @param {String} schemaName - schema where initial table is in
  * @param {String} tableName
  * @param {Object} metaData - object that contains all schema meta data
  * @param {Number} expandLevel - how many levels of grahpql should be expanded
