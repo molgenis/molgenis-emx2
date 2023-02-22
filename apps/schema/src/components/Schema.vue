@@ -242,6 +242,7 @@ export default {
                 refTable
                 refLink
                 refBack
+                refLabel
                 required
                 readonly
                 descriptions {

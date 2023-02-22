@@ -1,7 +1,5 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +21,7 @@ public class Column {
   private String refLink = null;
   private String refBack = null;
   private String refLabel;
+  private String refLabelDefault;
   private Integer position = null;
 
   // private Boolean cascadeDelete = false;
@@ -62,7 +61,8 @@ public class Column {
         column.getRefSchema().equals(column.getSchemaName()) ? null : column.getRefSchema();
     this.refTable = column.getRefTableName();
     this.refLink = column.getRefLink();
-    this.refLabel = convertToCamelCase(column.getRefLabel());
+    this.refLabel = column.getRefLabel();
+    this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
     this.refBack = column.getRefBack();
     this.validation = column.getValidation();
@@ -215,6 +215,14 @@ public class Column {
 
   public void setRefLabel(String refLabel) {
     this.refLabel = refLabel;
+  }
+
+  public String getRefLabelDefault() {
+    return refLabelDefault;
+  }
+
+  public void setRefLabelDefault(String refLabelDefault) {
+    this.refLabelDefault = refLabelDefault;
   }
 
   public boolean isInherited() {

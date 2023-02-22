@@ -510,23 +510,20 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     } else return getColumnType().getBaseType();
   }
 
-  public String getRefLabelIfSet() {
+  public String getRefLabel() {
     return this.refLabel;
   }
 
-  public String getRefLabel() {
+  public String getRefLabelDefault() {
     if (!isReference()) return null;
-    if (refLabel == null) {
-      // we concat all columns unless already shown in another column
-      StringBuilder result = new StringBuilder();
-      for (Reference ref : getReferences()) {
-        if (!ref.isOverlapping()) {
-          result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
-        }
+    // we concat all columns unless already shown in another column
+    StringBuilder result = new StringBuilder();
+    for (Reference ref : getReferences()) {
+      if (!ref.isOverlapping()) {
+        result.append(".${" + ref.getPath().stream().collect(Collectors.joining(".")) + "}");
       }
-      return result.toString().replaceFirst("[.]", "");
     }
-    return refLabel;
+    return result.toString().replaceFirst("[.]", "");
   }
 
   public Column setRefLabel(String refLabel) {
