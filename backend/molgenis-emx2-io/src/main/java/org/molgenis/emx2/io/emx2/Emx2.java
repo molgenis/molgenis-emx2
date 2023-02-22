@@ -24,6 +24,8 @@ public class Emx2 {
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
   private static final String VALIDATION = "validation";
+  private static final String VISIBLE = "visible";
+  private static final String COMPUTED = "computed";
   private static final String SEMANTICS = "semantics";
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
@@ -113,6 +115,8 @@ public class Emx2 {
                     column.setDescription(r.getString(value), (value.split(":")[1]));
                   });
           if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
+          if (r.notNull(VISIBLE)) column.setVisible(r.getString(VISIBLE));
+          if (r.notNull(COMPUTED)) column.setComputed(r.getString(COMPUTED));
           if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
@@ -168,6 +172,8 @@ public class Emx2 {
             REF_BACK,
             REF_JS_TEMPLATE,
             VALIDATION,
+            VISIBLE,
+            COMPUTED,
             SEMANTICS));
     // add label locales that are used
     schema
@@ -213,6 +219,8 @@ public class Emx2 {
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
+      row.setString(VISIBLE, null);
+      row.setString(COMPUTED, null);
       if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
       for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
@@ -256,6 +264,8 @@ public class Emx2 {
           }
         }
         if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
+        if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
+        if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
         if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
         for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {

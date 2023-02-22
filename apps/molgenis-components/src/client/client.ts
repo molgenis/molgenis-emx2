@@ -233,6 +233,7 @@ _schema {
         value
       },
       position,
+      computed,
       visible,
       validation
     }

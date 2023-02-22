@@ -219,7 +219,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
-            result.put(ref.getName(), ref.toPrimitiveColumn());
+            // use old name to find original column
+            result.put(ref.getName(), ref.toPrimitiveColumn().setOldName(c.getName()));
           }
         }
       } else {

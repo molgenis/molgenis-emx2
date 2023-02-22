@@ -27,6 +27,7 @@ public class Column {
   // private Boolean cascadeDelete = false;
   private String validation = null;
   private String visible = null;
+  private String computed = null;
   private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
@@ -73,6 +74,7 @@ public class Column {
             .toList();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
+    this.computed = column.getComputed();
 
     // calculated field
     if (table.getInherit() != null)
@@ -104,6 +106,7 @@ public class Column {
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
     c.setVisible(visible);
+    c.setComputed(computed);
     c.setReadonly(readonly);
 
     // ignore inherited
@@ -284,6 +287,14 @@ public class Column {
 
   public void setReadonly(Boolean readonly) {
     this.readonly = readonly;
+  }
+
+  public void setComputed(String computed) {
+    this.computed = computed;
+  }
+
+  public String getComputed() {
+    return computed;
   }
 
   public List<LanguageValue> getLabels() {

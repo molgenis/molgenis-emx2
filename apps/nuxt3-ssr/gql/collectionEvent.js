@@ -64,6 +64,20 @@ export default gql`
           name
         }
       }
+      standardizedTools {
+        name
+        code
+        order
+        definition
+        ontologyTermURI
+        parent {
+          name
+        }
+        children {
+          name
+        }
+      }
+      standardizedToolsOther
       areasOfInformation {
         name
         code

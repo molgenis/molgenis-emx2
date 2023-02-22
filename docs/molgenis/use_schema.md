@@ -57,11 +57,11 @@ Basic type:
 Relationships:
 
 - ref : foreign key (aka many to one)
-    - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
-      is automatically generated.
+  - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable
+    is automatically generated.
 - ref_array : multiple foreign key (aka many to many).
-    - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
-      the refTable is automatically generated.
+  - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology,
+    the refTable is automatically generated.
 - refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
 Arrays (i.e. list of values)
@@ -149,24 +149,25 @@ is automatically created, using refTable as the name.
 
 The ontology table minimaly needs the following content
 
-| name |
-|------|
-|term1 |
-|term2 |
+| name  |
+| ----- |
+| term1 |
+| term2 |
 
 A more advanced example
 
-| name       | parent | label  |description |ontologyURI|
-|------------|--------|--------|------------|-----------|
-| term1      |        |        |            |           |
-| term1.a    | term1  |        |            |           |
-| term1.b    | term1  | b      |this will show 'b' instead of term1.b| 
+| name    | parent | label | description                           | ontologyURI |
+| ------- | ------ | ----- | ------------------------------------- | ----------- |
+| term1   |        |       |                                       |             |
+| term1.a | term1  |       |                                       |             |
+| term1.b | term1  | b     | this will show 'b' instead of term1.b |
 
 Explanation:
-* parent - will show terms in a hierarchy
-* label - Note that by default the 'label' will be same a name. However in user interface tree input it can be desirable to show another label.
-* ontologyTermURI - hyperlink to persistent identifier
-* order - use this to change the order, otherwise insertion order will be used
+
+- parent - will show terms in a hierarchy
+- label - Note that by default the 'label' will be same a name. However in user interface tree input it can be desirable to show another label.
+- ontologyTermURI - hyperlink to persistent identifier
+- order - use this to change the order, otherwise insertion order will be used
 
 ## Expressions
 
@@ -175,9 +176,7 @@ syntax you can have a look at
 the [expressions readme](https://github.com/molgenis/molgenis-expressions/blob/master/README.md)
 Expressions refer to the id property of columns.
 
-*Note: expressions will currently only let you check basic types and string arrays.*
-
-### computedValue (NOT YET IMPLEMENTED)
+### computed
 
 Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn
 must contain valid javascript returning the value. All columns of the table are available as variable. Computed values
@@ -185,7 +184,7 @@ are read-only in the user interface.
 
 For example:
 
-| tableName | columnName | key | computedValue             |
+| tableName | columnName | key | computed                  |
 | --------- | ---------- | --- | ------------------------- |
 | parts     | id         | 1   | productNo + "\_" + partNo |
 | parts     | productNo  | 2   |                           |
@@ -194,17 +193,24 @@ For example:
 ### validation expression, visible expression
 
 Validation expressions and visible expressions are used to fine tune forms. Validation expressions must be valid
-javascript. Validation expressions must return null, otherwise they will show an error message and prevent
-insert/update. Visible expressions must return true, otherwise the column stays hidden in the user interface. In the
-event that javascript throws an exception, this is shown in user interface/error message.
+javascript.
 
-Example:
+Validation expressions must return either null or true. Otherwise they will show an error message and prevent
+insert/update. In case of 'false' the visible expression itself is shown. Otherwise, the return value of the expression will be shown. For example:
 
-| tableName | columnName | type | key | validation        | visible                |
-| --------- | ---------- | ---- | --- | ----------------- | ---------------------- |
-| person    | id         |      | 1   |                   |                        |
-| person    | birth      | date |     | {birth} > {death} |                        |
-| death     | death      | date |     | {birth} > {death} | {birth} != {undefined} |
+| validation                                                                 | message                                                                           |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `price > 1`                                                                | Application of validation rule failed: price > 1                                  |
+| `if(price<=1)'price should be larger than 1'`                              | Application of validation rule failed: price should be larger than 1              |
+| `/^([a-z]+)$/.test(name)`                                                  | Application of validation rule failed: /^([a-z]+)$/.test(name)                    |
+| `if(!/^([a-z]+)$/.test(name))'name should contain only lowercase letters'` | Application of validation rule failed: name should contain only lowercase letters |
+
+Visible expressions must return a value that is not false or undefined, otherwise the column stays hidden in the user interface. In the
+event that javascript throws an exception, this is shown in user interface/error message. For example:
+
+| visible                                   | description                                                      |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| `pets?.some(pet => pet.name === 'pooky')` | will only be shown when 'pooky' was selected in 'pets' ref_array |
 
 ## Table inheritance
 
@@ -247,15 +253,16 @@ Example:
 
 
 ## Changelog
-Data changes made by a user can be tracked via a changelog. When enabled,
-all (data) changes made by a user are stored in a changelog table. 
-The changelog can only be enabled or disabled for the entire schema. 
-Admin or Manager users can view changes made by going
-to ``[server]/[schema]/settings/#/changelog`` ( Settings app -> select the 'Changelog' tab). 
 
-The changelog can be enabled after schema creation via adding a setting with key ```isChangelogEnabled```, and setting the 
-value to ```true```.
-Disabling the changelog is done the setting the value to ```false``` or removing the setting
+Data changes made by a user can be tracked via a changelog. When enabled,
+all (data) changes made by a user are stored in a changelog table.
+The changelog can only be enabled or disabled for the entire schema.
+Admin or Manager users can view changes made by going
+to `[server]/[schema]/settings/#/changelog` ( Settings app -> select the 'Changelog' tab).
+
+The changelog can be enabled after schema creation via adding a setting with key `isChangelogEnabled`, and setting the
+value to `true`.
+Disabling the changelog is done the setting the value to `false` or removing the setting
 
 ## FAQ
 
