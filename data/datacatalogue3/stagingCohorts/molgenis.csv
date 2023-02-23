@@ -1,7 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Organisations,Resources,,,,,,,,,,,Research departments and research groups
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,Resources for data
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -11,19 +10,10 @@ Resources,,pid,,2,,,,,,,,Persistent identifier
 Resources,,acronym,,,,,,,,,,Acronym if applicable
 Resources,,name,text,3,TRUE,,,,,,,Name used in European projects
 Data resources,,local name,,,,,,,,,,"If different from above, name in the national language"
-Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation
-Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
-Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
-Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description
 Resources,,website,,,,,,,,,,Link to the website or homepage
-Extended resources,,lead organisation,ref_array,,,,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
-Extended resources,,additional organisations,ref_array,,,,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
+Extended resources,,lead organisation,ref_array,,,,Organisations,,,,SharedStaging,lead organisation (e.g. research department or group) for this resource
+Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
 Resources,,description,text,,,,,,,,,Short description
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
 Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort
@@ -51,7 +41,7 @@ Cohorts,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select wh
 Cohorts,,release description,text,,,,,,,,,Description of the release cycle of this resource
 Cohorts,,linkage options,text,,,,,,,,,Linkage options with additional data sources that are available for this resource
 Data resources,,access,heading,,,,,,,,,Access and validation information
-Data resources,,data holder,ref,,,,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank
+Data resources,,data holder,ref,,,SharedStaging,Organisations,,,,,The name of the organisation that is responsible for governance of the data bank
 Cohorts,,data access conditions,ontology_array,,,CatalogueOntologies,Data access conditions,,,,,Codes defining data access terms and conditions
 Cohorts,,data use conditions,ontology_array,,,CatalogueOntologies,Data use conditions,,,,,Codes defining data use terms and conditions
 Cohorts,,data access conditions description,text,,,,,,,,,Description of data access terms and use conditions
@@ -86,7 +76,7 @@ Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,organisation,ref,,,,Organisations,,,,,Affiliated organisation of the contact person
+Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage

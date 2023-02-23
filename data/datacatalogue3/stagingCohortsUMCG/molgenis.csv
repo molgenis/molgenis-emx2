@@ -71,10 +71,12 @@ Contacts,,resource,ref,1,TRUE,,Resources,,,,,Resource the contact is affiliated 
 Contacts,,role,ontology_array,,,CatalogueOntologies,Contribution types,,,,,Type(s) of contribution or role in the resource
 Contacts,,first name,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,last name,,1,TRUE,,,,,,,Last name of the contact person
+Contacts,,statementOfConsentPersonalData,bool,,TRUE,,,,,,,"Indicate whether this person consents to display the following personal data in the catalogue (which is openly accessible): title, name, photo, orcid ID, institute, department, expertise, discipline and role within the resource. These data-items may partly be extracted from the UMCG and/or RUG employee pages. The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent will not be shown in the UMCG Research Data Catalogue"
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
 Contacts,,organisation,ref,,,UMCG,Organisations,,,,,Affiliated organisation of the contact person
+Contacts,,statementOfConsentEmail,bool,,TRUE,,,,,,,"Indicate whether this person consents to display their email address in the catalogue (which is openly accessible). The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent for their email address will be shown without their email address in the UMCG Research Data Catalogue"
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
 Contacts,,homepage,,,,,,,,,,Link to contact's homepage
@@ -120,7 +122,74 @@ Subcohort counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,
 Subcohort counts,,N total,int,,,,,,,,,
 Subcohort counts,,N female,int,,,,,,,,,
 Subcohort counts,,N male,int,,,,,,,,,
+Datasets,,,,,,,,,,,,Definition of a dataset within a (common) data model
+Datasets,,resource,ref,1,TRUE,,Extended resources,,,,,resources that these variables are part of
+Datasets,,name,,1,TRUE,,,,,,,unique dataset name in the model
+Datasets,,label,,,,,,,,,,short human readable description
+Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,defines what each record in this table describes
+Datasets,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,enables grouping of table list into topic and to display tables in a tree
+Datasets,,description,text,,,,,,,,,description of the role/function of this table
+Datasets,,number of rows,int,,,,,,,,,count of the numbe of records in this table
+All variables,,,,,,,,,,,,"Generic listing of all source variables. Should not be used directly, please use SourceVariables or RepeatedSourceVariables instead"
+All variables,,resource,ref,1,TRUE,,Extended resources,,,,,Data source that this variable was collected in
+All variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset this variable is part of
+All variables,,name,,1,TRUE,,,,,,,"name of the variable, unique within a table"
+All variables,,label,,,,,,,,,,"Human friendly longer name, if applicable"
+All variables,,collection event,ref,,,,Collection events,,,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+Variables,All variables,,,,,,,,,,,"Definition of a non-repeated variable, or of the first variable from a repeated range"
+Variables,,format,ontology,,,CatalogueOntologies,Formats,,,,,"Data type, e.g. string,int,decimal,date,datetime etc"
+Variables,,unit,ontology,,,CatalogueOntologies,Units,,,,,
+Variables,,references,ref,,,,All variables,resource,,,,to define foreign key relationships between variables within or across tables
+Variables,,mandatory,bool,,,,,,,,,whether this variable is required within this collection
+Variables,,description,text,,,,,,,,,
+Variables,,order,int,,,,,,,,,to sort variables you can optionally add an order value
+Variables,,example values,string_array,,,,,,,,,
+Variables,,permitted values,refback,,,,Variable values,,variable,,,
+Variables,,keywords,ontology_array,,,CatalogueOntologies,Keywords,,,,,
+Variables,,repeats,refback,,,,Repeated variables,,is repeat of,,,listing of all repeated variables defined for this variable
+Variables,,vocabularies,ontology_array,,,CatalogueOntologies,Vocabularies,,,,,
+Variables,,notes,text,,,,,,,,,Any other information on this variable
+Variables,,since version,,,,,,,,,,When this variable was introduced
+Variables,,until version,,,,,,,,,,When this variable was removed if applicable
+All variables,,mappings,refback,,,,Variable mappings,,target variable,,,in case of protocolised data collection this defines the moment in time this variable is collected on
+Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable
+Variable values,,resource,ref,1,TRUE,,Extended resources,,,,,
+Variable values,,variable,ref,1,TRUE,,Variables,resource,,,,e.g. PATO
+Variable values,,value,,1,TRUE,,,,,,,e.g. '1'
+Variable values,,label,,,TRUE,,,,,,,
+Variable values,,order,int,,,,,,,,,
+Variable values,,is missing,bool,,,,,,,,,
+Variable values,,ontology term URI,,,,,,,,,,reference to ontology term that defines this categorical value
+Variable values,,since version,,,,,,,,,,When this variable value was introduced if applicable
+Variable values,,until version,,,,,,,,,,When this variable value was removed if applicable
+Repeated variables,All variables,,,,,,,,,,,Definition of a repeated sourceVariable. Refers to another variable for its definition
+Repeated variables,,is repeat of,ref,,TRUE,,Variables,resource,,,,reference to the definition of the sourceVariable that is being repeated
+Dataset mappings,,source,ref,1,TRUE,,Extended resources,,,,,datasource being mapped from
+Dataset mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,name of the table being mapped from
+Dataset mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,"model being mapped to, i.e. toModel.resource + toModel.version"
+Dataset mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,name of the table being mapped to
+Dataset mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination
+Dataset mappings,,description,text,,,,,,,,,human readible description of the mapping
+Dataset mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
+Variable mappings,,,,,,,,,,,,"Mappings from collected variables to standard/harmonized variables, optionally including ETL syntax"
+Variable mappings,,source,ref,1,TRUE,,Extended resources,,,,,
+Variable mappings,,source dataset,ref,1,TRUE,,Datasets,source,,,,
+Variable mappings,,source variables,ref_array,,,,All variables,source dataset,,,,"Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = na)"
+Variable mappings,,source variables other datasets,ref_array,,,,All variables,source,,,,"optional, variable from other source datasets. Initially one may only define mapping between releases"
+Variable mappings,,target,ref,1,TRUE,DataCatalogue,Extended resources,,,,,
+Variable mappings,,target dataset,ref,1,TRUE,DataCatalogue,Datasets,target,,,,
+Variable mappings,,target variable,ref,1,TRUE,DataCatalogue,All variables,target dataset,,,,"in UI this is then one lookup field. In Excel it will be two columns. Value of 'targetVariable' is filtered based on selected 'targetCollection' and together be used for fkey(collection,dataset,name) in Variable"
+Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"e.g. 'complete, partial, planned, no-match'"
+Variable mappings,,status,ontology,,,CatalogueOntologies,Status,,,,,whether harmonisation is still draft or final
+Variable mappings,,description,text,,,,,,,,,human readible description of the mapping
+Variable mappings,,syntax,text,,,,,,,,,"formal definition of the mapping, ideally executable code"
+Variable mappings,,comments,text,,,,,,,,,additional notes and comments
+Subcohort counts,,subcohort,ref,1,TRUE,,Subcohorts,,,,,
+Subcohort counts,,age group,ref,1,TRUE,CatalogueOntologies,Age groups,,,,,
+Subcohort counts,,N total,int,,,,,,,,,
+Subcohort counts,,N female,int,,,,,,,,,
+Subcohort counts,,N male,int,,,,,,,,,
 External identifiers,,resource,ref,1,TRUE,,Extended resources,,,,,Resource that this external identifier belongs to
-External identifiers,,identifier,,1,TRUE,,,,,,,"External identifier, e.g. UMCG research register number"
+External identifiers,,identifier,text,1,TRUE,,,,,,,External identifier
 External identifiers,,external identifier type,ontology,,,CatalogueOntologies,External identifier types,,,,,External identifier type
 External identifiers,,external identifier type other,text,,,,,,,,,"If other, enter external identifier type"
