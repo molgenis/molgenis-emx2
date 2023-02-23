@@ -3,6 +3,7 @@
 *_data.zip
 *_upload.zip
 *data
+datamodels
 .idea
 venv
 .env
