@@ -16,6 +16,19 @@ def float_to_int(df):
     return df
 
 
+class TransformShared:
+    def __init__(self, database):
+        self.database = database
+        self.path = './downloads/' + self.database + '_data/'
+        self.logger = logging.getLogger(' data update and transform')
+
+    def transform_gdpr(self):
+        df_contacts = pd.read_csv(self.path + 'Contacts.csv')
+        df_contacts['statementOfConsentPersonalData'] = False
+        df_contacts['statementOfConsentEmail'] = False
+        df_contacts.to_csv(self.path + 'Contacts.csv', index=False, mode='w+')
+
+
 class TransformGeneral:
     """General functions to update catalogue data model.
     """
@@ -38,11 +51,9 @@ class TransformGeneral:
         if self.database_type in ['catalogue_staging', 'catalogue']:
             data_model = os.path.abspath('../../datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
-            data_model = os.path.abspath('../../datacatalogue3/stagingNetworks/molgenis.csv')
+            data_model = os.path.abspath('/../datacatalogue3/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
             data_model = os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv')
-        elif self.database_type == 'cohort_UMCG':
-            data_model = os.path.abspath('../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
 
         # copy molgenis.csv to appropriate folder
         if self.database_type in ['catalogue_staging', 'catalogue']:

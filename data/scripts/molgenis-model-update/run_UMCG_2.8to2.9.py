@@ -1,6 +1,7 @@
 from decouple import config
 from client import Session
-from update import TransformGeneral
+from update_2_9 import TransformGeneral
+from update_2_9 import TransformShared
 from update import TransformDataCatalogue
 from update import TransformDataStaging
 from spaces import Spaces
@@ -29,9 +30,9 @@ print('ONTOLOGIES_SCHEMA_NAME: ' + ONTOLOGIES_SCHEMA_NAME)
 print('SHARED_STAGING_NAME: ' + SHARED_STAGING_NAME)
 
 print('-----   ----')
-
-print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
-
+#
+# print('Updating catalogue data model to version ' + DATA_MODEL_VERSION)
+#
 # sign in to server
 print('Sign in to server: ' + SERVER_URL)
 session = Session(
@@ -52,34 +53,34 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling_shared_staging = Zip(SHARED_STAGING_NAME)
-update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
-spaces = Spaces(CATALOGUE_SCHEMA_NAME)
+update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue_2.9')
 
 # run download and transform functions
 zip_handling.unzip_data()
 zip_handling_shared_staging.unzip_data()
 update_general.delete_data_model_file()  # delete molgenis.csv from data folder
-spaces.get_spaces()
+update_general.update_data_model_file()
 zip_handling.zip_data()
 
 print('----------------')
 
-# extract data from CatalogueOntologies
-print('Extract data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME + '_data.zip')
-session.download_zip(database_name=ONTOLOGIES_SCHEMA_NAME)
+# extract data from SharedStaging
+print('Extract data from ' + SHARED_STAGING_NAME + ': ' + SHARED_STAGING_NAME + '_data.zip')
+session.download_zip(database_name=SHARED_STAGING_NAME)
 
-# transform data from CatalogueOntologies
-print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
+# update datamodel for SharedStaging
+print('Transform data from ' + SHARED_STAGING_NAME)
 # call instances
-zip_handling = Zip(ONTOLOGIES_SCHEMA_NAME)
-update_general = TransformGeneral(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
-spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
+zip_handling = Zip(SHARED_STAGING_NAME)
+update_general = TransformGeneral(SHARED_STAGING_NAME, 'SharedStagingUMCG')
+update_shared = TransformShared(SHARED_STAGING_NAME)
 
-# run transform functions
+# run update functions
 zip_handling.remove_unzipped_data()
 zip_handling.unzip_data()
 update_general.delete_data_model_file()
-spaces.get_spaces()
+update_general.update_data_model_file()
+update_shared.transform_gdpr()
 zip_handling.zip_data()
 zip_handling.remove_unzipped_data()
 
@@ -101,13 +102,11 @@ for cohort in COHORTS:
     # transform data from cohorts
     print('Transform data from ' + cohort)
     zip_handling = Zip(cohort)
-    update_general = TransformGeneral(cohort, 'cohort_UMCG')
-    spaces = Spaces(cohort)
+    update_general = TransformGeneral(cohort, 'cohort_UMCG_2.9')
 
     zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
     update_general.delete_data_model_file()
-    spaces.get_spaces()
     update_general.update_data_model_file()
     zip_handling.zip_data()
     zip_handling.remove_unzipped_data()
@@ -116,29 +115,23 @@ for cohort in COHORTS:
     session.drop_database(database_name=cohort)
     session.create_database(database_name=cohort, database_description=schema_description)
 
-# delete schemas UMCG and CatalogueOntologies
+# delete schemas UMCG and SharedStaging
 print('------------------------')
-print('Updating catalogue and CatalogueOntologies schemas')
+print('Updating catalogue and SharedStaging schemas')
+
+
 # delete and create new UMCG schema
 schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
 session.drop_database(database_name=CATALOGUE_SCHEMA_NAME)
 session.create_database(database_name=CATALOGUE_SCHEMA_NAME, database_description=schema_description)
 
 # delete SharedStaging schema
+schema_description = session.get_database_description(database_name=SHARED_STAGING_NAME)
 session.drop_database(database_name=SHARED_STAGING_NAME)
+session.create_database(database_name=SHARED_STAGING_NAME, database_description=schema_description)
 
-# delete and create new CatalogueOntologies schema
-schema_description = session.get_database_description(database_name=ONTOLOGIES_SCHEMA_NAME)
-session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
-session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME, database_description=schema_description)
-
-# upload molgenis.csv to UMCG schema
-update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
-data_model_file = update_general.update_data_model_file()
-session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
-
-# upload transformed CatalogueOntologies data to CatalogueOntologies schema
-session.upload_zip(database_name=ONTOLOGIES_SCHEMA_NAME, data_to_upload=ONTOLOGIES_SCHEMA_NAME)
+# upload transformed SharedStaging data to SharedStaging schema
+session.upload_zip(database_name=SHARED_STAGING_NAME, data_to_upload=SHARED_STAGING_NAME)
 
 # upload transformed data to UMCG schema
 session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload=CATALOGUE_SCHEMA_NAME)
