@@ -56,12 +56,17 @@ function percentageLongitudinal(
           <BaseIcon name="image-link" :width="55" />
         </span>
         <div class="relative">
-          <h1 class="font-display text-heading-6xl">Cohorts</h1>
-
-          <slot v-if="!pending" name="title-suffix">
-            <h5 class="text-center">{{ data.data.Cohorts_agg.count }}</h5></slot
+          <NuxtLink to="ssr-catalogue/cohorts"
+            ><h1 class="font-display text-heading-6xl">Cohorts</h1></NuxtLink
           >
         </div>
+        <slot v-if="!pending" name="title-suffix">
+          <span
+            class="bg-blue-50 text-title flex justify-center rounded-full px-3"
+          >
+            {{ data.data.Cohorts_agg.count }}
+          </span>
+        </slot>
         <p class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
           a compete overview of all cohorts and biobanks within the UMCG.
         </p>
