@@ -82,11 +82,6 @@ module.exports = {
         500: "#E14F62",
       },
     },
-    maxWidth: {
-      lg: "88.75rem", // 970+380+30+20+20
-      tooltip: "10.5rem",
-      none: "none",
-    },
     extend: {
       boxShadow: {
         primary: "0px 10px 20px rgba(0, 0, 0, 0.1)",
@@ -109,6 +104,13 @@ module.exports = {
       },
       minWidth: {
         95: "23.75rem",
+      },
+      maxWidth: {
+        lg: "88.75rem", // 970+380+30+20+20
+        tooltip: "10.5rem",
+        none: "none",
+        sm: "20rem",
+        xs: "15rem"
       },
       backgroundImage: {
         "sidebar-gradient":
