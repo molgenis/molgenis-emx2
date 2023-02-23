@@ -43,7 +43,7 @@ function percentageLongitudinal(
 <template>
   <LayoutsLandingPage class="w-10/12">
     <PageHeader
-      class="mx-auto w-7/12"
+      class="mx-auto lg:w-7/12"
       title="UMCG Research Data Catalogue"
       description="This catalogue contains metadata from cohorts, biobanks and studies of the UMCG. These include a large variety of clinical research data and biological samples available for collaborative research. Work with us for more healthy years and the Future of Health."
     ></PageHeader>
@@ -59,55 +59,36 @@ function percentageLongitudinal(
     </div>
 
     <div
-      class="justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
+      class="justify-around flex flex-col md:flex-row pt-5 pb-5 lg:pb-10 lg:px-0"
     >
-      <div class="flex flex-col items-start text-title max-w-xs">
-        <span class="mb-2 mt-2.5 xl:block hidden text-icon">
-          <BaseIcon name="people" :width="32" class="text-blue-800" />
-        </span>
+      <LandingCardSecondary icon="people">
+        <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
+        ><br />The cummulative number of participants of all datasets combined.
+      </LandingCardSecondary>
 
-        <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
-          <b>
-            {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
-          ><br />The cummulative number of participants of all datasets
-          combined.
-        </p>
-      </div>
+      <LandingCardSecondary icon="colorize">
+        <b
+          >{{
+            data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+          }}
+          Samples</b
+        >
+        <br />The cummulative number of participants with samples collected of
+        all datasets combined.
+      </LandingCardSecondary>
 
-      <div class="flex flex-col items-start text-title max-w-xs">
-        <span class="mb-2 mt-2.5 xl:block hidden text-icon">
-          <BaseIcon name="colorize" :width="32" class="text-blue-800" />
-        </span>
-
-        <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
-          <b
-            >{{
-              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
-            }}
-            Samples</b
-          ><br />The cummulative number of participants with samples collected
-          of all datasets combined.
-        </p>
-      </div>
-
-      <div class="flex flex-col items-start text-title max-w-xs">
-        <span class="mb-2 mt-2.5 xl:block hidden text-icon">
-          <BaseIcon name="schedule" :width="32" class="text-blue-800" />
-        </span>
-
-        <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
-          <b
-            >Longitudinal
-            {{
-              percentageLongitudinal(
-                data.data.Cohorts_groupBy,
-                data.data.Cohorts_agg.count
-              )
-            }}%</b
-          ><br />Percentage of longitudinal datasets. The remaining datasets are
-          cross-sectional.
-        </p>
-      </div>
+      <LandingCardSecondary icon="schedule">
+        <b
+          >Longitudinal
+          {{
+            percentageLongitudinal(
+              data.data.Cohorts_groupBy,
+              data.data.Cohorts_agg.count
+            )
+          }}%</b
+        ><br />Percentage of longitudinal datasets. The remaining datasets are
+        cross-sectional.
+      </LandingCardSecondary>
     </div>
   </LayoutsLandingPage>
 </template>

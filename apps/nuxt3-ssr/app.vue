@@ -17,7 +17,7 @@
         </slot>
       </main>
       <slot name="footer">
-        <div class="bg-footer pt-6">
+        <div class="bg-footer p-6">
           <div class="mt-5 mb-0 text-center text-body-lg">
             This database was created using the
             <a
