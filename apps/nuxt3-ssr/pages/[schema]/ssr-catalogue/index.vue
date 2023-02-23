@@ -13,12 +13,32 @@ const { data, pending, error, refresh } = await useFetch(
           count
           sum {
             numberOfParticipants
+            numberOfParticipantsWithSamples 
+          }
+        }
+        Cohorts_groupBy {
+          count 
+          design {
+            name
           }
         }
       }`,
     },
   }
 );
+
+function percentageLongitudinal(
+  cohortsGroupBy: { count: number; design: { name: string } }[],
+  total: number
+) {
+  const nLongitudinal = cohortsGroupBy.reduce(
+    (accum, group) =>
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
+    0
+  );
+
+  return Math.round((nLongitudinal / total) * 100);
+}
 </script>
 <template>
   <LayoutsLandingPage class="w-10/12">
@@ -73,8 +93,13 @@ const { data, pending, error, refresh } = await useFetch(
         </span>
 
         <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
-          <b> 12 Samples</b><br />The cummulative number of participants with
-          samples collected of all datasets combined.
+          <b
+            >{{
+              data.data.Cohorts_agg.sum.numberOfParticipantsWithSamples
+            }}
+            Samples</b
+          ><br />The cummulative number of participants with samples collected
+          of all datasets combined.
         </p>
       </div>
 
@@ -84,8 +109,16 @@ const { data, pending, error, refresh } = await useFetch(
         </span>
 
         <p class="mt-1 mb-0 lg:mb-5 text-body-lg">
-          <b>12 Longitudinal</b><br />Percentage of longitudinal datasets. The
-          remaining datasets are cross-sectional.
+          <b
+            >Longitudinal
+            {{
+              percentageLongitudinal(
+                data.data.Cohorts_groupBy,
+                data.data.Cohorts_agg.count
+              )
+            }}%</b
+          ><br />Percentage of longitudinal datasets. The remaining datasets are
+          cross-sectional.
         </p>
       </div>
     </div>
