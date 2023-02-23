@@ -37,11 +37,11 @@ Use virtual env to get a consistent python environment.
 
 5. Define environment variables in .env, see .env_example
 
-6. Run script for update of data catalogue staging to 3.x
+6. Run script for update of data catalogue staging from 2.8 to 3.x
 
     'runDataCatalogueStaging.py'
 
-   Run script for update of UMCG server to 3.x
+   Run script for update of UMCG server from 2.9 to 3.x
 
     'run_UMCG.py'
 

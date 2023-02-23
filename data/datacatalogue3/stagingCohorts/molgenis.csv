@@ -16,7 +16,7 @@ Extended resources,,lead organisation,ref_array,,,,Organisations,,,,SharedStagin
 Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
 Resources,,description,text,,,,,,,,,Short description
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EUPASS number, UMCG register number)"
-Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort
+Cohorts,,contact email,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
 Resources,,contacts,refback,,,,Contacts,,resource,,,Contact person(s)
 Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank"
 Cohorts,,type other,,,,,,,,,,"If other, describe the type of resource"

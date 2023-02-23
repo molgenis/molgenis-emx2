@@ -38,7 +38,7 @@ Extended resources,,lead organisation,ref_array,,,UMCG,Organisations,,,,,Lead or
 Extended resources,,additional organisations,ref_array,,,UMCG,Organisations,,,,,Any additional organisations that contributed to this resource
 Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
-Cohorts,,contact email,,,,,,,,,,Contact e-mail address for this cohort
+Cohorts,,contact email,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
 Resources,,contacts,refback,,,,Contacts,,resource,,,Listing who is/has been involved in the creation and maintenance of this resource
 Data resources,,population,heading,,,,,,,,,Description of the population that can potentially be captured in the resource
 Data resources,,number of participants,int,,,,,,,,,Total number of individuals for which data is collected
