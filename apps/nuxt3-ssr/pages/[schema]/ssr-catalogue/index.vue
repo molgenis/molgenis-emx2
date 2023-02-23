@@ -41,7 +41,7 @@ function percentageLongitudinal(
 }
 </script>
 <template>
-  <LayoutsLandingPage class="w-10/12">
+  <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader
       class="mx-auto lg:w-7/12"
       title="UMCG Research Data Catalogue"

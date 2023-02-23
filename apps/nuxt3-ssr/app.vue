@@ -18,7 +18,7 @@
       </main>
       <slot name="footer">
         <div class="bg-footer p-6">
-          <div class="mt-5 mb-0 text-center text-body-lg">
+          <div class="mt-5 mb-0 text-center text-title text-body-lg">
             This database was created using the
             <a
               class="text-body-base text-footer-link hover:underline"
@@ -38,7 +38,7 @@
               >LGPLv3</a
             >).
           </div>
-          <div class="mb-0 text-center lg:pb-5 text-body-lg">
+          <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
             Please cite
             <a
               class="text-body-base text-footer-link hover:underline"

@@ -186,7 +186,7 @@ module.exports = {
         "pagination-label-white": theme("colors.white"),
         "pagination-label-gray": theme("colors.gray.400"),
 
-        "footer-link": theme("colors.blue.50"),
+        "footer-link": theme("colors.yellow.500"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
