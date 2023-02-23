@@ -51,29 +51,11 @@ function percentageLongitudinal(
     <div
       class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
     >
-      <div class="flex flex-col items-center text-title max-w-sm">
-        <span class="mb-2 mt-2.5 xl:block hidden text-icon">
-          <BaseIcon name="image-link" :width="55" />
-        </span>
-        <div class="relative">
-          <NuxtLink to="ssr-catalogue/cohorts"
-            ><h1 class="font-display text-heading-6xl">Cohorts</h1></NuxtLink
-          >
-        </div>
-        <slot v-if="!pending" name="title-suffix">
-          <span
-            class="bg-blue-50 text-title flex justify-center rounded-full px-3"
-          >
-            {{ data.data.Cohorts_agg.count }}
-          </span>
-        </slot>
-        <p class="mt-1 mb-0 text-center lg:mb-5 text-body-lg">
-          a compete overview of all cohorts and biobanks within the UMCG.
-        </p>
-        <NuxtLink to="ssr-catalogue/cohorts">
-          <Button label="Cohorts" type="secondary" size="medium" />
-        </NuxtLink>
-      </div>
+      <LandingCardPrimary
+        title="Cohorts"
+        description="A compete overview of all cohorts and biobanks within the UMCG."
+        :count="data.data.Cohorts_agg.count"
+      />
     </div>
 
     <div
