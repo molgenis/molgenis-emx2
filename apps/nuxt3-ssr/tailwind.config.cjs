@@ -110,7 +110,7 @@ module.exports = {
         tooltip: "10.5rem",
         none: "none",
         sm: "20rem",
-        xs: "15rem"
+        xs: "15rem",
       },
       backgroundImage: {
         "sidebar-gradient":
@@ -142,6 +142,7 @@ module.exports = {
 
         pagination: theme("colors.blue.800"),
         "pagination-hover": theme("colors.blue.900"),
+        footer: theme("colors.blue.800"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),

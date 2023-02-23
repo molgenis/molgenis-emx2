@@ -54,6 +54,7 @@ module.exports = {
 
         pagination: "transparent",
         "pagination-hover": "#003183",
+        footer: theme("colors.white"),
       }),
       backgroundImage: {
         "sidebar-gradient":
