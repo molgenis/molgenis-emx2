@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.8
+Version,,,,,,,,,,,,2.9
 Contacts,,,,,,,,,,,,
 Contacts,,firstName,,1,TRUE,,,,,,,First name of the contact person
 Contacts,,surname,,1,TRUE,,,,,,,Last name of the contact person
