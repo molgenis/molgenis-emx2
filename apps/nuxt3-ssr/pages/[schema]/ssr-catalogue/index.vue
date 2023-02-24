@@ -22,6 +22,10 @@ const { data, pending, error, refresh } = await useFetch(
             name
           }
         }
+        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
+          key
+          value 
+        }
       }`,
     },
   }
@@ -39,13 +43,25 @@ function percentageLongitudinal(
 
   return Math.round((nLongitudinal / total) * 100);
 }
+
+function getSettingValue(settingKey: string, settings: ISetting[]) {
+  return settings.find((setting: { key: string; value: string }) => {
+    return setting.key === settingKey;
+  })?.value;
+}
 </script>
 <template>
   <LayoutsLandingPage class="w-10/12 pt-8">
     <PageHeader
       class="mx-auto lg:w-7/12"
-      title="UMCG Research Data Catalogue"
-      description="This catalogue contains metadata from cohorts, biobanks and studies of the UMCG. These include a large variety of clinical research data and biological samples available for collaborative research. Work with us for more healthy years and the Future of Health."
+      :title="
+        getSettingValue('CATALOGUE_LANDING_TITLE', data.data._settings) ||
+        'European Networks Health Data & Cohort Catalogue.'
+      "
+      :description="
+        getSettingValue('CATALOGUE_LANDING_DESCRIPTION', data.data._settings) ||
+        'Browse and manage metadata for data resources, such as cohorts, registries, biobanks, and multi-center collaborations thereof such as networks, common data models and studies.'
+      "
     ></PageHeader>
 
     <div
