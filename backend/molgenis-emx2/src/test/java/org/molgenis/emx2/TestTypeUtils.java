@@ -63,4 +63,11 @@ public class TestTypeUtils {
     assertEquals("value with, comma", result[0]);
     assertEquals("and, another", result[1]);
   }
+
+  @Test
+  public void testDataTimeStringToDateTimeObject() {
+    assertEquals(
+        TypeUtils.toDateTime("2023-02-24T12:08:23.46378"),
+        LocalDateTime.of(2023, 02, 24, 12, 8, 23, 463780000));
+  }
 }
