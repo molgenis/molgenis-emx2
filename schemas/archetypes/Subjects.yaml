@@ -1,0 +1,17 @@
+uri: ExO:0000127
+standards:
+  fair-genomes: Subject
+columns:
+  subjectID:
+    key: 1
+    required: true
+    description: An individual who is the subject of personal data, persons to whom data refers, and from whom data are collected, processed, and stored.
+    uri: NCIT:C142495
+  belongsToFamily:
+    description: A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.
+    uri: NCIT:C25173
+  belongsToMother:
+    type: xref
+    refs: Subjects
+    description: A designation that has some relationship to motherhood.
+    uri: NCIT:C89336

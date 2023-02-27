@@ -1,0 +1,16 @@
+licence:
+  name: Attribution 4.0 International (CC BY 4.0)
+  url: https://creativecommons.org/licenses/by/4.0
+rdf:
+  type: NCIT:C63536
+columns:
+  Identifier:
+    key: 1
+    description: A unique proper name or character sequence that identifies this item.
+    uri: OMIABIS:0000006
+  Name:
+    description: A name that designates this study.
+    uri: OMIABIS:0000037
+    rdf:
+      skos:exactMatch: OBI:0001622
+      sko:narrower: SIO:000185

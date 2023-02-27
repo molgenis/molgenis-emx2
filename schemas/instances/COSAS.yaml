@@ -1,0 +1,17 @@
+tables:
+  Subjects:
+    columns:
+      includeSubject:
+        includeArchetype: Subject
+        includeColumns:
+          subjectID:
+            label: MDN_UMCGnr
+          belongsToFamily:
+            label: Familienr
+          belongsToMother:
+            label: Moeder
+          belongsToFather:
+            label: Vader
+
+
+

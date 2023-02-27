@@ -1,0 +1,5 @@
+description: just a thing
+columns:
+  Identifier:
+    uri: adms:Identifier
+    key: 1

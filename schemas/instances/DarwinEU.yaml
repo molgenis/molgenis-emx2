@@ -1,0 +1,7 @@
+description: schema adaptation for DarwinEU
+tables:
+  Data sources:
+    columns:
+      include1:
+        includeArchetype: Data sources
+

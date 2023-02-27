@@ -1,0 +1,7 @@
+name: Agent
+uri: foaf:Agent
+columns:
+  name:
+    uri: foaf:name
+  type:
+    uri: dct:type

@@ -1,0 +1,15 @@
+uri: dcat:Dataset
+columns:
+  identifier:
+    uri: adms:Identifier
+    key: 1
+    rdf:
+
+  acronym:
+    key: 2
+  name: { }
+  lead organisation:
+    refs: Organisations
+  contact email:
+    type: email
+    description: contact email for this resource

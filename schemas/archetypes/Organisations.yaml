@@ -1,0 +1,19 @@
+columns:
+  includeResources:
+    includeArchetype: Resources
+    #get all columns from resources
+  Organisation type:
+    type: ontology_with_other
+    refs: Organisation Types
+  institution:
+    type: text
+  address:
+    type: text
+  features:
+    type: ontology_array
+    refs: Organisation features
+  leading resources:
+    type: reverseLookup
+    refs: Resources
+    refBack: lead organisation
+

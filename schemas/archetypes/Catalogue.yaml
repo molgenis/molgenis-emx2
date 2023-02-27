@@ -1,0 +1,35 @@
+columns:
+  description:
+    uri: dct:description
+    type: text
+  publisher:
+    type: ref
+    refs: Agent
+    uri: dct:publisher
+  title:
+    type: text
+    uri: dct:title
+  homepage:
+    type: hyperlink
+    uri: foaf:Document
+  language:
+    uri: dct:language
+    type: ontology_array
+    refs: Languages
+  licence:
+    type: ref
+    refs: LicenceDocument
+  release date:
+    uri: dct:issued
+    type: date
+  themes:
+    uri: dcat:themeTaxonomy
+    type: ontology_array
+    refs: Concept Scheme
+  update/modification date:
+    uri: dct:modified
+    type: datetime
+  dataset:
+    uri: dcat:Dataset
+    type: ref_array
+    refs: Datasets

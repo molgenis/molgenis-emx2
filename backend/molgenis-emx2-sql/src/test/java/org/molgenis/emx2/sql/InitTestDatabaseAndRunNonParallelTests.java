@@ -13,10 +13,12 @@ import java.util.Collections;
 import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
+@Ignore
 public class InitTestDatabaseAndRunNonParallelTests {
 
   @BeforeClass

@@ -1,0 +1,14 @@
+prefixes:
+  dcat: http://www.w3.org/ns/dcat#
+  skos: http://www.w3.org/2004/02/skos/core#
+  foaf: http://xmlns.com/foaf/0.1/
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  dct: http://purl.org/dc/terms/
+  OMIABIS: http://purl.obolibrary.org/obo/OMIABIS_
+  SIO: https://semanticscience.org/resource/SIO_
+  NCIT: http://purl.obolibrary.org/obo/NCIT_
+  OBI: http://purl.obolibrary.org/obo/OBI_
+  vcard: http://www.w3.org/2006/vcard/ns#
+licence:
+  name: Attribution 4.0 International (CC BY 4.0)
+  url: https://creativecommons.org/licenses/by/4.0

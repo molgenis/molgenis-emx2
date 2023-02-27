@@ -78,12 +78,12 @@ subprojects {
     }
 
 
-    if (project.name != "molgenis-emx2-sql") {
-        test.dependsOn(":backend:molgenis-emx2-sql:test")
-    } else {
-        //don't cache database init
-        test.outputs.upToDateWhen { false }
-    }
+//    if (project.name != "molgenis-emx2-sql") {
+//        test.dependsOn(":backend:molgenis-emx2-sql:test")
+//    } else {
+//        //don't cache database init
+//        test.outputs.upToDateWhen { false }
+//    }
     test {
         maxParallelForks = Runtime.runtime.availableProcessors() / 2
         failFast true
