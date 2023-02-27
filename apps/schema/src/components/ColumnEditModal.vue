@@ -79,6 +79,12 @@
                   label="refSchema"
                   description="When you want to refer to table in another schema"
                 />
+                <InputString
+                  id="column_refLabel"
+                  v-model="column.refLabel"
+                  label="refLabel"
+                  description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
+                />
               </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect

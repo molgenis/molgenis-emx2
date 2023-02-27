@@ -25,7 +25,6 @@ public class TestLoaders {
     database.dropSchemaIfExists("catalogue");
     database.dropSchemaIfExists("RWEcatalogue");
     database.dropSchemaIfExists("CohortStaging");
-    database.dropSchemaIfExists("CohortStaging");
     database.dropSchemaIfExists("NetworkStaging");
     database.dropSchemaIfExists("CohortStaging3");
     database.dropSchemaIfExists("NetworkStaging3");

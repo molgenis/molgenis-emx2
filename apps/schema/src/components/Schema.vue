@@ -242,6 +242,7 @@ export default {
                 refTable
                 refLink
                 refBack
+                refLabel
                 required
                 readonly
                 descriptions {
@@ -307,7 +308,7 @@ export default {
           : schema.tables.filter(
               (table) =>
                 table.tableType === "ONTOLOGIES" &&
-                table.externalSchema === undefined
+                table.externalSchema === schema.name
             );
         //set old name so we can delete them properly
         schema.ontologies.forEach((o) => {

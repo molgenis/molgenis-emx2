@@ -184,6 +184,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_LABEL)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(REF_LABEL_DEFAULT)
+                  .type(Scalars.GraphQLString))
           // TODO
           //          .field(
           //              GraphQLFieldDefinition.newFieldDefinition()
@@ -335,6 +339,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(REF_LABEL)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(REF_LABEL_DEFAULT)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
