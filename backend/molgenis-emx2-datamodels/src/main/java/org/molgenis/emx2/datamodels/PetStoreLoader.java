@@ -4,10 +4,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Privileges;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
@@ -31,8 +28,8 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
   public static final String SPECIES = "species";
   public static final String MAMMALS = "mammals";
 
-  @Override
-  public void load(Schema schema, boolean includeDemoData) {
+  public SchemaMetadata getSchemaMetadata() {
+    SchemaMetadata schema = new SchemaMetadata();
     schema.create(table(CATEGORY).add(column(NAME).setPkey()));
 
     schema.create(
@@ -54,14 +51,16 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
         table(ORDER)
             .add(column(ORDER_ID).setPkey())
             .add(column("pet").setType(REF).setRefTable(PET))
-            .add(column(QUANTITY).setType(LONG).setValidation("{quantity} >= 1"))
-            .add(column(PRICE).setType(DECIMAL).setValidation("{price} >= 1"))
+            .add(
+                column(QUANTITY)
+                    .setType(LONG)
+                    .setValidation("if(quantity < 1) 'quantity should be >= 1'"))
+            .add(column(PRICE).setType(DECIMAL).setValidation("price >= 1"))
             .add(column(COMPLETE).setType(BOOL)) // todo: default false
             .add(column(STATUS))); // todo enum: placed, approved, delivered
 
     // refBack
     schema
-        .getMetadata()
         .getTableMetadata(PET)
         .add(column("orders").setType(REFBACK).setRefTable(ORDER).setRefBack("pet"));
 
@@ -77,6 +76,12 @@ public class PetStoreLoader implements AvailableDataModels.DataModelLoader {
             .add(column("userStatus").setType(INT))
             .add(column("pets").setType(REF_ARRAY).setRefTable(PET)));
 
+    return schema;
+  }
+
+  @Override
+  public void load(Schema schema, boolean includeDemoData) {
+    schema.migrate(getSchemaMetadata());
     if (includeDemoData) {
       loadExampleData(schema);
     }

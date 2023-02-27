@@ -456,6 +456,19 @@ public class TestGraphqSchemaFields {
             .getColumn("test2")
             .getVisible());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+
+    execute(
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", computed:\"blaat2\"}){message}}");
+    database.clearCache(); // cannot know here, server clears caches
+    assertEquals(
+        "blaat2",
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2")
+            .getComputed());
+    execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
   }
 
   @Test

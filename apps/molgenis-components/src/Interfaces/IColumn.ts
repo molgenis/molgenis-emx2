@@ -12,6 +12,7 @@ export interface IColumn {
   readonly: string;
   refBack: string;
   refLabel: string;
+  refLabelDefault: string;
   refLink: string;
   refSchema: string;
   refTable: string;
