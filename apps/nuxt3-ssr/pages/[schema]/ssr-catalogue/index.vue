@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import gql from "graphql-tag";
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -8,25 +9,33 @@ const { data, pending, error, refresh } = await useFetch(
     baseURL: config.public.apiBase,
     method: "POST",
     body: {
-      query: `{
-        Cohorts_agg { 
-          count
-          sum {
-            numberOfParticipants
-            numberOfParticipantsWithSamples 
+      query: gql`
+        {
+          Cohorts_agg {
+            count
+            sum {
+              numberOfParticipants
+              numberOfParticipantsWithSamples
+            }
+          }
+          Cohorts_groupBy {
+            count
+            design {
+              name
+            }
+          }
+          _settings(
+            keys: [
+              "NOTICE_SETTING_KEY"
+              "CATALOGUE_LANDING_TITLE"
+              "CATALOGUE_LANDING_DESCRIPTION"
+            ]
+          ) {
+            key
+            value
           }
         }
-        Cohorts_groupBy {
-          count 
-          design {
-            name
-          }
-        }
-        _settings (keys: ["NOTICE_SETTING_KEY" "CATALOGUE_LANDING_TITLE" "CATALOGUE_LANDING_DESCRIPTION"]){ 
-          key
-          value 
-        }
-      }`,
+      `,
     },
   }
 );
