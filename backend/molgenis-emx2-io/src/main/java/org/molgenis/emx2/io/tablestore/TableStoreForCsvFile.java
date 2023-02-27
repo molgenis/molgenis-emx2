@@ -22,9 +22,6 @@ public class TableStoreForCsvFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.size() == 0) {
-      throw new MolgenisException("Write CSV file failed: columnNames.size() == 0");
-    }
     try {
       Writer writer = Files.newBufferedWriter(csvFile);
       if (rows.iterator().hasNext()) {

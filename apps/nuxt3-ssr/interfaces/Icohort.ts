@@ -105,6 +105,8 @@ interface ICollectionEvent {
   dataCategories: ICollectionEventCategory[];
   sampleCategories: ICollectionEventCategory[];
   areasOfInformation: ICollectionEventCategory[];
+  standardizedTools: ICollectionEventCategory[];
+  standardizedToolsOther: string;
   subcohorts: INameObject[];
   coreVariables: INameObject[];
 }

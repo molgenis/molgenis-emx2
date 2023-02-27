@@ -68,9 +68,6 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.size() == 0) {
-      throw new MolgenisException("Write " + name + " to csv failed: columnNames.size() == 0");
-    }
     if (columnNames.isEmpty()) {
       return;
     }

@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Version,,,,,,,,,,,,2.8
+Version,,,,,,,,,,,,2.9
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
 Models,Resources,,,,,,,,,,,Common Data Element models and Harmonization models
 Resources,,pid,,1,TRUE,,,,,,,Persistent identifier for this resource
