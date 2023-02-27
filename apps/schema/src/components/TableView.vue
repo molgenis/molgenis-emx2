@@ -137,6 +137,7 @@
               :schemaNames="schemaNames"
               operation="add"
               :tableName="table.name"
+              :columnIndex="0"
               @add="addColumn(0, $event)"
               :locales="locales"
             />
@@ -180,6 +181,7 @@
                   @update:modelValue="updateColumn(index, $event)"
                   @add="addColumn(index + 1, $event)"
                   @delete="deleteColumn(index)"
+                  :columnIndex="index"
                   :isManager="isManager"
                   :locales="locales"
                 />

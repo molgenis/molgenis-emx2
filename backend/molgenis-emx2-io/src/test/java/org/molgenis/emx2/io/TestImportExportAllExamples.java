@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.test.RefAndRefArrayTestExample;
@@ -47,6 +48,14 @@ public class TestImportExportAllExamples {
   public void testProductComponentPartsExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata("6");
     ProductComponentPartsExample.create(schema1);
+    executeCompare(schema1);
+  }
+
+  @Test
+  public void testPetStoreExample() throws IOException {
+    SchemaMetadata schema1 = new SchemaMetadata("7");
+    schema1.create(
+        new PetStoreLoader().getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
     executeCompare(schema1);
   }
 

@@ -18,20 +18,20 @@ export default {
   },
   computed: {
     hasTemplate() {
-      return !!this.metaData.refLabel;
+      return !!this.metaData.refLabel || !!this.metaData.refLabelDefault;
     },
     asTemplate() {
       const names = Object.keys(this.data);
       const vals = Object.values(this.data);
+      const refLabel = this.metaData.refLabel
+        ? this.metaData.refLabel
+        : this.metaData.refLabelDefault;
       try {
-        return new Function(
-          ...names,
-          "return `" + this.metaData.refLabel + "`;"
-        )(...vals);
+        return new Function(...names, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
         const namesString = JSON.stringify(names);
         const valsString = JSON.stringify(vals);
-        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${this.metaData.refLabel}`;
+        return `${err.message} we got keys: ${namesString} vals: ${valsString} and template: ${refLabel}`;
       }
     },
     asDotSeparatedString() {
