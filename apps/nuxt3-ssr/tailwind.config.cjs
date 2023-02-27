@@ -121,7 +121,7 @@ module.exports = {
       },
       backgroundColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
-        "button-primary-hover": theme("colors.blue.200"),
+        "button-primary-hover": theme("colors.yellow.200"),
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
         "button-tertiary": theme("colors.blue.500"),
@@ -162,6 +162,8 @@ module.exports = {
         "breadcrumb-arrow": theme("colors.white"),
         breadcrumb: theme("colors.blue.50"),
         title: theme("colors.white"),
+        "title-contrast": theme("colors.blue.500"),
+        "sub-title-contrast": theme("colors.black"),
         "search-button": theme("text.blue.500"),
         "search-button-hover": theme("text.blue.800"),
 
@@ -190,7 +192,7 @@ module.exports = {
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
-        "button-primary-hover": theme("colors.blue.200"),
+        "button-primary-hover": theme("colors.yellow.200"),
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
         "button-tertiary": theme("colors.blue.500"),
