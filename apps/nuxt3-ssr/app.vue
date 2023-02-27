@@ -34,11 +34,13 @@
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
 const config = useRuntimeConfig()
-console.log(config.public)
-const href = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+
+const styleHref = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+const faviconHref = config.public.emx2Theme ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico` : '/_nuxt-styles/img/molgenis.ico'
 useHead({
   link: [
-    { rel: 'stylesheet', type: 'text/css', href }
+    { rel: 'icon', href: faviconHref}, 
+    { rel: 'stylesheet', type: 'text/css', href: styleHref }
   ]
 });
 </script>
