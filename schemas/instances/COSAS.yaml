@@ -1,17 +1,20 @@
 tables:
+  archetypes: Subject
   Subjects:
     columns:
-      includeSubject:
-        includeArchetype: Subject
-        includeColumns:
-          subjectID:
-            label: MDN_UMCGnr
-          belongsToFamily:
-            label: Familienr
-          belongsToMother:
-            label: Moeder
-          belongsToFather:
-            label: Vader
+      Subject/subjectId:
+        #this syntax allows us to override
+        label: MDN_UMCGnr
+      Subject/belongsToFamily:
+        label: Familienr
+      Subject/belongsToMother:
+        label: Moeder
+      Subject/belongsToFather:
+        label: Vader
+        #nb, we probably would like to create a i18n type of feature for this?
+        #ah, I think I now understand Davids format better
+      Subject/*:
+      #this syntax allows to include all remaining columns from Subject verbatim
 
 
 
