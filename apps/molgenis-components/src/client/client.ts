@@ -375,7 +375,12 @@ const request = async (url: string, graphql: string, variables?: any) => {
       return result?.data?.data;
     })
     .catch((error: AxiosError): string => {
-      throw error.message;
+      const detailedErrorMessage = error?.response?.data?.errors
+        ?.map((error: { message: string }) => {
+          return error.message;
+        })
+        .join(". ");
+      throw detailedErrorMessage || error.message;
     });
 };
 

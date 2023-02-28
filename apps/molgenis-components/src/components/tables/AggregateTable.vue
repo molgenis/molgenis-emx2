@@ -51,7 +51,12 @@
         </table>
       </div>
 
-      <div v-if="noResults" class="alert alert-warning">No results found</div>
+      <div v-if="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+      <div v-else-if="noResults" class="alert alert-warning">
+        No results found
+      </div>
 
       <TableStickyHeaders
         v-else
@@ -125,28 +130,34 @@ export default defineComponent({
       columns: [] as string[],
       aggregateData: {} as IAggregateData,
       noResults: false,
+      errorMessage: undefined,
     };
   },
   methods: {
     async fetchData() {
       this.loading = true;
+      this.errorMessage = undefined;
       this.rows = [];
       this.columns = [];
       this.aggregateData = {};
       const client = Client.newClient(this.schemaName);
-      const responseData = await client.fetchAggregateData(
-        this.tableName,
-        {
-          name: this.selectedColumn,
-          column: "name",
-        },
-        {
-          name: this.selectedRow,
-          column: "name",
-        },
-        this.graphqlFilter
-      );
-      if (responseData[this.tableName + "_groupBy"]) {
+      const responseData = await client
+        .fetchAggregateData(
+          this.tableName,
+          {
+            name: this.selectedColumn,
+            column: "name",
+          },
+          {
+            name: this.selectedRow,
+            column: "name",
+          },
+          this.graphqlFilter
+        )
+        .catch((error) => {
+          this.errorMessage = error;
+        });
+      if (responseData && responseData[this.tableName + "_groupBy"]) {
         responseData[this.tableName + "_groupBy"].forEach((item: any) =>
           this.addItem(item)
         );
