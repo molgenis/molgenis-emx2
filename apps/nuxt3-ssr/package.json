@@ -20,7 +20,7 @@
     "@tailwindcss/typography": "^0.5.8",
     "autoprefixer": "^10.4.13",
     "graphql-tag": "2.12.6",
-    "nuxt": "3.2.0",
+    "nuxt": "3.2.3",
     "nuxt-proxy": "^0.4.0",
     "postcss": "^8.4.19",
     "postcss-custom-properties": "^13.0.0",
