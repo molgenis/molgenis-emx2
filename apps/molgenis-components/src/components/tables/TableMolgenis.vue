@@ -70,12 +70,15 @@
             :key="idx + col.name + isSelected(row)"
             style="cursor: pointer"
             :style="col.showColumn ? '' : 'display: none'"
-            @click="onRowClick(row)"
+            @click="
+              {
+                onRowClick(row);
+                onCellClick(row, col);
+              }
+            "
           >
-            <data-display-cell
-              :data="row[col.id]"
-              :metaData="col"
-            ></data-display-cell>
+            <data-display-cell :data="row[col.id]" :metaData="col">
+            </data-display-cell>
           </td>
         </tr>
       </tbody>
@@ -103,7 +106,7 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import DataDisplayCell from "./DataDisplayCell.vue";
-import { getPrimaryKey } from "../utils";
+import { getPrimaryKey, deepClone } from "../utils";
 
 export default {
   components: { DataDisplayCell },
@@ -184,6 +187,12 @@ export default {
     },
     onColumnClick(column) {
       this.$emit("column-click", column);
+    },
+    onCellClick(row, column) {
+      this.$emit("cellClick", {
+        cellValue: deepClone(row[column.id].name),
+        column: deepClone(column),
+      });
     },
     onRowClick(row) {
       const key = this.getPrimaryKey(row);

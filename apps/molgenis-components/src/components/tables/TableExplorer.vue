@@ -239,6 +239,7 @@
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
+            @cellClick="handleCellClick"
           >
             <template v-slot:header>
               <label>{{ count }} records found</label>
@@ -337,6 +338,12 @@
         }}'?
       </p>
     </ConfirmModal>
+    <RefSideModal
+      v-if="refSideModal"
+      :table-id="refSideModal.table"
+      :label="refSideModal.label"
+      :row="refSideModal.row"
+    />
   </div>
 </template>
 
@@ -376,6 +383,7 @@ import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
 import AggregateTable from "./AggregateTable.vue";
+import RefSideModal from "./RefSideModal.vue";
 
 const View = {
   TABLE: "table",
@@ -423,6 +431,7 @@ export default {
     EditModal,
     ConfirmModal,
     AggregateTable,
+    RefSideModal,
   },
   data() {
     return {
@@ -447,6 +456,7 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
+      refSideModal: undefined,
     };
   },
   props: {
@@ -580,6 +590,16 @@ export default {
         .catch(this.handleError);
       if (resp) {
         this.reload();
+      }
+    },
+    handleCellClick(event) {
+      const { column, cellValue } = event;
+      if (column?.columnType === "REF") {
+        this.refSideModal = {
+          label: column.name,
+          table: column.refTable,
+          row: cellValue,
+        };
       }
     },
     setView(button) {
