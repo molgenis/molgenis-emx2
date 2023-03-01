@@ -71,6 +71,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
         title="Cohorts"
         description="A compete overview of all cohorts and biobanks within the UMCG."
         :count="data.data.Cohorts_agg.count"
+        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
       />
     </div>
 

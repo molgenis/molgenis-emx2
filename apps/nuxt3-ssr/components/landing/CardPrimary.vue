@@ -3,6 +3,7 @@ defineProps<{
   title: string;
   description: string;
   count: number;
+  link: string;
 }>();
 </script>
 <template>
@@ -11,7 +12,7 @@ defineProps<{
       <BaseIcon name="image-link" :width="55" />
     </span>
     <div class="relative">
-      <NuxtLink to="ssr-catalogue/cohorts">
+      <NuxtLink :to="link">
         <h1 class="font-display text-heading-6xl text-title-contrast">
           {{ title }}
         </h1>
@@ -29,7 +30,7 @@ defineProps<{
     >
       {{ description }}
     </p>
-    <NuxtLink to="ssr-catalogue/cohorts">
+    <NuxtLink :to="link">
       <Button :label="title" type="primary" size="medium" />
     </NuxtLink>
   </div>

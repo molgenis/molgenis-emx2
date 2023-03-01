@@ -39,7 +39,8 @@ watch(
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
 };
 
 // @ts-ignore
