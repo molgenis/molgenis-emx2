@@ -48,7 +48,7 @@ class TransformGeneral:
         """Get path to data model file
         """
         # get molgenis.csv location
-        if self.database_type == 'catalogue_2.9':
+        if self.database_type == 'catalogue_2.8':
             data_model = os.path.abspath('datamodels/molgenis_2.9.csv')
         elif self.database_type == 'cohort_UMCG_2.9':
             data_model = os.path.abspath('datamodels/molgenis_stagingCohortsUMCG_2.9.csv')  #'../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
@@ -57,3 +57,7 @@ class TransformGeneral:
 
         # copy molgenis.csv to appropriate folder
         shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
+
+class TransformCatalogue(self):
+        """Tranform data
+        """

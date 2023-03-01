@@ -48,14 +48,14 @@ session.download_zip(database_name=SHARED_STAGING_NAME)
 print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
 session.download_zip(database_name=CATALOGUE_SCHEMA_NAME)
 
-# transform data from catalogue
-print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
+# update data model catalogue
+print('Update data model ' + CATALOGUE_SCHEMA_NAME)
 # get instances of classes
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling_shared_staging = Zip(SHARED_STAGING_NAME)
-update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue_2.9')
+update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue_2.8')
 
-# run download and transform functions
+# run download and update data model
 zip_handling.unzip_data()
 zip_handling_shared_staging.unzip_data()
 update_general.delete_data_model_file()  # delete molgenis.csv from data folder
@@ -68,21 +68,19 @@ print('----------------')
 print('Extract data from ' + SHARED_STAGING_NAME + ': ' + SHARED_STAGING_NAME + '_data.zip')
 session.download_zip(database_name=SHARED_STAGING_NAME)
 
-# update datamodel for SharedStaging
+# update data model for SharedStaging
 print('Transform data from ' + SHARED_STAGING_NAME)
-# call instances
+# initiate instances to update SharedStaging
 zip_handling = Zip(SHARED_STAGING_NAME)
 update_general = TransformGeneral(SHARED_STAGING_NAME, 'SharedStagingUMCG')
 update_shared = TransformShared(SHARED_STAGING_NAME)
 
 # run update functions
-zip_handling.remove_unzipped_data()
 zip_handling.unzip_data()
 update_general.delete_data_model_file()
 update_general.update_data_model_file()
 update_shared.transform_gdpr()
 zip_handling.zip_data()
-zip_handling.remove_unzipped_data()
 
 # Cohorts update
 print('-----------------------')
@@ -104,12 +102,10 @@ for cohort in COHORTS:
     zip_handling = Zip(cohort)
     update_general = TransformGeneral(cohort, 'cohort_UMCG_2.9')
 
-    zip_handling.remove_unzipped_data()
     zip_handling.unzip_data()
     update_general.delete_data_model_file()
     update_general.update_data_model_file()
     zip_handling.zip_data()
-    zip_handling.remove_unzipped_data()
     # delete and create new cohort schema
     schema_description = session.get_database_description(database_name=cohort)
     session.drop_database(database_name=cohort)
@@ -118,7 +114,6 @@ for cohort in COHORTS:
 # delete schemas UMCG and SharedStaging
 print('------------------------')
 print('Updating catalogue and SharedStaging schemas')
-
 
 # delete and create new UMCG schema
 schema_description = session.get_database_description(database_name=CATALOGUE_SCHEMA_NAME)
