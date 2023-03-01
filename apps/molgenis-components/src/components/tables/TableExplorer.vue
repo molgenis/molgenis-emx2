@@ -344,6 +344,7 @@
       :label="refSideModal?.label"
       :row="refSideModal?.row"
       @onClose="refSideModal = undefined"
+      :client="client"
     />
   </div>
 </template>

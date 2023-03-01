@@ -1,34 +1,48 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
-    {{ tableId }}
-    {{ label }}
-    {{ row }}
+    {{ JSON.stringify(data) }}
   </SideModal>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   tableId: {
     type: String,
-    required: true,
+    default: "",
   },
   label: {
     type: String,
-    required: true,
+    default: "",
   },
   row: {
     type: String,
-    required: true,
+    default: "",
   },
   isVisible: {
     type: Boolean,
     default: true,
   },
+  client: {
+    type: Object,
+    required: true,
+  },
 });
 
+let data = ref({});
 const emit = defineEmits(["onClose"]);
+async function updateData() {
+  if (props.tableId != "") {
+    data.value = await props.client
+      .fetchRowData(props.tableId, { name: props.row })
+      .catch(() => {});
+  }
+}
+
+watch(props, (newValue, oldValue) => {
+  updateData();
+});
 </script>
 
 <style scoped></style>

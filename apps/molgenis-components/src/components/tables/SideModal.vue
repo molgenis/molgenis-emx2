@@ -61,6 +61,7 @@ onBeforeMount(() => {
     document.addEventListener("keydown", escapeKeyHandler);
   }
 });
+
 onBeforeUnmount(() => {
   if (document && document.removeEventListener) {
     document.removeEventListener("keydown", escapeKeyHandler);
@@ -73,11 +74,13 @@ onBeforeUnmount(() => {
   display: block;
   pointer-events: none;
 }
+
 .modal-dialog {
   position: absolute;
   right: 0;
   margin-right: 0px;
 }
+
 .modal-content {
   border-right: 0;
   border-top-right-radius: 0;
