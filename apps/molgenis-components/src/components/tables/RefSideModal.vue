@@ -1,6 +1,9 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
     {{ JSON.stringify(data) }}
+    <template v-slot:footer>
+      <ButtonAction @click="emit('onClose')">Close</ButtonAction>
+    </template>
   </SideModal>
 </template>
 
