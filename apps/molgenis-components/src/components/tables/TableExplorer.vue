@@ -339,10 +339,11 @@
       </p>
     </ConfirmModal>
     <RefSideModal
-      v-if="refSideModal"
-      :table-id="refSideModal.table"
-      :label="refSideModal.label"
-      :row="refSideModal.row"
+      :isVisible="refSideModal !== undefined"
+      :table-id="refSideModal?.table"
+      :label="refSideModal?.label"
+      :row="refSideModal?.row"
+      @onClose="refSideModal = undefined"
     />
   </div>
 </template>

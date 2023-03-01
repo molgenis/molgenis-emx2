@@ -27,6 +27,8 @@
 </template>
 
 <script lang="ts" setup>
+import { onBeforeUnmount, onBeforeMount } from "vue";
+
 const props = defineProps({
   label: {
     type: String,
@@ -47,6 +49,23 @@ const emit = defineEmits(["onClose"]);
 function close() {
   emit("onClose");
 }
+
+function escapeKeyHandler(event: any) {
+  if (event.key === "Escape") {
+    close();
+  }
+}
+
+onBeforeMount(() => {
+  if (document && document.addEventListener) {
+    document.addEventListener("keydown", escapeKeyHandler);
+  }
+});
+onBeforeUnmount(() => {
+  if (document && document.removeEventListener) {
+    document.removeEventListener("keydown", escapeKeyHandler);
+  }
+});
 </script>
 
 <style scoped>

@@ -1,10 +1,9 @@
 <template>
-  <SideModal :label="label" :isVisible="visible" @onClose="visible = false">
+  <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
     {{ tableId }}
     {{ label }}
     {{ row }}
   </SideModal>
-  <button @click="visible != visible">test</button>
 </template>
 
 <script lang="ts" setup>
@@ -23,9 +22,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  isVisible: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-let visible = ref(true);
+const emit = defineEmits(["onClose"]);
 </script>
 
 <style scoped></style>
