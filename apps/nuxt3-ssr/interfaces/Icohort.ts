@@ -140,3 +140,8 @@ interface IOntologyNode extends ITreeNode {
   definition?: string;
   ontologyTermURI?: string;
 }
+
+interface ISetting {
+  key: string;
+  value: string;
+}
