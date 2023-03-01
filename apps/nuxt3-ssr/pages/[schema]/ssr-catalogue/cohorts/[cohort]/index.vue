@@ -309,8 +309,8 @@ let fundingAndAcknowledgementItems = computed(() => {
         <template #prefix>
           <BreadCrumbs
             :crumbs="{
-              // Home: `/${route.params.schema}/ssr-catalogue`,
-              Cohorts: `/${route.params.schema}/ssr-catalogue`,
+              Home: `/${route.params.schema}/ssr-catalogue`,
+              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
             }"
           />
         </template>
