@@ -1,24 +1,96 @@
 <template>
-  <div class="side-modal p-3">
-    <slot />
+  <div class="modal fade" :class="{ show: isVisible }">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ label }}</h5>
+          <button
+            v-if="isCloseButtonShown"
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+            @click.prevent="close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body bg-light">
+          <slot />
+        </div>
+        <div class="modal-footer">
+          <slot name="footer" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const props = defineProps({
+  label: {
+    type: String,
+    required: true,
+  },
+  isCloseButtonShown: {
+    type: Boolean,
+    default: true,
+  },
+  isVisible: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+const emit = defineEmits(["onClose"]);
+
+function close() {
+  emit("onClose");
+}
+</script>
 
 <style scoped>
-.side-modal {
+.modal {
+  display: block;
+  pointer-events: none;
+}
+.modal-dialog {
   position: absolute;
-  top: 0;
-  bottom: 0;
   right: 0;
-  width: 20rem;
-  border: 1px solid red;
+  margin-right: 0px;
+}
+.modal-content {
+  border-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.modal.fade .modal-dialog {
+  transform: translate(100px, 0);
+}
+.modal.show .modal-dialog {
+  transform: none;
 }
 </style>
 
 <docs>
     <template>
-        <SideModal> content </SideModal>
+        <SideModal label="SideModal - Label" :isVisible="showModal" @onClose="showModal=false">
+         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+         <template v-slot:footer>
+            <ButtonAction @click="showModal = false">Done</ButtonAction>
+         </template>
+
+        </SideModal>
+        <br/><button @click="showModal=!showModal"> Toggle modal </button>
     </template>
+    <script>
+    export default {
+        data: function () {
+            return {
+            showModal: true
+            };
+        },
+    };
+    </script>
 </docs>
