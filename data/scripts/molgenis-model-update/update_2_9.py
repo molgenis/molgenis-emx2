@@ -58,6 +58,39 @@ class TransformGeneral:
         # copy molgenis.csv to appropriate folder
         shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 
-class TransformCatalogue(self):
-        """Tranform data
-        """
+
+class CopyTables:
+    """Copy tables from SharedStaging to other schemas to get rid of references from
+    SharedStaging inside catalogue"""
+
+    def __init__(self, database):
+        self.database = database
+        self.path = './downloads/' + self.database + '_data/'
+
+    def copy_tables_to_catalogue(self):
+        # copy Institutions from SharedStaging to catalogue
+        source = './downloads/SharedStaging_data/'
+        target = self.path
+        shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
+                        os.path.abspath(os.path.join(target, 'Institutions.csv')))
+
+        # copy files from SharedStaging to catalogue
+        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files/')
+        path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
+        for file in os.listdir(path_shared_staging_files):
+            if file not in os.listdir(path_catalogue_files):
+                shutil.copyfile(os.path.join(path_shared_staging_files, file),
+                                os.path.join(path_catalogue_files, file))
+
+    def copy_tables_to_CatalogueOntologies(self):
+        # copy CoreVariables from SharedStaging to CatalogueOntologies
+        source = './downloads/SharedStaging_data/'
+        target = self.path
+        shutil.copyfile(os.path.abspath(os.path.join(source, 'CoreVariables.csv')),
+                        os.path.abspath(os.path.join(target, 'CoreVariables.csv')))
+
+        # copy CoreVariables from SharedStaging to CatalogueOntologies
+        source = './downloads/SharedStaging_data/'
+        target = './downloads/CatalogueOntologies_data/'
+        shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
+                        os.path.abspath(os.path.join(target, 'Institutions.csv')))
