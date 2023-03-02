@@ -173,6 +173,7 @@ session = Session(
     password=SERVER_PASSWORD
 )
 
+
 for cohort in COHORTS:
     print('Upload transformed data for: ' + cohort)
     session.upload_zip(database_name=cohort, data_to_upload=cohort)
