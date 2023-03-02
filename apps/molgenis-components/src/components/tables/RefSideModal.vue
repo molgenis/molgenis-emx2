@@ -51,7 +51,17 @@ watch(props, (newValue, oldValue) => {
 <style scoped></style>
 
 <docs>
-      <template>
-          <RefSideModal label="Label" tableId="Pet" :row="{}" />
-      </template>
+    <template>
+        <RefSideModal label="Label" tableId="Pet" :row="{}" :isVisible="showModal" @onClose="showModal=false" />
+        <br/><button @click="showModal=!showModal"> Toggle modal </button>
+    </template>
+    <script>
+    export default {
+        data: function () {
+            return {
+            showModal: false
+            };
+        },
+    };
+    </script>
   </docs>

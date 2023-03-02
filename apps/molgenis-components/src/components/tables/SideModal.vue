@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
     export default {
         data: function () {
             return {
-            showModal: true
+            showModal: false
             };
         },
     };
