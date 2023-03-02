@@ -338,6 +338,7 @@
         }}'?
       </p>
     </ConfirmModal>
+
     <RefSideModal
       :isVisible="refSideModalProps !== undefined"
       :table-id="refSideModalProps?.table"
@@ -345,6 +346,7 @@
       :row="refSideModalProps?.row"
       @onClose="refSideModalProps = undefined"
       :client="client"
+      :showDataOwner="canManage"
     />
   </div>
 </template>

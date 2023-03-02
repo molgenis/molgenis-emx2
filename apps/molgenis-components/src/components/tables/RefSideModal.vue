@@ -1,7 +1,33 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-    {{ JSON.stringify(queryResult) }}
+    <h5 v-if="queryResult?.name">{{ queryResult.name }}</h5>
+
+    <table class="table table-borderless table-sm">
+      <tr v-for="(value, key) in tableResult">
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+    </table>
+
+    <small class="text-black-50" v-if="showDataOwner">
+      <div v-if="queryResult?.mg_insertedBy">
+        Inserted by '{{ queryResult?.mg_insertedBy }}'
+        <span v-if="queryResult?.mg_insertedOn">
+          On {{ new Date(queryResult?.mg_insertedOn).toLocaleString() }}
+        </span>
+      </div>
+      <div v-if="queryResult?.mg_updatedBy">
+        Updated by '{{ queryResult?.mg_updatedBy }}'
+        <span v-if="queryResult?.mg_updatedOn">
+          On {{ new Date(queryResult?.mg_updatedOn).toLocaleString() }}
+        </span>
+      </div>
+    </small>
+    <div v-if="queryResult?.mg_draft">
+      <span class="badge badge-secondary">Draft</span>
+    </div>
+
     <template v-slot:footer>
       <ButtonAction @click="emit('onClose')">Close</ButtonAction>
     </template>
@@ -31,6 +57,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showDataOwner: {
+    type: Boolean,
+    default: false,
+  },
   client: {
     type: Object,
     required: true,
@@ -39,6 +69,7 @@ const props = defineProps({
 const { client, isVisible, label, row, tableId } = toRefs(props);
 
 let queryResult = ref({});
+let tableResult = {};
 let errorMessage = ref("");
 const emit = defineEmits(["onClose"]);
 watch([tableId, label, row], () => {
@@ -46,12 +77,21 @@ watch([tableId, label, row], () => {
 });
 
 async function updateData() {
+  errorMessage.value = "";
   if (tableId.value !== "") {
     queryResult.value = await client.value
       .fetchRowData(tableId.value, { name: row.value })
       .catch(() => {
         errorMessage.value = "Failed to load reference data";
       });
+
+    tableResult = { ...queryResult.value };
+    delete tableResult.name;
+    delete tableResult.mg_insertedBy;
+    delete tableResult.mg_insertedOn;
+    delete tableResult.mg_updatedBy;
+    delete tableResult.mg_updatedOn;
+    delete tableResult.mg_draft;
   }
 }
 </script>
