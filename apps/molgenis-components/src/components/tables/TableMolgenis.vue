@@ -189,10 +189,13 @@ export default {
       this.$emit("column-click", column);
     },
     onCellClick(row, column) {
-      this.$emit("cellClick", {
-        cellValue: deepClone(row[column.id].name),
-        column: deepClone(column),
-      });
+      const value = row[column.id];
+      if (value) {
+        this.$emit("cellClick", {
+          cellValue: deepClone(value),
+          column: deepClone(column),
+        });
+      }
     },
     onRowClick(row) {
       const key = this.getPrimaryKey(row);

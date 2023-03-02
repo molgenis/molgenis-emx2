@@ -601,7 +601,7 @@ export default {
         this.refSideModal = {
           label: column.name,
           table: column.refTable,
-          row: cellValue,
+          row: cellValue.name,
         };
       }
     },
