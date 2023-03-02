@@ -46,16 +46,6 @@ const props = defineProps({
 
 const emit = defineEmits(["onClose"]);
 
-function close() {
-  emit("onClose");
-}
-
-function escapeKeyHandler(event: any) {
-  if (event.key === "Escape") {
-    close();
-  }
-}
-
 onBeforeMount(() => {
   if (document && document.addEventListener) {
     document.addEventListener("keydown", escapeKeyHandler);
@@ -67,6 +57,16 @@ onBeforeUnmount(() => {
     document.removeEventListener("keydown", escapeKeyHandler);
   }
 });
+
+function escapeKeyHandler(event: any) {
+  if (event.key === "Escape") {
+    close();
+  }
+}
+
+function close() {
+  emit("onClose");
+}
 </script>
 
 <style scoped>
@@ -96,23 +96,34 @@ onBeforeUnmount(() => {
 </style>
 
 <docs>
-    <template>
-        <SideModal label="SideModal - Label" :isVisible="showModal" @onClose="showModal=false">
-         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-         <template v-slot:footer>
-            <ButtonAction @click="showModal = false">Done</ButtonAction>
-         </template>
-
-        </SideModal>
-        <br/><button @click="showModal=!showModal"> Toggle modal </button>
+<template>
+  <SideModal
+    label="SideModal - Label"
+    :isVisible="showModal"
+    @onClose="showModal = false"
+  >
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+    </p>
+    <template v-slot:footer>
+      <ButtonAction @click="showModal = false">Done</ButtonAction>
     </template>
-    <script>
-    export default {
-        data: function () {
-            return {
-            showModal: false
-            };
-        },
+  </SideModal>
+  <br /><button @click="showModal = !showModal">Toggle modal</button>
+</template>
+<script>
+export default {
+  data: function () {
+    return {
+      showModal: false,
     };
-    </script>
+  },
+};
+</script>
 </docs>

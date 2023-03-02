@@ -1,6 +1,6 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
-    {{ JSON.stringify(data) }}
+    {{ JSON.stringify(queryResult) }}
     <template v-slot:footer>
       <ButtonAction @click="emit('onClose')">Close</ButtonAction>
     </template>
@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 
-const props = defineProps({
+const { client, isVisible, label, row, tableId } = defineProps({
   tableId: {
     type: String,
     default: "",
@@ -33,35 +33,41 @@ const props = defineProps({
   },
 });
 
-let data = ref({});
+let queryResult = ref({});
 const emit = defineEmits(["onClose"]);
+watch([tableId, label, row], () => {
+  updateData();
+});
+
 async function updateData() {
-  if (props.tableId != "") {
-    data.value = await props.client
-      .fetchRowData(props.tableId, { name: props.row })
+  if (tableId != "") {
+    queryResult.value = await client
+      .fetchRowData(tableId, { name: row })
       .catch(() => {});
   }
 }
-
-watch(props, (newValue, oldValue) => {
-  updateData();
-});
 </script>
 
 <style scoped></style>
 
 <docs>
-    <template>
-        <RefSideModal label="Label" tableId="Pet" :row="{}" :isVisible="showModal" @onClose="showModal=false" />
-        <br/><button @click="showModal=!showModal"> Toggle modal </button>
-    </template>
-    <script>
-    export default {
-        data: function () {
-            return {
-            showModal: false
-            };
-        },
+<template>
+  <RefSideModal
+    label="Label"
+    tableId="Pet"
+    :row="{}"
+    :isVisible="showModal"
+    @onClose="showModal = false"
+  />
+  <br /><button @click="showModal = !showModal">Toggle modal</button>
+</template>
+<script>
+export default {
+  data: function () {
+    return {
+      showModal: false,
     };
-    </script>
-  </docs>
+  },
+};
+</script>
+</docs>

@@ -339,11 +339,11 @@
       </p>
     </ConfirmModal>
     <RefSideModal
-      :isVisible="refSideModal !== undefined"
-      :table-id="refSideModal?.table"
-      :label="refSideModal?.label"
-      :row="refSideModal?.row"
-      @onClose="refSideModal = undefined"
+      :isVisible="refSideModalProps !== undefined"
+      :table-id="refSideModalProps?.table"
+      :label="refSideModalProps?.label"
+      :row="refSideModalProps?.row"
+      @onClose="refSideModalProps = undefined"
       :client="client"
     />
   </div>
@@ -459,7 +459,7 @@ export default {
       selectedItems: [],
       tableMetadata: null,
       view: this.showView,
-      refSideModal: undefined,
+      refSideModalProps: undefined,
     };
   },
   props: {
@@ -598,7 +598,7 @@ export default {
     handleCellClick(event) {
       const { column, cellValue } = event;
       if (isRefType(column?.columnType)) {
-        this.refSideModal = {
+        this.refSideModalProps = {
           label: column.name,
           table: column.refTable,
           row: cellValue.name,
