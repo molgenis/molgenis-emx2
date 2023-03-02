@@ -812,11 +812,8 @@ public class WebApiSmokeTests {
   public void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
-        response
-            .getBody()
-            .asString()
-            .contains("name,category,photoUrls,details,status,tags,weight"));
-    assertTrue(response.getBody().asString().contains("pooky,cat,,,available,,9.4"));
+        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
     assertFalse(response.getBody().asString().contains("mg_"));
   }
 
@@ -830,8 +827,8 @@ public class WebApiSmokeTests {
   public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,details,status,tags,weight", rows.get(0));
-    assertEquals("pooky,cat,,,available,,9.4", rows.get(1));
+    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
+    assertEquals("pooky,cat,,available,,9.4", rows.get(1));
   }
 
   @Test
@@ -846,8 +843,8 @@ public class WebApiSmokeTests {
     File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("name,category,photoUrls,details,status,tags,weight"));
-    assertTrue(result.contains("pooky,cat,,,available,,9.4"));
+    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(result.contains("pooky,cat,,available,,9.4"));
   }
 
   @Test
