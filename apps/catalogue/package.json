@@ -9,13 +9,13 @@
     "format": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.27.2",
+    "core-js": "3.28.0",
     "graphql-request": "5.1.0",
     "import": "^0.0.6",
     "molgenis-components": "*",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
-    "vue-tabler-icons": "2.19.0",
+    "vue-tabler-icons": "2.20.0",
     "vuex": "4.1.0"
   },
   "browserslist": [

@@ -138,47 +138,47 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,validation,visible,computed,semantics,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
-        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,TestSem,TestDesc\r\n");
+        header, "tableName\r\nTestMetaTable", "TestMetaTable,,,,,,,,,,,,,,,TestSem,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,TestSem,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,TestSem,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,NewTestSem,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,NewTestSem,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,\"TestSem1,TestSem2\",TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,TestDesc\r\n");
   }
 
   /**
@@ -244,6 +244,31 @@ public class WebApiSmokeTests {
     assertEquals(new String(contentsPetData), contentsPetDataNew);
     assertEquals(new String(contentsUserData), contentsUserDataNew);
     assertEquals(new String(contentsTagData), contentsTagDataNew);
+  }
+
+  @Test
+  public void testCsvApi_tableFilter() {
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("spike"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .queryParam("filter", "{\"tags\":{\"name\": {\"equals\":\"blue\"}}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store/api/csv/Pet")
+            .asString();
+    assertTrue(result.contains("jerry"));
+    assertFalse(result.contains("spike"));
   }
 
   private void acceptFileUpload(File content, String table) {
@@ -787,8 +812,11 @@ public class WebApiSmokeTests {
   public void downloadCsvTable() {
     Response response = downloadPet("/pet store/api/csv/Pet");
     assertTrue(
-        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
-    assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
+        response
+            .getBody()
+            .asString()
+            .contains("name,category,photoUrls,details,status,tags,weight"));
+    assertTrue(response.getBody().asString().contains("pooky,cat,,,available,,9.4"));
     assertFalse(response.getBody().asString().contains("mg_"));
   }
 
@@ -799,11 +827,11 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void downloadExelTable() throws IOException {
+  public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
-    assertEquals("pooky,cat,,available,,9.4", rows.get(1));
+    assertEquals("name,category,photoUrls,details,status,tags,weight", rows.get(0));
+    assertEquals("pooky,cat,,,available,,9.4", rows.get(1));
   }
 
   @Test
@@ -818,8 +846,8 @@ public class WebApiSmokeTests {
     File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
     List<File> files = TestUtils.extractFileFromZip(file);
     String result = Files.readString(files.get(0).toPath());
-    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
-    assertTrue(result.contains("pooky,cat,,available,,9.4"));
+    assertTrue(result.contains("name,category,photoUrls,details,status,tags,weight"));
+    assertTrue(result.contains("pooky,cat,,,available,,9.4"));
   }
 
   @Test

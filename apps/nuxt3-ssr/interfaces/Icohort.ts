@@ -24,6 +24,7 @@ interface ICohort {
   numberOfParticipants: number;
   numberOfParticipantsWithSamples?: number;
   designDescription: string;
+  designSchematic: IFile;
   design: {
     definition: string;
     name: string;
@@ -42,6 +43,21 @@ interface ICohort {
   dataAccessConditions?: { name: string }[];
   fundingStatement?: string;
   acknowledgements?: string;
+  documentation?: IDocumentation[];
+}
+
+interface IFile {
+  id?: string;
+  size?: number;
+  extension?: string;
+  url?: string;
+}
+
+interface IDocumentation {
+  name: string;
+  description: string;
+  url: string;
+  file: IFile;
 }
 
 interface IPartner {
@@ -89,6 +105,8 @@ interface ICollectionEvent {
   dataCategories: ICollectionEventCategory[];
   sampleCategories: ICollectionEventCategory[];
   areasOfInformation: ICollectionEventCategory[];
+  standardizedTools: ICollectionEventCategory[];
+  standardizedToolsOther: string;
   subcohorts: INameObject[];
   coreVariables: INameObject[];
 }
@@ -121,4 +139,9 @@ interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+}
+
+interface ISetting {
+  key: string;
+  value: string;
 }
