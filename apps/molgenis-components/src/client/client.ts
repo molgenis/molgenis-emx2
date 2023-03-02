@@ -2,7 +2,6 @@ import axios, { Axios, AxiosError, AxiosResponse } from "axios";
 import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
 import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
-import { IColumn } from "../Interfaces/IColumn";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { ISetting } from "../Interfaces/ISetting";

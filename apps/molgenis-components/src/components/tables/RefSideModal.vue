@@ -1,5 +1,6 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
+    <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
     {{ JSON.stringify(queryResult) }}
     <template v-slot:footer>
       <ButtonAction @click="emit('onClose')">Close</ButtonAction>
@@ -8,9 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, toRefs, watch } from "vue";
+import MessageError from "../forms/MessageError.vue";
+import ButtonAction from "../forms/ButtonAction.vue";
+import SideModal from "./SideModal.vue";
 
-const { client, isVisible, label, row, tableId } = defineProps({
+const props = defineProps({
   tableId: {
     type: String,
     default: "",
@@ -32,18 +36,22 @@ const { client, isVisible, label, row, tableId } = defineProps({
     required: true,
   },
 });
+const { client, isVisible, label, row, tableId } = toRefs(props);
 
 let queryResult = ref({});
+let errorMessage = ref("");
 const emit = defineEmits(["onClose"]);
 watch([tableId, label, row], () => {
   updateData();
 });
 
 async function updateData() {
-  if (tableId != "") {
-    queryResult.value = await client
-      .fetchRowData(tableId, { name: row })
-      .catch(() => {});
+  if (tableId.value !== "") {
+    queryResult.value = await client.value
+      .fetchRowData(tableId.value, { name: row.value })
+      .catch(() => {
+        errorMessage.value = "Failed to load reference data";
+      });
   }
 }
 </script>

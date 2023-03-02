@@ -86,12 +86,26 @@ function close() {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+.fade {
+  transition: opacity 0.15s linear;
+}
+
+.fade .modal-dialog {
+  transition: transform 0.15s, display 0.15s linear 0;
+}
+
+.modal.fade.show .modal-dialog {
+  transition: transform 0.15s, display 0.15s linear 0.15s;
+}
 
 .modal.fade .modal-dialog {
   transform: translate(100px, 0);
+  display: none;
 }
+
 .modal.show .modal-dialog {
   transform: none;
+  display: inline-block;
 }
 </style>
 

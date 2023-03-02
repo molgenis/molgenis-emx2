@@ -877,7 +877,7 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   export default {
     data() {
       return {
-        showColumns: ['name'],
+        showColumns: [],
         showFilters: ['name'],
         urlConditions: {"name": "pooky,spike"},
         page: 1,
