@@ -87,25 +87,25 @@ function close() {
   border-bottom-right-radius: 0;
 }
 .fade {
-  transition: opacity 0.15s linear;
+  transition: opacity 0.2s;
 }
 
 .fade .modal-dialog {
-  transition: transform 0.15s, display 0.15s linear 0;
+  transition: transform 0.2s, visibility 0.2s ease 0.2s;
 }
 
 .modal.fade.show .modal-dialog {
-  transition: transform 0.15s, display 0.15s linear 0.15s;
+  transition: transform 0.2s, visibility 0.2s ease 0s;
 }
 
 .modal.fade .modal-dialog {
   transform: translate(100px, 0);
-  display: none;
+  visibility: hidden;
 }
 
 .modal.show .modal-dialog {
   transform: none;
-  display: inline-block;
+  visibility: visible;
 }
 </style>
 
