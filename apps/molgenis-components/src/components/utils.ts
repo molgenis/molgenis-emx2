@@ -6,6 +6,11 @@ import constants from "./constants";
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
   constants;
 
+export function isRefType(columnType: string): boolean {
+  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+    columnType
+  );
+}
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
   return (

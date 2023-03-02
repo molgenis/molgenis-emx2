@@ -364,6 +364,7 @@ import {
   convertToPascalCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  isRefType,
 } from "../utils";
 import ShowHide from "./ShowHide.vue";
 import Pagination from "./Pagination.vue";
@@ -596,7 +597,7 @@ export default {
     },
     handleCellClick(event) {
       const { column, cellValue } = event;
-      if (column?.columnType === "REF") {
+      if (isRefType(column?.columnType)) {
         this.refSideModal = {
           label: column.name,
           table: column.refTable,

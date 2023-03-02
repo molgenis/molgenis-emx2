@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { deepClone, convertToPascalCase } from "../components/utils";
+import { deepClone, convertToPascalCase, isRefType } from "../components/utils";
 import { IRow } from "../Interfaces/IRow";
 import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { IColumn } from "../Interfaces/IColumn";
@@ -402,11 +402,7 @@ const columnNames = (
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
     if (expandLevel > 0 || col.key == 1) {
-      if (
-        ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-          col.columnType
-        )
-      ) {
+      if (isRefType(col.columnType)) {
         result =
           result +
           " " +
