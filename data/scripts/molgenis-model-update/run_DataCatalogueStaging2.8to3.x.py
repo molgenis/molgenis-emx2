@@ -1,6 +1,6 @@
 from decouple import config
 from util.client import Session
-from update.update_3_x import TransformGeneral
+from update.update_3_x import Transform
 from update.update_3_x import TransformDataCatalogue
 from update.update_3_x import TransformDataStaging
 from update.spaces_for_3x import Spaces
@@ -54,7 +54,7 @@ print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
 transform_data = TransformDataCatalogue(CATALOGUE_SCHEMA_NAME, 'catalogue_staging')
 zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 zip_handling_shared_staging = Zip(SHARED_STAGING_NAME)
-update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue_staging')
+update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue_staging')
 spaces = Spaces(CATALOGUE_SCHEMA_NAME)
 
 # run download and transform functions
@@ -77,7 +77,7 @@ print('Transform data from ' + ONTOLOGIES_SCHEMA_NAME)
 # call instances
 transform_data = TransformDataCatalogue(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 zip_handling = Zip(ONTOLOGIES_SCHEMA_NAME)
-update_general = TransformGeneral(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
+update_general = Transform(ONTOLOGIES_SCHEMA_NAME, 'ontologies')
 spaces = Spaces(ONTOLOGIES_SCHEMA_NAME)
 
 # run transform functions
@@ -107,7 +107,7 @@ for cohort in COHORTS:
     print('Transform data from ' + cohort)
     transform_data = TransformDataStaging(cohort, 'cohort')
     zip_handling = Zip(cohort)
-    update_general = TransformGeneral(cohort, 'cohort')
+    update_general = Transform(cohort, 'cohort')
     spaces = Spaces(cohort)
 
     zip_handling.remove_unzipped_data()
@@ -132,7 +132,7 @@ for network in NETWORKS:
     print('Transform data from ' + network)
     transform_data = TransformDataStaging(network, 'network')
     zip_handling = Zip(network)
-    update_general = TransformGeneral(network, 'network')
+    update_general = Transform(network, 'network')
     spaces = Spaces(network)
 
     zip_handling.remove_unzipped_data()
@@ -165,7 +165,7 @@ session.drop_database(database_name=ONTOLOGIES_SCHEMA_NAME)
 session.create_database(database_name=ONTOLOGIES_SCHEMA_NAME, database_description=schema_description)
 
 # upload molgenis.csv to UMCG schema
-update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue')
+update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue')
 data_model_file = update_general.update_data_model_file()
 session.upload_zip(database_name=CATALOGUE_SCHEMA_NAME, data_to_upload='catalogue_data_model')
 

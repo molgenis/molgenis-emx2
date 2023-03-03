@@ -59,7 +59,7 @@ class Session:
         )
 
         if response.content:
-            fh = open('./downloads/' + database_name + '_data.zip', 'wb')
+            fh = open('./files/' + database_name + '_data.zip', 'wb')
             fh.write(response.content)
             fh.close()
         else:
@@ -77,7 +77,7 @@ class Session:
 
         self.cookies = response.cookies
 
-        zip = {'file': open('./downloads/' + data_to_upload + '_upload.zip', 'rb')}
+        zip = {'file': open('./files/' + data_to_upload + '_upload.zip', 'rb')}
         response = requests.post(
             self.url + database_name + '/api/zip?async=true',
             auth=(self.email, self.password),

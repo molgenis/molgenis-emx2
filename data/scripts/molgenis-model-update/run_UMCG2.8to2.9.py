@@ -51,7 +51,7 @@ session = Session(
 # # get instances of classes
 # zip_handling = Zip(CATALOGUE_SCHEMA_NAME)
 # zip_handling_shared_staging = Zip(SHARED_STAGING_NAME)
-# update_general = TransformGeneral(CATALOGUE_SCHEMA_NAME, 'catalogue_2.8')
+# update_general = Transform(CATALOGUE_SCHEMA_NAME, 'catalogue_2.8')
 #
 # # run download and update data model
 # zip_handling.unzip_data()
@@ -69,7 +69,7 @@ session = Session(
 # print('Transform data from ' + SHARED_STAGING_NAME)
 # # initiate instances to update SharedStaging
 # zip_handling = Zip(SHARED_STAGING_NAME)
-# update_general = TransformGeneral(SHARED_STAGING_NAME, 'SharedStagingUMCG')
+# update_general = Transform(SHARED_STAGING_NAME, 'SharedStagingUMCG')
 # update_shared = TransformShared(SHARED_STAGING_NAME)
 #
 # # run update functions
@@ -110,7 +110,7 @@ session = Session(
 #     # transform data from cohorts
 #     print('Transform data from ' + cohort)
 #     zip_handling = Zip(cohort)
-#     update_general = TransformGeneral(cohort, 'cohort_UMCG_2.9')
+#     update_general = Transform(cohort, 'cohort_UMCG_2.9')
 #
 #     zip_handling.unzip_data()
 #     update_general.delete_data_model_file()

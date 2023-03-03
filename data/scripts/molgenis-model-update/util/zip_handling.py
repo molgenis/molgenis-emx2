@@ -11,7 +11,7 @@ class Zip:
 
     def __init__(self, database):
         self.database = database
-        self.path = './downloads/' + self.database + '_data/'
+        self.path = './files/' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
     def remove_unzipped_data(self):
@@ -26,7 +26,7 @@ class Zip:
     def unzip_data(self):
         """Extract data.zip
         """
-        data = ZipFile('./downloads/' + self.database + '_data.zip')
+        data = ZipFile('./files/' + self.database + '_data.zip')
         try:
             data.extractall(self.path)
         except FileNotFoundError:
@@ -36,8 +36,8 @@ class Zip:
             self.logger.error('Error: unzip failed, permission denied')
             exit()
         try:
-            if os.path.exists('./downloads/' + self.database + '_data.zip'):
-                os.remove('./downloads/' + self.database + '_data.zip')
+            if os.path.exists('./files/' + self.database + '_data.zip'):
+                os.remove('./files/' + self.database + '_data.zip')
         except PermissionError:
             # remove fails on windows, is not needed on Windows, pass
             self.logger.warning('Warning: Error deleting ' + self.database + '_data.zip')
@@ -45,4 +45,4 @@ class Zip:
     def zip_data(self):
         """Zip transformed data to upload.zip
         """
-        shutil.make_archive('./downloads/' + self.database + '_upload', 'zip', self.path)
+        shutil.make_archive('./files/' + self.database + '_upload', 'zip', self.path)

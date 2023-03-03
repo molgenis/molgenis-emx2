@@ -1,7 +1,6 @@
 import shutil
 import os
 import pandas as pd
-import logging
 
 
 def float_to_int(df):
@@ -15,28 +14,14 @@ def float_to_int(df):
     return df
 
 
-class TransformShared:
-    def __init__(self, database):
-        self.database = database
-        self.path = './downloads/' + self.database + '_data/'
-        self.logger = logging.getLogger(' data update and transform')
-
-    def transform_gdpr(self):
-        df_contacts = pd.read_csv(self.path + 'Contacts.csv')
-        df_contacts['statementOfConsentPersonalData'] = False
-        df_contacts['statementOfConsentEmail'] = False
-        df_contacts.to_csv(self.path + 'Contacts.csv', index=False, mode='w+')
-
-
-class TransformGeneral:
+class Transform:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, database, database_type):
-        self.database = database
+    def __init__(self, database_name, database_type):
+        self.database_name = database_name
         self.database_type = database_type
-        self.path = './downloads/' + self.database + '_data/'
-        self.logger = logging.getLogger(' data update and transform')
+        self.path = './files/' + self.database_name + '_data/'
 
     def delete_data_model_file(self):
         """Delete molgenis.csv
@@ -48,33 +33,49 @@ class TransformGeneral:
         """
         # get molgenis.csv location
         if self.database_type in ['catalogue_staging', 'catalogue']:
-            data_model = os.path.abspath('../../../datacatalogue3/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
-            data_model = os.path.abspath('/../datacatalogue3/stagingNetworks/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue3/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
-            data_model = os.path.abspath('../../../datacatalogue3/stagingCohorts/molgenis.csv')
+            data_model = os.path.abspath('../../../data/datacatalogue3/stagingCohorts/molgenis.csv')
+        elif self.database_type == 'cohort_UMCG':
+            data_model = os.path.abspath('../../../data/datacatalogue3/stagingCohortsUMCG/molgenis.csv')
+        elif self.database_type == 'shared':
+            data_model = os.path.abspath('../../../data/datacatalogue3/stagingShared/molgenis.csv')
 
         # copy molgenis.csv to appropriate folder
         if self.database_type in ['catalogue_staging', 'catalogue']:
-            path = './downloads/' + 'catalogue_data_model'
+            path = './files/' + 'catalogue_data_model'
             os.mkdir(path)
             shutil.copyfile(data_model, os.path.abspath(os.path.join(path, 'molgenis.csv')))
-            shutil.make_archive('./downloads/' + 'catalogue_data_model_upload', 'zip', path)
+            shutil.make_archive('./files/' + 'catalogue_data_model_upload', 'zip', path)
         else:
             shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
 
 
-class TransformDataCatalogue:
+class TransformShared(Transform):
+    def __init__(self, database_name, database_type):
+        Transform.__init__(self, database_name, database_type)
+
+    def organisations(self):
+        """Rename Institutions and rename columns
+        """
+        df_organisations = pd.read_csv(self.path + 'Institutions.csv')
+        df_organisations.rename(columns={'pid': 'id',
+                                         'roles': 'role'}, inplace=True)
+        df_organisations["name"].fillna(inplace=True, value=df_organisations["id"])  # fill na in column 'name'
+        df_organisations = float_to_int(df_organisations)  # convert float back to integer
+        df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+
+
+class TransformDataCatalogue(Transform):
     """Functions to update catalogue data model from 2.8 to 3.0.
     """
 
-    def __init__(self, database, database_type):
-        self.database = database
-        self.path = './downloads/' + self.database + '_data/'
+    def __init__(self, database_name, database_type):
+        Transform.__init__(self, database_name, database_type)
         self.shared_staging = 'SharedStaging'
-        self.path_shared_staging = './downloads/' + self.shared_staging + '_data/'
-        self.database_type = database_type
-        self.logger = logging.getLogger(' data update and transform')
+        self.path_shared_staging = './files/' + self.shared_staging + '_data/'
 
     def transform_data(self):
         """Make changes per table
@@ -94,7 +95,6 @@ class TransformDataCatalogue:
             self.repeated_variables()
             self.dataset_mappings()
             self.variable_mappings()
-            self.datasources()
             self.copy_files()
 
     def cohorts(self):
@@ -137,7 +137,9 @@ class TransformDataCatalogue:
         """
         df_organisations = pd.read_csv(self.path_shared_staging + 'Institutions.csv')
         df_organisations.rename(columns={'pid': 'id',
-                                         'roles': 'role'}, inplace=True)
+                                         'roles': 'role',
+                                         'providerOf': 'leading resources',
+                                         'partnerIn': 'additional resources'}, inplace=True)
         df_organisations["name"].fillna(inplace=True, value=df_organisations["id"])  # fill na in column 'name'
         df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
@@ -221,44 +223,24 @@ class TransformDataCatalogue:
 
         df_variable_mappings.to_csv(self.path + 'VariableMappings.csv', index=False)
 
-    def datasources(self):
-        """Add Databanks to Datasources and change column names
-        """
-        df_databanks = pd.read_csv(self.path + 'Databanks.csv')
-        df_datasources = pd.read_csv(self.path + 'Datasources.csv')
-        df_datasources_merged = pd.concat([df_databanks, df_datasources])
-        df_datasources_merged.rename(columns= {'pid': 'id'}, inplace=True)
-        df_datasources_merged = float_to_int(df_datasources_merged)
-        df_datasources_merged.to_csv(self.path + 'Datasources.csv', index=False)
-
     def copy_files(self):
         """Copy files from SharedStaging to catalogue
         """
-        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files/')
+        path_shared_staging_files = os.path.abspath('./files/SharedStaging_data/_files/')
         path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
         for file in os.listdir(path_shared_staging_files):
             shutil.copyfile(os.path.join(path_shared_staging_files, file),
                             os.path.join(path_catalogue_files, file))
 
-        #DatasourceDatabanks > LinkedDatasources
-            #rename columns:
-            #datasource > mainDatasource
-            #databank > linkedDatasource
-        #DAPs > ResourceOrganisations
-            #isDataAccessProvider ontology filled from several data items in DAPs
 
-
-class TransformDataStaging:
+class TransformDataStaging(Transform):
     """Functions to update catalogue data model for cohort staging areas from 2.8 to 3.0.
     """
 
-    def __init__(self, database, database_type):
-        self.database_name = database
-        self.path = './downloads/' + self.database_name + '_data/'
+    def __init__(self, database_name, database_type):
+        Transform.__init__(self, database_name, database_type)
         self.shared_staging = 'SharedStaging'
-        self.path_shared_staging = './downloads/' + self.shared_staging + '_data/'
-        self.database_type = database_type
-        self.logger = logging.getLogger(' data update and transform')
+        self.path_shared_staging = './files/' + self.shared_staging + '_data/'
 
     def transform_data(self):
         """Make changes per table
@@ -442,7 +424,7 @@ class TransformDataStaging:
     def copy_files(self):
         """Copy files from SharedStaging to cohort staging data
         """
-        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files')
+        path_shared_staging_files = os.path.abspath('../files/SharedStaging_data/_files')
         path_cohort_files = os.path.abspath(os.path.join(self.path, '_files'))
         if not os.path.exists(path_cohort_files):
             os.mkdir(path_cohort_files)

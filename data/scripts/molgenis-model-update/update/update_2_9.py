@@ -18,7 +18,7 @@ def float_to_int(df):
 class TransformShared:
     def __init__(self, database):
         self.database = database
-        self.path = './downloads/' + self.database + '_data/'
+        self.path = './files/' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
     def transform_gdpr(self):
@@ -35,7 +35,7 @@ class TransformGeneral:
     def __init__(self, database, database_type):
         self.database = database
         self.database_type = database_type
-        self.path = './downloads/' + self.database + '_data/'
+        self.path = './files/' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
     def delete_data_model_file(self):
@@ -64,17 +64,17 @@ class CopyTables:
 
     def __init__(self, database):
         self.database = database
-        self.path = './downloads/' + self.database + '_data/'
+        self.path = './files/' + self.database + '_data/'
 
     def copy_tables_to_catalogue(self):
         # copy Institutions from SharedStaging to catalogue
-        source = './downloads/SharedStaging_data/'
+        source = './files/SharedStaging_data/'
         target = self.path
         shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
                         os.path.abspath(os.path.join(target, 'Institutions.csv')))
 
         # copy files from SharedStaging to catalogue
-        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files/')
+        path_shared_staging_files = os.path.abspath('../files/SharedStaging_data/_files/')
         path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
         for file in os.listdir(path_shared_staging_files):
             if file not in os.listdir(path_catalogue_files):
@@ -83,13 +83,13 @@ class CopyTables:
 
     def copy_tables_to_CatalogueOntologies(self):
         # copy CoreVariables from SharedStaging to CatalogueOntologies
-        source = './downloads/SharedStaging_data/'
+        source = './files/SharedStaging_data/'
         target = self.path
         shutil.copyfile(os.path.abspath(os.path.join(source, 'CoreVariables.csv')),
                         os.path.abspath(os.path.join(target, 'CoreVariables.csv')))
 
         # copy CoreVariables from SharedStaging to CatalogueOntologies
-        source = './downloads/SharedStaging_data/'
-        target = './downloads/CatalogueOntologies_data/'
+        source = './files/SharedStaging_data/'
+        target = './files/CatalogueOntologies_data/'
         shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
                         os.path.abspath(os.path.join(target, 'Institutions.csv')))
