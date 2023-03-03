@@ -2,7 +2,6 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Publications,,,,,,,,,,,,Publications following bibtex format
 Version,,,,,,,,,,,,3.2
 Resources,,,,,,,,,,,,"Generic listing of all resources. Should not be used directly, instead use specific types such as Databanks and Studies"
-Organisations,Organisations,,,,,UMCG,,,,,,"Institutions, research departments and research groups"
 Extended resources,Resources,,,,,,,,,,,
 Data resources,Extended resources,,,,,,,,,,,
 Cohorts,Data resources,,,,,,,,,,,Group of individuals sharing a defining demographic characteristic
@@ -18,15 +17,6 @@ Resources,,name,,2,TRUE,,,,,,,Name of the resource
 Resources,,acronym,,,,,,,,,,Resource acronym
 Resources,,website,,,,,,,,,,Link to the website of this resource
 Resources,,description,text,,,,,,,,,Short description of this resource
-Organisations,,type,ontology,,,CatalogueOntologies,Organisation types,,,,,Type of organisation; in which sector is the organisation active?
-Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of type of organisation"
-Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
-Organisations,,institution acronym,string,,,,,,,,,Short name of the institution
-Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,,Country in which the institution head office or coordinating centre is located
-Organisations,,features,ontology_array,,,CatalogueOntologies,Organisation features,,,,,Features that describe this organisation
-Organisations,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,,Roles of the institution in connection with data sources in the catalogue. Select one or more of the following:
-Organisations,,leading resources,refback,,,,Extended resources,,lead organisation,,,"Listing of data sources, cohorts, studies (etc)"
-Organisations,,additional resources,refback,,,,Extended resources,,additional organisations,,,"Listing of data sources, cohorts, studies (etc)"
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EU PAS number, UMCG register number)"
 Cohorts,,type,ontology_array,,,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank"
@@ -34,8 +24,8 @@ Cohorts,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study des
 Cohorts,,design description,text,,,,,,,,,Short description of the study design of this cohort
 Cohorts,,design schematic,file,,,,,,,,,A schematic depiction of the study design of this cohort
 Cohorts,,collection type,ontology_array,,,CatalogueOntologies,Collection types,,,,,"The data collection type of this cohort, i.e. retrospective or prospective; if both, select both"
-Extended resources,,lead organisation,ref_array,,,UMCG,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
-Extended resources,,additional organisations,ref_array,,,UMCG,Organisations,,,,,Any additional organisations that contributed to this resource
+Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,Lead organisation (e.g. research department or group) for this resource
+Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,Any additional organisations that contributed to this resource
 Cohorts,,networks,ref_array,,,UMCG,Networks,,cohorts,,,The consortia or networks that this cohort is involved in
 Extended resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc."
 Cohorts,,contact email,,,,,,,,,,"Contact e-mail address for this cohort. Note: this email address will be displayed in the catalogue, which is openly accessible."
@@ -75,7 +65,7 @@ Contacts,,statementOfConsentPersonalData,bool,,TRUE,,,,,,,"Indicate whether this
 Contacts,,prefix,,,,,,,,,,"Surname prefix, if applicable"
 Contacts,,initials,,,,,,,,,,Initials of the contact person
 Contacts,,title,ontology,,,CatalogueOntologies,Titles,,,,,Title of the contact person
-Contacts,,organisation,ref,,,UMCG,Organisations,,,,,Affiliated organisation of the contact person
+Contacts,,organisation,ref,,,SharedStaging,Organisations,,,,,Affiliated organisation of the contact person
 Contacts,,statementOfConsentEmail,bool,,TRUE,,,,,,,"Indicate whether this person consents to display their email address in the catalogue (which is openly accessible). The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent for their email address will be shown without their email address in the UMCG Research Data Catalogue"
 Contacts,,email,,,,,,,,,,Contact's email address
 Contacts,,orcid,,,,,,,,,,Orcid of the contact person
