@@ -1,8 +1,7 @@
 from decouple import config
-from client import Session
-from etl import TransformGeneral
-from etl import TransformShared
-from zip_handling import Zip
+from util.client import Session
+from ETL.etl import TransformGeneral
+from util.zip_handling import Zip
 
 # Server details
 SERVER_URL = config('MG_SERVER_URL')

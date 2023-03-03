@@ -51,11 +51,11 @@ class TransformGeneral:
         """
         # get molgenis.csv location
         if self.database_type == 'catalogue_2.8':
-            data_model = os.path.abspath('datamodels/molgenis_2.9.csv')
+            data_model = os.path.abspath('../datamodels/molgenis_2.9.csv')
         elif self.database_type == 'cohort_UMCG_2.9':
-            data_model = os.path.abspath('datamodels/molgenis_stagingCohortsUMCG_2.9.csv')  #'../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
+            data_model = os.path.abspath('../datamodels/molgenis_stagingCohortsUMCG_2.9.csv')  #'../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
         elif self.database_type == 'SharedStagingUMCG':
-            data_model = os.path.abspath('datamodels/molgenis_stagingSharedUMCG_2.9.csv')
+            data_model = os.path.abspath('../datamodels/molgenis_stagingSharedUMCG_2.9.csv')
 
         # copy molgenis.csv to appropriate folder
         shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
@@ -77,7 +77,7 @@ class CopyTables:
                         os.path.abspath(os.path.join(target, 'Institutions.csv')))
 
         # copy files from SharedStaging to catalogue
-        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files/')
+        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files/')
         path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
         for file in os.listdir(path_shared_staging_files):
             if file not in os.listdir(path_catalogue_files):

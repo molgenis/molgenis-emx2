@@ -39,12 +39,16 @@ Use virtual env to get a consistent python environment.
 
 6. Run script for update of data catalogue staging from 2.8 to 3.x
 
-    'runDataCatalogueStaging.py'
+    'run_DataCatalogueStaging2.9to3.x.py'
 
    Run script for update of UMCG server from 2.9 to 3.x
 
-    'run_UMCG.py'
+    'run_UMCG2.9to3.x.py'
 
    Run script for update of UMCG server to 2.9
 
-    'run_UMCG_2.8to2.9.py'
+    'run_UMCG2.8to2.9.py'
+
+   Run cohort-etl for UMCG server
+
+    'run_cohort_etl_umcg.py'

@@ -2,7 +2,6 @@ import shutil
 import os
 import pandas as pd
 import logging
-import itertools
 
 
 def float_to_int(df):
@@ -49,11 +48,11 @@ class TransformGeneral:
         """
         # get molgenis.csv location
         if self.database_type in ['catalogue_staging', 'catalogue']:
-            data_model = os.path.abspath('../../datacatalogue3/molgenis.csv')
+            data_model = os.path.abspath('../../../datacatalogue3/molgenis.csv')
         elif self.database_type == 'network':
             data_model = os.path.abspath('/../datacatalogue3/stagingNetworks/molgenis.csv')
         elif self.database_type == 'cohort':
-            data_model = os.path.abspath('../../datacatalogue3/stagingCohorts/molgenis.csv')
+            data_model = os.path.abspath('../../../datacatalogue3/stagingCohorts/molgenis.csv')
 
         # copy molgenis.csv to appropriate folder
         if self.database_type in ['catalogue_staging', 'catalogue']:
@@ -235,7 +234,7 @@ class TransformDataCatalogue:
     def copy_files(self):
         """Copy files from SharedStaging to catalogue
         """
-        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files/')
+        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files/')
         path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
         for file in os.listdir(path_shared_staging_files):
             shutil.copyfile(os.path.join(path_shared_staging_files, file),
@@ -443,7 +442,7 @@ class TransformDataStaging:
     def copy_files(self):
         """Copy files from SharedStaging to cohort staging data
         """
-        path_shared_staging_files = os.path.abspath('./downloads/SharedStaging_data/_files')
+        path_shared_staging_files = os.path.abspath('../downloads/SharedStaging_data/_files')
         path_cohort_files = os.path.abspath(os.path.join(self.path, '_files'))
         if not os.path.exists(path_cohort_files):
             os.mkdir(path_cohort_files)

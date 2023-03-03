@@ -1,5 +1,5 @@
 import pandas as pd
-from update import float_to_int
+from update.update_3_x import float_to_int
 import os
 
 

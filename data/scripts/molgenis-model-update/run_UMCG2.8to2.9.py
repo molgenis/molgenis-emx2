@@ -1,12 +1,5 @@
 from decouple import config
-from client import Session
-from update_2_9 import TransformGeneral
-from update_2_9 import TransformShared
-from update_2_9 import CopyTables
-from update import TransformDataCatalogue
-from update import TransformDataStaging
-from spaces import Spaces
-from zip_handling import Zip
+from util.client import Session
 
 # Data model details
 DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
