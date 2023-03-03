@@ -108,7 +108,8 @@ class TransformDataCatalogue(Transform):
         grouped_partners = df_partners.groupby('resource')['additional organisations'].agg(','.join)
         df_cohorts['resource'] = df_cohorts['pid']
         df_cohorts_merged = pd.merge(df_cohorts, grouped_partners, on='resource', how='outer')
-        df_cohorts_merged.rename(columns={'pid': 'id'}, inplace=True)
+        df_cohorts_merged.rename(columns={'pid': 'id',
+                                          'institution': 'lead organisation'}, inplace=True)
         df_cohorts_merged = float_to_int(df_cohorts_merged)  # convert float back to integer
         df_cohorts_merged.to_csv(self.path + 'Cohorts.csv', index=False)
 
