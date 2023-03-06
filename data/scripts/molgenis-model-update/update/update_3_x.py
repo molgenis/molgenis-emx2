@@ -170,10 +170,12 @@ class TransformDataCatalogue(Transform):
         df_source_vars = pd.read_csv(self.path + 'SourceVariables.csv', keep_default_na=False)
         df_variables = pd.concat([df_source_vars, df_target_vars])
         df_variables = float_to_int(df_variables)  # convert float back to integer
+        df_variables.drop(df_variables[(df_variables['resource'] == 'IPEC_CDM') &
+                                       (df_variables['dataDictionary.version'] == '1.0.0')].index, inplace=True)
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
                                      'table': 'dataset',
                                      'dataDictionary.version': 'since version'}, inplace=True)
-        df_variables[df_variables['resource' == 'IPEC']
+        df_variables.loc[df_variables['resource'] == 'IPEC_CDM', 'since version'] = '1.0.0'
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
