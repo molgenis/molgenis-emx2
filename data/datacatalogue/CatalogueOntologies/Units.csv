@@ -29,7 +29,7 @@
 "unit",,,,,,,
 "microgram_per_milli_liter",,,,,,,
 "ng/ml",,,,,,,
-"gram",,,,,,,
+"gram","UO","0000021",,,,,"http://purl.obolibrary.org/obo/UO_0000021"
 "kJ",,,,,,,
 "hours/day",,,,,,,
 "hours/week",,,,,,,
@@ -105,6 +105,5 @@
 "mk",,,,,,,
 "eur",,,,,,,
 "micrometer","UO","0000017",,,,,"http://purl.obolibrary.org/obo/UO_0000017"
-"gram","UO","0000021",,,,,"http://purl.obolibrary.org/obo/UO_0000021"
 "unit per liter","UO","0000179",,,,,"http://purl.obolibrary.org/obo/UO_0000179"
 "estimated fetal weight SDS",,,,,,,
