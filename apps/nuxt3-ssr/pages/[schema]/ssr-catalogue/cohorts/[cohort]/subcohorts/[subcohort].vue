@@ -17,7 +17,7 @@ const { data: subcohortData } = await useFetch(
     method: "POST",
     body: {
       query: queryValue,
-      variables: { pid: route.params.cohort, name: route.params.subcohort },
+      variables: { id: route.params.cohort, name: route.params.subcohort },
     },
   }
 ).catch((e) => console.log(e));
