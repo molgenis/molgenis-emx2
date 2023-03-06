@@ -11,7 +11,7 @@ Resources,,acronym,,,,,,,,,,Acronym if applicable
 Resources,,name,text,3,TRUE,,,,,,,Name used in European projects
 Networks,,type,ontology_array,,,CatalogueOntologies,Network types,,,,,"Type of network, e.g. h2020 project"
 Networks,,features,ontology_array,,,CatalogueOntologies,Network features,,,,,Characterizations of the network
-Resources,,website,,,,,,,,,,Link to the website or homepage
+Resources,,website,hyperlink,,,,,,,,,Link to the website or homepage
 Extended resources,,lead organisation,ref_array,,,SharedStaging,Organisations,,,,,lead organisation (e.g. research department or group) for this resource
 Extended resources,,additional organisations,ref_array,,,SharedStaging,Organisations,,,,,List the names of any additional organsiations that contributed to the resource
 Resources,,description,text,,,,,,,,,Short description
@@ -59,7 +59,6 @@ Documentation,,type,ontology,,,CatalogueOntologies,Document types,,,,,Type of do
 Documentation,,description,text,,,,,,,,,Description of the document
 Documentation,,url,,,,,,,,,,Hyperlink to the source of the documentation
 Documentation,,file,file,,,,,,,,,Optional file attachment containing the documentation
-Networks,,cohorts,ref_array,,,DataCatalogue,Cohorts,,,,,
 Networks,,models,ref_array,,,,Models,,,,,The common data model(s) used by this network
 Networks,,studies,ref_array,,,DataCatalogue,Studies,,networks,,,
 Collection events,,,,,,,,,,,,Definition of a data collection event for a resource

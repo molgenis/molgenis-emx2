@@ -15,7 +15,7 @@ Resources,,id,,1,TRUE,,,,,,,Internal identifier
 Resources,,pid,,,,,,,,,,Persistent identifier
 Resources,,name,,2,TRUE,,,,,,,Name of the resource
 Resources,,acronym,,,,,,,,,,Resource acronym
-Resources,,website,,,,,,,,,,Link to the website of this resource
+Resources,,website,hyperlink,,,,,,,,,Link to the website of this resource
 Resources,,description,text,,,,,,,,,Short description of this resource
 Data resources,,keywords,text,,,,,,,,,Keywords to increase findability of this resource. Try to use words that are not used in the description.
 Extended resources,,external identifiers,refback,,,,External identifiers,,resource,,,"External identifier(s) for this resource (e.g. EU PAS number, UMCG register number)"

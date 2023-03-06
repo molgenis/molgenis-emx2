@@ -71,23 +71,6 @@ zip_handling.zip_data()
 
 # --------------------------------------------------------------
 
-# transform data from SharedStaging schema
-print('Transform data from ' + SHARED_STAGING_NAME)
-# get instances of classes
-transform_data = TransformShared(SHARED_STAGING_NAME, 'shared')
-zip_handling = Zip(SHARED_STAGING_NAME)
-update_general = Transform(SHARED_STAGING_NAME, 'shared')
-spaces = Spaces(SHARED_STAGING_NAME)
-
-# run zip and transform functions
-update_general.delete_data_model_file()  # delete molgenis.csv from data folder
-transform_data.organisations()
-spaces.get_spaces()
-update_general.update_data_model_file()
-zip_handling.zip_data()
-
-# --------------------------------------------------------------
-
 # extract data from CatalogueOntologies
 print('Extract data from ' + ONTOLOGIES_SCHEMA_NAME + ': ' + ONTOLOGIES_SCHEMA_NAME + '_data.zip')
 session.download_zip(database_name=ONTOLOGIES_SCHEMA_NAME)
@@ -144,6 +127,23 @@ for cohort in COHORTS:
     schema_description = session.get_database_description(database_name=cohort)
     session.drop_database(database_name=cohort)
     session.create_database(database_name=cohort[5:], database_description=schema_description)
+
+# --------------------------------------------------------------
+
+# transform data from SharedStaging schema
+print('Transform data from ' + SHARED_STAGING_NAME)
+# get instances of classes
+transform_data = TransformShared(SHARED_STAGING_NAME, 'shared')
+zip_handling = Zip(SHARED_STAGING_NAME)
+update_general = Transform(SHARED_STAGING_NAME, 'shared')
+spaces = Spaces(SHARED_STAGING_NAME)
+
+# run zip and transform functions
+update_general.delete_data_model_file()  # delete molgenis.csv from data folder
+transform_data.organisations()
+spaces.get_spaces()
+update_general.update_data_model_file()
+zip_handling.zip_data()
 
 # ---------------------------------------------------------------
 

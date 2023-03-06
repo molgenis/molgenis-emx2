@@ -158,7 +158,8 @@ class TransformDataCatalogue(Transform):
         df_target_tables = pd.read_csv(self.path + 'TargetTables.csv')
         df_source_tables = pd.read_csv(self.path + 'SourceTables.csv')
         df_datasets = pd.concat([df_source_tables, df_target_tables])
-        df_datasets.rename(columns={'dataDictionary.resource': 'resource'}, inplace=True)
+        df_datasets.rename(columns={'dataDictionary.resource': 'resource',
+                                    'dataDictionary.version': 'since version'}, inplace=True)
         df_datasets = float_to_int(df_datasets)  # convert float back to integer
         df_datasets.to_csv(self.path + 'Datasets.csv', index=False)
 
@@ -170,7 +171,9 @@ class TransformDataCatalogue(Transform):
         df_variables = pd.concat([df_source_vars, df_target_vars])
         df_variables = float_to_int(df_variables)  # convert float back to integer
         df_variables.rename(columns={'dataDictionary.resource': 'resource',
-                                     'table': 'dataset'}, inplace=True)
+                                     'table': 'dataset',
+                                     'dataDictionary.version': 'since version'}, inplace=True)
+        df_variables[df_variables['resource' == 'IPEC']
         df_variables.to_csv(self.path + 'Variables.csv', index=False)
 
     def variable_values(self):
@@ -311,7 +314,10 @@ class TransformDataStaging(Transform):
         df_contacts = pd.read_csv(self.path + 'Contacts.csv')
         institutions_from_contacts = df_contacts['organisation'].tolist()
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
-        institutions_from_cohorts = df_cohorts['lead organisation'][0].split(",")
+        if not pd.isna:
+            institutions_from_cohorts = df_cohorts['lead organisation'][0].split(",")
+        else:
+            institutions_from_cohorts = []
         df_partners = pd.read_csv(self.path + 'Partners.csv')
         institutions_from_partners = df_partners['institution'].tolist()
         combined_institutions = institutions_from_partners + institutions_from_contacts + institutions_from_cohorts
@@ -425,7 +431,7 @@ class TransformDataStaging(Transform):
     def copy_files(self):
         """Copy files from SharedStaging to cohort staging data
         """
-        path_shared_staging_files = os.path.abspath('../files/SharedStaging_data/_files')
+        path_shared_staging_files = os.path.abspath('./files/SharedStaging_data/_files')
         path_cohort_files = os.path.abspath(os.path.join(self.path, '_files'))
         if not os.path.exists(path_cohort_files):
             os.mkdir(path_cohort_files)
