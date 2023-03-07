@@ -343,7 +343,7 @@
       :isVisible="refSideModalProps !== undefined"
       :table-id="refSideModalProps?.table"
       :label="refSideModalProps?.label"
-      :row="refSideModalProps?.row"
+      :rows="refSideModalProps?.rows"
       @onClose="refSideModalProps = undefined"
       :client="client"
       :showDataOwner="canManage"
@@ -599,11 +599,17 @@ export default {
     },
     handleCellClick(event) {
       const { column, cellValue } = event;
+      let rows = [];
+      if (Array.isArray(cellValue)) {
+        rows = cellValue.map((item) => item.name);
+      } else {
+        rows.push(cellValue.name);
+      }
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
           label: column.name,
           table: column.refTable,
-          row: cellValue.name,
+          rows,
         };
       }
     },

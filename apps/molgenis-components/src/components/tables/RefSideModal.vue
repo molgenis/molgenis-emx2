@@ -1,31 +1,34 @@
 <template>
   <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
     <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-    <h5 v-if="queryResult?.name">{{ queryResult.name }}</h5>
 
-    <table class="table table-borderless table-sm">
-      <tr v-for="(value, key) in tableResult">
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-      </tr>
-    </table>
+    <div v-for="queryResult in queryResults">
+      <h5 v-if="queryResult?.name">{{ queryResult.name }}</h5>
 
-    <small class="text-black-50" v-if="showDataOwner">
-      <div v-if="queryResult?.mg_insertedBy">
-        Inserted by '{{ queryResult?.mg_insertedBy }}'
-        <span v-if="queryResult?.mg_insertedOn">
-          On {{ new Date(queryResult?.mg_insertedOn).toLocaleString() }}
-        </span>
+      <table class="table table-sm">
+        <tr v-for="(value, key) in filteredResults(queryResult)">
+          <td class="key border-right">{{ key }}</td>
+          <td class="value">{{ value }}</td>
+        </tr>
+      </table>
+
+      <small class="text-black-50" v-if="showDataOwner">
+        <div v-if="queryResult?.mg_insertedBy">
+          Inserted by '{{ queryResult?.mg_insertedBy }}'
+          <span v-if="queryResult?.mg_insertedOn">
+            On {{ new Date(queryResult?.mg_insertedOn).toLocaleString() }}
+          </span>
+        </div>
+        <div v-if="queryResult?.mg_updatedBy">
+          Updated by '{{ queryResult?.mg_updatedBy }}'
+          <span v-if="queryResult?.mg_updatedOn">
+            On {{ new Date(queryResult?.mg_updatedOn).toLocaleString() }}
+          </span>
+        </div>
+      </small>
+      <div v-if="queryResult?.mg_draft">
+        <span class="badge badge-secondary">Draft</span>
       </div>
-      <div v-if="queryResult?.mg_updatedBy">
-        Updated by '{{ queryResult?.mg_updatedBy }}'
-        <span v-if="queryResult?.mg_updatedOn">
-          On {{ new Date(queryResult?.mg_updatedOn).toLocaleString() }}
-        </span>
-      </div>
-    </small>
-    <div v-if="queryResult?.mg_draft">
-      <span class="badge badge-secondary">Draft</span>
     </div>
 
     <template v-slot:footer>
@@ -49,9 +52,9 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  row: {
-    type: String,
-    default: "",
+  rows: {
+    type: Array,
+    default: [],
   },
   isVisible: {
     type: Boolean,
@@ -66,37 +69,47 @@ const props = defineProps({
     required: true,
   },
 });
-const { client, isVisible, label, row, tableId } = toRefs(props);
+const { client, isVisible, label, rows, tableId } = toRefs(props);
 
-let queryResult = ref({});
-let tableResult = {};
+let queryResults = ref([{ name: String }]);
 let errorMessage = ref("");
 const emit = defineEmits(["onClose"]);
-watch([tableId, label, row], () => {
+watch([tableId, label, rows], () => {
   updateData();
 });
 
+function filteredResults(queryResult) {
+  const tableResult = { ...queryResult };
+  delete tableResult.name;
+  delete tableResult.mg_insertedBy;
+  delete tableResult.mg_insertedOn;
+  delete tableResult.mg_updatedBy;
+  delete tableResult.mg_updatedOn;
+  delete tableResult.mg_draft;
+  return tableResult;
+}
+
 async function updateData() {
   errorMessage.value = "";
+  queryResults.value = [];
   if (tableId.value !== "") {
-    queryResult.value = await client.value
-      .fetchRowData(tableId.value, { name: row.value })
-      .catch(() => {
-        errorMessage.value = "Failed to load reference data";
-      });
-
-    tableResult = { ...queryResult.value };
-    delete tableResult.name;
-    delete tableResult.mg_insertedBy;
-    delete tableResult.mg_insertedOn;
-    delete tableResult.mg_updatedBy;
-    delete tableResult.mg_updatedOn;
-    delete tableResult.mg_draft;
+    for (const row of rows.value) {
+      const queryResult = await client.value
+        .fetchRowData(tableId.value, { name: row })
+        .catch(() => {
+          errorMessage.value = "Failed to load reference data";
+        });
+      queryResults.value.push(queryResult);
+    }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+table .key {
+  width: 0;
+}
+</style>
 
 <docs>
 <template>
