@@ -76,6 +76,7 @@
                 onCellClick(row, col);
               }
             "
+            :class="{ refType: isRefType(col.columnType) }"
           >
             <data-display-cell :data="row[col.id]" :metaData="col">
             </data-display-cell>
@@ -98,6 +99,9 @@ th {
 .column-drag-header:hover .column-remove {
   visibility: visible;
 }
+.table .refType:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
 </style>
 
 <script>
@@ -106,7 +110,7 @@ th {
  * Can be used without backend to configure a table. Note, columns can be dragged.
  */
 import DataDisplayCell from "./DataDisplayCell.vue";
-import { getPrimaryKey, deepClone } from "../utils";
+import { getPrimaryKey, deepClone, isRefType } from "../utils";
 
 export default {
   components: { DataDisplayCell },
@@ -161,6 +165,9 @@ export default {
         });
       }
       return found;
+    },
+    isRefType(columnType) {
+      return isRefType(columnType);
     },
     /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
     deepEqual(object1, object2) {
