@@ -5,7 +5,7 @@
       <td class="key border-right">{{ key }}</td>
       <td class="value">
         <div v-if="reference.metaData">
-          <DataDisplayCell :data="value" :meta-data="reference.metaData" />
+          <DataDisplayCell :data="value" :meta-data="metaDataOfRow(key)" />
         </div>
         <div v-else>{{ value }}</div>
       </td>
@@ -61,5 +61,9 @@ function filteredResults(reference: { [key: string]: string }) {
   delete filtered.mg_draft;
   delete filtered.metaData;
   return filtered;
+}
+
+function metaDataOfRow(key: string) {
+  return props.reference.metaData.columns.find((row) => row.name === key);
 }
 </script>
