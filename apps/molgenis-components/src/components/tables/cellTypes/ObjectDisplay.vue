@@ -1,6 +1,12 @@
 <template>
-  <div v-if="hasTemplate">{{ asTemplate }}</div>
-  <div v-else>{{ asDotSeparatedString }}</div>
+  <div v-if="hasTemplate">
+    {{ asTemplate }}
+    <i class="fas fa-xs fa-project-diagram"></i>
+  </div>
+  <div v-else>
+    {{ asDotSeparatedString }}
+    <i class="fas fa-xs fa-project-diagram"></i>
+  </div>
 </template>
 
 <script>
