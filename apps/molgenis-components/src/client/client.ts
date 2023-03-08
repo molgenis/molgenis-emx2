@@ -5,11 +5,11 @@ import { ISchemaMetaData } from "../Interfaces/IMetaData";
 import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { ISetting } from "../Interfaces/ISetting";
+import { IClient, INewClient } from "./IClient";
 
 export { request };
-
-export default {
-  newClient: (schemaName?: string, externalAxios?: Axios) => {
+const client: IClient = {
+  newClient: (schemaName?: string, externalAxios?: Axios): INewClient => {
     const myAxios = externalAxios || axios;
     // use closure to have metaData cache private to client
     let schemaMetaData: ISchemaMetaData | null | void = null;
@@ -166,7 +166,7 @@ export default {
           return JSON.parse(setting.value);
         }
       },
-      async saveSetting(key: string, value: any) {
+      saveSetting: async (key: string, value: any) => {
         const createMutation = `mutation change($settings: [MolgenisSettingsInput]) {
             change(settings: $settings) {
               message
@@ -191,6 +191,7 @@ export default {
     };
   },
 };
+export default client;
 
 const metaDataQuery = `{
 _schema {

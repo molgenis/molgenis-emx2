@@ -1,5 +1,5 @@
 <template>
-  <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
+  <SideModal :label="label" :isVisible="true" @onClose="emit('onClose')">
     <div v-if="loading">
       <Spinner />
     </div>
@@ -23,31 +23,30 @@ import ButtonAction from "../forms/ButtonAction.vue";
 import SideModal from "./SideModal.vue";
 import { getPrimaryKey } from "../utils";
 import { IRow } from "../../Interfaces/IRow";
+import { INewClient } from "../../client/IClient";
 
 const props = withDefaults(
   defineProps<{
-    tableId?: string;
-    label?: string;
-    rows?: IRow[];
-    isVisible?: boolean;
+    tableId: string;
+    label: string;
+    rows: IRow[];
     showDataOwner?: boolean;
-    client: object;
+    client: INewClient;
   }>(),
   {
-    tableId: "",
-    label: "",
-    isVisible: true,
     showDataOwner: false,
   }
 );
-
-const { client, isVisible, label, rows, tableId } = toRefs(props);
+const { client, label, rows, tableId } = toRefs(props);
 if (rows && rows.value === undefined) rows.value = []; // FIXME: set as default
+
+const emit = defineEmits(["onClose"]);
 
 let loading = ref(true);
 let queryResults = ref([{ name: String }]);
 let errorMessage = ref("");
-const emit = defineEmits(["onClose"]);
+
+updateData();
 watch([tableId, label, rows], () => {
   updateData();
 });
@@ -60,13 +59,15 @@ async function updateData() {
     for (const row of rows.value) {
       const metaData = await client.value.fetchTableMetaData(tableId.value);
       const primaryKey = getPrimaryKey(row, metaData);
-      const queryResult = await client.value
-        .fetchRowData(tableId.value, primaryKey)
-        .catch(() => {
-          errorMessage.value = "Failed to load reference data";
-        });
-      queryResult.metaData = metaData;
-      queryResults.value.push(queryResult);
+      if (primaryKey) {
+        const queryResult = await client.value
+          .fetchRowData(tableId.value, primaryKey)
+          .catch(() => {
+            errorMessage.value = "Failed to load reference data";
+          });
+        queryResult.metaData = metaData;
+        queryResults.value.push(queryResult);
+      }
     }
   }
   loading.value = false;

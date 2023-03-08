@@ -29,20 +29,17 @@
 <script lang="ts" setup>
 import { onBeforeUnmount, onBeforeMount } from "vue";
 
-const props = defineProps({
-  label: {
-    type: String,
-    required: true,
-  },
-  isCloseButtonShown: {
-    type: Boolean,
-    default: true,
-  },
-  isVisible: {
-    type: Boolean,
-    default: true,
-  },
-});
+withDefaults(
+  defineProps<{
+    label: string;
+    isCloseButtonShown?: boolean;
+    isVisible?: boolean;
+  }>(),
+  {
+    isCloseButtonShown: true,
+    isVisible: true,
+  }
+);
 
 const emit = defineEmits(["onClose"]);
 

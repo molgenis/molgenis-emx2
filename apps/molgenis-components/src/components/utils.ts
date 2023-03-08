@@ -39,12 +39,15 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(row: IRow, tableMetaData: ITableMetaData) {
+export function getPrimaryKey(
+  row: IRow,
+  tableMetaData: ITableMetaData
+): Record<string, any> | null {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetaData) {
+  if (!row["mg_insertedOn"] || !tableMetaData?.columns) {
     return null;
   } else {
-    return tableMetaData.columns?.reduce(
+    return tableMetaData.columns.reduce(
       (accum: Record<string, any>, column: IColumn) => {
         if (column.key === 1 && row[column.id]) {
           accum[column.id] = row[column.id];

@@ -340,8 +340,7 @@
     </ConfirmModal>
 
     <RefSideModal
-      v-if="!loading"
-      :isVisible="refSideModalProps !== undefined"
+      v-if="refSideModalProps"
       :table-id="refSideModalProps?.table"
       :label="refSideModalProps?.label"
       :rows="refSideModalProps?.rows"
