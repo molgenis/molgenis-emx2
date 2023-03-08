@@ -25,33 +25,27 @@ import { ref, toRefs, watch } from "vue";
 import MessageError from "../forms/MessageError.vue";
 import ButtonAction from "../forms/ButtonAction.vue";
 import SideModal from "./SideModal.vue";
+import { getPrimaryKey } from "../utils";
+import { IRow } from "../../Interfaces/IRow";
 
-const props = defineProps({
-  tableId: {
-    type: String,
-    default: "",
-  },
-  label: {
-    type: String,
-    default: "",
-  },
-  rows: {
-    type: Array,
-    default: [],
-  },
-  isVisible: {
-    type: Boolean,
-    default: true,
-  },
-  showDataOwner: {
-    type: Boolean,
-    default: false,
-  },
-  client: {
-    type: Object,
-    required: true,
-  },
-});
+const props = withDefaults(
+  defineProps<{
+    tableId?: string;
+    label?: string;
+    rows?: IRow[];
+    isVisible?: boolean;
+    showDataOwner?: boolean;
+    client: object;
+  }>(),
+  {
+    tableId: "",
+    label: "",
+    rows: [] as IRow[] | undefined,
+    isVisible: true,
+    showDataOwner: false,
+  }
+);
+
 const { client, isVisible, label, rows, tableId } = toRefs(props);
 
 let loading = ref(true);
@@ -69,8 +63,11 @@ async function updateData() {
   if (tableId.value !== "") {
     for (const row of rows.value) {
       const metaData = await client.value.fetchTableMetaData(tableId.value);
+      const primaryKey = getPrimaryKey(row, metaData);
+      console.log("->", primaryKey);
+
       const queryResult = await client.value
-        .fetchRowData(tableId.value, { name: row })
+        .fetchRowData(tableId.value, primaryKey)
         .catch(() => {
           errorMessage.value = "Failed to load reference data";
         });

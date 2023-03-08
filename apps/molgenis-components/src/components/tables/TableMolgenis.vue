@@ -196,6 +196,7 @@ export default {
       this.$emit("column-click", column);
     },
     onCellClick(row, column) {
+      const key = this.getPrimaryKey(row);
       const value = row[column.id];
       if (value) {
         this.$emit("cellClick", {

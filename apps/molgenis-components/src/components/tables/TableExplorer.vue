@@ -598,13 +598,9 @@ export default {
       }
     },
     handleCellClick(event) {
+      console.log("event: ", event);
       const { column, cellValue } = event;
-      let rows = [];
-      if (Array.isArray(cellValue)) {
-        rows = cellValue.map((item) => item.name);
-      } else {
-        rows.push(cellValue.name);
-      }
+      const rows = [cellValue].flat();
       if (isRefType(column?.columnType)) {
         this.refSideModalProps = {
           label: column.name,
