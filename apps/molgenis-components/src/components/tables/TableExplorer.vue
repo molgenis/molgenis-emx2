@@ -521,12 +521,12 @@ const tableMetadata = ref(null);
 const view = ref(showView);
 
 // computed:
-const tableId = computed(() => convertToPascalCase(tableName.value));
+const tableId = computed(() => convertToPascalCase(tableName));
 const localizedLabel = computed(() =>
-  getLocalizedLabel(tableMetadata.value, locale.value)
+  getLocalizedLabel(tableMetadata.value, locale)
 );
 const localizedDescription = computed(() =>
-  getLocalizedDescription(tableMetadata.value, locale.value)
+  getLocalizedDescription(tableMetadata.value, locale)
 );
 const countFilters = computed(() =>
   columns.value
@@ -698,13 +698,13 @@ async function reload() {
     .fetchTableData(tableName, {
       limit: limit.value,
       offset: offset,
-      filter: deepClone(graphqlFilter),
+      filter: graphqlFilter.value,
       searchTerms: searchTerms.value,
       orderby: orderBy,
     })
     .catch(handleError);
-  dataRows.value = dataResponse[tableId];
-  count.value = dataResponse[tableId + "_agg"]["count"];
+  dataRows.value = dataResponse[tableId.value];
+  count.value = dataResponse[tableId.value + "_agg"]["count"];
   loading.value = false;
 }
 
@@ -738,7 +738,6 @@ function getCondition(columnType, condition) {
 }
 
 function getGraphqlFilter() {
-  console.log(JSON.stringify(filter));
   let newFilter = deepClone(filter);
   if (columns.value) {
     columns.value.forEach((col) => {
