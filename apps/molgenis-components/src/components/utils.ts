@@ -15,7 +15,7 @@ export function isNumericKey(event: KeyboardEvent): boolean {
   );
 }
 
-export function flattenObject(object: Record<string, any>) {
+export function flattenObject(object: Record<string, any>): string {
   if (typeof object === "object") {
     let result = "";
     Object.keys(object).forEach((key) => {
