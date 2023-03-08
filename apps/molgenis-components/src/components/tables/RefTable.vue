@@ -1,5 +1,5 @@
 <template>
-  <h5 v-if="reference?.name">{{ reference.name }}</h5>
+  <h5 v-if="reference?.name" class="ml-1">{{ reference.name }}</h5>
   <table class="table table-sm">
     <tr v-for="(value, key) in filteredResults(reference)">
       <td class="key border-right">{{ key }}</td>
