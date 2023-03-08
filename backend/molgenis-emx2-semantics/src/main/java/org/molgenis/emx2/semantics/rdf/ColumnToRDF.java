@@ -16,10 +16,14 @@ public class ColumnToRDF {
 
   // todo: unit is missing (which would also be a sdmx-attribute:unitMeasure, typed as an
   // qb:AttributeProperty)
-  public static void describeColumns(ModelBuilder builder, Table table, String schemaContext)
-      throws Exception {
+  public static void describeColumns(
+      ModelBuilder builder, String columnName, Table table, String schemaContext) throws Exception {
     String tableContext = schemaContext + "/" + table.getName();
     for (Column c : table.getMetadata().getColumns()) {
+      // allow selecting one particular column by ignoring the rest
+      if (columnName != null && !c.getName().equals(columnName)) {
+        continue;
+      }
       String columnContext = tableContext + "/column/" + c.getName();
       // SIO:000757 = database column
       builder.add(columnContext, RDF.TYPE, iri("http://semanticscience.org/resource/SIO_000757"));
@@ -43,8 +47,8 @@ public class ColumnToRDF {
           builder.add(columnContext, RDFS.ISDEFINEDBY, iri(columnSemantics));
         }
       }
-      if (c.getDescription() != null) {
-        builder.add(columnContext, DC.DESCRIPTION, c.getDescription());
+      if (c.getDescriptions() != null) {
+        builder.add(columnContext, DC.DESCRIPTION, c.getDescriptions());
       }
     }
   }

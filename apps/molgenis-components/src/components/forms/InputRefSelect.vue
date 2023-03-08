@@ -116,10 +116,9 @@ export default {
       }
       const names = Object.keys(object);
       const vals = Object.values(object);
+      const refLabel = this.refLabel ? this.refLabel : this.refLabelDefault;
       try {
-        return new Function(...names, "return `" + this.refLabel + "`;")(
-          ...vals
-        );
+        return new Function(...names, "return `" + refLabel + "`;")(...vals);
       } catch (err) {
         return (
           err.message +
@@ -128,7 +127,7 @@ export default {
           " vals:" +
           JSON.stringify(vals) +
           " and template: " +
-          this.refLabel
+          refLabel
         );
       }
     },

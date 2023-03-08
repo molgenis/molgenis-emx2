@@ -47,9 +47,9 @@
         </button>
       </div>
     </div>
-    <div v-if="value">
-      <a v-if="value && value.url" :href="value.url">
-        Previous value: {{ value.name }}.{{ value.extension }}
+    <div v-if="modelValue">
+      <a v-if="modelValue && modelValue.url" :href="modelValue.url">
+        Previous modelValue: {{ modelValue.id }}.{{ modelValue.extension }}
       </a>
     </div>
   </FormGroup>
@@ -62,26 +62,26 @@ import FormGroup from "./FormGroup.vue";
 export default {
   extends: BaseInput,
   components: { FormGroup },
+  data() {
+    return {
+      filename: this.modelValue instanceof File ? this.modelValue?.name : "",
+    };
+  },
   props: {
-    value: {
+    modelValue: {
       default: null,
     },
   },
-  computed: {
-    filename() {
-      if (this.value) {
-        return this.value.name;
-      } else {
-        return null;
+  methods: {
+    handleFileUpload(event) {
+      const target = event.target;
+      if (target?.files) {
+        this.filename = target.files[0]?.name;
+        this.$emit("update:modelValue", target.files[0]);
       }
     },
-  },
-  methods: {
-    handleFileUpload() {
-      this.$emit("update:modelValue", this.$refs.file.files[0]);
-    },
     clearInput() {
-      this.$refs.file.value = "";
+      this.filename = null;
       this.$emit("update:modelValue", null);
     },
   },
@@ -95,7 +95,7 @@ export default {
     <DemoItem>
       <label for="input-file-empty">Empty file upload</label>
       <InputFile id='input-file-empty' label="My file input" description="Example file upload" v-model="valueEmpty"/>
-      Selected: {{ valueEmpty }}
+      Selected: {{ valueEmpty?.name }}
     </DemoItem>
 
     <DemoItem>

@@ -7,7 +7,7 @@ module.exports = {
     "./pages/**/*.vue",
     "./plugins/**/*.{js,ts}",
     "./nuxt.config.{js,ts}",
-    "./app.vue",
+    "./*.vue",
   ],
   safelist: [
     {
@@ -82,11 +82,6 @@ module.exports = {
         500: "#E14F62",
       },
     },
-    maxWidth: {
-      lg: "88.75rem", // 970+380+30+20+20
-      tooltip: "10.5rem",
-      none: "none",
-    },
     extend: {
       boxShadow: {
         primary: "0px 10px 20px rgba(0, 0, 0, 0.1)",
@@ -110,14 +105,23 @@ module.exports = {
       minWidth: {
         95: "23.75rem",
       },
+      maxWidth: {
+        lg: "88.75rem", // 970+380+30+20+20
+        tooltip: "10.5rem",
+        none: "none",
+        sm: "20rem",
+        xs: "15rem",
+      },
       backgroundImage: {
         "sidebar-gradient":
           "linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%)",
         "base-gradient": "linear-gradient(180deg, #017FFD 0%, #0163C6 133.81%)",
+        "collapsible-listitem-line":
+          "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
       backgroundColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
-        "button-primary-hover": theme("colors.blue.200"),
+        "button-primary-hover": theme("colors.yellow.200"),
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
         "button-tertiary": theme("colors.blue.500"),
@@ -138,6 +142,7 @@ module.exports = {
 
         pagination: theme("colors.blue.800"),
         "pagination-hover": theme("colors.blue.900"),
+        footer: theme("colors.blue.800"),
       }),
       textColor: ({ theme }) => ({
         "button-primary": theme("colors.gray.900"),
@@ -157,6 +162,8 @@ module.exports = {
         "breadcrumb-arrow": theme("colors.white"),
         breadcrumb: theme("colors.blue.50"),
         title: theme("colors.white"),
+        "title-contrast": theme("colors.blue.500"),
+        "sub-title-contrast": theme("colors.black"),
         "search-button": theme("text.blue.500"),
         "search-button-hover": theme("text.blue.800"),
 
@@ -181,11 +188,11 @@ module.exports = {
         "pagination-label-white": theme("colors.white"),
         "pagination-label-gray": theme("colors.gray.400"),
 
-        "footer-link": theme("colors.blue.50"),
+        "footer-link": theme("colors.yellow.500"),
       }),
       borderColor: ({ theme }) => ({
         "button-primary": theme("colors.yellow.500"),
-        "button-primary-hover": theme("colors.blue.200"),
+        "button-primary-hover": theme("colors.yellow.200"),
         "button-secondary": theme("colors.blue.800"),
         "button-secondary-hover": theme("colors.blue.300"),
         "button-tertiary": theme("colors.blue.500"),

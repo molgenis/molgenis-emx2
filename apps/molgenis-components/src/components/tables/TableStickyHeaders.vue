@@ -1,6 +1,6 @@
 <template>
   <div role="region" class="border border-light">
-    <table>
+    <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <tr>
           <th></th>
@@ -48,77 +48,74 @@ export default {
   Based on: 
   https://css-tricks.com/a-table-with-both-a-sticky-header-and-a-sticky-first-column/
 */
+table {
+  width: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
+}
 
 table td {
   text-align: right;
-  border-right: 0.5px solid var(--gray);
-  border-bottom: 0.5px solid var(--gray);
   padding: 0.1rem 0.8rem;
 }
+
 .rotated-title {
-  padding-top: 12rem;
+  padding-top: 8rem;
   vertical-align: bottom;
   position: relative;
 }
+
 .rotated-title > span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 12rem;
+  width: 8rem;
   height: 2rem;
   transform-origin: 0 100%;
-  transform: rotate(-55deg) translate(0, 2px);
+  transform: rotate(-90deg) translate(0, 2px);
   display: inline-block;
-  z-index: 1;
+  z-index: 2;
   position: absolute;
   bottom: 0;
   left: 100%;
   line-height: 2.2rem;
-  border-bottom: 0.5px solid var(--gray);
 }
-table {
-  border-spacing: 0;
-  border-collapse: separate;
-}
-table thead tr:after {
-  display: inline-block;
-  content: "";
-  width: 100%;
-  height: 15px;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.05) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  position: absolute;
-  left: 0;
-  bottom: -15px;
-  pointer-events: none;
-}
-table thead th:first-child {
-  background: white;
-  z-index: 1;
-  border-bottom: 0px;
-}
+
 table thead {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   background: white;
 }
+
 table tbody {
   position: relative;
 }
-table tbody tr:hover {
-  background-color: var(--light);
+
+table thead th {
+  border-left: 0px;
 }
-table tbody tr:hover th {
-  background-color: var(--light);
+
+table thead th:first-child {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  border-left: 1px solid #dee2e6;
+  z-index: 3;
 }
+
+table tbody td {
+  border-left: none;
+  border-top: none;
+}
+
 table tbody td,
 table tbody th {
   position: relative;
   white-space: nowrap;
+  background-color: white;
+  border-top: none;
 }
 
 table tbody td:nth-child(2) {
@@ -132,44 +129,13 @@ table tbody tr:first-child th {
   border-top: none;
 }
 
-table tbody td:hover::before {
-  content: "";
-  position: absolute;
-  display: inline-block;
-  background-color: var(--light);
-  left: 0;
-  right: 0;
-  top: -100vh;
-  bottom: -100vh;
-  z-index: -1;
-}
-table thead th:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-}
-table tbody th:first-child::after {
-  display: inline-block;
-  content: "";
-  width: 15px;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.05) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  position: absolute;
-  right: -15px;
-  top: 0;
-  pointer-events: none;
-}
 table tbody th {
   position: sticky;
   left: 0;
-  background: white;
   z-index: 1;
   padding-right: 1rem;
 }
+
 [role="region"] {
   width: 100%;
   max-height: 98vh;

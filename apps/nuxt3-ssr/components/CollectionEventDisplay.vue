@@ -121,7 +121,6 @@ if (collectionEvent?.coreVariables?.length) {
     content: renderList(collectionEvent?.coreVariables, toName),
   });
 }
-
 </script>
 
 <template>

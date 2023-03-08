@@ -5,7 +5,7 @@ import SubCohortDisplay from "../SubCohortDisplay.vue";
 defineProps<{
   title: string;
   description?: string;
-  headers: { id: string; label: string }[];
+  headers: { id: string; label: string; singleLine?: boolean }[];
   rows: Record<string, string>[];
 }>();
 
@@ -61,8 +61,12 @@ function setActiveSideModal(value: string) {
           <TableCell
             v-for="header in headers.slice(1)"
             class="hidden sm:table-cell"
+            :class="header.singleLine && 'w-full'"
+            :style="header.singleLine && 'max-width: 0'"
           >
-            {{ row[header.id] }}
+            <div :class="{ truncate: header.singleLine }">
+              {{ row[header.id] }}
+            </div>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
             <IconButton icon="arrow-right" class="text-blue-500" />

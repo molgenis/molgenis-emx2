@@ -105,6 +105,6 @@ jobs:
             MOLGENIS_POSTGRES_PASS: molgenis
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
 
-      # push ssr-catalogue to repo
-      - run: |
-          ./gradlew dockerPush
+#      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
+#      - run: |
+#          ./gradlew dockerPush

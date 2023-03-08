@@ -4,7 +4,9 @@
       <page-header
         :title="networkDetails.id"
         :subTitle="
-          networkDetails.leadOrganisation ? networkDetails.leadOrganisation.name : null
+          networkDetails.leadOrganisation
+            ? networkDetails.leadOrganisation.name
+            : null
         "
         :logoUrl="networkDetails.logo ? networkDetails.logo.url : null"
       />

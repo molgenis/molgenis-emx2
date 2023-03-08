@@ -34,7 +34,8 @@ watch(
 );
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
 };
 
 // @ts-ignore
@@ -61,9 +62,7 @@ function renderList(
 
 const toName = (item: any) => item.name;
 const toCommaList = (items: any) => items.join(",");
-let tocItems = reactive([
-  { label: "Details", id: "details" },
-]);
+let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const items: any = [];
 
@@ -99,20 +98,23 @@ if (subcohort?.inclusionCriteria) {
 
 let ageGroupsTree = [];
 if (subcohort?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(subcohort.ageGroups)
-  tocItems.push({ label: "Age categories", id: "age_categories" })
+  ageGroupsTree = buildOntologyTree(subcohort.ageGroups);
+  tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
 let mainMedicalConditionTree = [];
 if (subcohort?.mainMedicalCondition?.length) {
-  mainMedicalConditionTree = buildOntologyTree(subcohort.mainMedicalCondition)
-  tocItems.push({ label: "Main medical condition", id: "main_medical_condition" })
+  mainMedicalConditionTree = buildOntologyTree(subcohort.mainMedicalCondition);
+  tocItems.push({
+    label: "Main medical condition",
+    id: "main_medical_condition",
+  });
 }
 
 let comorbidityTree = [];
 if (subcohort?.comorbidity?.length) {
-  comorbidityTree = buildOntologyTree(subcohort.comorbidity)
-  tocItems.push({ label: "Comorbidity", id: "comorbidity" })
+  comorbidityTree = buildOntologyTree(subcohort.comorbidity);
+  tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
 
 // todo add count table ( empty in current test set)
@@ -121,7 +123,10 @@ if (subcohort?.comorbidity?.length) {
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="subcohort?.name" :description="subcohort?.description">
+      <PageHeader
+        :title="subcohort?.name"
+        :description="subcohort?.description"
+      >
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
@@ -135,13 +140,28 @@ if (subcohort?.comorbidity?.length) {
         <ContentBlock id="details" title="Details">
           <DefinitionList :items="items" />
         </ContentBlock>
-        <ContentBlock v-if="subcohort.ageGroups" id="age_categories" title="Age categories">
+        <ContentBlock
+          v-if="subcohort.ageGroups"
+          id="age_categories"
+          title="Age categories"
+        >
           <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock v-if="subcohort.mainMedicalCondition" id="main_medical_condition" title="Main medical condition">
-          <ContentOntology :tree="mainMedicalConditionTree" :collapse-all="false" />
+        <ContentBlock
+          v-if="subcohort.mainMedicalCondition"
+          id="main_medical_condition"
+          title="Main medical condition"
+        >
+          <ContentOntology
+            :tree="mainMedicalConditionTree"
+            :collapse-all="false"
+          />
         </ContentBlock>
-        <ContentBlock v-if="subcohort.comorbidity" id="comorbidity" title="Comorbidity">
+        <ContentBlock
+          v-if="subcohort.comorbidity"
+          id="comorbidity"
+          title="Comorbidity"
+        >
           <ContentOntology :tree="comorbidityTree" :collapse-all="false" />
         </ContentBlock>
       </ContentBlocks>

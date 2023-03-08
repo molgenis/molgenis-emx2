@@ -55,7 +55,7 @@
               :metadata="tableMetadata"
               :rowkey="slotProps.rowkey"
             />
-             <RowButtonEdit
+            <RowButtonEdit
               v-if="canEdit"
               :id="'row-button-edit-' + lookupTableName"
               :tableName="lookupTableName"
@@ -85,12 +85,11 @@ import MessageError from "../forms/MessageError.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import Pagination from "./Pagination.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client.js";
+import Client from "../../client/client.ts";
 import RowButtonAdd from "./RowButtonAdd.vue";
 import RowButtonEdit from "./RowButtonEdit.vue";
 import RowButtonDelete from "./RowButtonDelete.vue";
-import {convertToPascalCase} from "../utils";
-
+import { convertToPascalCase } from "../utils";
 
 export default {
   name: "TableSearch",
@@ -102,7 +101,7 @@ export default {
     Spinner,
     RowButtonAdd,
     RowButtonEdit,
-    RowButtonDelete
+    RowButtonDelete,
   },
   props: {
     lookupTableName: {
@@ -181,7 +180,9 @@ export default {
       const gqlResponse = await client
         .fetchTableData(this.lookupTableName, queryOptions)
         .catch(() => (this.graphqlError = "Failed to load data"));
-      this.tableMetadata = await client.fetchTableMetaData(this.lookupTableName);
+      this.tableMetadata = await client.fetchTableMetaData(
+        this.lookupTableName
+      );
       this.data = gqlResponse[this.lookupTableIdentifier];
       this.count = gqlResponse[`${this.lookupTableIdentifier}_agg`].count;
       this.loading = false;

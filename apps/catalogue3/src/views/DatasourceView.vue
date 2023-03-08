@@ -37,14 +37,11 @@
 
 <script>
 import { request } from "graphql-request";
-import {
-  MessageError,
-} from "molgenis-components";
+import { MessageError } from "molgenis-components";
 import DatabankList from "../components/DatabankList.vue";
 import InstitutionList from "../components/InstitutionList.vue";
 import ResourceHeader from "../components/ResourceHeader.vue";
 import OntologyTerms from "../components/OntologyTerms.vue";
-
 
 export default {
   components: {
@@ -75,7 +72,6 @@ export default {
         }
       )
         .then((data) => {
-          console.log(data);
           this.datasource = data.Datasources[0];
           if (this.datasource.releases) {
             this.version =

@@ -2,6 +2,7 @@
   <span>
     <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
+      v-if="isModalShown"
       :id="id + 'edit-modal'"
       :tableName="tableName"
       :pkey="pkey"
@@ -10,7 +11,7 @@
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";

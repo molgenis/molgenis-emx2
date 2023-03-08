@@ -18,10 +18,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
 import RowCard from "./RowCard.vue";
 
-export default {
+export default defineComponent({
   name: "RecordCards",
   components: { RowCard },
   props: {
@@ -32,5 +33,5 @@ export default {
     canEdit: { type: Boolean, default: false },
     template: { type: String, required: false },
   },
-};
+});
 </script>

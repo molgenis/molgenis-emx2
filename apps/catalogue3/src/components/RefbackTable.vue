@@ -1,6 +1,9 @@
 <template>
   <Spinner v-if="!tableMetadata" />
-  <div class="table-responsive" v-else-if="pkey && tableMetadata && refBackData">
+  <div
+    class="table-responsive"
+    v-else-if="pkey && tableMetadata && refBackData"
+  >
     <table class="table table-sm bg-white table-bordered table-hover">
       <thead>
         <th
@@ -15,6 +18,7 @@
         <tr
           v-for="(row, idx) in refBackData"
           :key="idx + JSON.stringify(Object.keys(row))"
+          @click="handleRowClick(row)"
         >
           <td
             v-for="col in visibleColumns.filter(
@@ -32,7 +36,7 @@
               <RouterLink
                 v-if="row[col.id]"
                 :to="{
-                  name: col.refTable + '-details',
+                  name: convertToPascalCase(col.refTable) + '-details',
                   params: routeParams(col, row[col.id]),
                 }"
               >
@@ -49,7 +53,7 @@
                 <RouterLink
                   v-if="val"
                   :to="{
-                    name: col.refTable + '-details',
+                    name: convertToPascalCase(col.refTable) + '-details',
                     params: routeParams(col, val),
                   }"
                 >
@@ -82,8 +86,13 @@
 </template>
 
 <script>
-import { Spinner, ReadMore } from "molgenis-components";
-import { Client } from "molgenis-components";
+import {
+  Spinner,
+  ReadMore,
+  Client,
+  convertToCamelCase,
+  convertToPascalCase,
+} from "molgenis-components";
 
 export default {
   components: {
@@ -93,10 +102,10 @@ export default {
   props: {
     table: {
       type: String,
-      required: true
+      required: true,
     },
     refLabel: String,
-     /** name of the column in the other table */
+    /** name of the column in the other table */
     refBack: String,
     /** pkey of the current table that refback should point to */
     pkey: Object,
@@ -104,17 +113,35 @@ export default {
   data() {
     return {
       tableMetadata: null,
-      refBackData: null
-    }
+      refBackData: null,
+    };
   },
   methods: {
+    convertToPascalCase,
+    handleRowClick(row) {
+      //good guessing the parameters :-)
+      this.$router.push({
+        name: convertToPascalCase(this.table) + "-details",
+        params: {
+          id: row.id ? row.id : this.pkey.id,
+          resource: row.id ? row.id : this.pkey.id,
+          name: row.name,
+        },
+      });
+    },
     routeParams(column, value) {
-      if (column.name === "tables") {
+      if (column.name === "datasets") {
         let result = {
-          id: value.resource.id,
+          resource: value.resource.id,
           name: value.name,
         };
         return result;
+      } else if (column.name === "contacts") {
+        return {
+          resource: value.resource.id,
+          firstName: value.firstName,
+          lastName: value.lastName,
+        };
       } else {
         return value;
       }
@@ -187,7 +214,7 @@ export default {
   computed: {
     graphqlFilter() {
       var result = new Object();
-      result[this.refBack] = {
+      result[convertToCamelCase(this.refBack)] = {
         equals: this.pkey,
       };
       return result;
@@ -208,7 +235,9 @@ export default {
   async created() {
     this.client = Client.newClient();
     this.tableMetadata = await this.client.fetchTableMetaData(this.table);
-    this.refBackData = await this.client.fetchTableDataValues(this.table, { filter: this.graphqlFilter });
+    this.refBackData = await this.client.fetchTableDataValues(this.table, {
+      filter: this.graphqlFilter,
+    });
   },
 };
 </script>

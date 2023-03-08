@@ -82,10 +82,7 @@
 
 <script>
 import { request } from "graphql-request";
-import {
-  MessageError,
-  Spinner,
-} from "molgenis-components";
+import { MessageError, Spinner } from "molgenis-components";
 
 import OntologyTerms from "../../components/OntologyTerms.vue";
 import ResourceHeader from "../../components/ResourceHeader.vue";

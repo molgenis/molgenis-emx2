@@ -71,8 +71,8 @@ export default {
       this.$emit("update:modelValue", this.radioValue);
     },
     value(newValue) {
-      this.radioValue = newValue
-    }
+      this.radioValue = newValue;
+    },
   },
   computed: {
     isClearShown() {

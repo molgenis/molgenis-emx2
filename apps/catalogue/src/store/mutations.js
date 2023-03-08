@@ -1,6 +1,6 @@
 export default {
   setVariables(state, variables) {
-    Vstate.variables = Array.isArray(variables) ? variables : [];
+    state.variables = Array.isArray(variables) ? variables : [];
   },
   addVariables(state, variables) {
     state.variables = state.variables.concat(variables);
@@ -12,7 +12,7 @@ export default {
     state.variableDetails[variableName] = variableDetails;
   },
   setVariableMappingDetails(state, { variableName, mappingName, details }) {
-      state.variableDetails[variableName].mappings[mappingName].details = details;
+    state.variableDetails[variableName].mappings[mappingName].details = details;
   },
   setSearchInput(state, searchInput) {
     state.searchInput = searchInput;

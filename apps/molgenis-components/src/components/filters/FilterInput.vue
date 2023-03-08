@@ -2,14 +2,14 @@
   <div>
     <div v-if="isMultiConditionFilter">
       <component
-          :is="filterType"
-          :id="id"
-          :condition="conditions"
-          @updateCondition="updateCondition(index - 1, $event)"
-          :tableName="tableName"
-          :schemaName="schemaName"
+        :is="filterType"
+        :id="id"
+        :condition="conditions"
+        @updateCondition="updateCondition(index - 1, $event)"
+        :tableName="tableName"
+        :schemaName="schemaName"
       ></component>
-   </div>
+    </div>
     <div v-else v-for="index in fieldCount" :key="index">
       <component
         :is="filterType"
@@ -37,7 +37,7 @@ import RefFilter from "./RefFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import OntologyFilter from "./OntologyFilter.vue";
 import LongFilter from "./LongFilter.vue";
-import { deepClone } from "../utils.js";
+import { deepClone } from "../utils.ts";
 
 const filterTypeMap = {
   STRING: StringFilter,

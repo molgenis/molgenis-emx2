@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TableExplorer
+    <RoutedTableExplorer
       :showColumns="defaultColumns"
       :showFilters="defaultFilters"
       :tableName="tableName"
@@ -8,14 +8,14 @@
       :initialSearchTerms="searchTerm"
       :canEdit="canEdit"
       :canManage="canManage"
-      @click="openDetailView"
+      @rowClick="openDetailView"
       @searchTerms="onSearchTermUpdate"
     />
   </div>
 </template>
 
 <script>
-import { TableExplorer,convertToPascalCase } from "molgenis-components";
+import { RoutedTableExplorer, convertToPascalCase } from "molgenis-components";
 import { mapActions, mapGetters } from "vuex";
 
 const css = {
@@ -31,13 +31,13 @@ const css = {
   Releases: "bg-dark text-white",
   Tables: "bg-dark text-white",
   Variables: "bg-dark text-white",
-  TableMappings: "bg-dark text-white",
+  DatasetMappings: "bg-dark text-white",
   VariableMappings: "bg-dark text-white",
 };
 
 export default {
   components: {
-    TableExplorer,
+    RoutedTableExplorer,
   },
   props: {
     tableName: String,
@@ -62,16 +62,16 @@ export default {
       return false;
     },
     defaultColumns() {
-      if (this.tableName == "Organisations") {
+      if (this.tableName == "Data sources") {
+        return ["id", "name", "lead organisation", "website"];
+      } else if (this.tableName == "Organisations") {
         return ["name", "id", "type", "country"];
       } else if (
-        ["Data sources", "Networks", "Models"].includes(
-          this.tableName
-        )
+        ["Data sources", "Networks", "Models"].includes(this.tableName)
       ) {
         return ["name", "id", "type", "leadOrganisation"];
       } else if (this.tableName == "Cohorts") {
-        return ["pid", "name", "keywords", "noParticipants"];
+        return ["id", "name", "keywords", "noParticipants"];
       } else if (this.tableName == "Studies") {
         return ["id", "name", "keywords"];
       } else if (this.tableName == "Contacts") {
@@ -84,10 +84,7 @@ export default {
           "homepage",
         ];
       } else if (this.tableName == "Datasets") {
-        return [
-          "source",
-          "name",
-        ];
+        return ["resource", "name"];
       } else if (this.tableName == "Variables") {
         return [
           "source",
@@ -104,7 +101,7 @@ export default {
     },
     defaultFilters() {
       if (this.tableName == "Organisations") {
-        return ["institution","name","type", "country"];
+        return ["institution", "name", "type", "country"];
       }
       if (this.tableName == "Studies") {
         return ["keywords", "networks", "startYear", "endYear"];
@@ -118,7 +115,7 @@ export default {
           "age categories",
         ];
       }
-      return [];
+      return ["type"];
     },
   },
   methods: {
@@ -136,54 +133,22 @@ export default {
       });
     },
     openDetailView(row) {
-      // in case of table
-      if (this.tableName == "SourceTables") {
+      if (this.tableName == "DatasetMappings") {
+        this.$router.push({
+          name: "DatasetMappings-details",
+          params: {
+            source: row.source.id,
+            sourceDataset: row.sourceDataset.name,
+            target: row.target.id,
+            targetDataset: row.targetDataset.name,
+          },
+        });
+      } else if (this.tableName == "Variables") {
         this.$router.push({
           name: this.detailRouteName,
           params: {
-            pid: row.dataDictionary.resource.pid,
-            version: row.dataDictionary.version,
-            name: row.name,
-          },
-        });
-      } else if (this.tableName == "TargetTables") {
-        this.$router.push({
-          name: this.detailRouteName,
-          params: {
-            pid: row.dataDictionary.resource.pid,
-            version: row.dataDictionary.version,
-            name: row.name,
-          },
-        });
-      } else if (this.tableName == "TableMappings") {
-        this.$router.push({
-          name: "tablemapping",
-          params: {
-            fromPid: row.fromDataDictionary.resource.pid,
-            fromVersion: row.fromDataDictionary.version,
-            fromTable: row.fromTable.name,
-            toPid: row.toDataDictionary.resource.pid,
-            toVersion: row.toDataDictionary.version,
-            toTable: row.toTable.name,
-          },
-        });
-      } else if (this.tableName == "SourceVariables") {
-        this.$router.push({
-          name: this.detailRouteName,
-          params: {
-            pid: row.dataDictionary.resource.pid,
-            version: row.dataDictionary.version,
-            table: row.table.name,
-            name: row.name,
-          },
-        });
-      } else if (this.tableName == "TargetVariables") {
-        this.$router.push({
-          name: this.detailRouteName,
-          params: {
-            pid: row.dataDictionary.resource.pid,
-            version: row.dataDictionary.version,
-            table: row.table.name,
+            resource: row.resource.id,
+            dataset: row.dataset.name,
             name: row.name,
           },
         });
@@ -200,15 +165,11 @@ export default {
             fromTable: row.fromTable.name,
           },
         });
-      } else if (
-        this.tableName == "SourceDataDictionaries" ||
-        this.tableName == "TargetDataDictionaries"
-      ) {
+      } else if (this.tableName == "Publications") {
         this.$router.push({
-          name: this.detailRouteName,
+          name: "Publications-details",
           params: {
-            resource: row.resource.pid,
-            version: row.version,
+            doi: row.doi,
           },
         });
       } else if (row.id) {
@@ -216,10 +177,10 @@ export default {
           name: this.detailRouteName,
           params: { id: row.id },
         });
-      } else {
+      } else if (row.name && row.resource) {
         this.$router.push({
           name: this.detailRouteName,
-          params: { name: row.name },
+          params: { name: row.name, resource: row.resource.id },
         });
       }
     },

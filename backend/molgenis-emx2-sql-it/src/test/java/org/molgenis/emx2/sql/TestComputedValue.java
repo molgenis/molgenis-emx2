@@ -25,9 +25,14 @@ public class TestComputedValue {
   @Test
   public void test1() {
     Table t =
-        schema.create(table("Test1", column("id").setPkey(), column("computed").setComputed("1;")));
+        schema.create(table("Test1", column("id").setPkey(), column("computed").setComputed("5;")));
+
+    // reload to make sure 'computed' is really in backend
+    db.clearCache();
+    schema = db.getSchema(TestComputedValue.class.getSimpleName());
+
     t.insert(new Row().set("id", 1));
-    assertEquals(1, (int) t.query().retrieveRows().get(0).getInteger("computed"));
+    assertEquals(5, (int) t.query().retrieveRows().get(0).getInteger("computed"));
 
     t = schema.create(table("Test2", column("id").setPkey(), column("computed").setComputed("id")));
     t.insert(new Row().set("id", 1));

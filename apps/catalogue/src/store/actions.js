@@ -2,6 +2,7 @@ import { request, gql } from "graphql-request";
 import schema from "./query/schema.js";
 import mappings from "./query/mappings.js";
 import { fetchResources } from "./repository/resourceRepository";
+import { CATALOGUE_ONTOLOGIES_GRAPHQL } from "../constants.js";
 
 export default {
   reloadMetadata({ state }) {
@@ -12,9 +13,9 @@ export default {
       `{
           _session { email,roles } _schema {
             name, tables {
-              name, tableType, id, description, externalSchema, semantics, columns {
+              name, tableType, id, descriptions {locale,value}, externalSchema, semantics, columns {
                 name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
-                semantics, description, position, validation, visible
+                semantics, descriptions {locale,value} , position, validation, visible
               } settings { key, value }
             }
           }
@@ -264,9 +265,10 @@ export default {
         }
       }
     `;
-    const keyWordResp = await request("graphql", keywordQuery).catch((e) =>
-      console.error(e)
-    );
+    const keyWordResp = await request(
+      CATALOGUE_ONTOLOGIES_GRAPHQL,
+      keywordQuery
+    ).catch((e) => console.error(e));
     commit("setKeywords", keyWordResp.Keywords);
     return state.keywords;
   },

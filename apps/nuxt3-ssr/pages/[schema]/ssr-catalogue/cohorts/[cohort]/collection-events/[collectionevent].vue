@@ -36,13 +36,11 @@ watch(
   }
 );
 
-let tocItems = reactive([
-  { label: "Details", id: "details" },
-]);
-
+let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
 };
 
 // @ts-ignore
@@ -80,8 +78,8 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
 
 let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups)
-  tocItems.push({ label: "Age categories", id: "age_categories" })
+  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups);
+  tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
 if (collectionEvent?.numberOfParticipants) {
@@ -93,8 +91,8 @@ if (collectionEvent?.numberOfParticipants) {
 
 let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
-  dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories)
-  tocItems.push({ label: "Data categories", id: "data_catagories" })
+  dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories);
+  tocItems.push({ label: "Data categories", id: "data_catagories" });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -106,8 +104,16 @@ if (collectionEvent?.sampleCategories?.length) {
 
 let areasOfInformationTree = [];
 if (collectionEvent?.areasOfInformation?.length) {
-  areasOfInformationTree = buildOntologyTree(collectionEvent.areasOfInformation)
-  tocItems.push({ label: "Areas of information", id: "areas_of_information" })
+  areasOfInformationTree = buildOntologyTree(
+    collectionEvent.areasOfInformation
+  );
+  tocItems.push({ label: "Areas of information", id: "areas_of_information" });
+}
+
+let standardizedToolsTree = [];
+if (collectionEvent.standardizedTools) {
+  standardizedToolsTree = buildOntologyTree(collectionEvent.standardizedTools);
+  tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
 if (collectionEvent?.coreVariables?.length) {
@@ -116,13 +122,15 @@ if (collectionEvent?.coreVariables?.length) {
     content: renderList(collectionEvent?.coreVariables, toName),
   });
 }
-
 </script>
 
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="collectionEvent?.name" :description="collectionEvent?.description">
+      <PageHeader
+        :title="collectionEvent?.name"
+        :description="collectionEvent?.description"
+      >
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
         </template>
@@ -136,14 +144,50 @@ if (collectionEvent?.coreVariables?.length) {
         <ContentBlock v-if="collectionEvent" id="details" title="Details">
           <DefinitionList :items="items" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock v-if="collectionEvent.ageGroups" id="age_categories" title="Age categories">
+        <ContentBlock
+          v-if="collectionEvent.ageGroups"
+          id="age_categories"
+          title="Age categories"
+        >
           <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock v-if="collectionEvent.dataCategories" id="data_catagories" title="Data catagories">
+        <ContentBlock
+          v-if="collectionEvent.dataCategories"
+          id="data_catagories"
+          title="Data catagories"
+        >
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>
-        <ContentBlock v-if="collectionEvent.areasOfInformation" id="areas_of_information" title="Areas of information">
-          <ContentOntology :tree="areasOfInformationTree" :collapse-all="false" />
+        <ContentBlock
+          v-if="collectionEvent.areasOfInformation"
+          id="areas_of_information"
+          title="Areas of information"
+        >
+          <ContentOntology
+            :tree="areasOfInformationTree"
+            :collapse-all="false"
+          />
+        </ContentBlock>
+        <ContentBlock
+          v-if="collectionEvent.standardizedTools"
+          id="standardized_tools"
+          title="Standardized tools"
+        >
+          <ContentOntology
+            :tree="standardizedToolsTree"
+            :collapse-all="false"
+          />
+          <DefinitionList
+            v-if="collectionEvent.standardizedToolsOther"
+            class="mt-6"
+            :items="[
+              {
+                label: 'Standardized tools other',
+                content: collectionEvent.standardizedToolsOther,
+              },
+            ]"
+            :collapse-all="false"
+          />
         </ContentBlock>
       </ContentBlocks>
     </template>
