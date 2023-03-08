@@ -25,7 +25,7 @@ defineProps({
         <BaseIcon :name="icon" :width="55" />
       </span>
       <div class="relative">
-        <h1 class="font-display text-heading-6xl">{{ title }}</h1>
+        <h1 class="font-display text-heading-6xl text-center">{{ title }}</h1>
 
         <div
           class="absolute hidden pl-1 -translate-y-1/2 text-favorite hover:text-favorite-hover left-full top-1/2 whitespace-nowrap xl:block"
