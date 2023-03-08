@@ -347,7 +347,7 @@
 }
 </style>
 
-<script>
+<script setup>
 import Client from "../../client/client.ts";
 import {
   deepClone,
@@ -376,6 +376,19 @@ import ConfirmModal from "../forms/ConfirmModal.vue";
 import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
 import AggregateTable from "./AggregateTable.vue";
+import { ref, computed } from "vue";
+
+const emit = defineEmits([
+  "searchTerms",
+  "updateShowView",
+  "updateShowOrder",
+  "updateShowColumns",
+  "updateShowFilters",
+  "updateConditions",
+  "updateShowPage",
+  "updateShowLimit",
+  "rowClick",
+]);
 
 const View = {
   TABLE: "table",
@@ -400,325 +413,300 @@ const ViewButtons = {
   },
 };
 
-export default {
-  name: "TableExplorer",
-  components: {
-    ShowHide,
-    Pagination,
-    ButtonAlt,
-    ButtonDropdown,
-    IconAction,
-    IconDanger,
-    InputSearch,
-    InputSelect,
-    MessageError,
-    SelectionBox,
-    Spinner,
-    TableMolgenis,
-    FilterSidebar,
-    FilterWells,
-    RecordCards,
-    RowButton,
-    TableSettings,
-    EditModal,
-    ConfirmModal,
-    AggregateTable,
+const {
+  tableName,
+  schemaName,
+  showSelect,
+  showHeader,
+  showFilters,
+  showColumns,
+  showView,
+  showPage,
+  showLimit,
+  urlConditions,
+  filter,
+  showOrderBy,
+  showOrder,
+  canEdit,
+  canManage,
+  locale,
+} = defineProps({
+  tableName: {
+    type: String,
+    required: true,
   },
-  data() {
+  schemaName: {
+    type: String,
+    required: false,
+  },
+  showSelect: {
+    type: Boolean,
+    default: false,
+  },
+  showHeader: {
+    type: Boolean,
+    default: true,
+  },
+  showFilters: {
+    type: Array,
+    default: [],
+  },
+  showColumns: {
+    type: Array,
+    default: [],
+  },
+  showView: {
+    type: String,
+    default: "table",
+  },
+  showPage: {
+    type: Number,
+    default: 1,
+  },
+  showLimit: {
+    type: Number,
+    default: 20,
+  },
+  urlConditions: {
+    type: Object,
+    default: {},
+  },
+  filter: {
+    type: Object,
+    default: {},
+  },
+  showOrderBy: {
+    type: String,
+    required: false,
+  },
+  showOrder: {
+    type: String,
+    default: "ASC",
+  },
+  canEdit: {
+    type: Boolean,
+    default: false,
+  },
+  canManage: {
+    type: Boolean,
+    default: false,
+  },
+  locale: {
+    type: String,
+    default: "en",
+  },
+});
+
+//data
+let client = null;
+const cardTemplate = ref(null);
+const columns = ref([]);
+const count = ref(0);
+const dataRows = ref([]);
+const editMode = ref("add"); // add, edit, clone
+const editRowPrimaryKey = ref(null);
+const graphqlError = ref(null);
+const isDeleteAllModalShown = ref(false);
+const isDeleteModalShown = ref(false);
+const isEditModalShown = ref(false);
+const limit = ref(showLimit);
+const loading = ref(true);
+const order = ref(showOrder);
+const orderByColumn = ref(showOrderBy);
+const page = ref(showPage);
+const recordTemplate = ref(null);
+const searchTerms = ref("");
+const selectedItems = ref([]);
+const tableMetadata = ref(null);
+const view = ref(showView);
+
+// computed:
+const tableId = computed(() => convertToPascalCase(tableName.value));
+const localizedLabel = computed(() =>
+  getLocalizedLabel(tableMetadata.value, locale.value)
+);
+const localizedDescription = computed(() =>
+  getLocalizedDescription(tableMetadata.value, locale.value)
+);
+const countFilters = computed(() =>
+  columns.value
+    ? columns.value.filter((filter) => filter.showFilter).length
+    : null
+);
+const graphqlFilter = computed(getGraphqlFilter);
+
+// execute
+reloadMetadata();
+
+// methods
+function setSearchTerms(newSearchValue) {
+  searchTerms.value = newSearchValue;
+  emit("searchTerms", newSearchValue);
+  reload();
+}
+
+function handleRowAction(type, key) {
+  editMode.value = type;
+  editRowPrimaryKey.value = key;
+  isEditModalShown.value = true;
+}
+function handleModalClose() {
+  isEditModalShown.value = false;
+  reload();
+}
+
+function handleDeleteRowRequest(key) {
+  editRowPrimaryKey.value = key;
+  isDeleteModalShown.value = true;
+}
+
+async function handleExecuteDelete() {
+  isDeleteModalShown.value = false;
+  const response = await client
+    .deleteRow(editRowPrimaryKey.value, tableId)
+    .catch(handleError);
+  if (response) {
+    reload();
+  }
+}
+
+async function handelExecuteDeleteAll() {
+  isDeleteAllModalShown.value = false;
+  const response = await client.deleteAllTableData(tableId).catch(handleError);
+  if (response) {
+    reload();
+  }
+}
+
+function setView(button) {
+  view.value = button.id;
+  if (button.limitOverride) {
+    limit.value = button.limitOverride;
+  } else {
+    limit.value = showLimit;
+  }
+  page.value = 1;
+  emit("updateShowView", button.id, limit.value);
+  reload();
+}
+
+function onColumnClick(column) {
+  order.value = getNewOrderValue();
+  orderByColumn.value = column.id;
+  emit("updateShowOrder", {
+    direction: order.value,
+    column: column.id,
+  });
+  reload();
+}
+
+function getNewOrderValue() {
+  if (oldOrderByColumn.value !== column.id) {
+    return "ASC";
+  } else if (order.value === "ASC") {
+    return "DESC";
+  } else {
+    return "ASC";
+  }
+}
+
+function emitColumns(event) {
+  columns.value = event;
+  emit("updateShowColumns", getColumnNames(columns.value, "showColumn"));
+}
+
+function emitFilters(event) {
+  columns.value = event;
+  emit("updateShowFilters", getColumnNames(event, "showFilter"));
+}
+
+function emitConditions() {
+  page.value = 1;
+  emit("updateConditions", columns.value);
+  reload();
+}
+
+function setPage(page) {
+  page.value = page;
+  emit("updateShowPage", page);
+  reload();
+}
+
+function setLimit(limit) {
+  limit.value = parseInt(limit);
+  if (!Number.isInteger(limit.value) || limit.value < 1) {
+    limit.value = 20;
+  }
+  page.value = 1;
+  emit("updateShowLimit", limit);
+  reload();
+}
+
+function handleError(error) {
+  if (Array.isArray(error?.response?.data?.errors)) {
+    graphqlError.value = error.response.data.errors[0].message;
+  } else {
+    graphqlError.value = error;
+  }
+  loading.value = false;
+}
+
+function setTableMetadata(newTableMetadata) {
+  columns.value = newTableMetadata.columns.map((column) => {
+    const showColumn = showColumns.length
+      ? showColumns.includes(column.name)
+      : !column.name.startsWith("mg_");
+    const conditions = getCondition(
+      column.columnType,
+      urlConditions[column.name]
+    );
     return {
-      cardTemplate: null,
-      client: null,
-      columns: [],
-      count: 0,
-      dataRows: [],
-      editMode: "add", // add, edit, clone
-      editRowPrimaryKey: null,
-      graphqlError: null,
-      isDeleteAllModalShown: false,
-      isDeleteModalShown: false,
-      isEditModalShown: false,
-      limit: this.showLimit,
-      loading: true,
-      order: this.showOrder,
-      orderByColumn: this.showOrderBy,
-      page: this.showPage,
-      recordTemplate: null,
-      searchTerms: "",
-      selectedItems: [],
-      tableMetadata: null,
-      view: this.showView,
+      ...column,
+      showColumn,
+      showFilter: showFilters.includes(column.name),
+      conditions,
     };
-  },
-  props: {
-    tableName: {
-      type: String,
-      required: true,
-    },
-    schemaName: {
-      type: String,
-      required: false,
-    },
-    showSelect: {
-      type: Boolean,
-      default: () => false,
-    },
-    showHeader: {
-      type: Boolean,
-      default: () => true,
-    },
-    showFilters: {
-      type: Array,
-      default: () => [],
-    },
-    showColumns: {
-      type: Array,
-      default: () => [],
-    },
-    showView: {
-      type: String,
-      default: View.TABLE,
-    },
-    showPage: {
-      type: Number,
-      default: 1,
-    },
-    showLimit: {
-      type: Number,
-      default: 20,
-    },
-    urlConditions: {
-      type: Object,
-      default: () => ({}),
-    },
-    filter: {
-      type: Object,
-      default: () => ({}),
-    },
-    showOrderBy: {
-      type: String,
-      required: false,
-    },
-    showOrder: {
-      type: String,
-      default: () => "ASC",
-    },
-    canEdit: {
-      type: Boolean,
-      default: () => false,
-    },
-    canManage: {
-      type: Boolean,
-      default: () => false,
-    },
-    locale: {
-      type: String,
-      default: () => "en",
-    },
-  },
-  computed: {
-    tableId() {
-      return convertToPascalCase(this.tableName);
-    },
-    localizedLabel() {
-      return getLocalizedLabel(this.tableMetadata, this.locale);
-    },
-    localizedDescription() {
-      return getLocalizedDescription(this.tableMetadata, this.locale);
-    },
-    View() {
-      return View;
-    },
-    ViewButtons() {
-      return ViewButtons;
-    },
-    countFilters() {
-      return this.columns
-        ? this.columns.filter((filter) => filter.showFilter).length
-        : null;
-    },
-    graphqlFilter() {
-      let filter = this.filter;
-      const errorCallback = (msg) => {
-        this.graphqlError = msg;
-      };
-      return graphqlFilter(filter, this.columns, errorCallback);
-    },
-  },
-  methods: {
-    getPrimaryKey,
-    setSearchTerms(newSearchValue) {
-      this.searchTerms = newSearchValue;
-      this.$emit("searchTerms", newSearchValue);
-      this.reload();
-    },
-    handleRowAction(type, key) {
-      this.editMode = type;
-      this.editRowPrimaryKey = key;
-      this.isEditModalShown = true;
-    },
-    handleModalClose() {
-      this.isEditModalShown = false;
-      this.reload();
-    },
-    handleDeleteRowRequest(key) {
-      this.editRowPrimaryKey = key;
-      this.isDeleteModalShown = true;
-    },
-    async handleExecuteDelete() {
-      this.isDeleteModalShown = false;
-      const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
-    },
-    async handelExecuteDeleteAll() {
-      this.isDeleteAllModalShown = false;
-      const resp = await this.client
-        .deleteAllTableData(this.tableId)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
-    },
-    setView(button) {
-      this.view = button.id;
-      if (button.limitOverride) {
-        this.limit = button.limitOverride;
-      } else {
-        this.limit = this.showLimit;
-      }
-      this.page = 1;
-      this.$emit("updateShowView", button.id, this.limit);
-      this.reload();
-    },
-    onColumnClick(column) {
-      const oldOrderByColumn = this.orderByColumn;
-      let order = this.order;
-      if (oldOrderByColumn !== column.id) {
-        order = "ASC";
-      } else if (order === "ASC") {
-        order = "DESC";
-      } else {
-        order = "ASC";
-      }
-      this.order = order;
-      this.orderByColumn = column.id;
-      this.$emit("updateShowOrder", {
-        direction: order,
-        column: column.id,
-      });
-      this.reload();
-    },
-    emitColumns(event) {
-      this.columns = event;
-      this.$emit(
-        "updateShowColumns",
-        getColumnNames(this.columns, "showColumn")
-      );
-    },
-    emitFilters(event) {
-      this.columns = event;
-      this.$emit("updateShowFilters", getColumnNames(event, "showFilter"));
-    },
-    emitConditions() {
-      this.page = 1;
-      this.$emit("updateConditions", this.columns);
-      this.reload();
-    },
-    setPage(page) {
-      this.page = page;
-      this.$emit("updateShowPage", page);
-      this.reload();
-    },
-    setLimit(limit) {
-      this.limit = parseInt(limit);
-      if (!Number.isInteger(this.limit) || this.limit < 1) {
-        this.limit = 20;
-      }
-      this.page = 1;
-      this.$emit("updateShowLimit", limit);
-      this.reload();
-    },
-    handleError(error) {
-      if (Array.isArray(error?.response?.data?.errors)) {
-        this.graphqlError = error.response.data.errors[0].message;
-      } else {
-        this.graphqlError = error;
-      }
-      this.loading = false;
-    },
-    setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
-        const showColumn = this.showColumns.length
-          ? this.showColumns.includes(column.name)
-          : !column.name.startsWith("mg_");
-        const conditions = getCondition(
-          column.columnType,
-          this.urlConditions[column.name]
-        );
-        return {
-          ...column,
-          showColumn,
-          showFilter: this.showFilters.includes(column.name),
-          conditions,
-        };
-      });
-      //table settings
-      newTableMetadata.settings?.forEach((setting) => {
-        if (setting.key === "cardTemplate") {
-          this.cardTemplate = setting.value;
-        } else if (setting.key === "recordTemplate") {
-          this.recordTemplate = setting.value;
-        }
-      });
-      this.tableMetadata = newTableMetadata;
-    },
-    async reloadMetadata() {
-      this.client = Client.newClient(this.schemaName);
-      const newTableMetadata = await this.client
-        .fetchTableMetaData(this.tableName)
-        .catch(this.handleError);
-      this.setTableMetadata(newTableMetadata);
-      this.reload();
-    },
-    async reload() {
-      this.loading = true;
-      this.graphqlError = null;
-      const offset = this.limit * (this.page - 1);
-      const orderBy = this.orderByColumn
-        ? { [this.orderByColumn]: this.order }
-        : {};
-      const dataResponse = await this.client
-        .fetchTableData(this.tableName, {
-          limit: this.limit,
-          offset: offset,
-          filter: this.graphqlFilter,
-          searchTerms: this.searchTerms,
-          orderby: orderBy,
-        })
-        .catch(this.handleError);
-      this.dataRows = dataResponse[this.tableId];
-      this.count = dataResponse[this.tableId + "_agg"]["count"];
-      this.loading = false;
-    },
-  },
-  mounted: async function () {
-    await this.reloadMetadata();
-  },
-  emits: [
-    "updateShowFilters",
-    "rowClick",
-    "updateShowLimit",
-    "updateShowPage",
-    "updateConditions",
-    "updateShowColumns",
-    "updateShowOrder",
-    "updateShowView",
-    "searchTerms",
-  ],
-};
+  });
+  //table settings
+  newTableMetadata.settings?.forEach((setting) => {
+    if (setting.key === "cardTemplate") {
+      cardTemplate.value = setting.value;
+    } else if (setting.key === "recordTemplate") {
+      recordTemplate.value = setting.value;
+    }
+  });
+  tableMetadata.value = newTableMetadata;
+}
+
+async function reloadMetadata() {
+  client = Client.newClient(schemaName);
+  const newTableMetadata = await client
+    .fetchTableMetaData(tableName)
+    .catch(handleError);
+  setTableMetadata(newTableMetadata);
+  reload();
+}
+
+async function reload() {
+  loading.value = true;
+  graphqlError.value = null;
+  const offset = limit.value * (page.value - 1);
+  const orderBy = orderByColumn.value
+    ? { [orderByColumn.value]: order.value }
+    : {};
+  const dataResponse = await client
+    .fetchTableData(tableName, {
+      limit: limit.value,
+      offset: offset,
+      filter: deepClone(graphqlFilter),
+      searchTerms: searchTerms.value,
+      orderby: orderBy,
+    })
+    .catch(handleError);
+  dataRows.value = dataResponse[tableId];
+  count.value = dataResponse[tableId + "_agg"]["count"];
+  loading.value = false;
+}
 
 function getColumnNames(columns, property) {
   return columns
@@ -749,10 +737,11 @@ function getCondition(columnType, condition) {
   }
 }
 
-function graphqlFilter(defaultFilter, columns, errorCallback) {
-  let filter = deepClone(defaultFilter);
-  if (columns) {
-    columns.forEach((col) => {
+function getGraphqlFilter() {
+  console.log(JSON.stringify(filter));
+  let newFilter = deepClone(filter);
+  if (columns.value) {
+    columns.value.forEach((col) => {
       const conditions = col.conditions
         ? col.conditions.filter(
             (condition) => condition !== "" && condition !== undefined
@@ -763,14 +752,13 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT")
         ) {
-          filter[col.id] = { like: conditions };
-        } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
+          newFilter[col.id] = { like: conditions };
         } else if (
+          col.columnType.startsWith("BOOL") ||
           col.columnType.startsWith("REF") ||
           col.columnType.startsWith("ONTOLOGY")
         ) {
-          filter[col.id] = { equals: conditions };
+          newFilter[col.id] = { equals: conditions };
         } else if (
           [
             "LONG",
@@ -783,18 +771,16 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
             "DATE_ARRAY",
           ].includes(col.columnType)
         ) {
-          filter[col.id] = {
+          newFilter[col.id] = {
             between: conditions.flat(),
           };
         } else {
-          errorCallback(
-            `filter unsupported for column type ${col.columnType} (please report a bug)`
-          );
+          graphqlError.value = `filter unsupported for column type ${col.columnType} (please report a bug)`;
         }
       }
     });
   }
-  return filter;
+  return newFilter;
 }
 </script>
 

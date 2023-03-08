@@ -29,7 +29,7 @@
 
 <script>
 import FormInput from "./FormInput.vue";
-import constants from "../constants.js";
+import constants from "../constants";
 import {
   getPrimaryKey,
   deepClone,

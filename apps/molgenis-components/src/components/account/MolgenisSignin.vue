@@ -58,7 +58,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { request } from "../../client/client";
-import { privacyConstants } from "../constants.js";
+import { privacyConstants } from "../constants";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
 import LayoutForm from "../forms/FormMolgenis.vue";

@@ -9,6 +9,7 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client";
 import * as utils from "./components/utils";
+import store from "./store/store";
 
 //load the components
 const components = import.meta.globEager("./components/**/*.vue");
@@ -70,6 +71,9 @@ app.component("DemoItem", DemoItem);
 // connect the router
 const router = createRouter({ history: createWebHashHistory(), routes });
 app.use(router);
+
+// add store
+app.use(store);
 
 // render the whole thing
 app.mount("#app");
