@@ -1,19 +1,15 @@
 <template>
-  <div v-if="loading">
-    <Spinner />
-  </div>
-  <SideModal
-    v-else
-    :label="label"
-    :isVisible="isVisible"
-    @onClose="emit('onClose')"
-  >
-    <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-
-    <div v-for="queryResult in queryResults">
-      <RefTable :reference="queryResult" :showDataOwner="showDataOwner" />
+  <SideModal :label="label" :isVisible="isVisible" @onClose="emit('onClose')">
+    <div v-if="loading">
+      <Spinner />
     </div>
+    <div v-else>
+      <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
 
+      <div v-for="queryResult in queryResults">
+        <RefTable :reference="queryResult" :showDataOwner="showDataOwner" />
+      </div>
+    </div>
     <template v-slot:footer>
       <ButtonAction @click="emit('onClose')">Close</ButtonAction>
     </template>
@@ -40,13 +36,13 @@ const props = withDefaults(
   {
     tableId: "",
     label: "",
-    rows: [] as IRow[] | undefined,
     isVisible: true,
     showDataOwner: false,
   }
 );
 
 const { client, isVisible, label, rows, tableId } = toRefs(props);
+if (rows && rows.value === undefined) rows.value = []; // FIXME: set as default
 
 let loading = ref(true);
 let queryResults = ref([{ name: String }]);
@@ -64,8 +60,6 @@ async function updateData() {
     for (const row of rows.value) {
       const metaData = await client.value.fetchTableMetaData(tableId.value);
       const primaryKey = getPrimaryKey(row, metaData);
-      console.log("->", primaryKey);
-
       const queryResult = await client.value
         .fetchRowData(tableId.value, primaryKey)
         .catch(() => {

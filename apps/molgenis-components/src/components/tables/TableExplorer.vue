@@ -340,6 +340,7 @@
     </ConfirmModal>
 
     <RefSideModal
+      v-if="!loading"
       :isVisible="refSideModalProps !== undefined"
       :table-id="refSideModalProps?.table"
       :label="refSideModalProps?.label"
@@ -598,7 +599,6 @@ export default {
       }
     },
     handleCellClick(event) {
-      console.log("event: ", event);
       const { column, cellValue } = event;
       const rows = [cellValue].flat();
       if (isRefType(column?.columnType)) {
