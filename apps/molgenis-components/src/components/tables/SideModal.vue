@@ -44,13 +44,13 @@ withDefaults(
 const emit = defineEmits(["onClose"]);
 
 onBeforeMount(() => {
-  if (document && document.addEventListener) {
+  if (document?.addEventListener) {
     document.addEventListener("keydown", escapeKeyHandler);
   }
 });
 
 onBeforeUnmount(() => {
-  if (document && document.removeEventListener) {
+  if (document?.removeEventListener) {
     document.removeEventListener("keydown", escapeKeyHandler);
   }
 });

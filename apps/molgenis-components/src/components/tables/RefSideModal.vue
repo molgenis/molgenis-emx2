@@ -18,34 +18,34 @@
 
 <script lang="ts" setup>
 import { ref, toRefs, watch } from "vue";
-import MessageError from "../forms/MessageError.vue";
-import ButtonAction from "../forms/ButtonAction.vue";
-import SideModal from "./SideModal.vue";
-import { getPrimaryKey } from "../utils";
-import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
+import { IRow } from "../../Interfaces/IRow";
+import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import ButtonAction from "../forms/ButtonAction.vue";
+import MessageError from "../forms/MessageError.vue";
+import { getPrimaryKey } from "../utils";
+import SideModal from "./SideModal.vue";
 
 const props = withDefaults(
   defineProps<{
     tableId: string;
     label: string;
-    rows: IRow[];
     showDataOwner?: boolean;
     client: INewClient;
+    rows?: IRow[];
   }>(),
   {
     showDataOwner: false,
+    rows: () => [] as IRow[],
   }
 );
 const { client, label, rows, tableId } = toRefs(props);
-if (rows && rows.value === undefined) rows.value = []; // FIXME: set as default
 
 const emit = defineEmits(["onClose"]);
 
 let loading = ref(true);
-let queryResults = ref([{ name: String }]);
+let queryResults = ref([] as IRefModalData[]);
 let errorMessage = ref("");
-
 updateData();
 watch([tableId, label, rows], () => {
   updateData();
@@ -53,8 +53,13 @@ watch([tableId, label, rows], () => {
 
 async function updateData() {
   errorMessage.value = "";
-  queryResults.value = [];
   loading.value = true;
+  queryResults.value = await getRowData();
+  loading.value = false;
+}
+
+async function getRowData(): Promise<IRefModalData[]> {
+  let newQueryResults: IRefModalData[] = [];
   if (tableId.value !== "") {
     for (const row of rows.value) {
       const metaData = await client.value.fetchTableMetaData(tableId.value);
@@ -66,11 +71,15 @@ async function updateData() {
             errorMessage.value = "Failed to load reference data";
           });
         queryResult.metaData = metaData;
-        queryResults.value.push(queryResult);
+        newQueryResults.push(queryResult);
       }
     }
   }
-  loading.value = false;
+  return newQueryResults;
+}
+
+interface IRefModalData {
+  [primaryKey: string]: string | ITableMetaData;
 }
 </script>
 

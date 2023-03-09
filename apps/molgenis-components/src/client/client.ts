@@ -31,7 +31,9 @@ const client: IClient = {
         }
         return deepClone(schemaMetaData);
       },
-      fetchTableMetaData: async (tableName: string) => {
+      fetchTableMetaData: async (
+        tableName: string
+      ): Promise<ITableMetaData> => {
         if (schemaMetaData === null) {
           schemaMetaData = await fetchSchemaMetaData(myAxios, schemaNameCache);
           if (schemaMetaData && !schemaNameCache) {
@@ -285,7 +287,10 @@ const deleteAllTableData = (tableName: string, schemaName: string) => {
   return axios.post(graphqlURL(schemaName), { query });
 };
 
-const fetchSchemaMetaData = async (axios: Axios, schemaName: string) => {
+const fetchSchemaMetaData = async (
+  axios: Axios,
+  schemaName: string
+): Promise<ISchemaMetaData> => {
   return await axios
     .post(graphqlURL(schemaName), { query: metaDataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {

@@ -360,35 +360,35 @@
 
 <script>
 import Client from "../../client/client.ts";
-import {
-  deepClone,
-  getPrimaryKey,
-  convertToPascalCase,
-  getLocalizedDescription,
-  getLocalizedLabel,
-  isRefType,
-} from "../utils";
-import ShowHide from "./ShowHide.vue";
-import Pagination from "./Pagination.vue";
+import FilterSidebar from "../filters/FilterSidebar.vue";
+import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
+import ConfirmModal from "../forms/ConfirmModal.vue";
+import EditModal from "../forms/EditModal.vue";
 import IconAction from "../forms/IconAction.vue";
 import IconDanger from "../forms/IconDanger.vue";
 import InputSearch from "../forms/InputSearch.vue";
 import InputSelect from "../forms/InputSelect.vue";
-import SelectionBox from "./SelectionBox.vue";
-import Spinner from "../layout/Spinner.vue";
-import TableMolgenis from "./TableMolgenis.vue";
-import FilterSidebar from "../filters/FilterSidebar.vue";
-import FilterWells from "../filters/FilterWells.vue";
-import RecordCards from "./RecordCards.vue";
-import TableSettings from "./TableSettings.vue";
-import EditModal from "../forms/EditModal.vue";
-import ConfirmModal from "../forms/ConfirmModal.vue";
-import RowButton from "../tables/RowButton.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
+import RowButton from "../tables/RowButton.vue";
+import {
+  convertToPascalCase,
+  deepClone,
+  getLocalizedDescription,
+  getLocalizedLabel,
+  getPrimaryKey,
+  isRefType,
+} from "../utils";
 import AggregateTable from "./AggregateTable.vue";
+import Pagination from "./Pagination.vue";
+import RecordCards from "./RecordCards.vue";
 import RefSideModal from "./RefSideModal.vue";
+import SelectionBox from "./SelectionBox.vue";
+import ShowHide from "./ShowHide.vue";
+import TableMolgenis from "./TableMolgenis.vue";
+import TableSettings from "./TableSettings.vue";
 
 const View = {
   TABLE: "table",

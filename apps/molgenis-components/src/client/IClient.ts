@@ -1,7 +1,7 @@
-import { Axios } from "axios";
-import { ISchemaMetaData } from "../Interfaces/IMetaData";
+import { Axios, AxiosResponse } from "axios";
 import { IRow } from "../Interfaces/IRow";
 import { ISetting } from "../Interfaces/ISetting";
+import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import { IQueryMetaData } from "./IQueryMetaData";
 
 export interface IClient {
@@ -22,7 +22,7 @@ export interface INewClient {
   deleteRow: (rowKey: IRow, tableName: string) => Promise<any>;
   deleteAllTableData: (tableName: string) => Promise<any>;
   fetchSchemaMetaData: () => Promise<any>;
-  fetchTableMetaData: (tableName: string) => Promise<any>;
+  fetchTableMetaData: (tableName: string) => Promise<ITableMetaData>;
   fetchTableData: (
     stableId: string,
     properties: IQueryMetaData
