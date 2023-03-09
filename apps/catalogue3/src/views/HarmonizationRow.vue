@@ -55,9 +55,9 @@ export default {
         });
 
         if (
-          statusList.includes("complete") &&
-          !statusList.includes("zna") &&
-          statusList.includes("partial")
+          (statusList.includes("complete") ||
+           statusList.includes("partial") ) &&
+          !statusList.includes("zna")
         ) {
           return "complete";
         } else if (
