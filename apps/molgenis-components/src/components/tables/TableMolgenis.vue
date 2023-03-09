@@ -166,9 +166,7 @@ export default {
       }
       return found;
     },
-    isRefType(columnType) {
-      return isRefType(columnType);
-    },
+    isRefType,
     /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
     deepEqual(object1, object2) {
       const keys1 = Object.keys(object1);

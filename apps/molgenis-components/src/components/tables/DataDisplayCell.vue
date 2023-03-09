@@ -55,7 +55,7 @@ export default defineComponent({
         : typeMap[this.metaData.columnType] || "StringDisplay";
     },
     isArrayType() {
-      return this.metaData?.columnType?.includes("ARRAY") > 0;
+      return this.metaData.columnType.includes("ARRAY") > 0;
     },
     isEmpty() {
       return (

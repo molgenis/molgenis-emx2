@@ -19,8 +19,8 @@
 <script lang="ts" setup>
 import { ref, toRefs, watch } from "vue";
 import { INewClient } from "../../client/IClient";
+import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
-import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import { getPrimaryKey } from "../utils";
@@ -76,10 +76,6 @@ async function getRowData(): Promise<IRefModalData[]> {
     }
   }
   return newQueryResults;
-}
-
-interface IRefModalData {
-  [primaryKey: string]: string | ITableMetaData;
 }
 </script>
 
