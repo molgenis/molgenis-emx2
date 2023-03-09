@@ -10,8 +10,8 @@
         <RefTable :reference="queryResult" :showDataOwner="showDataOwner" />
       </div>
     </div>
-    <template v-slot:footer>
-      <ButtonAction @click="emit('onClose')">Close</ButtonAction>
+    <template v-slot:footer="slot">
+      <ButtonAction @click="slot.close()">Close</ButtonAction>
     </template>
   </SideModal>
 </template>

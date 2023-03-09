@@ -1,5 +1,5 @@
 <template>
-  <div class="modal fade" :class="{ show: isVisible }">
+  <div class="modal fade" :class="{ show: delayedIsVisible }">
     <div class="modal-dialog modal-dialog-scrollable" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -19,7 +19,7 @@
           <slot />
         </div>
         <div class="modal-footer">
-          <slot name="footer" />
+          <slot name="footer" :close="close" />
         </div>
       </div>
     </div>
@@ -27,9 +27,9 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onBeforeMount } from "vue";
+import { onBeforeUnmount, onBeforeMount, watch, toRefs, ref } from "vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     label: string;
     isCloseButtonShown?: boolean;
@@ -40,6 +40,22 @@ withDefaults(
     isVisible: true,
   }
 );
+
+const { isVisible } = toRefs(props);
+
+// NOTE: We need a single dom update to pass before making the component visible for css to animate the difference in styles.
+let delayedIsVisible = ref(false);
+function delayedUpdatedIsVisible() {
+  setTimeout(() => {
+    console.log("delayedUpdatedIsVisible: ", delayedIsVisible);
+    delayedIsVisible.value = isVisible.value;
+    console.log(delayedIsVisible);
+  }, 1);
+}
+delayedUpdatedIsVisible();
+watch(isVisible, () => {
+  delayedUpdatedIsVisible();
+});
 
 const emit = defineEmits(["onClose"]);
 
@@ -62,7 +78,10 @@ function escapeKeyHandler(event: any) {
 }
 
 function close() {
-  emit("onClose");
+  delayedIsVisible.value = false;
+  setTimeout(() => {
+    emit("onClose");
+  }, 200);
 }
 </script>
 
@@ -88,7 +107,7 @@ function close() {
 }
 
 .fade .modal-dialog {
-  transition: transform 0.2s, visibility 0.2s ease 0.2s;
+  transition: transform 0.2s, visibility 0.2s ease 0s;
 }
 
 .modal.fade.show .modal-dialog {
@@ -122,8 +141,8 @@ function close() {
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum.
     </p>
-    <template v-slot:footer>
-      <ButtonAction @click="showModal = false">Done</ButtonAction>
+    <template v-slot:footer="slot">
+      <ButtonAction @click="slot.close()">Done</ButtonAction>
     </template>
   </SideModal>
   <br /><button @click="showModal = !showModal">Toggle modal</button>
