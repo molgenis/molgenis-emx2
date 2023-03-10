@@ -80,7 +80,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardSecondary icon="people">
         <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
-        ><br />The cummulative number of participants of all datasets combined.
+        ><br />The cumulative number of participants of all datasets combined.
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="colorize">
@@ -90,7 +90,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           }}
           Samples</b
         >
-        <br />The cummulative number of participants with samples collected of
+        <br />The cumulative number of participants with samples collected of
         all datasets combined.
       </LandingCardSecondary>
 
