@@ -39,8 +39,6 @@ pipeline {
                     }
                 }
                 container("java") {
-                    sh 'apt update'
-                    sh 'apt -y install docker.io'
                     sh "git config --global --add safe.directory '*'"
                     sh 'git fetch --depth 100000'
                     sh "git config user.email \"molgenis@gmail.com\""
@@ -72,7 +70,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release ci \
+                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
