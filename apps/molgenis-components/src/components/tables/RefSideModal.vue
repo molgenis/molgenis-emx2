@@ -25,6 +25,7 @@ import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
 import { getPrimaryKey } from "../utils";
 import SideModal from "./SideModal.vue";
+import RefTable from "./RefTable.vue";
 
 const props = withDefaults(
   defineProps<{
