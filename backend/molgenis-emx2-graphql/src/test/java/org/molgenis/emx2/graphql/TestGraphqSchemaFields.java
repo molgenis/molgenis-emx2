@@ -337,6 +337,16 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals("ant", result.at("/Pet_groupBy/2/category/name").textValue());
     TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
 
+    // also works on refback
+    result = execute("{Pet_groupBy {count,orders{orderId}}}");
+    // 6 pets without order
+    TestCase.assertEquals(6, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertNull(null, result.at("/Pet_groupBy/0/orders").textValue());
+
+    // ordderId=1 has one pet
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    TestCase.assertEquals("1", result.at("/Pet_groupBy/1/orders/orderId").textValue());
+
     // N.B. in case arrays are involved total might more than count!!!
   }
 
