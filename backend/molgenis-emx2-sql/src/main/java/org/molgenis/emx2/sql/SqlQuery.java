@@ -670,11 +670,29 @@ public class SqlQuery extends QueryBean {
         Column c = isValidColumn(table, field.getColumn());
         List<Field> subselectFields = new ArrayList<>();
         // need pkey to allow for joining of the subqueries
-        subselectFields.addAll(
-            table.getPrimaryKeyFields().stream()
-                .map(f -> f.as(name("pkey_" + f.getName())))
-                .collect(Collectors.toList()));
-        selectFields.add(c.getJooqField());
+        table
+            .getPrimaryKeyColumns()
+            .forEach(
+                pkey -> {
+                  if (pkey.isReference()) {
+                    // in case of reference as, use reference element to cover composite keys if
+                    // applicable
+                    pkey.getReferences()
+                        .forEach(
+                            pkeyRef -> {
+                              subselectFields.add(
+                                  field(name("pkey_" + convertToCamelCase(pkeyRef.getName()))));
+                            });
+                  } else {
+                    subselectFields.add(
+                        pkey.getJooqField().as(name("pkey_" + pkey.getIdentifier())));
+                  }
+                });
+        if (c.isReference() && c.getReferences().size() > 1) {
+          selectFields.add(field(c.getIdentifier()));
+        } else {
+          selectFields.add(c.getJooqField().as(c.getIdentifier()));
+        }
         // in case of 'ref' we subselect
         if (c.isRef()) {
           subselectFields.add(
@@ -688,7 +706,7 @@ public class SqlQuery extends QueryBean {
                   .as(name(field.getColumn())));
         }
         // in case of ref_array we must unnest the values
-        else if (c.isRefArray()) {
+        else if (c.isRefArray() || c.isRefback()) {
           subselectFields.add(
               // coalesce to also return the nulls
               field(
