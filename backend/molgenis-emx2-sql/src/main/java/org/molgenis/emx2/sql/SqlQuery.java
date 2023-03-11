@@ -674,7 +674,7 @@ public class SqlQuery extends QueryBean {
             table.getPrimaryKeyFields().stream()
                 .map(f -> f.as(name("pkey_" + f.getName())))
                 .collect(Collectors.toList()));
-        selectFields.add(c.getJooqField());
+        selectFields.add(c.getJooqField().as(c.getIdentifier()));
         // in case of 'ref' we subselect
         if (c.isRef()) {
           subselectFields.add(
