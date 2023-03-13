@@ -16,13 +16,6 @@ watch(cohort, setData, {
   immediate: true,
 });
 
-function toSortedString(input: ISortableNameObject[]) {
-  return input
-    .sort((a, b) => a.order - b.order)
-    .map((c) => c.name)
-    .join(", ");
-}
-
 function setData() {
   generalDesign = [
     {
@@ -64,7 +57,7 @@ function setData() {
     {
       label: "Population",
       content: cohort?.countries
-        ? toSortedString([...cohort?.countries])
+        ? [...cohort?.countries].map((country) => country.name).join(", ")
         : undefined,
     },
     {
@@ -81,7 +74,9 @@ function setData() {
     },
     {
       label: "Age group at inclusion",
-      content: toSortedString([...cohort?.populationAgeGroups]),
+      content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
+        .map((ageGroup) => ageGroup.name)
+        .join(", "),
     },
     {
       label: "Inclusion criteria",

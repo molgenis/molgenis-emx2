@@ -145,7 +145,9 @@ if (subcohort?.comorbidity?.length) {
         >
           <ul class="grid gap-1 pl-4 list-disc list-outside">
             <li
-              v-for="ageGroup in subcohort.ageGroups.sort((a: ISortableNameObject, b: ISortableNameObject) => a.order - b.order)"
+              v-for="ageGroup in removeChildIfParentSelected(
+                subcohort.ageGroups || []
+              )"
               :key="ageGroup.name"
             >
               {{ ageGroup.name }}

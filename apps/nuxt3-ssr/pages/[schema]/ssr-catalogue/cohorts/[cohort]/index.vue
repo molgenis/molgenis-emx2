@@ -28,14 +28,13 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups {
-        name, order
+      populationAgeGroups(orderby: {order: ASC}) {
+        name code parent { code }
       }
       startYear
       endYear
-      countries {
+      countries(orderby: {order: ASC}) {
         name
-        order
       }
       regions {
         name

@@ -10,7 +10,7 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: ISortableNameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
@@ -89,12 +89,6 @@ interface IContact {
 interface INameObject {
   name: string;
 }
-
-interface ISortable {
-  order: number;
-}
-
-interface ISortableNameObject extends INameObject, ISortable {}
 
 interface IUrlObject {
   url: string;

@@ -90,7 +90,10 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
 if (collectionEvent?.ageGroups?.length) {
   items.push({
     label: "Age categories",
-    content: renderList(collectionEvent?.ageGroups, toName),
+    content: renderList(
+      removeChildIfParentSelected(collectionEvent.ageGroups),
+      toName
+    ),
   });
 }
 

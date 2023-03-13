@@ -149,7 +149,9 @@ if (collectionEvent?.coreVariables?.length) {
         >
           <ul class="grid gap-1 pl-4 list-disc list-outside">
             <li
-              v-for="ageGroup in collectionEvent.ageGroups.sort((a: ISortableNameObject, b: ISortableNameObject) => a.order - b.order)"
+              v-for="ageGroup in removeChildIfParentSelected(
+                collectionEvent.ageGroups || []
+              )"
               :key="ageGroup.name"
             >
               {{ ageGroup.name }}
