@@ -150,6 +150,13 @@ class QueryEMX2 {
       }));
   }
 
+  matchAll (column, table = 'root') {
+    this.type = "_matchAll"
+    this.branch = table
+    this.column = this._toCamelCase(column);
+    return this;
+  }
+
   /**
    * If you want to create a nested query, for example { collections: { name: { like: 'lifelines' } } }
    * then column = 'collections', subcolumn = 'name'
@@ -385,7 +392,6 @@ ${root}${rootModifier} {\n`;
   }
 
   _foldFilters (filters, nextProperty, type, depth = 0) {
-
     let filterCount = 0
     let filterString = ''
     const filterLayer = filters[nextProperty]
@@ -447,8 +453,19 @@ ${root}${rootModifier} {\n`;
     if (!filters) return ''
 
     let andFilters = this._foldFilters(filters._and, property, "_and")
+    let matchAllFilters = this._foldFilters(filters._matchAll, property, "_and")
     let orFilters = this._foldFilters(filters._or, property, "_or")
+
     let filterString = andFilters
+
+    if (matchAllFilters.length > 0) {
+      if (filterString.length) {
+        filterString = `${filterString.substring(0, filterString.length - 2)}, ${matchAllFilters} }`
+      }
+      else {
+        filterString = matchAllFilters
+      }
+    }
 
     if (filterString.length > 0 && orFilters.length > 0) {
       filterString += `, ${orFilters}`
@@ -496,12 +513,12 @@ ${root}${rootModifier} {\n`;
 
   _createFilterFromPath (path, operator, value) {
 
-    const pathParts = path.split('.')
-
     /** the last part is the actual attribute. */
+    const pathParts = path.split('.')
 
     const filter = `${operator}: ${value}`
     const queryType = !this.type ? "_and" : this.type
+
     const applyQueryTo = this.branch
     if (!this.filters[this.branch][queryType][applyQueryTo]) {
       /** or needs to be individual statements, the and needs to be folded into one
@@ -509,14 +526,29 @@ ${root}${rootModifier} {\n`;
        * Vs
        * _and: {collections: {name: {...}, acronym: {....}}}
        */
-      this.filters[this.branch][queryType][applyQueryTo] = queryType === "_or" ? [] : {}
+      this.filters[this.branch][queryType][applyQueryTo] = queryType === "_and" ? {} : []
     }
 
-    // TODO we have to check if there is already a filter in this slot! Else it will be overridden.
     let filterRef = this.filters[this.branch][queryType][applyQueryTo]
 
+    /** split the parts, so we can combine them later */
+    if (queryType === "_and") {
+      const pathDepth = pathParts.length
+
+      for (let depth = 0; depth < pathDepth; depth++) {
+        const filterPath = pathParts[depth];
+
+        if (!filterRef[filterPath]) {
+          filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
+          filterRef = filterRef[filterPath]
+        }
+        else {
+          filterRef = filterRef[filterPath]
+        }
+      }
+    }
     /** make the query directly */
-    if (queryType === "_or") {
+    else {
       const reversePath = pathParts.reverse()
       let filterStringPlaceholder = ''
       for (const trail of reversePath) {
@@ -534,22 +566,6 @@ ${root}${rootModifier} {\n`;
       /** add it to the filter stack */
       filterRef.push(filterStringPlaceholder)
     }
-    /** split the parts, so we can combine them later */
-    else {
-      const pathDepth = pathParts.length
-
-      for (let depth = 0; depth < pathDepth; depth++) {
-        const filterPath = pathParts[depth];
-
-        if (!filterRef[filterPath]) {
-          filterRef[filterPath] = depth === pathDepth - 1 ? filter : {}
-          filterRef = filterRef[filterPath]
-        }
-        else {
-          filterRef = filterRef[filterPath]
-        }
-      }
-    }
   }
 
   /** Private function to create the correct filter syntax. */
@@ -560,7 +576,8 @@ ${root}${rootModifier} {\n`;
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {
         _and: {},
-        _or: {}
+        _or: {},
+        _matchAll: {}
       }
     }
 

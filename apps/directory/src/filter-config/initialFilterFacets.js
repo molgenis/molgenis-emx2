@@ -32,7 +32,7 @@ export const initialFilterFacets = [
     filterValueAttribute: 'name',
     filterLabelAttribute: 'label',
     removeOptions: ['other'],
-    showMatchTypeSelector: true,
+    showMatchTypeSelector: false,
     negotiatorRequestString: 'Collection type(s):',
     adaptive: false, // todo: set to true
     sortColumn: 'label',
@@ -47,24 +47,29 @@ export const initialFilterFacets = [
     filterValueAttribute: 'name',
     filterLabelAttribute: 'label',
     removeOptions: ['other'],
-    showMatchTypeSelector: true,
+    showMatchTypeSelector: false,
     negotiatorRequestString: 'Categories:',
     adaptive: false, // todo: set to true
     sortColumn: 'label',
     sortDirection: 'asc',
     showFacet: true
   },
-
-  // {
-  //   name: 'materials',
-  //   label: 'Material type',
-  //   tableName: 'eu_bbmri_eric_material_types',
-  //   columnName: 'materials',
-  //   humanReadableString: 'Material type(s):',
-  //   removeOptions: ['other'],
-  //   showFacet: true,
-  //   adaptive: true
-  // },
+  {
+    facetTitle: 'Material type',
+    component: 'CheckboxFilter',
+    sourceTable: 'MaterialTypes',
+    applyToColumn: 'collections.materials.name',
+    filterValueAttribute: 'name',
+    filterLabelAttribute: 'label',
+    removeOptions: ['other'],
+    showMatchTypeSelector: false,
+    negotiatorRequestString: 'Material type(s):',
+    adaptive: false, // todo: set to true
+    sortColumn: 'label',
+    sortDirection: 'asc',
+    showFacet: true
+  },
+  /** custom one */
   // {
   //   name: 'commercial_use',
   //   label: 'Collaboration type',
@@ -72,15 +77,19 @@ export const initialFilterFacets = [
   //   humanReadableString: 'Biobank collaboration type(s):',
   //   showFacet: true
   // },
-  // {
-  //   name: 'biobank_capabilities',
-  //   label: 'Biobank services',
-  //   tableName: 'eu_bbmri_eric_capabilities',
-  //   columnName: 'capabilities',
-  //   humanReadableString: 'Biobank services:',
-  //   applyTo: ['eu_bbmri_eric_biobanks'],
-  //   showFacet: false
-  // },
+
+  {
+    facetTitle: 'Biobank services',
+    component: 'CheckboxFilter',
+    sourceTable: 'Capabilities',
+    applyToColumn: 'capabilities.name',
+    filterValueAttribute: 'name',
+    filterLabelAttribute: 'label',
+    negotiatorRequestString: 'Biobank services:',
+    sortColumn: 'label',
+    sortDirection: 'asc',
+    showFacet: true
+  },
   // {
   //   name: 'combined_quality',
   //   label: 'Quality labels',

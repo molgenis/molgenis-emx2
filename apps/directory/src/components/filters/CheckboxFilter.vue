@@ -2,11 +2,11 @@
   <div>
     <MatchTypeRadiobutton
       v-if="showMatchTypeSelector"
-      class="p-2"
+      class="p-2 pb-0"
       :matchTypeForFilter="facetIdentifier"
     />
 
-    <div class="d-flex flex-column scrollable-content">
+    <div class="d-flex flex-column scrollable-content pt-2">
       <CheckboxComponent
         v-for="(option, index) of checkboxOptions"
         :key="index"

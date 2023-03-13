@@ -63,7 +63,6 @@ export const useBiobanksStore = defineStore('biobanksStore', () => {
         return collections.filter(c => c.subcollections).flatMap(collection => collection.subcollections).length
     })
 
-
     return {
         updateBiobankCards,
         getBiobankCards,

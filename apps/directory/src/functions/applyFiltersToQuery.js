@@ -38,18 +38,20 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
             }
             case "CheckboxFilter": {
                 const values = filterValue.map(fv => fv.value)
+                console.log(filterType)
 
-                if (filterType[filterKey] === 'all') {
-                    baseQuery.where(filterDetail.applyToColumn).like(values)
-                    baseQuery.filter(filterDetail.applyToColumn).like(values)
-                    baseQuery.subfilter(filterDetail.applyToColumn).like(values)
-
-                }
-                else {
-                    baseQuery.orWhere(filterDetail.applyToColumn).like(values)
-                    baseQuery.filter(filterDetail.applyToColumn).like(values)
-                    baseQuery.subfilter(filterDetail.applyToColumn).like(values)
-                }
+                // if (filterType[filterKey] === 'all') {
+                //     for (const value of values) {
+                //         baseQuery.matchAll(filterDetail.applyToColumn, "collections").like(value)
+                //     }
+                //     baseQuery.filter(filterDetail.applyToColumn).like(values)
+                //     baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                // }
+                // else {
+                baseQuery.orWhere(filterDetail.applyToColumn).like(values)
+                baseQuery.filter(filterDetail.applyToColumn).like(values)
+                baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                // }
                 break
             }
         }
