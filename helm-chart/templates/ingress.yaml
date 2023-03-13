@@ -23,21 +23,21 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ $fullName }}
+            name: ssr-catalogue
             port:
               number: 3000
       - path: /_nuxt/
         pathType: Prefix
         backend:
           service:
-            name: {{ $fullName }}
+            name: ssr-catalogue
             port:
               number: 3000
       - path: /_nuxt-styles/
         pathType: Prefix
         backend:
           service:
-            name: {{ $fullName }}
+            name: ssr-catalogue
             port:
               number: 3000
       - path: {{ default "/" .path }}
