@@ -90,31 +90,43 @@ export const initialFilterFacets = [
     sortDirection: 'asc',
     showFacet: true
   },
-  // {
-  //   name: 'combined_quality',
-  //   label: 'Quality labels',
-  //   tableName: 'eu_bbmri_eric_assessment_levels',
-  //   columnName: 'combined_quality',
-  //   humanReadableString: 'Quality label(s):',
-  //   showFacet: false
-  // },
-  // {
-  //   name: 'network',
-  //   label: 'Network',
-  //   tableName: 'eu_bbmri_eric_networks',
-  //   columnName: 'combined_network',
-  //   humanReadableString: 'Network(s):',
-  //   showFacet: false
-  // },
-  // {
-  //   name: 'dataType',
-  //   label: 'Data type',
-  //   tableName: 'eu_bbmri_eric_data_types',
-  //   columnName: 'data_categories',
-  //   humanReadableString: 'Data type(s):',
-  //   removeOptions: ['other'],
-  //   showFacet: false
-  // },
+  {
+    facetTitle: 'Quality labels',
+    component: 'CheckboxFilter',
+    sourceTable: 'AssessmentLevels',
+    applyToColumn: 'collections.combinedQualityInfo.name',
+    filterValueAttribute: 'name',
+    filterLabelAttribute: 'label',
+    negotiatorRequestString: 'Quality label(s):',
+    sortColumn: 'label',
+    sortDirection: 'asc',
+    showFacet: true
+  },
+  {
+    facetTitle: 'Network',
+    component: 'CheckboxFilter',
+    sourceTable: 'Networks',
+    applyToColumn: 'collections.combinedNetwork.id',
+    filterValueAttribute: 'id',
+    filterLabelAttribute: 'name',
+    negotiatorRequestString: 'Network(s):',
+    sortColumn: 'name',
+    sortDirection: 'asc',
+    showFacet: true
+  },
+  {
+    facetTitle: 'Data category',
+    component: 'CheckboxFilter',
+    sourceTable: 'DataCategories',
+    applyToColumn: 'collections.dataCategories.name',
+    filterValueAttribute: 'name',
+    filterLabelAttribute: 'label',
+    removeOptions: ['other'],
+    negotiatorRequestString: 'Data type(s):',
+    sortColumn: 'name',
+    sortDirection: 'asc',
+    showFacet: true
+  },
   {
     facetTitle: 'search',
     component: "StringFilter",
