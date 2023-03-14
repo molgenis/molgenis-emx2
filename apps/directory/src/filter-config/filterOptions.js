@@ -23,6 +23,21 @@ function removeOptions (filterOptions, filterFacet) {
   return filterOptions.filter(filterOption => !optionsToRemove.includes(filterOption.text.toLowerCase()))
 }
 
+export const customFilterOptions = (filterFacet) => {
+  const { applyToColumn, customOptions } = filterFacet
+  return () => new Promise((resolve) => {
+    const cachedOptions = retrieveFromCache(applyToColumn)
+
+    if (!cachedOptions.length) {
+      cache(applyToColumn, customOptions)
+      resolve(customOptions)
+    }
+    else {
+       resolve(customOptions)
+    }
+  });
+}
+
 export const genericFilterOptions = (filterFacet) => {
   const { sourceTable, applyToColumn, filterLabelAttribute, filterValueAttribute, sortColumn, sortDirection } = filterFacet
 
@@ -38,7 +53,6 @@ export const genericFilterOptions = (filterFacet) => {
         .then(response => {
 
           let filterOptions = response[sourceTable].map((row) => { return { text: row[filterLabelAttribute], value: row[filterValueAttribute] } })
-
           /**  remove unwanted options if applicable */
           filterOptions = removeOptions(filterOptions, filterFacet)
 

@@ -69,14 +69,15 @@ export const initialFilterFacets = [
     sortDirection: 'asc',
     showFacet: true
   },
-  /** custom one */
-  // {
-  //   name: 'commercial_use',
-  //   label: 'Collaboration type',
-  //   columnName: 'collaboration_commercial',
-  //   humanReadableString: 'Biobank collaboration type(s):',
-  //   showFacet: true
-  // },
+  {
+    facetTitle: 'Collaboration type',
+    component: 'CheckboxFilter',
+    applyToColumn: 'collections.availableForCommercialUse',
+    showMatchTypeSelector: false,
+    customOptions: [{ text:  'Commercial use', value: true }, { text: 'Non-commercial use only', value: false }],
+    negotiatorRequestString: 'Biobank collaboration type(s):',
+    showFacet: true
+  },
 
   {
     facetTitle: 'Biobank services',

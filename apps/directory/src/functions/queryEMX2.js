@@ -165,7 +165,7 @@ class QueryEMX2 {
    * @returns
    */
   where (column) {
-    this.type = "_and"
+    this.type = "_and";
     this.branch = "root";
     /** always convert to lowercase, else api will error */
     this.column = this._toCamelCase(column);
@@ -174,8 +174,8 @@ class QueryEMX2 {
 
   orWhere (column) {
     /** need to know if we have the array syntax or just object */
-    this.orCount = this.orCount + 1
-    this.type = "_or"
+    this.orCount = this.orCount + 1;
+    this.type = "_or";
     this.branch = "root";
     /** always convert to lowercase, else api will error */
     this.column = this._toCamelCase(column);
@@ -189,8 +189,8 @@ class QueryEMX2 {
    * @returns
    */
   filter (column) {
-    this.type = "_and"
-    const firstDot = column.indexOf(".")
+    this.type = "_and";
+    const firstDot = column.indexOf(".");
     this.branch = this._toCamelCase(column.substring(0, firstDot));
     this.column = this._toCamelCase(column.substring(firstDot + 1));
 
@@ -204,13 +204,20 @@ class QueryEMX2 {
    * @returns
    */
   subfilter (column) {
-    const firstDot = column.indexOf(".")
-    const subcolumn = column.substring(firstDot + 1)
-    let secondDot = subcolumn.indexOf(".")
-
+    const firstDot = column.indexOf(".");
+    const subcolumn = column.substring(firstDot + 1);
+    let secondDot = subcolumn.indexOf(".");
     this.type = "_or"
-    this.branch = this._toCamelCase(subcolumn.substring(0, secondDot));
-    this.column = this._toCamelCase(subcolumn.substring(secondDot + 1));
+
+    if (secondDot > 0) {
+      this.branch = this._toCamelCase(subcolumn.substring(0, secondDot));
+      this.column = this._toCamelCase(subcolumn.substring(secondDot + 1));
+    }
+    else {
+      const queryParts = column.split('.');
+      this.branch = this._toCamelCase(queryParts[0]);
+      this.column = this._toCamelCase(queryParts[1]);
+    }
 
     return this;
   }
@@ -571,7 +578,14 @@ ${root}${rootModifier} {\n`;
   /** Private function to create the correct filter syntax. */
   _createFilter (operator, value) {
 
-    const graphQLValue = Array.isArray(value) ? `["${value.join('", "')}"]` : `"${value}"`
+    let graphQLValue = ''
+
+    if (Array.isArray(value)) {
+      graphQLValue = `["${value.join('", "')}"]`
+    }
+    else {
+      graphQLValue = typeof value === "boolean" ? `${value}` :`"${value}"`
+    }
 
     if (!this.filters[this.branch]) {
       this.filters[this.branch] = {

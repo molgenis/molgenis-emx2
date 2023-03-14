@@ -38,7 +38,6 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
             }
             case "CheckboxFilter": {
                 const values = filterValue.map(fv => fv.value)
-                console.log(filterType)
 
                 // if (filterType[filterKey] === 'all') {
                 //     for (const value of values) {
@@ -48,9 +47,21 @@ export async function applyFiltersToQuery (baseQuery, filters, facetDetails, fil
                 //     baseQuery.subfilter(filterDetail.applyToColumn).like(values)
                 // }
                 // else {
-                baseQuery.orWhere(filterDetail.applyToColumn).like(values)
-                baseQuery.filter(filterDetail.applyToColumn).like(values)
-                baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+
+                console.log(filterType)
+
+                if (typeof values[0] === "boolean") {
+                    for (const value of values) {
+                        baseQuery.orWhere(filterDetail.applyToColumn).equals(value)
+                        baseQuery.filter(filterDetail.applyToColumn).equals(value)
+                    }
+                }
+                else {
+                    baseQuery.orWhere(filterDetail.applyToColumn).like(values)
+                    baseQuery.filter(filterDetail.applyToColumn).like(values)
+                    baseQuery.subfilter(filterDetail.applyToColumn).like(values)
+                }
+
                 // }
                 break
             }

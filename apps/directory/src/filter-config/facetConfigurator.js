@@ -1,4 +1,4 @@
-import { genericFilterOptions } from './filterOptions'
+import { customFilterOptions, genericFilterOptions } from './filterOptions'
 import { useSettingsStore } from "../stores/settingsStore"
 
 export const filterTemplate = {
@@ -9,6 +9,7 @@ export const filterTemplate = {
   filterValueAttribute: 'id',
   filterLabelAttribute: 'name',
   removeOptions: [],
+  customOptions: [], /** an array with objects that substitute calling the database for options, { text: labelToShow, value: valueToFilterOn } */
   showMatchTypeSelector: true,
   negotiatorRequestString: 'New Filter:',
   adaptive: false,
@@ -44,10 +45,15 @@ export function createFilters (filters) {
         sortDirection: 'asc' /** the direction to sort */
       })
   }
-
   return filterFacets
 }
 
 function getFilterOptions (filterFacet) {
-  return genericFilterOptions(filterFacet)
+
+  if (filterFacet.customOptions && filterFacet.customOptions.length > 0) {
+    return customFilterOptions(filterFacet)
+  }
+  else {
+    return genericFilterOptions(filterFacet)
+  }
 }
