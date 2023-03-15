@@ -19,7 +19,7 @@
 .mg-tooltip {
   opacity: 0;
   visibility: hidden;
-  transition: 0.3s
+  transition: 0.3s;
 }
 
 .mg-tooltip .mg-tooltiptext {
@@ -39,7 +39,7 @@
 .mg-tooltip-container:hover > .mg-tooltip {
   visibility: visible;
   opacity: 0.9;
-  transition: 0.4s
+  transition: 0.4s;
 }
 </style>
 

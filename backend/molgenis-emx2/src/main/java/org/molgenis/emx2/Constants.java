@@ -13,12 +13,14 @@ public class Constants {
   public static final String REF_TABLE_NAME = "refTable";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
+  public static final String REF_LABEL_DEFAULT = "refLabelDefault";
   public static final String REF_BACK = "refBack";
   public static final String CASCADE_DELETE = "cascadeDelete";
   public static final String TABLE = "table";
   public static final String COLUMN = "column";
   public static final String FORM = "form";
   public static final String READONLY = "readonly";
+  public static final String COMPUTED = "computed";
   public static final String VISIBLE_EXPRESSION = "visible";
   public static final String DESCRIPTION = "description";
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
@@ -62,6 +64,8 @@ public class Constants {
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
   public static final String ANONYMOUS = "anonymous";
+  public static final String LOCALES = "locales";
+  public static final String LOCALES_DEFAULT = "[\"en\"]";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
   protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};

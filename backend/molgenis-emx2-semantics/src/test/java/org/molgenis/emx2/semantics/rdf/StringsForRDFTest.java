@@ -12,14 +12,18 @@ public class StringsForRDFTest {
   static final String TTL_TABLE_CATEGORY_2 = "emx1:Category a owl:Class";
   static final String TTL_TABLE_PET_1 = "emx0:Pet a owl:Class";
   static final String TTL_TABLE_PET_2 = "emx1:Pet a owl:Class";
-  static final String TTL_COL_CATEGORY_1 =
+  static final String TTL_COL_CATEGORY_NAME_1 =
       "<http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> a sio:SIO_000757";
-  static final String TTL_COL_CATEGORY_2 =
+  static final String TTL_COL_CATEGORY_NAME_2 =
       "<http://localhost:8080/petStoreNr2/api/rdf/Category/column/name> a sio:SIO_000757";
-  static final String TTL_COL_PET_1 =
+  static final String TTL_COL_PET_NAME_1 =
       "<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> a sio:SIO_000757";
-  static final String TTL_COL_PET_2 =
+  static final String TTL_COL_PET_NAME_2 =
       "<http://localhost:8080/petStoreNr2/api/rdf/Pet/column/name> a sio:SIO_000757";
+  static final String TTL_COL_PET_DETAILS_1 =
+      "<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/details> a sio:SIO_000757";
+  static final String TTL_COL_PET_DETAILS_2 =
+      "<http://localhost:8080/petStoreNr2/api/rdf/Pet/column/details> a sio:SIO_000757";
   static final String TTL_ROW_POOKY_1 =
       "<http://localhost:8080/petStoreNr1/api/rdf/Pet/pooky> a emx0:Pet";
   static final String TTL_ROW_SPIKE_1 =

@@ -36,7 +36,7 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
     try {
       Writer writer = Files.newBufferedWriter(relativePath);
       if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, writer, separator);
+        CsvTableWriter.write(rows, columnNames, writer, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));

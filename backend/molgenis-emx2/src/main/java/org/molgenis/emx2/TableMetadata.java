@@ -11,7 +11,8 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
-public class TableMetadata extends HasSettings<TableMetadata> implements Comparable {
+public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadata>
+    implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
       ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
@@ -21,8 +22,6 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
   protected boolean drop = false;
   // for refenence to another schema (rare use)
   protected String importSchema = null;
-  // description of the table (optional)
-  protected String description = null;
   // columns of the table (required)
   protected Map<String, Column> columns = new LinkedHashMap<>();
   // link to the schema this table is part of (optional)
@@ -94,7 +93,8 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
     if (this != metadata) {
       clearCache();
       this.tableName = metadata.getTableName();
-      this.description = metadata.getDescription();
+      this.labels = metadata.getLabels();
+      this.descriptions = metadata.getDescriptions();
       this.oldName = metadata.getOldName();
       this.setSettingsWithoutReload(metadata.getSettings());
       for (Column c : metadata.columns.values()) {
@@ -190,7 +190,7 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
   public List<Column> getDownloadColumnNames() {
     return getExpandedColumns(
         getColumns().stream()
-            .filter(c -> !c.isRefback())
+            .filter(c -> !c.isRefback() && !c.isHeading())
             .map(c2 -> c2.isFile() ? column(c2.getName()) : c2)
             .collect(Collectors.toList()));
   }
@@ -219,7 +219,8 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
-            result.put(ref.getName(), ref.toPrimitiveColumn());
+            // use old name to find original column
+            result.put(ref.getName(), ref.toPrimitiveColumn().setOldName(c.getName()));
           }
         }
       } else {
@@ -382,15 +383,6 @@ public class TableMetadata extends HasSettings<TableMetadata> implements Compara
       }
     }
     return null;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public TableMetadata setDescription(String description) {
-    this.description = description;
-    return this;
   }
 
   public void enableRowLevelSecurity() {

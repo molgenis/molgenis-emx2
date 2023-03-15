@@ -34,8 +34,10 @@ public class TableToRDF {
           tableContext, RDFS.ISDEFINEDBY, iri("http://semanticscience.org/resource/SIO_001055"));
     }
     builder.add(tableContext, RDFS.LABEL, table.getName());
-    if (table.getMetadata().getDescription() != null) {
-      builder.add(tableContext, DCTERMS.DESCRIPTION, table.getMetadata().getDescription());
+    if (table.getMetadata().getDescriptions() != null
+        && table.getMetadata().getDescriptions().get("en") != null) {
+      builder.add(
+          tableContext, DCTERMS.DESCRIPTION, table.getMetadata().getDescriptions().get("en"));
     }
     if (table.getMetadata().getTableType() == TableType.DATA) {
       // NCIT:C25474 = Data

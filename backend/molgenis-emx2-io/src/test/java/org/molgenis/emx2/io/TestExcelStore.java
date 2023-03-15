@@ -29,8 +29,8 @@ public class TestExcelStore {
 
     Path excelFile = tmp.resolve("test.xlsx");
     TableStoreForXlsxFile store = new TableStoreForXlsxFile(excelFile);
-    store.writeTable("test", List.of(), rows);
-    store.writeTable("test2", List.of(), rows);
+    store.writeTable("test", List.of("id", "name"), rows);
+    store.writeTable("test2", List.of("id", "name"), rows);
 
     // and read
     store = new TableStoreForXlsxFile(excelFile);

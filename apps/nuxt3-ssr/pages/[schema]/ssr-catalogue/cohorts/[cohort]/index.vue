@@ -4,6 +4,7 @@ import { Ref } from "vue";
 import subcohortsQuery from "~~/gql/subcohorts";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import ontologyFragment from "~~/gql/fragments/ontology";
+import fileFragment from "~~/gql/fragments/file";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -41,6 +42,7 @@ const query = gql`
       numberOfParticipants
       numberOfParticipantsWithSamples
       designDescription
+      designSchematic ${loadGql(fileFragment)}
       design {
         definition
         name
@@ -53,11 +55,11 @@ const query = gql`
       partners {
         institution {
           pid
+          acronym
           name
+          website
           description
-          logo {
-            url
-          }
+          logo ${loadGql(fileFragment)}
         }
       }
       networks {
@@ -65,12 +67,7 @@ const query = gql`
         name
         description
         website
-        logo {
-          id
-          url
-          size
-          extension
-        }
+        logo ${loadGql(fileFragment)}
       }
       collectionEvents {
         name
@@ -124,12 +121,13 @@ const query = gql`
       }
       dataAccessFee
       releaseDescription
-      documentation {
+      fundingStatement
+      acknowledgements
+      documentation { 
         name
-        file {
-          url
-        }
+        description
         url
+        file ${loadGql(fileFragment)}
       }
     }
   }
@@ -138,14 +136,16 @@ const variables = { pid: route.params.cohort };
 
 let cohort: ICohort;
 
-const { data: cohortData, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/catalogue/graphql`,
-  {
-    baseURL: config.public.apiBase,
-    method: "POST",
-    body: { query, variables },
-  }
-);
+const {
+  data: cohortData,
+  pending,
+  error,
+  refresh,
+} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
+  baseURL: config.public.apiBase,
+  method: "POST",
+  body: { query, variables },
+});
 
 watch(cohortData, setData, {
   deep: true,
@@ -157,9 +157,7 @@ function setData(data: any) {
 }
 
 fetchGql(collectionEventsQuery, { pid: route.params.cohort })
-  .then((resp) =>
-    onCollectionEventsLoaded(resp.data.CollectionEvents)
-  )
+  .then((resp) => onCollectionEventsLoaded(resp.data.CollectionEvents))
   .catch((e) => console.log(e));
 
 let collectionEvents: Ref = ref([]);
@@ -195,28 +193,11 @@ function onSubcohortsLoaded(rows: any) {
     return;
   }
 
-  const topLevelAgeGroup = (ageGroup: { parent: any }): any => {
-    if (!ageGroup.parent) {
-      return ageGroup;
-    }
-    return topLevelAgeGroup(ageGroup.parent);
-  };
-
   const mapped = rows.map((subcohort: any) => {
     return {
       name: subcohort.name,
       description: subcohort.description,
       numberOfParticipants: subcohort.numberOfParticipants,
-      ageGroups: !subcohort.ageGroups ? undefined : subcohort?.ageGroups
-        .map(topLevelAgeGroup)
-        .reduce((ageGroups: any[], ageGroup: { name: string }) => {
-          if (!ageGroups.find((ag) => ageGroup.name === ag.name)) {
-            ageGroups.push(ageGroup);
-          }
-          return ageGroups;
-        }, [])
-        .map((ag: { name: string }) => ag.name)
-        .join(","),
       _renderComponent: "SubCohortDisplay",
       _path: `/${route.params.schema}/ssr-catalogue/cohorts/${route.params.cohort}/subcohorts/${subcohort.name}`,
     };
@@ -226,31 +207,93 @@ function onSubcohortsLoaded(rows: any) {
 }
 
 let tocItems = computed(() => {
-  let items = [
+  let tableOffContents = [
     { label: "Description", id: "Description" },
     { label: "General design", id: "GeneralDesign" },
   ];
+  if (cohort?.documentation) {
+    tableOffContents.push({ label: "Attached files", id: "Files" });
+  }
   if (cohort?.contributors) {
-    items.push({ label: "Contact & contributors", id: "Contributors" });
+    tableOffContents.push({
+      label: "Contact & contributors",
+      id: "Contributors",
+    });
   }
   if (cohort?.collectionEvents) {
-    items.push({ label: "Available data & samples", id: "AvailableData" });
+    tableOffContents.push({
+      label: "Available data & samples",
+      id: "AvailableData",
+    });
   }
   // { label: 'Variables & topics', id: 'Variables' },
   if (subcohorts?.value?.length) {
-    items.push({ label: "Subpopulations", id: "Subpopulations" });
+    tableOffContents.push({ label: "Subpopulations", id: "Subpopulations" });
   }
   if (collectionEvents?.value?.length)
-    items.push({ label: "Collection events", id: "CollectionEvents" });
+    tableOffContents.push({
+      label: "Collection events",
+      id: "CollectionEvents",
+    });
   if (cohort?.networks) {
-    items.push({ label: "Networks", id: "Networks" });
+    tableOffContents.push({ label: "Networks", id: "Networks" });
   }
   if (cohort?.partners) {
-    items.push({ label: "Partners", id: "Partners" });
+    tableOffContents.push({ label: "Partners", id: "Partners" });
   }
 
-  if (cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription) {
-    items.push({ label: "Access Conditions", id: "access-conditions" });
+  if (
+    cohort?.dataAccessConditions?.length ||
+    cohort?.dataAccessConditionsDescription ||
+    cohort?.releaseDescription
+  ) {
+    tableOffContents.push({
+      label: "Access Conditions",
+      id: "access-conditions",
+    });
+  }
+
+  if (cohort?.fundingStatement || cohort?.acknowledgements) {
+    tableOffContents.push({
+      label: "Funding & Citation requirements ",
+      id: "funding-and-acknowledgement",
+    });
+  }
+
+  return tableOffContents;
+});
+
+let accessConditionsItems = computed(() => {
+  let items = [];
+  if (cohort?.dataAccessConditions?.length) {
+    items.push({
+      label: "Conditions",
+      content: cohort.dataAccessConditions.map((c) => c.name),
+    });
+  }
+  if (cohort?.releaseDescription) {
+    items.push({
+      label: "Release",
+      content: cohort.releaseDescription,
+    });
+  }
+
+  return items;
+});
+
+let fundingAndAcknowledgementItems = computed(() => {
+  let items = [];
+  if (cohort?.fundingStatement) {
+    items.push({
+      label: "Funding",
+      content: cohort.fundingStatement,
+    });
+  }
+  if (cohort?.acknowledgements) {
+    items.push({
+      label: "Citation requirements ",
+      content: cohort.acknowledgements,
+    });
   }
 
   return items;
@@ -259,12 +302,17 @@ let tocItems = computed(() => {
 <template>
   <LayoutsDetailPage>
     <template #header>
-      <PageHeader :title="cohort?.acronym || cohort?.name" :description="cohort?.acronym ? cohort?.name : ''">
+      <PageHeader
+        :title="cohort?.acronym || cohort?.name"
+        :description="cohort?.acronym ? cohort?.name : ''"
+      >
         <template #prefix>
-          <BreadCrumbs :crumbs="{
-            // Home: `/${route.params.schema}/ssr-catalogue`,
-            Cohorts: `/${route.params.schema}/ssr-catalogue`,
-          }" />
+          <BreadCrumbs
+            :crumbs="{
+              Home: `/${route.params.schema}/ssr-catalogue`,
+              Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
+            }"
+          />
         </template>
         <!-- <template #title-suffix>
           <IconButton icon="star" label="Favorite" />
@@ -272,24 +320,44 @@ let tocItems = computed(() => {
       </PageHeader>
     </template>
     <template #side>
-      <SideNavigation :title="cohort.acronym" :image="cohort?.logo?.url" :items="tocItems" />
+      <SideNavigation
+        :title="cohort.acronym"
+        :image="cohort?.logo?.url"
+        :items="tocItems"
+      />
     </template>
     <template #main>
       <ContentBlocks v-if="cohort">
+        <ContentBlockIntro
+          :image="cohort?.logo?.url"
+          :link="cohort?.website"
+          :contact="`mailto:${cohort?.contactEmail}`"
+        />
+        <ContentBlockDescription
+          id="Description"
+          title="Description"
+          :description="cohort?.description"
+        />
 
-        <ContentBlockIntro :image="cohort?.logo?.url" :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`" />
-        <ContentBlockDescription id="Description" title="Description" :description="cohort?.description" />
-
-        <ContentBlockGeneralDesign id="GeneralDesign" title="General Design" :description="cohort?.designDescription"
-          :cohort="cohort" />
-        <!-- <ContentBlockAttachedFiles
+        <ContentBlockGeneralDesign
+          id="GeneralDesign"
+          title="General Design"
+          :description="cohort?.designDescription"
+          :cohort="cohort"
+        />
+        <ContentBlockAttachedFiles
+          v-if="cohort?.documentation?.length"
           id="Files"
-          title="Attached Files Generic Example"
-        /> -->
+          title="Attached Files"
+          :documents="cohort.documentation"
+        />
 
-        <ContentBlockContact v-if="cohort?.contributors" id="Contributors" title="Contact and Contributors"
-          :contributors="cohort?.contributors" />
+        <ContentBlockContact
+          v-if="cohort?.contributors"
+          id="Contributors"
+          title="Contact and Contributors"
+          :contributors="cohort?.contributors"
+        />
 
         <!-- <ContentBlockVariables
           id="Variables"
@@ -297,45 +365,76 @@ let tocItems = computed(() => {
           description="Explantation about variables and the functionality seen here."
         /> -->
 
-        <ContentBlockData id="AvailableData" title="Available Data &amp; Samples"
-          :collectionEvents="cohort?.collectionEvents" />
+        <ContentBlockData
+          id="AvailableData"
+          title="Available Data &amp; Samples"
+          :collectionEvents="cohort?.collectionEvents"
+        />
 
-        <TableContent v-if="subcohorts?.length" id="Subpopulations" title="Subpopulations"
-          description="List of subcohorts or subpopulations for this resource" :headers="[
+        <TableContent
+          v-if="subcohorts?.length"
+          id="Subpopulations"
+          title="Subpopulations"
+          description="List of subcohorts or subpopulations for this resource"
+          :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Number of participants' },
-            { id: 'ageGroups', label: 'Age categories' },
-          ]" :rows="subcohorts" />
+          ]"
+          :rows="subcohorts"
+        />
 
-        <TableContent v-if="collectionEvents?.length" id="CollectionEvents" title="Collection events"
-          description="List of collection events defined for this resource" :headers="[
+        <TableContent
+          v-if="collectionEvents?.length"
+          id="CollectionEvents"
+          title="Collection events"
+          description="List of collection events defined for this resource"
+          :headers="[
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
+            { id: 'description', label: 'Description', singleLine: true },
             { id: 'numberOfParticipants', label: 'Participants' },
             { id: 'startAndEndYear', label: 'Start end year' },
-          ]" :rows="collectionEvents" />
+          ]"
+          :rows="collectionEvents"
+        />
 
-        <ContentBlockPartners v-if="cohort?.partners" id="Partners" title="Partners" description=""
-          :partners="cohort?.partners" />
+        <ContentBlockPartners
+          v-if="cohort?.partners"
+          id="Partners"
+          title="Partners"
+          description=""
+          :partners="cohort?.partners"
+        />
 
-        <ContentBlockNetwork v-if="cohort?.networks" id="Networks" title="Networks"
+        <ContentBlockNetwork
+          v-if="cohort?.networks"
+          id="Networks"
+          title="Networks"
           description="Networks Explanation about networks from this cohort and the functionality seen here."
-          :networks="cohort?.networks" />
+          :networks="cohort?.networks"
+        />
 
-        <ContentBlock id="access-conditions" title="Access conditions"
+        <ContentBlock
+          id="access-conditions"
+          title="Access conditions"
           :description="cohort?.dataAccessConditionsDescription"
-          v-if="cohort?.dataAccessConditions?.length || cohort?.dataAccessConditionsDescription || cohort?.releaseDescription">
-          <DefinitionList :items="[{
-            label: 'Conditions',
-            content: cohort?.dataAccessConditions.map((c) => c.name)
-          }, {
-            label: 'Release',
-            content: cohort?.releaseDescription
-          }]" />
+          v-if="
+            cohort?.dataAccessConditions?.length ||
+            cohort?.dataAccessConditionsDescription ||
+            cohort?.releaseDescription
+          "
+        >
+          <DefinitionList :items="accessConditionsItems" />
         </ContentBlock>
 
-      </ContentBlocks>
-    </template>f
+        <ContentBlock
+          id="funding-and-acknowledgement"
+          title="Funding &amp; Citation requirements "
+          v-if="cohort?.fundingStatement || cohort?.acknowledgements"
+        >
+          <DefinitionList :items="fundingAndAcknowledgementItems" />
+        </ContentBlock>
+      </ContentBlocks> </template
+    >f
   </LayoutsDetailPage>
 </template>

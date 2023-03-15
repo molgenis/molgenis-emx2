@@ -369,19 +369,32 @@ public class TestGraphqSchemaFields {
 
     // add table
     execute(
-        "mutation{change(tables:[{name:\"blaat\",columns:[{name:\"col1\", key:1}]}]){message}}");
+        "mutation{change(tables:[{name:\"table1\",labels:[{locale:\"en\", value: \"table1\"}],descriptions:[{locale:\"en\", value: \"desc1\"}],columns:[{name:\"col1\", key:1, labels:[{locale:\"en\", value:\"column1\"}], descriptions:[{locale:\"en\", value:\"desc11\"}]}]}]){message}}");
 
-    JsonNode node = execute("{_schema{tables{name,columns{name,key}}}}");
+    JsonNode node =
+        execute(
+            "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,labels{locale,value},descriptions{locale,value}}}}}");
+    TestCase.assertEquals(1, node.at("/_schema/tables/0/columns/0/key").intValue());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
+    TestCase.assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/descriptions/0/locale").asText());
+    TestCase.assertEquals("desc1", node.at("/_schema/tables/5/descriptions/0/value").asText());
+
+    TestCase.assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
+    TestCase.assertEquals(
+        "column1", node.at("/_schema/tables/5/columns/0/labels/0/value").asText());
 
     TestCase.assertEquals(
-        1,
-        execute("{_schema{tables{name,columns{name,key}}}}")
-            .at("/_schema/tables/0/columns/0/key")
-            .intValue());
+        "en", node.at("/_schema/tables/5/columns/0/descriptions/0/locale").asText());
+    TestCase.assertEquals(
+        "desc11", node.at("/_schema/tables/5/columns/0/descriptions/0/value").asText());
+
     TestCase.assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 
     // drop
-    execute("mutation{drop(tables:\"blaat\"){message}}");
+    execute("mutation{drop(tables:\"table1\"){message}}");
     TestCase.assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
@@ -442,6 +455,19 @@ public class TestGraphqSchemaFields {
             .getMetadata()
             .getColumn("test2")
             .getVisible());
+    execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
+
+    execute(
+        "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", computed:\"blaat2\"}){message}}");
+    database.clearCache(); // cannot know here, server clears caches
+    assertEquals(
+        "blaat2",
+        database
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2")
+            .getComputed());
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
   }
 

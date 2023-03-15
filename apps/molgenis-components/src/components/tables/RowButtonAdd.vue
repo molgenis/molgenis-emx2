@@ -7,10 +7,11 @@
       :tableName="tableName"
       :isModalShown="isModalShown"
       :schemaName="schemaName"
+      :defaultValue="defaultValue"
       @close="handleClose"
     />
   </span>
-</template> 
+</template>
 
 <script>
 import RowButton from "./RowButton.vue";
@@ -29,6 +30,10 @@ export default {
     },
     schemaName: {
       type: String,
+      required: false,
+    },
+    defaultValue: {
+      type: Object,
       required: false,
     },
   },
