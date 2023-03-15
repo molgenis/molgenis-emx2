@@ -10,12 +10,12 @@ source studies [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 - The metadata of cohorts include descriptive information such as contact details, name of the cohort, and high-level
   summary of contents and cohort design. The metadata of data sources, of the corresponding data banks and of the
-  institutions that provide access to them, include descriptive information such as contact details, reason for
+  organisations that provide access to them, include descriptive information such as contact details, reason for
   existence of the data banks, the prompt for the records in the data bank, and lag time for updating and accessing data.
 - The metadata of the source variables can be considered the codebook or data
   dictionary of a cohort (e.g. ALSPAC) and of the tables which make up a data source's data bank(s) (e.g. the Danish
   Healthcare Registries).
-- Similarly, the common data models (or 'target variables') can be considered the codebook for a network of institutions
+- Similarly, the common data models (or 'target variables') can be considered the codebook for a network of organisations
   with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
 - The mappings describe how source variables have been converted into target variables as a basis for integrated analysis.
 
@@ -59,9 +59,9 @@ in subsections inside the 'Cohorts' form.
 ### Define metadata of cohorts or data sources
 
 This section explains how to submit the 'source variables' + 'mappings from source variables to target variables' into
-the Data Catalogue. Expected users of this 'how to' are data managers within the institutions with access to cohorts or
+the Data Catalogue. Expected users of this 'how to' are data managers within the organisations with access to cohorts or
 data sources. This document assumes you have received login details for upload of your metadata. You can also watch
-this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used the old dictionary model.
+this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used dictionary model version 2.x, which was updated to 3.x.
 
 #### Define source variable metadata / source data dictionary
 
@@ -90,15 +90,15 @@ via the templates, some are filled via an online form, see section
 The datasets/tables in a cohort or in the data banks of a data source are defined in the *Datasets* sheet. Columns with an
 asterisk (\*) after their name are mandatory.
 
-| *Column name* | *Description* |
-| --- | --- |
-| resource \* | Cohort or data source that this table belongs to |
-| name \* | Unique dataset or table name |
-| label | Dataset label |
-| description | Dataset description |
-| unit of observation | Defines what each record in this dataset describes |
-| number of rows | Count of the number of records in this dataset |
-| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue |
+| *Column name* | *Description* | *Remarks* |
+| --- | --- | --- |
+| resource \* | Cohort or data source that this table belongs to | |
+| name \* | Unique dataset or table name | |
+| label | Dataset label | |
+| description | Dataset description | |
+| unit of observation | Defines what each record in this dataset describes | |
+| number of rows | Count of the number of records in this dataset | |
+| keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in [*CatalogueOntologies*](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
 
 <sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis-support@umcg.nl*](mailto:molgenis-support@umcg.nl) to add Keywords</sup>
 
