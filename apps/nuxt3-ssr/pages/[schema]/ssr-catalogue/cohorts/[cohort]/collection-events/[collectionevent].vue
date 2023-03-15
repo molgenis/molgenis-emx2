@@ -92,7 +92,7 @@ if (collectionEvent?.numberOfParticipants) {
 let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories);
-  tocItems.push({ label: "Data categories", id: "data_catagories" });
+  tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -153,8 +153,8 @@ if (collectionEvent?.coreVariables?.length) {
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.dataCategories"
-          id="data_catagories"
-          title="Data catagories"
+          id="data_categories"
+          title="Data categories"
         >
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>
