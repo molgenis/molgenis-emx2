@@ -33,9 +33,8 @@ class TransformGeneral:
     """General functions to update catalogue data model.
     """
 
-    def __init__(self, database, database_type):
+    def __init__(self, database):
         self.database = database
-        self.database_type = database_type
         self.path = './files/' + self.database + '_data/'
         self.logger = logging.getLogger(' data update and transform')
 
@@ -43,22 +42,10 @@ class TransformGeneral:
         """Delete molgenis.csv
         """
         os.remove(self.path + 'molgenis.csv')
-        os.remove(self.path + 'molgenis_members.csv')
-        os.remove(self.path + 'molgenis_settings.csv')
-
-    def update_data_model_file(self):
-        """Get path to data model file
-        """
-        # get molgenis.csv location
-        if self.database_type == 'catalogue_2.8':
-            data_model = os.path.abspath('../datamodels/molgenis_2.9.csv')
-        elif self.database_type == 'cohort_UMCG_2.9':
-            data_model = os.path.abspath('../datamodels/molgenis_stagingCohortsUMCG_2.9.csv')  #'../../datacatalogue3/stagingCohortsUMCG/molgenis.csv')
-        elif self.database_type == 'SharedStagingUMCG':
-            data_model = os.path.abspath('../datamodels/molgenis_stagingSharedUMCG_2.9.csv')
-
-        # copy molgenis.csv to appropriate folder
-        shutil.copyfile(data_model, os.path.abspath(os.path.join(self.path, 'molgenis.csv')))
+        if 'molgenis_members.csv' in os.listdir(self.path):
+            os.remove(self.path + 'molgenis_members.csv')
+        if 'molgenis_settings.csv' in os.listdir(self.path):
+            os.remove(self.path + 'molgenis_settings.csv')
 
 
 class CopyTables:
@@ -91,7 +78,7 @@ class CopyTables:
         shutil.copyfile(os.path.abspath(os.path.join(source, 'CoreVariables.csv')),
                         os.path.abspath(os.path.join(target, 'CoreVariables.csv')))
 
-        # copy CoreVariables from SharedStaging to CatalogueOntologies
+        # copy Institutions from SharedStaging to CatalogueOntologies
         source = './files/SharedStaging_data/'
         target = './files/CatalogueOntologies_data/'
         shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
