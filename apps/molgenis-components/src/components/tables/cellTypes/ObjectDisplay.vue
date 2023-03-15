@@ -1,13 +1,10 @@
 <template>
-  <div>
-    <i class="fas fa-xs fa-project-diagram mr-1"></i>
-    <span v-if="hasTemplate">
-      {{ asTemplate }}
-    </span>
-    <span v-else>
-      {{ asDotSeparatedString }}
-    </span>
-  </div>
+  <span v-if="hasTemplate">
+    {{ asTemplate }}
+  </span>
+  <span v-else>
+    {{ asDotSeparatedString }}
+  </span>
 </template>
 
 <script>

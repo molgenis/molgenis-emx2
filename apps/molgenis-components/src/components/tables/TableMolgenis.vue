@@ -99,8 +99,13 @@ th {
 .column-drag-header:hover .column-remove {
   visibility: visible;
 }
+
+.table .refType {
+  color: var(--primary);
+}
 .table .refType:hover {
   background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: underline;
 }
 </style>
 
