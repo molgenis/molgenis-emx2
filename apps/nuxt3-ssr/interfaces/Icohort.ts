@@ -127,6 +127,7 @@ interface INetwork {
   name: string;
   description?: string;
   logo?: IUrlObject;
+  website?: string;
 }
 
 interface ITreeNode {
