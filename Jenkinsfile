@@ -89,7 +89,8 @@ pipeline {
                     sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
                 container('helm') {
-                    sh "kubectl delete namespace ${NAME}"
+                    sh "cp .kube/config /root/.kube/config"
+                    sh "kubectl delete namespace ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
                     sh "kubectl create namespace ${NAME}"
                     sh "kubectl annotate --overwrite ns ${NAME} field.cattle.io/projectId=\"c-l4svj:p-tl227\""
