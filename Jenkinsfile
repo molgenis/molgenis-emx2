@@ -3,6 +3,8 @@ pipeline {
         kubernetes {
             inheritFrom "shared"
             yamlFile ".jenkins/build-pod.yaml"
+            // helm pod template defined in molgenis/molgenis-jenkins-pipeline repository
+            yaml libraryResource("pod-templates/helm.yaml")
         }
     }
     environment {
@@ -83,19 +85,18 @@ pipeline {
                     sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
                     sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
-                container('rancher') {
-                    sh "rancher apps delete ${NAME} || true"
+                container('helm') {
+                    sh "kubectl delete namespace ${NAME}"
                     sh "sleep 15s" // wait for deletion
-                    sh "rancher apps install " +
-                        "-n ${NAME} " +
-                        "c-l4svj:molgenis-helm3-emx2 " +
-                        "${NAME} " +
-                        "--no-prompt " +
+                    sh "kubectl create namespace ${NAME}"
+                    sh "kubectl annotate --overwrite ns ${NAME} field.cattle.io/projectId=\"c-l4svj:p-tl227\""
+                    sh "helm install ${NAME} ./helm-chart --namespace ${NAME} " +
+                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org " +
                         "--set adminPassword=admin " +
                         "--set image.tag=${TAG_NAME} " +
                         "--set image.repository=molgenis/molgenis-emx2-snapshot " +
                         "--set image.pullPolicy=Always " +
-                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org"
+                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org "
                 }
             }
             post {
