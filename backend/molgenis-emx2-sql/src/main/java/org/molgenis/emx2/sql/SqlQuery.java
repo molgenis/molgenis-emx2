@@ -611,14 +611,14 @@ public class SqlQuery extends QueryBean {
           Column c = isValidColumn(table, sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD -> result.add(
-                key(c.getName()).value(max(field(name(alias(subAlias), c.getName())))));
+                key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
             case MIN_FIELD -> result.add(
-                key(c.getName()).value(min(field(name(alias(subAlias), c.getName())))));
+                key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
             case AVG_FIELD -> result.add(
-                key(c.getName())
+                key(c.getIdentifier())
                     .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             case SUM_FIELD -> result.add(
-                key(c.getName())
+                key(c.getIdentifier())
                     .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
             default -> throw new MolgenisException(
                 "Unknown aggregate type provided: " + field.getColumn());

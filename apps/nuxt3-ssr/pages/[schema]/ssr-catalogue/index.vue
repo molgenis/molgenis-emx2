@@ -68,8 +68,8 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
     >
       <LandingCardPrimary
-        title="Cohorts"
-        description="A compete overview of all cohorts and biobanks within the UMCG."
+        title="View Cohorts"
+        description="A complete overview of all cohorts and biobanks within the UMCG."
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
       />
@@ -80,7 +80,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
     >
       <LandingCardSecondary icon="people">
         <b> {{ data.data.Cohorts_agg.sum.numberOfParticipants }} Participants</b
-        ><br />The cummulative number of participants of all datasets combined.
+        ><br />The cumulative number of participants of all datasets combined.
       </LandingCardSecondary>
 
       <LandingCardSecondary icon="colorize">
@@ -90,7 +90,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           }}
           Samples</b
         >
-        <br />The cummulative number of participants with samples collected of
+        <br />The cumulative number of participants with samples collected of
         all datasets combined.
       </LandingCardSecondary>
 
