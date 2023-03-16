@@ -10,18 +10,43 @@ import {
 import { ISetting } from "../Interfaces/ISetting";
 
 const { cookies } = useCookies();
+const defaultSession = {
+  locale: "en",
+  settings: {} as Record<string, string>,
+};
+let error = ""; //TODO figure out how to do error handling
 
-export const useSessionStore = defineStore("session", async () => {
-  const session: Ref<ISession> = ref(await getSession());
+export const useSessionStore = defineStore("session", () => {
+  let session: Ref<ISession> = ref(defaultSession);
+  updateSession();
 
-  return { session };
+  function updateSession() {
+    getSession().then((newSession) => {
+      session.value = newSession;
+    });
+  }
+
+  function signin() {
+    updateSession();
+    console.log("hallo sign in");
+  }
+
+  async function signout() {
+    const data = await request("graphql", `mutation{signout{status}}`).catch(
+      (error: string) => (error = "internal server error" + error)
+    );
+    if (data.signout.status === "SUCCESS") {
+      updateSession();
+    } else {
+      error = "sign out failed";
+    }
+  }
+
+  return { session, signin, signout };
 });
 
 async function getSession(): Promise<ISession> {
-  let session: ISession = {
-    locale: "en",
-    settings: {} as Record<string, string>,
-  };
+  let session: ISession = defaultSession;
 
   const query = `{
         _session { email, roles, schemas, token, settings{key,value} },

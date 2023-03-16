@@ -51,20 +51,14 @@
 <script lang="ts">
 import { storeToRefs } from "pinia";
 import { defineComponent } from "vue";
-import { request } from "../../client/client.js";
 import { useSessionStore } from "../../stores/sessionStore";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import Spinner from "../layout/Spinner.vue";
-import { ISession } from "./Interfaces";
 import LocaleSwitch from "./LocaleSwitch.vue";
 import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-
-const defaultSession: ISession = { locale: "en", settings: {} };
-const store = useSessionStore();
-const { session } = storeToRefs(store);
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default defineComponent({
@@ -90,8 +84,9 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: defaultSession,
       version: null,
+      session: null as any, //TODO get typing right
+      sessionStore: null as any,
     };
   },
   watch: {
@@ -99,9 +94,6 @@ export default defineComponent({
       this.showSigninForm = false;
       this.showSignupForm = false;
     },
-  },
-  created() {
-    this.reload();
   },
   computed: {
     isOidcEnabled() {
@@ -121,11 +113,18 @@ export default defineComponent({
       return ["en"];
     },
   },
+  created() {
+    const store = useSessionStore();
+    this.sessionStore = store;
+    const { session } = storeToRefs(store);
+    this.session = session;
+    this.$emit("update:modelValue", this.session);
+  },
   methods: {
     changed() {
-      // this.reload();
       this.showSigninForm = false;
       this.$emit("update:modelValue", this.session);
+      this.sessionStore.signin();
     },
     closeSigninForm() {
       this.showSigninForm = false;
@@ -137,18 +136,10 @@ export default defineComponent({
     },
     async signout() {
       this.loading = true;
+      await this.sessionStore.signout();
       this.showSigninForm = false;
-      const data = await request("graphql", `mutation{signout{status}}`).catch(
-        (error: string) => (this.error = "internal server error" + error)
-      );
-      if (data.signout.status === "SUCCESS") {
-        // this.session = {};
-      } else {
-        this.error = "sign out failed";
-      }
       this.loading = false;
       this.$emit("update:modelValue", this.session);
-      // this.reload();
     },
   },
   emits: ["update:modelValue", "error"],
@@ -158,7 +149,7 @@ export default defineComponent({
 <docs>
 <template>
   <div>
-    <MolgenisSession class="bg-primary" v-model="session" graphql="/pet store/graphql"/>
+    <MolgenisSession class="bg-primary" v-model="session" />
     <pre>session = {{ session }}</pre>
   </div>
 </template>

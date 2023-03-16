@@ -9,6 +9,7 @@ import axios from "axios";
 import VueScrollTo from "vue-scrollto";
 import Client from "./client/client";
 import * as utils from "./components/utils";
+import { createPinia } from "pinia";
 
 //load the components
 const components = import.meta.globEager("./components/**/*.vue");
@@ -43,6 +44,10 @@ Object.entries(generatedDocumentComponents).forEach(([path, definition]) => {
 
 // construct app
 const app = createApp(App);
+
+// add pinia
+const pinia = createPinia();
+app.use(pinia);
 
 //add tools
 app.config.globalProperties.$axios = axios;
