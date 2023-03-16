@@ -72,6 +72,7 @@ class TransformShared(Transform):
         """Rename Institutions and rename columns
         """
         df_organisations = pd.read_csv(self.path + 'Institutions.csv')
+        df_organisations['website'] = df_organisations['website'].apply(get_hyperlink)
         df_organisations.rename(columns={'pid': 'id',
                                          'roles': 'role'}, inplace=True)
         df_organisations["name"].fillna(inplace=True, value=df_organisations["id"])  # fill na in column 'name'
@@ -278,7 +279,7 @@ class TransformDataStaging(Transform):
         """Make changes per table
         """
         # transformations for staging UMCG and data catalogue staging cohorts
-        if self.database_type in ['cohort', 'UMCG']:
+        if self.database_type in ['cohort', 'cohort_UMCG']:
             self.cohorts()
             self.contacts()
             self.organisations()
@@ -306,6 +307,7 @@ class TransformDataStaging(Transform):
         """Rename column in cohorts
         """
         df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
 
         # add partners to column 'additional organisations'
         df_partners = pd.read_csv(self.path + 'Partners.csv')
@@ -313,11 +315,12 @@ class TransformDataStaging(Transform):
         string_partners = ','.join(list_partners)
         df_cohorts['additional organisations'] = string_partners
 
-        df_cohorts['website'] = df_cohorts['website'].apply(get_hyperlink)
-
         df_cohorts.rename(columns={'pid': 'id',
                                    'institution': 'lead organisation'}, inplace=True)
-        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
+        df_cohorts['website'] = df_cohorts['website'].apply(get_hyperlink)
+        if self.database_type == 'cohort_UMCG':
+            new_mg_tableclass = df_cohorts.mg_tableclass[0][5:]
+            df_cohorts.mg_tableclass = new_mg_tableclass
         df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False, mode='w+')
 
     def contacts(self):

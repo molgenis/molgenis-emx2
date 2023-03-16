@@ -12,6 +12,7 @@ Organisations,,type other,text,,,,,,,,,"If type is 'other', a description of typ
 Organisations,,logo,file,,,,,,,,,Logo of the organisation
 Organisations,,institution,text,,,,,,,,,"University, company, medical centre or research institutes this organisation is part of"
 Organisations,,institution acronym,string,,,,,,,,,Short name of the organisation
+Resources,,website,hyperlink,,,,,,,,,Organisation website
 Organisations,,email,email,,,,,,,,,Contact email address for person responsible for organization entry in catalogue
 Organisations,,address,text,,,,,,,,,
 Organisations,,expertise,text,,,,,,,,,A short description of the expertise of this institution

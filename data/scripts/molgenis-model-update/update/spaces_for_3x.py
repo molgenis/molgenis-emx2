@@ -36,6 +36,8 @@ def spaces(s, database):
             new_s = s
         elif s == 'pid':
             new_s = 'id'
+        elif s in ['mg_insertedBy', 'mg_insertedOn', 'mg_updatedBy','mg_updatedOn']:
+            new_s = s
         # get spaces and lowercase
         else:
             for x in s:
