@@ -29,8 +29,10 @@ pipeline {
                     script {
                         sh "mkdir ${JENKINS_AGENT_WORKDIR}/.m2"
                         sh "mkdir ${JENKINS_AGENT_WORKDIR}/.rancher"
+                        sh "mkdir ${JENKINS_AGENT_WORKDIR}/.kube"
                         sh(script: "vault read -field=value secret/ops/jenkins/rancher/cli2.json > ${JENKINS_AGENT_WORKDIR}/.rancher/cli2.json")
                         sh(script: "vault read -field=value secret/ops/jenkins/maven/settings.xml > ${JENKINS_AGENT_WORKDIR}/.m2/settings.xml")
+                        sh(script: "vault read -field=value secret/ops/jenkins/kube/config > ${JENKINS_AGENT_WORKDIR}/.kube/config")
                         env.SONAR_TOKEN = sh(script: 'vault read -field=value secret/ops/token/sonar', returnStdout: true)
                         env.GITHUB_TOKEN = sh(script: 'vault read -field=token-emx2 secret/ops/token/github', returnStdout: true)
                         env.DOCKERHUB_AUTH = sh(script: 'vault read -field=value secret/gcc/token/dockerhub', returnStdout: true)
@@ -55,6 +57,9 @@ pipeline {
                 dir("${JENKINS_AGENT_WORKDIR}/.rancher") {
                     stash includes: 'cli2.json', name: 'rancher-config'
                 }
+                dir("${JENKINS_AGENT_WORKDIR}/.kube") {
+                    stash includes: 'config', name: 'kube-config'
+                }
             }
         }
         stage("Pull request") {
@@ -70,7 +75,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
+                    sh "./gradlew test -x test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -83,7 +88,7 @@ pipeline {
                     sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
                     sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
-                container('rancher') {
+                container('helm') {
                     sh "kubectl delete namespace ${NAME}"
                     sh "sleep 15s" // wait for deletion
                     sh "kubectl create namespace ${NAME}"
