@@ -488,7 +488,11 @@ public class TestGraphqSchemaFields {
       System.out.println(convertToCamelCase("Person details"));
 
       myschema.create(
-          table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
+          table(
+              "Person details",
+              column("First name").setPkey(),
+              column("Last_name").setPkey(),
+              column("some number").setType(ColumnType.INT)),
           table(
               "Some",
               column("id").setPkey(),
@@ -497,7 +501,7 @@ public class TestGraphqSchemaFields {
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
-          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
       int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
@@ -533,6 +537,15 @@ public class TestGraphqSchemaFields {
           execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
               .at("/PersonDetails/0/last_name")
               .asText());
+
+      // aggregates should be working with spaces too
+      JsonNode agg =
+          execute(
+              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
 
       // delete
       execute(
