@@ -49,26 +49,22 @@
 </template>
 
 <script lang="ts">
+import { storeToRefs } from "pinia";
+import { defineComponent } from "vue";
+import { request } from "../../client/client.js";
+import { useSessionStore } from "../../stores/sessionStore";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
 import Spinner from "../layout/Spinner.vue";
+import { ISession } from "./Interfaces";
+import LocaleSwitch from "./LocaleSwitch.vue";
+import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
-import MolgenisAccount from "./MolgenisAccount.vue";
-import LocaleSwitch from "./LocaleSwitch.vue";
-import { useCookies } from "vue3-cookies";
-import { defineComponent } from "vue";
-import { request } from "../../client/client.js";
-import { IErrorMessage, IResponse, ISession } from "./Interfaces";
-import { ISetting } from "../../Interfaces/ISetting";
 
-const { cookies } = useCookies();
-const query = `{
-  _session { email, roles, schemas, token, settings{key,value} },
-  _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
-  _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
-}`;
-const defaultSession = { locale: "en", settings: {} };
+const defaultSession: ISession = { locale: "en", settings: {} };
+const store = useSessionStore();
+const { session } = storeToRefs(store);
 
 /** Element that is supposed to be put in menu holding all controls for user account */
 export default defineComponent({
@@ -94,7 +90,7 @@ export default defineComponent({
       showChangePasswordForm: false,
       error: null as string | null,
       loading: false,
-      session: defaultSession as ISession,
+      session: defaultSession,
       version: null,
     };
   },
@@ -126,78 +122,8 @@ export default defineComponent({
     },
   },
   methods: {
-    loadSettings(settings: { _settings: ISetting[] }) {
-      settings._settings.forEach((setting) => {
-        const value: string =
-          setting.value?.startsWith("[") || setting.value?.startsWith("{")
-            ? this.parseJson(setting.value)
-            : setting.value;
-        this.session.settings[setting.key] = value;
-      });
-    },
-    async reload() {
-      this.loading = true;
-
-      const responses: PromiseSettledResult<IResponse>[] =
-        await Promise.allSettled([
-          request("/apps/central/graphql", query),
-          request(this.graphql, query),
-        ]);
-      const dbSettings =
-        responses[0].status === "fulfilled"
-          ? responses[0].value
-          : this.handleError(responses[0].reason);
-      const schemaSettings =
-        responses[1].status === "fulfilled"
-          ? responses[1].value
-          : this.handleError(responses[1].reason);
-
-      if (schemaSettings && schemaSettings._session) {
-        this.session = schemaSettings._session;
-      } else {
-        this.session = defaultSession;
-      }
-      //convert settings to object
-      if (dbSettings && dbSettings._settings) {
-        this.loadSettings(dbSettings);
-        this.session.manifest = dbSettings._manifest;
-      }
-      // schemaSettings override dbSettings if set
-      if (schemaSettings && schemaSettings._settings) {
-        this.loadSettings(schemaSettings);
-        this.session.manifest = schemaSettings._manifest;
-      }
-      //set default locale
-      if (this.session.locale === undefined) {
-        //get from cookie
-        const lang = cookies.get("MOLGENIS.locale");
-        if (lang) {
-          this.session.locale = lang;
-        }
-      }
-      //get the map
-      this.loading = false;
-      this.$emit("update:modelValue", this.session);
-    },
-    handleError(reason: IErrorMessage) {
-      this.error = "internal server error " + reason;
-      if (reason?.response?.data?.errors[0]?.message) {
-        this.$emit("error", reason.response.data.errors[0].message);
-      } else {
-        this.$emit("error", this.error);
-      }
-    },
-    parseJson(value: string) {
-      try {
-        return JSON.parse(value);
-      } catch (error) {
-        this.error =
-          "Parsing of settings failed: " + error + ". value: " + value;
-        return null;
-      }
-    },
     changed() {
-      this.reload();
+      // this.reload();
       this.showSigninForm = false;
       this.$emit("update:modelValue", this.session);
     },
@@ -216,13 +142,13 @@ export default defineComponent({
         (error: string) => (this.error = "internal server error" + error)
       );
       if (data.signout.status === "SUCCESS") {
-        this.session = {};
+        // this.session = {};
       } else {
         this.error = "sign out failed";
       }
       this.loading = false;
       this.$emit("update:modelValue", this.session);
-      this.reload();
+      // this.reload();
     },
   },
   emits: ["update:modelValue", "error"],
