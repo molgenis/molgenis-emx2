@@ -46,6 +46,6 @@ ssrCatalogue:
     tag: latest
     pullPolicy: IfNotPresent
   environment:
-    apiBase: "emx2.dev.molgenis.org"
+    apiBase: ""
     theme: ""
     logo: ""
