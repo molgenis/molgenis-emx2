@@ -3,8 +3,6 @@ pipeline {
         kubernetes {
             inheritFrom "shared"
             yamlFile ".jenkins/build-pod.yaml"
-            // helm pod template defined in molgenis/molgenis-jenkins-pipeline repository
-            yaml libraryResource("pod-templates/helm.yaml")
         }
     }
     environment {
@@ -85,7 +83,7 @@ pipeline {
                     sh "#!/busybox/sh\necho '{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}, \"registry.hub.docker.com/\": {\"auth\": \"${DOCKERHUB_AUTH}\"}}}' > ${DOCKER_CONFIG}/config.json"
                     sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
-                container('helm') {
+                container('rancher') {
                     sh "kubectl delete namespace ${NAME}"
                     sh "sleep 15s" // wait for deletion
                     sh "kubectl create namespace ${NAME}"
