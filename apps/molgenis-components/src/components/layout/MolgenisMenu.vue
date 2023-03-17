@@ -86,8 +86,11 @@ export default {
     },
   },
   data: () => {
+    return { session: null };
+  },
+  created() {
     const { session } = storeToRefs(useSessionStore());
-    return { session };
+    this.session = session;
   },
   computed: {
     permittedItems() {

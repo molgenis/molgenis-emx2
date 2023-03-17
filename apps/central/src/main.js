@@ -7,6 +7,7 @@ import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
 import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
 import "molgenis-components/dist/style.css";
+import { createPinia } from "pinia";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -32,4 +33,6 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(router);
+const pinia = createPinia();
+app.use(pinia);
 app.mount("#app");

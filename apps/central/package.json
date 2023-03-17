@@ -12,14 +12,15 @@
     "core-js": "3.29.1",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
+    "pinia": "2.0.33",
     "v-scroll-lock": "1.3.1",
     "vue": "3.2.47",
     "vue-router": "4.1.6"
   },
   "devDependencies": {
-    "vite": "4.1.4",
     "@vitejs/plugin-vue": "3.2.0",
-    "prettier": "2.8.4"
+    "prettier": "2.8.4",
+    "vite": "4.1.4"
   },
   "browserslist": [
     "> 1%",

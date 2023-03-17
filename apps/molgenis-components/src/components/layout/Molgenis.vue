@@ -100,13 +100,20 @@ export default {
     },
   },
   data: function () {
-    const { session } = storeToRefs(useSessionStore());
     return {
-      session,
+      session: null,
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
     };
+  },
+  created() {
+    console.log("use session store: ", useSessionStore);
+    const store = useSessionStore();
+    console.log("store: ", store);
+    const { session } = storeToRefs(store);
+    console.log("session: ", session, "function: ", storeToRefs);
+    this.session = session;
   },
   computed: {
     schemaUrlsForCrumbs() {
