@@ -47,6 +47,9 @@ spec:
         limits:
           cpu: 1
           memory: 1Gi
+      env:
+        - name: "KUBECONFIG"
+          value: "/home/jenkins/.kube/config"
   volumes:
     - name: postgres-initdb
       emptyDir: {}

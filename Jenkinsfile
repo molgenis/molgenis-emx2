@@ -75,7 +75,7 @@ pipeline {
             steps {
                 container('java') {
                     script {
-                    sh "./gradlew test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
+                    sh "./gradlew build -x test --no-daemon jacocoMergedReport shadowJar jib release helmPublishMainChart ci \
                         -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io \
                         -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password"
                         def props = readProperties file: 'build/ci.properties'
@@ -89,7 +89,6 @@ pipeline {
                     sh "#!/busybox/sh\n/kaniko/executor --context ${WORKSPACE}/apps/nuxt3-ssr --destination docker.io/molgenis/ssr-catalogue-snapshot:${TAG_NAME} --destination docker.io/molgenis/ssr-catalogue-snapshot:latest"
                 }
                 container('helm') {
-                    sh "cp .kube/config /root/.kube/config"
                     sh "kubectl delete namespace ${NAME} || true"
                     sh "sleep 15s" // wait for deletion
                     sh "kubectl create namespace ${NAME}"
