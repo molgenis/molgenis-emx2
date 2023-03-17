@@ -1,17 +1,17 @@
 <template>
   <div>
     <RowEdit
-      v-if="columnsSplitByHeadings"
-      :id="id"
-      :modelValue="modelValue"
-      :pkey="pkey"
-      :tableName="tableName"
-      :tableMetaData="tableMetaData"
-      :schemaMetaData="schemaMetaData"
-      :visibleColumns="columnsSplitByHeadings[page - 1]"
-      :clone="clone"
-      :locale="locale"
-      @update:modelValue="$emit('update:modelValue', $event)"
+        v-if="columnsSplitByHeadings"
+        :id="id"
+        :modelValue="modelValue"
+        :pkey="pkey"
+        :tableName="tableName"
+        :tableMetaData="tableMetaData"
+        :schemaMetaData="schemaMetaData"
+        :visibleColumns="columnsSplitByHeadings[page - 1]"
+        :clone="clone"
+        :locale="locale"
+        @update:modelValue="$emit('update:modelValue', $event)"
     />
   </div>
 </template>
@@ -21,9 +21,9 @@ import RowEdit from "./RowEdit.vue";
 
 export default {
   name: "EditModalWizard",
-  components: { RowEdit },
+  components: {RowEdit},
   data() {
-    return { columnsSplitByHeadings: null };
+    return {columnsSplitByHeadings: null};
   },
   props: {
     modelValue: {
@@ -46,7 +46,7 @@ export default {
       type: Object,
       required: true,
     },
-    pkey: { type: Object },
+    pkey: {type: Object},
     clone: {
       type: Boolean,
       required: false,
@@ -66,22 +66,30 @@ export default {
   },
   mounted() {
     this.columnsSplitByHeadings = splitColumnsByHeadings(
-      this.tableMetaData.columns
+        this.tableMetaData.columns,
+        this.visibleColumns
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
   emits: ["setPageCount", "update:modelValue"],
 };
 
-function splitColumnsByHeadings(columns) {
+function splitColumnsByHeadings(columns, visibleColumns) {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
-      accum.push([{ name: column.name }]);
+      accum.push([{name: column.name}]);
     } else {
       if (accum.length === 0) {
         accum.push([]);
       }
-      accum[accum.length - 1].push({ name: column.name });
+      if (
+          !visibleColumns ||
+          visibleColumns.find(
+              (visibleColumn) => column.name === visibleColumn.name
+          )
+      ) {
+        accum[accum.length - 1].push({name: column.name});
+      }
     }
     return accum;
   }, []);

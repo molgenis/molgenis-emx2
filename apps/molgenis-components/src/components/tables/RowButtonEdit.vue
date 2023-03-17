@@ -1,23 +1,25 @@
 <template>
   <span>
-    <RowButton type="edit" @edit="isModalShown = true" />
+    <RowButton type="edit" @edit="isModalShown = true"/>
     <EditModal
-      v-if="isModalShown"
-      :id="id + 'edit-modal'"
-      :tableName="tableName"
-      :pkey="pkey"
-      :isModalShown="isModalShown"
-      :schemaName="schemaName"
-      @close="handleClose"
+        v-if="isModalShown"
+        :id="id + 'edit-modal'"
+        :tableName="tableName"
+        :pkey="pkey"
+        :isModalShown="isModalShown"
+        :schemaName="schemaName"
+        :visibleColumns="visibleColumns"
+        @close="handleClose"
     />
   </span>
 </template>
 
 <script>
 import RowButton from "./RowButton.vue";
+
 export default {
   name: "RowButtonEdit",
-  components: { RowButton },
+  components: {RowButton},
   props: {
     id: {
       type: String,
@@ -33,6 +35,11 @@ export default {
     },
     pkey: {
       type: Object,
+    },
+    visibleColumns: {
+      type: Array,
+      required: false,
+      default: () => null,
     },
   },
   data() {
@@ -50,17 +57,17 @@ export default {
 </script>
 
 <docs>
-  <template>
+<template>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
     <div>
-      <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
-      <div>
-        <RowButtonEdit 
-          id="row-edit-btn-sample" 
+      <RowButtonEdit
+          id="row-edit-btn-sample"
           tableName="Pet"
           :pkey="{name: 'pooky'}"
           schemaName="pet store"
-        />
-      </div>
+      />
     </div>
-  </template>
+  </div>
+</template>
 </docs>
