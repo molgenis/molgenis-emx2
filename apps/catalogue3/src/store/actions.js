@@ -9,16 +9,52 @@ export default {
     state.graphqlError = null;
     request(
       state.graphqlURL,
-      `{
-          _session { email,roles } _schema {
-            name, tables {
-              name, tableType, id, descriptions{locale,value}, externalSchema, semantics, columns {
-                name, id, columnType, key, refTable, refLink, refLabel, refBack, required, 
-                semantics, descriptions{locale,value}, position, validation, visible
-              } settings { key, value }
+      gql`
+        {
+          _session {
+            email
+            roles
+          }
+          _schema {
+            name
+            tables {
+              name
+              tableType
+              id
+              descriptions {
+                locale
+                value
+              }
+              externalSchema
+              semantics
+              columns {
+                name
+                id
+                columnType
+                key
+                refTable
+                refLink
+                refLabel
+                refLabelDefault
+                refBack
+                required
+                semantics
+                descriptions {
+                  locale
+                  value
+                }
+                position
+                validation
+                visible
+              }
+              settings {
+                key
+                value
+              }
             }
           }
-        }`
+        }
+      `
     )
       .then((data) => {
         state.session = data._session;
@@ -49,11 +85,11 @@ export default {
                 Variables(limit: 100, offset: ${offset}, search: $search, filter: $filter, orderby:{label: ASC}) {
                     name
                     dataset {
-                      name
+                        name
                     }
                     resource {
-                      id
-                      name
+                        id
+                        name
                     }
                     label
                     repeats {
