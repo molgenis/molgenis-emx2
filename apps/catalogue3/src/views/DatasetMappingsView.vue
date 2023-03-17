@@ -17,14 +17,14 @@
         <td><h6>Source table:&nbsp;</h6></td>
         <td colspan="5">
           <RouterLink
-            :to="{
+              :to="{
               name: 'Datasets-details',
               params: {
                 resource: source,
                 name: sourceDataset,
               },
             }"
-            >{{ sourceDataset }}
+          >{{ sourceDataset }}
           </RouterLink>
         </td>
       </tr>
@@ -32,11 +32,11 @@
         <td><h6>Source table:&nbsp;</h6></td>
         <td colspan="5">
           <RouterLink
-            :to="{
+              :to="{
               name: 'Datasets-details',
               params: { resource: target, name: targetDataset },
             }"
-            >{{ targetDataset }}
+          >{{ targetDataset }}
           </RouterLink>
         </td>
       </tr>
@@ -46,27 +46,25 @@
           <h6>Description:</h6>
           {{
             datasetmappings && datasetmappings.description
-              ? datasetmappings.description
-              : "N/A"
+                ? datasetmappings.description
+                : "N/A"
           }}
-          <br />
-          <br />
-          <a :href="downloadURLcsv">Download ETL as csv</a><br />
-          <a :href="downloadURLexcel">Download ETL as Excel</a><br />
+          <RowButtonEdit
+              v-if="datasetmappings"
+              id="row-button-edit-dataset"
+              tableName="DatasetMappings"
+              :pkey="pkeyDataset(datasetmappings)"
+              :visibleColumns="[{ name: 'description' }]"
+              @close="handleModalClose"
+          />
+          <br/>
+          <br/>
+          <a :href="downloadURLcsv">Download ETL as csv</a><br/>
+          <a :href="downloadURLexcel">Download ETL as Excel</a><br/>
         </td>
       </tr>
       <tr>
-        <th v-if="canEdit">
-          <h6>
-            #
-            <RowButtonAdd
-              id="'row-button-add' + index"
-              tableName="VariableMappings"
-              @close="handleModalClose"
-              :defaultValue="defaultValueMapping"
-            />
-          </h6>
-        </th>
+        <th v-if="canEdit">#</th>
         <th><h6>Target column</h6></th>
         <th><h6>Source column</h6></th>
         <th><h6>Description</h6></th>
@@ -77,22 +75,22 @@
         <td v-if="canEdit">
           <div class="d-flex flex-row">
             <RowButtonEdit
-              id="'row-button-edit' + index"
-              tableName="VariableMappings"
-              :pkey="pkey(m)"
-              @close="handleModalClose"
-            />
-            <RowButtonDelete
-              id="'row-button-delete' + index"
-              tableName="VariableMappings"
-              :pkey="pkey(m)"
-              @close="handleModalClose"
+                id="'row-button-edit' + index"
+                tableName="VariableMappings"
+                :pkey="pkey(m)"
+                :visibleColumns="[
+                { name: 'description' },
+                { name: 'syntax' },
+                { name: 'comments' },
+                { name: 'source variables' },
+              ]"
+                @close="handleModalClose"
             />
           </div>
         </td>
         <td v-if="m.targetVariable">
           <RouterLink
-            :to="{
+              :to="{
               name: 'Variables-details',
               params: {
                 resource: target,
@@ -107,9 +105,9 @@
         <td>
           <div v-if="m.sourceVariables">
             <RouterLink
-              v-for="v in m.sourceVariables"
-              :key="v.name"
-              :to="{
+                v-for="v in m.sourceVariables"
+                :key="v.name"
+                :to="{
                 name: 'Variables-details',
                 params: {
                   resource: source,
@@ -123,9 +121,9 @@
           </div>
           <div v-if="m.sourceVariablesOtherDataset">
             <RouterLink
-              v-for="v in m.sourceVariablesOtherDataset"
-              :key="v.name"
-              :to="{
+                v-for="v in m.sourceVariablesOtherDataset"
+                :key="v.name"
+                :to="{
                 name: 'Variables-details',
                 params: {
                   resource: source,
@@ -143,7 +141,7 @@
         <td></td>
       </tr>
     </table>
-    <br />
+    <br/>
 
     <!--{{ tablemapping }} -->
 
@@ -152,23 +150,15 @@
 </template>
 
 <script>
-import { request, gql } from "graphql-request";
-import {
-  MessageError,
-  RowButtonEdit,
-  RowButtonAdd,
-  RowButtonDelete,
-  EditModal,
-} from "molgenis-components";
-import { mapActions, mapGetters } from "vuex";
+import {request, gql} from "graphql-request";
+import {MessageError, RowButtonEdit, EditModal} from "molgenis-components";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   components: {
     EditModal,
     MessageError,
     RowButtonEdit,
-    RowButtonAdd,
-    RowButtonDelete,
   },
   props: {
     source: String,
@@ -187,43 +177,43 @@ export default {
     ...mapGetters(["canEdit"]),
     downloadURLcsv() {
       return (
-        "../api/csv/Variable mappings?filter=" +
-        JSON.stringify(this.downloadFilter)
+          "../api/csv/Variable mappings?filter=" +
+          JSON.stringify(this.downloadFilter)
       );
     },
     downloadURLexcel() {
       return (
-        "../api/excel/Variable mappings?filter=" +
-        JSON.stringify(this.downloadFilter)
+          "../api/excel/Variable mappings?filter=" +
+          JSON.stringify(this.downloadFilter)
       );
     },
     downloadFilter() {
       return {
         sourceDataset: {
-          equals: [{ resource: { id: this.source }, name: this.sourceDataset }],
+          equals: [{resource: {id: this.source}, name: this.sourceDataset}],
         },
         targetDataset: {
-          equals: [{ resource: { id: this.target }, name: this.targetDataset }],
+          equals: [{resource: {id: this.target}, name: this.targetDataset}],
         },
       };
     },
     resourceType() {
       if (this.datasetmapping.source) {
         return this.datasetmapping.source.mg_tableclass
-          .split(".")[1]
-          .slice(0, -1);
+            .split(".")[1]
+            .slice(0, -1);
       }
     },
     defaultValueMapping() {
       return {
-        source: { id: this.source },
+        source: {id: this.source},
         sourceDataset: {
-          resource: { id: this.source },
+          resource: {id: this.source},
           name: this.sourceDataset,
         },
-        target: { id: this.target },
+        target: {id: this.target},
         targetDataset: {
-          resource: { id: this.target },
+          resource: {id: this.target},
           name: this.targetDataset,
         },
       };
@@ -231,6 +221,20 @@ export default {
   },
   methods: {
     ...mapActions(["reloadMetadata"]),
+    pkeyDataset(datasetmapping) {
+      return {
+        source: datasetmapping.source,
+        sourceDataset: {
+          resource: datasetmapping.source,
+          name: datasetmapping.sourceDataset.name,
+        },
+        target: datasetmapping.target,
+        targetDataset: {
+          resource: datasetmapping.target,
+          name: datasetmapping.targetDataset.name,
+        },
+      };
+    },
     pkey(mapping) {
       return {
         source: mapping.source,
@@ -271,8 +275,8 @@ export default {
     },
     reload() {
       request(
-        "graphql",
-        gql`
+          "graphql",
+          gql`
           query MyMappings(
             $source: String
             $sourceDataset: String
@@ -289,6 +293,12 @@ export default {
                 }
               }
             ) {
+              target {
+                id
+              }
+              targetDataset {
+                name
+              }
               source {
                 id
               }
@@ -343,25 +353,25 @@ export default {
             }
           }
         `,
-        {
-          source: this.source,
-          sourceDataset: this.sourceDataset,
-          target: this.target,
-          targetDataset: this.targetDataset,
-        }
+          {
+            source: this.source,
+            sourceDataset: this.sourceDataset,
+            target: this.target,
+            targetDataset: this.targetDataset,
+          }
       )
-        .then((data) => {
-          this.datasetmappings = data.DatasetMappings[0];
-          this.variablemappings = data.VariableMappings;
-        })
-        .catch((error) => {
-          if (error.response)
-            this.graphqlError = error.response.errors[0].message;
-          else this.graphqlError = error;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+          .then((data) => {
+            this.datasetmappings = data.DatasetMappings[0];
+            this.variablemappings = data.VariableMappings;
+          })
+          .catch((error) => {
+            if (error.response)
+              this.graphqlError = error.response.errors[0].message;
+            else this.graphqlError = error;
+          })
+          .finally(() => {
+            this.loading = false;
+          });
     },
   },
   created() {
