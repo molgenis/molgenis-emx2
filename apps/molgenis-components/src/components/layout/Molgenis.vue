@@ -7,11 +7,7 @@
         :items="menu"
         :session="session"
       >
-        <MolgenisSession
-          v-model="session"
-          :key="timestamp"
-          @error="$emit('error', $event)"
-        />
+        <MolgenisSession :key="timestamp" @error="$emit('error', $event)" />
       </MolgenisMenu>
       <Breadcrumb
         v-if="showCrumbs && Object.keys(crumbs).length > 1"
@@ -47,6 +43,8 @@ import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
+import { useSessionStore } from "../../stores/sessionStore";
+import { storeToRefs } from "pinia";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -179,6 +177,11 @@ export default {
     toggle() {
       this.fullscreen = !this.fullscreen;
     },
+  },
+  created() {
+    const store = useSessionStore();
+    const { session } = storeToRefs(store);
+    this.session = session;
   },
   emits: ["update:modelValue", "error"],
 };
