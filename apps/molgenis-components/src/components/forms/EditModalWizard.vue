@@ -66,14 +66,15 @@ export default {
   },
   mounted() {
     this.columnsSplitByHeadings = splitColumnsByHeadings(
-      this.tableMetaData.columns
+      this.tableMetaData.columns,
+      this.visibleColumns
     );
     this.$emit("setPageCount", this.columnsSplitByHeadings.length);
   },
   emits: ["setPageCount", "update:modelValue"],
 };
 
-function splitColumnsByHeadings(columns) {
+function splitColumnsByHeadings(columns, visibleColumns) {
   return columns.reduce((accum, column) => {
     if (column.columnType === "HEADING") {
       accum.push([{ name: column.name }]);
@@ -81,7 +82,14 @@ function splitColumnsByHeadings(columns) {
       if (accum.length === 0) {
         accum.push([]);
       }
-      accum[accum.length - 1].push({ name: column.name });
+      if (
+        !visibleColumns ||
+        visibleColumns.find(
+          (visibleColumn) => column.name === visibleColumn.name
+        )
+      ) {
+        accum[accum.length - 1].push({ name: column.name });
+      }
     }
     return accum;
   }, []);
