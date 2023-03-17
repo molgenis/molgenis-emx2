@@ -99,7 +99,8 @@ pipeline {
                         "--set image.tag=${TAG_NAME} " +
                         "--set image.repository=molgenis/molgenis-emx2-snapshot " +
                         "--set image.pullPolicy=Always " +
-                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org "
+                        "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org " +
+                        "--set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ "
                 }
             }
             post {
