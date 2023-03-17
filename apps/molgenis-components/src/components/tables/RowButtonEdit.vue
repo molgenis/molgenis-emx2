@@ -1,15 +1,15 @@
 <template>
   <span>
-    <RowButton type="edit" @edit="isModalShown = true"/>
+    <RowButton type="edit" @edit="isModalShown = true" />
     <EditModal
-        v-if="isModalShown"
-        :id="id + 'edit-modal'"
-        :tableName="tableName"
-        :pkey="pkey"
-        :isModalShown="isModalShown"
-        :schemaName="schemaName"
-        :visibleColumns="visibleColumns"
-        @close="handleClose"
+      v-if="isModalShown"
+      :id="id + 'edit-modal'"
+      :tableName="tableName"
+      :pkey="pkey"
+      :isModalShown="isModalShown"
+      :schemaName="schemaName"
+      :visibleColumns="visibleColumns"
+      @close="handleClose"
     />
   </span>
 </template>
@@ -19,7 +19,7 @@ import RowButton from "./RowButton.vue";
 
 export default {
   name: "RowButtonEdit",
-  components: {RowButton},
+  components: { RowButton },
   props: {
     id: {
       type: String,
