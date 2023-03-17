@@ -12,7 +12,7 @@
           <FilterWell
             v-for="(item, key) in selection"
             :key="JSON.stringify(item)"
-            :label="flattenObject(item)"
+            :label="refLabel ? applyJsTemplate(modelValue, refLabel) : flattenObject(modelValue)"
             @click="deselect(key)"
           />
         </div>
@@ -46,7 +46,7 @@
             :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
-            {{ applyJsTemplate(row, refLabel) }}
+            {{ refLabel ? applyJsTemplate(modelValue, refLabel) : flattenObject(modelValue) }}
           </label>
         </div>
         <ButtonAlt
