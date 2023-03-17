@@ -165,3 +165,28 @@ export function getLocalizedDescription(
       ?.value;
   }
 }
+
+export function applyJsTemplate(
+  object: object,
+  labelTemplate: string
+): string | undefined {
+  if (object === undefined || object === null) {
+    return "";
+  }
+  const names = Object.keys(object);
+  const vals = Object.values(object);
+  try {
+    // @ts-ignore
+    return new Function(...names, "return `" + labelTemplate + "`;")(...vals);
+  } catch (err: any) {
+    return (
+      err.message +
+      " we got keys:" +
+      JSON.stringify(names) +
+      " vals:" +
+      JSON.stringify(vals) +
+      " and template: " +
+      labelTemplate
+    );
+  }
+}
