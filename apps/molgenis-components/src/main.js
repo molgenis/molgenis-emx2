@@ -1,15 +1,16 @@
 // we use this bundle to enable template at runtime
-import { createApp } from "vue/dist/vue.esm-bundler";
-import { createRouter, createWebHashHistory } from "vue-router";
-import App from "./App.vue";
-import ClientView from "./ClientView.vue";
-import Sidebar from "./Sidebar.vue";
-import DemoItem from "./DemoItem.vue";
 import axios from "axios";
-import VueScrollTo from "vue-scrollto";
-import Client from "./client/client";
-import * as utils from "./components/utils";
 import { createPinia } from "pinia";
+import { createRouter, createWebHashHistory } from "vue-router";
+import VueScrollTo from "vue-scrollto";
+import { createApp } from "vue/dist/vue.esm-bundler";
+import App from "./App.vue";
+import Client from "./client/client";
+import ClientView from "./ClientView.vue";
+import * as utils from "./components/utils";
+import DemoItem from "./DemoItem.vue";
+import Sidebar from "./Sidebar.vue";
+import { useSessionStore } from "./stores/sessionStore";
 
 //load the components
 const components = import.meta.globEager("./components/**/*.vue");
@@ -48,12 +49,14 @@ const app = createApp(App);
 // add pinia
 const pinia = createPinia();
 app.use(pinia);
+const sessionStore = useSessionStore();
 
 //add tools
 app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$Client = Client;
 app.config.globalProperties.$utils = utils;
 app.config.globalProperties.$docsMap = docsMap;
+app.config.globalProperties.$sessionStore = sessionStore;
 
 //add directives
 app.directive("scroll-to", VueScrollTo);

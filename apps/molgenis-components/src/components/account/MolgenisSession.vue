@@ -118,12 +118,10 @@ export default defineComponent({
     this.sessionStore = store;
     const { session } = storeToRefs(store);
     this.session = session;
-    this.$emit("update:modelValue", this.session);
   },
   methods: {
     changed() {
       this.showSigninForm = false;
-      this.$emit("update:modelValue", this.session);
       this.sessionStore.signin();
     },
     closeSigninForm() {
@@ -139,25 +137,27 @@ export default defineComponent({
       await this.sessionStore.signout();
       this.showSigninForm = false;
       this.loading = false;
-      this.$emit("update:modelValue", this.session);
     },
   },
-  emits: ["update:modelValue", "error"],
+  emits: ["error"],
 });
 </script>
 
 <docs>
 <template>
   <div>
-    <MolgenisSession class="bg-primary" v-model="session" />
-    <pre>session = {{ session }}</pre>
+    <MolgenisSession class="bg-primary" />
+    <pre>session = {{ JSON.stringify(session, null, 2) }}</pre>
   </div>
 </template>
-<script>
-  export default {
+
+<script lang="ts">
+import { storeToRefs } from "pinia";
+
+export default {
     data() {
       return {
-        session: null
+        session: storeToRefs(this.$sessionStore)
       }
     }
   }
