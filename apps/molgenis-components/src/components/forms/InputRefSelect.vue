@@ -12,11 +12,7 @@
         :class="{ 'is-invalid': errorMessage }"
         @click="showSelect = true"
         @focus="showSelect = true"
-        :value="
-          refLabel
-            ? applyJsTemplate(modelValue, refLabel)
-            : flattenObject(modelValue)
-        "
+        :value="applyJsTemplate(modelValue, refLabel)"
       />
       <template v-slot:append>
         <button
@@ -62,7 +58,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
-import { flattenObject, applyJsTemplate } from "../utils";
+import { applyJsTemplate } from "../utils";
 
 export default {
   name: "InputRefSelect",
@@ -87,7 +83,10 @@ export default {
       required: false,
     },
     filter: Object,
-    refLabel: String,
+    refLabel: {
+      type: String,
+      required: true,
+    },
     /**
      * if table that this input is selecting from can be edited by the current user
      *  */
@@ -104,11 +103,6 @@ export default {
   },
   methods: {
     applyJsTemplate,
-    flattenObject(objectToFlatten) {
-      return objectToFlatten === undefined || objectToFlatten === null
-        ? ""
-        : flattenObject(objectToFlatten);
-    },
     select(event) {
       this.showSelect = false;
       this.$emit("update:modelValue", event);

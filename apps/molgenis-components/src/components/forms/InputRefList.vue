@@ -12,7 +12,7 @@
           <FilterWell
             v-for="(item, key) in selection"
             :key="JSON.stringify(item)"
-            :label="refLabel ? applyJsTemplate(modelValue, refLabel) : flattenObject(modelValue)"
+            :label="applyJsTemplate(item, refLabel)"
             @click="deselect(key)"
           />
         </div>
@@ -46,7 +46,7 @@
             :class="{ 'is-invalid': errorMessage }"
           />
           <label class="form-check-label" :for="`${id}-${row.name}`">
-            {{ refLabel ? applyJsTemplate(modelValue, refLabel) : flattenObject(modelValue) }}
+            {{ applyJsTemplate(row, refLabel) }}
           </label>
         </div>
         <ButtonAlt
@@ -89,12 +89,7 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import FilterWell from "../filters/FilterWell.vue";
-import {
-  convertToPascalCase,
-  flattenObject,
-  getPrimaryKey,
-  applyJsTemplate,
-} from "../utils";
+import { convertToPascalCase, getPrimaryKey, applyJsTemplate } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -129,6 +124,7 @@ export default {
     },
     refLabel: {
       type: String,
+      required: true,
     },
     /**
      * Whether or not the buttons are show to edit the referenced table
@@ -172,7 +168,6 @@ export default {
       this.loadOptions();
       this.showSelect = false;
     },
-    flattenObject,
     async loadOptions() {
       const options = {
         limit: this.maxNum,
