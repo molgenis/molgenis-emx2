@@ -39,12 +39,12 @@
 </template>
 
 <script>
-import MolgenisMenu from "./MolgenisMenu.vue";
-import MolgenisSession from "../account/MolgenisSession.vue";
-import MolgenisFooter from "./MolgenisFooter.vue";
-import Breadcrumb from "./Breadcrumb.vue";
-import { useSessionStore } from "../../stores/sessionStore";
 import { storeToRefs } from "pinia";
+import { useSessionStore } from "../../stores/sessionStore";
+import MolgenisSession from "../account/MolgenisSession.vue";
+import Breadcrumb from "./Breadcrumb.vue";
+import MolgenisFooter from "./MolgenisFooter.vue";
+import MolgenisMenu from "./MolgenisMenu.vue";
 
 /**
  Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
@@ -100,8 +100,9 @@ export default {
     },
   },
   data: function () {
+    const { session } = storeToRefs(useSessionStore());
     return {
-      session: null,
+      session,
       logoURL: null,
       fullscreen: false,
       timestamp: Date.now(),
@@ -177,11 +178,6 @@ export default {
     toggle() {
       this.fullscreen = !this.fullscreen;
     },
-  },
-  created() {
-    const store = useSessionStore();
-    const { session } = storeToRefs(store);
-    this.session = session;
   },
   emits: ["update:modelValue", "error"],
 };

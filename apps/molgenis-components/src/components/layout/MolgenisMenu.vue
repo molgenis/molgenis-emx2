@@ -56,6 +56,8 @@
 </template>
 
 <script>
+import { storeToRefs } from "pinia";
+import { useSessionStore } from "../../stores/sessionStore";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 
 /** You can use the slot to put a component in the right of menu, e.g. an 'Account' component */
@@ -73,8 +75,6 @@ export default {
     items: Array,
     /** logo to show*/
     logo: String,
-    /** session information, so we can check role permissions */
-    session: Object,
     /** prefix for relative href. Will default to schema name, i.e. first directory in path, e.g. "/pet store/ */
     baseURL: {
       type: String,
@@ -84,6 +84,10 @@ export default {
         return "/" + (path ? path + "/" : "");
       },
     },
+  },
+  data: () => {
+    const { session } = storeToRefs(useSessionStore());
+    return { session };
   },
   computed: {
     permittedItems() {
