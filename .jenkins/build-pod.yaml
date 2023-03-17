@@ -49,7 +49,7 @@ spec:
           memory: 1Gi
       env:
         - name: "KUBECONFIG"
-          value: "/home/jenkins/agent/.kube/config"
+          value: "/home/jenkins/agent:wq/.kube/config"
   volumes:
     - name: postgres-initdb
       emptyDir: {}
