@@ -69,5 +69,18 @@ export default {
       />
     </div>
   </div>
+  <p>With only few columns visible</p>
+  <div>
+    <label for="row-edit-btn-sample">composition of RowButton and EditModal configured for row edit/update</label>
+    <div>
+      <RowButtonEdit
+          id="row-edit-btn-sample"
+          tableName="Pet"
+          :pkey="{name: 'pooky'}"
+          schemaName="pet store"
+          :visibleColumns="['name']"
+      />
+    </div>
+  </div>
 </template>
 </docs>
