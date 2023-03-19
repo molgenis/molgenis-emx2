@@ -38,7 +38,6 @@ const query = gql`
       }
       regions {
         name
-        order
       }
       numberOfParticipants
       numberOfParticipantsWithSamples

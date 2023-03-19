@@ -35,10 +35,10 @@ export default gql`
           name
         }
       }
-      countries {
+      countries(orderby: { order: ASC }) {
         name
       }
-      regions {
+      regions(orderby: { order: ASC }) {
         name
       }
       inclusionCriteria
