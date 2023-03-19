@@ -76,9 +76,7 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups);
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
@@ -149,7 +147,16 @@ if (collectionEvent?.coreVariables?.length) {
           id="age_categories"
           title="Age categories"
         >
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li
+              v-for="ageGroup in removeChildIfParentSelected(
+                collectionEvent.ageGroups || []
+              )"
+              :key="ageGroup.name"
+            >
+              {{ ageGroup.name }}
+            </li>
+          </ul>
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.dataCategories"

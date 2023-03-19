@@ -96,9 +96,7 @@ if (subcohort?.inclusionCriteria) {
   });
 }
 
-let ageGroupsTree = [];
 if (subcohort?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(subcohort.ageGroups);
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
@@ -145,7 +143,16 @@ if (subcohort?.comorbidity?.length) {
           id="age_categories"
           title="Age categories"
         >
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li
+              v-for="ageGroup in removeChildIfParentSelected(
+                subcohort.ageGroups || []
+              )"
+              :key="ageGroup.name"
+            >
+              {{ ageGroup.name }}
+            </li>
+          </ul>
         </ContentBlock>
         <ContentBlock
           v-if="subcohort.mainMedicalCondition"

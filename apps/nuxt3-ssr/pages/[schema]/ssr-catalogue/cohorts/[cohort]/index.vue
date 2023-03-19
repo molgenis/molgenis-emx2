@@ -28,16 +28,16 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups ${loadGql(ontologyFragment)}
+      populationAgeGroups(orderby: {order: ASC}) {
+        name code parent { code }
+      }
       startYear
       endYear
-      countries {
+      countries(orderby: {order: ASC}) {
         name
-        order
       }
       regions {
         name
-        order
       }
       numberOfParticipants
       numberOfParticipantsWithSamples

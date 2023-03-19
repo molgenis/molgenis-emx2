@@ -10,16 +10,14 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: INameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
     name: string;
-    order: number;
   }[];
   regions: {
     name: string;
-    order: number;
   }[];
   numberOfParticipants: number;
   numberOfParticipantsWithSamples?: number;

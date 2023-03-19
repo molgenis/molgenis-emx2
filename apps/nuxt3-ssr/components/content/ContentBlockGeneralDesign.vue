@@ -57,10 +57,7 @@ function setData() {
     {
       label: "Population",
       content: cohort?.countries
-        ? [...cohort?.countries]
-            .sort((a, b) => a.order - b.order)
-            .map((c) => c.name)
-            .join(", ")
+        ? [...cohort?.countries].map((country) => country.name).join(", ")
         : undefined,
     },
     {
@@ -77,8 +74,9 @@ function setData() {
     },
     {
       label: "Age group at inclusion",
-      content: buildOntologyTree(cohort?.populationAgeGroups),
-      type: "ONTOLOGY",
+      content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
+        .map((ageGroup) => ageGroup.name)
+        .join(", "),
     },
     {
       label: "Inclusion criteria",
