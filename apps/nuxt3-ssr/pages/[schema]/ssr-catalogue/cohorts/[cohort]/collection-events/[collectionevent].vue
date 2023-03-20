@@ -39,7 +39,8 @@ watch(
 let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const pageCrumbs: any = {
-  Cohorts: `/${route.params.schema}/ssr-catalogue`,
+  Home: `/${route.params.schema}/ssr-catalogue`,
+  Cohorts: `/${route.params.schema}/ssr-catalogue/cohorts`,
 };
 
 // @ts-ignore
@@ -75,9 +76,7 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups);
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
@@ -91,7 +90,7 @@ if (collectionEvent?.numberOfParticipants) {
 let dataCategoriesTree = [];
 if (collectionEvent?.dataCategories?.length) {
   dataCategoriesTree = buildOntologyTree(collectionEvent.dataCategories);
-  tocItems.push({ label: "Data categories", id: "data_catagories" });
+  tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
@@ -148,12 +147,21 @@ if (collectionEvent?.coreVariables?.length) {
           id="age_categories"
           title="Age categories"
         >
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li
+              v-for="ageGroup in removeChildIfParentSelected(
+                collectionEvent.ageGroups || []
+              )"
+              :key="ageGroup.name"
+            >
+              {{ ageGroup.name }}
+            </li>
+          </ul>
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.dataCategories"
-          id="data_catagories"
-          title="Data catagories"
+          id="data_categories"
+          title="Data categories"
         >
           <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
         </ContentBlock>

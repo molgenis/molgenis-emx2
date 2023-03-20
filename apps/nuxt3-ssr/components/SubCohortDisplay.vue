@@ -79,7 +79,10 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 if (subcohort?.ageGroups?.length) {
   items.push({
     label: "Age categories",
-    content: renderList(subcohort.ageGroups, toName),
+    content: renderList(
+      removeChildIfParentSelected(subcohort.ageGroups),
+      toName
+    ),
   });
 }
 

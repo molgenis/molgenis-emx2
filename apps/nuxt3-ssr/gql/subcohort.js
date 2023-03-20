@@ -15,17 +15,11 @@ export default gql`
       numberOfParticipants
       inclusionStart
       inclusionEnd
-      ageGroups {
+      ageGroups(orderby: { order: ASC }) {
         name
         code
-        order
-        definition
-        ontologyTermURI
         parent {
-          name
-        }
-        children {
-          name
+          code
         }
       }
       mainMedicalCondition {
@@ -41,10 +35,10 @@ export default gql`
           name
         }
       }
-      countries {
+      countries(orderby: { order: ASC }) {
         name
       }
-      regions {
+      regions(orderby: { order: ASC }) {
         name
       }
       inclusionCriteria

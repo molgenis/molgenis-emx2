@@ -10,16 +10,14 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: INameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
     name: string;
-    order: number;
   }[];
   regions: {
     name: string;
-    order: number;
   }[];
   numberOfParticipants: number;
   numberOfParticipantsWithSamples?: number;
@@ -127,6 +125,7 @@ interface INetwork {
   name: string;
   description?: string;
   logo?: IUrlObject;
+  website?: string;
 }
 
 interface ITreeNode {
@@ -139,4 +138,9 @@ interface IOntologyNode extends ITreeNode {
   code?: string;
   definition?: string;
   ontologyTermURI?: string;
+}
+
+interface ISetting {
+  key: string;
+  value: string;
 }

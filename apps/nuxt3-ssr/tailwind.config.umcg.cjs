@@ -54,6 +54,8 @@ module.exports = {
 
         pagination: "transparent",
         "pagination-hover": "#003183",
+        footer: theme("colors.white"),
+        "modal-footer": "#E3EFF8",
       }),
       backgroundImage: {
         "sidebar-gradient":
@@ -78,6 +80,8 @@ module.exports = {
         "breadcrumb-arrow": "#476CA8",
         breadcrumb: "#476CA8",
         title: "#003183",
+        "title-contrast": "#003183",
+        "sub-title-contrast": "#003183",
         "search-button": "#017FFD",
         "search-button-hover": "#017FFD",
 
