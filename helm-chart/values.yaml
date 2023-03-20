@@ -40,4 +40,12 @@ postgres:
   password: postgres
   database: postgres
 
-
+ssrCatalogue:
+  image:
+    repository: molgenis/ssr-catalogue-snapshot
+    tag: latest
+    pullPolicy: IfNotPresent
+  environment:
+    apiBase: ""
+    theme: ""
+    logo: ""
