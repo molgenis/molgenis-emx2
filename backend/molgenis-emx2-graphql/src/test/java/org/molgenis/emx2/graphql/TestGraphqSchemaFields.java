@@ -416,7 +416,7 @@ public class TestGraphqSchemaFields {
     schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
     // refresh graphql
     grapql =
-            new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
