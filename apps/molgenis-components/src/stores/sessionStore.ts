@@ -14,7 +14,7 @@ const defaultSession = {
   locale: "en",
   settings: {} as Record<string, string>,
 };
-let error = ""; //TODO figure out how to do error handling
+let graphqlError = ""; //TODO figure out how to do error handling
 
 export const useSessionStore = defineStore("session", () => {
   let session: Ref<ISession> = ref(defaultSession);
@@ -33,12 +33,12 @@ export const useSessionStore = defineStore("session", () => {
 
   async function signout() {
     const data = await request("graphql", `mutation{signout{status}}`).catch(
-      (error: string) => (error = "internal server error" + error)
+      (error: string) => (graphqlError = "internal server error" + error)
     );
     if (data.signout.status === "SUCCESS") {
       updateSession();
     } else {
-      error = "sign out failed";
+      graphqlError = "sign out failed";
     }
   }
 
@@ -53,9 +53,11 @@ async function getSession(): Promise<ISession> {
         _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales"]){ key, value },
         _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
       }`;
+
   const responses: PromiseSettledResult<IResponse>[] = await Promise.allSettled(
     [request("/apps/central/graphql", query), request("graphql", query)]
   );
+
   const dbSettings =
     responses[0].status === "fulfilled"
       ? responses[0].value

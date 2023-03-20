@@ -136,6 +136,9 @@ import {
 } from "../src/components/utils";
 import constants, { privacyConstants } from "../src/components/constants";
 
+// stores
+import { useSessionStore } from "../src/stores/sessionStore";
+
 export {
   ContactDisplay,
   GridBlock,
@@ -254,4 +257,5 @@ export {
   convertToCamelCase,
   getLocalizedDescription,
   getLocalizedLabel,
+  useSessionStore,
 };

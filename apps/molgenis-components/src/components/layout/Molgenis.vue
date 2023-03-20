@@ -108,11 +108,8 @@ export default {
     };
   },
   created() {
-    console.log("use session store: ", useSessionStore);
     const store = useSessionStore();
-    console.log("store: ", store);
     const { session } = storeToRefs(store);
-    console.log("session: ", session, "function: ", storeToRefs);
     this.session = session;
   },
   computed: {
