@@ -241,6 +241,13 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(
         "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
+    // order by on non-root column
+    TestCase.assertEquals(
+        "delivered",
+        execute("{Pet {orders(orderby: {orderId: ASC}) {status}}}")
+            .at("/Pet/0/orders/0/status")
+            .textValue());
+
     // filter nested
     TestCase.assertEquals(
         "red",
