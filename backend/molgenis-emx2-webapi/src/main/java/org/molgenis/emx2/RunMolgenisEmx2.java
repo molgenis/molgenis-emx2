@@ -41,7 +41,7 @@ public class RunMolgenisEmx2 {
       if (LOAD_ALL_DEMO_DATA) {
         logger.info("Loading all demo data...");
         for (AvailableDataModels model : AvailableDataModels.values()) {
-          String schemaName = model.name().replaceAll(" ", "_").toLowerCase();
+          String schemaName = model.name().replaceAll("_", "").toLowerCase();
           if (db.getSchema(schemaName) == null) {
             Schema schema = db.createSchema(schemaName);
             model.install(schema, true);
