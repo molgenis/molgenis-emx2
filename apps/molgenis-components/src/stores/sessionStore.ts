@@ -14,7 +14,7 @@ const defaultSession = {
   locale: "en",
   settings: {} as Record<string, string>,
 };
-let graphqlError = ""; //TODO figure out how to do error handling
+let graphqlError = "";
 
 export const useSessionStore = defineStore("session", () => {
   let session: Ref<ISession> = ref(defaultSession);
@@ -28,7 +28,6 @@ export const useSessionStore = defineStore("session", () => {
 
   function signin() {
     updateSession();
-    console.log("hallo sign in");
   }
 
   async function signout() {
@@ -42,7 +41,7 @@ export const useSessionStore = defineStore("session", () => {
     }
   }
 
-  return { session, signin, signout };
+  return { graphqlError, session, signin, signout };
 });
 
 async function getSession(): Promise<ISession> {
@@ -92,15 +91,17 @@ async function getSession(): Promise<ISession> {
   return session;
 }
 
-function handleError(reason: IErrorMessage) {}
+function handleError(reason: IErrorMessage) {
+  graphqlError = reason.response?.data?.errors[0]?.message || "";
+}
 
 function loadSettings(
   settings: { _settings: ISetting[] },
-  currentSettings: Record<string, string>
-): Record<string, string> {
-  let newSettings: Record<string, string> = {};
+  currentSettings: Record<string, any>
+): Record<string, any> {
+  let newSettings: Record<string, any> = {};
   settings._settings.forEach((setting) => {
-    const value: string =
+    const value =
       setting.value?.startsWith("[") || setting.value?.startsWith("{")
         ? parseJson(setting.value)
         : setting.value;
@@ -109,12 +110,10 @@ function loadSettings(
   return { ...currentSettings, ...newSettings };
 }
 
-function parseJson(value: string) {
+function parseJson(value: string): string {
   try {
     return JSON.parse(value);
   } catch (error) {
-    // error =
-    //   "Parsing of settings failed: " + error + ". value: " + value;
-    return null;
+    throw "Parsing of settings failed: " + error + ". value: " + value;
   }
 }

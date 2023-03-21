@@ -2,10 +2,11 @@
   <Spinner v-if="loading" />
   <div v-else>
     <div>
-      <span v-if="session.email && session.email != 'anonymous'">
+      <span v-if="session?.email !== 'anonymous'">
         <ButtonAlt @click="showChangePasswordForm = true" class="text-light">
-          Hi {{ session.email }}</ButtonAlt
-        >&nbsp;
+          Hi {{ session.email }}
+        </ButtonAlt>
+        &nbsp;
         <MolgenisAccount
           v-if="showChangePasswordForm"
           :error="error"
@@ -27,11 +28,11 @@
           @close="closeSignupForm"
         />
         <ButtonOutline v-if="isOidcEnabled" href="/_login" :light="true">
-          Sign in</ButtonOutline
-        >
+          Sign in
+        </ButtonOutline>
         <ButtonOutline v-else @click="showSigninForm = true" :light="true">
-          Sign in</ButtonOutline
-        >
+          Sign in
+        </ButtonOutline>
         <MolgenisSignin
           v-if="showSigninForm"
           @signin="changed"
@@ -48,9 +49,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { defineComponent } from "vue";
+import { computed, ref } from "vue";
 import { useSessionStore } from "../../stores/sessionStore";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
@@ -60,87 +61,41 @@ import MolgenisAccount from "./MolgenisAccount.vue";
 import MolgenisSignin from "./MolgenisSignin.vue";
 import SignupForm from "./MolgenisSignup.vue";
 
-/** Element that is supposed to be put in menu holding all controls for user account */
-export default defineComponent({
-  components: {
-    ButtonOutline,
-    MolgenisSignin,
-    SignupForm,
-    MolgenisAccount,
-    Spinner,
-    ButtonAlt,
-    LocaleSwitch,
-  },
-  props: {
-    graphql: {
-      default: "graphql",
-      type: String,
-    },
-  },
-  data: function () {
-    return {
-      showSigninForm: false,
-      showSignupForm: false,
-      showChangePasswordForm: false,
-      error: null as string | null,
-      loading: false,
-      version: null,
-      session: null as any, //TODO get typing right
-      sessionStore: null as any,
-    };
-  },
-  watch: {
-    email() {
-      this.showSigninForm = false;
-      this.showSignupForm = false;
-    },
-  },
-  computed: {
-    isOidcEnabled() {
-      return this.session?.settings?.isOidcEnabled === "true";
-    },
-    locales() {
-      if (this.session?.settings?.locales) {
-        if (Array.isArray(this.session.settings.locales)) {
-          return this.session.settings.locales;
-        } else {
-          this.error =
-            'locales should be array similar to ["en"] but instead was ' +
-            JSON.stringify(this.session.settings.locales);
-        }
-      }
-      //default
-      return ["en"];
-    },
-  },
-  created() {
-    const store = useSessionStore();
-    this.sessionStore = store;
-    const { session } = storeToRefs(store);
-    this.session = session;
-  },
-  methods: {
-    changed() {
-      this.showSigninForm = false;
-      this.sessionStore.signin();
-    },
-    closeSigninForm() {
-      this.showSigninForm = false;
-      this.error = null;
-    },
-    closeSignupForm() {
-      this.showSignupForm = false;
-      this.error = null;
-    },
-    async signout() {
-      this.loading = true;
-      await this.sessionStore.signout();
-      this.showSigninForm = false;
-      this.loading = false;
-    },
-  },
-  emits: ["error"],
-});
+let showSigninForm = ref(false);
+let showSignupForm = ref(false);
+let showChangePasswordForm = ref(false);
+let loading = ref(false);
+
+const sessionStore = useSessionStore();
+const { graphqlError: error, session } = storeToRefs(sessionStore);
+
+const isOidcEnabled = computed(
+  () => session.value?.settings?.isOidcEnabled === "true"
+);
+
+const locales = computed(() => session.value?.settings?.locales || ["en"]);
+
+function changed() {
+  showSigninForm.value = false;
+  sessionStore.signin();
+}
+
+function closeSigninForm() {
+  showSigninForm.value = false;
+  error.value = "";
+}
+
+function closeSignupForm() {
+  showSignupForm.value = false;
+  error.value = "";
+}
+
+async function signout() {
+  loading.value = true;
+  await sessionStore.signout();
+  showSigninForm.value = false;
+  loading.value = false;
+}
 </script>
 
 <docs>

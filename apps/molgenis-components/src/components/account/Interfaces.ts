@@ -5,7 +5,7 @@ export interface ISession {
   locale: string;
   roles?: string[];
   schemas?: any;
-  settings: Record<string, string>;
+  settings: Record<string, any>; //Setting is string, string[], or object, for now any for simplicity
   manifest?: IManifest;
   token?: string;
 }
