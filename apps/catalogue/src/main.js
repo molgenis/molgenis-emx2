@@ -22,6 +22,8 @@ import NetworkVariables from "./network/NetworkVariables.vue";
 import NetworkCohorts from "./network/NetworkCohorts.vue";
 import NetworkDetails from "./network/NetworkDetails.vue";
 import HomeView from "./views/HomeView.vue";
+import { createPinia } from "pinia";
+import { useSessionStore } from "molgenis-components";
 
 import "molgenis-components/dist/style.css";
 
@@ -458,6 +460,11 @@ const router = createRouter({
 });
 
 const app = createApp(App);
+
+const pinia = createPinia();
+app.use(pinia);
+useSessionStore(pinia);
+
 app.use(router);
 app.use(store);
 app.mount("#app");

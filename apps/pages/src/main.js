@@ -4,6 +4,8 @@ import App from "./App.vue";
 import ListPages from "./components/ListPages.vue";
 import ViewPage from "./components/ViewPage.vue";
 import EditPage from "./components/EditPage.vue";
+import { createPinia } from "pinia";
+import { useSessionStore } from "molgenis-components";
 
 import "molgenis-components/dist/style.css";
 
@@ -29,5 +31,10 @@ const router = createRouter({
 });
 
 const app = createApp(App);
+
+const pinia = createPinia();
+app.use(pinia);
+useSessionStore(pinia);
+
 app.use(router);
 app.mount("#app");

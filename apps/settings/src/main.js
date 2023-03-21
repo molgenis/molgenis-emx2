@@ -7,6 +7,8 @@ import MenuManager from "./components/MenuManager.vue";
 import PageManager from "./components/PageManager.vue";
 import ChangelogViewer from "./components/ChangelogViewer.vue";
 import SettingsManager from "./components/SettingsManager.vue";
+import { createPinia } from "pinia";
+import { useSessionStore } from "molgenis-components";
 
 import "molgenis-components/dist/style.css";
 
@@ -51,5 +53,10 @@ const router = createRouter({
 });
 
 const app = createApp(App);
+
+const pinia = createPinia();
+app.use(pinia);
+useSessionStore(pinia);
+
 app.use(router);
 app.mount("#app");

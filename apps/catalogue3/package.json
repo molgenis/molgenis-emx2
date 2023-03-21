@@ -13,10 +13,11 @@
     "graphql-request": "5.2.0",
     "import": "^0.0.6",
     "molgenis-components": "*",
+    "pinia": "2.0.33",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
-    "vue-tabler-icons": "2.20.0",
     "vue-scrollto": "2.20.0",
+    "vue-tabler-icons": "2.20.0",
     "vuex": "4.1.0"
   },
   "browserslist": [
@@ -26,7 +27,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "3.2.0",
     "graphql-tag": "2.12.6",
-    "vite": "4.1.4",
-    "prettier": "2.8.4"
+    "prettier": "2.8.4",
+    "vite": "4.1.4"
   }
 }

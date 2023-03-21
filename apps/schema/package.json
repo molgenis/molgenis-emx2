@@ -12,15 +12,16 @@
     "core-js": "3.29.1",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
+    "nomnoml": "1.5.3",
+    "pinia": "2.0.33",
     "vue": "3.2.47",
     "vue-router": "4.1.6",
     "vue-scrollto": "2.20.0",
-    "vuedraggable": "4.1.0",
-    "nomnoml": "1.5.3"
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "vite": "4.1.4",
     "@vitejs/plugin-vue": "3.2.0",
-    "prettier": "2.8.4"
+    "prettier": "2.8.4",
+    "vite": "4.1.4"
   }
 }
