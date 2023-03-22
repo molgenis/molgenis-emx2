@@ -4,14 +4,9 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
-  // { label: "Home", link: "#" },
-  // { label: "Variables", link: "#", highlight: true },
-  // { label: "Cohorts", link: "`/${schema}/ssr-catalogue`" },
-  // { label: "Networks", link: "#" },
-  // { label: "Statistical Methods", link: "#" },
-  // { label: "Tables", link: "#" },
-  // { label: "Manuals", link: "#" },
-  // { label: "About", link: "#" },
+  { label: "Home", link: "#" },
+  { label: "Cohorts", link: "`/${schema}/ssr-catalogue`" },
+  { label: "About", link: "#" },
 ];
 </script>
 
