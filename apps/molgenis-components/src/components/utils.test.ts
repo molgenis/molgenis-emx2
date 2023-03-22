@@ -1,16 +1,22 @@
 import { describe, assert, test } from "vitest";
 import constants from "./constants";
-import { deepClone, flattenObject, isNumericKey } from "./utils";
+import { deepClone, flattenObject, isNumericKey, isRefType } from "./utils";
 
-const {
-  CODE_0,
-  CODE_9,
-  CODE_BACKSPACE,
-  CODE_MINUS,
-  CODE_DELETE,
-  MIN_LONG,
-  MAX_LONG,
-} = constants;
+const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_MINUS, CODE_DELETE } = constants;
+
+describe("isRefType", () => {
+  test("it should return true for REF, REF_ARRAY, REFBACK, ONTOLOGY, and ONTOLOGY_ARRAY types", () => {
+    assert.isTrue(isRefType("REF"));
+    assert.isTrue(isRefType("REF_ARRAY"));
+    assert.isTrue(isRefType("REFBACK"));
+    assert.isTrue(isRefType("ONTOLOGY"));
+    assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
+  });
+
+  test("it should return false for other types", () => {
+    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
+  });
+});
 
 describe("isNumericKey", () => {
   test("code is CODE_0 (48)", () => {
@@ -18,7 +24,7 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is between CODE_0 and CODE_9", () => {
+  test("code is between CODE_0 (48) and CODE_9 (57)", () => {
     const keyboardEvent = { which: 50 } as KeyboardEvent;
     assert.isTrue(isNumericKey(keyboardEvent));
   });
@@ -38,7 +44,7 @@ describe("isNumericKey", () => {
     assert.isTrue(isNumericKey(keyboardEvent));
   });
 
-  test("code is not numerical of input modification", () => {
+  test("code is not numerical or input modification", () => {
     const keyboardEvent = { which: CODE_MINUS } as KeyboardEvent;
     assert.isFalse(isNumericKey(keyboardEvent));
   });
