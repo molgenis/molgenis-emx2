@@ -331,7 +331,7 @@ let fundingAndAcknowledgementItems = computed(() => {
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`"
+          :contact="cohort?.contactEmail"
         />
         <ContentBlockDescription
           id="Description"
