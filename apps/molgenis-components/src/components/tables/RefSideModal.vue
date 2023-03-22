@@ -75,7 +75,7 @@ async function getRowData(): Promise<IRefModalData[]> {
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
           });
-        queryResult.metaData = metaData;
+        queryResult.metadata = metaData;
         newQueryResults.push(queryResult);
       }
     }

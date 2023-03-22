@@ -1,5 +1,8 @@
 <template>
-  <h5 v-if="reference.name" class="ml-1">{{ reference.name }}</h5>
+  <h5 class="ml-1">
+    Primary Key: {{ getPrimaryKey(reference, reference.metadata) }}
+    {{ JSON.stringify(reference.metaData, null, 2) }}
+  </h5>
   <table class="table table-sm">
     <tr v-for="(value, key) in filteredResults(reference)">
       <td class="key border-right">{{ key }}</td>
@@ -40,6 +43,7 @@ table .key {
 <script lang="ts" setup>
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
+import { getPrimaryKey } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
 const props = defineProps<{
@@ -48,15 +52,14 @@ const props = defineProps<{
   isCollapsed?: boolean;
 }>();
 
-function filteredResults(reference: IRefModalData): IRefModalData {
-  const filtered = { ...reference };
-  delete filtered.name;
+function filteredResults(reference: IRefModalData): Record<string, any> {
+  const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
   delete filtered.mg_updatedBy;
   delete filtered.mg_updatedOn;
   delete filtered.mg_draft;
-  delete filtered.metaData;
+  delete filtered.metadata;
   return filtered;
 }
 
