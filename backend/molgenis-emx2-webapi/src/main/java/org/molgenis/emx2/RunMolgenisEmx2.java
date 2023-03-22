@@ -3,7 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
-import org.molgenis.emx2.datamodels.AvailableDataModels;
+import org.molgenis.emx2.datamodels.DataCatalogueLoader;
 import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -15,9 +15,9 @@ public class RunMolgenisEmx2 {
 
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
-  private static final boolean LOAD_ALL_DEMO_DATA =
+  private static final boolean INCLUDE_CATALOGUE_DEMO =
       (Boolean)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_LOAD_ALL_DEMO_DATA, false, BOOL);
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -38,18 +38,14 @@ public class RunMolgenisEmx2 {
     try {
       db.becomeAdmin();
 
-      if (LOAD_ALL_DEMO_DATA) {
-        logger.info("Loading all demo data...");
-        for (AvailableDataModels model : AvailableDataModels.values()) {
-          String schemaName = model.name().replaceAll("_", " ").toLowerCase();
-          if (db.getSchema(schemaName) == null) {
-            Schema schema = db.createSchema(schemaName);
-            model.install(schema, true);
-          }
-        }
-      } else if (db.getSchema("pet store") == null) {
+      if (db.getSchema("pet store") == null) {
         Schema schema = db.createSchema("pet store");
         new PetStoreLoader().load(schema, true);
+      }
+
+      if (INCLUDE_CATALOGUE_DEMO && db.getSchema("catalogue") == null) {
+        Schema schema = db.createSchema("catalogue");
+        new DataCatalogueLoader().load(schema, true);
       }
 
     } finally {
