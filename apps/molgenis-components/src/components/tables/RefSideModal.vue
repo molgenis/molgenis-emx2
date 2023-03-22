@@ -6,8 +6,12 @@
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
 
-      <div v-for="queryResult in queryResults">
-        <RefTable :reference="queryResult" :showDataOwner="showDataOwner" />
+      <div v-for="(queryResult, index) in queryResults">
+        <RefTable
+          :reference="queryResult"
+          :showDataOwner="showDataOwner"
+          :isCollapsed="index > 2"
+        />
       </div>
     </div>
     <template v-slot:footer="slot">

@@ -45,6 +45,7 @@ import DataDisplayCell from "./DataDisplayCell.vue";
 const props = defineProps<{
   reference: IRefModalData;
   showDataOwner?: boolean;
+  isCollapsed?: boolean;
 }>();
 
 function filteredResults(reference: IRefModalData): IRefModalData {
