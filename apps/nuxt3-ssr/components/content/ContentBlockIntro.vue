@@ -53,12 +53,10 @@ function onContactClick() {
         buttonAlignment="right"
       >
         <ContentBlock title="Contact">
-          Email:
-          <a
-            class="text-blue-500 hover:underline"
-            :href="`mailto:${contact}`"
-            >{{ contact }}</a
-          >
+          <div class="font-bold text-body-base">E-mail</div>
+          <a class="text-blue-500 hover:underline" :href="`mailto:${contact}`">
+            {{ contact }}
+          </a>
         </ContentBlock>
 
         <template #footer>
