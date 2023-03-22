@@ -60,14 +60,18 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-const config = useRuntimeConfig()
 
-const styleHref = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+const config = useRuntimeConfig()
 const faviconHref = config.public.emx2Theme ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico` : '/_nuxt-styles/img/molgenis.ico'
+
+// dynamically load css via nuxt-assets system
+const theme = config.public.emx2Theme ? `.${config.public.emx2Theme}` : ''
+const glob = import.meta.glob("./assets/css/*", {"eager": false, "query": "?inline" });
+glob[`./assets/css/styles${theme}.css`]["default"];
+
 useHead({
   link: [
-    { rel: 'icon', href: faviconHref}, 
-    { rel: 'stylesheet', type: 'text/css', href: styleHref }
+    { rel: 'icon', href: faviconHref},
   ]
 });
 </script>

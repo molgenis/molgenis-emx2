@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 var shell = require("shelljs");
-var location = "./public/_nuxt-styles/css/";
+var location = "./assets/css/";
 
 shell.exec(
   `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.css --watch`,

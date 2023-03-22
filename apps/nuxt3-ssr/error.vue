@@ -5,12 +5,10 @@ defineProps(['error'])
 
 const config = useRuntimeConfig()
 console.log(config.public)
-const href = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
-useHead({
-  link: [
-    { rel: 'stylesheet', type: 'text/css', href }
-  ]
-});
+// dynamically load css via nuxt-assets system
+const theme = config.public.emx2Theme ? `.${config.public.emx2Theme}` : ''
+const glob = import.meta.glob("./assets/css/*", {"eager": false, "query": "?inline" });
+glob[`./assets/css/styles${theme}.css`]["default"];
 
 </script>
 
