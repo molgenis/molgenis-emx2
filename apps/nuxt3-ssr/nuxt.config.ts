@@ -21,7 +21,10 @@ const config = {
       emx2Theme: '',
       emx2Logo: '',
     }
-  }
+  },
+  nitro: {
+    compressPublicAssets: { brotli: true },
+  },
 }
 
 if (process.env.NODE_ENV === 'development') {
