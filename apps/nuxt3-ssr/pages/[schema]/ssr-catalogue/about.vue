@@ -139,35 +139,35 @@
           centres ©2023. All rights reserved. Redistribution or reproduction of
           (part of) the content in any form is prohibited other than the
           following:
-          <ul class="list-disc list-outside">
-            <li>
+          <List>
+            <ListItem>
               You may print or download to a local hard disk part of the content
               for your personal and non-commercial use only.
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               You may use part of the content in grant applications or
               publications, but only if you acknowledge the website as the
               source of the material used.
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               You may copy and transfer part of the content to individual third
               parties for their personal use, but only if you acknowledge the
               website as the source of the material transferred.
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               You may not, except with our express written permission, transmit
               or store any of the content in another website or other form of
               electronic retrieval system.
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               You may not distribute or commercially exploit the UMCG Research
               Data Catalogue website content.
-            </li>
-          </ul>
+            </ListItem>
+          </List>
         </ContentBlock>
         <ContentBlock id="other" title="Other resource catalogues">
-          <ul>
-            <li>
+          <List>
+            <ListItem>
               <a
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
@@ -175,8 +175,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >Bbmri-NL</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://directory.bbmri-eric.eu/#/"
                 rel="noopener noreferrer"
@@ -184,8 +184,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >BBMRI-ERIC</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://www.maelstrom-research.org/page/catalogue"
                 rel="noopener noreferrer"
@@ -193,8 +193,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >Maelstrom catalogue</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://www.healthinformationportal.eu/"
                 rel="noopener noreferrer"
@@ -202,8 +202,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >European Health Information Portal</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://dans.knaw.nl/nl/"
                 rel="noopener noreferrer"
@@ -211,8 +211,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >DANS</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://explore.openaire.eu/"
                 rel="noopener noreferrer"
@@ -220,8 +220,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >OpenAIRE</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://www.cessda.eu/Tools/Data-Catalogue"
                 rel="noopener noreferrer"
@@ -229,8 +229,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >CESSDA</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
                 rel="noopener noreferrer"
@@ -238,8 +238,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >LifeCycle</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://www.clinicaltrialsregister.eu/ctr-search/search"
                 rel="noopener noreferrer"
@@ -247,8 +247,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >Clinical trial register EU</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="https://datasetsearch.research.google.com/"
                 rel="noopener noreferrer"
@@ -256,8 +256,8 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >Google Dataset Search</a
               >
-            </li>
-            <li>
+            </ListItem>
+            <ListItem>
               <a
                 href="http://catalogue.dcvalliance.nl/"
                 rel="noopener noreferrer"
@@ -265,17 +265,24 @@
                 style="background-color: transparent; color: rgb(5, 99, 193)"
                 >DCV Alliance</a
               >
-            </li>
-          </ul>
-
-          <em style="background-color: transparent; color: rgb(0, 0, 0)"
-            >We regularly check the reliability of the information on the sites
-            we link to. Nevertheless, the UMCG cannot be held accountable for
-            the content of other websites, nor for the privacy protection or
-            services provided by other websites.​​​​​​​</em
-          >
+            </ListItem>
+          </List>
+          <p class="clear-both">
+            <em>
+              We regularly check the reliability of the information on the sites
+              we link to. Nevertheless, the UMCG cannot be held accountable for
+              the content of other websites, nor for the privacy protection or
+              services provided by other websites.</em
+            >
+          </p>
         </ContentBlock>
       </ContentBlocks>
     </template>
   </LayoutsDetailPage>
 </template>
+<script>
+import ContentBlockDescription from "../../../components/content/ContentBlockDescription";
+export default {
+  components: { ContentBlockDescription },
+};
+</script>
