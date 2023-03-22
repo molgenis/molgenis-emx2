@@ -5,6 +5,11 @@ if (useRoute) {
 }
 const menu = [
   { label: "Home", link: `/${schema}/ssr-catalogue/` },
+    // { label: "Variables", link: "#", highlight: true },
+  // { label: "Networks", link: "#" },
+  // { label: "Statistical Methods", link: "#" },
+  // { label: "Tables", link: "#" },
+  // { label: "Manuals", link: "#" },
   { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
   { label: "About", link: `/${schema}/ssr-catalogue/about` },
 ];
