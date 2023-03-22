@@ -5,7 +5,7 @@ if (useRoute) {
 }
 const menu = [
   { label: "Home", link: `/${schema}/ssr-catalogue/` },
-    // { label: "Variables", link: "#", highlight: true },
+  // { label: "Variables", link: "#", highlight: true },
   // { label: "Networks", link: "#" },
   // { label: "Statistical Methods", link: "#" },
   // { label: "Tables", link: "#" },

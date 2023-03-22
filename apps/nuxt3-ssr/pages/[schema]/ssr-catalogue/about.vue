@@ -37,7 +37,7 @@
           >. The UMCG Research Data Catalogue includes a wide variety of data
           and sample resources, from large population-based cohorts and clinical
           biobanks to studies and everything in between. Some resources date
-          back all the way to 1962.&nbsp; The catalogue was developed by the
+          back all the way to 1962. The catalogue was developed by the
           <a
             href="https://umcgresearch.org/w/gcc"
             rel="noopener noreferrer"
@@ -51,9 +51,10 @@
             target="_blank"
             class="text-blue-500 underline hover:bg-blue-50"
             >Cohort and Biobank Coordination Hub (CBCH)</a
-          >&nbsp; and the Digital Competence Center (DCC) of the UMCG. This
-          database was created using the MOLGENIS molgenis-emx2 open source
-          software (license: LGPLv3). Please cite
+          >
+          and the Digital Competence Center (DCC) of the UMCG. This database was
+          created using the MOLGENIS molgenis-emx2 open source software
+          (license: LGPLv3). Please cite
           <a
             href="https://doi.org/10.1093/bioinformatics/bty742"
             rel="noopener noreferrer"
@@ -113,7 +114,7 @@
             class="text-blue-500 underline hover:bg-blue-50"
             >researchdatacatalogue@umcg.nl</a
           >
-          .&nbsp; Questions about the Molgenis software can be sent to
+          . Questions about the Molgenis software can be sent to
           <a
             href="mailto:molgenis-support@umcg.nl"
             rel="noopener noreferrer"
@@ -127,12 +128,12 @@
           resource or automatically from linked sources. No rights can be
           derived from it. The UMCG is not responsible for any errors in the
           metadata or the content of the resource profiles on
-          umcgresearchdatacatalogue.nl.&nbsp; Data from resource participants
-          cannot be directly accessed in or through this meta-data catalogue.
-          Access to the resources is restricted and use must fit within the
-          informed consent that participants signed before collection.
-          Researchers can request access to data and samples. Please see the
-          individual resource pages for details.&nbsp;
+          umcgresearchdatacatalogue.nl. Data from resource participants cannot
+          be directly accessed in or through this meta-data catalogue. Access to
+          the resources is restricted and use must fit within the informed
+          consent that participants signed before collection. Researchers can
+          request access to data and samples. Please see the individual resource
+          pages for details.
         </ContentBlock>
         <ContentBlock id="terms" title="Terms and Conditions">
           This website and its content are property of the UMCG and cooperating
@@ -280,9 +281,3 @@
     </template>
   </LayoutsDetailPage>
 </template>
-<script>
-import ContentBlockDescription from "../../../components/content/ContentBlockDescription";
-export default {
-  components: { ContentBlockDescription },
-};
-</script>
