@@ -4,9 +4,9 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
-  { label: "Home", link: "#" },
-  { label: "Cohorts", link: "`/${schema}/ssr-catalogue`" },
-  { label: "About", link: "#" },
+  { label: "Home", link: `/${schema}/ssr-catalogue/` },
+  { label: "Cohorts", link: `/${schema}/ssr-catalogue/cohorts` },
+  { label: "About", link: `/${schema}/ssr-catalogue/about` },
 ];
 </script>
 
@@ -16,9 +16,9 @@ const menu = [
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo :link="`/${schema}/ssr-catalogue`" />
         <MainNavigation :navigation="menu" />
-        <div class="w-[450px]">
-          <!-- <SearchBar /> -->
-        </div>
+        <!--  <div class="w-[450px]">
+           <SearchBar />
+        </div>-->
 
         <!-- <HeaderButton label="Favorites" icon="star" />
         <HeaderButton label="Account" icon="user" /> -->
