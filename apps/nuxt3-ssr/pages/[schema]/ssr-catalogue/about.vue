@@ -9,7 +9,7 @@
     </template>
     <template #side>
       <SideNavigation
-        :title="collectionEvent?.name"
+        title="About"
         :items="[
           { id: 'intro', label: 'Introduction' },
           { id: 'standards', label: 'Standards' },
@@ -32,7 +32,7 @@
             href="https://www.go-fair.org/fair-principles/"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >FAIR principles</a
           >. The UMCG Research Data Catalogue includes a wide variety of data
           and sample resources, from large population-based cohorts and clinical
@@ -42,14 +42,14 @@
             href="https://umcgresearch.org/w/gcc"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >Genomics Coordination Centre (GCC)</a
           >, the
           <a
             href="https://umcgresearch.org/w/umcg-cohort-and-biobank-coordination-hub"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >Cohort and Biobank Coordination Hub (CBCH)</a
           >&nbsp; and the Digital Competence Center (DCC) of the UMCG. This
           database was created using the MOLGENIS molgenis-emx2 open source
@@ -58,7 +58,7 @@
             href="https://doi.org/10.1093/bioinformatics/bty742"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >Van der Velde et al (2018)</a
           >
           or
@@ -66,7 +66,7 @@
             href="https://doi.org/10.1186/1471-2105-11-S12-S12"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >Swertz et al (2010)</a
           >
           on use.
@@ -81,7 +81,7 @@
             href="https://icd.who.int/browse10/2019/en#/"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >ICD-10 (International Statistical Classification of Diseases and
             Related Health Problems)</a
           >,
@@ -89,7 +89,7 @@
             href="https://www.orphadata.com/orphanet-nomenclature-for-coding/"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >ORPHA codes (Orphanet nomenclature of rare diseases)</a
           >
           and
@@ -97,7 +97,7 @@
             href="https://github.com/BBMRI-ERIC/miabis"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >MIABIS (Minimum Information About BIobank data Sharing)</a
           >.
         </ContentBlock>
@@ -110,7 +110,7 @@
             href="mailto:researchdatacatalogue@umcg.nl"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >researchdatacatalogue@umcg.nl</a
           >
           .&nbsp; Questions about the Molgenis software can be sent to
@@ -118,7 +118,7 @@
             href="mailto:molgenis-support@umcg.nl"
             rel="noopener noreferrer"
             target="_blank"
-            style="background-color: transparent; color: rgb(5, 99, 193)"
+            class="text-blue-500 underline hover:bg-blue-50"
             >molgenis-support@umcg.nl</a
           >.
         </ContentBlock>
@@ -172,7 +172,7 @@
                 href="https://catalogue.bbmri.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >Bbmri-NL</a
               >
             </ListItem>
@@ -181,7 +181,7 @@
                 href="https://directory.bbmri-eric.eu/#/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >BBMRI-ERIC</a
               >
             </ListItem>
@@ -190,7 +190,7 @@
                 href="https://www.maelstrom-research.org/page/catalogue"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >Maelstrom catalogue</a
               >
             </ListItem>
@@ -199,7 +199,7 @@
                 href="https://www.healthinformationportal.eu/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >European Health Information Portal</a
               >
             </ListItem>
@@ -208,7 +208,7 @@
                 href="https://dans.knaw.nl/nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >DANS</a
               >
             </ListItem>
@@ -217,7 +217,7 @@
                 href="https://explore.openaire.eu/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >OpenAIRE</a
               >
             </ListItem>
@@ -226,7 +226,7 @@
                 href="https://www.cessda.eu/Tools/Data-Catalogue"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >CESSDA</a
               >
             </ListItem>
@@ -235,7 +235,7 @@
                 href="https://lifecycle-project.eu/for-scientists/variable-catalogue/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >LifeCycle</a
               >
             </ListItem>
@@ -244,7 +244,7 @@
                 href="https://www.clinicaltrialsregister.eu/ctr-search/search"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >Clinical trial register EU</a
               >
             </ListItem>
@@ -253,7 +253,7 @@
                 href="https://datasetsearch.research.google.com/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >Google Dataset Search</a
               >
             </ListItem>
@@ -262,12 +262,12 @@
                 href="http://catalogue.dcvalliance.nl/"
                 rel="noopener noreferrer"
                 target="_blank"
-                style="background-color: transparent; color: rgb(5, 99, 193)"
+                class="text-blue-500 underline hover:bg-blue-50"
                 >DCV Alliance</a
               >
             </ListItem>
           </List>
-          <p class="clear-both">
+          <p class="clear-both pt-5">
             <em>
               We regularly check the reliability of the information on the sites
               we link to. Nevertheless, the UMCG cannot be held accountable for
