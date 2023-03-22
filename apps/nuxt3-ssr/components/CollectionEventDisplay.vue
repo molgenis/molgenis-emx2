@@ -75,7 +75,7 @@ if (collectionEvent?.numberOfParticipants) {
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       collectionEvent.startYear && collectionEvent.startYear.name
         ? collectionEvent.startYear.name

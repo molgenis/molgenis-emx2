@@ -57,12 +57,18 @@ function setData() {
     {
       label: "Population",
       content: cohort?.countries
-        ? [...cohort?.countries].map((country) => country.name).join(", ")
+        ? [...cohort?.countries]
+            .sort((a, b) => b.order - a.order)
+            .map((country) => country.name)
+            .join(", ")
         : undefined,
     },
     {
       label: "Regions",
-      content: cohort?.regions?.map((r) => r.name).join(", "),
+      content: cohort?.regions
+        ?.sort((a, b) => b.order - a.order)
+        .map((r) => r.name)
+        .join(", "),
     },
     {
       label: "Number of participants",
@@ -75,6 +81,7 @@ function setData() {
     {
       label: "Age group at inclusion",
       content: removeChildIfParentSelected(cohort?.populationAgeGroups || [])
+        .sort((a, b) => a.order - b.order)
         .map((ageGroup) => ageGroup.name)
         .join(", "),
     },

@@ -64,7 +64,7 @@ if (collectionEvent?.subcohorts?.length) {
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       collectionEvent.startYear && collectionEvent.startYear.name
         ? collectionEvent.startYear.name
@@ -151,7 +151,7 @@ if (collectionEvent?.coreVariables?.length) {
             <li
               v-for="ageGroup in removeChildIfParentSelected(
                 collectionEvent.ageGroups || []
-              )"
+              ).sort((a, b) => a.order - b.order)"
               :key="ageGroup.name"
             >
               {{ ageGroup.name }}

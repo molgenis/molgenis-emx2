@@ -74,7 +74,7 @@ if (subcohort?.numberOfParticipants) {
 }
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd
@@ -85,7 +85,10 @@ if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
 if (subcohort?.countries) {
   items.push({
     label: "Population",
-    content: renderList(subcohort.countries, toName),
+    content: renderList(
+      subcohort.countries.sort((a, b) => b.order - a.order),
+      toName
+    ),
   });
 }
 
@@ -147,7 +150,7 @@ if (subcohort?.comorbidity?.length) {
             <li
               v-for="ageGroup in removeChildIfParentSelected(
                 subcohort.ageGroups || []
-              )"
+              ).sort((a, b) => a.order - b.order)"
               :key="ageGroup.name"
             >
               {{ ageGroup.name }}
