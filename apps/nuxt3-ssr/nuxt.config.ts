@@ -20,6 +20,7 @@ const config = {
       apiBase: 'http://localhost:3000/', //'https://emx2.molgeniscloud.org/',
       emx2Theme: '',
       emx2Logo: '',
+      siteTitle: 'Data Catalogue',
     }
   },
   nitro: {

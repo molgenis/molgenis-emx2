@@ -94,6 +94,8 @@ spec:
               value: {{ .Values.ssrCatalogue.environment.theme }}
             - name: NUXT_PUBLIC_EMX2_LOGO
               value: {{ .Values.ssrCatalogue.environment.logo }}
+            - name: NUXT_PUBLIC_SITE_TITLE
+              value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
       volumes:
         - name: postgres-initdb
           configMap:

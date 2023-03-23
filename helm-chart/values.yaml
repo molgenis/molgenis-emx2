@@ -52,3 +52,4 @@ ssrCatalogue:
     apiBase: ""
     theme: ""
     logo: ""
+    siteTitle: "Data catalogue"

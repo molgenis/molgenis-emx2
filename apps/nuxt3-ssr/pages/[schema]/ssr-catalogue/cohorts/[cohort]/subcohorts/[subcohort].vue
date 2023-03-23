@@ -119,6 +119,8 @@ if (subcohort?.comorbidity?.length) {
 }
 
 // todo add count table ( empty in current test set)
+
+useHead({ title: subcohort?.name });
 </script>
 
 <template>
