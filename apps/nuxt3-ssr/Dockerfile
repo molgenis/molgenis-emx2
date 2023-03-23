@@ -33,6 +33,9 @@ ENV NUXT_PUBLIC_EMX2_THEME=$NUXT_PUBLIC_EMX2_THEME
 # Set the logo name 
 ENV NUXT_PUBLIC_EMX2_LOGO=$NUXT_PUBLIC_EMX2_LOGO
 
+# Set the site title
+ENV NUXT_PUBLIC_SITE_TITLE=$NUXT_PUBLIC_SITE_TITLE
+
 ## Start the server
 CMD node .output/server/index.mjs
 
