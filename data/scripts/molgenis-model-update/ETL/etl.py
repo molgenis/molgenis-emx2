@@ -48,38 +48,20 @@ class TransformGeneral:
             os.remove(self.path + 'molgenis_settings.csv')
 
 
-class CopyTables:
+class CohortsETL:
     """Copy tables from SharedStaging to other schemas to get rid of references from
     SharedStaging inside catalogue"""
 
-    def __init__(self, database):
-        self.database = database
-        self.path = './files/' + self.database + '_data/'
+    def __init__(self, source_database, target_database):
+        self.source_database = source_database
+        self.target_database = target_database
+        self.path = './files/' + self.source_database + '_data/'
 
-    def copy_tables_to_catalogue(self):
-        # copy Institutions from SharedStaging to catalogue
-        source = './files/SharedStaging_data/'
-        target = self.path
-        shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
-                        os.path.abspath(os.path.join(target, 'Institutions.csv')))
-
-        # copy files from SharedStaging to catalogue
-        path_shared_staging_files = os.path.abspath('../files/SharedStaging_data/_files/')
-        path_catalogue_files = os.path.abspath(os.path.join(self.path, '_files/'))
-        for file in os.listdir(path_shared_staging_files):
-            if file not in os.listdir(path_catalogue_files):
-                shutil.copyfile(os.path.join(path_shared_staging_files, file),
-                                os.path.join(path_catalogue_files, file))
-
-    def copy_tables_to_CatalogueOntologies(self):
-        # copy CoreVariables from SharedStaging to CatalogueOntologies
-        source = './files/SharedStaging_data/'
-        target = self.path
-        shutil.copyfile(os.path.abspath(os.path.join(source, 'CoreVariables.csv')),
-                        os.path.abspath(os.path.join(target, 'CoreVariables.csv')))
-
-        # copy Institutions from SharedStaging to CatalogueOntologies
-        source = './files/SharedStaging_data/'
-        target = './files/CatalogueOntologies_data/'
-        shutil.copyfile(os.path.abspath(os.path.join(source, 'Institutions.csv')),
-                        os.path.abspath(os.path.join(target, 'Institutions.csv')))
+    def cohorts(self):
+        """Rename column in cohorts
+        """
+        df_cohorts = pd.read_csv(self.path + 'Cohorts.csv')
+        df_cohorts = float_to_int(df_cohorts)  # convert float back to integer
+        new_mg_tableclass = self.target_database + '.Cohorts'
+        df_cohorts.mg_tableclass = new_mg_tableclass
+        df_cohorts.to_csv(self.path + 'Cohorts.csv', index=False, mode='w+')
