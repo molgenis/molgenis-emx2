@@ -40,6 +40,9 @@ postgres:
   password: postgres
   database: postgres
 
+catalogue:
+  includeCatalogueDemo: false
+
 ssrCatalogue:
   image:
     repository: molgenis/ssr-catalogue-snapshot
