@@ -5,19 +5,35 @@
       class="mr-1"
     >
       {{ fragment }}
+      <button
+        v-if="canCollapse"
+        class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
+        @click="collapsed = !collapsed"
+      >
+        <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
+      </button>
     </span>
   </h5>
-  <table class="table table-sm">
-    <tr v-for="(value, key) in filteredResults(reference)">
-      <td class="key border-right">{{ key }}</td>
-      <td class="value">
-        <div v-if="reference.metadata">
-          <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
-        </div>
-        <div v-else>{{ value }}</div>
-      </td>
-    </tr>
-  </table>
+  <div>
+    <div :class="{ 'collapsed-table': collapsed }">
+      <table class="table table-sm">
+        <tr v-for="(value, key) in filteredResults(reference)">
+          <td class="key border-right">{{ key }}</td>
+          <td class="value">
+            <div v-if="reference.metadata">
+              <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
+            </div>
+            <div v-else>{{ value }}</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div v-if="collapsed" class="collapsed-tag border-top rounded-bottom mb-3">
+      <small class="px-3 link-color" @click="collapsed = false">
+        Show all records...
+      </small>
+    </div>
+  </div>
 
   <small class="text-black-50" v-if="showDataOwner">
     <div v-if="reference.mg_insertedBy">
@@ -42,19 +58,41 @@
 table .key {
   width: 0;
 }
+.collapsed-table {
+  max-height: 6.5rem;
+  overflow: hidden;
+}
+.collapsed-tag {
+  text-align: center;
+  color: var(--primary);
+  cursor: pointer;
+}
+.collapsed-tag:hover {
+  text-decoration: underline;
+}
+.collapsed-table .table {
+  margin-bottom: 0 !important;
+}
 </style>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
-const props = defineProps<{
+const { reference, startsCollapsed } = defineProps<{
   reference: IRefModalData;
   showDataOwner?: boolean;
-  isCollapsed?: boolean;
+  startsCollapsed?: boolean;
 }>();
+
+const canCollapse = Object.keys(filteredResults(reference)).length > 3;
+let collapsed = ref(startsCollapsed);
+if (collapsed && !canCollapse) {
+  collapsed.value = false;
+}
 
 function filteredResults(reference: IRefModalData): Record<string, any> {
   const filtered: Record<string, any> = { ...reference };
@@ -68,7 +106,7 @@ function filteredResults(reference: IRefModalData): Record<string, any> {
 }
 
 function metadataOfRow(key: string | number) {
-  const metadata = props.reference.metadata;
+  const metadata = reference.metadata;
   if (isMetaData(metadata) && metadata.columns) {
     return metadata.columns.find((column) => column.name === key) || {};
   } else {

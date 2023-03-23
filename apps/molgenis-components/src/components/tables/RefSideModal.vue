@@ -10,7 +10,7 @@
         <RefTable
           :reference="queryResult"
           :showDataOwner="showDataOwner"
-          :isCollapsed="index > 2"
+          :startsCollapsed="true || index > 2"
         />
       </div>
     </div>
