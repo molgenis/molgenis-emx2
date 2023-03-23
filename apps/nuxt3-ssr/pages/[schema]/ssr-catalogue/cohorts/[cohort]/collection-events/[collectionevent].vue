@@ -120,6 +120,8 @@ if (collectionEvent?.coreVariables?.length) {
     content: renderList(collectionEvent?.coreVariables, toName),
   });
 }
+
+useHead({ title: collectionEvent?.name });
 </script>
 
 <template>
