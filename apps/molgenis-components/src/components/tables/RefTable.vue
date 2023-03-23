@@ -28,10 +28,12 @@
         </tr>
       </table>
     </div>
-    <div v-if="collapsed" class="collapsed-tag border-top rounded-bottom mb-3">
-      <small class="px-3 link-color" @click="collapsed = false">
-        Show all records...
-      </small>
+    <div
+      v-if="collapsed"
+      class="collapsed-tag border-top rounded-bottom mb-3"
+      @click="collapsed = false"
+    >
+      <small class="px-3 link-color"> Show all records... </small>
     </div>
   </div>
 
