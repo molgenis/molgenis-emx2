@@ -1,58 +1,63 @@
 <template>
-  <h5 class="ml-1">
-    <span
-      v-for="fragment in getPrimaryKey(reference, reference.metadata)"
-      class="mr-1"
-    >
-      {{ fragment }}
-      <button
-        v-if="canCollapse"
-        class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
-        @click="collapsed = !collapsed"
+  <div class="mb-4">
+    <h5 class="ml-1">
+      <span
+        v-for="fragment in getPrimaryKey(reference, reference.metadata)"
+        class="mr-1"
       >
-        <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
-      </button>
-    </span>
-  </h5>
-  <div>
-    <div :class="{ 'collapsed-table': collapsed }">
-      <table class="table table-sm">
-        <tr v-for="(value, key) in filteredResults(reference)">
-          <td class="key border-right">{{ key }}</td>
-          <td class="value">
-            <div v-if="reference.metadata">
-              <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
-            </div>
-            <div v-else>{{ value }}</div>
-          </td>
-        </tr>
-      </table>
+        {{ fragment }}
+        <button
+          v-if="canCollapse"
+          class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
+          @click="collapsed = !collapsed"
+        >
+          <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
+        </button>
+      </span>
+    </h5>
+    <div>
+      <div :class="{ 'collapsed-table': collapsed }">
+        <table class="table table-sm mb-2">
+          <tr v-for="(value, key) in filteredResults(reference)">
+            <td class="key border-right">{{ key }}</td>
+            <td class="value">
+              <div v-if="reference.metadata">
+                <DataDisplayCell
+                  :data="value"
+                  :meta-data="metadataOfRow(key)"
+                />
+              </div>
+              <div v-else>{{ value }}</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div
+        v-if="collapsed"
+        class="collapsed-tag border-top rounded-bottom mb-3"
+        @click="collapsed = false"
+      >
+        <small class="px-3 link-color"> Show all records... </small>
+      </div>
     </div>
-    <div
-      v-if="collapsed"
-      class="collapsed-tag border-top rounded-bottom mb-3"
-      @click="collapsed = false"
-    >
-      <small class="px-3 link-color"> Show all records... </small>
-    </div>
-  </div>
 
-  <small class="text-black-50" v-if="showDataOwner">
-    <div v-if="reference.mg_insertedBy">
-      Inserted by '{{ reference.mg_insertedBy }}'
-      <span v-if="reference.mg_insertedOn">
-        On {{ new Date(reference.mg_insertedOn as string).toLocaleString() }}
-      </span>
+    <small class="text-black-50" v-if="showDataOwner">
+      <div v-if="reference.mg_insertedBy">
+        Inserted by '{{ reference.mg_insertedBy }}'
+        <span v-if="reference.mg_insertedOn">
+          On {{ new Date(reference.mg_insertedOn as string).toLocaleString() }}
+        </span>
+      </div>
+      <div v-if="reference.mg_updatedBy">
+        Updated by '{{ reference.mg_updatedBy }}'
+        <span v-if="reference.mg_updatedOn">
+          On {{ new Date(reference.mg_updatedOn as string).toLocaleString() }}
+        </span>
+      </div>
+    </small>
+    <div v-if="reference.mg_draft">
+      <span class="badge badge-secondary">Draft</span>
     </div>
-    <div v-if="reference.mg_updatedBy">
-      Updated by '{{ reference.mg_updatedBy }}'
-      <span v-if="reference.mg_updatedOn">
-        On {{ new Date(reference.mg_updatedOn as string).toLocaleString() }}
-      </span>
-    </div>
-  </small>
-  <div v-if="reference.mg_draft">
-    <span class="badge badge-secondary">Draft</span>
   </div>
 </template>
 
