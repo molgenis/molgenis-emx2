@@ -25,8 +25,9 @@ export default gql`
         name
       }
       numberOfParticipants
-      ageGroups(orderby: { order: ASC }) {
+      ageGroups {
         name
+        order
         code
         parent {
           code

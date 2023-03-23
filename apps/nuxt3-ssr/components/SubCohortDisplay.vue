@@ -68,7 +68,7 @@ if (subcohort?.numberOfParticipants) {
 
 if (subcohort?.inclusionStart || subcohort?.inclusionEnd) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       subcohort.inclusionStart,
       subcohort.inclusionEnd

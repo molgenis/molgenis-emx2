@@ -15,7 +15,8 @@ export default gql`
       numberOfParticipants
       inclusionStart
       inclusionEnd
-      ageGroups(orderby: { order: ASC }) {
+      ageGroups {
+        order
         name
         code
         parent {
@@ -35,11 +36,13 @@ export default gql`
           name
         }
       }
-      countries(orderby: { order: ASC }) {
+      countries {
         name
+        order
       }
-      regions(orderby: { order: ASC }) {
+      regions {
         name
+        order
       }
       inclusionCriteria
       supplementaryInformation

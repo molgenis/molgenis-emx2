@@ -15,9 +15,11 @@ interface ICohort {
   endYear: number;
   countries: {
     name: string;
+    order: number;
   }[];
   regions: {
     name: string;
+    order: number;
   }[];
   numberOfParticipants: number;
   numberOfParticipantsWithSamples?: number;
