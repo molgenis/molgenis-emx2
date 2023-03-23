@@ -60,9 +60,18 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
+import { hash } from "./utils/fingerprint.js"
 const config = useRuntimeConfig()
 
-const styleHref = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+let themeFilename = 'styles'
+if (config.public.emx2Theme) {
+  themeFilename += `.${config.public.emx2Theme}`
+}  
+if (hash) {
+  themeFilename += `.${hash}`
+}
+
+const styleHref = `/_nuxt-styles/css/${ themeFilename }.css`
 const faviconHref = config.public.emx2Theme ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico` : '/_nuxt-styles/img/molgenis.ico'
 useHead({
   link: [
