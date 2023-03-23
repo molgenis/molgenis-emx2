@@ -24,11 +24,9 @@ fs.writeFileSync(
 );
 
 shell.exec(
-  `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.${fingerPrint}.css --watch`,
-  { async: true }
+  `tailwindcss -c ./tailwind.config.cjs -i ${location}main.css -o ${location}styles.${fingerPrint}.css --minify`
 );
 shell.exec(
-  `tailwindcss -c ./tailwind.config.umcg.cjs -i ${location}main.css -o ${location}styles.umcg.${fingerPrint}.css --watch`,
-  { async: true }
+  `tailwindcss -c ./tailwind.config.umcg.cjs -i ${location}main.css -o ${location}styles.umcg.${fingerPrint}.css --minify`
 );
 shell.exec("nuxt build");
