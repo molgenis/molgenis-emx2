@@ -1,14 +1,18 @@
 <template>
   <h5 class="ml-1">
-    Primary Key: {{ getPrimaryKey(reference, reference.metadata) }}
-    {{ JSON.stringify(reference.metaData, null, 2) }}
+    <span
+      v-for="fragment in getPrimaryKey(reference, reference.metadata)"
+      class="mr-1"
+    >
+      {{ fragment }}
+    </span>
   </h5>
   <table class="table table-sm">
     <tr v-for="(value, key) in filteredResults(reference)">
       <td class="key border-right">{{ key }}</td>
       <td class="value">
-        <div v-if="reference.metaData">
-          <DataDisplayCell :data="value" :meta-data="metaDataOfRow(key)" />
+        <div v-if="reference.metadata">
+          <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
         </div>
         <div v-else>{{ value }}</div>
       </td>
@@ -63,8 +67,8 @@ function filteredResults(reference: IRefModalData): Record<string, any> {
   return filtered;
 }
 
-function metaDataOfRow(key: string | number) {
-  const metadata = props.reference.metaData;
+function metadataOfRow(key: string | number) {
+  const metadata = props.reference.metadata;
   if (isMetaData(metadata) && metadata.columns) {
     return metadata.columns.find((column) => column.name === key) || {};
   } else {
