@@ -101,7 +101,8 @@ pipeline {
                         "--set image.pullPolicy=Always " +
                         "--set ingress.hosts[0].host=${NAME}.dev.molgenis.org " +
                         "--set ssrCatalogue.image.tag=${TAG_NAME} " +
-                        "--set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ "
+                        "--set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ " +
+                        "--set catalogue.includeCatalogueDemo=true "
                 }
             }
             post {
