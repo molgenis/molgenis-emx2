@@ -1,3 +1,7 @@
 name,code,order,definition,comments,parent,ontologyTermURI
 Principal Investigator,,1,Primary investigator,,,
 Primary contact,,2,Primary contact person,,,
+Project manager,,3,,,,
+Data manager,,4,,,,
+WorkPackage leader,,5,,,,
+Rights holder,,6,,,,
