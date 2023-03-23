@@ -297,7 +297,6 @@ Studies,,cdms,refback,,,,Mappings,,source,,,Common data model(s) used in this st
 Studies,,study features,ontology_array,,,CatalogueOntologies,Study features,,,,,Data features,,,
 Studies,,data characterisation details,text,,,,,,,,,Provide a summary description of the data characterisation or quality check process,,,
 Studies,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,,,
-Studies,,data source types,ontology_array,,,CatalogueOntologies,Study datasource types,,,,,Types of data sources used,,,
 Studies,,data source types other,text,,,,,,,,,"Sources of data, if other",,,
 Studies,,quality marks,ontology_array,,,CatalogueOntologies,Study quality marks,,,,,"Quality marks, such as ENCePP seal",,,
 Studies,,number of data sources,,,,,,,,,,Total number of data sources included in the study,,,
