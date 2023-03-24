@@ -3,7 +3,7 @@
     <h5 class="ml-1">
       <ObjectDisplay
         :data="primaryKey"
-        :meta-data="primaryKey?.length ? metadataOfRow(primaryKey[0]) : null"
+        :meta-data="metadataOfRow(Object.keys(primaryKey)[0])"
         class="mr-1"
       />
       <button
