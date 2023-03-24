@@ -77,22 +77,23 @@ table .key {
 </style>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, toRefs } from "vue";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey } from "../utils";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
-const { reference, startsCollapsed } = defineProps<{
+const props = defineProps<{
   reference: IRefModalData;
   showDataOwner?: boolean;
   startsCollapsed?: boolean;
 }>();
+const { reference, startsCollapsed } = toRefs(props);
 
-let filteredResults = computed(() => getFilteredResults(reference));
-let canCollapse = computed(() => Object.keys(filteredResults).length > 3);
+let filteredResults = computed(() => getFilteredResults(reference.value));
+let canCollapse = computed(() => Object.keys(filteredResults.value).length > 3);
 
-let collapsed = ref(startsCollapsed && canCollapse);
+let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
 function getFilteredResults(reference: IRefModalData): Record<string, any> {
   const filtered: Record<string, any> = { ...reference };
@@ -106,7 +107,7 @@ function getFilteredResults(reference: IRefModalData): Record<string, any> {
 }
 
 function metadataOfRow(key: string | number) {
-  const metadata = reference.metadata;
+  const metadata = reference.value.metadata;
   if (isMetaData(metadata) && metadata.columns) {
     return metadata.columns.find((column) => column.name === key) || {};
   } else {

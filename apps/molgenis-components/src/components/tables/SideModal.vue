@@ -47,9 +47,7 @@ const { isVisible } = toRefs(props);
 let delayedIsVisible = ref(false);
 function delayedUpdatedIsVisible() {
   setTimeout(() => {
-    console.log("delayedUpdatedIsVisible: ", delayedIsVisible);
     delayedIsVisible.value = isVisible.value;
-    console.log(delayedIsVisible);
   }, 1);
 }
 delayedUpdatedIsVisible();
