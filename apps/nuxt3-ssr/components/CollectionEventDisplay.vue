@@ -100,21 +100,24 @@ if (collectionEvent?.ageGroups?.length) {
 if (collectionEvent?.areasOfInformation?.length) {
   items.push({
     label: "Areas of information",
-    content: renderList(collectionEvent?.areasOfInformation, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.areasOfInformation),
   });
 }
 
 if (collectionEvent?.dataCategories?.length) {
   items.push({
     label: "Data Categories",
-    content: renderList(collectionEvent?.dataCategories, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.dataCategories),
   });
 }
 
 if (collectionEvent?.sampleCategories?.length) {
   items.push({
     label: "Sample categories",
-    content: renderList(collectionEvent?.sampleCategories, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(collectionEvent.sampleCategories),
   });
 }
 

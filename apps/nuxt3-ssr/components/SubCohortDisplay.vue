@@ -89,21 +89,24 @@ if (subcohort?.ageGroups?.length) {
 if (subcohort?.mainMedicalCondition) {
   items.push({
     label: "Main medical condition",
-    content: renderList(subcohort.mainMedicalCondition, toName, toCommaList),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.mainMedicalCondition),
   });
 }
 
 if (subcohort?.comorbidity) {
   items.push({
     label: "Comorbidity",
-    content: renderList(subcohort.comorbidity, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.comorbidity),
   });
 }
 
 if (subcohort?.countries) {
   items.push({
     label: "Population",
-    content: renderList(subcohort.countries, toName),
+    type: "ONTOLOGY",
+    content: buildOntologyTree(subcohort.countries),
   });
 }
 
