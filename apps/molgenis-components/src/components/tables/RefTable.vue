@@ -6,14 +6,14 @@
         class="mr-1"
       >
         {{ keyFragment }}
-        <button
-          v-if="canCollapse"
-          class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
-          @click="collapsed = !collapsed"
-        >
-          <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
-        </button>
       </span>
+      <button
+        v-if="canCollapse"
+        class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
+        @click="collapsed = !collapsed"
+      >
+        <i :class="`fas fa-fw fa-angle-${collapsed ? 'up' : 'down'}`"></i>
+      </button>
     </h5>
     <div>
       <div :class="{ 'collapsed-table': collapsed }">
