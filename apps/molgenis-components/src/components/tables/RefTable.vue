@@ -90,8 +90,8 @@ const { reference, startsCollapsed } = defineProps<{
 }>();
 
 let filteredResults = computed(() => getFilteredResults(reference));
+let canCollapse = computed(() => Object.keys(filteredResults).length > 3);
 
-const canCollapse = Object.keys(filteredResults).length > 3;
 let collapsed = ref(startsCollapsed && canCollapse);
 
 function getFilteredResults(reference: IRefModalData): Record<string, any> {
