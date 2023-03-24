@@ -2,10 +2,10 @@
   <div class="mb-4">
     <h5 class="ml-1">
       <span
-        v-for="fragment in getPrimaryKey(reference, reference.metadata)"
+        v-for="keyFragment in getPrimaryKey(reference, reference.metadata)"
         class="mr-1"
       >
-        {{ fragment }}
+        {{ keyFragment }}
         <button
           v-if="canCollapse"
           class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
