@@ -1,12 +1,11 @@
 <template>
   <div class="mb-4">
     <h5 class="ml-1">
-      <span
-        v-for="keyFragment in getPrimaryKey(reference, reference.metadata)"
+      <ObjectDisplay
+        :data="getPrimaryKey(reference, reference.metadata)"
+        :meta-data="reference.metadata"
         class="mr-1"
-      >
-        {{ keyFragment }}
-      </span>
+      />
       <button
         v-if="canCollapse"
         class="btn p-0 m-0 btn-outline-primary border-0 ml-auto float-right"
