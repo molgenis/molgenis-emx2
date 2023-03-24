@@ -30,6 +30,7 @@ import MessageError from "../forms/MessageError.vue";
 import { getPrimaryKey } from "../utils";
 import SideModal from "./SideModal.vue";
 import RefTable from "./RefTable.vue";
+import Spinner from "../layout/Spinner.vue";
 
 const props = withDefaults(
   defineProps<{
