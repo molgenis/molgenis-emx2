@@ -52,10 +52,10 @@ export default defineComponent({
     cellTypeComponentName() {
       return this.isArrayType
         ? "ListDisplay"
-        : typeMap[this.metaData.columnType] || "StringDisplay";
+        : typeMap[this.metaData?.columnType] || "StringDisplay";
     },
     isArrayType() {
-      return this.metaData.columnType.includes("ARRAY") > 0;
+      return this.metaData?.columnType?.includes("ARRAY") > 0;
     },
     isEmpty() {
       return (

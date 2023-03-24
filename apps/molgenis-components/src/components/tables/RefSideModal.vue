@@ -68,15 +68,15 @@ async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
   if (tableId.value !== "") {
     for (const row of rows.value) {
-      const metaData = await client.value.fetchTableMetaData(tableId.value);
-      const primaryKey = getPrimaryKey(row, metaData);
+      const metadata = await client.value.fetchTableMetaData(tableId.value);
+      const primaryKey = getPrimaryKey(row, metadata);
       if (primaryKey) {
         const queryResult = await client.value
           .fetchRowData(tableId.value, primaryKey)
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
           });
-        queryResult.metadata = metaData;
+        queryResult.metadata = metadata;
         newQueryResults.push(queryResult);
       }
     }

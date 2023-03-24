@@ -2,8 +2,8 @@
   <div class="mb-4">
     <h5 class="ml-1">
       <ObjectDisplay
-        :data="getPrimaryKey(reference, reference.metadata)"
-        :meta-data="reference.metadata"
+        :data="primaryKey"
+        :meta-data="primaryKey?.length ? metadataOfRow(primaryKey[0]) : null"
         class="mr-1"
       />
       <button
@@ -94,6 +94,9 @@ let filteredResults = computed(() => getFilteredResults(reference.value));
 let canCollapse = computed(() => Object.keys(filteredResults.value).length > 3);
 
 let collapsed = ref(startsCollapsed.value && canCollapse.value);
+let primaryKey = computed(() =>
+  getPrimaryKey(reference.value, reference.value.metadata)
+);
 
 function getFilteredResults(reference: IRefModalData): Record<string, any> {
   const filtered: Record<string, any> = { ...reference };
