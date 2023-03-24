@@ -7,11 +7,11 @@
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative">
+    <div class="z-30 relative min-h-screen flex flex-col">
       <slot name="header">
         <AppHeader />
       </slot>
-      <main>
+      <main class="mb-auto">
         <slot>
           <NuxtPage />
         </slot>
@@ -60,26 +60,30 @@
 
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
-import { hash } from "./utils/fingerprint.js"
-const config = useRuntimeConfig()
+import { hash } from "./utils/fingerprint.js";
+const config = useRuntimeConfig();
 
-let themeFilename = 'styles'
+let themeFilename = "styles";
 if (config.public.emx2Theme) {
-  themeFilename += `.${config.public.emx2Theme}`
-}  
+  themeFilename += `.${config.public.emx2Theme}`;
+}
 if (hash) {
-  themeFilename += `.${hash}`
+  themeFilename += `.${hash}`;
 }
 
-const styleHref = `/_nuxt-styles/css/${ themeFilename }.css`
-const faviconHref = config.public.emx2Theme ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico` : '/_nuxt-styles/img/molgenis.ico'
+const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
+const faviconHref = config.public.emx2Theme
+  ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
+  : "/_nuxt-styles/img/molgenis.ico";
 useHead({
   link: [
-    { rel: 'icon', href: faviconHref}, 
-    { rel: 'stylesheet', type: 'text/css', href: styleHref }
+    { rel: "icon", href: faviconHref },
+    { rel: "stylesheet", type: "text/css", href: styleHref },
   ],
   titleTemplate: (titleChunk) => {
-    return titleChunk ? `${titleChunk} | ${config.siteTitle}` : `${config.siteTitle}`;
-  }
+    return titleChunk
+      ? `${titleChunk} | ${config.siteTitle}`
+      : `${config.siteTitle}`;
+  },
 });
 </script>
