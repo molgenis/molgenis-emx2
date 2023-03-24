@@ -137,16 +137,14 @@ const variables = { pid: route.params.cohort };
 
 let cohort: ICohort;
 
-const {
-  data: cohortData,
-  pending,
-  error,
-  refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
-});
+const { data: cohortData, pending, error, refresh } = await useFetch(
+  `/${route.params.schema}/catalogue/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables },
+  }
+);
 
 watch(cohortData, setData, {
   deep: true,
@@ -299,6 +297,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 
   return items;
 });
+
+useHead({ title: cohort?.acronym || cohort?.name });
 </script>
 <template>
   <LayoutsDetailPage>

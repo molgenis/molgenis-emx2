@@ -77,6 +77,9 @@ useHead({
   link: [
     { rel: 'icon', href: faviconHref}, 
     { rel: 'stylesheet', type: 'text/css', href: styleHref }
-  ]
+  ],
+  titleTemplate: (titleChunk) => {
+    return titleChunk ? `${titleChunk} | ${config.siteTitle}` : `${config.siteTitle}`;
+  }
 });
 </script>
