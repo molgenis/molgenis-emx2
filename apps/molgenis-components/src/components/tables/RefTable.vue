@@ -18,16 +18,10 @@
     <div>
       <div :class="{ 'collapsed-table': collapsed }">
         <table class="table table-sm mb-2">
-          <tr v-for="(value, key) in filteredResults(reference)">
+          <tr v-for="(value, key) in filteredResults">
             <td class="key border-right">{{ key }}</td>
             <td class="value">
-              <div v-if="reference.metadata">
-                <DataDisplayCell
-                  :data="value"
-                  :meta-data="metadataOfRow(key)"
-                />
-              </div>
-              <div v-else>{{ value }}</div>
+              <DataDisplayCell :data="value" :meta-data="metadataOfRow(key)" />
             </td>
           </tr>
         </table>
@@ -83,7 +77,7 @@ table .key {
 </style>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey } from "../utils";
@@ -95,13 +89,12 @@ const { reference, startsCollapsed } = defineProps<{
   startsCollapsed?: boolean;
 }>();
 
-const canCollapse = Object.keys(filteredResults(reference)).length > 3;
-let collapsed = ref(startsCollapsed);
-if (collapsed && !canCollapse) {
-  collapsed.value = false;
-}
+let filteredResults = computed(() => getFilteredResults(reference));
 
-function filteredResults(reference: IRefModalData): Record<string, any> {
+const canCollapse = Object.keys(filteredResults).length > 3;
+let collapsed = ref(startsCollapsed && canCollapse);
+
+function getFilteredResults(reference: IRefModalData): Record<string, any> {
   const filtered: Record<string, any> = { ...reference };
   delete filtered.mg_insertedBy;
   delete filtered.mg_insertedOn;
