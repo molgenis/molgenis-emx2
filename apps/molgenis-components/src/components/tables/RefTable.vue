@@ -80,6 +80,7 @@ import { computed, ref, toRefs } from "vue";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { ITableMetaData } from "../../Interfaces/ITableMetaData";
 import { getPrimaryKey } from "../utils";
+import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import DataDisplayCell from "./DataDisplayCell.vue";
 
 const props = defineProps<{
