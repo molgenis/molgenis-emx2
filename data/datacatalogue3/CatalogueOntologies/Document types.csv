@@ -14,3 +14,4 @@ Results tables,,,"Results tables from the study uploaded to the catalogue. Uploa
 Study report,,,"A link to the study report, if publicly available online",,
 "Study, other information",,,"Any other file required for the study (up to 5 files up to 20MB each) and/or URLs to other relevant resources describing the study",,
 Data source ETL specifications,,,"If available, documents describing the mapping of the data source to the CDM (including codes and scripts to transform original data to CDM)",,,
+Governance details,,,"Documents or webpages that describe the overall governance of the data source and processes and procedures for data capture and management, data quality check and validation results",,,
