@@ -5,7 +5,6 @@
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-
       <div v-for="(queryResult, index) in queryResults">
         <RefTable
           :reference="queryResult"
@@ -22,7 +21,6 @@
 
 <script lang="ts" setup>
 import { ref, toRefs, watch } from "vue";
-import { INewClient } from "../../client/IClient";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
@@ -31,13 +29,14 @@ import { getPrimaryKey } from "../utils";
 import SideModal from "./SideModal.vue";
 import RefTable from "./RefTable.vue";
 import Spinner from "../layout/Spinner.vue";
+import Client from "../../client/client";
 
 const props = withDefaults(
   defineProps<{
     tableId: string;
     label: string;
     showDataOwner?: boolean;
-    client: INewClient;
+    schema: string;
     rows?: IRow[];
   }>(),
   {
@@ -45,7 +44,7 @@ const props = withDefaults(
     rows: () => [] as IRow[],
   }
 );
-const { client, label, rows, tableId } = toRefs(props);
+const { label, rows, tableId, schema } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
@@ -66,12 +65,20 @@ async function updateData() {
 
 async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
+  const externalSchemaClient = Client.newClient(schema.value);
+
   if (tableId.value !== "") {
     for (const row of rows.value) {
-      const metadata = await client.value.fetchTableMetaData(tableId.value);
+      const metadata = await externalSchemaClient
+        .fetchTableMetaData(tableId.value)
+        .catch((error) => {
+          console.log("error", error);
+        });
       const primaryKey = getPrimaryKey(row, metadata);
+
       if (primaryKey) {
-        const queryResult = await client.value
+        // NOTE TO SELF: schemaName of this may differ here
+        const queryResult = await externalSchemaClient
           .fetchRowData(tableId.value, primaryKey)
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
