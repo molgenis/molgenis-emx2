@@ -52,18 +52,25 @@ export default {
             );
           });
 
-          return resourceMapping ? resourceMapping.match.name : "zna";
+          return resourceMapping ? resourceMapping.match.name : "na";
         });
 
-        if (
-        (statusList.includes("partial") ||
-          statusList.includes("complete")) &&
-          !statusList.includes("zna")
-        ) {
+        const baseVariable = this.resourceMappings.find((mapping) => {
+          return (
+            mapping.toVariable.name === this.variable.name &&
+            mapping.fromTable.dataDictionary.resource.pid === resource.pid
+          );
+        });
+
+        if (baseVariable) {
+          statusList.push(baseVariable.match.name);
+        }
+
+        if (!statusList.includes("na")) {
           return "complete";
         } else if (
           statusList.includes("partial") ||
-          (statusList.includes("complete") && statusList.includes("zna"))
+          statusList.includes("complete")
         ) {
           return "partial";
         } else {
