@@ -112,7 +112,7 @@ function getFilteredResults(reference: IRefModalData): Record<string, any> {
 function metadataOfRow(key: string | number) {
   const metadata = reference.value.metadata;
   if (isMetaData(metadata) && metadata.columns) {
-    return metadata.columns.find((column) => column.name === key) || {};
+    return metadata.columns.find((column) => column.id === key) || {};
   } else {
     throw "Error: Metadata for RefTable not found";
   }
