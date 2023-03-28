@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onBeforeMount, watch, toRefs, ref } from "vue";
+import { onBeforeMount, onBeforeUnmount, ref, toRefs, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -45,12 +45,8 @@ const { isVisible } = toRefs(props);
 
 // NOTE: We need a single dom update to pass before making the component visible for css to animate the difference in styles.
 let delayedIsVisible = ref(false);
-function delayedUpdatedIsVisible() {
-  setTimeout(() => {
-    delayedIsVisible.value = isVisible.value;
-  }, 1);
-}
 delayedUpdatedIsVisible();
+
 watch(isVisible, () => {
   delayedUpdatedIsVisible();
 });
@@ -68,6 +64,12 @@ onBeforeUnmount(() => {
     document.removeEventListener("keydown", escapeKeyHandler);
   }
 });
+
+function delayedUpdatedIsVisible() {
+  setTimeout(() => {
+    delayedIsVisible.value = isVisible.value;
+  });
+}
 
 function escapeKeyHandler(event: any) {
   if (event.key === "Escape") {

@@ -33,7 +33,7 @@ import SideModal from "./SideModal.vue";
 
 const props = withDefaults(
   defineProps<{
-    schema: string;
+    schema?: string;
     tableId: string;
     label: string;
     showDataOwner?: boolean;
@@ -101,7 +101,8 @@ async function getRowData(): Promise<IRefModalData[]> {
     :isVisible="showModal"
     @onClose="showModal = false"
   />
-  <br /><button @click="showModal = !showModal">Toggle modal</button>
+  <br />
+  <button @click="showModal = !showModal">Toggle modal</button>
 </template>
 <script>
 export default {
