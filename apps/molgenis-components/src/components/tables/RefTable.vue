@@ -2,6 +2,7 @@
   <div class="mb-4">
     <h5 class="ml-1">
       <ObjectDisplay
+        v-if="primaryKey"
         :data="primaryKey"
         :meta-data="metadataOfRow(Object.keys(primaryKey)[0])"
         class="mr-1"
@@ -92,11 +93,11 @@ const { reference, startsCollapsed } = toRefs(props);
 
 let filteredResults = computed(() => getFilteredResults(reference.value));
 let canCollapse = computed(() => Object.keys(filteredResults.value).length > 3);
-
-let collapsed = ref(startsCollapsed.value && canCollapse.value);
 let primaryKey = computed(() =>
   getPrimaryKey(reference.value, reference.value.metadata)
 );
+
+let collapsed = ref(startsCollapsed.value && canCollapse.value);
 
 function getFilteredResults(reference: IRefModalData): Record<string, any> {
   const filtered: Record<string, any> = { ...reference };

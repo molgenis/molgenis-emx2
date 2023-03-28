@@ -21,23 +21,23 @@
 
 <script lang="ts" setup>
 import { ref, toRefs, watch } from "vue";
+import Client from "../../client/client";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
-import { getPrimaryKey } from "../utils";
-import SideModal from "./SideModal.vue";
-import RefTable from "./RefTable.vue";
 import Spinner from "../layout/Spinner.vue";
-import Client from "../../client/client";
+import { getPrimaryKey } from "../utils";
+import RefTable from "./RefTable.vue";
+import SideModal from "./SideModal.vue";
 
 const props = withDefaults(
   defineProps<{
+    schema: string;
     tableId: string;
     label: string;
     showDataOwner?: boolean;
-    schema: string;
-    refSchema: string;
+    refSchema?: string;
     rows?: IRow[];
   }>(),
   {
@@ -45,14 +45,16 @@ const props = withDefaults(
     rows: () => [] as IRow[],
   }
 );
-const { label, rows, tableId, schema, refSchema } = toRefs(props);
+const { label, rows, tableId } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
 let loading = ref(true);
 let queryResults = ref([] as IRefModalData[]);
 let errorMessage = ref("");
+
 updateData();
+
 watch([tableId, label, rows], () => {
   updateData();
 });
@@ -66,19 +68,16 @@ async function updateData() {
 
 async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
-  const activeSchema = refSchema.value || schema.value;
+  const activeSchema = props.refSchema || props.schema;
   const externalSchemaClient = Client.newClient(activeSchema);
   if (tableId.value !== "") {
     for (const row of rows.value) {
-      const metadata = await externalSchemaClient
-        .fetchTableMetaData(tableId.value)
-        .catch((error) => {
-          console.log("error", error);
-        });
+      const metadata = await externalSchemaClient.fetchTableMetaData(
+        tableId.value
+      );
       const primaryKey = getPrimaryKey(row, metadata);
 
       if (primaryKey) {
-        // NOTE TO SELF: schemaName of this may differ here
         const queryResult = await externalSchemaClient
           .fetchRowData(tableId.value, primaryKey)
           .catch(() => {
