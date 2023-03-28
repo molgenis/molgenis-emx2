@@ -1,0 +1,18 @@
+#!/bin/sh
+# from https://medium.com/@mmessell/apply-spotless-formatting-with-git-pre-commit-hook-1c484ea68c34
+# this will be installed during gradle build into .git/hooks/pre-commit
+
+echo '[git hook] executing gradle spotlessApply and format before commit'
+
+# find the changes
+stagedFiles=$(git diff --staged --name-only)
+
+# run the spotlessCheck with the gradle wrapper
+./gradlew spotlessApply format --daemon
+
+# add the reformatted files
+for file in $stagedFiles; do
+  if test -f "$file"; then
+    git add $file
+  fi
+done

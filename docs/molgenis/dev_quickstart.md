@@ -111,15 +111,12 @@ last updated 24 nov 2022
 
 ### Pre-commit hook
 
-We use pre-commit build hook in .git/hooks/pre-push to ensure we don't push stuff that breaks the build.
+We use pre-commit build hook in .git/hooks/pre-commit to ensure we don't push stuff that breaks the build.
 
+It will be automatically installed on gradle build, however, if you develop javascript you might not build.
+Then, to  install manually, type following:
 ```
-./gradlew test --info
-RESULTS=$?
-if[$RESULTS -ne 0]; then
-    exit 1
-fi
-exit 0
+./gradlew installLocalGitHook
 ```
 
 ### Running tests in intellij

@@ -186,3 +186,11 @@ task cleandb(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
+
+//install pre-commit hook
+task installLocalGitHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit')
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0775
+}
+build.dependsOn installLocalGitHook
