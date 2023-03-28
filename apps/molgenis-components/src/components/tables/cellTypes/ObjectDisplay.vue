@@ -1,6 +1,10 @@
 <template>
-  <div v-if="hasTemplate">{{ asTemplate }}</div>
-  <div v-else>{{ asDotSeparatedString }}</div>
+  <span v-if="hasTemplate">
+    {{ asTemplate }}
+  </span>
+  <span v-else>
+    {{ asDotSeparatedString }}
+  </span>
 </template>
 
 <script>

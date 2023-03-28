@@ -6,9 +6,9 @@ plugins {
 }
 
 def nodeSpec = {
-    version = '16.16.0'
+    version = '18.14.2'
     yarnVersion = '1.22.19'
-    npmVersion = "8.17.0"
+    npmVersion = "9.5.1"
     download = true
 }
 
@@ -32,6 +32,25 @@ subprojects {
 
     task format(type: YarnTask, dependsOn: parent.yarn_install) {
         args = ['run', 'format']
+        if(project.name == 'nuxt3-ssr') {
+            outputs.dir('components')
+            outputs.dir('composables')
+            outputs.dir('gql')
+            outputs.dir('interfaces')
+            outputs.dir('pages')
+            outputs.dir('plugins')
+            outputs.dir('utils')
+            inputs.files(fileTree('components'))
+            inputs.files(fileTree('composables'))
+            inputs.files(fileTree('gql'))
+            inputs.files(fileTree('interfaces'))
+            inputs.files(fileTree('pages'))
+            inputs.files(fileTree('plugins'))
+            inputs.files(fileTree('utils'))
+        } else {
+            inputs.files(fileTree('src'))
+            outputs.dir('src')
+        }
     }
 
     task build(type: YarnTask, dependsOn: format) {

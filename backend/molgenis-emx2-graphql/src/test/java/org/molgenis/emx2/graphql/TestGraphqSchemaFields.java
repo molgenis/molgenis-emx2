@@ -241,6 +241,13 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals(
         "tweety", execute("{Pet(orderby:{name:DESC}){name}}").at("/Pet/0/name").textValue());
 
+    // order by on non-root column
+    TestCase.assertEquals(
+        "delivered",
+        execute("{Pet {orders(orderby: {orderId: ASC}) {status}}}")
+            .at("/Pet/0/orders/0/status")
+            .textValue());
+
     // filter nested
     TestCase.assertEquals(
         "red",
@@ -338,6 +345,78 @@ public class TestGraphqSchemaFields {
     TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tags/name").textValue());
 
     // N.B. in case arrays are involved total might more than count!!!
+  }
+
+  @Test
+  public void testGroupByWithSpaces() throws IOException {
+    // rename column 'category' to 'category_test' and 'tag' to 'tag test' and 'name' to 'name test'
+    Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category");
+    newCategory.setName("category test");
+    Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags");
+    newTags.setName("tags test");
+    Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name");
+    newCategoryName.setName("name test");
+    Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name");
+    newTagName.setName("name test");
+    schema.getTable("Pet").getMetadata().alterColumn("category", newCategory);
+    schema.getTable("Pet").getMetadata().alterColumn("tags", newTags);
+    schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
+    schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
+
+    // refresh graphql
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+
+    // refs
+    JsonNode result = execute("{Pet_groupBy{count,tagsTest{nameTest}}}");
+    // 1 red
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    // 1 green
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").asText());
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    // 1 with no tags
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
+    TestCase.assertEquals(3, result.at("/Pet_groupBy/2/count").intValue());
+
+    result = execute("{Pet_groupBy{count,categoryTest{nameTest}}}");
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("bird", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
+
+    // currently doensn't contain cat because somehow 'null' are not included
+    result = execute("{Pet_groupBy{count,tagsTest{nameTest},categoryTest{nameTest}}}");
+    // 1 <untagged> cat
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
+    TestCase.assertEquals("cat", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
+    TestCase.assertEquals(null, result.at("/Pet_groupBy/0/tagsTest/nameTest").textValue());
+    // 1 blue mouse
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
+    TestCase.assertEquals("mouse", result.at("/Pet_groupBy/1/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("blue", result.at("/Pet_groupBy/1/tagsTest/nameTest").textValue());
+    // 1 green ant
+    TestCase.assertEquals(1, result.at("/Pet_groupBy/2/count").intValue());
+    TestCase.assertEquals("ant", result.at("/Pet_groupBy/2/categoryTest/nameTest").textValue());
+    TestCase.assertEquals("green", result.at("/Pet_groupBy/2/tagsTest/nameTest").textValue());
+
+    // N.B. in case arrays are involved total might more than count!!!
+
+    // undo rename column with spaces for any other test
+    newCategory = schema.getTable("Pet").getMetadata().getColumn("category test");
+    newCategory.setName("category");
+    newTags = schema.getTable("Pet").getMetadata().getColumn("tags test");
+    newTags.setName("tags");
+    newCategoryName = schema.getTable("Category").getMetadata().getColumn("name test");
+    newCategoryName.setName("name");
+    newTagName = schema.getTable("Tag").getMetadata().getColumn("name test");
+    newTagName.setName("name");
+    schema.getTable("Pet").getMetadata().alterColumn("category test", newCategory);
+    schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
+    schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
+    schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
+    // refresh graphql
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
@@ -488,7 +567,11 @@ public class TestGraphqSchemaFields {
       System.out.println(convertToCamelCase("Person details"));
 
       myschema.create(
-          table("Person details", column("First name").setPkey(), column("Last_name").setPkey()),
+          table(
+              "Person details",
+              column("First name").setPkey(),
+              column("Last_name").setPkey(),
+              column("some number").setType(ColumnType.INT)),
           table(
               "Some",
               column("id").setPkey(),
@@ -497,7 +580,7 @@ public class TestGraphqSchemaFields {
 
       grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
-          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\"}){message}}");
+          "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
       int count = execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue();
 
@@ -533,6 +616,15 @@ public class TestGraphqSchemaFields {
           execute("{PersonDetails(orderby:{last_name:DESC}){last_name}}")
               .at("/PersonDetails/0/last_name")
               .asText());
+
+      // aggregates should be working with spaces too
+      JsonNode agg =
+          execute(
+              "{PersonDetails_agg{sum{someNumber}avg{someNumber}min{someNumber}max{someNumber}}}");
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/sum/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/avg/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/min/someNumber").asInt());
+      TestCase.assertEquals(6, agg.at("/PersonDetails_agg/max/someNumber").asInt());
 
       // delete
       execute(

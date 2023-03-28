@@ -18,6 +18,13 @@
       ]
     },
     {
+      "groupName": "nuxt",
+      "matchPackagePrefixes": [
+        "@nuxt",
+        "nuxt"
+      ]
+    },
+    {
       "groupName": "org.eclipse.rdf4j",
       "matchPackagePrefixes": [
         "org.eclipse.rdf4j"

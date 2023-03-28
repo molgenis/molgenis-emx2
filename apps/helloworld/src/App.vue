@@ -4,18 +4,10 @@
   </Molgenis>
 </template>
 
-<script>
+<script setup>
 import { Molgenis } from "molgenis-components";
+import { ref } from "vue";
 
-export default {
-  components: {
-    Molgenis,
-  },
-  data() {
-    return {
-      session: null,
-      page: null,
-    };
-  },
-};
+const session = ref(null);
+const page = ref(null);
 </script>

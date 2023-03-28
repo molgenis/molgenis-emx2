@@ -16,16 +16,11 @@ export default gql`
       inclusionStart
       inclusionEnd
       ageGroups {
+        order
         name
         code
-        order
-        definition
-        ontologyTermURI
         parent {
-          name
-        }
-        children {
-          name
+          code
         }
       }
       mainMedicalCondition {
@@ -43,9 +38,11 @@ export default gql`
       }
       countries {
         name
+        order
       }
       regions {
         name
+        order
       }
       inclusionCriteria
       supplementaryInformation

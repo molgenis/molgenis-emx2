@@ -27,15 +27,10 @@ export default gql`
       numberOfParticipants
       ageGroups {
         name
-        code
         order
-        definition
-        ontologyTermURI
+        code
         parent {
-          name
-        }
-        children {
-          name
+          code
         }
       }
       dataCategories {
