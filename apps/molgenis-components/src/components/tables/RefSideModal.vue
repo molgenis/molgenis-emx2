@@ -37,6 +37,7 @@ const props = withDefaults(
     label: string;
     showDataOwner?: boolean;
     schema: string;
+    refSchema: string;
     rows?: IRow[];
   }>(),
   {
@@ -44,7 +45,7 @@ const props = withDefaults(
     rows: () => [] as IRow[],
   }
 );
-const { label, rows, tableId, schema } = toRefs(props);
+const { label, rows, tableId, schema, refSchema } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
@@ -65,8 +66,8 @@ async function updateData() {
 
 async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
-  const externalSchemaClient = Client.newClient(schema.value);
-
+  const activeSchema = refSchema.value || schema.value;
+  const externalSchemaClient = Client.newClient(activeSchema);
   if (tableId.value !== "") {
     for (const row of rows.value) {
       const metadata = await externalSchemaClient

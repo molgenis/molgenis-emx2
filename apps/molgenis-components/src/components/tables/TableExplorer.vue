@@ -343,7 +343,8 @@
       :table-id="refSideModalProps?.table"
       :label="refSideModalProps?.label"
       :rows="refSideModalProps?.rows"
-      :schema="refSideModalProps?.schema"
+      :schema="this.schemaName"
+      :refSchema="refSideModalProps?.schema"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
