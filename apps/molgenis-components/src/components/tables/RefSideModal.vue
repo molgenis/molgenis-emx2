@@ -5,11 +5,11 @@
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-      <div v-for="(queryResult, index) in queryResults">
+      <div v-for="queryResult in queryResults">
         <RefTable
           :reference="queryResult"
           :showDataOwner="showDataOwner"
-          :startsCollapsed="index > 0"
+          :startsCollapsed="queryResults.length > 1"
         />
       </div>
     </div>

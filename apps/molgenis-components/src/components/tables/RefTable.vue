@@ -92,7 +92,7 @@ const props = defineProps<{
 const { reference, startsCollapsed } = toRefs(props);
 
 let filteredResults = computed(() => getFilteredResults(reference.value));
-let canCollapse = computed(() => Object.keys(filteredResults.value).length > 3);
+let canCollapse = computed(() => Object.keys(filteredResults.value).length > 5);
 let primaryKey = computed(() =>
   getPrimaryKey(reference.value, reference.value.metadata)
 );
