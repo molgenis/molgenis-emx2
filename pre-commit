@@ -8,7 +8,7 @@ echo '[git hook] executing gradle spotlessApply and format before commit'
 stagedFiles=$(git diff --staged --name-only)
 
 # run the spotlessCheck with the gradle wrapper
-./gradlew spotlessApply format --daemon
+./gradlew spotlessApply format
 
 # add the reformatted files
 for file in $stagedFiles; do
