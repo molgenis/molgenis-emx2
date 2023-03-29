@@ -7,11 +7,11 @@
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative">
+    <div class="z-30 relative min-h-screen flex flex-col">
       <slot name="header">
         <AppHeader />
       </slot>
-      <main>
+      <main class="mb-auto">
         <slot>
           <NuxtPage />
         </slot>
