@@ -77,7 +77,7 @@ subprojects {
         }
     }
 
-    
+
     if (project.name != "molgenis-emx2-sql") {
         test.dependsOn(":backend:molgenis-emx2-sql:test")
     } else {
