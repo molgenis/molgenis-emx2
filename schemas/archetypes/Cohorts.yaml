@@ -1,3 +1,4 @@
+name: Cohorts
 columns:
-  sourceDetails:
-    includeArchetype: Source
+  # include all from resource
+  Resource/*: { }

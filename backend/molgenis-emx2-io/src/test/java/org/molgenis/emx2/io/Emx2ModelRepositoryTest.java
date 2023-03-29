@@ -13,6 +13,7 @@ public class Emx2ModelRepositoryTest {
 
   @Test
   public void loadSchemaFile() throws JsonProcessingException {
+
     ClassLoader classLoader = getClass().getClassLoader();
     File archetypesDir = new File(classLoader.getResource("archetypes").getFile());
     File instancesDir = new File(classLoader.getResource("instances").getFile());

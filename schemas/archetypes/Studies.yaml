@@ -1,8 +1,5 @@
-licence:
-  name: Attribution 4.0 International (CC BY 4.0)
-  url: https://creativecommons.org/licenses/by/4.0
-rdf:
-  type: NCIT:C63536
+name: Studies
+uri: NCIT:C63536
 columns:
   Identifier:
     key: 1
@@ -11,6 +8,3 @@ columns:
   Name:
     description: A name that designates this study.
     uri: OMIABIS:0000037
-    rdf:
-      skos:exactMatch: OBI:0001622
-      sko:narrower: SIO:000185

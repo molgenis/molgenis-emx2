@@ -3,9 +3,10 @@ package org.molgenis.emx2.io.yaml;
 import java.util.Map;
 
 public class YamlBase {
-  private String uri;
+  private String uri; // can be a list
   private String name;
   private String description;
+  private String imports;
   private Map<String, String> rdf;
 
   public String getName() {
@@ -38,5 +39,13 @@ public class YamlBase {
 
   public void setRdf(Map<String, String> rdf) {
     this.rdf = rdf;
+  }
+
+  public String getImports() {
+    return imports;
+  }
+
+  public void setImports(String imports) {
+    this.imports = imports;
   }
 }

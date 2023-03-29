@@ -7,8 +7,9 @@ public class YamlColumn extends YamlBase {
   private Integer key;
   private String label;
   private Boolean required;
-  private String refs;
+  private String refTable;
   private String refBack;
+  private boolean allowOther;
   // for reusing purposes
   private String includeArchetype;
   private Map<String, YamlColumn> includeColumns;
@@ -53,12 +54,12 @@ public class YamlColumn extends YamlBase {
     this.key = key;
   }
 
-  public String getRefs() {
-    return refs;
+  public String getRefTable() {
+    return refTable;
   }
 
-  public void setRefs(String refs) {
-    this.refs = refs;
+  public void setRefTable(String refTable) {
+    this.refTable = refTable;
   }
 
   public String getRefBack() {
@@ -75,5 +76,13 @@ public class YamlColumn extends YamlBase {
 
   public void setLabel(String label) {
     this.label = label;
+  }
+
+  public boolean isAllowOther() {
+    return allowOther;
+  }
+
+  public void setAllowOther(boolean allowOther) {
+    this.allowOther = allowOther;
   }
 }

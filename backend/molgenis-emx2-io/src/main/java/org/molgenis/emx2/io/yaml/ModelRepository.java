@@ -34,17 +34,19 @@ public class ModelRepository {
 
   public static YamlTable readYamlTable(File file) {
     try {
+      YamlValidator.validate(mapper.readTree(file));
       return mapper.readValue(file, YamlTable.class);
     } catch (IOException e) {
-      throw new MolgenisException("Parsing " + file.getName() + " failed: " + e.getMessage());
+      throw new MolgenisException("Parsing " + file.getName() + " failed: \n" + e.getMessage());
     }
   }
 
   public static YamlSchema readYamlSchema(File file) {
     try {
+      YamlValidator.validate(mapper.readTree(file));
       return mapper.readValue(file, YamlSchema.class);
     } catch (IOException e) {
-      throw new MolgenisException("Parsing " + file.getName() + " failed: " + e.getMessage());
+      throw new MolgenisException("Parsing " + file.getName() + " failed: \n" + e.getMessage());
     }
   }
 

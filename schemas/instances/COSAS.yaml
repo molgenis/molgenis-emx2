@@ -1,20 +1,22 @@
+imports: ../archetypes
 tables:
-  archetypes: Subject
+  Studies: ~
+  # so we gonna use this table verbatim. Must make sure table names that are refered do exist
   Subjects:
     columns:
-      Subject/subjectId:
-        #this syntax allows us to override
+      Subjects/subjectId:
+        #this syntax allows us to override some details
         label: MDN_UMCGnr
-      Subject/belongsToFamily:
+      Subjects/belongsToFamily:
         label: Familienr
-      Subject/belongsToMother:
+      Subjects/belongsToMother:
         label: Moeder
-      Subject/belongsToFather:
+      Subjects/belongsToFather:
         label: Vader
         #nb, we probably would like to create a i18n type of feature for this?
         #ah, I think I now understand Davids format better
       Subject/*:
-      #this syntax allows to include all remaining columns from Subject verbatim
+      #this syntax allows to include all columns from Subject verbatim
 
 
 

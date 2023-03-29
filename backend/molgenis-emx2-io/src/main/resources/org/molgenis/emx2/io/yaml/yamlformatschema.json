@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "yaml format",
+  "description": "JSON representation of yaml schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "description": "Name of the table, schema or ontology",
+      "type": "string"
+    },
+    "plural": {
+      "description": "Plural version of the name",
+      "type": "string"
+    },
+    "description": {
+      "description": "Description of the table, schema or ontology",
+      "type": "string"
+    },
+    "uri": {
+      "description": "Semantic definition, might be prefix:id or url",
+      "type": "string"
+    },
+    "licence": {
+      "description": "Licence",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "prefixes": {
+      "description": "Map of prefixes",
+      "type": "object"
+    },
+    "imports": {
+      "description": "import location, if multiple seperate by semi-colon",
+      "type": "string"
+    },
+    "tables": {
+      "description": "In case this is a table. Each item has table definition OR can be imported table and then can be null",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/defs/table"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "columns": {
+      "$ref": "#/defs/columns"
+    }
+  },
+  "defs": {
+    "columns": {
+      "description": "Name of the table, schema or ontology",
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/defs/column"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "table": {
+      "description": "Table definition",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "columns": {
+          "$ref": "#/defs/columns"
+        }
+      }
+    },
+    "column": {
+      "description": "Column definition",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "description": "type of the column",
+          "type": "string",
+          "enum": [
+            "string",
+            "text",
+            "integer",
+            "decimal",
+            "date",
+            "datetime",
+            "select",
+            "multiselect",
+            "radio",
+            "checkbox",
+            "code",
+            "codelist",
+            "taxonomy",
+            "taxonomylist",
+            "refback",
+            "email",
+            "hyperlink"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "uri": {
+          "description": "semantic identifier of the column. Either URI or prefix:id",
+          "type": "string"
+        },
+        "key": {
+          "description": "indicate if a column is part of key. A key can have multiple columns",
+          "type": "integer"
+        },
+        "refTable": {
+          "description": "Reference to another table",
+          "type": "string"
+        },
+        "required": {
+          "description": "Whether a column is required",
+          "type": "boolean"
+        },
+        "allowOther": {
+          "description": "In case of code/taxonomy input, whether user can select 'other' to show a text input",
+          "type": "boolean"
+        },
+        "refBack": {
+          "description": "The column used to resolve a type=refback (which is following a reference in other direction)",
+          "type": "string"
+        },
+        "rdf": {
+          "description": "Map of "
+        }
+      }
+    }
+  }
+}

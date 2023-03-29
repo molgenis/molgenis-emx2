@@ -1,19 +1,21 @@
+name: Organisations
 columns:
-  includeResources:
-    includeArchetype: Resources
-    #get all columns from resources
+  Resources/*: ~
+  #get all columns from resources
   Organisation type:
-    type: ontology_with_other
-    refs: Organisation Types
+    type: codelist
+    allowOther: true
+    # so then the code is rendered with additional 'other' freetext field
+    refTable: Organisation Types
   institution:
     type: text
   address:
     type: text
   features:
-    type: ontology_array
-    refs: Organisation features
+    type: taxonomylist
+    refTable: Organisation features
   leading resources:
-    type: reverseLookup
-    refs: Resources
+    type: refback
+    refTable: Resources
     refBack: lead organisation
 

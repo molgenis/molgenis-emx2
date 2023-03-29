@@ -1,0 +1,19 @@
+name: Resource
+uri: dcat:Resource
+description: Represents a dataset. We use this as common super class for all kinds of resources. Compatible with DCAT resource.
+columns:
+  identifier:
+    key: 1
+    uri: dcterms:identifier
+  acronym:
+    key: 2
+  name:
+    key: 3
+  theme:
+    uri: dcat:theme
+  lead organisation:
+    type: select
+    refTable: Organisations
+  contact email:
+    type: email
+    description: contact email for this resource

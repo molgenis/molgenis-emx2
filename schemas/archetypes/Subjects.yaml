@@ -1,6 +1,5 @@
+name: Subjects
 uri: ExO:0000127
-standards:
-  fair-genomes: Subject
 columns:
   subjectID:
     key: 1
@@ -11,7 +10,7 @@ columns:
     description: A domestic group, or a number of domestic groups linked through descent (demonstrated or stipulated) from a common ancestor, marriage, or adoption.
     uri: NCIT:C25173
   belongsToMother:
-    type: xref
-    refs: Subjects
+    type: select
+    refTable: Subjects
     description: A designation that has some relationship to motherhood.
     uri: NCIT:C89336

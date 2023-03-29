@@ -42,7 +42,7 @@ pipeline {
                 }
                 container("java") {
                     sh "git config --global --add safe.directory '*'"
-                    sh 'git fetch --depth 100000'
+                    sh 'git fetch --depth 1000000'
                     sh "git config user.email \"molgenis@gmail.com\""
                     sh "git config user.name \"molgenis-jenkins\""
                     sh 'git config url.https://.insteadOf git://'

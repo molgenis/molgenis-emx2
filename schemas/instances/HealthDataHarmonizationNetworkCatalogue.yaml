@@ -1,4 +1,5 @@
+imports: ../archetypes
 tables:
-  Cohorts: { }
-  Data sources: { }
+  Cohorts: ~
+  Data sources: ~
   # using the archetypes as is
