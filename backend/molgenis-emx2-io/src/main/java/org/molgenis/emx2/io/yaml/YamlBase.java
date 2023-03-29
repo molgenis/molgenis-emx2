@@ -8,6 +8,7 @@ public class YamlBase {
   private String description;
   private String imports;
   private Map<String, String> rdf;
+  private Map<String, YamlAuthor> authors;
 
   public String getName() {
     return name;
@@ -47,5 +48,13 @@ public class YamlBase {
 
   public void setImports(String imports) {
     this.imports = imports;
+  }
+
+  public Map<String, YamlAuthor> getAuthors() {
+    return authors;
+  }
+
+  public void setAuthors(Map<String, YamlAuthor> authors) {
+    this.authors = authors;
   }
 }

@@ -1,3 +1,15 @@
+# TODO list
+
+* how to redirect references, potentially ability to link to the union of multiple tables
+* do we want a similar method like 'extends' or 'is_a'
+* how to best model standard compliance
+* mapping hints, e.g. how fields should be nested in beacon/json
+* how to merge, subset or extend ontologies
+* unit (we want human readible but also onology unit, makes most sense to use ontology type for this)
+* do we need ontolog on the relation? seehttps:
+  //github.com/fairgenomes/fairgenomes-semantic-model/blob/84e685d3880dde067246f7fb6ea7fd72438d529c/fair-genomes.yml#L215
+* LookupOne_NoGlobals?
+
 # core concepts
 
 ## archetypes

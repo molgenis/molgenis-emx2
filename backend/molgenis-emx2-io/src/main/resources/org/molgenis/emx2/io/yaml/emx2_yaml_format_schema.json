@@ -42,6 +42,22 @@
       "description": "import location, if multiple seperate by semi-colon",
       "type": "string"
     },
+    "authors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "Email address",
+            "type": "string"
+          },
+          "orcid": {
+            "description": "Unique orchid identifier",
+            "type": "string"
+          }
+        }
+      }
+    },
     "tables": {
       "description": "In case this is a table. Each item has table definition OR can be imported table and then can be null",
       "additionalProperties": {
