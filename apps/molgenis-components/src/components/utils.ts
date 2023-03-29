@@ -6,6 +6,11 @@ import constants from "./constants";
 const { CODE_0, CODE_9, CODE_BACKSPACE, CODE_DELETE, MIN_LONG, MAX_LONG } =
   constants;
 
+export function isRefType(columnType: string): boolean {
+  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
+    columnType
+  );
+}
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
   return (
@@ -34,12 +39,15 @@ export function flattenObject(object: Record<string, any>): string {
   }
 }
 
-export function getPrimaryKey(row: IRow, tableMetaData: ITableMetaData) {
+export function getPrimaryKey(
+  row: IRow,
+  tableMetaData: ITableMetaData
+): Record<string, any> | null {
   //we only have pkey when the record has been saved
-  if (!row["mg_insertedOn"] || !tableMetaData) {
+  if (!row["mg_insertedOn"] || !tableMetaData?.columns) {
     return null;
   } else {
-    return tableMetaData.columns?.reduce(
+    return tableMetaData.columns.reduce(
       (accum: Record<string, any>, column: IColumn) => {
         if (column.key === 1 && row[column.id]) {
           accum[column.id] = row[column.id];

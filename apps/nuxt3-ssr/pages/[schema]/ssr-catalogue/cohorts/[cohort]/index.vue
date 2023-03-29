@@ -28,12 +28,13 @@ const query = gql`
       collectionType {
         name
       }
-      populationAgeGroups ${loadGql(ontologyFragment)}
+      populationAgeGroups {
+        name order code parent { code }
+      }
       startYear
       endYear
       countries {
-        name
-        order
+        name order
       }
       regions {
         name
@@ -129,16 +130,14 @@ const variables = { id: route.params.cohort };
 
 let cohort: ICohort;
 
-const {
-  data: cohortData,
-  pending,
-  error,
-  refresh,
-} = await useFetch(`/${route.params.schema}/catalogue/graphql`, {
-  baseURL: config.public.apiBase,
-  method: "POST",
-  body: { query, variables },
-});
+const { data: cohortData, pending, error, refresh } = await useFetch(
+  `/${route.params.schema}/catalogue/graphql`,
+  {
+    baseURL: config.public.apiBase,
+    method: "POST",
+    body: { query, variables },
+  }
+);
 
 watch(cohortData, setData, {
   deep: true,
@@ -291,6 +290,8 @@ let fundingAndAcknowledgementItems = computed(() => {
 
   return items;
 });
+
+useHead({ title: cohort?.acronym || cohort?.name });
 </script>
 <template>
   <LayoutsDetailPage>
@@ -324,7 +325,7 @@ let fundingAndAcknowledgementItems = computed(() => {
         <ContentBlockIntro
           :image="cohort?.logo?.url"
           :link="cohort?.website"
-          :contact="`mailto:${cohort?.contactEmail}`"
+          :contact="cohort?.contactEmail"
         />
         <ContentBlockDescription
           id="Description"

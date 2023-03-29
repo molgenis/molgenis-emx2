@@ -31,7 +31,7 @@ defineProps<{
       {{ description }}
     </p>
     <NuxtLink :to="link">
-      <Button :label="title" type="primary" size="medium" />
+      <Button :label="'Browse ' + title" type="primary" size="medium" />
     </NuxtLink>
   </div>
 </template>

@@ -64,7 +64,7 @@ if (collectionEvent?.subcohorts?.length) {
 
 if (collectionEvent?.startYear || collectionEvent?.endYear) {
   items.push({
-    label: "Start/end year: ",
+    label: "Start/end year",
     content: filters.startEndYear(
       collectionEvent.startYear && collectionEvent.startYear.name
         ? collectionEvent.startYear.name
@@ -76,9 +76,7 @@ if (collectionEvent?.startYear || collectionEvent?.endYear) {
   });
 }
 
-let ageGroupsTree = [];
 if (collectionEvent?.ageGroups?.length) {
-  ageGroupsTree = buildOntologyTree(collectionEvent.ageGroups);
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
@@ -122,6 +120,8 @@ if (collectionEvent?.coreVariables?.length) {
     content: collectionEvent?.coreVariables,
   });
 }
+
+useHead({ title: collectionEvent?.name });
 </script>
 
 <template>
@@ -149,7 +149,16 @@ if (collectionEvent?.coreVariables?.length) {
           id="age_categories"
           title="Age categories"
         >
-          <ContentOntology :tree="ageGroupsTree" :collapse-all="false" />
+          <ul class="grid gap-1 pl-4 list-disc list-outside">
+            <li
+              v-for="ageGroup in removeChildIfParentSelected(
+                collectionEvent.ageGroups || []
+              ).sort((a, b) => a.order - b.order)"
+              :key="ageGroup.name"
+            >
+              {{ ageGroup.name }}
+            </li>
+          </ul>
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.dataCategories"

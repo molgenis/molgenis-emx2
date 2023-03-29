@@ -11,7 +11,7 @@ interface ICohort {
   };
   type: INameObject[];
   collectionType: INameObject[];
-  populationAgeGroups: INameObject[];
+  populationAgeGroups?: IOntologyNode[];
   startYear: number;
   endYear: number;
   countries: {
@@ -121,6 +121,7 @@ interface INetwork {
   name: string;
   description?: string;
   logo?: IUrlObject;
+  website?: string;
 }
 
 interface ITreeNode {

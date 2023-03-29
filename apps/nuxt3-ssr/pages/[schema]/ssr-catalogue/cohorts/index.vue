@@ -4,6 +4,8 @@ const router = useRouter();
 const config = useRuntimeConfig();
 const pageSize = 10;
 
+useHead({ title: "Cohorts" });
+
 const currentPage = ref(1);
 if (route.query?.page) {
   const queryPageNumber = Number(route.query?.page);
@@ -115,9 +117,8 @@ const filter = computed(() => {
   const filterVariables = buildFilterVariables();
 
   // append search to the sub tables if set
-  const searchTables = filters.find(
-    (f) => f.columnType === "_SEARCH"
-  )?.searchTables;
+  const searchTables = filters.find((f) => f.columnType === "_SEARCH")
+    ?.searchTables;
 
   if (searchTables) {
     searchTables.forEach((searchTable) => {

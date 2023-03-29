@@ -8,6 +8,9 @@
    upload in batch.
    (todo: define what data folder to use in what case)
 
+#### demo dataset
+By setting the ```MOLGENIS_INCLUDE_CATALOGUE_DEMO``` to ```true``` on server startup the demo catalogue is loaded.
+
 ## Updating existing schema
 
 Since 27 sep 2021 we have started to give catalogue schema a seperate version number. This can be found on first line of
