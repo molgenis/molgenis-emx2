@@ -1,4 +1,4 @@
 name: Cohorts
 columns:
   # include all from resource
-  Resource/*: { }
+  Resource/*: ~

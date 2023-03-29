@@ -9,6 +9,7 @@ columns:
     type: select
     refTable: Agent
     uri: dct:publisher
+    examples: UMCG
   title:
     type: text
     uri: dct:title

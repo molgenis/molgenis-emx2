@@ -160,6 +160,10 @@
         },
         "rdf": {
           "description": "Map of "
+        },
+        "examples": {
+          "description": "Provide some example to demonstrate how the column should be used",
+          "type": "string"
         }
       }
     }

@@ -10,6 +10,7 @@ public class YamlColumn extends YamlBase {
   private String refTable;
   private String refBack;
   private boolean allowOther;
+  private String examples;
   // for reusing purposes
   private String includeArchetype;
   private Map<String, YamlColumn> includeColumns;
@@ -84,5 +85,13 @@ public class YamlColumn extends YamlBase {
 
   public void setAllowOther(boolean allowOther) {
     this.allowOther = allowOther;
+  }
+
+  public String getExamples() {
+    return examples;
+  }
+
+  public void setExamples(String examples) {
+    this.examples = examples;
   }
 }
