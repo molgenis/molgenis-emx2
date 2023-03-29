@@ -71,8 +71,6 @@ if (hash) {
   themeFilename += `.${hash}`;
 }
 
-console.log('style hash: ' + hash)
-
 const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
