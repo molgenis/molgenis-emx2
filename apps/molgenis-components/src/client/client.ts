@@ -414,7 +414,7 @@ const columnNames = (
        if (
         //we always can expand singular refs
         ["REF", "ONTOLOGY"].includes(col.columnType)
-        //but we only expand list refs if we are on root level to not break server (keys should't contain these)
+        //but we only expand *_array refs if we are on root level to not break server (keys should't contain these)
         || (rootLevel && ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType))
        ) {
         result =
