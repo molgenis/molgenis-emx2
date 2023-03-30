@@ -5,13 +5,21 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class YamlSchemaValidator {
   public static void validate(JsonNode input) throws IOException {
-    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
+    File schemaFile =
+        new File(
+            YamlSchemaValidator.class
+                .getClassLoader()
+                .getResource("emx2_yaml_format_schema.json")
+                .getFile());
+
+    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
     JsonSchema jsonSchema =
         factory.getSchema(
             YamlSchemaValidator.class.getResourceAsStream("emx2_yaml_format_schema.json"));

@@ -9,8 +9,14 @@
 * do we need ontolog on the relation? seehttps:
   //github.com/fairgenomes/fairgenomes-semantic-model/blob/84e685d3880dde067246f7fb6ea7fd72438d529c/fair-genomes.yml#L215
 * LookupOne_NoGlobals?
+* decide if we give 'multiple: true' option instead of making seperate types in case of list
 
 # core concepts
+
+## Using schema.json
+
+There is a schema definition available as json schema at emx2_yaml_format_schema.json In IntelliJ you can apply these to your folders Languages & Frameworks >
+Schemas and DTDs < JSON Schema Mappings Then choose this file, set to version 7, and add Directory: schemas/archetypes and Directory: schemas/instances
 
 ## archetypes
 
