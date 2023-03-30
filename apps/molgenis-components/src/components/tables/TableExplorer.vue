@@ -338,14 +338,14 @@
         }}'?
       </p>
     </ConfirmModal>
-
     <RefSideModal
       v-if="refSideModalProps"
-      :table-id="refSideModalProps?.table"
-      :label="refSideModalProps?.label"
-      :rows="refSideModalProps?.rows"
+      :table-id="refSideModalProps.table"
+      :label="refSideModalProps.label"
+      :rows="refSideModalProps.rows"
+      :schema="this.schemaName"
+      :refSchema="refSideModalProps.schema"
       @onClose="refSideModalProps = undefined"
-      :client="client"
       :showDataOwner="canManage"
     />
   </div>
@@ -604,6 +604,7 @@ export default {
         this.refSideModalProps = {
           label: column.name,
           table: column.refTable,
+          schema: column.refSchema,
           rows,
         };
       }

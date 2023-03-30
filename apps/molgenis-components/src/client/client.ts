@@ -379,8 +379,8 @@ const request = async (url: string, graphql: string, variables?: any) => {
     .then((result: AxiosResponse) => {
       return result?.data?.data;
     })
-    .catch((error: AxiosError): string => {
-      const detailedErrorMessage = error?.response?.data?.errors
+    .catch((error: AxiosError<any>): string => {
+      const detailedErrorMessage = error.response?.data?.errors
         ?.map((error: { message: string }) => {
           return error.message;
         })
