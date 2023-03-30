@@ -402,6 +402,7 @@ const columnNames = (
   schemaName: string,
   tableName: string,
   metaData: ISchemaMetaData,
+  //allows expansion of ref fields to add their next layer of details. 
   expandLevel: number,
   //default is rootLevel listing of columnNames
   rootLevel: boolean = true
