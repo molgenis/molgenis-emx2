@@ -11,6 +11,7 @@ public class QueryBean implements Query {
   private SelectColumn select;
   private Filter filter;
   private String[] searchTerms = new String[0];
+  private Integer secondsTimeout = 10;
 
   public QueryBean() {
     this.select = new SelectColumn(null);
@@ -50,7 +51,7 @@ public class QueryBean implements Query {
       this.searchTerms = terms;
     } else {
       this.searchTerms =
-          Stream.of(this.searchTerms, terms).flatMap(Stream::of).toArray(String[]::new);
+              Stream.of(this.searchTerms, terms).flatMap(Stream::of).toArray(String[]::new);
     }
     return this;
   }
@@ -104,5 +105,16 @@ public class QueryBean implements Query {
   @Override
   public Map<String, Order> getOrderBy() {
     return this.select.getOrderBy();
+  }
+
+  @Override
+  public Query secondsTimeout(Integer seconds) {
+    this.secondsTimeout = seconds;
+    return this;
+  }
+
+  @Override
+  public Integer getSecondsTimeout() {
+    return secondsTimeout;
   }
 }
