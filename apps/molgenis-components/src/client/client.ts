@@ -402,15 +402,19 @@ const columnNames = (
   schemaName: string,
   tableName: string,
   metaData: ISchemaMetaData,
-  expandLevel: number
+  expandLevel: number,
+  //default is rootLevel listing of columnNames
+  rootLevel: boolean = true
 ) => {
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
     if (expandLevel > 0 || col.key == 1) {
-      if (["REF_ARRAY", "REFBACK","ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        //we don't expand these otherwise server will break down!
-      }
-      else if (["REF", "ONTOLOGY"].includes(col.columnType)) {
+       if (
+        //we always can expand singular refs
+        ["REF", "ONTOLOGY"].includes(col.columnType)
+        //but we only expand list refs if we are on root level to not break server
+        || (rootLevel && ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType))
+       ) {
         result =
           result +
           " " +
@@ -420,7 +424,9 @@ const columnNames = (
             col.refSchema ? col.refSchema : schemaName,
             col.refTable,
             metaData,
-            expandLevel - 1
+            expandLevel - 1,
+            //indicate that subqueries should not be expanded on ref_array, refback, ontology_array
+            false
           ) +
           "}";
       } else if (col.columnType === "FILE") {
