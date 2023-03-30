@@ -18,11 +18,8 @@ public class YamlSchemaValidator {
                 .getClassLoader()
                 .getResource("emx2_yaml_format_schema.json")
                 .getFile());
-
     JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-    JsonSchema jsonSchema =
-        factory.getSchema(
-            YamlSchemaValidator.class.getResourceAsStream("emx2_yaml_format_schema.json"));
+    JsonSchema jsonSchema = factory.getSchema(schemaFile.toURI());
     Set<ValidationMessage> errors = jsonSchema.validate(input);
     if (errors.size() > 0) {
       throw new IOException(
