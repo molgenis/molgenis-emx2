@@ -49,16 +49,21 @@ export const columnNames = (
         ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
       ) {
         // only list the keys but down not expand further
-        const refColumns = getTable(
-          col.refSchema ? col.refSchema : schemaName,
-          col.refTable,
-          metaData.tables
-        )?.columns;
-        const refColumnsIdString = refColumns
-          ?.filter((c) => c.key === 1)
-          .map((col) => col.id)
-          .join(" ");
-        result += ` ${col.id} { ${refColumnsIdString} }`;
+        result =
+          result +
+          " " +
+          col.id +
+          " {" +
+          columnNames(
+            col.refSchema ? col.refSchema : schemaName,
+            col.refTable,
+            metaData,
+            //should only include the keys by setting level to 0
+            0,
+            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
+            false
+          ) +
+          " }";
       } else if (col.columnType === "FILE") {
         result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
