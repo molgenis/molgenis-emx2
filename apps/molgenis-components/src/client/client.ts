@@ -408,6 +408,7 @@ const columnNames = (
 ) => {
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
+    //we always expand the subfields of key=1, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key == 1) {
        if (
         //we always can expand singular refs
