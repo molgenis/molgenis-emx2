@@ -278,6 +278,10 @@ public class SqlQuery extends QueryBean {
 
     long start = System.currentTimeMillis();
     String result = query.fetchOne().get(0, String.class);
+    
+    //set timeout so we don't kill server with queries
+    query.queryTimeout(100000);
+   
     if (logger.isInfoEnabled()) {
       logger.info(
           "query in {}ms: {}", System.currentTimeMillis() - start, query.getSQL(ParamType.INLINED));
