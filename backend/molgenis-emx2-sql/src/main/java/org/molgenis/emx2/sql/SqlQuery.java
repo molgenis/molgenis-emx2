@@ -128,6 +128,7 @@ public class SqlQuery extends QueryBean {
       if (logger.isInfoEnabled()) {
         logger.info(query.getSQL(ParamType.INLINED));
       }
+      query.queryTimeout(getSecondsTimeout());
       Result<org.jooq.Record> fetch = query.fetch();
       for (org.jooq.Record r : fetch) {
         result.add(new SqlRow(r));
