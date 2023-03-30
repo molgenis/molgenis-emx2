@@ -407,7 +407,10 @@ const columnNames = (
   let result = "";
   getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
     if (expandLevel > 0 || col.key == 1) {
-      if (isRefType(col.columnType)) {
+      if (["REF_ARRAY", "REFBACK","ONTOLOGY_ARRAY"].includes(col.columnType)) {
+        //we don't expand these otherwise server will break down!
+      }
+      else if (["REF", "ONTOLOGY"].includes(col.columnType)) {
         result =
           result +
           " " +
