@@ -41,14 +41,28 @@ export const columnNames = (
             col.refTable,
             metaData,
             expandLevel - 1,
-            //indicate that subqueries should not be expanded on ref_array, refback, ontology_array
+            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
             false
           ) +
           " }";
+      } else if (
+        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
+      ) {
+        // only list the keys but down not expand further
+        const refColumns = getTable(
+          col.refSchema ? col.refSchema : schemaName,
+          col.refTable,
+          metaData.tables
+        )?.columns;
+        const refColumnsIdString = refColumns
+          ?.filter((c) => c.key === 1)
+          .map((col) => col.id)
+          .join(" ");
+        result += ` ${col.id} { ${refColumnsIdString} }`;
       } else if (col.columnType === "FILE") {
-        result = result + " " + col.id + "{id,size,extension,url}";
+        result += ` ${col.id} { id, size, extension, url }`;
       } else if (col.columnType !== "HEADING") {
-        result = result + " " + col.id;
+        result += ` ${col.id}`;
       }
     }
   });
