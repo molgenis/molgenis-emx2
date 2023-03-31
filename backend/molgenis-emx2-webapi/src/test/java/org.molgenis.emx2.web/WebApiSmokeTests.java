@@ -458,7 +458,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
 
     // read admin password from environment if necessary
     String adminPass =
@@ -526,7 +526,7 @@ public class WebApiSmokeTests {
             .when()
             .post(path)
             .asString();
-    assertTrue(result.contains("Error"));
+    assertTrue(result.contains("errors"));
   }
 
   @Test
