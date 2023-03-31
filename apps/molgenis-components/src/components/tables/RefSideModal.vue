@@ -5,9 +5,12 @@
     </div>
     <div v-else>
       <MessageError v-if="errorMessage">{{ errorMessage }}</MessageError>
-
       <div v-for="queryResult in queryResults">
-        <RefTable :reference="queryResult" :showDataOwner="showDataOwner" />
+        <RefTable
+          :reference="queryResult"
+          :showDataOwner="showDataOwner"
+          :startsCollapsed="queryResults.length > 1"
+        />
       </div>
     </div>
     <template v-slot:footer="slot">
@@ -18,21 +21,23 @@
 
 <script lang="ts" setup>
 import { ref, toRefs, watch } from "vue";
-import { INewClient } from "../../client/IClient";
+import Client from "../../client/client";
 import { IRefModalData } from "../../Interfaces/IRefModalData";
 import { IRow } from "../../Interfaces/IRow";
 import ButtonAction from "../forms/ButtonAction.vue";
 import MessageError from "../forms/MessageError.vue";
+import Spinner from "../layout/Spinner.vue";
 import { getPrimaryKey } from "../utils";
-import SideModal from "./SideModal.vue";
 import RefTable from "./RefTable.vue";
+import SideModal from "./SideModal.vue";
 
 const props = withDefaults(
   defineProps<{
+    schema?: string;
     tableId: string;
     label: string;
     showDataOwner?: boolean;
-    client: INewClient;
+    refSchema?: string;
     rows?: IRow[];
   }>(),
   {
@@ -40,14 +45,16 @@ const props = withDefaults(
     rows: () => [] as IRow[],
   }
 );
-const { client, label, rows, tableId } = toRefs(props);
+const { label, rows, tableId } = toRefs(props);
 
 const emit = defineEmits(["onClose"]);
 
 let loading = ref(true);
 let queryResults = ref([] as IRefModalData[]);
 let errorMessage = ref("");
+
 updateData();
+
 watch([tableId, label, rows], () => {
   updateData();
 });
@@ -61,17 +68,22 @@ async function updateData() {
 
 async function getRowData(): Promise<IRefModalData[]> {
   let newQueryResults: IRefModalData[] = [];
+  const activeSchema = props.refSchema || props.schema;
+  const externalSchemaClient = Client.newClient(activeSchema);
   if (tableId.value !== "") {
     for (const row of rows.value) {
-      const metaData = await client.value.fetchTableMetaData(tableId.value);
-      const primaryKey = getPrimaryKey(row, metaData);
+      const metadata = await externalSchemaClient.fetchTableMetaData(
+        tableId.value
+      );
+      const primaryKey = getPrimaryKey(row, metadata);
+
       if (primaryKey) {
-        const queryResult = await client.value
+        const queryResult = await externalSchemaClient
           .fetchRowData(tableId.value, primaryKey)
           .catch(() => {
             errorMessage.value = "Failed to load reference data";
           });
-        queryResult.metaData = metaData;
+        queryResult.metadata = metadata;
         newQueryResults.push(queryResult);
       }
     }
@@ -89,7 +101,8 @@ async function getRowData(): Promise<IRefModalData[]> {
     :isVisible="showModal"
     @onClose="showModal = false"
   />
-  <br /><button @click="showModal = !showModal">Toggle modal</button>
+  <br />
+  <button @click="showModal = !showModal">Toggle modal</button>
 </template>
 <script>
 export default {

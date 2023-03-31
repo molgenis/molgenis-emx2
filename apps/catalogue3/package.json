@@ -28,6 +28,6 @@
     "@vitejs/plugin-vue": "3.2.0",
     "graphql-tag": "2.12.6",
     "vite": "4.1.4",
-    "prettier": "2.8.4"
+    "prettier": "2.8.7"
   }
 }

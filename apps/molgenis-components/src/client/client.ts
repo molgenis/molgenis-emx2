@@ -6,6 +6,7 @@ import { ITableMetaData } from "../Interfaces/ITableMetaData";
 import { IQueryMetaData } from "./IQueryMetaData";
 import { ISetting } from "../Interfaces/ISetting";
 import { IClient, INewClient } from "./IClient";
+import { columnNames } from "./queryBuilder";
 
 export { request };
 const client: IClient = {
@@ -379,68 +380,14 @@ const request = async (url: string, graphql: string, variables?: any) => {
     .then((result: AxiosResponse) => {
       return result?.data?.data;
     })
-    .catch((error: AxiosError): string => {
-      const detailedErrorMessage = error?.response?.data?.errors
+    .catch((error: AxiosError<any>): string => {
+      const detailedErrorMessage = error.response?.data?.errors
         ?.map((error: { message: string }) => {
           return error.message;
         })
         .join(". ");
       throw detailedErrorMessage || error.message;
     });
-};
-
-/**
- * @param {String} schemaName - schema where initial table is in
- * @param {String} tableName
- * @param {Object} metaData - object that contains all schema meta data
- * @param {Number} expandLevel - how many levels of grahpql should be expanded
- * @returns String of fields for use in gql query.
- * key=1 fields will always be expanded.
- * Other fields until level is reached
- */
-const columnNames = (
-  schemaName: string,
-  tableName: string,
-  metaData: ISchemaMetaData,
-  expandLevel: number
-) => {
-  let result = "";
-  getTable(schemaName, tableName, metaData.tables)?.columns?.forEach((col) => {
-    if (expandLevel > 0 || col.key == 1) {
-      if (isRefType(col.columnType)) {
-        result =
-          result +
-          " " +
-          col.id +
-          "{" +
-          columnNames(
-            col.refSchema ? col.refSchema : schemaName,
-            col.refTable,
-            metaData,
-            expandLevel - 1
-          ) +
-          "}";
-      } else if (col.columnType === "FILE") {
-        result = result + " " + col.id + "{id,size,extension,url}";
-      } else if (col.columnType !== "HEADING") {
-        result = result + " " + col.id;
-      }
-    }
-  });
-  return result;
-};
-
-const getTable = (
-  schemaName: string,
-  tableName: string,
-  tableStore: ITableMetaData[]
-) => {
-  const result = tableStore.find(
-    (table) =>
-      table.id === convertToPascalCase(tableName) &&
-      table.externalSchema === schemaName
-  );
-  return result;
 };
 
 const isFileValue = (value: File) => {

@@ -1,23 +1,37 @@
 <script setup>
 import BackgroundGradient from "./components/BackgroundGradient.vue";
+import { hash } from "./utils/fingerprint.js";
 
-defineProps(['error'])
+defineProps(["error"]);
 
-const config = useRuntimeConfig()
-console.log(config.public)
-const href = config.public.emx2Theme ? `/_nuxt-styles/css/styles.${config.public.emx2Theme}.css` : '/_nuxt-styles/css/styles.css'
+const config = useRuntimeConfig();
+
+let themeFilename = "styles";
+if (config.public.emx2Theme) {
+  themeFilename += `.${config.public.emx2Theme}`;
+}
+if (hash) {
+  themeFilename += `.${hash}`;
+}
+
+const styleHref = `/_nuxt-styles/css/${themeFilename}.css`;
 useHead({
-  link: [
-    { rel: 'stylesheet', type: 'text/css', href }
-  ]
+  link: [{ rel: "stylesheet", type: "text/css", href: styleHref }],
+  titleTemplate: (titleChunk) => {
+    return titleChunk
+      ? `${titleChunk} | ${config.siteTitle}`
+      : `${config.siteTitle}`;
+  },
 });
-
 </script>
 
 <template>
   <div
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden">
-    <div class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient">
+    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
+  >
+    <div
+      class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
+    >
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative">
@@ -28,8 +42,12 @@ useHead({
               <div class="items-center justify-between hidden xl:flex h-25">
                 <Logo />
               </div>
-              <div class="font-display text-heading-7xl">Oops!, something went wrong.</div>
-              <div class="py-5 text-heading-7xl">Status code: {{ error.statusCode }}</div>
+              <div class="font-display text-heading-7xl">
+                Oops!, something went wrong.
+              </div>
+              <div class="py-5 text-heading-7xl">
+                Status code: {{ error.statusCode }}
+              </div>
 
               <div v-if="error.message" class="py-5 text-xl">
                 <p>Message: {{ error.message }}</p>
@@ -39,10 +57,8 @@ useHead({
               </div>
             </div>
           </div>
-
         </slot>
       </main>
-
     </div>
   </div>
 </template>
