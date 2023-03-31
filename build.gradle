@@ -187,9 +187,18 @@ task cleandb(type: JavaExec) {
     main = "org.molgenis.emx2.AToolToCleanDatabase"
 }
 
-//task that can be use to install pre-commit hook
-task installPreCommitGitFormattingHook(type: Copy) {
-    from new File(rootProject.rootDir, 'pre-commit')
+//task to install pre-commit hook that applies formatting
+task installPreCommitGitFormatApplyHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-apply')
     into { new File(rootProject.rootDir, '.git/hooks') }
+    rename 'pre-commit-format-apply', 'pre-commit'
+    fileMode 0775
+}
+
+//task to install pre-commit hook that only checks formatting
+task installPreCommitGitFormatCheckHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-commit-format-check')
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    rename 'pre-commit-format-check', 'pre-commit'
     fileMode 0775
 }
