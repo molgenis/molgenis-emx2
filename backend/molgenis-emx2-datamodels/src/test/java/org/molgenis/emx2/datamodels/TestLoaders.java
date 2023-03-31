@@ -103,7 +103,7 @@ public class TestLoaders {
     cleanSharedSchemas();
 
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING3.install(networkStaging3, true);
-    assertEquals(17, networkStaging3.getTableNames().size());
+    assertEquals(16, networkStaging3.getTableNames().size());
 
     // cleanup because shared schema
     database.dropSchemaIfExists("NetworkStaging3");
