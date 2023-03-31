@@ -83,7 +83,7 @@ function isAFilterSet(filters) {
             </small>
           </Button>
           <template #popper>
-            <ul style="list-style-type: disc;" class="pl-3 min-w-95">
+            <ul style="list-style-type: disc" class="pl-3 min-w-95">
               <li v-for="item in filter?.conditions">{{ item.name }}</li>
             </ul>
           </template>

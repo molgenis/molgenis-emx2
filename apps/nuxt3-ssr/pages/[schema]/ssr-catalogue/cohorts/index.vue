@@ -117,8 +117,9 @@ const filter = computed(() => {
   const filterVariables = buildFilterVariables();
 
   // append search to the sub tables if set
-  const searchTables = filters.find((f) => f.columnType === "_SEARCH")
-    ?.searchTables;
+  const searchTables = filters.find(
+    (f) => f.columnType === "_SEARCH"
+  )?.searchTables;
 
   if (searchTables) {
     searchTables.forEach((searchTable) => {
