@@ -28,6 +28,7 @@ subprojects {
             googleJavaFormat('1.15.0')
         }
     }
+    compileJava.dependsOn 'spotlessApply'
 
     /* default dependencies for all projects*/
     dependencies {

@@ -25,6 +25,7 @@ subprojects {
     }
 
     //disable yarn_install, only parent should run install in yarn workspaces
+    yarn_install.enabled = false;
     yarnSetup.dependsOn parent.yarnSetup
     npmSetup.dependsOn parent.npmSetup
     nodeSetup.dependsOn parent.nodeSetup
@@ -53,31 +54,7 @@ subprojects {
         outputs.cacheIf { true }
     }
 
-    task checkFormat(type: YarnTask, dependsOn: parent.yarn_install) {
-        args = ['run', 'checkFormat']
-        if (project.name == 'nuxt3-ssr') {
-            outputs.dir('components')
-            outputs.dir('composables')
-            outputs.dir('gql')
-            outputs.dir('interfaces')
-            outputs.dir('pages')
-            outputs.dir('plugins')
-            outputs.dir('utils')
-            inputs.files(fileTree('components'))
-            inputs.files(fileTree('composables'))
-            inputs.files(fileTree('gql'))
-            inputs.files(fileTree('interfaces'))
-            inputs.files(fileTree('pages'))
-            inputs.files(fileTree('plugins'))
-            inputs.files(fileTree('utils'))
-        } else {
-            inputs.files(fileTree('src'))
-            outputs.dir('src')
-        }
-        outputs.cacheIf { true }
-    }
-
-    task build(type: YarnTask, dependsOn: parent.yarn_install) {
+    task build(type: YarnTask, dependsOn: format) {
         // force build order: molgenis-components > ...apps
         if (project.name != 'molgenis-components') {
             dependsOn ":apps:molgenis-components:build"
@@ -132,7 +109,6 @@ subprojects {
 
         delete "${project.parent.buildDir}/resources/main/public_html/apps/${project.name}"
     }
-
 
     if (project.name == 'molgenis-components') {
         task buildComponentsShowcase(type: YarnTask, dependsOn: build) {
