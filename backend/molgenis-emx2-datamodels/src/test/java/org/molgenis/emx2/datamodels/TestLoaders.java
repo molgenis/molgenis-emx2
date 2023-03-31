@@ -91,7 +91,7 @@ public class TestLoaders {
     cleanSharedSchemas();
 
     AvailableDataModels.DATA_CATALOGUE_COHORT_STAGING3.install(cohortStaging3, true);
-    assertEquals(17, cohortStaging3.getTableNames().size());
+    assertEquals(19, cohortStaging3.getTableNames().size());
 
     // cleanup because shared schema
     database.dropSchemaIfExists("CohortStaging3");
@@ -103,7 +103,7 @@ public class TestLoaders {
     cleanSharedSchemas();
 
     AvailableDataModels.DATA_CATALOGUE_NETWORK_STAGING3.install(networkStaging3, true);
-    assertEquals(13, networkStaging3.getTableNames().size());
+    assertEquals(16, networkStaging3.getTableNames().size());
 
     // cleanup because shared schema
     database.dropSchemaIfExists("NetworkStaging3");
