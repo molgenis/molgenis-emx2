@@ -68,7 +68,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
       class="bg-white shadow-primary justify-around flex flex-row px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
     >
       <LandingCardPrimary
-        title="View Cohorts"
+        title="Cohorts"
         description="A complete overview of all cohorts and biobanks within the UMCG."
         :count="data.data.Cohorts_agg.count"
         :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
