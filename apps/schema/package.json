@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "format": "prettier src  --write --config ../.prettierrc.js"
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --write --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.29.1",
