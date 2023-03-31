@@ -526,7 +526,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
-      } catch (DataAccessException e) {
+      } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);
       }
     }
