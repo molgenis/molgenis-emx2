@@ -11,23 +11,32 @@ public class SqlMolgenisException extends MolgenisException {
   }
 
   public SqlMolgenisException(String title, Exception e) {
-    super(title, e);
-  }
-
-  public SqlMolgenisException(String title, DataAccessException dae) {
-    super(title + ": " + getTitle(dae) + "." + getDetail(dae), dae);
+    super(
+        e instanceof DataAccessException
+            ? title
+                + ": "
+                + getTitle((DataAccessException) e)
+                + ". Details: "
+                + getDetail((DataAccessException) e)
+            : title,
+        e);
   }
 
   private static String getTitle(DataAccessException dae) {
     if (dae.getCause() instanceof PSQLException) {
       PSQLException cause = (PSQLException) dae.getCause();
       if (cause.getServerErrorMessage() != null) {
-        return cause.getServerErrorMessage().getMessage();
+        String message = cause.getServerErrorMessage().getMessage();
+        if (message.equals("canceling statement due to user request")) {
+          message = "canceling statement due to timeout or user request";
+        }
+        return message;
       } else {
         return cause.getMessage();
       }
+    } else {
+      return dae.getMessage();
     }
-    return dae.getMessage();
   }
 
   private static String getDetail(DataAccessException dae) {
