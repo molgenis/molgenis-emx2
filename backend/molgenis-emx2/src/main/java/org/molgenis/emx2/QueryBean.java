@@ -51,7 +51,7 @@ public class QueryBean implements Query {
       this.searchTerms = terms;
     } else {
       this.searchTerms =
-          Stream.of(this.searchTerms, terms).flatMap(Stream::of).toArray(String[]::new);
+              Stream.of(this.searchTerms, terms).flatMap(Stream::of).toArray(String[]::new);
     }
     return this;
   }

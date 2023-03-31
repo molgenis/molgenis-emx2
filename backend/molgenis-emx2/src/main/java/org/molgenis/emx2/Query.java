@@ -5,35 +5,36 @@ import java.util.Map;
 
 public interface Query {
 
-  Query select(SelectColumn... columns);
+    Query select(SelectColumn... columns);
 
-  Query where(Filter... filters);
+    Query where(Filter... filters);
 
-  Query search(String... terms);
+    Query search(String... terms);
 
-  Query limit(int limit);
+    Query limit(int limit);
 
-  Query offset(int offset);
+    Query offset(int offset);
 
-  Query orderBy(Map<String, Order> values);
+    Query orderBy(Map<String, Order> values);
 
-  Query orderBy(String column);
+    Query orderBy(String column);
 
-  Query orderBy(String column, Order order);
+    Query orderBy(String column, Order order);
 
-  Query secondsTimeout(Integer second);
+    Query secondsTimeout(Integer second);
 
-  List<Row> retrieveRows();
+    List<Row> retrieveRows();
 
-  String retrieveJSON();
+    String retrieveJSON();
 
-  Filter getFilter();
+    Filter getFilter();
 
-  SelectColumn getSelect();
+    SelectColumn getSelect();
 
-  String[] getSearchTerms();
+    String[] getSearchTerms();
 
-  Map<String, Order> getOrderBy();
+    Map<String, Order> getOrderBy();
 
-  Integer getSecondsTimeout();
+    Integer getSecondsTimeout();
+
 }
