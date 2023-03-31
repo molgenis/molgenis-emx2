@@ -18,6 +18,9 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
     working_directory: ~/repo
+    
+    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
+    resource_class: large    
 
     environment:
       # Customize the JVM maximum heap limit
@@ -106,8 +109,6 @@ jobs:
             MOLGENIS_POSTGRES_USER: molgenis
             MOLGENIS_POSTGRES_PASS: molgenis
             MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-    # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
-    resource_class: large
 
 #      # push ssr-catalogue to repo (enable if Jenkinsfile offline)
 #      - run: |
