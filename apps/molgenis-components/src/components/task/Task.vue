@@ -82,23 +82,22 @@ function sleep(ms: number) {
 <template>
   <div>
     <demo-item>
-      <InputString id="task-id-input" v-model="taskId"/>
+      <InputString id="task-id-input" v-model="taskId" />
       <ButtonAction v-if="!showTask" v-on:click="showTask = true"
-      >Send
-      </ButtonAction
+        >Send</ButtonAction
       >
-      <Task v-if="showTask" :taskId="taskId"/>
+      <Task v-if="showTask" :taskId="taskId" />
     </demo-item>
   </div>
 </template>
 <script>
-  export default {
-    data: function () {
-      return {
-        taskId: "not existing taskId",
-        showTask: false,
-      };
-    },
-  };
+export default {
+  data: function () {
+    return {
+      taskId: "not existing taskId",
+      showTask: false,
+    };
+  },
+};
 </script>
 </docs>
